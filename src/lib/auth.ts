@@ -5,6 +5,12 @@ import { twoFactor } from "better-auth/plugins";
 import { db } from "@/lib/db";
 
 export const auth = betterAuth({
+  secret: (() => {
+    if (!process.env.BETTER_AUTH_SECRET) {
+      throw new Error("BETTER_AUTH_SECRET environment variable is not set");
+    }
+    return process.env.BETTER_AUTH_SECRET;
+  })(),
   database: drizzleAdapter(db, {
     provider: "pg",
   }),
