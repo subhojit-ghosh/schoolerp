@@ -34,9 +34,19 @@ describe("BUILT_IN_ROLES", () => {
     const slugs = BUILT_IN_ROLES.map((r) => r.slug);
     expect(new Set(slugs).size).toBe(slugs.length);
   });
+
+  test("super_admin is isSystem true and isConfigurable false", () => {
+    const superAdmin = BUILT_IN_ROLES.find((r) => r.slug === "super_admin");
+    expect(superAdmin?.isSystem).toBe(true);
+    expect(superAdmin?.isConfigurable).toBe(false);
+  });
 });
 
 describe("BUILT_IN_PERMISSIONS", () => {
+  test("contains exactly 17 built-in permissions", () => {
+    expect(BUILT_IN_PERMISSIONS).toHaveLength(17);
+  });
+
   test("all permission slugs are valid resource:action format", () => {
     expect(BUILT_IN_PERMISSIONS.every((p) => isValidPermissionSlug(p.slug))).toBe(true);
   });
