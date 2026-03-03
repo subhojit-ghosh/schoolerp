@@ -30,6 +30,38 @@ Use the new standalone CLI `bunx auth` (not the deprecated `@better-auth/cli`):
 - `drizzle.config.ts` schema must include both files: `["./src/lib/schema.ts", "./src/lib/auth-schema.ts"]`
 - `drizzle-kit` does **not** auto-load `.env.local`. Use `bun --env-file=.env.local drizzle-kit <cmd>` or the `db:studio` / `seed` scripts which already include this flag.
 
+## Forms
+
+**All forms must use `react-hook-form` + `zod`.** No exceptions.
+
+Pattern (following https://ui.shadcn.com/docs/forms/react-hook-form):
+
+```tsx
+"use client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const schema = z.object({
+  email: z.string().email(),
+});
+
+type FormValues = z.infer<typeof schema>;
+
+export function MyForm() {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: { email: "" },
+  });
+
+  function onSubmit(values: FormValues) { ... }
+
+  return <form onSubmit={form.handleSubmit(onSubmit)}>...</form>;
+}
+```
+
+Packages installed: `react-hook-form`, `zod`, `@hookform/resolvers`.
+
 ## Framework Discoveries
 
 > **For AI agents:** When you discover something non-obvious about the framework, library version behavior, or a gotcha that bit us — add it here so future agents don't repeat the mistake.
