@@ -245,7 +245,8 @@ school-b.erp.com → resolves to institution via slug
      → if empty → 403 (no active role = no access, explicit rule)
 
 7. Enforce 2FA (BEFORE permission resolution — avoids unnecessary DB queries):
-     if ANY resolved role has role_type='platform' OR slug='institution_admin'
+     if ANY resolved role has role_type='platform'
+        OR (role_type='system' AND slug='institution_admin')
        AND session 2FA not verified → 401 (redirect to 2FA challenge)
      Note: checks ANY role, not primary role (handles multi-role users)
 
