@@ -15,3 +15,15 @@ Database we use - PostgreSQL
 ORM we use - Drizzle (https://orm.drizzle.team)
 
 Keep all the plans in `./docs/plans`.
+
+## Tool Commands
+
+### Better Auth CLI
+Use the new standalone CLI `bunx auth` (not the deprecated `@better-auth/cli`):
+- `bunx auth generate --adapter drizzle --dialect postgresql` — generate Drizzle schema
+- `bunx auth migrate` — run database migrations
+- `bunx auth init` — scaffold full setup interactively
+
+### Drizzle
+- `bunx drizzle-kit generate` — generate migration files from schema
+- `bunx drizzle-kit migrate` — apply migrations
