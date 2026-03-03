@@ -20,10 +20,11 @@ Keep all the plans in `./docs/plans`.
 
 ### Better Auth CLI
 Use the new standalone CLI `bunx auth` (not the deprecated `@better-auth/cli`):
-- `bunx auth generate --adapter drizzle --dialect postgresql` — generate Drizzle schema
-- `bunx auth migrate` — run database migrations
+- `bunx auth generate --adapter drizzle --dialect postgresql` — generate Drizzle schema into `src/lib/auth-schema.ts`
+- `bunx auth migrate` — only works with Kysely adapter; with Drizzle use drizzle-kit instead
 - `bunx auth init` — scaffold full setup interactively
 
 ### Drizzle
 - `bunx drizzle-kit generate` — generate migration files from schema
 - `bunx drizzle-kit migrate` — apply migrations
+- `drizzle.config.ts` schema must include both files: `["./src/lib/schema.ts", "./src/lib/auth-schema.ts"]`
