@@ -93,7 +93,7 @@ export const organization = pgTable(
     createdAt: timestamp("created_at").notNull(),
     metadata: text("metadata"),
     institutionType: text("institution_type"),
-    status: text("status").default("active"),
+    status: text("status", { enum: ["active", "suspended"] }).default("active"),
   },
   (table) => [uniqueIndex("organization_slug_uidx").on(table.slug)],
 );

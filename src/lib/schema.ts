@@ -1,5 +1,6 @@
 // src/lib/schema.ts
 import { pgTable, text, boolean, timestamp, date, primaryKey, unique, index } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 // --- Academic Years ---
 export const academicYears = pgTable(
@@ -36,7 +37,13 @@ export const roles = pgTable(
     deletedAt: timestamp("deleted_at"),
   },
   (t) => [
+    // For institution-scoped custom roles: slug must be unique per institution
     unique("roles_slug_institution_unique").on(t.slug, t.institutionId),
+    // For global preset roles (institution_id IS NULL): slug must be globally unique
+    // This partial unique index handles the NULL case (PostgreSQL NULL != NULL in unique constraints)
+    index("roles_slug_global_unique_idx")
+      .on(t.slug)
+      .where(sql`institution_id IS NULL`),
   ],
 );
 
