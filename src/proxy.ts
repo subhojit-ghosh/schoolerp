@@ -6,7 +6,7 @@ import { resolveInstitutionFromRequest } from "@/lib/auth/tenant";
 const isPublicRoute = (path: string) =>
   path.startsWith("/auth/") || path === "/auth" || path.startsWith("/api/auth");
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip auth for public routes
