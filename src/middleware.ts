@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { resolveInstitutionFromRequest } from "@/lib/auth/tenant";
 
-// Routes that bypass authentication entirely
-const PUBLIC_ROUTES = ["/auth", "/api/auth"];
+// Routes that bypass authentication
+const isPublicRoute = (path: string) =>
+  path.startsWith("/auth/") || path === "/auth" || path.startsWith("/api/auth");
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Skip auth for public routes
-  if (PUBLIC_ROUTES.some((p) => pathname.startsWith(p))) {
+  if (isPublicRoute(pathname)) {
     return NextResponse.next();
   }
 
@@ -35,14 +36,13 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  // 4. Pass resolved context downstream via response headers
-  const response = NextResponse.next();
+  // 4. Pass resolved context to downstream route handlers via request headers
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-user-id", session.user.id);
   if (institutionSlug) {
-    response.headers.set("x-institution-slug", institutionSlug);
+    requestHeaders.set("x-institution-slug", institutionSlug);
   }
-  response.headers.set("x-user-id", session.user.id);
-
-  return response;
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {

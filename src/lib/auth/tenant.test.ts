@@ -31,4 +31,10 @@ describe("resolveInstitutionFromRequest", () => {
     const slug = resolveInstitutionFromRequest(url, null);
     expect(slug).toBeNull();
   });
+
+  test("ignores app subdomain", () => {
+    const url = new URL("https://app.erp.com/dashboard");
+    const slug = resolveInstitutionFromRequest(url, null);
+    expect(slug).toBeNull();
+  });
 });

@@ -8,7 +8,8 @@
     "start": "bun --bun next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint",
-    "seed": "bun run src/lib/auth/run-seed.ts"
+    "seed": "bun run src/lib/auth/run-seed.ts",
+    "db:studio": "bunx drizzle-kit studio"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
