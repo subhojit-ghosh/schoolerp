@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { BUILT_IN_ROLES, BUILT_IN_PERMISSIONS, ROLE_PERMISSIONS } from "./seed";
-import { isValidPermissionSlug } from "./permissions";
+import { BUILT_IN_ROLES, BUILT_IN_PERMISSIONS, ROLE_PERMISSIONS } from "./index";
+import { isValidPermissionSlug } from "@/lib/auth/permissions";
 
 describe("BUILT_IN_ROLES", () => {
   test("contains exactly 9 built-in roles", () => {

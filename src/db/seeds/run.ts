@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { roles, permissions, rolePermissions } from "@/lib/schema";
-import { BUILT_IN_ROLES, BUILT_IN_PERMISSIONS, ROLE_PERMISSIONS } from "./seed";
+import { BUILT_IN_ROLES, BUILT_IN_PERMISSIONS, ROLE_PERMISSIONS } from "./index";
 
 async function runSeed() {
   console.log("Seeding roles...");

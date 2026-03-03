@@ -1,5 +1,13 @@
-// src/lib/schema.ts
-import { pgTable, text, boolean, timestamp, date, primaryKey, unique, index } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  boolean,
+  timestamp,
+  date,
+  primaryKey,
+  unique,
+  index,
+} from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 // --- Academic Years ---
@@ -12,13 +20,18 @@ export const academicYears = pgTable(
     startDate: date("start_date").notNull(),
     endDate: date("end_date").notNull(),
     isCurrent: boolean("is_current").notNull().default(false),
-    status: text("status", { enum: ["active", "archived"] }).notNull().default("active"),
+    status: text("status", { enum: ["active", "archived"] })
+      .notNull()
+      .default("active"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),
   },
   (t) => [
     index("academic_years_institution_idx").on(t.institutionId),
-    index("academic_years_institution_current_idx").on(t.institutionId, t.isCurrent),
+    index("academic_years_institution_current_idx").on(
+      t.institutionId,
+      t.isCurrent,
+    ),
   ],
 );
 
@@ -29,7 +42,9 @@ export const roles = pgTable(
     id: text("id").primaryKey(),
     name: text("name").notNull(),
     slug: text("slug").notNull(),
-    roleType: text("role_type", { enum: ["platform", "system", "staff"] }).notNull(),
+    roleType: text("role_type", {
+      enum: ["platform", "system", "staff"],
+    }).notNull(),
     institutionId: text("institution_id"),
     isSystem: boolean("is_system").notNull().default(false),
     isConfigurable: boolean("is_configurable").notNull().default(false),
