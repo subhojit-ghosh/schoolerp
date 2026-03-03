@@ -1,4 +1,3 @@
-// src/lib/auth/require-org-access.ts
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -45,7 +44,8 @@ export async function requireOrgAccess(institutionSlug: string): Promise<OrgCont
   if (!session) throw new AuthError("Unauthorized", 401);
 
   const userId = session.user.id;
-  const isSuperAdmin = (session.user as any).isSuperAdmin === true;
+  const isSuperAdmin =
+    (session.user as { isSuperAdmin?: boolean }).isSuperAdmin === true;
 
   // 2. Resolve institution by slug
   // TODO: auth.api.getOrganization does not exist in Better Auth v1.5.x.
@@ -118,7 +118,7 @@ export async function requireOrgAccess(institutionSlug: string): Promise<OrgCont
   // 6. Enforce 2FA before resolving permissions
   if (requires2FA(resolvedRoles.map((r) => ({ role_type: r.roleType, slug: r.slug })))) {
     // Better Auth tracks 2FA verification in session
-    if (!(session as any).twoFactorVerified) {
+    if (!(session as { twoFactorVerified?: boolean }).twoFactorVerified) {
       throw new AuthError("2FA required", 401);
     }
   }
