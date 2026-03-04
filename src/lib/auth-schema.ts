@@ -109,6 +109,10 @@ export const member = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     role: text("role").default("member").notNull(),
+    status: text("status", { enum: ["active", "inactive", "suspended"] })
+      .default("active")
+      .notNull(),
+    deletedAt: timestamp("deleted_at"),
     createdAt: timestamp("created_at").notNull(),
   },
   (table) => [

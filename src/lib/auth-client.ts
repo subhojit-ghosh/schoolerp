@@ -18,5 +18,17 @@ export const authClient = createAuthClient({
   ],
 });
 
+export const platformAuthClient = createAuthClient({
+  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL ?? "http://localhost:3000",
+
+  plugins: [
+    twoFactorClient({
+      onTwoFactorRedirect() {
+        window.location.href = "/2fa";
+      },
+    }),
+  ],
+});
+
 // Named exports for convenience
 export const { signIn, signOut, signUp, useSession } = authClient;

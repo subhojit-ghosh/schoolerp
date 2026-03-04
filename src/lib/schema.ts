@@ -7,15 +7,19 @@ import {
   primaryKey,
   unique,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import { organization, member } from "@/lib/auth-schema";
 
 // --- Academic Years ---
 export const academicYears = pgTable(
   "academic_years",
   {
     id: text("id").primaryKey(),
-    institutionId: text("institution_id").notNull(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
     name: text("name").notNull(),
     startDate: date("start_date").notNull(),
     endDate: date("end_date").notNull(),
@@ -45,7 +49,9 @@ export const roles = pgTable(
     roleType: text("role_type", {
       enum: ["platform", "system", "staff"],
     }).notNull(),
-    institutionId: text("institution_id"),
+    institutionId: text("institution_id").references(() => organization.id, {
+      onDelete: "restrict",
+    }),
     isSystem: boolean("is_system").notNull().default(false),
     isConfigurable: boolean("is_configurable").notNull().default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -56,7 +62,7 @@ export const roles = pgTable(
     unique("roles_slug_institution_unique").on(t.slug, t.institutionId),
     // For global preset roles (institution_id IS NULL): slug must be globally unique
     // This partial unique index handles the NULL case (PostgreSQL NULL != NULL in unique constraints)
-    index("roles_slug_global_unique_idx")
+    uniqueIndex("roles_slug_global_unique_idx")
       .on(t.slug)
       .where(sql`institution_id IS NULL`),
   ],
@@ -73,8 +79,12 @@ export const permissions = pgTable("permissions", {
 export const rolePermissions = pgTable(
   "role_permissions",
   {
-    roleId: text("role_id").notNull(),
-    permissionId: text("permission_id").notNull(),
+    roleId: text("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "restrict" }),
+    permissionId: text("permission_id")
+      .notNull()
+      .references(() => permissions.id, { onDelete: "restrict" }),
   },
   (t) => [primaryKey({ columns: [t.roleId, t.permissionId] })],
 );
@@ -84,11 +94,17 @@ export const membershipRoles = pgTable(
   "membership_roles",
   {
     id: text("id").primaryKey(),
-    membershipId: text("membership_id").notNull(),
-    roleId: text("role_id").notNull(),
+    membershipId: text("membership_id")
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    roleId: text("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "restrict" }),
     validFrom: date("valid_from").notNull(),
     validTo: date("valid_to"),
-    academicYearId: text("academic_year_id"),
+    academicYearId: text("academic_year_id").references(() => academicYears.id, {
+      onDelete: "restrict",
+    }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),
   },
@@ -102,7 +118,9 @@ export const membershipRoles = pgTable(
 // --- Membership Role Scopes (v1: schema ready, empty) ---
 export const membershipRoleScopes = pgTable("membership_role_scopes", {
   id: text("id").primaryKey(),
-  membershipRoleId: text("membership_role_id").notNull(),
+  membershipRoleId: text("membership_role_id")
+    .notNull()
+    .references(() => membershipRoles.id, { onDelete: "restrict" }),
   scopeType: text("scope_type", {
     enum: ["institution", "department", "class", "section"],
   }).notNull(),
@@ -114,8 +132,12 @@ export const studentGuardianLinks = pgTable(
   "student_guardian_links",
   {
     id: text("id").primaryKey(),
-    studentMembershipId: text("student_membership_id").notNull(),
-    parentMembershipId: text("parent_membership_id").notNull(),
+    studentMembershipId: text("student_membership_id")
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    parentMembershipId: text("parent_membership_id")
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
     relationship: text("relationship", {
       enum: ["father", "mother", "guardian"],
     }).notNull(),

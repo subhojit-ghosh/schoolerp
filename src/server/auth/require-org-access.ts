@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -25,7 +26,12 @@ export class AuthError extends Error {
 
 export type OrgContext = {
   institution: InstitutionContext;
-  userId: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    twoFactorEnabled: boolean;
+  };
   membershipId: string;
   roles: Array<{ id: string; slug: string; roleType: string }>;
   permissionSet: Set<string>;
@@ -41,120 +47,159 @@ export type OrgContext = {
 export async function requireOrgAccess(
   institution: InstitutionContext,
 ): Promise<OrgContext> {
-  const h = await headers();
+  return requireOrgAccessCached(
+    institution.id,
+    institution.slug,
+    institution.name,
+    institution.status,
+    institution.branding.logoUrl,
+    institution.branding.primaryColor,
+  );
+}
 
-  // 1. Check institution is not suspended
-  if (institution.status === "suspended") {
-    throw new AuthError("Forbidden", 403);
-  }
+const requireOrgAccessCached = cache(
+  async (
+    institutionId: string,
+    institutionSlug: string,
+    institutionName: string,
+    institutionStatus: string,
+    logoUrl: string | null,
+    primaryColor: string | null,
+  ): Promise<OrgContext> => {
+    const h = await headers();
+    const institution: InstitutionContext = {
+      id: institutionId,
+      slug: institutionSlug,
+      name: institutionName,
+      status: institutionStatus,
+      branding: {
+        logoUrl,
+        primaryColor,
+      },
+    };
 
-  // 2. Validate session
-  const session = await auth.api.getSession({ headers: h });
-  if (!session) throw new AuthError("Unauthorized", 401);
+    // 1. Check institution is not suspended
+    if (institution.status === "suspended") {
+      throw new AuthError("Forbidden", 403);
+    }
 
-  const userId = session.user.id;
-  const isSuperAdmin =
-    (session.user as { isSuperAdmin?: boolean }).isSuperAdmin === true;
+    // 2. Validate session
+    const session = await auth.api.getSession({ headers: h });
+    if (!session) throw new AuthError("Unauthorized", 401);
 
-  // 3. super_admin shortcut — bypasses membership/role/permission resolution
-  if (isSuperAdmin) {
+    const user = {
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      twoFactorEnabled:
+        (session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled === true,
+    };
+    const isSuperAdmin =
+      (session.user as { isSuperAdmin?: boolean }).isSuperAdmin === true;
+
+    // 3. super_admin shortcut — bypasses membership/role/permission resolution
+    if (isSuperAdmin) {
+      return {
+        institution,
+        user,
+        membershipId: "",
+        roles: [],
+        permissionSet: new Set(),
+        academicYear: { id: "", name: "" },
+        isSuperAdmin: true,
+      };
+    }
+
+    // 4. Validate membership
+    const [member] = await db
+      .select()
+      .from(memberTable)
+      .where(
+        and(
+          eq(memberTable.organizationId, institution.id),
+          eq(memberTable.userId, user.id),
+          eq(memberTable.status, "active"),
+          isNull(memberTable.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!member) throw new AuthError("Forbidden", 403);
+
+    const membershipId = member.id;
+
+    // 5. Resolve active membership roles
+    const activeRoleRows = await db
+      .select({ roleId: membershipRoles.roleId })
+      .from(membershipRoles)
+      .where(
+        and(
+          eq(membershipRoles.membershipId, membershipId),
+          isNull(membershipRoles.validTo),
+          isNull(membershipRoles.deletedAt),
+        ),
+      );
+
+    if (activeRoleRows.length === 0) throw new AuthError("Forbidden", 403);
+
+    const roleIds = activeRoleRows.map((r) => r.roleId);
+    const resolvedRoles = await db
+      .select({ id: roles.id, slug: roles.slug, roleType: roles.roleType })
+      .from(roles)
+      .where(and(inArray(roles.id, roleIds), isNull(roles.deletedAt)));
+
+    // 6. Enforce privileged-role 2FA setup; Better Auth handles the actual challenge flow.
+    if (
+      requires2FA(
+        resolvedRoles.map((r) => ({ role_type: r.roleType, slug: r.slug })),
+      ) &&
+      !user.twoFactorEnabled
+    ) {
+      throw new AuthError("Two-factor authentication must be enabled", 403);
+    }
+
+    // 7. Resolve current academic year
+    const [currentYear] = await db
+      .select({ id: academicYears.id, name: academicYears.name })
+      .from(academicYears)
+      .where(
+        and(
+          eq(academicYears.institutionId, institution.id),
+          eq(academicYears.isCurrent, true),
+          isNull(academicYears.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!currentYear) {
+      throw new AuthError(
+        "Institution has no current academic year configured",
+        500,
+      );
+    }
+
+    // 8. Resolve permissions (default deny — empty set = no access)
+    const permRows = await db
+      .select({ slug: permissions.slug })
+      .from(rolePermissions)
+      .innerJoin(permissions, eq(permissions.id, rolePermissions.permissionId))
+      .where(inArray(rolePermissions.roleId, roleIds));
+
+    const permissionSet = resolvePermissions([
+      { permissions: permRows.map((p) => p.slug) },
+    ]);
+
     return {
       institution,
-      userId,
-      membershipId: "",
-      roles: [],
-      permissionSet: new Set(), // empty — assertPermission short-circuits via isSuperAdmin
-      academicYear: { id: "", name: "" },
-      isSuperAdmin: true,
+      user,
+      membershipId,
+      roles: resolvedRoles,
+      permissionSet,
+      academicYear: { id: currentYear.id, name: currentYear.name },
+      isSuperAdmin: false,
     };
-  }
-
-  // 4. Validate membership (query member table directly — Better Auth API limitation)
-  const [member] = await db
-    .select()
-    .from(memberTable)
-    .where(
-      and(
-        eq(memberTable.organizationId, institution.id),
-        eq(memberTable.userId, userId),
-      ),
-    )
-    .limit(1);
-
-  if (!member) throw new AuthError("Forbidden", 403);
-
-  const membershipId = member.id;
-
-  // 5. Resolve active membership roles
-  const activeRoleRows = await db
-    .select({ roleId: membershipRoles.roleId })
-    .from(membershipRoles)
-    .where(
-      and(
-        eq(membershipRoles.membershipId, membershipId),
-        isNull(membershipRoles.validTo),
-        isNull(membershipRoles.deletedAt),
-      ),
-    );
-
-  if (activeRoleRows.length === 0) throw new AuthError("Forbidden", 403);
-
-  const roleIds = activeRoleRows.map((r) => r.roleId);
-  const resolvedRoles = await db
-    .select({ id: roles.id, slug: roles.slug, roleType: roles.roleType })
-    .from(roles)
-    .where(and(inArray(roles.id, roleIds), isNull(roles.deletedAt)));
-
-  // 6. Enforce 2FA before resolving permissions
-  if (
-    requires2FA(resolvedRoles.map((r) => ({ role_type: r.roleType, slug: r.slug })))
-  ) {
-    if (!(session as { twoFactorVerified?: boolean }).twoFactorVerified) {
-      throw new AuthError("2FA required", 401);
-    }
-  }
-
-  // 7. Resolve current academic year
-  const [currentYear] = await db
-    .select({ id: academicYears.id, name: academicYears.name })
-    .from(academicYears)
-    .where(
-      and(
-        eq(academicYears.institutionId, institution.id),
-        eq(academicYears.isCurrent, true),
-        isNull(academicYears.deletedAt),
-      ),
-    )
-    .limit(1);
-
-  if (!currentYear) {
-    throw new AuthError(
-      "Institution has no current academic year configured",
-      500,
-    );
-  }
-
-  // 8. Resolve permissions (default deny — empty set = no access)
-  const permRows = await db
-    .select({ slug: permissions.slug })
-    .from(rolePermissions)
-    .innerJoin(permissions, eq(permissions.id, rolePermissions.permissionId))
-    .where(inArray(rolePermissions.roleId, roleIds));
-
-  const permissionSet = resolvePermissions([
-    { permissions: permRows.map((p) => p.slug) },
-  ]);
-
-  return {
-    institution,
-    userId,
-    membershipId,
-    roles: resolvedRoles,
-    permissionSet,
-    academicYear: { id: currentYear.id, name: currentYear.name },
-    isSuperAdmin: false,
-  };
-}
+  },
+);
 
 /**
  * Asserts a permission is present in the context. Throws 403 if not.

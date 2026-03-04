@@ -8,16 +8,16 @@ export type NavItem = {
 
 export const NAV_ITEMS: NavItem[] = [
   // Academics
-  { label: "Attendance",  href: "/dashboard/attendance", permission: "attendance:read",  icon: "CalendarCheck",  group: "academics" },
-  { label: "Grades",      href: "/dashboard/grades",     permission: "grades:read",      icon: "GraduationCap",  group: "academics" },
-  { label: "Students",    href: "/dashboard/students",   permission: "students:read",    icon: "Users",          group: "academics" },
+  { label: "Attendance",  href: "/attendance", permission: "attendance:read",  icon: "CalendarCheck",  group: "academics" },
+  { label: "Grades",      href: "/grades",     permission: "grades:read",      icon: "GraduationCap",  group: "academics" },
+  { label: "Students",    href: "/students",   permission: "students:read",    icon: "Users",          group: "academics" },
   // Finance
-  { label: "Fees",        href: "/dashboard/fees",       permission: "fees:read",        icon: "CreditCard",     group: "finance" },
-  { label: "Reports",     href: "/dashboard/reports",    permission: "reports:export",   icon: "BarChart2",      group: "finance" },
+  { label: "Fees",        href: "/fees",       permission: "fees:read",        icon: "CreditCard",     group: "finance" },
+  { label: "Reports",     href: "/reports",    permission: "reports:export",   icon: "BarChart2",      group: "finance" },
   // Admin
-  { label: "Members",     href: "/dashboard/members",    permission: "members:invite",   icon: "UserPlus",       group: "admin" },
-  { label: "Roles",       href: "/dashboard/roles",      permission: "roles:manage",     icon: "Shield",         group: "admin" },
-  { label: "Admissions",  href: "/dashboard/admissions", permission: "admissions:read",  icon: "ClipboardList",  group: "admin" },
+  { label: "Members",     href: "/members",    permission: "members:invite",   icon: "UserPlus",       group: "admin" },
+  { label: "Roles",       href: "/roles",      permission: "roles:manage",     icon: "Shield",         group: "admin" },
+  { label: "Admissions",  href: "/admissions", permission: "admissions:read",  icon: "ClipboardList",  group: "admin" },
 ];
 
 /**

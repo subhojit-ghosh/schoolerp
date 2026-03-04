@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { organization } from "@/lib/auth-schema";
@@ -25,7 +26,10 @@ export async function getCurrentInstitution(): Promise<InstitutionContext> {
   if (!slug) {
     throw new Error("Invariant: x-institution-slug header missing — check proxy configuration");
   }
+  return getInstitutionBySlug(slug);
+}
 
+const getInstitutionBySlug = cache(async (slug: string): Promise<InstitutionContext> => {
   const [org] = await db
     .select()
     .from(organization)
@@ -46,7 +50,7 @@ export async function getCurrentInstitution(): Promise<InstitutionContext> {
       primaryColor: null,  // TODO: add primaryColor column to organization table
     },
   };
-}
+});
 
 /**
  * Lightweight version for auth pages — returns only branding fields.

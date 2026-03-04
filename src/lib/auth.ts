@@ -1,8 +1,9 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { organization } from "better-auth/plugins";
-import { twoFactor } from "better-auth/plugins";
+import { organization } from "better-auth/plugins/organization";
+import { twoFactor } from "better-auth/plugins/two-factor";
 import { db } from "@/lib/db";
+import * as authSchema from "@/lib/auth-schema";
 
 export const auth = betterAuth({
   secret: (() => {
@@ -13,6 +14,7 @@ export const auth = betterAuth({
   })(),
   database: drizzleAdapter(db, {
     provider: "pg",
+    schema: authSchema,
   }),
 
   emailAndPassword: {
@@ -45,6 +47,19 @@ export const auth = betterAuth({
               type: "string",
               required: false,
               defaultValue: "active",
+            },
+          },
+        },
+        member: {
+          additionalFields: {
+            status: {
+              type: "string",
+              required: false,
+              defaultValue: "active",
+            },
+            deletedAt: {
+              type: "date",
+              required: false,
             },
           },
         },
