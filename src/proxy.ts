@@ -46,7 +46,7 @@ export async function proxy(request: NextRequest) {
   const isOrgCleanPath = institutionSlug ? ORG_CLEAN_PATHS.has(pathname) : false;
 
   // Admin routes are root-domain only — never accessible from a subdomain
-  if (institutionSlug && pathname.startsWith("/admin")) {
+  if (institutionSlug && pathname.startsWith(ROUTES.ADMIN.PREFIX)) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 

@@ -7,6 +7,7 @@ export const ROUTES = {
     TWO_FA: "/auth/2fa",
   },
   ADMIN: {
+    PREFIX: "/admin",
     SIGN_IN: "/admin/auth/sign-in",
     TWO_FA: "/admin/auth/2fa",
     SETUP: "/admin/setup",
