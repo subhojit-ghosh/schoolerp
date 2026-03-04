@@ -1,5 +1,6 @@
 export const ROUTES = {
   DASHBOARD: "/dashboard",
+  APP_PREFIX: "/app",
   AUTH: {
     SIGN_IN: "/auth/sign-in",
     SIGN_UP: "/auth/sign-up",

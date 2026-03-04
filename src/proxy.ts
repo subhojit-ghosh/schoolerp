@@ -98,7 +98,7 @@ export async function proxy(request: NextRequest) {
   // Org-scoped routes: institution slug required
   const isOrgScopedRoute =
     pathname.startsWith(ROUTES.DASHBOARD) ||
-    pathname.startsWith("/app") ||
+    pathname.startsWith(ROUTES.APP_PREFIX) ||
     isOrgCleanPath;
   if (isOrgScopedRoute && !institutionSlug) {
     return NextResponse.json(
