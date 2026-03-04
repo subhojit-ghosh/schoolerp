@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { resolveInstitutionFromRequest } from "@/lib/tenant";
+import { ROUTES, HEADERS, COOKIES } from "@/constants";
 
 // Completely bypass — Better Auth handles these internally
-const isApiAuthRoute = (path: string) => path.startsWith("/api/auth");
-const isSetupRoute = (path: string) => path === "/admin/setup" || path.startsWith("/admin/setup/");
-const isSetupApiRoute = (path: string) => path.startsWith("/api/setup/");
+const isApiAuthRoute = (path: string) => path.startsWith(ROUTES.API.AUTH_PREFIX);
+const isSetupRoute = (path: string) =>
+  path === ROUTES.ADMIN.SETUP || path.startsWith(ROUTES.ADMIN.SETUP + "/");
+const isSetupApiRoute = (path: string) => path.startsWith(ROUTES.API.SETUP_PREFIX);
 const isPlatformAuthPage = (path: string) =>
-  path === "/admin/auth/sign-in" || path === "/admin/auth/2fa";
+  path === ROUTES.ADMIN.SIGN_IN || path === ROUTES.ADMIN.TWO_FA;
 const isPublicRoute = (path: string) =>
   isSetupRoute(path) || isSetupApiRoute(path);
 const ORG_CLEAN_PATHS = new Set([
@@ -38,9 +40,9 @@ export async function proxy(request: NextRequest) {
   // Use the raw `host` header — request.nextUrl.hostname is normalized by Next.js in middleware
   const institutionSlug = resolveInstitutionFromRequest(
     request.headers.get("host"),
-    request.headers.get("x-institution-id"),
+    request.headers.get(HEADERS.INSTITUTION_ID),
   );
-  const hasTwoFactorCookie = request.cookies.has("two_factor");
+  const hasTwoFactorCookie = request.cookies.has(COOKIES.TWO_FACTOR);
   const isOrgCleanPath = institutionSlug ? ORG_CLEAN_PATHS.has(pathname) : false;
 
   // Admin routes are root-domain only — never accessible from a subdomain
@@ -55,7 +57,7 @@ export async function proxy(request: NextRequest) {
   if (isPublicRoute(pathname)) {
     const requestHeaders = new Headers(request.headers);
     if (institutionSlug) {
-      requestHeaders.set("x-institution-slug", institutionSlug);
+      requestHeaders.set(HEADERS.INSTITUTION_SLUG, institutionSlug);
     }
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
@@ -74,7 +76,7 @@ export async function proxy(request: NextRequest) {
     }
 
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set("x-institution-slug", institutionSlug);
+    requestHeaders.set(HEADERS.INSTITUTION_SLUG, institutionSlug);
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
@@ -83,19 +85,19 @@ export async function proxy(request: NextRequest) {
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       if (hasTwoFactorCookie) {
-        return NextResponse.redirect(new URL("/admin/auth/2fa", request.url));
+        return NextResponse.redirect(new URL(ROUTES.ADMIN.TWO_FA, request.url));
       }
-      return NextResponse.redirect(new URL("/admin/auth/sign-in", request.url));
+      return NextResponse.redirect(new URL(ROUTES.ADMIN.SIGN_IN, request.url));
     }
 
     const requestHeaders = new Headers(request.headers);
-    requestHeaders.set("x-user-id", session.user.id);
+    requestHeaders.set(HEADERS.USER_ID, session.user.id);
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
   // Org-scoped routes: institution slug required
   const isOrgScopedRoute =
-    pathname.startsWith("/dashboard") ||
+    pathname.startsWith(ROUTES.DASHBOARD) ||
     pathname.startsWith("/app") ||
     isOrgCleanPath;
   if (isOrgScopedRoute && !institutionSlug) {
@@ -109,16 +111,16 @@ export async function proxy(request: NextRequest) {
   const session = await auth.api.getSession({ headers: request.headers });
   if (!session) {
     if (isOrgScopedRoute && hasTwoFactorCookie) {
-      return NextResponse.redirect(new URL("/auth/2fa", request.url));
+      return NextResponse.redirect(new URL(ROUTES.AUTH.TWO_FA, request.url));
     }
-    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
+    return NextResponse.redirect(new URL(ROUTES.AUTH.SIGN_IN, request.url));
   }
 
   // Pass resolved context downstream via request headers
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-user-id", session.user.id);
+  requestHeaders.set(HEADERS.USER_ID, session.user.id);
   if (institutionSlug) {
-    requestHeaders.set("x-institution-slug", institutionSlug);
+    requestHeaders.set(HEADERS.INSTITUTION_SLUG, institutionSlug);
   }
 
   return NextResponse.next({ request: { headers: requestHeaders } });
