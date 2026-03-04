@@ -34,13 +34,17 @@ Use the new standalone CLI `bunx auth` (not the deprecated `@better-auth/cli`):
 
 **All forms must use `react-hook-form` + `zod`.** No exceptions.
 
+shadcn now uses the **`<Field />`** component pattern (not the old `<Form>` wrapper). The old `FormField`/`FormItem`/`FormLabel`/`FormControl`/`FormMessage` approach from `@/components/ui/form` is superseded.
+
 Pattern (following https://ui.shadcn.com/docs/forms/react-hook-form):
 
 ```tsx
 "use client";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 const schema = z.object({
   email: z.string().email(),
@@ -49,18 +53,33 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 export function MyForm() {
-  const form = useForm<FormValues>({
+  const { control, handleSubmit } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { email: "" },
   });
 
   function onSubmit(values: FormValues) { ... }
 
-  return <form onSubmit={form.handleSubmit(onSubmit)}>...</form>;
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <Controller
+        control={control}
+        name="email"
+        render={({ field, fieldState }) => (
+          <Field>
+            <FieldLabel>Email</FieldLabel>
+            <Input {...field} type="email" />
+            <FieldError>{fieldState.error?.message}</FieldError>
+          </Field>
+        )}
+      />
+    </form>
+  );
 }
 ```
 
 Packages installed: `react-hook-form`, `zod`, `@hookform/resolvers`.
+shadcn component to add: `bunx shadcn add field`
 
 ## Framework Discoveries
 

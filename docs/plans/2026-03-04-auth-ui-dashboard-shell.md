@@ -27,7 +27,7 @@ bun add server-only
 **Step 2: Add shadcn components needed across the feature**
 
 ```bash
-bunx shadcn add form
+bunx shadcn add field
 bunx shadcn add avatar
 bunx shadcn add breadcrumb
 bunx shadcn add collapsible
@@ -36,6 +36,8 @@ bunx shadcn add tooltip
 bunx shadcn add skeleton
 bunx shadcn add sidebar
 ```
+
+Note: shadcn now uses `field` (not `form`) — see AGENTS.md Forms section.
 
 Each command creates the relevant file in `src/components/ui/`. Accept any prompts.
 
@@ -51,7 +53,7 @@ Expected: passes (or only pre-existing errors — shadcn components may have min
 
 ```bash
 git add -A
-git commit -m "chore: install server-only and shadcn ui components (form, sidebar, avatar, etc.)"
+git commit -m "chore: install server-only and shadcn ui components (field, sidebar, avatar, etc.)"
 ```
 
 ---
