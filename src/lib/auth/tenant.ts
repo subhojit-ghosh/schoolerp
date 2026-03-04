@@ -1,5 +1,10 @@
 const IGNORED_SUBDOMAINS = new Set(["www", "api", "app"]);
 
+/**
+ * Resolves institution slug from subdomain or X-Institution-Id header.
+ * Subdomain takes precedence (subdomain-first strategy for white-label).
+ * Header fallback supports API clients and single-domain mode.
+ */
 export function resolveInstitutionFromRequest(
   url: URL,
   institutionIdHeader: string | null,
