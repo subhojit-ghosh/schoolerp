@@ -16,7 +16,8 @@ export default async function DashboardLayout({
   const institution = await getCurrentInstitution();
   const org = await requireOrgAccess(institution);
 
-  // Get user name/email for sidebar footer
+  // Get user name/email for sidebar footer.
+  // TODO: Surface userName/userEmail from OrgContext to avoid this second getSession call.
   const session = await auth.api.getSession({ headers: await headers() });
   const userName = session?.user.name ?? "User";
   const userEmail = session?.user.email ?? "";
