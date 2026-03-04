@@ -1,3 +1,4 @@
+import "server-only";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -8,9 +9,10 @@ import {
   permissions,
   rolePermissions,
 } from "@/lib/schema";
-import { organization as orgTable, member as memberTable } from "@/lib/auth-schema";
+import { member as memberTable } from "@/lib/auth-schema";
 import { eq, and, isNull, inArray } from "drizzle-orm";
-import { requires2FA, resolvePermissions, checkPermission } from "./permissions";
+import { requires2FA, resolvePermissions } from "@/lib/auth/permissions";
+import type { InstitutionContext } from "./get-current-institution";
 
 export class AuthError extends Error {
   constructor(
@@ -22,24 +24,31 @@ export class AuthError extends Error {
 }
 
 export type OrgContext = {
+  institution: InstitutionContext;
   userId: string;
-  institutionId: string;
   membershipId: string;
-  currentAcademicYearId: string;
   roles: Array<{ id: string; slug: string; roleType: string }>;
   permissionSet: Set<string>;
+  academicYear: { id: string; name: string };
   isSuperAdmin: boolean;
 };
 
 /**
- * Resolves and validates org-scoped access for the current request.
- * Must be called at the top of every org-scoped server action or route handler.
- * Permission checks must execute before data queries are constructed.
+ * Resolves full org-scoped access context for the current request.
+ * Call once in dashboard layout — pass context down, never re-fetch.
+ * Takes InstitutionContext from getCurrentInstitution() to avoid a second DB lookup.
  */
-export async function requireOrgAccess(institutionSlug: string): Promise<OrgContext> {
+export async function requireOrgAccess(
+  institution: InstitutionContext,
+): Promise<OrgContext> {
   const h = await headers();
 
-  // 1. Validate session
+  // 1. Check institution is not suspended
+  if (institution.status === "suspended") {
+    throw new AuthError("Forbidden", 403);
+  }
+
+  // 2. Validate session
   const session = await auth.api.getSession({ headers: h });
   if (!session) throw new AuthError("Unauthorized", 401);
 
@@ -47,45 +56,26 @@ export async function requireOrgAccess(institutionSlug: string): Promise<OrgCont
   const isSuperAdmin =
     (session.user as { isSuperAdmin?: boolean }).isSuperAdmin === true;
 
-  // 2. Resolve institution by slug
-  // TODO: auth.api.getOrganization does not exist in Better Auth v1.5.x.
-  // We query the organization table directly via Drizzle instead.
-  const [org] = await db
-    .select()
-    .from(orgTable)
-    .where(eq(orgTable.slug, institutionSlug))
-    .limit(1);
-
-  if (!org || org.status === "suspended") {
-    // Generic 403 — never reveal whether institution exists or is suspended
-    throw new AuthError("Forbidden", 403);
-  }
-
-  const institutionId = org.id;
-
   // 3. super_admin shortcut — bypasses membership/role/permission resolution
   if (isSuperAdmin) {
     return {
+      institution,
       userId,
-      institutionId,
       membershipId: "",
-      currentAcademicYearId: "",
       roles: [],
-      permissionSet: new Set(["*"]), // sentinel: super_admin has all permissions
+      permissionSet: new Set(), // empty — assertPermission short-circuits via isSuperAdmin
+      academicYear: { id: "", name: "" },
       isSuperAdmin: true,
     };
   }
 
-  // 4. Validate membership
-  // TODO: auth.api.getActiveMember does not accept organizationId as a query param in Better Auth v1.5.x.
-  // It resolves membership from the session's activeOrganizationId, which may not be the target institution.
-  // We query the member table directly via Drizzle to validate membership for the target organization.
+  // 4. Validate membership (query member table directly — Better Auth API limitation)
   const [member] = await db
     .select()
     .from(memberTable)
     .where(
       and(
-        eq(memberTable.organizationId, institutionId),
+        eq(memberTable.organizationId, institution.id),
         eq(memberTable.userId, userId),
       ),
     )
@@ -116,8 +106,9 @@ export async function requireOrgAccess(institutionSlug: string): Promise<OrgCont
     .where(and(inArray(roles.id, roleIds), isNull(roles.deletedAt)));
 
   // 6. Enforce 2FA before resolving permissions
-  if (requires2FA(resolvedRoles.map((r) => ({ role_type: r.roleType, slug: r.slug })))) {
-    // Better Auth tracks 2FA verification in session
+  if (
+    requires2FA(resolvedRoles.map((r) => ({ role_type: r.roleType, slug: r.slug })))
+  ) {
     if (!(session as { twoFactorVerified?: boolean }).twoFactorVerified) {
       throw new AuthError("2FA required", 401);
     }
@@ -125,11 +116,11 @@ export async function requireOrgAccess(institutionSlug: string): Promise<OrgCont
 
   // 7. Resolve current academic year
   const [currentYear] = await db
-    .select({ id: academicYears.id })
+    .select({ id: academicYears.id, name: academicYears.name })
     .from(academicYears)
     .where(
       and(
-        eq(academicYears.institutionId, institutionId),
+        eq(academicYears.institutionId, institution.id),
         eq(academicYears.isCurrent, true),
         isNull(academicYears.deletedAt),
       ),
@@ -137,10 +128,13 @@ export async function requireOrgAccess(institutionSlug: string): Promise<OrgCont
     .limit(1);
 
   if (!currentYear) {
-    throw new AuthError("Institution has no current academic year configured", 500);
+    throw new AuthError(
+      "Institution has no current academic year configured",
+      500,
+    );
   }
 
-  // 8. Resolve permissions (request-scoped, default deny)
+  // 8. Resolve permissions (default deny — empty set = no access)
   const permRows = await db
     .select({ slug: permissions.slug })
     .from(rolePermissions)
@@ -152,23 +146,24 @@ export async function requireOrgAccess(institutionSlug: string): Promise<OrgCont
   ]);
 
   return {
+    institution,
     userId,
-    institutionId,
     membershipId,
-    currentAcademicYearId: currentYear.id,
     roles: resolvedRoles,
     permissionSet,
+    academicYear: { id: currentYear.id, name: currentYear.name },
     isSuperAdmin: false,
   };
 }
 
 /**
- * Asserts a permission is present. Throws 403 if not.
+ * Asserts a permission is present in the context. Throws 403 if not.
  * MUST be called before constructing any data query.
+ * Super admin short-circuits at top — never reaches permission check.
  */
 export function assertPermission(ctx: OrgContext, permissionSlug: string): void {
-  if (ctx.isSuperAdmin) return; // super_admin bypasses permission checks
-  if (!checkPermission(ctx.permissionSet, permissionSlug)) {
+  if (ctx.isSuperAdmin) return;
+  if (!ctx.permissionSet.has(permissionSlug)) {
     throw new AuthError(`Missing permission: ${permissionSlug}`, 403);
   }
 }
