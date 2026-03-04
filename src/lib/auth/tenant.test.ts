@@ -37,4 +37,10 @@ describe("resolveInstitutionFromRequest", () => {
     const slug = resolveInstitutionFromRequest(url, null);
     expect(slug).toBeNull();
   });
+
+  test("extracts slug from *.localhost subdomain (2-part host)", () => {
+    const url = new URL("http://school-a.localhost:3000/auth/sign-in");
+    const slug = resolveInstitutionFromRequest(url, null);
+    expect(slug).toBe("school-a");
+  });
 });

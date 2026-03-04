@@ -2,31 +2,43 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { resolveInstitutionFromRequest } from "@/lib/auth/tenant";
 
-// Routes that bypass authentication
-const isPublicRoute = (path: string) =>
-  path.startsWith("/auth/") || path === "/auth" || path.startsWith("/api/auth");
+// Completely bypass — Better Auth handles these internally
+const isApiAuthRoute = (path: string) => path.startsWith("/api/auth");
+
+// Public-facing auth pages — institution context needed for branding, but no session
+const isAuthPage = (path: string) =>
+  path.startsWith("/auth/") || path === "/auth";
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip auth for public routes
-  if (isPublicRoute(pathname)) {
+  // API auth routes: completely bypass
+  if (isApiAuthRoute(pathname)) {
     return NextResponse.next();
   }
 
-  // 1. Validate session
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (!session) {
-    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
-  }
-
-  // 2. Resolve institution context (subdomain-first, header fallback)
+  // Resolve institution slug from subdomain (always)
   const institutionSlug = resolveInstitutionFromRequest(
     request.nextUrl,
     request.headers.get("x-institution-id"),
   );
 
-  // 3. For org-scoped routes: institution context is required
+  // Auth pages: set institution header for branding, no session required
+  if (isAuthPage(pathname)) {
+    const requestHeaders = new Headers(request.headers);
+    if (institutionSlug) {
+      requestHeaders.set("x-institution-slug", institutionSlug);
+    }
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
+
+  // All other routes: validate session
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) {
+    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
+  }
+
+  // Org-scoped routes: institution slug required
   const isOrgScopedRoute =
     pathname.startsWith("/dashboard") || pathname.startsWith("/app");
   if (isOrgScopedRoute && !institutionSlug) {
@@ -36,7 +48,7 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  // 4. Pass resolved context to downstream route handlers via request headers
+  // Pass resolved context downstream via request headers
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-user-id", session.user.id);
   if (institutionSlug) {
