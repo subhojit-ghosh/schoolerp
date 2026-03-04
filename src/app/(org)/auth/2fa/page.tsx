@@ -8,6 +8,7 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { ROUTES } from "@/constants";
 
 const schema = z.object({
   code: z
@@ -40,7 +41,7 @@ export default function TwoFactorPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(ROUTES.DASHBOARD);
   }
 
   return (

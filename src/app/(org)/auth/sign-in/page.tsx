@@ -8,10 +8,11 @@ import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth-client";
+import { V, ROUTES } from "@/constants";
 
 const schema = z.object({
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: V.email,
+  password: V.password,
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -39,7 +40,7 @@ export default function SignInPage() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push(ROUTES.DASHBOARD);
   }
 
   return (
@@ -87,7 +88,7 @@ export default function SignInPage() {
 
       <p className="text-muted-foreground text-center text-sm">
         Don&apos;t have an account?{" "}
-        <a href="/auth/sign-up" className="text-foreground underline underline-offset-4">
+        <a href={ROUTES.AUTH.SIGN_UP} className="text-foreground underline underline-offset-4">
           Sign up
         </a>
       </p>
