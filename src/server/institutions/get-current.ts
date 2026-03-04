@@ -1,8 +1,8 @@
 import "server-only";
 import { cache } from "react";
 import { headers } from "next/headers";
-import { db } from "@/lib/db";
-import { organization } from "@/lib/auth-schema";
+import { db } from "@/db";
+import { organization } from "@/db/schema/auth";
 import { eq } from "drizzle-orm";
 
 export type InstitutionContext = {

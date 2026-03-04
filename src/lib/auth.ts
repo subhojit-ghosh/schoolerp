@@ -2,8 +2,8 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { organization } from "better-auth/plugins/organization";
 import { twoFactor } from "better-auth/plugins/two-factor";
-import { db } from "@/lib/db";
-import * as authSchema from "@/lib/auth-schema";
+import { db } from "@/db";
+import * as authSchema from "@/db/schema/auth";
 
 export const auth = betterAuth({
   secret: (() => {

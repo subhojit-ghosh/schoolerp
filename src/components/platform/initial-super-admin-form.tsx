@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import {
   initialSuperAdminSchema,
   type InitialSuperAdminValues,
-} from "@/lib/auth/initial-super-admin-form";
+} from "@/lib/platform/setup";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

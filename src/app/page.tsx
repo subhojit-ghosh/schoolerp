@@ -5,10 +5,10 @@ import { PlatformSignOutButton } from "@/components/platform/platform-sign-out-b
 import { PlatformDashboard } from "@/components/platform/platform-dashboard";
 import { hasAnySuperAdmin } from "@/server/auth/platform-super-admin";
 import { getPlatformSessionUser } from "@/server/auth/require-platform-super-admin";
-import { getCurrentInstitution } from "@/server/auth/get-current-institution";
+import { getCurrentInstitution } from "@/server/institutions/get-current";
 import { requireOrgAccess } from "@/server/auth/require-org-access";
 import { OrgContextProvider } from "@/components/providers/org-context";
-import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { AppSidebar } from "@/components/org/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { NAV_ITEMS, filterNavItems } from "@/lib/nav";
@@ -54,13 +54,13 @@ export default async function RootPage() {
   }
 
   if (!(await hasAnySuperAdmin())) {
-    redirect("/setup");
+    redirect("/admin/setup");
   }
 
   const sessionUser = await getPlatformSessionUser();
 
   if (!sessionUser) {
-    redirect("/sign-in");
+    redirect("/admin/auth/sign-in");
   }
 
   if (!sessionUser.isSuperAdmin) {

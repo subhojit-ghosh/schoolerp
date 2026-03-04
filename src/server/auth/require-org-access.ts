@@ -2,18 +2,18 @@ import "server-only";
 import { cache } from "react";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { db } from "@/db";
 import {
   roles,
   membershipRoles,
   academicYears,
   permissions,
   rolePermissions,
-} from "@/lib/schema";
-import { member as memberTable } from "@/lib/auth-schema";
+} from "@/db/schema";
+import { member as memberTable } from "@/db/schema/auth";
 import { eq, and, isNull, inArray } from "drizzle-orm";
 import { requires2FA, resolvePermissions } from "@/lib/auth/permissions";
-import type { InstitutionContext } from "./get-current-institution";
+import type { InstitutionContext } from "@/server/institutions/get-current";
 
 export class AuthError extends Error {
   constructor(

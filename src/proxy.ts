@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { resolveInstitutionFromRequest } from "@/lib/auth/tenant";
+import { resolveInstitutionFromRequest } from "@/lib/tenant";
 
 // Completely bypass — Better Auth handles these internally
 const isApiAuthRoute = (path: string) => path.startsWith("/api/auth");
-const isSetupRoute = (path: string) => path === "/setup" || path.startsWith("/setup/");
+const isSetupRoute = (path: string) => path === "/admin/setup" || path.startsWith("/admin/setup/");
 const isSetupApiRoute = (path: string) => path.startsWith("/api/setup/");
 const isPlatformAuthPage = (path: string) =>
-  path === "/sign-in" || path === "/2fa";
+  path === "/admin/auth/sign-in" || path === "/admin/auth/2fa";
 const isPublicRoute = (path: string) =>
   isSetupRoute(path) || isSetupApiRoute(path);
 const ORG_CLEAN_PATHS = new Set([
@@ -35,19 +35,17 @@ export async function proxy(request: NextRequest) {
   }
 
   // Resolve institution slug from subdomain (always)
+  // Use the raw `host` header — request.nextUrl.hostname is normalized by Next.js in middleware
   const institutionSlug = resolveInstitutionFromRequest(
-    request.nextUrl,
+    request.headers.get("host"),
     request.headers.get("x-institution-id"),
   );
   const hasTwoFactorCookie = request.cookies.has("two_factor");
   const isOrgCleanPath = institutionSlug ? ORG_CLEAN_PATHS.has(pathname) : false;
 
-  if (institutionSlug && pathname === "/sign-in") {
-    return NextResponse.redirect(new URL("/auth/sign-in", request.url));
-  }
-
-  if (institutionSlug && pathname === "/2fa") {
-    return NextResponse.redirect(new URL("/auth/2fa", request.url));
+  // Admin routes are root-domain only — never accessible from a subdomain
+  if (institutionSlug && pathname.startsWith("/admin")) {
+    return NextResponse.redirect(new URL("/", request.url));
   }
 
   if (!institutionSlug && pathname === "/") {
@@ -85,9 +83,9 @@ export async function proxy(request: NextRequest) {
     const session = await auth.api.getSession({ headers: request.headers });
     if (!session) {
       if (hasTwoFactorCookie) {
-        return NextResponse.redirect(new URL("/2fa", request.url));
+        return NextResponse.redirect(new URL("/admin/auth/2fa", request.url));
       }
-      return NextResponse.redirect(new URL("/sign-in", request.url));
+      return NextResponse.redirect(new URL("/admin/auth/sign-in", request.url));
     }
 
     const requestHeaders = new Headers(request.headers);

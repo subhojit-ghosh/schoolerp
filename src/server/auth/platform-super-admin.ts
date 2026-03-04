@@ -2,9 +2,9 @@ import "server-only";
 
 import { eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import { db } from "@/lib/db";
-import { user } from "@/lib/auth-schema";
-import type { InitialSuperAdminValues } from "@/lib/auth/initial-super-admin-form";
+import { db } from "@/db";
+import { user } from "@/db/schema/auth";
+import type { InitialSuperAdminValues } from "@/lib/platform/setup";
 
 export async function hasAnySuperAdmin(): Promise<boolean> {
   const existing = await db

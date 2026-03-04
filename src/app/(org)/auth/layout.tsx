@@ -1,4 +1,4 @@
-import { getCurrentInstitutionBranding } from "@/server/auth/get-current-institution";
+import { getCurrentInstitutionBranding } from "@/server/institutions/get-current";
 
 export default async function AuthLayout({
   children,

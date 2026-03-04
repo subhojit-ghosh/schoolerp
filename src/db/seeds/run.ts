@@ -1,5 +1,5 @@
-import { db } from "@/lib/db";
-import { roles, permissions, rolePermissions } from "@/lib/schema";
+import { db } from "@/db";
+import { roles, permissions, rolePermissions } from "@/db/schema";
 import { BUILT_IN_ROLES, BUILT_IN_PERMISSIONS, ROLE_PERMISSIONS } from "./index";
 
 async function runSeed() {

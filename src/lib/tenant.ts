@@ -4,12 +4,16 @@ const IGNORED_SUBDOMAINS = new Set(["www", "api", "app"]);
  * Resolves institution slug from subdomain or X-Institution-Id header.
  * Subdomain takes precedence (subdomain-first strategy for white-label).
  * Header fallback supports API clients and single-domain mode.
+ *
+ * Accepts the raw `host` header (e.g. "school-a.localhost:3000") rather than
+ * request.nextUrl.hostname, which Next.js may normalize away in middleware.
  */
 export function resolveInstitutionFromRequest(
-  url: URL,
+  hostHeader: string | null,
   institutionIdHeader: string | null,
 ): string | null {
-  const host = url.hostname;
+  // Strip port if present (e.g. "school-a.localhost:3000" → "school-a.localhost")
+  const host = (hostHeader ?? "").split(":")[0];
   const parts = host.split(".");
 
   // Handle *.localhost (2 parts: ["school-a", "localhost"])

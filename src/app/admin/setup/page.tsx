@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InitialSuperAdminForm } from "@/components/auth/initial-super-admin-form";
+import { InitialSuperAdminForm } from "@/components/platform/initial-super-admin-form";
 import { hasAnySuperAdmin } from "@/server/auth/platform-super-admin";
 
 export default async function SetupPage() {

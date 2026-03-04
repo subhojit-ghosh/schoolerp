@@ -1,4 +1,4 @@
-import { getCurrentInstitution } from "@/server/auth/get-current-institution";
+import { getCurrentInstitution } from "@/server/institutions/get-current";
 import { requireOrgAccess, assertPermission } from "@/server/auth/require-org-access";
 
 export default async function AdmissionsPage() {

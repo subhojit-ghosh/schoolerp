@@ -10,7 +10,7 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { organization, member } from "@/lib/auth-schema";
+import { organization, member } from "@/db/schema/auth";
 
 // --- Academic Years ---
 export const academicYears = pgTable(

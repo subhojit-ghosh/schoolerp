@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { initialSuperAdminSchema } from "@/lib/auth/initial-super-admin-form";
+import { initialSuperAdminSchema } from "@/lib/platform/setup";
 import { createInitialSuperAdmin, hasAnySuperAdmin } from "@/server/auth/platform-super-admin";
 
 export async function POST(request: Request) {

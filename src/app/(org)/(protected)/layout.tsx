@@ -1,7 +1,7 @@
-import { getCurrentInstitution } from "@/server/auth/get-current-institution";
+import { getCurrentInstitution } from "@/server/institutions/get-current";
 import { requireOrgAccess } from "@/server/auth/require-org-access";
 import { OrgContextProvider } from "@/components/providers/org-context";
-import { AppSidebar } from "@/components/dashboard/app-sidebar";
+import { AppSidebar } from "@/components/org/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { NAV_ITEMS, filterNavItems } from "@/lib/nav";
