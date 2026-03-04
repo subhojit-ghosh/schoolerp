@@ -3,6 +3,7 @@
 import { createAuthClient } from "better-auth/client";
 import { organizationClient } from "better-auth/client/plugins";
 import { twoFactorClient } from "better-auth/client/plugins";
+import { ROUTES } from "@/constants";
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL ?? "http://localhost:3000",
@@ -12,7 +13,7 @@ export const authClient = createAuthClient({
 
     twoFactorClient({
       onTwoFactorRedirect() {
-        window.location.href = "/auth/2fa";
+        window.location.href = ROUTES.AUTH.TWO_FA;
       },
     }),
   ],
@@ -24,7 +25,7 @@ export const platformAuthClient = createAuthClient({
   plugins: [
     twoFactorClient({
       onTwoFactorRedirect() {
-        window.location.href = "/2fa";
+        window.location.href = ROUTES.ADMIN.TWO_FA;
       },
     }),
   ],

@@ -1,3 +1,5 @@
+import { ROLE_TYPES, ROLES } from "@/constants";
+
 export type RoleForPermissions = {
   permissions: string[];
 };
@@ -30,8 +32,8 @@ export function checkPermission(permissionSet: Set<string>, slug: string): boole
 export function requires2FA(roles: RoleFor2FA[]): boolean {
   return roles.some(
     (r) =>
-      r.role_type === "platform" ||
-      (r.role_type === "system" && r.slug === "institution_admin"),
+      r.role_type === ROLE_TYPES.PLATFORM ||
+      (r.role_type === ROLE_TYPES.SYSTEM && r.slug === ROLES.INSTITUTION_ADMIN),
   );
 }
 
