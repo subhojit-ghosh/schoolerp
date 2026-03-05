@@ -54,14 +54,19 @@ export function AdminSidebar({ adminName, adminEmail }: AdminSidebarProps) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href={ROUTES.ADMIN.DASHBOARD} />}>
-              <div className="bg-primary text-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+            <SidebarMenuButton
+              size="lg"
+              render={<Link href={ROUTES.ADMIN.DASHBOARD} />}
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                 <ShieldCheck className="size-4" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">Platform Admin</span>
-                <span className="truncate text-xs text-muted-foreground">Super Admin</span>
+                <span className="truncate text-xs">Super Admin</span>
               </div>
+              <ChevronsUpDown className="ml-auto" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

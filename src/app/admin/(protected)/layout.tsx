@@ -3,6 +3,7 @@ import { getPlatformSessionUser } from "@/server/auth/require-platform-super-adm
 import { AdminSidebar } from "@/components/platform/admin-sidebar";
 import { ROUTES } from "@/constants";
 import { ModeToggle } from "@/components/theme/mode-toggle";
+import { ProfileDropdown } from "@/components/platform/admin-header";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 
@@ -21,17 +22,16 @@ export default async function AdminProtectedLayout({
     <SidebarProvider>
       <AdminSidebar adminName={user.name} adminEmail={user.email} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-          <div className="flex items-center gap-2 px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            {/* Breadcrumb slot — populated per page */}
-          </div>
-          <div className="ml-auto px-4">
+        <header className="flex h-16 shrink-0 items-center gap-3 border-b px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+          <SidebarTrigger variant="outline" className="-ml-1" />
+          <Separator orientation="vertical" className="h-6" />
+          {/* Search slot — future global search goes here */}
+          <div className="ml-auto flex items-center gap-3">
             <ModeToggle />
+            <ProfileDropdown name={user.name} email={user.email} />
           </div>
         </header>
-        <main className="flex flex-1 flex-col p-4">
+        <main className="flex flex-1 flex-col gap-4 px-4 py-6 sm:gap-6">
           {children}
         </main>
       </SidebarInset>

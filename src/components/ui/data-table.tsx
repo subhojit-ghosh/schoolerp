@@ -8,9 +8,23 @@ import {
   type ColumnDef,
 } from "@tanstack/react-table";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import {
+  ArrowUp,
+  ArrowDown,
+  ChevronsLeft,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsRight,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -22,6 +36,7 @@ import {
 
 type PaginationInfo = {
   page: number;
+  pageSize: number;
   pageCount: number;
   total: number;
 };
@@ -84,7 +99,6 @@ export function DataTable<TData, TValue>({
     }, 300);
   }
 
-  // Sync search input when URL changes externally
   React.useEffect(() => {
     setSearchValue(currentSearch);
   }, [currentSearch]);
@@ -101,14 +115,14 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-3">
       {searchKey && (
-        <div className="pb-3">
+        <div>
           <Input
             placeholder={searchPlaceholder}
             value={searchValue}
             onChange={(e) => handleSearch(e.target.value)}
-            className="h-9 max-w-sm"
+            className="h-8 max-w-xs text-sm"
           />
         </div>
       )}
@@ -159,39 +173,81 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between pt-3">
-        <div className="text-muted-foreground text-sm">
-          Page {pagination.page} of {pagination.pageCount} ({pagination.total}{" "}
-          rows)
-        </div>
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              updateParams({ page: String(pagination.page - 1) })
+          <Select
+            value={String(pagination.pageSize)}
+            onValueChange={(value) =>
+              updateParams({ limit: value, page: null })
             }
-            disabled={pagination.page <= 1}
           >
-            Previous
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              updateParams({ page: String(pagination.page + 1) })
-            }
-            disabled={pagination.page >= pagination.pageCount}
-          >
-            Next
-          </Button>
+            <SelectTrigger className="h-8 w-[70px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-muted-foreground text-sm">Rows per page</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm">
+            Page {pagination.page} of {pagination.pageCount}
+          </span>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              onClick={() => updateParams({ page: "1" })}
+              disabled={pagination.page <= 1}
+            >
+              <ChevronsLeft className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              onClick={() =>
+                updateParams({ page: String(pagination.page - 1) })
+              }
+              disabled={pagination.page <= 1}
+            >
+              <ChevronLeft className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              onClick={() =>
+                updateParams({ page: String(pagination.page + 1) })
+              }
+              disabled={pagination.page >= pagination.pageCount}
+            >
+              <ChevronRight className="size-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-8"
+              onClick={() =>
+                updateParams({ page: String(pagination.pageCount) })
+              }
+              disabled={pagination.page >= pagination.pageCount}
+            >
+              <ChevronsRight className="size-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Helper component for sortable column headers
+// Helper for sortable column headers
 export function SortableHeader({
   columnId,
   label,
@@ -209,18 +265,18 @@ export function SortableHeader({
   return (
     <Button
       variant="ghost"
-      className="-ml-3"
+      className="-ml-3 h-8"
       onClick={() => sort(columnId)}
     >
       {label}
       {isActive ? (
         currentOrder === "asc" ? (
-          <ArrowUp className="ml-2 h-4 w-4" />
+          <ArrowUp className="ml-1 size-3.5" />
         ) : (
-          <ArrowDown className="ml-2 h-4 w-4" />
+          <ArrowDown className="ml-1 size-3.5" />
         )
       ) : (
-        <ArrowDown className="ml-2 h-4 w-4 opacity-0 group-hover:opacity-50" />
+        <ArrowDown className="ml-1 size-3.5 opacity-0" />
       )}
     </Button>
   );

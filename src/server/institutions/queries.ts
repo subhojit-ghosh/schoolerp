@@ -13,7 +13,8 @@ export type InstitutionRow = {
   createdAt: Date;
 };
 
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
+const ALLOWED_PAGE_SIZES = [10, 20, 50] as const;
 
 const sortableColumns = {
   name: organization.name,
@@ -25,6 +26,7 @@ type SortableColumn = keyof typeof sortableColumns;
 
 export type ListInstitutionsParams = {
   page?: number;
+  limit?: number;
   search?: string;
   sort?: string;
   order?: "asc" | "desc";
@@ -41,6 +43,9 @@ export type ListInstitutionsResult = {
 export async function listInstitutions(
   params: ListInstitutionsParams = {},
 ): Promise<ListInstitutionsResult> {
+  const pageSize = ALLOWED_PAGE_SIZES.includes(params.limit as typeof ALLOWED_PAGE_SIZES[number])
+    ? params.limit!
+    : DEFAULT_PAGE_SIZE;
   const page = Math.max(1, params.page ?? 1);
   const sortKey = (params.sort && params.sort in sortableColumns
     ? params.sort
@@ -61,7 +66,7 @@ export async function listInstitutions(
     .where(where);
 
   const total = totalRow?.count ?? 0;
-  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(page, pageCount);
 
   const rows = await db
@@ -76,10 +81,10 @@ export async function listInstitutions(
     .from(organization)
     .where(where)
     .orderBy(sortOrder(sortableColumns[sortKey]))
-    .limit(PAGE_SIZE)
-    .offset((safePage - 1) * PAGE_SIZE);
+    .limit(pageSize)
+    .offset((safePage - 1) * pageSize);
 
-  return { rows, total, page: safePage, pageSize: PAGE_SIZE, pageCount };
+  return { rows, total, page: safePage, pageSize, pageCount };
 }
 
 export type InstitutionCounts = {

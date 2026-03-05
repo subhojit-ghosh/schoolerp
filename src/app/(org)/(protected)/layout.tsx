@@ -31,17 +31,15 @@ export default async function OrgLayout({
           navItems={visibleNavItems}
         />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-            <div className="flex items-center gap-2 px-4">
-              <SidebarTrigger className="-ml-1" />
-              <Separator orientation="vertical" className="mr-2 h-4" />
-              {/* Breadcrumb slot — populated per page */}
-            </div>
-            <div className="ml-auto px-4">
+          <header className="flex h-16 shrink-0 items-center gap-3 border-b px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+            <SidebarTrigger variant="outline" className="-ml-1" />
+            <Separator orientation="vertical" className="h-6" />
+            {/* Search + breadcrumb slot */}
+            <div className="ml-auto flex items-center gap-3">
               <ModeToggle />
             </div>
           </header>
-          <main className="flex flex-1 flex-col gap-4 p-4">
+          <main className="flex flex-1 flex-col gap-4 px-4 py-6 sm:gap-6">
             {children}
           </main>
         </SidebarInset>

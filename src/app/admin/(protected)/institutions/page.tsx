@@ -5,6 +5,7 @@ type Props = {
   searchParams: Promise<{
     q?: string;
     page?: string;
+    limit?: string;
     sort?: string;
     order?: string;
   }>;
@@ -15,6 +16,7 @@ export default async function InstitutionsPage({ searchParams }: Props) {
   const result = await listInstitutions({
     search: params.q,
     page: params.page ? Number(params.page) : undefined,
+    limit: params.limit ? Number(params.limit) : undefined,
     sort: params.sort,
     order: params.order === "asc" || params.order === "desc" ? params.order : undefined,
   });
