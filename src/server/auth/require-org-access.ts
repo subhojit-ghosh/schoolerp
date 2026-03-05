@@ -14,16 +14,8 @@ import {
 import { member as memberTable } from "@/db/schema/auth";
 import { eq, and, isNull, inArray } from "drizzle-orm";
 import { requires2FA, resolvePermissions } from "@/lib/auth/permissions";
+import { AuthError } from "@/server/errors/auth-error";
 import type { InstitutionContext } from "@/server/institutions/get-current";
-
-export class AuthError extends Error {
-  constructor(
-    message: string,
-    public status: 400 | 401 | 403 | 500,
-  ) {
-    super(message);
-  }
-}
 
 export type OrgContext = {
   institution: InstitutionContext;
@@ -81,12 +73,12 @@ const requireOrgAccessCached = cache(
 
     // 1. Check institution is not suspended
     if (institution.status === STATUS.ORG.SUSPENDED) {
-      throw new AuthError("Forbidden", 403);
+      throw AuthError.forbidden();
     }
 
     // 2. Validate session
     const session = await auth.api.getSession({ headers: h });
-    if (!session) throw new AuthError("Unauthorized", 401);
+    if (!session) throw AuthError.unauthorized();
 
     const user = {
       id: session.user.id,
@@ -125,7 +117,7 @@ const requireOrgAccessCached = cache(
       )
       .limit(1);
 
-    if (!member) throw new AuthError("Forbidden", 403);
+    if (!member) throw AuthError.forbidden();
 
     const membershipId = member.id;
 
@@ -141,7 +133,7 @@ const requireOrgAccessCached = cache(
         ),
       );
 
-    if (activeRoleRows.length === 0) throw new AuthError("Forbidden", 403);
+    if (activeRoleRows.length === 0) throw AuthError.forbidden();
 
     const roleIds = activeRoleRows.map((r) => r.roleId);
     const resolvedRoles = await db
@@ -210,6 +202,6 @@ const requireOrgAccessCached = cache(
 export function assertPermission(ctx: OrgContext, permissionSlug: string): void {
   if (ctx.isSuperAdmin) return;
   if (!ctx.permissionSet.has(permissionSlug)) {
-    throw new AuthError(`Missing permission: ${permissionSlug}`, 403);
+    throw AuthError.forbidden(`Missing permission: ${permissionSlug}`);
   }
 }

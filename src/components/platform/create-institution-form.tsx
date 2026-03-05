@@ -23,7 +23,7 @@ import {
 } from "@/server/institutions/schemas";
 
 export function CreateInstitutionForm() {
-  const [state, action, isPending] = useActionState(createInstitution, null);
+  const [state, action, isPending] = useActionState(createInstitution, {});
 
   const {
     control,
@@ -33,11 +33,14 @@ export function CreateInstitutionForm() {
     defaultValues: { name: "", slug: "", institutionType: "" },
   });
 
+  const serverError =
+    state?.serverError ?? state?.validationErrors?.slug?._errors?.[0];
+
   return (
     <form action={action} className="flex flex-col gap-5">
-      {state && "error" in state && (
+      {serverError && (
         <p className="text-destructive rounded-md bg-destructive/10 px-3 py-2 text-sm">
-          {state.error}
+          {serverError}
         </p>
       )}
 

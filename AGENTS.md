@@ -94,6 +94,38 @@ export function MyForm() {
 Packages installed: `react-hook-form`, `zod`, `@hookform/resolvers`.
 shadcn component to add: `bunx shadcn add field`
 
+## Server Actions
+
+**All server actions must use `next-safe-action`.** The action client is in `src/lib/safe-action.ts`.
+
+- `actionClient` — base client with error handling
+- `superAdminAction` — extends `actionClient` with platform super-admin auth middleware
+- Form actions that work with `useActionState` must use `.stateAction()`, not `.action()`
+- Simple actions (suspend, delete, etc.) use `.action()` with an input schema
+- FormData parsing uses `zod-form-data` (`zfd.formData()` wrapping the plain zod schema)
+- DB-specific errors (e.g. unique violations) use `returnValidationErrors()` from `next-safe-action`
+- Postgres error extraction utilities are in `src/server/errors/db-error.ts`
+
+### Domain file structure
+
+Every server-side domain follows this pattern:
+
+```
+src/server/{domain}/
+  schemas.ts      — zod validation (plain + zfd.formData variants), types, UI constants
+  queries.ts      — read operations (called from RSC/layouts)
+  actions.ts      — write operations (next-safe-action, called from client)
+```
+
+Special files (not every domain needs these):
+- `get-current.ts` — request-scoped context resolution (e.g. current institution from subdomain)
+
+### Auth middleware
+
+- Platform admin actions → use `superAdminAction` from `src/lib/safe-action.ts`
+- Org-scoped actions → create `orgAction` middleware when needed (resolves org context + RBAC)
+- Auth errors use `AuthError` class from `src/server/errors/auth-error.ts`
+
 ## Framework Discoveries
 
 > **For AI agents:** When you discover something non-obvious about the framework, library version behavior, or a gotcha that bit us — add it here so future agents don't repeat the mistake.
@@ -114,6 +146,10 @@ shadcn component to add: `bunx shadcn add field`
 - To render a `Button` as a link, wrap with `<Link>` directly: `<Link href="..."><Button>...</Button></Link>`.
 - To render a trigger as a custom element: `<DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>`.
 - Nesting `AlertDialogTrigger` inside a `DropdownMenuItem` causes issues — use state instead: `const [open, setOpen] = useState(false)` + `<AlertDialog open={open} onOpenChange={setOpen}>`.
+
+### Zod v4
+- This project uses **Zod v4**. `z.string().uuid()` is deprecated — use `z.uuid()` instead.
+- Same for `z.string().email()` → `z.email()`, `z.string().url()` → `z.url()`, etc.
 
 ### Drizzle + PostgreSQL
 - `sql` tagged template must be imported from `drizzle-orm`, **not** `drizzle-orm/pg-core`.

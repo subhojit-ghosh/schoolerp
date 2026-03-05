@@ -5,7 +5,6 @@ import {
   timestamp,
   boolean,
   index,
-  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -96,7 +95,6 @@ export const organization = pgTable(
     status: text("status", { enum: ["active", "suspended"] }).default("active"),
     deletedAt: timestamp("deleted_at"),
   },
-  (table) => [uniqueIndex("organization_slug_uidx").on(table.slug)],
 );
 
 export const member = pgTable(

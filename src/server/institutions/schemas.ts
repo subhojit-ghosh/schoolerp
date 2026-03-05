@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { zfd } from "zod-form-data";
 
 const slugSchema = z
   .string()
@@ -19,6 +20,19 @@ export const updateInstitutionSchema = z.object({
 
 export type CreateInstitutionInput = z.infer<typeof createInstitutionSchema>;
 export type UpdateInstitutionInput = z.infer<typeof updateInstitutionSchema>;
+
+// FormData variants for server actions (wraps the same validation rules)
+export const createInstitutionFormSchema = zfd.formData({
+  name: zfd.text(createInstitutionSchema.shape.name),
+  slug: zfd.text(createInstitutionSchema.shape.slug),
+  institutionType: zfd.text(createInstitutionSchema.shape.institutionType),
+});
+
+export const updateInstitutionFormSchema = zfd.formData({
+  name: zfd.text(updateInstitutionSchema.shape.name),
+  slug: zfd.text(updateInstitutionSchema.shape.slug),
+  institutionType: zfd.text(updateInstitutionSchema.shape.institutionType),
+});
 
 // UI-level constants — stored as plain text in DB
 export const INSTITUTION_TYPES = [

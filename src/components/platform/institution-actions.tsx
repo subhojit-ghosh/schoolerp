@@ -40,21 +40,21 @@ export function InstitutionActions({ id, status }: InstitutionActionsProps) {
 
   function handleSuspend() {
     startTransition(async () => {
-      await suspendInstitution(id);
+      await suspendInstitution({ id });
       router.refresh();
     });
   }
 
   function handleRestore() {
     startTransition(async () => {
-      await restoreInstitution(id);
+      await restoreInstitution({ id });
       router.refresh();
     });
   }
 
   function handleDelete() {
     startTransition(async () => {
-      await deleteInstitution(id);
+      await deleteInstitution({ id });
       setDeleteOpen(false);
       router.refresh();
     });

@@ -29,7 +29,7 @@ type EditInstitutionFormProps = {
 
 export function EditInstitutionForm({ institution }: EditInstitutionFormProps) {
   const boundAction = updateInstitution.bind(null, institution.id);
-  const [state, action, isPending] = useActionState(boundAction, null);
+  const [state, action, isPending] = useActionState(boundAction, {});
 
   const {
     control,
@@ -43,11 +43,14 @@ export function EditInstitutionForm({ institution }: EditInstitutionFormProps) {
     },
   });
 
+  const serverError =
+    state?.serverError ?? state?.validationErrors?.slug?._errors?.[0];
+
   return (
     <form action={action} className="flex flex-col gap-5">
-      {state && "error" in state && (
+      {serverError && (
         <p className="text-destructive rounded-md bg-destructive/10 px-3 py-2 text-sm">
-          {state.error}
+          {serverError}
         </p>
       )}
 
