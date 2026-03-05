@@ -27,7 +27,7 @@ Use the new standalone CLI `bunx auth` (not the deprecated `@better-auth/cli`):
 ### Drizzle
 - `bun run db:generate` — generate migration files from schema
 - `bun run db:migrate` — apply migrations
-- `drizzle.config.ts` schema must include both files: `["./src/lib/schema.ts", "./src/lib/auth-schema.ts"]`
+- `drizzle.config.ts` schema must include both files: `["./src/db/schema/index.ts", "./src/db/schema/auth.ts"]`
 - `drizzle-kit` does **not** auto-load `.env.local`. Use the `db:generate` / `db:migrate` / `db:studio` / `seed` scripts which already include this flag.
 
 ## Forms
