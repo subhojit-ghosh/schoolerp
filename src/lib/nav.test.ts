@@ -1,6 +1,7 @@
 // src/lib/nav.test.ts
 import { describe, expect, test } from "bun:test";
 import { filterNavItems, NAV_ITEMS } from "./nav";
+import { PERMISSIONS } from "@/constants";
 
 describe("filterNavItems", () => {
   test("returns all items for super admin", () => {
@@ -9,7 +10,7 @@ describe("filterNavItems", () => {
   });
 
   test("returns only items matching permission set", () => {
-    const perms = new Set(["attendance:read", "grades:read"]);
+    const perms: Set<string> = new Set([PERMISSIONS.ATTENDANCE.READ, PERMISSIONS.GRADES.READ]);
     const result = filterNavItems(NAV_ITEMS, perms, false);
     expect(result.every((item) => perms.has(item.permission))).toBe(true);
     expect(result).toHaveLength(2);

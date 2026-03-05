@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { BUILT_IN_ROLES, BUILT_IN_PERMISSIONS, ROLE_PERMISSIONS } from "./index";
 import { isValidPermissionSlug } from "@/lib/auth/permissions";
+import { PERMISSIONS, ROLES } from "@/constants";
 
 describe("BUILT_IN_ROLES", () => {
   test("contains exactly 9 built-in roles", () => {
@@ -65,12 +66,12 @@ describe("ROLE_PERMISSIONS", () => {
   });
 
   test("student only has students:read", () => {
-    expect(ROLE_PERMISSIONS["student"]).toEqual(["students:read"]);
+    expect(ROLE_PERMISSIONS[ROLES.STUDENT]).toEqual([PERMISSIONS.STUDENTS.READ]);
   });
 
   test("principal does not have roles:manage or members:invite", () => {
     const perms = ROLE_PERMISSIONS["principal"];
-    expect(perms).not.toContain("roles:manage");
-    expect(perms).not.toContain("members:invite");
+    expect(perms).not.toContain(PERMISSIONS.ROLES.MANAGE);
+    expect(perms).not.toContain(PERMISSIONS.MEMBERS.INVITE);
   });
 });

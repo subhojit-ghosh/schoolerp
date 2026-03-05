@@ -5,15 +5,16 @@ import {
   requires2FA,
   isValidPermissionSlug,
 } from "./permissions";
+import { PERMISSIONS } from "@/constants";
 
 describe("resolvePermissions", () => {
   test("returns union of permissions across multiple roles", () => {
     const roles = [
-      { permissions: ["fees:read", "fees:write"] },
-      { permissions: ["students:read", "fees:read"] },
+      { permissions: [PERMISSIONS.FEES.READ, PERMISSIONS.FEES.WRITE] },
+      { permissions: [PERMISSIONS.STUDENTS.READ, PERMISSIONS.FEES.READ] },
     ];
     const result = resolvePermissions(roles);
-    expect(result).toEqual(new Set(["fees:read", "fees:write", "students:read"]));
+    expect(result).toEqual(new Set([PERMISSIONS.FEES.READ, PERMISSIONS.FEES.WRITE, PERMISSIONS.STUDENTS.READ]));
   });
 
   test("returns empty set when no roles", () => {
@@ -27,17 +28,17 @@ describe("resolvePermissions", () => {
 
 describe("checkPermission", () => {
   test("returns true when permission exists in set", () => {
-    const perms = new Set(["fees:read", "students:write"]);
-    expect(checkPermission(perms, "fees:read")).toBe(true);
+    const perms = new Set([PERMISSIONS.FEES.READ, PERMISSIONS.STUDENTS.WRITE]);
+    expect(checkPermission(perms, PERMISSIONS.FEES.READ)).toBe(true);
   });
 
   test("returns false (default deny) when permission not in set", () => {
-    const perms = new Set(["fees:read"]);
-    expect(checkPermission(perms, "fees:write")).toBe(false);
+    const perms = new Set([PERMISSIONS.FEES.READ]);
+    expect(checkPermission(perms, PERMISSIONS.FEES.WRITE)).toBe(false);
   });
 
   test("returns false on empty permission set (default deny)", () => {
-    expect(checkPermission(new Set(), "fees:read")).toBe(false);
+    expect(checkPermission(new Set(), PERMISSIONS.FEES.READ)).toBe(false);
   });
 });
 
