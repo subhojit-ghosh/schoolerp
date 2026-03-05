@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { HEADERS, ROUTES } from "@/constants";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlatformSignOutButton } from "@/components/platform/platform-sign-out-button";
-import { PlatformDashboard } from "@/components/platform/platform-dashboard";
 import { hasAnySuperAdmin } from "@/server/auth/platform-super-admin";
 import { getPlatformSessionUser } from "@/server/auth/require-platform-super-admin";
 import { getCurrentInstitution } from "@/server/institutions/get-current";
@@ -86,5 +85,5 @@ export default async function RootPage() {
     );
   }
 
-  return <PlatformDashboard sessionUser={sessionUser} />;
+  redirect("/admin/institutions");
 }

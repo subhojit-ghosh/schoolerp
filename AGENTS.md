@@ -25,10 +25,10 @@ Use the new standalone CLI `bunx auth` (not the deprecated `@better-auth/cli`):
 - `bunx auth init` — scaffold full setup interactively
 
 ### Drizzle
-- `bunx drizzle-kit generate` — generate migration files from schema
-- `bunx drizzle-kit migrate` — apply migrations
+- `bun run db:generate` — generate migration files from schema
+- `bun run db:migrate` — apply migrations
 - `drizzle.config.ts` schema must include both files: `["./src/lib/schema.ts", "./src/lib/auth-schema.ts"]`
-- `drizzle-kit` does **not** auto-load `.env.local`. Use `bun --env-file=.env.local drizzle-kit <cmd>` or the `db:studio` / `seed` scripts which already include this flag.
+- `drizzle-kit` does **not** auto-load `.env.local`. Use the `db:generate` / `db:migrate` / `db:studio` / `seed` scripts which already include this flag.
 
 ## Forms
 
@@ -91,9 +91,16 @@ shadcn component to add: `bunx shadcn add field`
 - See: https://nextjs.org/docs/messages/middleware-to-proxy
 
 ### Better Auth
-- `bunx auth migrate` only works with the **Kysely** adapter. With Drizzle, use `bunx drizzle-kit migrate` instead.
+- `bunx auth migrate` only works with the **Kysely** adapter. With Drizzle, use `bun run db:migrate` instead.
 - The new CLI is `bunx auth` — the old `@better-auth/cli` package is deprecated.
 - `BETTER_AUTH_SECRET` env var must be set; auth.ts throws at startup if missing.
+
+### shadcn / @base-ui/react
+- This project's shadcn components are built on **`@base-ui/react`**, not Radix UI.
+- **No `asChild` prop** — use the **`render` prop** instead: `render={<a href="..." />}` or `render={<Button variant="ghost" />}`.
+- To render a `Button` as a link, wrap with `<Link>` directly: `<Link href="..."><Button>...</Button></Link>`.
+- To render a trigger as a custom element: `<DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>`.
+- Nesting `AlertDialogTrigger` inside a `DropdownMenuItem` causes issues — use state instead: `const [open, setOpen] = useState(false)` + `<AlertDialog open={open} onOpenChange={setOpen}>`.
 
 ### Drizzle + PostgreSQL
 - `sql` tagged template must be imported from `drizzle-orm`, **not** `drizzle-orm/pg-core`.
