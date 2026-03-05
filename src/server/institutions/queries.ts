@@ -2,14 +2,14 @@ import "server-only";
 import { db } from "@/db";
 import { organization } from "@/db/schema/auth";
 import { eq, isNull, desc, count, sql } from "drizzle-orm";
-import { STATUS } from "@/constants";
+import { STATUS, type OrgStatus } from "@/constants";
 
 export type InstitutionRow = {
   id: string;
   name: string;
   slug: string;
   institutionType: string | null;
-  status: "active" | "suspended" | null;
+  status: OrgStatus | null;
   createdAt: Date;
 };
 

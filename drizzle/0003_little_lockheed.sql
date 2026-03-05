@@ -1,0 +1,3 @@
+DROP INDEX "organization_slug_uidx";--> statement-breakpoint
+CREATE UNIQUE INDEX "academic_years_single_current_per_institution_idx" ON "academic_years" USING btree ("institution_id") WHERE "academic_years"."is_current" IS TRUE AND "academic_years"."deleted_at" IS NULL;--> statement-breakpoint
+CREATE UNIQUE INDEX "member_org_user_active_unique_idx" ON "member" USING btree ("organization_id","user_id") WHERE "member"."deleted_at" IS NULL;

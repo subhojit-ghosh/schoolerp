@@ -16,3 +16,5 @@ export const STATUS = {
     ARCHIVED: "archived",
   },
 } as const;
+
+export type OrgStatus = (typeof STATUS.ORG)[keyof typeof STATUS.ORG];

@@ -7,7 +7,7 @@ describe("resolveInstitutionFromRequest", () => {
     expect(slug).toBe("school-a");
   });
 
-  test("falls back to X-Institution-Id header when no subdomain", () => {
+  test("falls back to X-Institution-Slug header when no subdomain", () => {
     const slug = resolveInstitutionFromRequest("localhost:3000", "school-b");
     expect(slug).toBe("school-b");
   });

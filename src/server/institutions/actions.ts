@@ -7,7 +7,13 @@ import { returnValidationErrors } from "next-safe-action";
 import { db } from "@/db";
 import { organization } from "@/db/schema/auth";
 import { eq } from "drizzle-orm";
-import { DB_ERROR_CODES, ERROR_MESSAGES, ROUTES, STATUS } from "@/constants";
+import {
+  DB_ERROR_CODES,
+  ERROR_MESSAGES,
+  ROUTE_BUILDERS,
+  ROUTES,
+  STATUS,
+} from "@/constants";
 import { superAdminAction } from "@/lib/safe-action";
 import {
   extractPostgresError,
@@ -72,7 +78,7 @@ export const updateInstitution = superAdminAction
     }
 
     revalidatePath(ROUTES.ADMIN.INSTITUTIONS);
-    revalidatePath(`${ROUTES.ADMIN.INSTITUTIONS}/${id}`);
+    revalidatePath(ROUTE_BUILDERS.ADMIN.INSTITUTION_BY_ID(id));
     redirect(ROUTES.ADMIN.INSTITUTIONS);
   });
 

@@ -1,7 +1,20 @@
 export const ROUTES = {
   DASHBOARD: "/dashboard",
   APP_PREFIX: "/app",
+  ROOT: "/",
+  ORG: {
+    ROOT: "/",
+    ATTENDANCE: "/attendance",
+    GRADES: "/grades",
+    STUDENTS: "/students",
+    FEES: "/fees",
+    REPORTS: "/reports",
+    MEMBERS: "/members",
+    ROLES: "/roles",
+    ADMISSIONS: "/admissions",
+  },
   AUTH: {
+    PREFIX: "/auth",
     SIGN_IN: "/auth/sign-in",
     SIGN_UP: "/auth/sign-up",
     TWO_FA: "/auth/2fa",
@@ -18,5 +31,12 @@ export const ROUTES = {
   API: {
     AUTH_PREFIX: "/api/auth",
     SETUP_PREFIX: "/api/setup/",
+    SETUP_SUPER_ADMIN: "/api/setup/super-admin",
+  },
+} as const;
+
+export const ROUTE_BUILDERS = {
+  ADMIN: {
+    INSTITUTION_BY_ID: (id: string) => `${ROUTES.ADMIN.INSTITUTIONS}/${id}`,
   },
 } as const;

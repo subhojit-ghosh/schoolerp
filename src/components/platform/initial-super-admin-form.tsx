@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants";
 import {
   initialSuperAdminSchema,
   type InitialSuperAdminValues,
@@ -30,7 +31,7 @@ export function InitialSuperAdminForm() {
   });
 
   async function onSubmit(values: InitialSuperAdminValues) {
-    const response = await fetch("/api/setup/super-admin", {
+    const response = await fetch(ROUTES.API.SETUP_SUPER_ADMIN, {
       method: "POST",
       headers: {
         "content-type": "application/json",

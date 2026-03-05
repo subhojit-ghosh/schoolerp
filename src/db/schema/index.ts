@@ -36,6 +36,9 @@ export const academicYears = pgTable(
       t.institutionId,
       t.isCurrent,
     ),
+    uniqueIndex("academic_years_single_current_per_institution_idx")
+      .on(t.institutionId)
+      .where(sql`${t.isCurrent} IS TRUE AND ${t.deletedAt} IS NULL`),
   ],
 );
 

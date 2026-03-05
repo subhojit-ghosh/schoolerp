@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { ROUTES, STATUS } from "@/constants";
+import { ROUTE_BUILDERS, STATUS, type OrgStatus } from "@/constants";
 import { MoreHorizontal } from "lucide-react";
 import {
   suspendInstitution,
@@ -30,7 +30,7 @@ import {
 
 type InstitutionActionsProps = {
   id: string;
-  status: "active" | "suspended" | null;
+  status: OrgStatus | null;
 };
 
 export function InstitutionActions({ id, status }: InstitutionActionsProps) {
@@ -68,7 +68,7 @@ export function InstitutionActions({ id, status }: InstitutionActionsProps) {
           <span className="sr-only">Open menu</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem render={<a href={`${ROUTES.ADMIN.INSTITUTIONS}/${id}`} />}>
+          <DropdownMenuItem render={<a href={ROUTE_BUILDERS.ADMIN.INSTITUTION_BY_ID(id)} />}>
             Edit
           </DropdownMenuItem>
           <DropdownMenuSeparator />

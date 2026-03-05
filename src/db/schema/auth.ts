@@ -5,7 +5,9 @@ import {
   timestamp,
   boolean,
   index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -117,6 +119,9 @@ export const member = pgTable(
   (table) => [
     index("member_organizationId_idx").on(table.organizationId),
     index("member_userId_idx").on(table.userId),
+    uniqueIndex("member_org_user_active_unique_idx")
+      .on(table.organizationId, table.userId)
+      .where(sql`${table.deletedAt} IS NULL`),
   ],
 );
 

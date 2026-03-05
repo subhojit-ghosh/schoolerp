@@ -3,30 +3,24 @@ import { auth } from "@/lib/auth";
 import { resolveInstitutionFromRequest } from "@/lib/tenant";
 import { ROUTES, HEADERS, COOKIES } from "@/constants";
 
+const isExactOrChildRoute = (path: string, baseRoute: string) =>
+  path === baseRoute || path.startsWith(`${baseRoute}/`);
+
 // Completely bypass — Better Auth handles these internally
-const isApiAuthRoute = (path: string) => path.startsWith(ROUTES.API.AUTH_PREFIX);
+const isApiAuthRoute = (path: string) =>
+  isExactOrChildRoute(path, ROUTES.API.AUTH_PREFIX);
 const isSetupRoute = (path: string) =>
-  path === ROUTES.ADMIN.SETUP || path.startsWith(ROUTES.ADMIN.SETUP + "/");
+  isExactOrChildRoute(path, ROUTES.ADMIN.SETUP);
 const isSetupApiRoute = (path: string) => path.startsWith(ROUTES.API.SETUP_PREFIX);
 const isPlatformAuthPage = (path: string) =>
   path === ROUTES.ADMIN.SIGN_IN || path === ROUTES.ADMIN.TWO_FA;
 const isPublicRoute = (path: string) =>
   isSetupRoute(path) || isSetupApiRoute(path);
-const ORG_CLEAN_PATHS = new Set([
-  "/",
-  "/attendance",
-  "/grades",
-  "/students",
-  "/fees",
-  "/reports",
-  "/members",
-  "/roles",
-  "/admissions",
-]);
+const ORG_CLEAN_PATHS: ReadonlySet<string> = new Set(Object.values(ROUTES.ORG));
 
 // Public-facing auth pages — institution context needed for branding, but no session
 const isAuthPage = (path: string) =>
-  path.startsWith("/auth/") || path === "/auth";
+  isExactOrChildRoute(path, ROUTES.AUTH.PREFIX);
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -40,17 +34,17 @@ export async function proxy(request: NextRequest) {
   // Use the raw `host` header — request.nextUrl.hostname is normalized by Next.js in middleware
   const institutionSlug = resolveInstitutionFromRequest(
     request.headers.get("host"),
-    request.headers.get(HEADERS.INSTITUTION_ID),
+    request.headers.get(HEADERS.INSTITUTION_SLUG),
   );
   const hasTwoFactorCookie = request.cookies.has(COOKIES.TWO_FACTOR);
   const isOrgCleanPath = institutionSlug ? ORG_CLEAN_PATHS.has(pathname) : false;
 
   // Admin routes are root-domain only — never accessible from a subdomain
-  if (institutionSlug && pathname.startsWith(ROUTES.ADMIN.PREFIX)) {
-    return NextResponse.redirect(new URL("/", request.url));
+  if (institutionSlug && isExactOrChildRoute(pathname, ROUTES.ADMIN.PREFIX)) {
+    return NextResponse.redirect(new URL(ROUTES.ROOT, request.url));
   }
 
-  if (!institutionSlug && pathname === "/") {
+  if (!institutionSlug && pathname === ROUTES.ROOT) {
     return NextResponse.next();
   }
 

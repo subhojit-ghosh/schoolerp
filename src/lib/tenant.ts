@@ -1,7 +1,7 @@
 const IGNORED_SUBDOMAINS = new Set(["www", "api", "app"]);
 
 /**
- * Resolves institution slug from subdomain or X-Institution-Id header.
+ * Resolves institution slug from subdomain or X-Institution-Slug header.
  * Subdomain takes precedence (subdomain-first strategy for white-label).
  * Header fallback supports API clients and single-domain mode.
  *
@@ -10,7 +10,7 @@ const IGNORED_SUBDOMAINS = new Set(["www", "api", "app"]);
  */
 export function resolveInstitutionFromRequest(
   hostHeader: string | null,
-  institutionIdHeader: string | null,
+  institutionSlugHeader: string | null,
 ): string | null {
   // Strip port if present (e.g. "school-a.localhost:3000" → "school-a.localhost")
   const host = (hostHeader ?? "").split(":")[0];
@@ -29,5 +29,5 @@ export function resolveInstitutionFromRequest(
     }
   }
 
-  return institutionIdHeader ?? null;
+  return institutionSlugHeader ?? null;
 }
