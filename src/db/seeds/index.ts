@@ -1,3 +1,5 @@
+import { ROLES, PERMISSIONS } from "@/constants";
+
 export type BuiltInRole = {
   id: string;
   name: string;
@@ -46,13 +48,29 @@ export const BUILT_IN_PERMISSIONS = [
 const ALL_PERMISSION_SLUGS = BUILT_IN_PERMISSIONS.map((p) => p.slug);
 
 export const ROLE_PERMISSIONS: Record<string, string[]> = {
-  institution_admin: ALL_PERMISSION_SLUGS,
-  principal: ALL_PERMISSION_SLUGS.filter((s) => s !== "roles:manage" && s !== "members:invite"),
-  teacher: ["attendance:write", "students:read", "grades:read", "grades:write"],
-  accountant: ["fees:read", "fees:write", "reports:export"],
-  librarian: ["library:read", "library:write"],
-  receptionist: ["students:read", "admissions:read"],
-  student: ["students:read"],
-  parent: ["students:read", "grades:read", "attendance:read", "fees:read"],
-  super_admin: [],
+  [ROLES.INSTITUTION_ADMIN]: ALL_PERMISSION_SLUGS,
+  [ROLES.PRINCIPAL]: ALL_PERMISSION_SLUGS.filter(
+    (s) => s !== PERMISSIONS.ROLES.MANAGE && s !== PERMISSIONS.MEMBERS.INVITE,
+  ),
+  [ROLES.TEACHER]: [
+    PERMISSIONS.ATTENDANCE.WRITE,
+    PERMISSIONS.STUDENTS.READ,
+    PERMISSIONS.GRADES.READ,
+    PERMISSIONS.GRADES.WRITE,
+  ],
+  [ROLES.ACCOUNTANT]: [
+    PERMISSIONS.FEES.READ,
+    PERMISSIONS.FEES.WRITE,
+    PERMISSIONS.REPORTS.EXPORT,
+  ],
+  [ROLES.LIBRARIAN]: [PERMISSIONS.LIBRARY.READ, PERMISSIONS.LIBRARY.WRITE],
+  [ROLES.RECEPTIONIST]: [PERMISSIONS.STUDENTS.READ, PERMISSIONS.ADMISSIONS.READ],
+  [ROLES.STUDENT]: [PERMISSIONS.STUDENTS.READ],
+  [ROLES.PARENT]: [
+    PERMISSIONS.STUDENTS.READ,
+    PERMISSIONS.GRADES.READ,
+    PERMISSIONS.ATTENDANCE.READ,
+    PERMISSIONS.FEES.READ,
+  ],
+  [ROLES.SUPER_ADMIN]: [],
 };

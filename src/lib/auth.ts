@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { organization } from "better-auth/plugins/organization";
 import { twoFactor } from "better-auth/plugins/two-factor";
+import { STATUS } from "@/constants";
 import { db } from "@/db";
 import * as authSchema from "@/db/schema/auth";
 
@@ -46,7 +47,7 @@ export const auth = betterAuth({
             status: {
               type: "string",
               required: false,
-              defaultValue: "active",
+              defaultValue: STATUS.ORG.ACTIVE,
             },
           },
         },
@@ -55,7 +56,7 @@ export const auth = betterAuth({
             status: {
               type: "string",
               required: false,
-              defaultValue: "active",
+              defaultValue: STATUS.MEMBER.ACTIVE,
             },
             deletedAt: {
               type: "date",
