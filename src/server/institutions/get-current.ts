@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { headers } from "next/headers";
 import { db } from "@/db";
+import { HEADERS, STATUS } from "@/constants";
 import { organization } from "@/db/schema/auth";
 import { eq } from "drizzle-orm";
 
@@ -22,7 +23,7 @@ export type InstitutionContext = {
  * this is a system bug, not a user error (proxy guarantees the header exists).
  */
 export async function getCurrentInstitution(): Promise<InstitutionContext> {
-  const slug = (await headers()).get("x-institution-slug");
+  const slug = (await headers()).get(HEADERS.INSTITUTION_SLUG);
   if (!slug) {
     throw new Error("Invariant: x-institution-slug header missing — check proxy configuration");
   }
@@ -44,7 +45,7 @@ const getInstitutionBySlug = cache(async (slug: string): Promise<InstitutionCont
     id: org.id,
     slug: org.slug,
     name: org.name,
-    status: org.status ?? "active",
+    status: org.status ?? STATUS.ORG.ACTIVE,
     branding: {
       logoUrl: null,       // TODO: add logoUrl column to organization table
       primaryColor: null,  // TODO: add primaryColor column to organization table

@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
+import { STATUS } from "@/constants";
 import { db } from "@/db";
 import {
   roles,
@@ -79,7 +80,7 @@ const requireOrgAccessCached = cache(
     };
 
     // 1. Check institution is not suspended
-    if (institution.status === "suspended") {
+    if (institution.status === STATUS.ORG.SUSPENDED) {
       throw new AuthError("Forbidden", 403);
     }
 
@@ -118,7 +119,7 @@ const requireOrgAccessCached = cache(
         and(
           eq(memberTable.organizationId, institution.id),
           eq(memberTable.userId, user.id),
-          eq(memberTable.status, "active"),
+          eq(memberTable.status, STATUS.MEMBER.ACTIVE),
           isNull(memberTable.deletedAt),
         ),
       )
