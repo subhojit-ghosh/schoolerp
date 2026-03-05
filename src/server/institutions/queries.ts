@@ -1,7 +1,7 @@
 import "server-only";
 import { db } from "@/db";
 import { organization } from "@/db/schema/auth";
-import { eq, isNull, desc, count, sql } from "drizzle-orm";
+import { eq, isNull, desc, asc, count, sql, ilike, and, type SQL } from "drizzle-orm";
 import { STATUS, type OrgStatus } from "@/constants";
 
 export type InstitutionRow = {
@@ -13,8 +13,58 @@ export type InstitutionRow = {
   createdAt: Date;
 };
 
-export async function listInstitutions(): Promise<InstitutionRow[]> {
-  return db
+const PAGE_SIZE = 10;
+
+const sortableColumns = {
+  name: organization.name,
+  slug: organization.slug,
+  createdAt: organization.createdAt,
+} as const;
+
+type SortableColumn = keyof typeof sortableColumns;
+
+export type ListInstitutionsParams = {
+  page?: number;
+  search?: string;
+  sort?: string;
+  order?: "asc" | "desc";
+};
+
+export type ListInstitutionsResult = {
+  rows: InstitutionRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+  pageCount: number;
+};
+
+export async function listInstitutions(
+  params: ListInstitutionsParams = {},
+): Promise<ListInstitutionsResult> {
+  const page = Math.max(1, params.page ?? 1);
+  const sortKey = (params.sort && params.sort in sortableColumns
+    ? params.sort
+    : "createdAt") as SortableColumn;
+  const sortOrder = params.order === "asc" ? asc : desc;
+
+  const conditions: SQL[] = [isNull(organization.deletedAt)];
+
+  if (params.search) {
+    conditions.push(ilike(organization.name, `%${params.search}%`));
+  }
+
+  const where = and(...conditions)!;
+
+  const [totalRow] = await db
+    .select({ count: count() })
+    .from(organization)
+    .where(where);
+
+  const total = totalRow?.count ?? 0;
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+
+  const rows = await db
     .select({
       id: organization.id,
       name: organization.name,
@@ -24,8 +74,12 @@ export async function listInstitutions(): Promise<InstitutionRow[]> {
       createdAt: organization.createdAt,
     })
     .from(organization)
-    .where(isNull(organization.deletedAt))
-    .orderBy(desc(organization.createdAt));
+    .where(where)
+    .orderBy(sortOrder(sortableColumns[sortKey]))
+    .limit(PAGE_SIZE)
+    .offset((safePage - 1) * PAGE_SIZE);
+
+  return { rows, total, page: safePage, pageSize: PAGE_SIZE, pageCount };
 }
 
 export type InstitutionCounts = {

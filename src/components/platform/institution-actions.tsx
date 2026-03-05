@@ -69,7 +69,7 @@ export function InstitutionActions({ id, status }: InstitutionActionsProps) {
           <span className="sr-only">Open menu</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem render={<Link href={ROUTE_BUILDERS.ADMIN.INSTITUTION_BY_ID(id)} />}>
+          <DropdownMenuItem render={<Link href={ROUTE_BUILDERS.ADMIN.INSTITUTION_BY_ID(id) as never} />}>
             Edit
           </DropdownMenuItem>
           <DropdownMenuSeparator />

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
@@ -73,7 +74,7 @@ export function AppSidebar({ institutionName, userName, userEmail, navItems }: P
                   const isActive = pathname.startsWith(item.href);
                   return (
                     <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton render={<a href={item.href} />} isActive={isActive}>
+                      <SidebarMenuButton render={<Link href={item.href as never} />} isActive={isActive}>
                         {Icon && <Icon className="h-4 w-4" />}
                         <span>{item.label}</span>
                       </SidebarMenuButton>

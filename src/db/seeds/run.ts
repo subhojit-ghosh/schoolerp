@@ -1,6 +1,7 @@
 import { db } from "@/db";
 import { roles, permissions, rolePermissions } from "@/db/schema";
-import { BUILT_IN_ROLES, BUILT_IN_PERMISSIONS, ROLE_PERMISSIONS } from "./index";
+import { organization } from "@/db/schema/auth";
+import { BUILT_IN_ROLES, BUILT_IN_PERMISSIONS, ROLE_PERMISSIONS, SEED_INSTITUTIONS } from "./index";
 
 async function runSeed() {
   console.log("Seeding roles...");
@@ -22,6 +23,9 @@ async function runSeed() {
         .onConflictDoNothing();
     }
   }
+
+  console.log("Seeding institutions...");
+  await db.insert(organization).values(SEED_INSTITUTIONS).onConflictDoNothing();
 
   console.log("Seed complete.");
   process.exit(0);

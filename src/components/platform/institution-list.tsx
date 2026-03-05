@@ -1,32 +1,28 @@
+"use client";
+
 import Link from "next/link";
 import { PlusIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { InstitutionActions } from "@/components/platform/institution-actions";
-import { ROUTES, STATUS } from "@/constants";
-import { INSTITUTION_TYPES } from "@/server/institutions/schemas";
-import type { InstitutionRow } from "@/server/institutions/queries";
-
-function typeLabel(value: string | null) {
-  if (!value) return "—";
-  return INSTITUTION_TYPES.find((t) => t.value === value)?.label ?? value;
-}
+import { DataTable } from "@/components/ui/data-table";
+import { institutionColumns } from "@/components/platform/institution-columns";
+import { ROUTES } from "@/constants";
+import type { ListInstitutionsResult } from "@/server/institutions/queries";
 
 type InstitutionListProps = {
-  institutions: InstitutionRow[];
+  result: ListInstitutionsResult;
 };
 
-export function InstitutionList({ institutions }: InstitutionListProps) {
+export function InstitutionList({ result }: InstitutionListProps) {
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Institutions</h1>
-          <p className="text-muted-foreground mt-1 text-sm">
-            {institutions.length} institution{institutions.length !== 1 ? "s" : ""}
+          <h1 className="text-lg font-semibold tracking-tight">Institutions</h1>
+          <p className="text-muted-foreground text-xs">
+            {result.total} institution{result.total !== 1 ? "s" : ""}
           </p>
         </div>
-        <Link href={ROUTES.ADMIN.NEW_INSTITUTION}>
+        <Link href={ROUTES.ADMIN.NEW_INSTITUTION as never}>
           <Button>
             <PlusIcon className="mr-2 size-4" />
             New institution
@@ -34,46 +30,17 @@ export function InstitutionList({ institutions }: InstitutionListProps) {
         </Link>
       </div>
 
-      {institutions.length === 0 ? (
-        <div className="text-muted-foreground rounded-lg border border-dashed py-16 text-center text-sm">
-          No institutions yet. Create the first one.
-        </div>
-      ) : (
-        <div className="rounded-lg border">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/40">
-                <th className="px-4 py-3 text-left font-medium">Name</th>
-                <th className="px-4 py-3 text-left font-medium">Slug</th>
-                <th className="px-4 py-3 text-left font-medium">Type</th>
-                <th className="px-4 py-3 text-left font-medium">Status</th>
-                <th className="px-4 py-3 text-right font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {institutions.map((inst) => (
-                <tr key={inst.id} className="border-b last:border-0 hover:bg-muted/20">
-                  <td className="px-4 py-3 font-medium">{inst.name}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                    {inst.slug}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant="outline">{typeLabel(inst.institutionType)}</Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant={inst.status === STATUS.ORG.ACTIVE ? "default" : "secondary"}>
-                      {inst.status ?? STATUS.ORG.ACTIVE}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <InstitutionActions id={inst.id} status={inst.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        columns={institutionColumns}
+        data={result.rows}
+        pagination={{
+          page: result.page,
+          pageCount: result.pageCount,
+          total: result.total,
+        }}
+        searchKey="name"
+        searchPlaceholder="Filter institutions..."
+      />
     </div>
   );
 }

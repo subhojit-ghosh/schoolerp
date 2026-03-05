@@ -1,4 +1,4 @@
-import { ROLES, PERMISSIONS, ROLE_TYPES } from "@/constants";
+import { ROLES, PERMISSIONS, ROLE_TYPES, STATUS } from "@/constants";
 
 export type BuiltInRole = {
   id: string;
@@ -74,3 +74,32 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
   ],
   [ROLES.SUPER_ADMIN]: [],
 };
+
+type InstitutionType = "primary_school" | "high_school" | "college";
+
+const institutionNames: { name: string; slug: string; type: InstitutionType }[] = [
+  { name: "Greenwood International School", slug: "greenwood", type: "high_school" },
+  { name: "St. Xavier's College", slug: "st-xaviers", type: "college" },
+  { name: "Sunrise Primary Academy", slug: "sunrise-primary", type: "primary_school" },
+  { name: "Delhi Public School", slug: "dps-main", type: "high_school" },
+  { name: "National Institute of Technology", slug: "nit-central", type: "college" },
+  { name: "Little Stars Kindergarten", slug: "little-stars", type: "primary_school" },
+  { name: "Cambridge High School", slug: "cambridge-hs", type: "high_school" },
+  { name: "Presidency University", slug: "presidency-uni", type: "college" },
+  { name: "Rainbow Primary School", slug: "rainbow-primary", type: "primary_school" },
+  { name: "Modern Public School", slug: "modern-public", type: "high_school" },
+  { name: "St. Mary's Convent School", slug: "st-marys", type: "high_school" },
+  { name: "IIT Academy", slug: "iit-academy", type: "college" },
+  { name: "Bright Future School", slug: "bright-future", type: "primary_school" },
+  { name: "Heritage International School", slug: "heritage-intl", type: "high_school" },
+  { name: "Lakeside College of Arts", slug: "lakeside-arts", type: "college" },
+];
+
+export const SEED_INSTITUTIONS = institutionNames.map((inst, i) => ({
+  id: crypto.randomUUID(),
+  name: inst.name,
+  slug: inst.slug,
+  institutionType: inst.type,
+  status: i % 5 === 4 ? STATUS.ORG.SUSPENDED : STATUS.ORG.ACTIVE,
+  createdAt: new Date(Date.now() - i * 86400000),
+}));
