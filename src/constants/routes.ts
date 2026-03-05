@@ -8,6 +8,9 @@ export const ROUTES = {
   },
   ADMIN: {
     PREFIX: "/admin",
+    DASHBOARD: "/admin/dashboard",
+    INSTITUTIONS: "/admin/institutions",
+    NEW_INSTITUTION: "/admin/institutions/new",
     SIGN_IN: "/admin/auth/sign-in",
     TWO_FA: "/admin/auth/2fa",
     SETUP: "/admin/setup",

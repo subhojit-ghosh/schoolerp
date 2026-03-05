@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { STATUS } from "@/constants";
 import { EditInstitutionForm } from "@/components/platform/edit-institution-form";
 import { getInstitutionById } from "@/server/institutions/queries";
 
@@ -37,9 +38,9 @@ export default async function EditInstitutionPage({
                 </CardDescription>
               </div>
               <Badge
-                variant={institution.status === "active" ? "default" : "secondary"}
+                variant={institution.status === STATUS.ORG.ACTIVE ? "default" : "secondary"}
               >
-                {institution.status ?? "active"}
+                {institution.status ?? STATUS.ORG.ACTIVE}
               </Badge>
             </div>
           </CardHeader>

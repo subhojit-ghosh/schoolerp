@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ROUTES } from "@/constants";
 import { updateInstitution } from "@/server/institutions/actions";
 import {
   updateInstitutionSchema,
@@ -105,7 +106,7 @@ export function EditInstitutionForm({ institution }: EditInstitutionFormProps) {
         <Button type="submit" disabled={isPending}>
           {isPending ? "Saving…" : "Save changes"}
         </Button>
-        <Link href="/admin/institutions">
+        <Link href={ROUTES.ADMIN.INSTITUTIONS}>
           <Button type="button" variant="outline">
             Cancel
           </Button>

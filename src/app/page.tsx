@@ -5,52 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PlatformSignOutButton } from "@/components/platform/platform-sign-out-button";
 import { hasAnySuperAdmin } from "@/server/auth/platform-super-admin";
 import { getPlatformSessionUser } from "@/server/auth/require-platform-super-admin";
-import { getCurrentInstitution } from "@/server/institutions/get-current";
-import { requireOrgAccess } from "@/server/auth/require-org-access";
-import { OrgContextProvider } from "@/components/providers/org-context";
-import { AppSidebar } from "@/components/org/app-sidebar";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
-import { NAV_ITEMS, filterNavItems } from "@/lib/nav";
 
 export default async function RootPage() {
   const institutionSlug = (await headers()).get(HEADERS.INSTITUTION_SLUG);
 
   if (institutionSlug) {
-    const institution = await getCurrentInstitution();
-    const org = await requireOrgAccess(institution);
-    const visibleNavItems = filterNavItems(
-      NAV_ITEMS,
-      org.permissionSet,
-      org.isSuperAdmin,
-    );
-
-    return (
-      <OrgContextProvider value={org}>
-        <SidebarProvider>
-          <AppSidebar
-            institutionName={institution.name}
-            userName={org.user.name}
-            userEmail={org.user.email}
-            navItems={visibleNavItems}
-          />
-          <SidebarInset>
-            <header className="flex h-16 items-center gap-2 border-b px-4">
-              <SidebarTrigger className="-ml-1" />
-              <Separator orientation="vertical" className="mr-2 h-4" />
-            </header>
-            <main className="flex flex-1 flex-col gap-4 p-4">
-              <div>
-                <h1 className="text-2xl font-bold">Welcome to {institution.name}</h1>
-                <p className="text-muted-foreground mt-1">
-                  Select a module from the sidebar to get started.
-                </p>
-              </div>
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
-      </OrgContextProvider>
-    );
+    redirect(ROUTES.DASHBOARD);
   }
 
   if (!(await hasAnySuperAdmin())) {
@@ -85,5 +45,5 @@ export default async function RootPage() {
     );
   }
 
-  redirect("/admin/institutions");
+  redirect(ROUTES.ADMIN.DASHBOARD);
 }

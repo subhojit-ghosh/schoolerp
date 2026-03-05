@@ -1,7 +1,8 @@
 import "server-only";
 import { db } from "@/db";
 import { organization } from "@/db/schema/auth";
-import { eq, isNull, desc } from "drizzle-orm";
+import { eq, isNull, desc, count, sql } from "drizzle-orm";
+import { STATUS } from "@/constants";
 
 export type InstitutionRow = {
   id: string;
@@ -25,6 +26,29 @@ export async function listInstitutions(): Promise<InstitutionRow[]> {
     .from(organization)
     .where(isNull(organization.deletedAt))
     .orderBy(desc(organization.createdAt));
+}
+
+export type InstitutionCounts = {
+  total: number;
+  active: number;
+  suspended: number;
+};
+
+export async function countInstitutionsByStatus(): Promise<InstitutionCounts> {
+  const [row] = await db
+    .select({
+      total: count(),
+      active: count(sql`CASE WHEN ${organization.status} = ${STATUS.ORG.ACTIVE} THEN 1 END`),
+      suspended: count(sql`CASE WHEN ${organization.status} = ${STATUS.ORG.SUSPENDED} THEN 1 END`),
+    })
+    .from(organization)
+    .where(isNull(organization.deletedAt));
+
+  return {
+    total: row?.total ?? 0,
+    active: row?.active ?? 0,
+    suspended: row?.suspended ?? 0,
+  };
 }
 
 export async function getInstitutionById(id: string): Promise<InstitutionRow | null> {

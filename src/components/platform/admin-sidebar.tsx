@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Building2 } from "lucide-react";
+import { Building2, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ROUTES } from "@/constants";
 import { PlatformSignOutButton } from "@/components/platform/platform-sign-out-button";
 
 const NAV_ITEMS = [
-  { label: "Institutions", href: "/admin/institutions", icon: Building2 },
+  { label: "Dashboard", href: ROUTES.ADMIN.DASHBOARD, icon: LayoutDashboard },
+  { label: "Institutions", href: ROUTES.ADMIN.INSTITUTIONS, icon: Building2 },
 ];
 
 type AdminSidebarProps = {
@@ -24,13 +26,15 @@ export function AdminSidebar({ adminName }: AdminSidebarProps) {
       </div>
 
       <nav className="flex-1 space-y-1 p-2">
-        {NAV_ITEMS.map(({ label, href, icon: Icon }) => (
+        {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
+          const isActive = pathname.startsWith(href);
+          return (
           <Link
             key={href}
             href={href}
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
-              pathname.startsWith(href)
+              isActive
                 ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                 : "text-sidebar-foreground hover:bg-sidebar-accent/50",
             )}
@@ -38,7 +42,8 @@ export function AdminSidebar({ adminName }: AdminSidebarProps) {
             <Icon className="size-4" />
             {label}
           </Link>
-        ))}
+          );
+        })}
       </nav>
 
       <div className="border-t p-3">

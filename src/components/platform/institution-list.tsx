@@ -3,6 +3,7 @@ import { PlusIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { InstitutionActions } from "@/components/platform/institution-actions";
+import { ROUTES, STATUS } from "@/constants";
 import { INSTITUTION_TYPES } from "@/server/institutions/schemas";
 import type { InstitutionRow } from "@/server/institutions/queries";
 
@@ -25,7 +26,7 @@ export function InstitutionList({ institutions }: InstitutionListProps) {
             {institutions.length} institution{institutions.length !== 1 ? "s" : ""}
           </p>
         </div>
-        <Link href="/admin/institutions/new">
+        <Link href={ROUTES.ADMIN.NEW_INSTITUTION}>
           <Button>
             <PlusIcon className="mr-2 size-4" />
             New institution
@@ -60,8 +61,8 @@ export function InstitutionList({ institutions }: InstitutionListProps) {
                     <Badge variant="outline">{typeLabel(inst.institutionType)}</Badge>
                   </td>
                   <td className="px-4 py-3">
-                    <Badge variant={inst.status === "active" ? "default" : "secondary"}>
-                      {inst.status ?? "active"}
+                    <Badge variant={inst.status === STATUS.ORG.ACTIVE ? "default" : "secondary"}>
+                      {inst.status ?? STATUS.ORG.ACTIVE}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-right">

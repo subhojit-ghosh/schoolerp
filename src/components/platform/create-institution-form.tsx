@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ROUTES } from "@/constants";
 import { createInstitution } from "@/server/institutions/actions";
 import {
   createInstitutionSchema,
@@ -95,7 +96,7 @@ export function CreateInstitutionForm() {
         <Button type="submit" disabled={isPending}>
           {isPending ? "Creating…" : "Create institution"}
         </Button>
-        <Link href="/admin/institutions">
+        <Link href={ROUTES.ADMIN.INSTITUTIONS}>
           <Button type="button" variant="outline">
             Cancel
           </Button>

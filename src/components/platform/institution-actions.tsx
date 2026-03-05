@@ -20,6 +20,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { ROUTES, STATUS } from "@/constants";
 import { MoreHorizontal } from "lucide-react";
 import {
   suspendInstitution,
@@ -67,11 +68,11 @@ export function InstitutionActions({ id, status }: InstitutionActionsProps) {
           <span className="sr-only">Open menu</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem render={<a href={`/admin/institutions/${id}`} />}>
+          <DropdownMenuItem render={<a href={`${ROUTES.ADMIN.INSTITUTIONS}/${id}`} />}>
             Edit
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          {status === "active" ? (
+          {status === STATUS.ORG.ACTIVE ? (
             <DropdownMenuItem onClick={handleSuspend} disabled={isPending}>
               Suspend
             </DropdownMenuItem>

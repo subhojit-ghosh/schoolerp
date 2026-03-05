@@ -16,6 +16,19 @@ ORM we use - Drizzle (https://orm.drizzle.team)
 
 Keep all the plans in `./docs/plans`.
 
+## Hard Rules
+
+### No magic strings or magic numbers
+**Never** use hardcoded string literals or numeric constants inline. Always define them in `src/constants/` and import from `@/constants`. This applies to:
+- **Routes** — use `ROUTES.*` (e.g. `ROUTES.ADMIN.INSTITUTIONS`, not `"/admin/institutions"`)
+- **Status values** — use `STATUS.*` (e.g. `STATUS.ORG.ACTIVE`, not `"active"`)
+- **Roles** — use `ROLES.*`
+- **Permissions** — use `PERMISSIONS.*`
+- **Nav groups** — use `NAV_GROUPS.*`
+- **Headers / cookies** — use `HEADERS.*` / `COOKIES.*`
+
+The only exceptions are schema enum definitions in `src/db/schema/` (those are the source of truth) and the constants files themselves.
+
 ## Tool Commands
 
 ### Better Auth CLI

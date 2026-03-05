@@ -25,7 +25,7 @@ import * as Icons from "lucide-react";
 import type { NavItem } from "@/lib/nav";
 import { authClient } from "@/lib/auth-client";
 import { useRouter, usePathname } from "next/navigation";
-import { ROUTES } from "@/constants";
+import { ROUTES, NAV_GROUP_LABELS, NAV_GROUP_ORDER } from "@/constants";
 
 type Props = {
   institutionName: string;
@@ -34,21 +34,14 @@ type Props = {
   navItems: NavItem[];
 };
 
-const GROUP_LABELS: Record<string, string> = {
-  academics: "Academics",
-  finance: "Finance",
-  admin: "Administration",
-};
-
-const GROUP_ORDER = ["academics", "finance", "admin"] as const;
 
 export function AppSidebar({ institutionName, userName, userEmail, navItems }: Props) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const groupedItems = GROUP_ORDER.map((group) => ({
+  const groupedItems = NAV_GROUP_ORDER.map((group) => ({
     group,
-    label: GROUP_LABELS[group],
+    label: NAV_GROUP_LABELS[group],
     items: navItems.filter((item) => item.group === group),
   })).filter((g) => g.items.length > 0);
 

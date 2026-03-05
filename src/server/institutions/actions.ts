@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { organization } from "@/db/schema/auth";
 import { eq } from "drizzle-orm";
+import { ROUTES, STATUS } from "@/constants";
 import { getPlatformSessionUser } from "@/server/auth/require-platform-super-admin";
 import { createInstitutionSchema, updateInstitutionSchema } from "./schemas";
 
@@ -42,15 +43,15 @@ export async function createInstitution(
       slug,
       institutionType,
       createdAt: new Date(),
-      status: "active",
+      status: STATUS.ORG.ACTIVE,
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Something went wrong";
     return { error: message };
   }
 
-  revalidatePath("/admin/institutions");
-  redirect("/admin/institutions");
+  revalidatePath(ROUTES.ADMIN.INSTITUTIONS);
+  redirect(ROUTES.ADMIN.INSTITUTIONS);
 }
 
 export async function updateInstitution(
@@ -80,9 +81,9 @@ export async function updateInstitution(
     return { error: message };
   }
 
-  revalidatePath("/admin/institutions");
-  revalidatePath(`/admin/institutions/${id}`);
-  redirect("/admin/institutions");
+  revalidatePath(ROUTES.ADMIN.INSTITUTIONS);
+  revalidatePath(`${ROUTES.ADMIN.INSTITUTIONS}/${id}`);
+  redirect(ROUTES.ADMIN.INSTITUTIONS);
 }
 
 export async function suspendInstitution(id: string): Promise<ActionResult> {
@@ -90,9 +91,9 @@ export async function suspendInstitution(id: string): Promise<ActionResult> {
     await assertSuperAdmin();
     await db
       .update(organization)
-      .set({ status: "suspended" })
+      .set({ status: STATUS.ORG.SUSPENDED })
       .where(eq(organization.id, id));
-    revalidatePath("/admin/institutions");
+    revalidatePath(ROUTES.ADMIN.INSTITUTIONS);
     return { success: true };
   } catch (e) {
     const message = e instanceof Error ? e.message : "Something went wrong";
@@ -105,9 +106,9 @@ export async function restoreInstitution(id: string): Promise<ActionResult> {
     await assertSuperAdmin();
     await db
       .update(organization)
-      .set({ status: "active" })
+      .set({ status: STATUS.ORG.ACTIVE })
       .where(eq(organization.id, id));
-    revalidatePath("/admin/institutions");
+    revalidatePath(ROUTES.ADMIN.INSTITUTIONS);
     return { success: true };
   } catch (e) {
     const message = e instanceof Error ? e.message : "Something went wrong";
@@ -122,7 +123,7 @@ export async function deleteInstitution(id: string): Promise<ActionResult> {
       .update(organization)
       .set({ deletedAt: new Date() })
       .where(eq(organization.id, id));
-    revalidatePath("/admin/institutions");
+    revalidatePath(ROUTES.ADMIN.INSTITUTIONS);
     return { success: true };
   } catch (e) {
     const message = e instanceof Error ? e.message : "Something went wrong";
