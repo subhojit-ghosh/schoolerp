@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { HEADERS, ROUTES } from "@/constants";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlatformSignOutButton } from "@/components/platform/platform-sign-out-button";
 import { PlatformDashboard } from "@/components/platform/platform-dashboard";
@@ -14,7 +15,7 @@ import { Separator } from "@/components/ui/separator";
 import { NAV_ITEMS, filterNavItems } from "@/lib/nav";
 
 export default async function RootPage() {
-  const institutionSlug = (await headers()).get("x-institution-slug");
+  const institutionSlug = (await headers()).get(HEADERS.INSTITUTION_SLUG);
 
   if (institutionSlug) {
     const institution = await getCurrentInstitution();
@@ -54,13 +55,13 @@ export default async function RootPage() {
   }
 
   if (!(await hasAnySuperAdmin())) {
-    redirect("/admin/setup");
+    redirect(ROUTES.ADMIN.SETUP);
   }
 
   const sessionUser = await getPlatformSessionUser();
 
   if (!sessionUser) {
-    redirect("/admin/auth/sign-in");
+    redirect(ROUTES.ADMIN.SIGN_IN);
   }
 
   if (!sessionUser.isSuperAdmin) {

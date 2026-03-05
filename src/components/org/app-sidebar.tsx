@@ -25,6 +25,7 @@ import * as Icons from "lucide-react";
 import type { NavItem } from "@/lib/nav";
 import { authClient } from "@/lib/auth-client";
 import { useRouter, usePathname } from "next/navigation";
+import { ROUTES } from "@/constants";
 
 type Props = {
   institutionName: string;
@@ -53,7 +54,7 @@ export function AppSidebar({ institutionName, userName, userEmail, navItems }: P
 
   async function handleSignOut() {
     await authClient.signOut();
-    router.push("/auth/sign-in");
+    router.push(ROUTES.AUTH.SIGN_IN);
   }
 
   return (

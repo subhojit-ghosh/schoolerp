@@ -8,10 +8,11 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { platformAuthClient } from "@/lib/auth-client";
+import { V } from "@/constants";
 
 const schema = z.object({
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: V.email,
+  password: V.password,
 });
 
 type FormValues = z.infer<typeof schema>;
