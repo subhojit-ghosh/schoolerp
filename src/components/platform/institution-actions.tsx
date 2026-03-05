@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -68,7 +69,7 @@ export function InstitutionActions({ id, status }: InstitutionActionsProps) {
           <span className="sr-only">Open menu</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem render={<a href={ROUTE_BUILDERS.ADMIN.INSTITUTION_BY_ID(id)} />}>
+          <DropdownMenuItem render={<Link href={ROUTE_BUILDERS.ADMIN.INSTITUTION_BY_ID(id)} />}>
             Edit
           </DropdownMenuItem>
           <DropdownMenuSeparator />

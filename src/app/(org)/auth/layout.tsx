@@ -1,4 +1,5 @@
 import { getCurrentInstitutionBranding } from "@/server/institutions/get-current";
+import { ModeToggle } from "@/components/theme/mode-toggle";
 
 export default async function AuthLayout({
   children,
@@ -28,9 +29,14 @@ export default async function AuthLayout({
       </div>
 
       {/* Right panel — auth form */}
-      <div className="flex items-center justify-center p-8">
+      <div className="flex flex-col p-8">
+        <div className="mb-8 flex justify-end">
+          <ModeToggle />
+        </div>
+        <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-sm">
           {children}
+        </div>
         </div>
       </div>
     </div>

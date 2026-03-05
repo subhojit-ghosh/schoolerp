@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/org/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { NAV_ITEMS, filterNavItems } from "@/lib/nav";
+import { ModeToggle } from "@/components/theme/mode-toggle";
 
 export default async function OrgLayout({
   children,
@@ -34,6 +35,9 @@ export default async function OrgLayout({
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
             {/* Breadcrumb goes here — populated per page */}
+            <div className="ml-auto">
+              <ModeToggle />
+            </div>
           </header>
           <main className="flex flex-1 flex-col gap-4 p-4">
             {children}

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getSessionCookie } from "better-auth/cookies";
 import { resolveInstitutionFromRequest } from "@/lib/tenant";
 import { ROUTES, HEADERS, COOKIES } from "@/constants";
 
@@ -75,18 +75,17 @@ export async function proxy(request: NextRequest) {
   }
 
   // Platform routes: root-domain control plane, no institution context required
+  // Cookie-only check (no DB hit) — full session validation happens in layouts
   if (!institutionSlug) {
-    const session = await auth.api.getSession({ headers: request.headers });
-    if (!session) {
+    const sessionCookie = getSessionCookie(request);
+    if (!sessionCookie) {
       if (hasTwoFactorCookie) {
         return NextResponse.redirect(new URL(ROUTES.ADMIN.TWO_FA, request.url));
       }
       return NextResponse.redirect(new URL(ROUTES.ADMIN.SIGN_IN, request.url));
     }
 
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set(HEADERS.USER_ID, session.user.id);
-    return NextResponse.next({ request: { headers: requestHeaders } });
+    return NextResponse.next();
   }
 
   // Org-scoped routes: institution slug required
@@ -101,18 +100,18 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  // All other routes: validate session
-  const session = await auth.api.getSession({ headers: request.headers });
-  if (!session) {
+  // All other routes: cookie-only session check (no DB hit)
+  // Full session validation happens in layouts via requireOrgAccess / getPlatformSessionUser
+  const sessionCookie = getSessionCookie(request);
+  if (!sessionCookie) {
     if (isOrgScopedRoute && hasTwoFactorCookie) {
       return NextResponse.redirect(new URL(ROUTES.AUTH.TWO_FA, request.url));
     }
     return NextResponse.redirect(new URL(ROUTES.AUTH.SIGN_IN, request.url));
   }
 
-  // Pass resolved context downstream via request headers
+  // Pass institution context downstream via request headers
   const requestHeaders = new Headers(request.headers);
-  requestHeaders.set(HEADERS.USER_ID, session.user.id);
   if (institutionSlug) {
     requestHeaders.set(HEADERS.INSTITUTION_SLUG, institutionSlug);
   }

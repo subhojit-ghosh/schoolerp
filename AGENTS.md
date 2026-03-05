@@ -129,16 +129,21 @@ Special files (not every domain needs these):
 ## Framework Discoveries
 
 > **For AI agents:** When you discover something non-obvious about the framework, library version behavior, or a gotcha that bit us — add it here so future agents don't repeat the mistake.
+>
+> **Self-healing rule:** When you discover a new gotcha, anti-pattern, or mistake during development — even if the user doesn't ask — you MUST add it to this section immediately. Do not wait to be told. This file is the project's immune system; every mistake caught once should be prevented forever.
 
 ### Next.js 16
+
 - The middleware file is **`src/proxy.ts`** (not `middleware.ts`) — Next.js 16 renamed the convention.
 - The exported function must be named **`proxy`** (not `middleware`).
 - See: https://nextjs.org/docs/messages/middleware-to-proxy
+- **Never use plain `<a href>` for internal navigation.** Always use Next.js `<Link>` (from `next/link`). A bare `<a>` causes a full page reload, losing client-side state and triggering unnecessary layout re-renders. This includes inside shadcn `render` props — use `render={<Link href="..." />}`, not `render={<a href="..." />}`.
 
 ### Better Auth
 - `bunx auth migrate` only works with the **Kysely** adapter. With Drizzle, use `bun run db:migrate` instead.
 - The new CLI is `bunx auth` — the old `@better-auth/cli` package is deprecated.
 - `BETTER_AUTH_SECRET` env var must be set; auth.ts throws at startup if missing.
+- **Session checks in proxy.ts must use `getSessionCookie()` from `better-auth/cookies`, NOT `auth.api.getSession()`.** `getSessionCookie()` only checks cookie existence (no DB hit, ~1ms). Full session validation (`auth.api.getSession()`) happens in layouts/pages via `requireOrgAccess()` and `getPlatformSessionUser()`. This is the two-layer pattern recommended by Better Auth for Next.js 16: fast cookie guard in proxy, full DB validation in server components. See: https://better-auth.com/docs/integrations/next#nextjs-16-proxy
 
 ### shadcn / @base-ui/react
 - This project's shadcn components are built on **`@base-ui/react`**, not Radix UI.
