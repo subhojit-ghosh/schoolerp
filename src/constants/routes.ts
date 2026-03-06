@@ -29,6 +29,7 @@ export const ROUTES = {
   },
   API: {
     AUTH_PREFIX: "/api/auth",
+    INNGEST: "/api/inngest",
     SETUP_PREFIX: "/api/setup/",
     SETUP_SUPER_ADMIN: "/api/setup/super-admin",
   },

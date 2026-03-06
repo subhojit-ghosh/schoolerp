@@ -138,6 +138,18 @@ Special files (not every domain needs these):
 - The exported function must be named **`proxy`** (not `middleware`).
 - See: https://nextjs.org/docs/messages/middleware-to-proxy
 - **Never use plain `<a href>` for internal navigation.** Always use Next.js `<Link>` (from `next/link`). A bare `<a>` causes a full page reload, losing client-side state and triggering unnecessary layout re-renders. This includes inside shadcn `render` props — use `render={<Link href="..." />}`, not `render={<a href="..." />}`.
+- For URL-backed UI state such as filters, sorting, pagination, tabs, search boxes, and other query-param-driven controls, **use `nuqs` by default** instead of manual `useSearchParams`, `URLSearchParams`, or ad hoc router string building. Treat `nuqs` as the project standard for query state.
+- `nuqs` with the App Router must use **`NuqsAdapter` from `nuqs/adapters/next/app`** and it should wrap the app tree in `src/app/layout.tsx`. The generic `nuqs/adapters/next` entrypoint is not the App Router-specific integration.
+- `nuqs` defaults to shallow client-side URL updates. For server-driven filters, tables, or any RSC-backed search params, set **`shallow: false`** or the URL will change without re-running the server component data load.
+- `inngest` with the App Router should be served from **`src/app/api/inngest/route.ts`** and the route must export **`GET`, `POST`, and `PUT`** from `serve({ client, functions })` via `inngest/next`.
+- For local development, run Next.js and **`bun run inngest:dev`** together. `INNGEST_DEV=http://127.0.0.1:8288` keeps the SDK pointed at the local dev server. Later, `INNGEST_BASE_URL`, `INNGEST_EVENT_KEY`, and `INNGEST_SIGNING_KEY` can be supplied for self-hosted or cloud environments without changing application code.
+
+### Inngest
+- Use `inngest` for background jobs, scheduled work, fan-out workflows, and long-running async processes. Do not build ad hoc polling or in-process background task systems inside route handlers or server actions when the work should survive request boundaries.
+- Keep shared Inngest setup under `src/inngest/`:
+  `client.ts` for the singleton client,
+  `functions/` for function modules,
+  `functions/index.ts` for the exported registry.
 
 ### Better Auth
 - `bunx auth migrate` only works with the **Kysely** adapter. With Drizzle, use `bun run db:migrate` instead.

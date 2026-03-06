@@ -2,7 +2,7 @@ import "server-only";
 import { db } from "@/db";
 import { organization } from "@/db/schema/auth";
 import { eq, isNull, desc, asc, count, sql, ilike, and, type SQL } from "drizzle-orm";
-import { STATUS, type OrgStatus } from "@/constants";
+import { SORT_ORDERS, STATUS, TABLE_PAGE_SIZES, type OrgStatus } from "@/constants";
 
 export type InstitutionRow = {
   id: string;
@@ -13,8 +13,8 @@ export type InstitutionRow = {
   createdAt: Date;
 };
 
-const DEFAULT_PAGE_SIZE = 10;
-const ALLOWED_PAGE_SIZES = [10, 20, 50] as const;
+const DEFAULT_PAGE_SIZE = TABLE_PAGE_SIZES[0];
+const ALLOWED_PAGE_SIZES = TABLE_PAGE_SIZES;
 
 const sortableColumns = {
   name: organization.name,
@@ -29,7 +29,7 @@ export type ListInstitutionsParams = {
   limit?: number;
   search?: string;
   sort?: string;
-  order?: "asc" | "desc";
+  order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
 };
 
 export type ListInstitutionsResult = {
@@ -50,7 +50,7 @@ export async function listInstitutions(
   const sortKey = (params.sort && params.sort in sortableColumns
     ? params.sort
     : "createdAt") as SortableColumn;
-  const sortOrder = params.order === "asc" ? asc : desc;
+  const sortOrder = params.order === SORT_ORDERS.ASC ? asc : desc;
 
   const conditions: SQL[] = [isNull(organization.deletedAt)];
 

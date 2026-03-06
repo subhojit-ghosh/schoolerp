@@ -7,7 +7,12 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import {
+  parseAsInteger,
+  parseAsString,
+  parseAsStringLiteral,
+  useQueryStates,
+} from "nuqs";
 import {
   ArrowUp,
   ArrowDown,
@@ -33,6 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { QUERY_PARAMS, SORT_ORDERS, TABLE_PAGE_SIZES } from "@/constants";
 
 type PaginationInfo = {
   page: number;
@@ -49,6 +55,17 @@ type DataTableProps<TData, TValue> = {
   searchPlaceholder?: string;
 };
 
+const TABLE_QUERY_STATE = {
+  search: parseAsString.withOptions({ history: "push", shallow: false }),
+  page: parseAsInteger.withOptions({ history: "push", shallow: false }),
+  limit: parseAsInteger.withOptions({ history: "push", shallow: false }),
+  sort: parseAsString.withOptions({ history: "push", shallow: false }),
+  order: parseAsStringLiteral([
+    SORT_ORDERS.ASC,
+    SORT_ORDERS.DESC,
+  ]).withOptions({ history: "push", shallow: false }),
+} as const;
+
 export function DataTable<TData, TValue>({
   columns,
   data,
@@ -56,35 +73,34 @@ export function DataTable<TData, TValue>({
   searchKey,
   searchPlaceholder = "Search...",
 }: DataTableProps<TData, TValue>) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+  const [queryState, setQueryState] = useQueryStates({
+    [QUERY_PARAMS.SEARCH]: TABLE_QUERY_STATE.search,
+    [QUERY_PARAMS.PAGE]: TABLE_QUERY_STATE.page,
+    [QUERY_PARAMS.LIMIT]: TABLE_QUERY_STATE.limit,
+    [QUERY_PARAMS.SORT]: TABLE_QUERY_STATE.sort,
+    [QUERY_PARAMS.ORDER]: TABLE_QUERY_STATE.order,
+  });
 
-  const currentSort = searchParams.get("sort") ?? "";
-  const currentOrder = searchParams.get("order") ?? "desc";
-  const currentSearch = searchParams.get("q") ?? "";
-
-  function updateParams(updates: Record<string, string | null>) {
-    const params = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(updates)) {
-      if (value === null || value === "") {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
-    }
-    router.push(`${pathname}?${params.toString()}` as never);
-  }
+  const currentSort = queryState[QUERY_PARAMS.SORT] ?? "";
+  const currentOrder = queryState[QUERY_PARAMS.ORDER] ?? SORT_ORDERS.DESC;
+  const currentSearch = queryState[QUERY_PARAMS.SEARCH] ?? "";
 
   function handleSort(columnId: string) {
     if (currentSort === columnId) {
-      updateParams({
-        sort: columnId,
-        order: currentOrder === "asc" ? "desc" : "asc",
-        page: null,
+      void setQueryState({
+        [QUERY_PARAMS.SORT]: columnId,
+        [QUERY_PARAMS.ORDER]:
+          currentOrder === SORT_ORDERS.ASC
+            ? SORT_ORDERS.DESC
+            : SORT_ORDERS.ASC,
+        [QUERY_PARAMS.PAGE]: null,
       });
     } else {
-      updateParams({ sort: columnId, order: "asc", page: null });
+      void setQueryState({
+        [QUERY_PARAMS.SORT]: columnId,
+        [QUERY_PARAMS.ORDER]: SORT_ORDERS.ASC,
+        [QUERY_PARAMS.PAGE]: null,
+      });
     }
   }
 
@@ -95,13 +111,27 @@ export function DataTable<TData, TValue>({
     setSearchValue(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
-      updateParams({ q: value, page: null });
+      void setQueryState(
+        {
+          [QUERY_PARAMS.SEARCH]: value || null,
+          [QUERY_PARAMS.PAGE]: null,
+        },
+        { history: "replace" },
+      );
     }, 300);
   }
 
   React.useEffect(() => {
     setSearchValue(currentSearch);
   }, [currentSearch]);
+
+  React.useEffect(() => {
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
+      }
+    };
+  }, []);
 
   const table = useReactTable({
     data,
@@ -177,17 +207,22 @@ export function DataTable<TData, TValue>({
         <div className="flex items-center gap-2">
           <Select
             value={String(pagination.pageSize)}
-            onValueChange={(value) =>
-              updateParams({ limit: value, page: null })
-            }
+            onValueChange={(value) => {
+              void setQueryState({
+                [QUERY_PARAMS.LIMIT]: Number(value),
+                [QUERY_PARAMS.PAGE]: null,
+              });
+            }}
           >
             <SelectTrigger className="h-8 w-[70px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="10">10</SelectItem>
-              <SelectItem value="20">20</SelectItem>
-              <SelectItem value="50">50</SelectItem>
+              {TABLE_PAGE_SIZES.map((pageSize) => (
+                <SelectItem key={pageSize} value={String(pageSize)}>
+                  {pageSize}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <span className="text-muted-foreground text-sm">Rows per page</span>
@@ -202,7 +237,9 @@ export function DataTable<TData, TValue>({
               variant="outline"
               size="icon"
               className="size-8"
-              onClick={() => updateParams({ page: "1" })}
+              onClick={() => {
+                void setQueryState({ [QUERY_PARAMS.PAGE]: 1 });
+              }}
               disabled={pagination.page <= 1}
             >
               <ChevronsLeft className="size-4" />
@@ -211,9 +248,11 @@ export function DataTable<TData, TValue>({
               variant="outline"
               size="icon"
               className="size-8"
-              onClick={() =>
-                updateParams({ page: String(pagination.page - 1) })
-              }
+              onClick={() => {
+                void setQueryState({
+                  [QUERY_PARAMS.PAGE]: pagination.page - 1,
+                });
+              }}
               disabled={pagination.page <= 1}
             >
               <ChevronLeft className="size-4" />
@@ -222,9 +261,11 @@ export function DataTable<TData, TValue>({
               variant="outline"
               size="icon"
               className="size-8"
-              onClick={() =>
-                updateParams({ page: String(pagination.page + 1) })
-              }
+              onClick={() => {
+                void setQueryState({
+                  [QUERY_PARAMS.PAGE]: pagination.page + 1,
+                });
+              }}
               disabled={pagination.page >= pagination.pageCount}
             >
               <ChevronRight className="size-4" />
@@ -233,9 +274,11 @@ export function DataTable<TData, TValue>({
               variant="outline"
               size="icon"
               className="size-8"
-              onClick={() =>
-                updateParams({ page: String(pagination.pageCount) })
-              }
+              onClick={() => {
+                void setQueryState({
+                  [QUERY_PARAMS.PAGE]: pagination.pageCount,
+                });
+              }}
               disabled={pagination.page >= pagination.pageCount}
             >
               <ChevronsRight className="size-4" />
@@ -259,7 +302,7 @@ export function SortableHeader({
   label: string;
   sort: (id: string) => void;
   currentSort: string;
-  currentOrder: string;
+  currentOrder: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
 }) {
   const isActive = currentSort === columnId;
   return (
@@ -270,7 +313,7 @@ export function SortableHeader({
     >
       {label}
       {isActive ? (
-        currentOrder === "asc" ? (
+        currentOrder === SORT_ORDERS.ASC ? (
           <ArrowUp className="ml-1 size-3.5" />
         ) : (
           <ArrowDown className="ml-1 size-3.5" />

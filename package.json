@@ -8,6 +8,7 @@
     "start": "bun --bun next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint",
+    "inngest:dev": "inngest-cli dev -u http://localhost:3000/api/inngest",
     "seed": "bun --env-file=.env.local run src/db/seeds/run.ts",
     "db:generate": "bun --env-file=.env.local drizzle-kit generate",
     "db:migrate": "bun --env-file=.env.local drizzle-kit migrate",
@@ -21,10 +22,12 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.1",
+    "inngest": "^3.52.6",
     "lucide-react": "^0.577.0",
     "next": "^16.1.6",
     "next-safe-action": "^8.1.6",
     "next-themes": "^0.4.6",
+    "nuqs": "^2.8.9",
     "postgres": "^3.4.8",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -45,6 +48,7 @@
     "drizzle-kit": "^0.31.9",
     "eslint": "^10.0.2",
     "eslint-config-next": "^16.1.6",
+    "inngest-cli": "^1.17.2",
     "tailwindcss": "^4.2.1",
     "typescript": "^5.9.3"
   },
@@ -54,6 +58,7 @@
   ],
   "trustedDependencies": [
     "sharp",
-    "unrs-resolver"
+    "unrs-resolver",
+    "inngest-cli"
   ]
 }

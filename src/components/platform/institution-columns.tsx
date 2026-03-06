@@ -4,9 +4,11 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { SortableHeader } from "@/components/ui/data-table";
 import { InstitutionActions } from "@/components/platform/institution-actions";
-import { STATUS } from "@/constants";
+import { SORT_ORDERS, STATUS } from "@/constants";
 import { INSTITUTION_TYPES } from "@/server/institutions/schemas";
 import type { InstitutionRow } from "@/server/institutions/queries";
+
+type SortOrder = (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
 
 function typeLabel(value: string | null) {
   if (!value) return "—";
@@ -20,7 +22,7 @@ export const institutionColumns: ColumnDef<InstitutionRow>[] = [
       const { sort, currentSort, currentOrder } = table.options.meta as {
         sort: (id: string) => void;
         currentSort: string;
-        currentOrder: string;
+        currentOrder: SortOrder;
       };
       return (
         <SortableHeader
@@ -42,7 +44,7 @@ export const institutionColumns: ColumnDef<InstitutionRow>[] = [
       const { sort, currentSort, currentOrder } = table.options.meta as {
         sort: (id: string) => void;
         currentSort: string;
-        currentOrder: string;
+        currentOrder: SortOrder;
       };
       return (
         <SortableHeader
