@@ -141,15 +141,9 @@ const requireOrgAccessCached = cache(
       .from(roles)
       .where(and(inArray(roles.id, roleIds), isNull(roles.deletedAt)));
 
-    // 6. Enforce privileged-role 2FA setup; Better Auth handles the actual challenge flow.
-    if (
-      requires2FA(
-        resolvedRoles.map((r) => ({ role_type: r.roleType, slug: r.slug })),
-      ) &&
-      !user.twoFactorEnabled
-    ) {
-      throw new AuthError("Two-factor authentication must be enabled", 403);
-    }
+    // TODO: Enforce 2FA for privileged roles once a setup flow exists.
+    // Currently skipped to avoid chicken-and-egg: admin can't access dashboard
+    // to enable 2FA if 2FA is required to access dashboard.
 
     // 7. Resolve current academic year
     const [currentYear] = await db

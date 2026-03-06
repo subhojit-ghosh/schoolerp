@@ -16,7 +16,6 @@ export const ROUTES = {
   AUTH: {
     PREFIX: "/auth",
     SIGN_IN: "/auth/sign-in",
-    SIGN_UP: "/auth/sign-up",
     TWO_FA: "/auth/2fa",
   },
   ADMIN: {

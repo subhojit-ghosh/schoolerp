@@ -7,6 +7,7 @@ export const ERROR_MESSAGES = {
   INSTITUTION: {
     SLUG_ALREADY_EXISTS:
       "This subdomain slug is already in use. Please choose another one.",
+    ADMIN_CREATION_FAILED: "Failed to create admin user for this institution.",
   },
 } as const;
 

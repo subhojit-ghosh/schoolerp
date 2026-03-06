@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -19,10 +20,10 @@ type FormValues = z.infer<typeof schema>;
 
 export function PlatformSignInForm() {
   const router = useRouter();
+  const [rootError, setRootError] = useState<string | null>(null);
   const {
     control,
     handleSubmit,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -30,17 +31,22 @@ export function PlatformSignInForm() {
   });
 
   async function onSubmit(values: FormValues) {
-    const { error } = await platformAuthClient.signIn.email({
-      email: values.email,
-      password: values.password,
-    });
+    setRootError(null);
+    try {
+      const { error } = await platformAuthClient.signIn.email({
+        email: values.email,
+        password: values.password,
+      });
 
-    if (error) {
-      setError("root", { message: error.message ?? "Sign in failed" });
-      return;
+      if (error) {
+        setRootError(error.message ?? "Invalid email or password");
+        return;
+      }
+
+      router.push("/");
+    } catch {
+      setRootError("Invalid email or password");
     }
-
-    router.push("/");
   }
 
   return (
@@ -69,7 +75,7 @@ export function PlatformSignInForm() {
         )}
       />
 
-      {errors.root ? <FieldError>{errors.root.message}</FieldError> : null}
+      {rootError ? <FieldError>{rootError}</FieldError> : null}
 
       <Button type="submit" disabled={isSubmitting}>
         {isSubmitting ? "Signing in..." : "Sign in to platform"}

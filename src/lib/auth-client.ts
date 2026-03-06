@@ -6,8 +6,6 @@ import { twoFactorClient } from "better-auth/client/plugins";
 import { ROUTES } from "@/constants";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL ?? "http://localhost:3000",
-
   plugins: [
     organizationClient(),
 

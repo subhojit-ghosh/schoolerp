@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { zfd } from "zod-form-data";
+import { V } from "@/constants";
 
 const slugSchema = z
   .string()
@@ -10,6 +11,9 @@ export const createInstitutionSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   slug: slugSchema,
   institutionType: z.string().min(1, "Institution type is required"),
+  adminName: V.name,
+  adminEmail: V.email,
+  adminPassword: V.password,
 });
 
 export const updateInstitutionSchema = z.object({
@@ -26,6 +30,9 @@ export const createInstitutionFormSchema = zfd.formData({
   name: zfd.text(createInstitutionSchema.shape.name),
   slug: zfd.text(createInstitutionSchema.shape.slug),
   institutionType: zfd.text(createInstitutionSchema.shape.institutionType),
+  adminName: zfd.text(createInstitutionSchema.shape.adminName),
+  adminEmail: zfd.text(createInstitutionSchema.shape.adminEmail),
+  adminPassword: zfd.text(createInstitutionSchema.shape.adminPassword),
 });
 
 export const updateInstitutionFormSchema = zfd.formData({

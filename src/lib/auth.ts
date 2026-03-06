@@ -18,6 +18,8 @@ export const auth = betterAuth({
     schema: authSchema,
   }),
 
+  trustedOrigins: ["http://*.localhost:3000"],
+
   emailAndPassword: {
     enabled: true,
   },

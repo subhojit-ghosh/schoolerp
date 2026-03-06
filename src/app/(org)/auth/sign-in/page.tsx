@@ -3,6 +3,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -19,10 +20,10 @@ type FormValues = z.infer<typeof schema>;
 
 export default function SignInPage() {
   const router = useRouter();
+  const [rootError, setRootError] = useState<string | null>(null);
   const {
     control,
     handleSubmit,
-    setError,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -30,17 +31,22 @@ export default function SignInPage() {
   });
 
   async function onSubmit(values: FormValues) {
-    const { error } = await authClient.signIn.email({
-      email: values.email,
-      password: values.password,
-    });
+    setRootError(null);
+    try {
+      const { error } = await authClient.signIn.email({
+        email: values.email,
+        password: values.password,
+      });
 
-    if (error) {
-      setError("root", { message: error.message ?? "Sign in failed" });
-      return;
+      if (error) {
+        setRootError(error.message ?? "Invalid email or password");
+        return;
+      }
+
+      router.push(ROUTES.DASHBOARD);
+    } catch {
+      setRootError("Invalid email or password");
     }
-
-    router.push(ROUTES.DASHBOARD);
   }
 
   return (
@@ -77,8 +83,8 @@ export default function SignInPage() {
           )}
         />
 
-        {errors.root && (
-          <p className="text-destructive text-sm">{errors.root.message}</p>
+        {rootError && (
+          <p className="text-destructive text-sm">{rootError}</p>
         )}
 
         <Button type="submit" className="w-full" disabled={isSubmitting}>
@@ -86,12 +92,6 @@ export default function SignInPage() {
         </Button>
       </form>
 
-      <p className="text-muted-foreground text-center text-sm">
-        Don&apos;t have an account?{" "}
-        <a href={ROUTES.AUTH.SIGN_UP} className="text-foreground underline underline-offset-4">
-          Sign up
-        </a>
-      </p>
     </div>
   );
 }

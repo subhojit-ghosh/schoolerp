@@ -30,11 +30,20 @@ export function CreateInstitutionForm() {
     formState: { errors },
   } = useForm<CreateInstitutionInput>({
     resolver: zodResolver(createInstitutionSchema),
-    defaultValues: { name: "", slug: "", institutionType: "" },
+    defaultValues: {
+      name: "",
+      slug: "",
+      institutionType: "",
+      adminName: "",
+      adminEmail: "",
+      adminPassword: "",
+    },
   });
 
   const serverError =
-    state?.serverError ?? state?.validationErrors?.slug?._errors?.[0];
+    state?.serverError ??
+    state?.validationErrors?.slug?._errors?.[0] ??
+    state?.validationErrors?.adminEmail?._errors?.[0];
 
   return (
     <form action={action} className="flex flex-col gap-5">
@@ -94,6 +103,57 @@ export function CreateInstitutionForm() {
           </Field>
         )}
       />
+
+      <div className="border-t pt-5 mt-1">
+        <h3 className="text-sm font-medium mb-4">Admin account</h3>
+        <div className="flex flex-col gap-5">
+          <Controller
+            control={control}
+            name="adminName"
+            render={({ field }) => (
+              <Field>
+                <FieldLabel>Admin name</FieldLabel>
+                <Input {...field} name="adminName" placeholder="Jane Smith" />
+                <FieldError>{errors.adminName?.message}</FieldError>
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="adminEmail"
+            render={({ field }) => (
+              <Field>
+                <FieldLabel>Admin email</FieldLabel>
+                <Input
+                  {...field}
+                  name="adminEmail"
+                  type="email"
+                  placeholder="admin@school.edu"
+                />
+                <FieldError>{errors.adminEmail?.message}</FieldError>
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="adminPassword"
+            render={({ field }) => (
+              <Field>
+                <FieldLabel>Admin password</FieldLabel>
+                <Input
+                  {...field}
+                  name="adminPassword"
+                  type="password"
+                  placeholder="••••••••"
+                />
+                <FieldError>{errors.adminPassword?.message}</FieldError>
+              </Field>
+            )}
+          />
+        </div>
+      </div>
 
       <div className="flex gap-3 pt-2">
         <Button type="submit" disabled={isPending}>
