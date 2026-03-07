@@ -52,7 +52,7 @@ export default async function OrgLayout({
             </div>
           </header>
           <main className="flex-1 p-6">
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-7xl">
               {children}
             </div>
           </main>
