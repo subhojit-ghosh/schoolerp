@@ -13,14 +13,11 @@ export default async function AdminDashboardPage() {
   ]);
 
   return (
-    <div className="p-6">
-      <div className="mb-8 flex items-end justify-between">
-        <div>
-          <p className="text-muted-foreground text-sm">Platform admin</p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight">
-            Welcome back, {user?.name ?? "Admin"}
-          </h1>
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-lg font-semibold tracking-tight">
+          Welcome back, {user?.name ?? "Admin"}
+        </h1>
         <Link href={ROUTES.ADMIN.NEW_INSTITUTION}>
           <Button size="sm">
             <Plus className="mr-2 size-4" />
