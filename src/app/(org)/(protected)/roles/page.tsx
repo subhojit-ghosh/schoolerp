@@ -7,5 +7,5 @@ export default async function RolesPage() {
   const org = await requireOrgAccess(institution);
   assertPermission(org, PERMISSIONS.ROLES.MANAGE);
 
-  return <h1 className="text-lg font-semibold tracking-tight">Roles</h1>;
+  return <h1 className="text-xl font-semibold tracking-tight">Roles</h1>;
 }

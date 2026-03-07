@@ -80,7 +80,7 @@ export function AppSidebar({ institutionName, userName, userEmail, navItems }: P
                         render={<Link href={item.href as never} />}
                         isActive={isActive}
                         tooltip={item.label}
-                        className={isActive ? "border-l-2 border-primary bg-sidebar-accent/50 rounded-l-none" : ""}
+                        className={isActive ? "border-l-2 border-primary bg-muted/30 rounded-l-none" : ""}
                       >
                         {Icon && <Icon className="h-4 w-4" />}
                         <span>{item.label}</span>

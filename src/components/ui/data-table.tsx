@@ -145,7 +145,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="w-full space-y-3">
+    <div className="w-full space-y-2">
       {searchKey && (
         <div>
           <Input

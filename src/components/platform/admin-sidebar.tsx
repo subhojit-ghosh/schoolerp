@@ -8,7 +8,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -41,9 +40,6 @@ export function AdminSidebar() {
 
       <SidebarContent>
         <SidebarGroup className="py-1">
-          <SidebarGroupLabel className="text-[0.625rem] uppercase tracking-widest text-sidebar-foreground/50">
-            Navigation
-          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu className="gap-0.5">
               {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
@@ -54,7 +50,7 @@ export function AdminSidebar() {
                       render={<Link href={href} />}
                       isActive={isActive}
                       tooltip={label}
-                      className={isActive ? "border-l-2 border-primary bg-sidebar-accent/50 rounded-l-none" : ""}
+                      className={isActive ? "border-l-2 border-primary bg-muted/30 rounded-l-none" : ""}
                     >
                       <Icon />
                       <span>{label}</span>

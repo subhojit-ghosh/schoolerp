@@ -7,5 +7,5 @@ export default async function AttendancePage() {
   const org = await requireOrgAccess(institution);
   assertPermission(org, PERMISSIONS.ATTENDANCE.READ);
 
-  return <h1 className="text-lg font-semibold tracking-tight">Attendance</h1>;
+  return <h1 className="text-xl font-semibold tracking-tight">Attendance</h1>;
 }

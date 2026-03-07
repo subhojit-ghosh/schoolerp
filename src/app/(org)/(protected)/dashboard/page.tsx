@@ -5,7 +5,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-lg font-semibold tracking-tight">
+      <h1 className="text-xl font-semibold tracking-tight">
         Welcome to {institution.name}
       </h1>
     </div>

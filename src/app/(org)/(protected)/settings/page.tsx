@@ -7,5 +7,5 @@ export default async function SettingsPage() {
   const org = await requireOrgAccess(institution);
   assertPermission(org, PERMISSIONS.SETTINGS.READ);
 
-  return <h1 className="text-lg font-semibold tracking-tight">Settings</h1>;
+  return <h1 className="text-xl font-semibold tracking-tight">Settings</h1>;
 }

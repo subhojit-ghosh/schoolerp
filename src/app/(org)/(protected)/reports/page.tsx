@@ -7,5 +7,5 @@ export default async function ReportsPage() {
   const org = await requireOrgAccess(institution);
   assertPermission(org, PERMISSIONS.REPORTS.EXPORT);
 
-  return <h1 className="text-lg font-semibold tracking-tight">Reports</h1>;
+  return <h1 className="text-xl font-semibold tracking-tight">Reports</h1>;
 }

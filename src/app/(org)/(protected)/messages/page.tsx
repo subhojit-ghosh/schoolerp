@@ -7,5 +7,5 @@ export default async function MessagesPage() {
   const org = await requireOrgAccess(institution);
   assertPermission(org, PERMISSIONS.COMMUNICATION.READ);
 
-  return <h1 className="text-lg font-semibold tracking-tight">Messages</h1>;
+  return <h1 className="text-xl font-semibold tracking-tight">Messages</h1>;
 }

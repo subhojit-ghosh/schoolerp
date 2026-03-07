@@ -7,5 +7,5 @@ export default async function InvoicesPage() {
   const org = await requireOrgAccess(institution);
   assertPermission(org, PERMISSIONS.INVOICES.READ);
 
-  return <h1 className="text-lg font-semibold tracking-tight">Invoices</h1>;
+  return <h1 className="text-xl font-semibold tracking-tight">Invoices</h1>;
 }

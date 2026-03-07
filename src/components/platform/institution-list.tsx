@@ -14,9 +14,9 @@ type InstitutionListProps = {
 
 export function InstitutionList({ result }: InstitutionListProps) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold tracking-tight">Institutions</h2>
+        <h2 className="text-xl font-semibold tracking-tight">Institutions</h2>
         <Link href={ROUTES.ADMIN.NEW_INSTITUTION as never}>
           <Button size="sm">
             <PlusIcon className="mr-2 size-4" />

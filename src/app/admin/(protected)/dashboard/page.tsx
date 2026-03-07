@@ -15,7 +15,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold tracking-tight">
+        <h1 className="text-xl font-semibold tracking-tight">
           Welcome back, {user?.name ?? "Admin"}
         </h1>
         <Link href={ROUTES.ADMIN.NEW_INSTITUTION}>
