@@ -3,9 +3,9 @@ import { requireOrgAccess } from "@/server/auth/require-org-access";
 import { OrgContextProvider } from "@/components/providers/org-context";
 import { AppSidebar } from "@/components/org/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import { NAV_ITEMS, filterNavItems } from "@/lib/nav";
 import { ModeToggle } from "@/components/theme/mode-toggle";
+import { Search } from "lucide-react";
 
 export default async function OrgLayout({
   children,
@@ -31,16 +31,30 @@ export default async function OrgLayout({
           navItems={visibleNavItems}
         />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-3 border-b px-4 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-            <SidebarTrigger variant="outline" className="-ml-1" />
-            <Separator orientation="vertical" className="h-6" />
-            {/* Search + breadcrumb slot */}
-            <div className="ml-auto flex items-center gap-3">
+          <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border/50 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <div className="flex flex-1 items-center gap-2">
+              <div className="relative max-w-xs flex-1">
+                <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="h-8 w-full rounded-md border border-border/50 bg-muted/30 pl-8 pr-3 text-sm text-foreground placeholder:text-muted-foreground/70 focus:border-border focus:outline-none"
+                  readOnly
+                />
+                <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-border/50 bg-muted/50 px-1.5 py-0.5 text-[0.625rem] text-muted-foreground">
+                  ⌘K
+                </kbd>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
               <ModeToggle />
             </div>
           </header>
-          <main className="flex flex-1 flex-col gap-4 px-4 py-6 sm:gap-6">
-            {children}
+          <main className="flex-1 p-6">
+            <div className="mx-auto max-w-6xl">
+              {children}
+            </div>
           </main>
         </SidebarInset>
       </SidebarProvider>
