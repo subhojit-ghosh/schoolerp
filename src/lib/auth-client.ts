@@ -4,6 +4,7 @@ import { createAuthClient } from "better-auth/client";
 import { organizationClient } from "better-auth/client/plugins";
 import { twoFactorClient } from "better-auth/client/plugins";
 import { ROUTES } from "@/constants";
+import { env } from "@/env";
 
 export const authClient = createAuthClient({
   plugins: [
@@ -18,7 +19,7 @@ export const authClient = createAuthClient({
 });
 
 export const platformAuthClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL ?? "http://localhost:3000",
+  baseURL: env.NEXT_PUBLIC_BETTER_AUTH_URL,
 
   plugins: [
     twoFactorClient({

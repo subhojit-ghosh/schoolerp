@@ -138,6 +138,7 @@ Special files (not every domain needs these):
 - The exported function must be named **`proxy`** (not `middleware`).
 - See: https://nextjs.org/docs/messages/middleware-to-proxy
 - **Never use plain `<a href>` for internal navigation.** Always use Next.js `<Link>` (from `next/link`). A bare `<a>` causes a full page reload, losing client-side state and triggering unnecessary layout re-renders. This includes inside shadcn `render` props — use `render={<Link href="..." />}`, not `render={<a href="..." />}`.
+- Environment variables must be validated through **`src/env.ts`** using `@t3-oss/env-nextjs`. Do not read app env values directly from `process.env` in runtime code when `env` can be imported instead.
 - For URL-backed UI state such as filters, sorting, pagination, tabs, search boxes, and other query-param-driven controls, **use `nuqs` by default** instead of manual `useSearchParams`, `URLSearchParams`, or ad hoc router string building. Treat `nuqs` as the project standard for query state.
 - `nuqs` with the App Router must use **`NuqsAdapter` from `nuqs/adapters/next/app`** and it should wrap the app tree in `src/app/layout.tsx`. The generic `nuqs/adapters/next` entrypoint is not the App Router-specific integration.
 - `nuqs` defaults to shallow client-side URL updates. For server-driven filters, tables, or any RSC-backed search params, set **`shallow: false`** or the URL will change without re-running the server component data load.
