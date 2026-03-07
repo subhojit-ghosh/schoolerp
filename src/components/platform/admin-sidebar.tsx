@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Building2, LayoutDashboard, LogOut, ShieldCheck, ChevronsUpDown } from "lucide-react";
+import { Building2, LayoutDashboard, LogOut, ShieldCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -20,12 +20,9 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { useSidebar } from "@/components/ui/sidebar";
 import { platformAuthClient } from "@/lib/auth-client";
 import { ROUTES } from "@/constants";
 
@@ -42,7 +39,6 @@ type AdminSidebarProps = {
 export function AdminSidebar({ adminName, adminEmail }: AdminSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isMobile } = useSidebar();
 
   async function handleSignOut() {
     await platformAuthClient.signOut();
@@ -52,31 +48,24 @@ export function AdminSidebar({ adminName, adminEmail }: AdminSidebarProps) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              render={<Link href={ROUTES.ADMIN.DASHBOARD} />}
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                <ShieldCheck className="size-4" />
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">Platform Admin</span>
-                <span className="truncate text-xs">Super Admin</span>
-              </div>
-              <ChevronsUpDown className="ml-auto" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <div className="flex items-center gap-2 px-2 py-1.5">
+          <div className="bg-sidebar-primary text-sidebar-primary-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-md">
+            <ShieldCheck className="size-4" />
+          </div>
+          <div className="grid flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+            <span className="truncate font-semibold">Platform Admin</span>
+            <span className="truncate text-[0.6875rem] text-muted-foreground">Super Admin</span>
+          </div>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+        <SidebarGroup className="py-1">
+          <SidebarGroupLabel className="text-[0.625rem] uppercase tracking-widest text-sidebar-foreground/50">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-0.5">
               {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
                 const isActive = pathname.startsWith(href);
                 return (
@@ -85,6 +74,7 @@ export function AdminSidebar({ adminName, adminEmail }: AdminSidebarProps) {
                       render={<Link href={href} />}
                       isActive={isActive}
                       tooltip={label}
+                      className={isActive ? "border-l-2 border-primary bg-sidebar-accent/50 rounded-l-none" : ""}
                     >
                       <Icon />
                       <span>{label}</span>
@@ -101,45 +91,18 @@ export function AdminSidebar({ adminName, adminEmail }: AdminSidebarProps) {
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <SidebarMenuButton
-                    size="lg"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                  />
-                }
-              >
-                <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg">
+              <DropdownMenuTrigger render={<SidebarMenuButton className="h-10" />}>
+                <Avatar className="h-6 w-6">
+                  <AvatarFallback className="text-[0.625rem]">
                     {adminName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{adminName}</span>
-                  <span className="truncate text-xs text-muted-foreground">{adminEmail}</span>
+                <div className="flex flex-col items-start text-left group-data-[collapsible=icon]:hidden">
+                  <span className="text-sm font-medium leading-none">{adminName}</span>
+                  <span className="text-muted-foreground text-[0.6875rem]">{adminEmail}</span>
                 </div>
-                <ChevronsUpDown className="ml-auto size-4" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
-                align="end"
-                sideOffset={4}
-              >
-                <DropdownMenuLabel className="p-0 font-normal">
-                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarFallback className="rounded-lg">
-                        {adminName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-medium">{adminName}</span>
-                      <span className="truncate text-xs text-muted-foreground">{adminEmail}</span>
-                    </div>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
+              <DropdownMenuContent side="top" align="start" className="w-56">
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign out
