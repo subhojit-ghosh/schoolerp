@@ -1,13 +1,8 @@
 import { getCurrentInstitution } from "@/server/institutions/get-current";
+import { PageHeader } from "@/components/page-header";
 
 export default async function DashboardPage() {
   const institution = await getCurrentInstitution();
 
-  return (
-    <div className="space-y-6">
-      <h1 className="text-xl font-semibold tracking-tight">
-        Welcome to {institution.name}
-      </h1>
-    </div>
-  );
+  return <PageHeader title={`Welcome to ${institution.name}`} />;
 }

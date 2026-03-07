@@ -3,6 +3,7 @@ import { Building2, Plus, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants";
+import { PageHeader } from "@/components/page-header";
 import { getPlatformSessionUser } from "@/server/auth/require-platform-super-admin";
 import { countInstitutionsByStatus } from "@/server/institutions/queries";
 
@@ -14,17 +15,17 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold tracking-tight">
-          Welcome back, {user?.name ?? "Admin"}
-        </h1>
-        <Link href={ROUTES.ADMIN.NEW_INSTITUTION}>
-          <Button size="sm">
-            <Plus className="mr-2 size-4" />
-            New institution
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        title={`Welcome back, ${user?.name ?? "Admin"}`}
+        actions={
+          <Link href={ROUTES.ADMIN.NEW_INSTITUTION}>
+            <Button size="sm">
+              <Plus className="mr-2 size-4" />
+              New institution
+            </Button>
+          </Link>
+        }
+      />
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>

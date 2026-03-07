@@ -1,11 +1,12 @@
 import { getCurrentInstitution } from "@/server/institutions/get-current";
 import { requireOrgAccess, assertPermission } from "@/server/auth/require-org-access";
 import { PERMISSIONS } from "@/constants";
+import { PageHeader } from "@/components/page-header";
 
 export default async function GradesPage() {
   const institution = await getCurrentInstitution();
   const org = await requireOrgAccess(institution);
   assertPermission(org, PERMISSIONS.GRADES.READ);
 
-  return <h1 className="text-xl font-semibold tracking-tight">Grades</h1>;
+  return <PageHeader title="Grades" />;
 }
