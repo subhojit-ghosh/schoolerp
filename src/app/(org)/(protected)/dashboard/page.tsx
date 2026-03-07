@@ -1,8 +1,8 @@
 import { getCurrentInstitution } from "@/server/institutions/get-current";
-import { PageHeader } from "@/components/page-header";
+import { PageShell } from "@/components/page-shell";
 
 export default async function DashboardPage() {
   const institution = await getCurrentInstitution();
 
-  return <PageHeader title={`Welcome to ${institution.name}`} />;
+  return <PageShell title={`Welcome to ${institution.name}`} />;
 }

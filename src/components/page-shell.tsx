@@ -1,10 +1,10 @@
-type PageHeaderProps = {
+type PageShellProps = {
   title: string;
   actions?: React.ReactNode;
   children?: React.ReactNode;
 };
 
-export function PageHeader({ title, actions, children }: PageHeaderProps) {
+export function PageShell({ title, actions, children }: PageShellProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">

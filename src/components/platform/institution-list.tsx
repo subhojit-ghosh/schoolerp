@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { institutionColumns } from "@/components/platform/institution-columns";
 import { ROUTES } from "@/constants";
-import { PageHeader } from "@/components/page-header";
+import { PageShell } from "@/components/page-shell";
 import type { ListInstitutionsResult } from "@/server/institutions/queries";
 
 type InstitutionListProps = {
@@ -15,7 +15,7 @@ type InstitutionListProps = {
 
 export function InstitutionList({ result }: InstitutionListProps) {
   return (
-    <PageHeader
+    <PageShell
       title="Institutions"
       actions={
         <Link href={ROUTES.ADMIN.NEW_INSTITUTION as never}>
@@ -38,6 +38,6 @@ export function InstitutionList({ result }: InstitutionListProps) {
         searchKey="name"
         searchPlaceholder="Filter institutions..."
       />
-    </PageHeader>
+    </PageShell>
   );
 }

@@ -3,7 +3,7 @@ import { Building2, Plus, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants";
-import { PageHeader } from "@/components/page-header";
+import { PageShell } from "@/components/page-shell";
 import { getPlatformSessionUser } from "@/server/auth/require-platform-super-admin";
 import { countInstitutionsByStatus } from "@/server/institutions/queries";
 
@@ -14,7 +14,7 @@ export default async function AdminDashboardPage() {
   ]);
 
   return (
-    <PageHeader
+    <PageShell
       title={`Welcome back, ${user?.name ?? "Admin"}`}
       actions={
         <Link href={ROUTES.ADMIN.NEW_INSTITUTION}>
@@ -58,6 +58,6 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
-    </PageHeader>
+    </PageShell>
   );
 }
