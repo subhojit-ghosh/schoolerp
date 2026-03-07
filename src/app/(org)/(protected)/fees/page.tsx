@@ -7,5 +7,5 @@ export default async function FeesPage() {
   const org = await requireOrgAccess(institution);
   assertPermission(org, PERMISSIONS.FEES.READ);
 
-  return <h1 className="text-2xl font-bold">Fees</h1>;
+  return <h1 className="text-lg font-semibold tracking-tight">Fees</h1>;
 }

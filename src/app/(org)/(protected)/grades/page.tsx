@@ -7,5 +7,5 @@ export default async function GradesPage() {
   const org = await requireOrgAccess(institution);
   assertPermission(org, PERMISSIONS.GRADES.READ);
 
-  return <h1 className="text-2xl font-bold">Grades</h1>;
+  return <h1 className="text-lg font-semibold tracking-tight">Grades</h1>;
 }
