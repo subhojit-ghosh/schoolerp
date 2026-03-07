@@ -15,19 +15,17 @@ type InstitutionListProps = {
 
 export function InstitutionList({ result }: InstitutionListProps) {
   return (
-    <div className="space-y-4">
-      <PageHeader
-        title="Institutions"
-        actions={
-          <Link href={ROUTES.ADMIN.NEW_INSTITUTION as never}>
-            <Button size="sm">
-              <PlusIcon className="mr-2 size-4" />
-              New institution
-            </Button>
-          </Link>
-        }
-      />
-
+    <PageHeader
+      title="Institutions"
+      actions={
+        <Link href={ROUTES.ADMIN.NEW_INSTITUTION as never}>
+          <Button size="sm">
+            <PlusIcon className="mr-2 size-4" />
+            New institution
+          </Button>
+        </Link>
+      }
+    >
       <DataTable
         columns={institutionColumns}
         data={result.rows}
@@ -40,6 +38,6 @@ export function InstitutionList({ result }: InstitutionListProps) {
         searchKey="name"
         searchPlaceholder="Filter institutions..."
       />
-    </div>
+    </PageHeader>
   );
 }

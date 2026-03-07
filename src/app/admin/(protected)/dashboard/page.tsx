@@ -14,19 +14,17 @@ export default async function AdminDashboardPage() {
   ]);
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title={`Welcome back, ${user?.name ?? "Admin"}`}
-        actions={
-          <Link href={ROUTES.ADMIN.NEW_INSTITUTION}>
-            <Button size="sm">
-              <Plus className="mr-2 size-4" />
-              New institution
-            </Button>
-          </Link>
-        }
-      />
-
+    <PageHeader
+      title={`Welcome back, ${user?.name ?? "Admin"}`}
+      actions={
+        <Link href={ROUTES.ADMIN.NEW_INSTITUTION}>
+          <Button size="sm">
+            <Plus className="mr-2 size-4" />
+            New institution
+          </Button>
+        </Link>
+      }
+    >
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -60,6 +58,6 @@ export default async function AdminDashboardPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageHeader>
   );
 }
