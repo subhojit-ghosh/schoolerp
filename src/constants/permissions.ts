@@ -34,4 +34,28 @@ export const PERMISSIONS = {
     READ: "admissions:read",
     WRITE: "admissions:write",
   },
+  CLASSES: {
+    READ: "classes:read",
+    WRITE: "classes:write",
+  },
+  TEACHERS: {
+    READ: "teachers:read",
+    WRITE: "teachers:write",
+  },
+  EXAMS: {
+    READ: "exams:read",
+    WRITE: "exams:write",
+  },
+  INVOICES: {
+    READ: "invoices:read",
+    WRITE: "invoices:write",
+  },
+  COMMUNICATION: {
+    READ: "communication:read",
+    WRITE: "communication:write",
+  },
+  SETTINGS: {
+    READ: "settings:read",
+    WRITE: "settings:write",
+  },
 } as const;
