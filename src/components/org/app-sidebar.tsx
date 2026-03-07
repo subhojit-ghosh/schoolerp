@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronsUpDown, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import * as Icons from "lucide-react";
 import type { NavItem } from "@/lib/nav";
 import { authClient } from "@/lib/auth-client";
@@ -34,7 +34,6 @@ type Props = {
   userEmail: string;
   navItems: NavItem[];
 };
-
 
 export function AppSidebar({ institutionName, userName, userEmail, navItems }: Props) {
   const router = useRouter();
@@ -52,29 +51,37 @@ export function AppSidebar({ institutionName, userName, userEmail, navItems }: P
   }
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-1">
-          <div className="bg-primary text-primary-foreground flex h-8 w-8 items-center justify-center rounded-md text-sm font-bold">
+        <div className="flex items-center gap-2 px-2 py-1.5">
+          <div className="bg-primary text-primary-foreground flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-xs font-bold">
             {institutionName.charAt(0)}
           </div>
-          <span className="truncate font-semibold text-sm">{institutionName}</span>
+          <span className="truncate text-sm font-semibold group-data-[collapsible=icon]:hidden">
+            {institutionName}
+          </span>
         </div>
       </SidebarHeader>
 
       <SidebarContent>
         {groupedItems.map(({ group, label, items }) => (
-          <SidebarGroup key={group}>
-            <SidebarGroupLabel>{label}</SidebarGroupLabel>
+          <SidebarGroup key={group} className="py-1">
+            <SidebarGroupLabel className="text-[0.625rem] uppercase tracking-widest text-sidebar-foreground/50">
+              {label}
+            </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className="gap-0.5">
                 {items.map((item) => {
-                  // Dynamically resolve lucide icon by name
                   const Icon = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[item.icon];
-                  const isActive = pathname.startsWith(item.href);
+                  const isActive = pathname === item.href || (item.href !== ROUTES.ORG.DASHBOARD && pathname.startsWith(item.href));
                   return (
                     <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton render={<Link href={item.href as never} />} isActive={isActive}>
+                      <SidebarMenuButton
+                        render={<Link href={item.href as never} />}
+                        isActive={isActive}
+                        tooltip={item.label}
+                        className={isActive ? "border-l-2 border-primary bg-sidebar-accent/50 rounded-l-none" : ""}
+                      >
                         {Icon && <Icon className="h-4 w-4" />}
                         <span>{item.label}</span>
                       </SidebarMenuButton>
@@ -91,17 +98,16 @@ export function AppSidebar({ institutionName, userName, userEmail, navItems }: P
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
-              <DropdownMenuTrigger render={<SidebarMenuButton className="h-12" />}>
-                <Avatar className="h-7 w-7">
-                  <AvatarFallback className="text-xs">
+              <DropdownMenuTrigger render={<SidebarMenuButton className="h-10" />}>
+                <Avatar className="h-6 w-6">
+                  <AvatarFallback className="text-[0.625rem]">
                     {userName.charAt(0).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <div className="flex flex-col items-start text-left">
+                <div className="flex flex-col items-start text-left group-data-[collapsible=icon]:hidden">
                   <span className="text-sm font-medium leading-none">{userName}</span>
-                  <span className="text-muted-foreground text-xs">{userEmail}</span>
+                  <span className="text-muted-foreground text-[0.6875rem]">{userEmail}</span>
                 </div>
-                <ChevronsUpDown className="ml-auto h-4 w-4 opacity-50" />
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="start" className="w-56">
                 <DropdownMenuItem onClick={handleSignOut}>
