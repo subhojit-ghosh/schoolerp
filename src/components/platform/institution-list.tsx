@@ -14,16 +14,11 @@ type InstitutionListProps = {
 
 export function InstitutionList({ result }: InstitutionListProps) {
   return (
-    <div className="flex flex-col gap-4 sm:gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Institutions</h2>
-          <p className="text-muted-foreground">
-            Manage your institutions and their configurations here.
-          </p>
-        </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold tracking-tight">Institutions</h2>
         <Link href={ROUTES.ADMIN.NEW_INSTITUTION as never}>
-          <Button>
+          <Button size="sm">
             <PlusIcon className="mr-2 size-4" />
             New institution
           </Button>
