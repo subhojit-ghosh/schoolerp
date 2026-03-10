@@ -1,21 +1,24 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { platformAuthClient } from "@/lib/auth-client";
 import { ROUTES } from "@/constants";
+import { authClient } from "@/lib/auth-client";
 import { UserMenu } from "@/components/app/user-menu";
 
-type ProfileDropdownProps = {
-  name: string;
+type OrgProfileDropdownProps = {
   email: string;
+  name: string;
 };
 
-export function ProfileDropdown({ name, email }: ProfileDropdownProps) {
+export function OrgProfileDropdown({
+  email,
+  name,
+}: OrgProfileDropdownProps) {
   const router = useRouter();
 
   async function handleSignOut() {
-    await platformAuthClient.signOut();
-    router.push(ROUTES.ADMIN.SIGN_IN);
+    await authClient.signOut();
+    router.push(ROUTES.AUTH.SIGN_IN);
   }
 
   return (
@@ -23,7 +26,7 @@ export function ProfileDropdown({ name, email }: ProfileDropdownProps) {
       email={email}
       name={name}
       onSignOut={handleSignOut}
-      subtitle="Platform owner"
+      subtitle="Institution admin"
     />
   );
 }

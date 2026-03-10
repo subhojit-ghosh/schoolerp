@@ -50,16 +50,32 @@ export function PlatformTwoFactorForm() {
         name="code"
         render={({ field, fieldState }) => (
           <Field>
-            <FieldLabel>Authentication code</FieldLabel>
-            <Input inputMode="numeric" maxLength={6} placeholder="000000" {...field} />
+            <FieldLabel className="text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
+              Authentication code
+            </FieldLabel>
+            <Input
+              inputMode="numeric"
+              maxLength={6}
+              placeholder="000000"
+              className="h-12 rounded-2xl border-border/60 bg-background/80 px-4 text-lg tracking-[0.35em] shadow-none"
+              {...field}
+            />
             <FieldError>{fieldState.error?.message}</FieldError>
           </Field>
         )}
       />
 
-      {errors.root ? <FieldError>{errors.root.message}</FieldError> : null}
+      {errors.root ? (
+        <div className="rounded-2xl border border-[#e4cfba] bg-[#f7efe4] px-4 py-3">
+          <FieldError>{errors.root.message}</FieldError>
+        </div>
+      ) : null}
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        className="h-12 rounded-2xl text-sm font-medium tracking-[0.04em]"
+      >
         {isSubmitting ? "Verifying..." : "Verify and continue"}
       </Button>
     </form>

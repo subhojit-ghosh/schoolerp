@@ -64,7 +64,16 @@ export function InstitutionActions({ id, status }: InstitutionActionsProps) {
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger render={<Button variant="ghost" size="icon" disabled={isPending} />}>
+        <DropdownMenuTrigger
+          render={(
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-xl border border-transparent hover:border-border/60 hover:bg-muted/70"
+              disabled={isPending}
+            />
+          )}
+        >
           <MoreHorizontal className="size-4" />
           <span className="sr-only">Open menu</span>
         </DropdownMenuTrigger>

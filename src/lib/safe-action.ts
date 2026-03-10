@@ -5,6 +5,11 @@ import {
   getPlatformSessionUser,
   type PlatformSessionUser,
 } from "@/server/auth/require-platform-super-admin";
+import {
+  requireOrgAccess,
+  type OrgContext,
+} from "@/server/auth/require-org-access";
+import { getCurrentInstitution } from "@/server/institutions/get-current";
 
 export const actionClient = createSafeActionClient({
   handleServerError(e) {
@@ -25,6 +30,17 @@ export const superAdminAction = actionClient.use(async ({ next }) => {
   return next({ ctx: { user } });
 });
 
+export const orgAction = actionClient.use(async ({ next }) => {
+  const institution = await getCurrentInstitution();
+  const org = await requireOrgAccess(institution);
+
+  return next({ ctx: { org } });
+});
+
 export type SafeActionContext = {
   user: PlatformSessionUser;
+};
+
+export type OrgSafeActionContext = {
+  org: OrgContext;
 };

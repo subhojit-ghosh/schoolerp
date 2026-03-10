@@ -56,8 +56,15 @@ export function PlatformSignInForm() {
         name="email"
         render={({ field, fieldState }) => (
           <Field>
-            <FieldLabel>Email</FieldLabel>
-            <Input type="email" placeholder="admin@example.com" {...field} />
+            <FieldLabel className="text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
+              Email
+            </FieldLabel>
+            <Input
+              type="email"
+              placeholder="super@admin.com"
+              className="h-12 rounded-2xl border-border/60 bg-background/80 px-4 shadow-none"
+              {...field}
+            />
             <FieldError>{fieldState.error?.message}</FieldError>
           </Field>
         )}
@@ -68,16 +75,31 @@ export function PlatformSignInForm() {
         name="password"
         render={({ field, fieldState }) => (
           <Field>
-            <FieldLabel>Password</FieldLabel>
-            <Input type="password" placeholder="Enter your password" {...field} />
+            <FieldLabel className="text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
+              Password
+            </FieldLabel>
+            <Input
+              type="password"
+              placeholder="Enter your password"
+              className="h-12 rounded-2xl border-border/60 bg-background/80 px-4 shadow-none"
+              {...field}
+            />
             <FieldError>{fieldState.error?.message}</FieldError>
           </Field>
         )}
       />
 
-      {rootError ? <FieldError>{rootError}</FieldError> : null}
+      {rootError ? (
+        <div className="rounded-2xl border border-[#e4cfba] bg-[#f7efe4] px-4 py-3">
+          <FieldError>{rootError}</FieldError>
+        </div>
+      ) : null}
 
-      <Button type="submit" disabled={isSubmitting}>
+      <Button
+        type="submit"
+        disabled={isSubmitting}
+        className="h-12 rounded-2xl text-sm font-medium tracking-[0.04em]"
+      >
         {isSubmitting ? "Signing in..." : "Sign in to platform"}
       </Button>
     </form>

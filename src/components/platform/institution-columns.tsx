@@ -10,9 +10,28 @@ import type { InstitutionRow } from "@/server/institutions/queries";
 
 type SortOrder = (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
 
+const CREATED_AT_FORMATTER = new Intl.DateTimeFormat("en-GB", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
 function typeLabel(value: string | null) {
   if (!value) return "—";
   return INSTITUTION_TYPES.find((t) => t.value === value)?.label ?? value;
+}
+
+function getStatusBadgeClassName(status: string | null) {
+  if (status === STATUS.ORG.SUSPENDED) {
+    return "border-[#e4cfba] bg-[#f7efe4] text-[#87522f]";
+  }
+
+  return "border-teal-900/10 bg-teal-900 text-primary-foreground";
+}
+
+function getTypeBadgeClassName() {
+  return "border-border/70 bg-background/90 text-foreground";
 }
 
 export const institutionColumns: ColumnDef<InstitutionRow>[] = [
@@ -35,7 +54,14 @@ export const institutionColumns: ColumnDef<InstitutionRow>[] = [
       );
     },
     cell: ({ row }) => (
-      <span className="font-medium">{row.getValue("name")}</span>
+      <div className="space-y-1 py-1">
+        <p className="text-[15px] font-medium text-foreground">
+          {row.getValue("name")}
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Created {CREATED_AT_FORMATTER.format(row.original.createdAt)}
+        </p>
+      </div>
     ),
   },
   {
@@ -57,7 +83,7 @@ export const institutionColumns: ColumnDef<InstitutionRow>[] = [
       );
     },
     cell: ({ row }) => (
-      <span className="text-muted-foreground font-mono text-xs">
+      <span className="font-mono text-sm tracking-[0.08em] text-muted-foreground">
         {row.getValue("slug")}
       </span>
     ),
@@ -66,7 +92,7 @@ export const institutionColumns: ColumnDef<InstitutionRow>[] = [
     accessorKey: "institutionType",
     header: "Type",
     cell: ({ row }) => (
-      <Badge variant="outline">
+      <Badge variant="outline" className={getTypeBadgeClassName()}>
         {typeLabel(row.getValue("institutionType"))}
       </Badge>
     ),
@@ -79,6 +105,7 @@ export const institutionColumns: ColumnDef<InstitutionRow>[] = [
       return (
         <Badge
           variant={status === STATUS.ORG.ACTIVE ? "default" : "secondary"}
+          className={`min-w-24 justify-center rounded-full px-3 py-1 ${getStatusBadgeClassName(status)}`}
         >
           {status ?? STATUS.ORG.ACTIVE}
         </Badge>

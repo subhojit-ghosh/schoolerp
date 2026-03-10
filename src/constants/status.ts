@@ -18,3 +18,4 @@ export const STATUS = {
 } as const;
 
 export type OrgStatus = (typeof STATUS.ORG)[keyof typeof STATUS.ORG];
+export type MemberStatus = (typeof STATUS.MEMBER)[keyof typeof STATUS.MEMBER];

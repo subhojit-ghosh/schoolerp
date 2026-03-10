@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/org/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { NAV_ITEMS, filterNavItems } from "@/lib/nav";
 import { TopBar } from "@/components/top-bar";
+import { OrgProfileDropdown } from "@/components/org/org-header";
 
 export default async function OrgLayout({
   children,
@@ -30,7 +31,15 @@ export default async function OrgLayout({
           navItems={visibleNavItems}
         />
         <SidebarInset>
-          <TopBar>
+          <TopBar
+            actions={<OrgProfileDropdown email={org.user.email} name={org.user.name} />}
+            searchPlaceholder="Search students, classes, invoices"
+            status={(
+              <div className="hidden items-center rounded-xl border border-emerald-200/60 bg-emerald-50 px-3 py-2 text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-emerald-800 lg:flex">
+                Active academic year
+              </div>
+            )}
+          >
             {children}
           </TopBar>
         </SidebarInset>

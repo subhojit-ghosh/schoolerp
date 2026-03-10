@@ -20,6 +20,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsRight,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,6 +54,7 @@ type DataTableProps<TData, TValue> = {
   pagination: PaginationInfo;
   searchKey?: string;
   searchPlaceholder?: string;
+  toolbarContent?: React.ReactNode;
 };
 
 const TABLE_QUERY_STATE = {
@@ -72,6 +74,7 @@ export function DataTable<TData, TValue>({
   pagination,
   searchKey,
   searchPlaceholder = "Search...",
+  toolbarContent,
 }: DataTableProps<TData, TValue>) {
   const [queryState, setQueryState] = useQueryStates({
     [QUERY_PARAMS.SEARCH]: TABLE_QUERY_STATE.search,
@@ -145,23 +148,29 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="w-full space-y-2">
+    <div className="w-full space-y-4">
       {searchKey && (
-        <div>
-          <Input
-            placeholder={searchPlaceholder}
-            value={searchValue}
-            onChange={(e) => handleSearch(e.target.value)}
-            className="h-8 max-w-xs text-sm"
-          />
+        <div className="flex flex-col gap-3 rounded-[28px] border border-border/60 bg-card p-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="relative w-full max-w-xl">
+            <Search className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder={searchPlaceholder}
+              value={searchValue}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="h-12 rounded-2xl border-border/60 bg-background pr-4 pl-11 text-sm shadow-none"
+            />
+          </div>
+          {toolbarContent ? (
+            <div className="flex flex-wrap items-center gap-2">{toolbarContent}</div>
+          ) : null}
         </div>
       )}
 
-      <div className="rounded-md border border-border/50">
-        <Table>
+      <div className="overflow-hidden rounded-[30px] border border-border/60 bg-card shadow-[0_18px_40px_-32px_rgba(15,45,53,0.55)]">
+        <Table className="[&_td]:px-4 [&_td]:py-4 [&_th]:px-4 [&_th]:py-3">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-border/60 bg-muted/40 hover:bg-muted/40">
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
@@ -178,7 +187,10 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow
+                  key={row.id}
+                  className="border-border/60 bg-card hover:bg-background/60"
+                >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
@@ -203,7 +215,7 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between rounded-[24px] border border-border/60 bg-card px-4 py-3">
         <div className="flex items-center gap-2">
           <Select
             value={String(pagination.pageSize)}
@@ -214,7 +226,7 @@ export function DataTable<TData, TValue>({
               });
             }}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-9 w-[76px] rounded-xl border-border/60 bg-background">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -225,18 +237,18 @@ export function DataTable<TData, TValue>({
               ))}
             </SelectContent>
           </Select>
-          <span className="text-muted-foreground text-sm">Rows per page</span>
+          <span className="text-sm text-muted-foreground">Rows per page</span>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm">
-            Page {pagination.page} of {pagination.pageCount}
+          <span className="text-sm text-muted-foreground">
+            {pagination.page} of {pagination.pageCount}
           </span>
           <div className="flex items-center gap-1">
             <Button
               variant="outline"
               size="icon"
-              className="size-8"
+              className="size-9 rounded-xl border-border/60 bg-background"
               onClick={() => {
                 void setQueryState({ [QUERY_PARAMS.PAGE]: 1 });
               }}
@@ -247,7 +259,7 @@ export function DataTable<TData, TValue>({
             <Button
               variant="outline"
               size="icon"
-              className="size-8"
+              className="size-9 rounded-xl border-border/60 bg-background"
               onClick={() => {
                 void setQueryState({
                   [QUERY_PARAMS.PAGE]: pagination.page - 1,
@@ -260,7 +272,7 @@ export function DataTable<TData, TValue>({
             <Button
               variant="outline"
               size="icon"
-              className="size-8"
+              className="size-9 rounded-xl border-border/60 bg-background"
               onClick={() => {
                 void setQueryState({
                   [QUERY_PARAMS.PAGE]: pagination.page + 1,
@@ -273,7 +285,7 @@ export function DataTable<TData, TValue>({
             <Button
               variant="outline"
               size="icon"
-              className="size-8"
+              className="size-9 rounded-xl border-border/60 bg-background"
               onClick={() => {
                 void setQueryState({
                   [QUERY_PARAMS.PAGE]: pagination.pageCount,

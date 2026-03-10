@@ -1,12 +1,21 @@
 import { getCurrentInstitution } from "@/server/institutions/get-current";
 import { requireOrgAccess, assertPermission } from "@/server/auth/require-org-access";
 import { PERMISSIONS } from "@/constants";
-import { PageShell } from "@/components/page-shell";
+import { RolesContent } from "@/components/org/roles-content";
+import {
+  listPermissionOptions,
+  listRolesForInstitution,
+} from "@/server/roles/queries";
 
 export default async function RolesPage() {
   const institution = await getCurrentInstitution();
   const org = await requireOrgAccess(institution);
   assertPermission(org, PERMISSIONS.ROLES.MANAGE);
 
-  return <PageShell title="Roles" />;
+  const [roles, permissionOptions] = await Promise.all([
+    listRolesForInstitution(institution.id),
+    listPermissionOptions(),
+  ]);
+
+  return <RolesContent roles={roles} permissionOptions={permissionOptions} />;
 }

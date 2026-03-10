@@ -174,3 +174,33 @@ Special files (not every domain needs these):
 - PostgreSQL does not enforce UNIQUE constraints when the column value is `NULL`. Use a partial unique index (`WHERE column IS NULL`) for nullable unique columns.
 - Use `postgres` (postgres.js) driver, not `pg`. No `@types/pg` needed.
 - Guard the connection with `globalThis` caching to prevent HMR from exhausting the connection pool in dev.
+
+### Pencil
+- In raw `.pen` files, reusable components are established by setting `reusable: true` on the component root and consuming them with `type: "ref"` plus `ref: "<componentId>"`. Slots are regular frames marked with `slot: []` or a list of recommended component IDs.
+- The current Pencil MCP/editor metadata may still report **0 reusable components** after editing the file on disk, even when the JSON contains valid `reusable` and `ref` nodes and screenshots render correctly. When there is a mismatch, trust the on-disk `.pen` JSON and validate with JSON parsing / grep plus screenshots, not `get_editor_state()` alone.
+- Pencil does not autosave MCP edits to disk. Treat MCP changes as edits to the open document/editor state until the document is manually saved in Pencil.
+- Workflow rule: for normal design iteration, use Pencil MCP for inspection, targeted edits, and screenshot verification, then manually save in Pencil when the result looks correct. Use the `.pen` file itself as the persistence source of truth for important structural refactors or whenever MCP/editor state and disk diverge. In divergence cases, patch the `.pen` file directly, reload the document from disk, and only save from Pencil after confirming the reloaded state is correct.
+- **`replace_all_matching_properties` escapes `$` signs.** When passing `$variable.name` as a `to` value, the tool stores `\$variable.name` (a literal string) instead of a variable reference. This breaks all variable bindings silently — fills render as transparent/missing. **Never use `replace_all_matching_properties` to apply variable references.** Instead, use `batch_design` U() operations on individual nodes. Only use `replace_all_matching_properties` for hex-to-hex color swaps.
+- **Apply variables at creation time.** When creating new components via `batch_design` I(), use `$variable.name` in property values — these are stored correctly. Do not attempt to retrofit variables onto existing nodes in bulk.
+- **Always attach `theme: {"mode": "light"}` to new top-level page frames.** Without an explicit theme, the Theme section in Pencil's right panel shows nothing and the user can't toggle modes. Setting it explicitly makes the toggle visible in the UI.
+- Variables of type `"string"` cannot be used as `$` references for `fontFamily`. Use literal font names (`"Inter"`, `"Space Grotesk"`) in nodes. String variables are useful only as documentation/reference.
+
+### Pencil Design System (`design.pen`)
+
+**Canvas layout:**
+- **Left column** — Design system: Components / Shell Parts frame, then base shells below
+- **Right area** — Page screens in a grid
+
+**Reusable components (6):**
+- `Base / Admin App Shell` — full admin page shell (sidebar + topbar + workspace slot)
+- `Base / Auth Shell` — full auth page shell (brand panel + auth panel slot)
+- `Component / Admin Sidebar` — dark sidebar with nav, profile
+- `Component / Admin Topbar` — breadcrumbs, search, status, user pill
+- `Component / Auth Brand Panel` — dark brand panel with hero text, stats
+- `Component / Page Header` — cap label + title + actions slot (uses variables)
+
+**Creating new admin pages:** Ref `Base / Admin App Shell`, override sidebar/topbar text via `descendants`, inject content into the Workspace slot (`hfhcK`).
+
+**Creating new auth pages:** Ref `Base / Auth Shell`, override brand text via `descendants`, inject form into Auth Panel slot (`MTbKZ`).
+
+**Design variables:** Named to match `globals.css` — Pencil `$--background` = CSS `var(--background)` = Tailwind `bg-background`. Theme axis: `mode: ["light", "dark"]`. To preview dark mode on a frame, set `theme: { "mode": "dark" }`. Add new variables as needed — just keep the `--name` identical in both Pencil and `globals.css`. Use `get_variables` to see current tokens. When creating new components, always use `$--variable` references (e.g. `fill: "$--card"`, `stroke: "$--border"`) so designs stay in sync with code.
