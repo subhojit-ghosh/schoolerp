@@ -10,6 +10,13 @@ The platform is designed to be scalable, extensible, and institution-type config
 
 This project use `bun` as package manager. use `bun run typecheck` for typecheck.
 
+This repository is a Turbo monorepo:
+- `apps/web` — current Next.js application
+- `apps/api` — NestJS backend
+- `packages/*` — shared packages
+
+Unless explicitly working in the Nest backend, existing app paths such as `src/constants`, `src/server`, and `src/app` now refer to `apps/web/src/constants`, `apps/web/src/server`, and `apps/web/src/app`.
+
 Auth system we use - better auth (https://better-auth.com)
 Database we use - PostgreSQL
 ORM we use - Drizzle (https://orm.drizzle.team)
@@ -19,7 +26,7 @@ Keep all the plans in `./docs/plans`.
 ## Hard Rules
 
 ### No magic strings or magic numbers
-**Never** use hardcoded string literals or numeric constants inline. Always define them in `src/constants/` and import from `@/constants`. This applies to:
+**Never** use hardcoded string literals or numeric constants inline. Always define them in `apps/web/src/constants/` and import from `@/constants`. This applies to:
 - **Routes** — use `ROUTES.*` (e.g. `ROUTES.ADMIN.INSTITUTIONS`, not `"/admin/institutions"`)
 - **Status values** — use `STATUS.*` (e.g. `STATUS.ORG.ACTIVE`, not `"active"`)
 - **Roles** — use `ROLES.*`
@@ -27,20 +34,20 @@ Keep all the plans in `./docs/plans`.
 - **Nav groups** — use `NAV_GROUPS.*`
 - **Headers / cookies** — use `HEADERS.*` / `COOKIES.*`
 
-The only exceptions are schema enum definitions in `src/db/schema/` (those are the source of truth) and the constants files themselves.
+The only exceptions are schema enum definitions in `apps/web/src/db/schema/` (those are the source of truth) and the constants files themselves.
 
 ## Tool Commands
 
 ### Better Auth CLI
 Use the new standalone CLI `bunx auth` (not the deprecated `@better-auth/cli`):
-- `bunx auth generate --adapter drizzle --dialect postgresql` — generate Drizzle schema into `src/lib/auth-schema.ts`
+- `bunx auth generate --adapter drizzle --dialect postgresql` — generate Drizzle schema into `apps/web/src/lib/auth-schema.ts`
 - `bunx auth migrate` — only works with Kysely adapter; with Drizzle use drizzle-kit instead
 - `bunx auth init` — scaffold full setup interactively
 
 ### Drizzle
 - `bun run db:generate` — generate migration files from schema
 - `bun run db:migrate` — apply migrations
-- `drizzle.config.ts` schema must include both files: `["./src/db/schema/index.ts", "./src/db/schema/auth.ts"]`
+- `packages/database/drizzle.config.ts` schema must include both files from `packages/database/src/schema/`
 - `drizzle-kit` does **not** auto-load `.env.local`. Use the `db:generate` / `db:migrate` / `db:studio` / `seed` scripts which already include this flag.
 
 ## Forms
@@ -96,7 +103,7 @@ shadcn component to add: `bunx shadcn add field`
 
 ## Server Actions
 
-**All server actions must use `next-safe-action`.** The action client is in `src/lib/safe-action.ts`.
+**All server actions must use `next-safe-action`.** The action client is in `apps/web/src/lib/safe-action.ts`.
 
 - `actionClient` — base client with error handling
 - `superAdminAction` — extends `actionClient` with platform super-admin auth middleware
@@ -104,14 +111,14 @@ shadcn component to add: `bunx shadcn add field`
 - Simple actions (suspend, delete, etc.) use `.action()` with an input schema
 - FormData parsing uses `zod-form-data` (`zfd.formData()` wrapping the plain zod schema)
 - DB-specific errors (e.g. unique violations) use `returnValidationErrors()` from `next-safe-action`
-- Postgres error extraction utilities are in `src/server/errors/db-error.ts`
+- Postgres error extraction utilities are in `apps/web/src/server/errors/db-error.ts`
 
 ### Domain file structure
 
-Every server-side domain follows this pattern:
+Every server-side domain in the current web app follows this pattern:
 
 ```
-src/server/{domain}/
+apps/web/src/server/{domain}/
   schemas.ts      — zod validation (plain + zfd.formData variants), types, UI constants
   queries.ts      — read operations (called from RSC/layouts)
   actions.ts      — write operations (next-safe-action, called from client)
@@ -122,9 +129,9 @@ Special files (not every domain needs these):
 
 ### Auth middleware
 
-- Platform admin actions → use `superAdminAction` from `src/lib/safe-action.ts`
+- Platform admin actions → use `superAdminAction` from `apps/web/src/lib/safe-action.ts`
 - Org-scoped actions → create `orgAction` middleware when needed (resolves org context + RBAC)
-- Auth errors use `AuthError` class from `src/server/errors/auth-error.ts`
+- Auth errors use `AuthError` class from `apps/web/src/server/errors/auth-error.ts`
 
 ## Framework Discoveries
 
@@ -134,20 +141,21 @@ Special files (not every domain needs these):
 
 ### Next.js 16
 
-- The middleware file is **`src/proxy.ts`** (not `middleware.ts`) — Next.js 16 renamed the convention.
+- The middleware file is **`apps/web/src/proxy.ts`** (not `middleware.ts`) — Next.js 16 renamed the convention.
 - The exported function must be named **`proxy`** (not `middleware`).
 - See: https://nextjs.org/docs/messages/middleware-to-proxy
 - **Never use plain `<a href>` for internal navigation.** Always use Next.js `<Link>` (from `next/link`). A bare `<a>` causes a full page reload, losing client-side state and triggering unnecessary layout re-renders. This includes inside shadcn `render` props — use `render={<Link href="..." />}`, not `render={<a href="..." />}`.
-- Environment variables must be validated through **`src/env.ts`** using `@t3-oss/env-nextjs`. Do not read app env values directly from `process.env` in runtime code when `env` can be imported instead.
+- Environment variables must be validated through **`apps/web/src/env.ts`** using `@t3-oss/env-nextjs`. Do not read app env values directly from `process.env` in runtime code when `env` can be imported instead.
 - For URL-backed UI state such as filters, sorting, pagination, tabs, search boxes, and other query-param-driven controls, **use `nuqs` by default** instead of manual `useSearchParams`, `URLSearchParams`, or ad hoc router string building. Treat `nuqs` as the project standard for query state.
-- `nuqs` with the App Router must use **`NuqsAdapter` from `nuqs/adapters/next/app`** and it should wrap the app tree in `src/app/layout.tsx`. The generic `nuqs/adapters/next` entrypoint is not the App Router-specific integration.
+- `nuqs` with the App Router must use **`NuqsAdapter` from `nuqs/adapters/next/app`** and it should wrap the app tree in `apps/web/src/app/layout.tsx`. The generic `nuqs/adapters/next` entrypoint is not the App Router-specific integration.
 - `nuqs` defaults to shallow client-side URL updates. For server-driven filters, tables, or any RSC-backed search params, set **`shallow: false`** or the URL will change without re-running the server component data load.
-- `inngest` with the App Router should be served from **`src/app/api/inngest/route.ts`** and the route must export **`GET`, `POST`, and `PUT`** from `serve({ client, functions })` via `inngest/next`.
+- `inngest` with the App Router should be served from **`apps/web/src/app/api/inngest/route.ts`** and the route must export **`GET`, `POST`, and `PUT`** from `serve({ client, functions })` via `inngest/next`.
 - For local development, run Next.js and **`bun run inngest:dev`** together. `INNGEST_DEV=http://127.0.0.1:8288` keeps the SDK pointed at the local dev server. Later, `INNGEST_BASE_URL`, `INNGEST_EVENT_KEY`, and `INNGEST_SIGNING_KEY` can be supplied for self-hosted or cloud environments without changing application code.
+- React Compiler linting warns on TanStack Table's `useReactTable()` with `react-hooks/incompatible-library`. Treat this as a known compatibility warning, not an automatic refactor target, unless the project deliberately changes its table library or compiler strategy.
 
 ### Inngest
 - Use `inngest` for background jobs, scheduled work, fan-out workflows, and long-running async processes. Do not build ad hoc polling or in-process background task systems inside route handlers or server actions when the work should survive request boundaries.
-- Keep shared Inngest setup under `src/inngest/`:
+- Keep shared Inngest setup under `apps/web/src/inngest/`:
   `client.ts` for the singleton client,
   `functions/` for function modules,
   `functions/index.ts` for the exported registry.
@@ -156,7 +164,20 @@ Special files (not every domain needs these):
 - `bunx auth migrate` only works with the **Kysely** adapter. With Drizzle, use `bun run db:migrate` instead.
 - The new CLI is `bunx auth` — the old `@better-auth/cli` package is deprecated.
 - `BETTER_AUTH_SECRET` env var must be set; auth.ts throws at startup if missing.
-- **Session checks in proxy.ts must use `getSessionCookie()` from `better-auth/cookies`, NOT `auth.api.getSession()`.** `getSessionCookie()` only checks cookie existence (no DB hit, ~1ms). Full session validation (`auth.api.getSession()`) happens in layouts/pages via `requireOrgAccess()` and `getPlatformSessionUser()`. This is the two-layer pattern recommended by Better Auth for Next.js 16: fast cookie guard in proxy, full DB validation in server components. See: https://better-auth.com/docs/integrations/next#nextjs-16-proxy
+- **Session checks in `apps/web/src/proxy.ts` must use `getSessionCookie()` from `better-auth/cookies`, NOT `auth.api.getSession()`.** `getSessionCookie()` only checks cookie existence (no DB hit, ~1ms). Full session validation (`auth.api.getSession()`) happens in layouts/pages via `requireOrgAccess()` and `getPlatformSessionUser()`. This is the two-layer pattern recommended by Better Auth for Next.js 16: fast cookie guard in proxy, full DB validation in server components. See: https://better-auth.com/docs/integrations/next#nextjs-16-proxy
+
+### NestJS + Scalar
+- In `apps/api`, Scalar should be mounted from `@scalar/nestjs-api-reference` and fed from a Nest OpenAPI document generated by `@nestjs/swagger`.
+- Prefer serving Scalar from `/reference` and the raw OpenAPI JSON from `/openapi.json`, with `SwaggerModule.setup(..., { ui: false, raw: ["json"], jsonDocumentUrl: "/openapi.json" })`. This keeps Swagger UI disabled while still exposing a stable machine-readable spec for Scalar and future client generation.
+
+### NestJS + Bun
+- `apps/api` runs on Bun directly. Use `bun --watch src/main.ts` for local development and `bun dist/main.js` for the built server.
+- Bun can execute the current Nest app directly from TypeScript with decorators enabled, so `nest start --watch` is unnecessary in this workspace unless a Nest CLI-specific feature is explicitly needed.
+
+### NestJS Configuration
+- In `apps/api`, use Nest's official `@nestjs/config` module via `ConfigModule.forRoot()` for environment loading and validation.
+- API env files belong to `apps/api` only. Do not read or fall back to `apps/web/.env*` from the backend.
+- Prefer namespaced config with `registerAs()` for backend concerns such as database settings, and inject typed config into providers/modules instead of importing ad hoc env helpers.
 
 ### shadcn / @base-ui/react
 - This project's shadcn components are built on **`@base-ui/react`**, not Radix UI.
@@ -164,6 +185,7 @@ Special files (not every domain needs these):
 - To render a `Button` as a link, wrap with `<Link>` directly: `<Link href="..."><Button>...</Button></Link>`.
 - To render a trigger as a custom element: `<DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>`.
 - Nesting `AlertDialogTrigger` inside a `DropdownMenuItem` causes issues — use state instead: `const [open, setOpen] = useState(false)` + `<AlertDialog open={open} onOpenChange={setOpen}>`.
+- In this monorepo, shadcn config lives in **`apps/web/components.json`**. Run shadcn commands from `apps/web` or with `bunx --cwd apps/web shadcn ...`, otherwise the CLI will not find the config or the correct `src/app/globals.css`.
 
 ### Zod v4
 - This project uses **Zod v4**. `z.string().uuid()` is deprecated — use `z.uuid()` instead.
@@ -174,6 +196,10 @@ Special files (not every domain needs these):
 - PostgreSQL does not enforce UNIQUE constraints when the column value is `NULL`. Use a partial unique index (`WHERE column IS NULL`) for nullable unique columns.
 - Use `postgres` (postgres.js) driver, not `pg`. No `@types/pg` needed.
 - Guard the connection with `globalThis` caching to prevent HMR from exhausting the connection pool in dev.
+- In the monorepo transition, `apps/api` owns its own Drizzle connection and schema copies for extracted domains. Do not import the web app's `apps/web/src/db/*` into Nest just because the table definitions already exist there; move ownership into the API as domains are extracted.
+- Shared persistence primitives should live in `packages/database`, not inside any app. Keep that package framework-agnostic: schema, client factories, and DB types belong there; Nest modules and runtime config wiring do not.
+- Drizzle migration files belong to `packages/database/drizzle`. `apps/web` should not own migration state once persistence has been extracted.
+- Shared Nest infrastructure belongs in `packages/backend-core`. Put reusable Nest modules, DI tokens, config wrappers, guards, filters, and interceptors there instead of duplicating them across services.
 
 ### Pencil
 - In raw `.pen` files, reusable components are established by setting `reusable: true` on the component root and consuming them with `type: "ref"` plus `ref: "<componentId>"`. Slots are regular frames marked with `slot: []` or a list of recommended component IDs.

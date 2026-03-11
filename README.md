@@ -1,33 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Education ERP Platform
+
+This repository is now a Turbo monorepo with a split application layout:
+
+- `apps/web` — current Next.js web app
+- `apps/api` — NestJS backend scaffold
+- `packages/contracts` — shared API contracts
+
+The current business logic still lives mostly in `apps/web` and will be extracted into `apps/api` incrementally.
 
 ## Getting Started
 
-First, run the development server:
+Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run the web app:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun run dev:web
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Run the Nest API:
+
+```bash
+bun run dev:api
+```
+
+The API runs on Bun directly from TypeScript in development and uses Bun to start the built server in production.
+The API owns its environment configuration. Put API variables in `apps/api/.env.local` or `apps/api/.env`.
+
+Run the full workspace:
+
+```bash
+bun run dev
+```
+
+Useful commands:
+
+```bash
+bun run typecheck
+bun run lint
+bun run db:generate
+bun run db:migrate
+```
+
+Drizzle migrations now live in `packages/database/drizzle`, with config in `packages/database/drizzle.config.ts`.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+Core technologies:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Next.js](https://nextjs.org)
+- [NestJS](https://nestjs.com)
+- [Better Auth](https://better-auth.com)
+- [Drizzle ORM](https://orm.drizzle.team)
+- [Turborepo](https://turbo.build/repo)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Implementation and migration notes live under `docs/plans/`.
 
 ## Deploy on Vercel
 

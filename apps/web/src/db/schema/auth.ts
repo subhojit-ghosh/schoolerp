@@ -1,0 +1,17 @@
+export {
+  user,
+  session,
+  account,
+  verification,
+  organization,
+  member,
+  invitation,
+  twoFactor,
+  userRelations,
+  sessionRelations,
+  accountRelations,
+  organizationRelations,
+  memberRelations,
+  invitationRelations,
+  twoFactorRelations,
+} from "@academic-platform/database";
