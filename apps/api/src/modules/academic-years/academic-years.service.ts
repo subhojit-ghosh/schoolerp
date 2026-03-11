@@ -10,8 +10,8 @@ import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
 import type { AppDatabase } from "@academic-platform/database";
 import { Inject } from "@nestjs/common";
+import { AcademicYearDto } from "./academic-years.dto";
 import type {
-  AcademicYearDto,
   CreateAcademicYearDto,
 } from "./academic-years.schemas";
 
@@ -42,6 +42,7 @@ export class AcademicYearsService {
     return rows.map((row) => ({
       ...row,
       status: row.status,
+      createdAt: row.createdAt.toISOString(),
     }));
   }
 

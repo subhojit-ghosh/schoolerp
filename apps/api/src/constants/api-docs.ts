@@ -1,6 +1,7 @@
 export const API_DOCS = {
   OPENAPI_PATH: "openapi",
   OPENAPI_JSON_PATH: "/openapi.json",
+  OPENAPI_OUTPUT_FILE_NAME: "openapi.json",
   REFERENCE_PATH: "/reference",
   TITLE: "Academic Platform API",
   DESCRIPTION:

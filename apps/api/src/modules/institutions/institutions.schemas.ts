@@ -15,7 +15,7 @@ export type SortableInstitutionColumn = keyof typeof sortableInstitutionColumns;
 export const listInstitutionsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().optional(),
-  search: z.string().trim().min(1).optional(),
+  q: z.string().trim().min(1).optional(),
   sort: z.enum([
     sortableInstitutionColumns.name,
     sortableInstitutionColumns.slug,
@@ -24,7 +24,11 @@ export const listInstitutionsQuerySchema = z.object({
   order: z.enum([SORT_ORDERS.ASC, SORT_ORDERS.DESC]).optional(),
 });
 
-export type ListInstitutionsQuery = z.infer<typeof listInstitutionsQuerySchema>;
+type ListInstitutionsQueryInput = z.infer<typeof listInstitutionsQuerySchema>;
+
+export type ListInstitutionsQuery = Omit<ListInstitutionsQueryInput, "q"> & {
+  search?: string;
+};
 
 export type InstitutionDto = {
   id: string;
@@ -50,12 +54,12 @@ export type ListInstitutionsResultDto = {
 };
 
 export function parseListInstitutionsQuery(
-  value: Record<string, unknown>,
+  value: Record<string, unknown> | ListInstitutionsQueryInput,
 ): ListInstitutionsQuery {
   const result = listInstitutionsQuerySchema.safeParse({
     page: value.page,
     limit: value.limit,
-    search: value.q ?? value.search,
+    q: value.q,
     sort: value.sort,
     order: value.order,
   });
@@ -64,7 +68,13 @@ export function parseListInstitutionsQuery(
     throw new BadRequestException(result.error.flatten());
   }
 
-  return result.data;
+  return {
+    search: result.data.q,
+    page: result.data.page,
+    limit: result.data.limit,
+    sort: result.data.sort,
+    order: result.data.order,
+  };
 }
 
 export function resolveInstitutionPageSize(limit?: number) {

@@ -1,0 +1,504 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "AppController_getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Return API health status",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/academic-years": {
+      "get": {
+        "operationId": "AcademicYearsController_listAcademicYears",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Academic years list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AcademicYearDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List academic years for an institution",
+        "tags": [
+          "academic-years"
+        ]
+      },
+      "post": {
+        "operationId": "AcademicYearsController_createAcademicYear",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAcademicYearBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Academic year created"
+          }
+        },
+        "summary": "Create an academic year for an institution",
+        "tags": [
+          "academic-years"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/academic-years/{academicYearId}/current": {
+      "patch": {
+        "operationId": "AcademicYearsController_setCurrentAcademicYear",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Academic year set as current"
+          }
+        },
+        "summary": "Set current academic year",
+        "tags": [
+          "academic-years"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/academic-years/{academicYearId}/archive": {
+      "patch": {
+        "operationId": "AcademicYearsController_archiveAcademicYear",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Academic year archived"
+          }
+        },
+        "summary": "Archive an academic year",
+        "tags": [
+          "academic-years"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/academic-years/{academicYearId}/restore": {
+      "patch": {
+        "operationId": "AcademicYearsController_restoreAcademicYear",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Academic year restored"
+          }
+        },
+        "summary": "Restore an academic year",
+        "tags": [
+          "academic-years"
+        ]
+      }
+    },
+    "/institutions": {
+      "get": {
+        "operationId": "InstitutionsController_listInstitutions",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "slug",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated institution list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListInstitutionsResultDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List institutions",
+        "tags": [
+          "institutions"
+        ]
+      }
+    },
+    "/institutions/counts": {
+      "get": {
+        "operationId": "InstitutionsController_getInstitutionCounts",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Institution counters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstitutionCountsDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Count institutions by status",
+        "tags": [
+          "institutions"
+        ]
+      }
+    },
+    "/institutions/{id}": {
+      "get": {
+        "operationId": "InstitutionsController_getInstitutionById",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Institution details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InstitutionDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Institution not found"
+          }
+        },
+        "summary": "Get institution by id",
+        "tags": [
+          "institutions"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Academic Platform API",
+    "description": "Backend API for the academic platform monorepo, serving web and future mobile clients.",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "health",
+      "description": ""
+    },
+    {
+      "name": "academic-years",
+      "description": ""
+    },
+    {
+      "name": "institutions",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "HealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "AcademicYearDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "startDate",
+          "endDate",
+          "isCurrent",
+          "status",
+          "createdAt"
+        ]
+      },
+      "CreateAcademicYearBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "makeCurrent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "startDate",
+          "endDate",
+          "makeCurrent"
+        ]
+      },
+      "InstitutionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "institutionType": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended"
+            ],
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "institutionType",
+          "status",
+          "createdAt"
+        ]
+      },
+      "ListInstitutionsResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InstitutionDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "InstitutionCountsDto": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "number"
+          },
+          "active": {
+            "type": "number"
+          },
+          "suspended": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "total",
+          "active",
+          "suspended"
+        ]
+      }
+    }
+  }
+}

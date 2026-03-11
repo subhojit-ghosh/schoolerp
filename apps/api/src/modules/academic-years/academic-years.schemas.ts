@@ -1,6 +1,6 @@
 import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
-import { ERROR_MESSAGES, type AcademicYearStatus } from "../../constants";
+import { ERROR_MESSAGES } from "../../constants";
 
 export const createAcademicYearSchema = z
   .object({
@@ -23,16 +23,6 @@ export const institutionIdSchema = z.object({
 });
 
 export type CreateAcademicYearDto = z.infer<typeof createAcademicYearSchema>;
-
-export type AcademicYearDto = {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  isCurrent: boolean;
-  status: AcademicYearStatus;
-  createdAt: Date;
-};
 
 export function parseCreateAcademicYear(body: unknown): CreateAcademicYearDto {
   const result = createAcademicYearSchema.safeParse(body);

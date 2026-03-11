@@ -9,10 +9,15 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
-import { API_DOCS, API_ROUTES, QUERY_PARAMS } from "../../constants";
+import { API_DOCS, API_ROUTES } from "../../constants";
+import {
+  InstitutionCountsDto,
+  InstitutionDto,
+  ListInstitutionsQueryDto,
+  ListInstitutionsResultDto,
+} from "./institutions.dto";
 import { InstitutionsService } from "./institutions.service";
 import { parseListInstitutionsQuery } from "./institutions.schemas";
 
@@ -23,27 +28,31 @@ export class InstitutionsController {
 
   @Get()
   @ApiOperation({ summary: "List institutions" })
-  @ApiQuery({ name: QUERY_PARAMS.PAGE, required: false, type: Number })
-  @ApiQuery({ name: QUERY_PARAMS.LIMIT, required: false, type: Number })
-  @ApiQuery({ name: QUERY_PARAMS.SEARCH, required: false, type: String })
-  @ApiQuery({ name: QUERY_PARAMS.SORT, required: false, type: String })
-  @ApiQuery({ name: QUERY_PARAMS.ORDER, required: false, type: String })
-  @ApiOkResponse({ description: "Paginated institution list" })
-  async listInstitutions(@Query() query: Record<string, unknown>) {
+  @ApiOkResponse({
+    description: "Paginated institution list",
+    type: ListInstitutionsResultDto,
+  })
+  async listInstitutions(@Query() query: ListInstitutionsQueryDto) {
     const parsedQuery = parseListInstitutionsQuery(query);
     return this.institutionsService.listInstitutions(parsedQuery);
   }
 
   @Get(API_ROUTES.COUNTS)
   @ApiOperation({ summary: "Count institutions by status" })
-  @ApiOkResponse({ description: "Institution counters" })
+  @ApiOkResponse({
+    description: "Institution counters",
+    type: InstitutionCountsDto,
+  })
   getInstitutionCounts() {
     return this.institutionsService.countInstitutionsByStatus();
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Get institution by id" })
-  @ApiOkResponse({ description: "Institution details" })
+  @ApiOkResponse({
+    description: "Institution details",
+    type: InstitutionDto,
+  })
   @ApiNotFoundResponse({ description: "Institution not found" })
   async getInstitutionById(@Param("id") id: string) {
     const institution = await this.institutionsService.getInstitutionById(id);

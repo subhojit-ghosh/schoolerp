@@ -7,12 +7,14 @@ import { STATUS, SORT_ORDERS } from "../../constants";
 import {
   resolveInstitutionPageSize,
   sortableInstitutionColumns,
-  type InstitutionCountsDto,
-  type InstitutionDto,
   type ListInstitutionsQuery,
-  type ListInstitutionsResultDto,
   type SortableInstitutionColumn,
 } from "./institutions.schemas";
+import {
+  InstitutionCountsDto,
+  InstitutionDto,
+  ListInstitutionsResultDto,
+} from "./institutions.dto";
 
 const sortableColumns = {
   name: organization.name,
@@ -66,7 +68,16 @@ export class InstitutionsService {
       .limit(pageSize)
       .offset((safePage - 1) * pageSize);
 
-    return { rows, total, page: safePage, pageSize, pageCount };
+    return {
+      rows: rows.map((row) => ({
+        ...row,
+        createdAt: row.createdAt.toISOString(),
+      })),
+      total,
+      page: safePage,
+      pageSize,
+      pageCount,
+    };
   }
 
   async countInstitutionsByStatus(): Promise<InstitutionCountsDto> {
@@ -115,7 +126,7 @@ export class InstitutionsService {
       slug: row.slug,
       institutionType: row.institutionType,
       status: row.status,
-      createdAt: row.createdAt,
+      createdAt: row.createdAt.toISOString(),
     };
   }
 }

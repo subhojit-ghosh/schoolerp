@@ -7,6 +7,7 @@ import {
   Post,
 } from "@nestjs/common";
 import {
+  ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -14,6 +15,10 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES } from "../../constants";
+import {
+  AcademicYearDto,
+  CreateAcademicYearBodyDto,
+} from "./academic-years.dto";
 import {
   parseCreateAcademicYear,
 } from "./academic-years.schemas";
@@ -29,7 +34,7 @@ export class AcademicYearsController {
   @Get()
   @ApiOperation({ summary: "List academic years for an institution" })
   @ApiParam({ name: "institutionId", type: String })
-  @ApiOkResponse({ description: "Academic years list" })
+  @ApiOkResponse({ description: "Academic years list", type: [AcademicYearDto] })
   listAcademicYears(@Param("institutionId") institutionId: string) {
     return this.academicYearsService.listAcademicYears(institutionId);
   }
@@ -37,10 +42,11 @@ export class AcademicYearsController {
   @Post()
   @ApiOperation({ summary: "Create an academic year for an institution" })
   @ApiParam({ name: "institutionId", type: String })
+  @ApiBody({ type: CreateAcademicYearBodyDto })
   @ApiCreatedResponse({ description: "Academic year created" })
   createAcademicYear(
     @Param("institutionId") institutionId: string,
-    @Body() body: unknown,
+    @Body() body: CreateAcademicYearBodyDto,
   ) {
     return this.academicYearsService.createAcademicYear(
       institutionId,
