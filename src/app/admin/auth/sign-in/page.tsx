@@ -11,9 +11,9 @@ export default async function SignInPage() {
 
   return (
     <PlatformAuthShell
-      eyebrow="Secure access"
-      title="Platform sign in"
-      description="Sign in as a platform super admin to manage institutions, approvals, and global settings."
+      eyebrow="Platform super admin"
+      title="Sign in to command the network."
+      description="Access institution governance, provisioning, and oversight from one secure control plane."
     >
       <PlatformSignInForm />
     </PlatformAuthShell>

@@ -22,12 +22,10 @@ export default async function AdminProtectedLayout({
       <AdminSidebar />
       <SidebarInset>
         <TopBar
+          breadcrumbs={["Platform"]}
+          searchPlaceholder="Search institutions, users, workflows"
+          status="All systems normal"
           actions={<ProfileDropdown name={user.name} email={user.email} />}
-          status={(
-            <div className="hidden items-center rounded-xl border border-emerald-200/60 bg-emerald-50 px-3 py-2 text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-emerald-800 lg:flex">
-              All systems normal
-            </div>
-          )}
         >
           {children}
         </TopBar>

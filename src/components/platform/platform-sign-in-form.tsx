@@ -24,7 +24,7 @@ export function PlatformSignInForm() {
   const {
     control,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { email: "", password: "" },
@@ -50,19 +50,19 @@ export function PlatformSignInForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
       <Controller
         control={control}
         name="email"
         render={({ field, fieldState }) => (
           <Field>
-            <FieldLabel className="text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
+            <FieldLabel className="font-cap text-xs font-medium uppercase tracking-[0.15em] text-secondary-foreground">
               Email
             </FieldLabel>
             <Input
               type="email"
               placeholder="super@admin.com"
-              className="h-12 rounded-2xl border-border/60 bg-background/80 px-4 shadow-none"
+              className="h-14 rounded-2xl border-transparent bg-input px-5 shadow-none placeholder:text-muted-foreground"
               {...field}
             />
             <FieldError>{fieldState.error?.message}</FieldError>
@@ -75,13 +75,13 @@ export function PlatformSignInForm() {
         name="password"
         render={({ field, fieldState }) => (
           <Field>
-            <FieldLabel className="text-[0.7rem] uppercase tracking-[0.2em] text-muted-foreground">
+            <FieldLabel className="font-cap text-xs font-medium uppercase tracking-[0.15em] text-secondary-foreground">
               Password
             </FieldLabel>
             <Input
               type="password"
               placeholder="Enter your password"
-              className="h-12 rounded-2xl border-border/60 bg-background/80 px-4 shadow-none"
+              className="h-14 rounded-2xl border-transparent bg-input px-5 shadow-none placeholder:text-muted-foreground"
               {...field}
             />
             <FieldError>{fieldState.error?.message}</FieldError>
@@ -98,10 +98,28 @@ export function PlatformSignInForm() {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="h-12 rounded-2xl text-sm font-medium tracking-[0.04em]"
+        className="h-16 rounded-2xl font-cap text-lg font-medium uppercase tracking-[0.05em]"
       >
         {isSubmitting ? "Signing in..." : "Sign in to platform"}
       </Button>
+
+      {/* Two-factor footer */}
+      <div className="flex items-center gap-3">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-accent text-sm font-medium text-secondary-foreground">
+          2F
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-base font-medium text-secondary-foreground">
+            Two-factor checkpoint
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Role-gated and session-audited
+          </p>
+        </div>
+        <div className="flex h-[50px] shrink-0 items-center rounded-2xl bg-input px-4 font-cap text-xs font-medium uppercase tracking-[0.15em] text-secondary-foreground">
+          Trusted device
+        </div>
+      </div>
     </form>
   );
 }

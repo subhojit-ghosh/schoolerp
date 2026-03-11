@@ -1,112 +1,113 @@
 "use client";
 
-import { ShieldCheck, Activity, Building2 } from "lucide-react";
-import { ModeToggle } from "@/components/theme/mode-toggle";
-
 type PlatformAuthShellProps = {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   description: string;
+  heroLabel?: string;
+  heroHeading?: string;
+  heroBody?: string;
+  stats?: { label: string; value: string; description: string }[];
   children: React.ReactNode;
 };
 
-const AUTH_SIGNAL_ITEMS = [
+const DEFAULT_STATS = [
   {
-    icon: ShieldCheck,
-    label: "Protected access",
-    value: "2-step verification enabled",
+    label: "Live institutions",
+    value: "148",
+    description:
+      "Across primary, high school, and college models",
   },
   {
-    icon: Building2,
-    label: "Institution control",
-    value: "Provision campuses and admins",
+    label: "Automation health",
+    value: "99.3%",
+    description:
+      "Attendance, billing, and report processing uptime",
   },
-  {
-    icon: Activity,
-    label: "Platform health",
-    value: "Monitor workflows and system pulse",
-  },
-] as const;
+];
 
 export function PlatformAuthShell({
-  eyebrow,
+  eyebrow = "Platform super admin",
   title,
   description,
+  heroLabel = "Platform access",
+  heroHeading = "Run every institution from one disciplined control layer.",
+  heroBody = "Admissions, academics, finance, and faculty operations arranged into one calm workspace for schools and colleges.",
+  stats = DEFAULT_STATS,
   children,
 }: PlatformAuthShellProps) {
   return (
-    <div className="min-h-svh bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.4),transparent_32%),linear-gradient(180deg,#e8e0d3_0%,#efe7db_100%)] px-4 py-4 md:px-6 md:py-6">
-      <div className="mx-auto flex min-h-[calc(100svh-2rem)] w-full max-w-[1480px] flex-col rounded-[36px] border border-border/60 bg-[rgba(255,250,243,0.74)] shadow-[0_30px_90px_-52px_rgba(15,45,53,0.55)] backdrop-blur-sm md:min-h-[calc(100svh-3rem)] lg:flex-row lg:overflow-hidden">
-        <section className="relative flex flex-col justify-between overflow-hidden rounded-[32px] bg-[linear-gradient(160deg,#143640_0%,#0f2d35_55%,#0a252d_100%)] p-6 text-primary-foreground md:p-8 lg:w-[440px] lg:rounded-none">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(228,197,124,0.18),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.08),transparent_28%)]" />
-          <div className="relative flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/12 bg-white/8 text-sm font-semibold text-[#ebcf93]">
-                E
-              </div>
-              <div>
-                <p className="text-2xl font-semibold tracking-tight">EduERP</p>
-                <p className="text-[0.68rem] uppercase tracking-[0.24em] text-primary-foreground/55">
-                  Platform control plane
-                </p>
-              </div>
-            </div>
-            <ModeToggle />
-          </div>
+    <div className="flex min-h-svh">
+      {/* Brand panel — left */}
+      <section className="relative hidden flex-col justify-between overflow-hidden bg-[linear-gradient(180deg,#123D4A_0%,#0F2B35_100%)] p-10 text-primary-foreground lg:flex lg:w-[55%]">
+        {/* Radial glow */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(228,197,124,0.12),transparent_40%)]" />
 
-          <div className="relative mt-10 space-y-4 lg:mt-0">
-            <p className="text-[0.72rem] uppercase tracking-[0.26em] text-[#ebcf93]">
-              Platform admin
-            </p>
-            <h1 className="max-w-sm text-4xl leading-tight font-semibold tracking-tight text-primary-foreground">
-              Enterprise control for every institution you run.
-            </h1>
-            <p className="max-w-md text-sm leading-6 text-primary-foreground/68">
-              Compact, secure access to onboarding, governance, and system-wide
-              operations from one workspace.
+        {/* Logo */}
+        <div className="relative flex items-center gap-3">
+          <div className="flex size-12 items-center justify-center rounded-2xl border border-white/12 bg-white/8 text-sm font-semibold text-[#ebcf93]">
+            E
+          </div>
+          <div>
+            <p className="text-xl font-semibold">Education ERP</p>
+            <p className="font-cap text-[0.65rem] uppercase tracking-[0.2em] text-primary-foreground/50">
+              Multi-campus operations engine
             </p>
           </div>
+        </div>
 
-          <div className="relative mt-10 space-y-3">
-            {AUTH_SIGNAL_ITEMS.map(({ icon: Icon, label, value }) => (
-              <div
-                key={label}
-                className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/6 px-4 py-3"
-              >
-                <div className="flex size-10 items-center justify-center rounded-xl border border-white/10 bg-white/8 text-[#ebcf93]">
-                  <Icon className="size-4" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[0.68rem] uppercase tracking-[0.18em] text-primary-foreground/52">
-                    {label}
-                  </p>
-                  <p className="truncate text-sm text-primary-foreground">
-                    {value}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* Hero */}
+        <div className="relative max-w-lg space-y-4">
+          <p className="font-cap text-[0.7rem] uppercase tracking-[0.2em] text-[#ebcf93]">
+            {heroLabel}
+          </p>
+          <h1 className="text-5xl leading-[1.08] font-bold tracking-tight text-white">
+            {heroHeading}
+          </h1>
+          <p className="max-w-md text-base leading-7 text-primary-foreground/65">
+            {heroBody}
+          </p>
+        </div>
 
-        <section className="flex flex-1 items-center justify-center p-4 md:p-8 lg:p-12">
-          <div className="w-full max-w-[460px] rounded-[32px] border border-border/60 bg-card/96 p-6 shadow-[0_24px_70px_-52px_rgba(15,45,53,0.55)] md:p-8">
-            <div className="space-y-3">
-              <p className="text-[0.68rem] uppercase tracking-[0.22em] text-muted-foreground">
-                {eyebrow}
+        {/* Stats */}
+        <div className="relative flex gap-4">
+          {stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="flex-1 rounded-2xl border border-white/8 bg-white/6 px-5 py-5"
+            >
+              <p className="font-cap text-[0.65rem] uppercase tracking-[0.2em] text-primary-foreground/50">
+                {stat.label}
               </p>
-              <h2 className="text-3xl leading-tight font-semibold tracking-tight text-foreground">
-                {title}
-              </h2>
-              <p className="max-w-sm text-sm leading-6 text-muted-foreground">
-                {description}
+              <p className="mt-2 text-4xl font-medium text-primary-foreground">
+                {stat.value}
+              </p>
+              <p className="mt-1 text-xs leading-5 text-primary-foreground/50">
+                {stat.description}
               </p>
             </div>
+          ))}
+        </div>
+      </section>
 
-            <div className="mt-8">{children}</div>
+      {/* Form panel — right */}
+      <section className="flex flex-1 items-center justify-center bg-background p-6 lg:p-12">
+        <div className="w-full max-w-[522px] rounded-3xl border border-border bg-card p-8 shadow-sm md:p-10">
+          <div className="space-y-4">
+            <p className="font-cap text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
+              {eyebrow}
+            </p>
+            <h2 className="text-[34px] leading-[1.04] font-medium tracking-tight text-foreground">
+              {title}
+            </h2>
+            <p className="max-w-sm text-base leading-relaxed text-muted-foreground">
+              {description}
+            </p>
           </div>
-        </section>
-      </div>
+
+          <div className="mt-10">{children}</div>
+        </div>
+      </section>
     </div>
   );
 }

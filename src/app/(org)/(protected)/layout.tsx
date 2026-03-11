@@ -34,11 +34,7 @@ export default async function OrgLayout({
           <TopBar
             actions={<OrgProfileDropdown email={org.user.email} name={org.user.name} />}
             searchPlaceholder="Search students, classes, invoices"
-            status={(
-              <div className="hidden items-center rounded-xl border border-emerald-200/60 bg-emerald-50 px-3 py-2 text-[0.6875rem] font-medium uppercase tracking-[0.16em] text-emerald-800 lg:flex">
-                Active academic year
-              </div>
-            )}
+            status="Active academic year"
           >
             {children}
           </TopBar>

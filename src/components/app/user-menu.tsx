@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
-import { ChevronDown, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,26 +41,16 @@ export function UserMenu({
         render={
           <Button
             variant="outline"
-            className="h-10 min-w-44 justify-between rounded-xl border-border/60 bg-background/80 px-2.5 shadow-none"
+            size="icon"
+            className="size-[42px] rounded-xl border-border bg-card shadow-none"
           />
         }
       >
-        <div className="flex min-w-0 items-center gap-2.5">
-          <Avatar className="size-7 rounded-lg">
-            <AvatarFallback className="rounded-lg text-xs font-semibold">
-              {name.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0 text-left group-data-[popup-open]:pr-1">
-            <p className="truncate text-xs font-semibold leading-none">
-              {name}
-            </p>
-            <p className="truncate pt-1 text-[0.625rem] text-muted-foreground">
-              {subtitle}
-            </p>
-          </div>
-        </div>
-        <ChevronDown className="size-3.5 shrink-0 text-muted-foreground" />
+        <Avatar className="size-[34px] rounded-xl">
+          <AvatarFallback className="rounded-xl bg-primary text-sm font-semibold text-primary-foreground">
+            {name.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64 rounded-xl">
         <DropdownMenuGroup>

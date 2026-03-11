@@ -352,7 +352,11 @@
           "reusable": true,
           "width": 1148,
           "height": 48,
-          "gap": 14,
+          "gap": 10,
+          "padding": [
+            0,
+            8
+          ],
           "alignItems": "center",
           "children": [
             {
@@ -382,7 +386,7 @@
               "type": "frame",
               "id": "gHzbQ",
               "name": "breadcrumb",
-              "width": 220,
+              "width": 190,
               "height": 42,
               "fill": "$--muted",
               "cornerRadius": 14,
@@ -432,7 +436,7 @@
               "type": "frame",
               "id": "pdy4v",
               "name": "search",
-              "width": 400,
+              "width": "fill_container",
               "height": 42,
               "fill": "$--card",
               "cornerRadius": 14,
@@ -463,7 +467,7 @@
               "type": "frame",
               "id": "ZPtXF",
               "name": "statusChip",
-              "width": 150,
+              "width": 140,
               "height": 40,
               "fill": "$--accent",
               "cornerRadius": 14,
@@ -548,7 +552,7 @@
               "type": "frame",
               "id": "F4drQ",
               "name": "datePill",
-              "width": 128,
+              "width": 120,
               "height": 42,
               "fill": "$--card",
               "cornerRadius": 14,
@@ -576,7 +580,7 @@
               "type": "frame",
               "id": "cSIbi",
               "name": "userPill",
-              "width": 34,
+              "width": 46,
               "height": 46,
               "fill": "$--card",
               "cornerRadius": 16,
@@ -585,7 +589,6 @@
                 "thickness": 1,
                 "fill": "$--border"
               },
-              "gap": 12,
               "justifyContent": "center",
               "alignItems": "center",
               "children": [
@@ -1461,8 +1464,8 @@
       ]
     },
     {
-      "type": "ref",
       "id": "NnoEK",
+      "type": "ref",
       "ref": "LFn8w",
       "x": 1774,
       "y": 1450,
@@ -1480,7 +1483,7 @@
           "y": 121,
           "name": "Page Content",
           "width": 1148,
-          "height": 1124,
+          "height": 730,
           "fill": "$--secondary",
           "layout": "none",
           "children": [
@@ -1500,13 +1503,13 @@
                 "gL68K": {
                   "content": "Institution oversight"
                 },
-                "fXLjC/Bq6gM/tBVWE": {
+                "tBVWE": {
                   "content": "17 institutions"
                 },
-                "fXLjC/cE2Pw": {
+                "cE2Pw": {
                   "width": 216
                 },
-                "fXLjC/cE2Pw/2HF2H": {
+                "2HF2H": {
                   "content": "CREATE INSTITUTION"
                 }
               }
@@ -1517,7 +1520,7 @@
               "x": 3,
               "y": 105,
               "name": "Metric Card / Total Institutions",
-              "width": 378,
+              "width": 370,
               "height": 132,
               "fill": "$--card",
               "cornerRadius": 28,
@@ -1556,7 +1559,7 @@
                 {
                   "type": "text",
                   "id": "BmWnX",
-                  "x": 266,
+                  "x": 255,
                   "y": 91,
                   "name": "m1Meta",
                   "fill": "$--muted-foreground",
@@ -1570,10 +1573,10 @@
             {
               "type": "frame",
               "id": "8M0V1",
-              "x": 397,
+              "x": 389,
               "y": 105,
               "name": "Metric Card / Active",
-              "width": 378,
+              "width": 370,
               "height": 132,
               "fill": {
                 "type": "gradient",
@@ -1625,7 +1628,7 @@
                 {
                   "type": "text",
                   "id": "HDAAH",
-                  "x": 312,
+                  "x": 303,
                   "y": 91,
                   "name": "m2Meta",
                   "fill": "#A7B4B5",
@@ -1639,10 +1642,10 @@
             {
               "type": "frame",
               "id": "S46et",
-              "x": 791,
+              "x": 775,
               "y": 105,
               "name": "Metric Card / Suspended",
-              "width": 378,
+              "width": 370,
               "height": 132,
               "fill": "$--card",
               "cornerRadius": 28,
@@ -1681,7 +1684,7 @@
                 {
                   "type": "text",
                   "id": "CYZoM",
-                  "x": 310,
+                  "x": 300,
                   "y": 91,
                   "name": "m3Meta",
                   "fill": "#B57F4D",
@@ -1696,7 +1699,7 @@
               "type": "frame",
               "id": "Xyg81",
               "x": 3,
-              "y": 254,
+              "y": 253,
               "name": "Institution Health",
               "width": 662,
               "height": 323,
@@ -1853,7 +1856,7 @@
             {
               "type": "frame",
               "id": "4Mq9q",
-              "x": 682,
+              "x": 681,
               "y": 253,
               "name": "System Pulse",
               "width": 487,
@@ -1892,6 +1895,165 @@
                   "fontSize": 12,
                   "fontWeight": "500",
                   "letterSpacing": 3
+                },
+                {
+                  "type": "text",
+                  "id": "SYZTK",
+                  "x": 22,
+                  "y": 52,
+                  "name": "uptimeVal",
+                  "fill": "#F4F1EA",
+                  "content": "99.8%",
+                  "fontFamily": "Inter",
+                  "fontSize": 38,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "u2VJG",
+                  "x": 22,
+                  "y": 98,
+                  "name": "uptimeMeta",
+                  "fill": "#A7B4B5",
+                  "content": "Uptime (30 d)",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "miqxL",
+                  "x": 200,
+                  "y": 56,
+                  "name": "apiLabel",
+                  "fill": "#A7B4B5",
+                  "content": "API",
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "letterSpacing": 3
+                },
+                {
+                  "type": "text",
+                  "id": "BBo9L",
+                  "x": 200,
+                  "y": 78,
+                  "name": "apiVal",
+                  "fill": "#7ECBA1",
+                  "content": "Healthy",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "5uMQ8",
+                  "x": 310,
+                  "y": 56,
+                  "name": "respLabel",
+                  "fill": "#A7B4B5",
+                  "content": "AVG RESPONSE",
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "letterSpacing": 3
+                },
+                {
+                  "type": "text",
+                  "id": "u5xCE",
+                  "x": 310,
+                  "y": 78,
+                  "name": "respVal",
+                  "fill": "#F4F1EA",
+                  "content": "42 ms",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "rectangle",
+                  "id": "WgeST",
+                  "x": 22,
+                  "y": 120,
+                  "name": "divider",
+                  "fill": "#1E4D5C",
+                  "width": 443,
+                  "height": 1
+                },
+                {
+                  "type": "text",
+                  "id": "3dqxw",
+                  "x": 22,
+                  "y": 138,
+                  "name": "queueLabel",
+                  "fill": "#A7B4B5",
+                  "content": "JOB QUEUE",
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "letterSpacing": 3
+                },
+                {
+                  "type": "text",
+                  "id": "jvVgY",
+                  "x": 22,
+                  "y": 160,
+                  "name": "queueVal",
+                  "fill": "#F4F1EA",
+                  "content": "3 pending",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "Hwa49",
+                  "x": 200,
+                  "y": 138,
+                  "name": "dbLabel",
+                  "fill": "#A7B4B5",
+                  "content": "DB POOL",
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "letterSpacing": 3
+                },
+                {
+                  "type": "text",
+                  "id": "UZizm",
+                  "x": 200,
+                  "y": 160,
+                  "name": "dbVal",
+                  "fill": "#F4F1EA",
+                  "content": "12 / 50",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "500"
+                },
+                {
+                  "type": "text",
+                  "id": "p2IsF",
+                  "x": 310,
+                  "y": 138,
+                  "name": "memLabel",
+                  "fill": "#A7B4B5",
+                  "content": "MEMORY",
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 12,
+                  "fontWeight": "500",
+                  "letterSpacing": 3
+                },
+                {
+                  "type": "text",
+                  "id": "dbdbi",
+                  "x": 310,
+                  "y": 160,
+                  "name": "memVal",
+                  "fill": "#F4F1EA",
+                  "content": "68%",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "500"
                 }
               ]
             },
@@ -1901,7 +2063,7 @@
               "x": 3,
               "y": 594,
               "name": "Metric Card / Created Today",
-              "width": 313,
+              "width": 328,
               "height": 115,
               "fill": {
                 "type": "gradient",
@@ -1967,7 +2129,7 @@
             {
               "type": "frame",
               "id": "qDdAA",
-              "x": 333,
+              "x": 347,
               "y": 594,
               "name": "Metric Card / Roles Provisioned",
               "width": 332,
@@ -2023,8 +2185,8 @@
             {
               "type": "frame",
               "id": "m6Lf3",
-              "x": 682,
-              "y": 479,
+              "x": 681,
+              "y": 480,
               "name": "Fast Actions",
               "width": 487,
               "height": 250,
@@ -2144,8 +2306,8 @@
       }
     },
     {
-      "type": "ref",
       "id": "s4pjG",
+      "type": "ref",
       "ref": "LFn8w",
       "x": 3490,
       "y": 1450,
@@ -2183,16 +2345,16 @@
                 "gL68K": {
                   "content": "Institution registry"
                 },
-                "fXLjC/Bq6gM": {
+                "Bq6gM": {
                   "width": 78
                 },
-                "fXLjC/Bq6gM/tBVWE": {
+                "tBVWE": {
                   "content": "17 total"
                 },
-                "fXLjC/cE2Pw": {
+                "cE2Pw": {
                   "width": 190
                 },
-                "fXLjC/cE2Pw/2HF2H": {
+                "2HF2H": {
                   "content": "NEW INSTITUTION"
                 }
               }
@@ -2323,10 +2485,10 @@
             {
               "type": "frame",
               "id": "LPerG",
-              "x": -9,
+              "x": 1,
               "y": 200,
               "name": "Institutions Table",
-              "width": 1177,
+              "width": 1138,
               "height": 450,
               "fill": "$--card",
               "cornerRadius": 30,
@@ -2343,7 +2505,7 @@
                   "x": 0,
                   "y": 0,
                   "name": "header",
-                  "width": 1177,
+                  "width": 1138,
                   "height": 64,
                   "fill": "$--input",
                   "cornerRadius": [
@@ -2440,7 +2602,7 @@
                   "x": 0,
                   "y": 64,
                   "name": "row1",
-                  "width": 1177,
+                  "width": 1138,
                   "height": 94,
                   "fill": "$--card",
                   "stroke": {
@@ -2475,6 +2637,66 @@
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "gIo9S",
+                      "x": 322,
+                      "y": 38,
+                      "name": "r1slug",
+                      "fill": "$--muted-foreground",
+                      "content": "greenwood-intl",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "PWFVn",
+                      "x": 476,
+                      "y": 38,
+                      "name": "r1type",
+                      "fill": "$--foreground",
+                      "content": "K-12 School",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "JRQmV",
+                      "x": 623,
+                      "y": 38,
+                      "name": "r1status",
+                      "fill": "#7ECBA1",
+                      "content": "Active",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "YnNJT",
+                      "x": 752,
+                      "y": 38,
+                      "name": "r1life",
+                      "fill": "$--foreground",
+                      "content": "Operational",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "qdItX",
+                      "x": 905,
+                      "y": 38,
+                      "name": "r1act",
+                      "fill": "$--muted-foreground",
+                      "content": "2 min ago",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -2484,7 +2706,7 @@
                   "x": 0,
                   "y": 158,
                   "name": "row2",
-                  "width": 1177,
+                  "width": 1138,
                   "height": 94,
                   "fill": "$--card",
                   "stroke": {
@@ -2519,6 +2741,66 @@
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Y3Ucl",
+                      "x": 322,
+                      "y": 38,
+                      "name": "r2slug",
+                      "fill": "$--muted-foreground",
+                      "content": "nit-main",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "nSy03",
+                      "x": 476,
+                      "y": 38,
+                      "name": "r2type",
+                      "fill": "$--foreground",
+                      "content": "University",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Oy7h5",
+                      "x": 623,
+                      "y": 38,
+                      "name": "r2status",
+                      "fill": "#7ECBA1",
+                      "content": "Active",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "DjvDb",
+                      "x": 752,
+                      "y": 38,
+                      "name": "r2life",
+                      "fill": "#D4A054",
+                      "content": "Billing review",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NAUv5",
+                      "x": 905,
+                      "y": 38,
+                      "name": "r2act",
+                      "fill": "$--muted-foreground",
+                      "content": "18 min ago",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -2528,7 +2810,7 @@
                   "x": 0,
                   "y": 252,
                   "name": "row3",
-                  "width": 1177,
+                  "width": 1138,
                   "height": 94,
                   "fill": "$--card",
                   "stroke": {
@@ -2563,6 +2845,66 @@
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ngUcg",
+                      "x": 322,
+                      "y": 38,
+                      "name": "r3slug",
+                      "fill": "$--muted-foreground",
+                      "content": "sunrise-primary",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "NtMoR",
+                      "x": 476,
+                      "y": 38,
+                      "name": "r3type",
+                      "fill": "$--foreground",
+                      "content": "Primary",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Lmhj1",
+                      "x": 623,
+                      "y": 38,
+                      "name": "r3status",
+                      "fill": "#7ECBA1",
+                      "content": "Active",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "LWdRB",
+                      "x": 752,
+                      "y": 38,
+                      "name": "r3life",
+                      "fill": "$--foreground",
+                      "content": "Operational",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "EgZ4C",
+                      "x": 905,
+                      "y": 38,
+                      "name": "r3act",
+                      "fill": "$--muted-foreground",
+                      "content": "1 hr ago",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 },
@@ -2572,7 +2914,7 @@
                   "x": 0,
                   "y": 346,
                   "name": "row4",
-                  "width": 1177,
+                  "width": 1138,
                   "height": 104,
                   "fill": "$--card",
                   "cornerRadius": [
@@ -2608,6 +2950,66 @@
                       "fontFamily": "Inter",
                       "fontSize": 14,
                       "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Ki5TP",
+                      "x": 322,
+                      "y": 34,
+                      "name": "r4slug",
+                      "fill": "$--muted-foreground",
+                      "content": "presidency-uni",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "ryZV7",
+                      "x": 476,
+                      "y": 34,
+                      "name": "r4type",
+                      "fill": "$--foreground",
+                      "content": "University",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "4VSrI",
+                      "x": 623,
+                      "y": 34,
+                      "name": "r4status",
+                      "fill": "#D4A054",
+                      "content": "Pending",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "500"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mTJX7",
+                      "x": 752,
+                      "y": 34,
+                      "name": "r4life",
+                      "fill": "$--foreground",
+                      "content": "Provisioning",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "zkdMq",
+                      "x": 905,
+                      "y": 34,
+                      "name": "r4act",
+                      "fill": "$--muted-foreground",
+                      "content": "3 hrs ago",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
                     }
                   ]
                 }
@@ -2620,7 +3022,7 @@
               "y": 668,
               "name": "Pagination",
               "width": 1138,
-              "height": 74,
+              "height": 80,
               "fill": "$--card",
               "cornerRadius": 26,
               "stroke": {
@@ -2634,7 +3036,7 @@
                   "type": "text",
                   "id": "DcO1z",
                   "x": 20,
-                  "y": 29,
+                  "y": 30,
                   "name": "p1Txt",
                   "fill": "$--muted-foreground",
                   "content": "4 of 17 institutions",
@@ -2645,11 +3047,11 @@
                 {
                   "type": "frame",
                   "id": "yb4h2",
-                  "x": 995,
-                  "y": 16,
+                  "x": 988,
+                  "y": 18,
                   "name": "page1",
-                  "width": 40,
-                  "height": 40,
+                  "width": 44,
+                  "height": 44,
                   "fill": "$--primary",
                   "cornerRadius": 14,
                   "justifyContent": "center",
@@ -2662,7 +3064,7 @@
                       "fill": "#F0CC74",
                       "content": "1",
                       "fontFamily": "Inter",
-                      "fontSize": 15,
+                      "fontSize": 16,
                       "fontWeight": "500"
                     }
                   ]
@@ -2670,11 +3072,11 @@
                 {
                   "type": "frame",
                   "id": "VL7L8",
-                  "x": 1046,
-                  "y": 16,
+                  "x": 1042,
+                  "y": 18,
                   "name": "page2",
-                  "width": 40,
-                  "height": 40,
+                  "width": 44,
+                  "height": 44,
                   "fill": "$--input",
                   "cornerRadius": 14,
                   "justifyContent": "center",
@@ -2687,7 +3089,7 @@
                       "fill": "#F0CC74",
                       "content": "2",
                       "fontFamily": "Inter",
-                      "fontSize": 15,
+                      "fontSize": 16,
                       "fontWeight": "500"
                     }
                   ]
@@ -2695,11 +3097,11 @@
                 {
                   "type": "frame",
                   "id": "HEGul",
-                  "x": 944,
-                  "y": 16,
+                  "x": 934,
+                  "y": 18,
                   "name": "prev",
-                  "width": 40,
-                  "height": 40,
+                  "width": 44,
+                  "height": 44,
                   "fill": "$--input",
                   "cornerRadius": 14,
                   "justifyContent": "center",
@@ -2712,7 +3114,7 @@
                       "fill": "#F0CC74",
                       "content": "‹",
                       "fontFamily": "Inter",
-                      "fontSize": 18,
+                      "fontSize": 20,
                       "fontWeight": "500"
                     }
                   ]
@@ -2720,11 +3122,11 @@
                 {
                   "type": "frame",
                   "id": "PK3eO",
-                  "x": 1097,
-                  "y": 16,
+                  "x": 1096,
+                  "y": 18,
                   "name": "next",
-                  "width": 40,
-                  "height": 40,
+                  "width": 44,
+                  "height": 44,
                   "fill": "$--input",
                   "cornerRadius": 14,
                   "justifyContent": "center",
@@ -2737,7 +3139,7 @@
                       "fill": "#F0CC74",
                       "content": "›",
                       "fontFamily": "Inter",
-                      "fontSize": 18,
+                      "fontSize": 20,
                       "fontWeight": "500"
                     }
                   ]
@@ -2746,11 +3148,17 @@
             }
           ]
         },
+        "sOLWG/gHzbQ": {
+          "width": 220
+        },
         "sOLWG/ZcriF": {
           "content": "Operations"
         },
         "sOLWG/oSeij": {
           "content": "Institutions"
+        },
+        "sOLWG/pdy4v": {
+          "width": "fill_container"
         },
         "sOLWG/ST8WI": {
           "content": "Search institutions, admins, workflows"
@@ -2775,8 +3183,8 @@
       }
     },
     {
-      "type": "ref",
       "id": "1gC9F",
+      "type": "ref",
       "ref": "F8Jyu",
       "x": 1774,
       "y": 2900,
@@ -2794,7 +3202,7 @@
           "y": 161,
           "name": "card",
           "width": 522,
-          "height": 687,
+          "height": 672,
           "fill": "$--card",
           "cornerRadius": 30,
           "stroke": {
@@ -2836,7 +3244,7 @@
               "type": "text",
               "id": "P2iYj",
               "x": 42,
-              "y": 188,
+              "y": 175,
               "name": "cardBody",
               "fill": "$--muted-foreground",
               "textGrowth": "fixed-width",
@@ -2851,12 +3259,12 @@
               "type": "text",
               "id": "1SlSd",
               "x": 42,
-              "y": 282,
+              "y": 262,
               "name": "emailLabel",
-              "fill": "$--muted-foreground",
+              "fill": "$--secondary-foreground",
               "content": "EMAIL",
               "fontFamily": "Space Grotesk",
-              "fontSize": 12,
+              "fontSize": 13,
               "fontWeight": "500",
               "letterSpacing": 3
             },
@@ -2864,7 +3272,7 @@
               "type": "frame",
               "id": "d2hcX",
               "x": 42,
-              "y": 304,
+              "y": 284,
               "name": "emailField",
               "width": 438,
               "height": 56,
@@ -2880,7 +3288,7 @@
                   "type": "text",
                   "id": "1VSRO",
                   "name": "emailTxt",
-                  "fill": "#F0CC74",
+                  "fill": "$--muted-foreground",
                   "content": "super@admin.com",
                   "fontFamily": "Inter",
                   "fontSize": 16,
@@ -2892,12 +3300,12 @@
               "type": "text",
               "id": "fn5ZG",
               "x": 42,
-              "y": 397,
+              "y": 362,
               "name": "passLabel",
-              "fill": "$--muted-foreground",
+              "fill": "$--secondary-foreground",
               "content": "PASSWORD",
               "fontFamily": "Space Grotesk",
-              "fontSize": 12,
+              "fontSize": 13,
               "fontWeight": "500",
               "letterSpacing": 3
             },
@@ -2905,7 +3313,7 @@
               "type": "frame",
               "id": "uAfHB",
               "x": 42,
-              "y": 419,
+              "y": 384,
               "name": "passField",
               "width": 438,
               "height": 56,
@@ -2921,7 +3329,7 @@
                   "type": "text",
                   "id": "RcB8e",
                   "name": "passTxt",
-                  "fill": "#F0CC74",
+                  "fill": "$--muted-foreground",
                   "content": "••••••••••••",
                   "fontFamily": "Inter",
                   "fontSize": 16,
@@ -2932,13 +3340,13 @@
             {
               "type": "text",
               "id": "bDXI6",
-              "x": 396,
-              "y": 440,
+              "x": 390,
+              "y": 362,
               "name": "secure",
-              "fill": "$--muted-foreground",
+              "fill": "$--secondary-foreground",
               "content": "SECURE",
               "fontFamily": "Space Grotesk",
-              "fontSize": 12,
+              "fontSize": 13,
               "fontWeight": "500",
               "letterSpacing": 3
             },
@@ -2946,7 +3354,7 @@
               "type": "frame",
               "id": "EHBcu",
               "x": 42,
-              "y": 540,
+              "y": 492,
               "name": "submit",
               "width": 438,
               "height": 66,
@@ -2972,7 +3380,7 @@
               "type": "frame",
               "id": "HlKzz",
               "x": 42,
-              "y": 654,
+              "y": 610,
               "name": "footBox",
               "width": 40,
               "height": 40,
@@ -2985,7 +3393,7 @@
                   "type": "text",
                   "id": "TBzMx",
                   "name": "footBoxTxt",
-                  "fill": "#F0CC74",
+                  "fill": "$--secondary-foreground",
                   "content": "2F",
                   "fontFamily": "Inter",
                   "fontSize": 14,
@@ -2997,7 +3405,7 @@
               "type": "text",
               "id": "6xgG1",
               "x": 94,
-              "y": 657,
+              "y": 613,
               "name": "footTitle",
               "fill": "$--secondary-foreground",
               "content": "Two-factor checkpoint",
@@ -3009,7 +3417,7 @@
               "type": "text",
               "id": "ID3m6",
               "x": 94,
-              "y": 682,
+              "y": 638,
               "name": "footMeta",
               "fill": "$--muted-foreground",
               "content": "Role-gated and session-audited",
@@ -3021,7 +3429,7 @@
               "type": "frame",
               "id": "acyEo",
               "x": 322,
-              "y": 648,
+              "y": 604,
               "name": "trusted",
               "width": 158,
               "height": 50,
@@ -3034,7 +3442,7 @@
                   "type": "text",
                   "id": "UFCzv",
                   "name": "trustedTxt",
-                  "fill": "#F0CC74",
+                  "fill": "$--secondary-foreground",
                   "content": "TRUSTED DEVICE",
                   "fontFamily": "Space Grotesk",
                   "fontSize": 12,
@@ -3058,8 +3466,8 @@
       }
     },
     {
-      "type": "ref",
       "id": "tpa3R",
+      "type": "ref",
       "ref": "LFn8w",
       "x": 3490,
       "y": 2900,
@@ -3097,17 +3505,17 @@
                 "gL68K": {
                   "content": "Create institution"
                 },
-                "fXLjC/Bq6gM": {
+                "Bq6gM": {
                   "width": 105
                 },
-                "fXLjC/Bq6gM/tBVWE": {
+                "tBVWE": {
                   "content": "Step 2 of 4"
                 },
-                "fXLjC/cE2Pw": {
+                "cE2Pw": {
                   "width": 150,
                   "height": 48
                 },
-                "fXLjC/cE2Pw/2HF2H": {
+                "2HF2H": {
                   "content": "SAVE DRAFT"
                 }
               }
@@ -3311,7 +3719,7 @@
               "y": 402,
               "name": "Guidance Panel",
               "width": 277,
-              "height": 259,
+              "height": 280,
               "fill": "$--card",
               "cornerRadius": 28,
               "stroke": {
@@ -3378,6 +3786,34 @@
                       "fontWeight": "normal"
                     }
                   ]
+                },
+                {
+                  "type": "text",
+                  "id": "UiCQl",
+                  "x": 150,
+                  "y": 22,
+                  "name": "gStepIndicator",
+                  "fill": "#7ECBA1",
+                  "content": "STEP 2 OF 4",
+                  "fontFamily": "Space Grotesk",
+                  "fontSize": 11,
+                  "fontWeight": "500",
+                  "letterSpacing": 2
+                },
+                {
+                  "type": "text",
+                  "id": "uL4sE",
+                  "x": 22,
+                  "y": 248,
+                  "name": "gNote",
+                  "fill": "$--muted-foreground",
+                  "textGrowth": "fixed-width",
+                  "width": 220,
+                  "content": "MFA can be required at institution level after provisioning.",
+                  "lineHeight": 1.5,
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
                 }
               ]
             },
@@ -3964,7 +4400,7 @@
           ]
         },
         "sOLWG/gHzbQ": {
-          "width": 170
+          "width": 220
         },
         "sOLWG/ZcriF": {
           "content": "Operations"
@@ -3973,7 +4409,7 @@
           "content": "Create institution"
         },
         "sOLWG/pdy4v": {
-          "width": 300
+          "width": "fill_container"
         },
         "sOLWG/ST8WI": {
           "content": "Search institutions, admins, templates"

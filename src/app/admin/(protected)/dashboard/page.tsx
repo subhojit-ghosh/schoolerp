@@ -21,7 +21,9 @@ export default async function AdminDashboardPage() {
 
   return (
     <PageShell
+      label="Platform control"
       title="Institution oversight"
+      meta={`${counts.total} institutions`}
       actions={
         <Link href={ROUTES.ADMIN.NEW_INSTITUTION}>
           <Button size="sm" className="rounded-xl">
@@ -36,7 +38,7 @@ export default async function AdminDashboardPage() {
           <div className="grid gap-4 sm:grid-cols-3">
             <Card className="rounded-3xl border-border/60">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
-                <CardTitle className="text-[0.6875rem] uppercase tracking-[0.18em] text-muted-foreground">
+                <CardTitle className="font-cap text-[0.6875rem] uppercase tracking-[0.15em] text-muted-foreground">
                   Total institutions
                 </CardTitle>
                 <Building2 className="text-muted-foreground size-4" />
@@ -51,7 +53,7 @@ export default async function AdminDashboardPage() {
 
             <Card className="rounded-3xl border-border/60 bg-primary text-primary-foreground">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
-                <CardTitle className="text-[0.6875rem] uppercase tracking-[0.18em] text-primary-foreground/70">
+                <CardTitle className="font-cap text-[0.6875rem] uppercase tracking-[0.15em] text-primary-foreground/70">
                   Active
                 </CardTitle>
                 <CheckCircle2 className="size-4 text-primary-foreground/80" />
@@ -66,7 +68,7 @@ export default async function AdminDashboardPage() {
 
             <Card className="rounded-3xl border-amber-200/70 bg-amber-50/80">
               <CardHeader className="flex flex-row items-center justify-between pb-3">
-                <CardTitle className="text-[0.6875rem] uppercase tracking-[0.18em] text-amber-700/80">
+                <CardTitle className="font-cap text-[0.6875rem] uppercase tracking-[0.15em] text-amber-700/80">
                   Suspended
                 </CardTitle>
                 <AlertTriangle className="size-4 text-amber-600" />
