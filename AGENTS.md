@@ -18,10 +18,12 @@ This repository is a Turbo monorepo. The target architecture is:
 - `apps/api-erp` — NestJS backend for auth and ERP domains
 - `packages/*` — shared libraries
 
-Repo-level execution status is tracked in `./docs/progress.md`.
-- Read it before starting substantial work to understand current repo state.
-- Update it when a meaningful backend, architecture, or workflow milestone lands.
-- Keep `docs/progress.md` concise and current; use `docs/plans/*` for task-specific implementation detail.
+Repo-level roadmap is tracked in `./docs/roadmap.md`.
+- Read it before starting substantial work to understand current priorities and sequencing.
+- Update it when roadmap priorities, sequencing, or constraints change.
+- Keep `docs/roadmap.md` forward-looking and concise.
+- Use `./docs/status.md` for concise factual implementation state.
+- Use `docs/plans/*` for task-specific implementation detail.
 
 Current repo contents may still contain legacy apps from the previous architecture. Treat those as migration state, not as the target structure.
 
