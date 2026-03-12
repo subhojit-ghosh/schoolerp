@@ -6,8 +6,8 @@
         "^build"
       ],
       "outputs": [
-        "apps/web/.next/**",
-        "apps/api/dist/**"
+        "dist/**",
+        "openapi.json"
       ]
     },
     "dev": {

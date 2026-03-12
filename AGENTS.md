@@ -1,94 +1,170 @@
 # Education ERP Platform
 
-A modular, multi-tenant, white-label ERP platform designed for schools and colleges.
+A modular, multi-tenant ERP platform for Indian schools.
 
-The system supports student lifecycle management including admissions, academics, attendance, examinations, fees, staff management, and communication. It is built with a configurable academic engine to support primary schools, high schools, and colleges using a single core architecture.
-
-The platform is designed to be scalable, extensible, and institution-type configurable, enabling different academic structures (year-based, semester-based, credit-based) without maintaining separate codebases.
+The product target is school-first SaaS:
+- one institution tenant per subdomain
+- support for multi-campus inside a tenant
+- one human can have multiple contexts, such as staff and parent
+- consistent product structure for every institution
+- controlled branding customization through theme tokens, not custom layouts
 
 ## Technical Details
 
-This project use `bun` as package manager. use `bun run typecheck` for typecheck.
+This project uses `bun` as the package manager. Use `bun run typecheck` from the repo root for workspace typechecking.
 
-This repository is a Turbo monorepo:
-- `apps/web` — current Next.js application
-- `apps/api` — NestJS backend
-- `packages/*` — shared packages
+This repository is a Turbo monorepo. The target architecture is:
+- `apps/erp` — Vite + React school ERP frontend
+- `apps/api-erp` — NestJS backend for auth and ERP domains
+- `packages/*` — shared libraries
 
-Unless explicitly working in the Nest backend, existing app paths such as `src/constants`, `src/server`, and `src/app` now refer to `apps/web/src/constants`, `apps/web/src/server`, and `apps/web/src/app`.
+Current repo contents may still contain legacy apps from the previous architecture. Treat those as migration state, not as the target structure.
 
-Auth system we use - better auth (https://better-auth.com)
-Database we use - PostgreSQL
-ORM we use - Drizzle (https://orm.drizzle.team)
+Core stack:
+- Frontend — `Vite`, `React`, `TypeScript`, `shadcn/ui`, `Radix UI`, `Tailwind CSS`
+- Backend — `NestJS`, `Passport`, `PostgreSQL`, `Drizzle`
+- Auth — HTTP-only cookie auth issued by NestJS
+- Forms — `react-hook-form` + `zod`
 
-Keep all the plans in `./docs/plans`.
+Keep all plans in `./docs/plans`.
+
+## Product Decisions
+
+These are not open questions anymore. Build to these defaults unless the user explicitly changes them.
+
+### Tenant model
+- One institution = one tenant.
+- Tenant is resolved from the subdomain.
+- Do not build institution switching as a normal session feature.
+- If an institution has multiple campuses, allow campus switching inside that tenant.
+
+### Identity and auth
+- Do **not** use Better Auth for new work.
+- Use NestJS Passport-based auth in `apps/api-erp`.
+- Primary login identifier is mobile number.
+- Secondary identifier is email.
+- Auth method for v1 is password-based login.
+- Do **not** build OTP-first or passwordless auth in v1.
+- Use HTTP-only cookies for the web frontend. Do not store auth tokens in `localStorage`.
+
+### User model
+- Model one `user` per human identity.
+- Do **not** model staff, parent, or admin as separate login identities.
+- A user can be both staff and parent at the same time.
+- Parent access must support one guardian linked to multiple students.
+- Student access must support multiple guardians for the same student.
+
+### Scope
+- Focus on ERP first.
+- Do **not** build a dedicated platform admin app in v1.
+- Use self-serve school signup to create institutions for testing and onboarding.
+- Signup should create:
+  - institution
+  - initial school admin user
+  - initial membership/role
+  - default campus if needed
+
+### Branding
+- Keep one shared product structure across all tenants.
+- Allow institution-level branding through constrained theme settings only.
+- Supported branding for v1:
+  - logo
+  - favicon
+  - display name
+  - primary color
+  - secondary or accent color
+- Do **not** allow tenant-specific layout forks or arbitrary CSS editing.
 
 ## Hard Rules
 
 ### No magic strings or magic numbers
-**Never** use hardcoded string literals or numeric constants inline. Always define them in `apps/web/src/constants/` and import from `@/constants`. This applies to:
-- **Routes** — use `ROUTES.*` (e.g. `ROUTES.ADMIN.INSTITUTIONS`, not `"/admin/institutions"`)
-- **Status values** — use `STATUS.*` (e.g. `STATUS.ORG.ACTIVE`, not `"active"`)
-- **Roles** — use `ROLES.*`
-- **Permissions** — use `PERMISSIONS.*`
-- **Nav groups** — use `NAV_GROUPS.*`
-- **Headers / cookies** — use `HEADERS.*` / `COOKIES.*`
+**Never** use hardcoded string literals or numeric constants inline for repeated domain values. Put them in shared constants and import them.
 
-The only exceptions are schema enum definitions in `apps/web/src/db/schema/` (those are the source of truth) and the constants files themselves.
+Examples:
+- route segments
+- status values
+- role keys
+- permission keys
+- cookie names
+- header names
+- query parameter names
+
+Exceptions:
+- schema enum definitions in their schema source files
+- constants files themselves
+- one-off library arguments that are not project domain values
+
+### Frontend/backend boundary
+- Business rules belong in NestJS, not in the frontend.
+- The frontend should be a thin client over the API.
+- Do not recreate auth, authorization, tenant resolution, or domain validation logic in React unless it is purely for UX convenience.
+
+### Shared code ownership
+- Shared UI belongs in packages, not copied across apps.
+- Shared DB schema and migrations belong in `packages/database`.
+- Shared Nest infrastructure belongs in `packages/backend-core`.
+- Keep package boundaries clean. Do not import app-local code into another app just because it exists already.
 
 ## Tool Commands
-
-### Better Auth CLI
-Use the new standalone CLI `bunx auth` (not the deprecated `@better-auth/cli`):
-- `bunx auth generate --adapter drizzle --dialect postgresql` — generate Drizzle schema into `apps/web/src/lib/auth-schema.ts`
-- `bunx auth migrate` — only works with Kysely adapter; with Drizzle use drizzle-kit instead
-- `bunx auth init` — scaffold full setup interactively
 
 ### Drizzle
 - `bun run db:generate` — generate migration files from schema
 - `bun run db:migrate` — apply migrations
-- `packages/database/drizzle.config.ts` schema must include both files from `packages/database/src/schema/`
-- `drizzle-kit` does **not** auto-load `.env.local`. Use the `db:generate` / `db:migrate` / `db:studio` / `seed` scripts which already include this flag.
+- `bun run db:studio` — open Drizzle Studio
+- `drizzle-kit` does **not** auto-load `.env.local`. Use the repo scripts that already include the correct env-file handling.
 
-## Forms
+## Frontend Rules
 
+### Frontend framework
+- The ERP frontend target is `Vite + React`.
+- Do **not** add new ERP functionality to the old Next.js app.
+- If legacy Next.js code still exists during migration, treat it as temporary.
+
+### shadcn / Radix UI
+- The new ERP app should use `shadcn/ui` with `Radix UI` primitives.
+- Do not preserve old `@base-ui/react` assumptions from the previous app unless a migration task explicitly requires it.
+- Prefer a shared `packages/ui` design system built on top of shadcn patterns.
+
+### Forms
 **All forms must use `react-hook-form` + `zod`.** No exceptions.
 
-shadcn now uses the **`<Field />`** component pattern (not the old `<Form>` wrapper). The old `FormField`/`FormItem`/`FormLabel`/`FormControl`/`FormMessage` approach from `@/components/ui/form` is superseded.
-
-Pattern (following https://ui.shadcn.com/docs/forms/react-hook-form):
+Use the shadcn field pattern:
 
 ```tsx
-"use client";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
+
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 
+const MOBILE_MIN_LENGTH = 10;
+
 const schema = z.object({
-  email: z.string().email(),
+  mobile: z.string().min(MOBILE_MIN_LENGTH),
 });
 
 type FormValues = z.infer<typeof schema>;
 
-export function MyForm() {
+export function ExampleForm() {
   const { control, handleSubmit } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "" },
+    defaultValues: { mobile: "" },
   });
 
-  function onSubmit(values: FormValues) { ... }
+  function onSubmit(values: FormValues) {
+    void values;
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <Controller
         control={control}
-        name="email"
+        name="mobile"
         render={({ field, fieldState }) => (
           <Field>
-            <FieldLabel>Email</FieldLabel>
-            <Input {...field} type="email" />
+            <FieldLabel>Mobile Number</FieldLabel>
+            <Input {...field} inputMode="tel" />
             <FieldError>{fieldState.error?.message}</FieldError>
           </Field>
         )}
@@ -98,138 +174,87 @@ export function MyForm() {
 }
 ```
 
-Packages installed: `react-hook-form`, `zod`, `@hookform/resolvers`.
-shadcn component to add: `bunx shadcn add field`
+### Theming and white-label
+- Theme customization must be token-driven.
+- Institution admins can customize branding tokens, not component structure.
+- Apply tenant branding via CSS variables at app bootstrap.
+- Vite does not need SSR for this. Fetch branding before mounting the main app shell or show a short branded loading state.
+- Favicon and document title should be updated dynamically after branding loads.
+- Prefer semantic tokens such as `--primary`, `--accent`, `--sidebar-primary`, not random per-component overrides.
 
-## Server Actions
+## Backend Rules
 
-**All server actions must use `next-safe-action`.** The action client is in `apps/web/src/lib/safe-action.ts`.
+### Auth
+- Use NestJS Passport for auth.
+- Primary web auth transport is HTTP-only cookie-based session/auth cookies.
+- Mobile number is the canonical login identifier for v1.
+- Email is secondary and may be optional depending on role.
+- Design the schema so `mobileVerifiedAt` and `emailVerifiedAt` can be added later without painful refactors.
 
-- `actionClient` — base client with error handling
-- `superAdminAction` — extends `actionClient` with platform super-admin auth middleware
-- Form actions that work with `useActionState` must use `.stateAction()`, not `.action()`
-- Simple actions (suspend, delete, etc.) use `.action()` with an input schema
-- FormData parsing uses `zod-form-data` (`zfd.formData()` wrapping the plain zod schema)
-- DB-specific errors (e.g. unique violations) use `returnValidationErrors()` from `next-safe-action`
-- Postgres error extraction utilities are in `apps/web/src/server/errors/db-error.ts`
+### API boundaries
+- Keep onboarding/provisioning isolated as its own backend module.
+- Tenant ERP concerns should live in domain modules such as students, guardians, staff, campuses, academics, attendance, exams, and fees.
+- Route namespaces and guards should make tenant scope explicit.
 
-### Domain file structure
+### Tenant resolution
+- Resolve the active institution from the request hostname/subdomain.
+- The session identifies the user.
+- Authorization checks whether that user can access the resolved tenant.
+- Campus context can be stored in session or preference after tenant resolution.
 
-Every server-side domain in the current web app follows this pattern:
+## Domain Modeling Rules
 
-```
-apps/web/src/server/{domain}/
-  schemas.ts      — zod validation (plain + zfd.formData variants), types, UI constants
-  queries.ts      — read operations (called from RSC/layouts)
-  actions.ts      — write operations (next-safe-action, called from client)
-```
+### Identity
+- Use a single user identity table for authentication.
+- Roles and access should be modeled through memberships and relationships, not separate user tables per persona.
 
-Special files (not every domain needs these):
-- `get-current.ts` — request-scoped context resolution (e.g. current institution from subdomain)
+### Memberships
+- Staff/admin access should come from institution memberships and roles.
+- Parent access should come from guardian relationships to students.
+- The same user can have both membership-based and guardian-based access in the same institution.
 
-### Auth middleware
-
-- Platform admin actions → use `superAdminAction` from `apps/web/src/lib/safe-action.ts`
-- Org-scoped actions → create `orgAction` middleware when needed (resolves org context + RBAC)
-- Auth errors use `AuthError` class from `apps/web/src/server/errors/auth-error.ts`
+### Data modeling
+- Mobile number should be globally unique at the user identity level.
+- Keep institution ownership explicit in tenant-scoped entities.
+- Do not rely on frontend state to define tenant or campus ownership.
 
 ## Framework Discoveries
 
-> **For AI agents:** When you discover something non-obvious about the framework, library version behavior, or a gotcha that bit us — add it here so future agents don't repeat the mistake.
->
-> **Self-healing rule:** When you discover a new gotcha, anti-pattern, or mistake during development — even if the user doesn't ask — you MUST add it to this section immediately. Do not wait to be told. This file is the project's immune system; every mistake caught once should be prevented forever.
+> **For AI agents:** When you discover something non-obvious about the framework, library version behavior, or a gotcha that bit us, add it here immediately so future agents do not repeat it.
 
-### Next.js 16
-
-- The middleware file is **`apps/web/src/proxy.ts`** (not `middleware.ts`) — Next.js 16 renamed the convention.
-- The exported function must be named **`proxy`** (not `middleware`).
-- See: https://nextjs.org/docs/messages/middleware-to-proxy
-- **Never use plain `<a href>` for internal navigation.** Always use Next.js `<Link>` (from `next/link`). A bare `<a>` causes a full page reload, losing client-side state and triggering unnecessary layout re-renders. This includes inside shadcn `render` props — use `render={<Link href="..." />}`, not `render={<a href="..." />}`.
-- Environment variables must be validated through **`apps/web/src/env.ts`** using `@t3-oss/env-nextjs`. Do not read app env values directly from `process.env` in runtime code when `env` can be imported instead.
-- For URL-backed UI state such as filters, sorting, pagination, tabs, search boxes, and other query-param-driven controls, **use `nuqs` by default** instead of manual `useSearchParams`, `URLSearchParams`, or ad hoc router string building. Treat `nuqs` as the project standard for query state.
-- `nuqs` with the App Router must use **`NuqsAdapter` from `nuqs/adapters/next/app`** and it should wrap the app tree in `apps/web/src/app/layout.tsx`. The generic `nuqs/adapters/next` entrypoint is not the App Router-specific integration.
-- `nuqs` defaults to shallow client-side URL updates. For server-driven filters, tables, or any RSC-backed search params, set **`shallow: false`** or the URL will change without re-running the server component data load.
-- `inngest` with the App Router should be served from **`apps/web/src/app/api/inngest/route.ts`** and the route must export **`GET`, `POST`, and `PUT`** from `serve({ client, functions })` via `inngest/next`.
-- For local development, run Next.js and **`bun run inngest:dev`** together. `INNGEST_DEV=http://127.0.0.1:8288` keeps the SDK pointed at the local dev server. Later, `INNGEST_BASE_URL`, `INNGEST_EVENT_KEY`, and `INNGEST_SIGNING_KEY` can be supplied for self-hosted or cloud environments without changing application code.
-- React Compiler linting warns on TanStack Table's `useReactTable()` with `react-hooks/incompatible-library`. Treat this as a known compatibility warning, not an automatic refactor target, unless the project deliberately changes its table library or compiler strategy.
-
-### Inngest
-- Use `inngest` for background jobs, scheduled work, fan-out workflows, and long-running async processes. Do not build ad hoc polling or in-process background task systems inside route handlers or server actions when the work should survive request boundaries.
-- Keep shared Inngest setup under `apps/web/src/inngest/`:
-  `client.ts` for the singleton client,
-  `functions/` for function modules,
-  `functions/index.ts` for the exported registry.
-
-### Better Auth
-- `bunx auth migrate` only works with the **Kysely** adapter. With Drizzle, use `bun run db:migrate` instead.
-- The new CLI is `bunx auth` — the old `@better-auth/cli` package is deprecated.
-- `BETTER_AUTH_SECRET` env var must be set; auth.ts throws at startup if missing.
-- **Session checks in `apps/web/src/proxy.ts` must use `getSessionCookie()` from `better-auth/cookies`, NOT `auth.api.getSession()`.** `getSessionCookie()` only checks cookie existence (no DB hit, ~1ms). Full session validation (`auth.api.getSession()`) happens in layouts/pages via `requireOrgAccess()` and `getPlatformSessionUser()`. This is the two-layer pattern recommended by Better Auth for Next.js 16: fast cookie guard in proxy, full DB validation in server components. See: https://better-auth.com/docs/integrations/next#nextjs-16-proxy
-
-### NestJS + Scalar
-- In `apps/api`, Scalar should be mounted from `@scalar/nestjs-api-reference` and fed from a Nest OpenAPI document generated by `@nestjs/swagger`.
-- Prefer serving Scalar from `/reference` and the raw OpenAPI JSON from `/openapi.json`, with `SwaggerModule.setup(..., { ui: false, raw: ["json"], jsonDocumentUrl: "/openapi.json" })`. This keeps Swagger UI disabled while still exposing a stable machine-readable spec for Scalar and future client generation.
-- In a workspace monorepo, Nest CLI + SWC + the `@nestjs/swagger` CLI plugin needs a **separate metadata generator** process plus `SwaggerModule.loadPluginMetadata(...)` before `createDocument()`. `webpack` + `swc-loader` alone does not run Swagger plugin metadata generation for monorepo builds/watch mode.
-- If `apps/api/src/openapi.ts` imports generated Swagger plugin metadata (for example `./metadata`), the `apps/api` `build` script must regenerate that metadata first. `nest build --builder webpack` will happily compile against stale generated metadata and ship outdated OpenAPI schemas unless `bun run openapi:metadata` is part of the build path.
-- In this toolchain, `@nestjs/swagger/plugin` may not expose a declaration file that `ts-node` picks up cleanly. If `src/generate-metadata.ts` fails on that import, import `ReadonlyVisitor` from `@nestjs/swagger/dist/plugin/visitors/readonly.visitor` instead.
-
-### NestJS + Bun
-- `apps/api` runs on Bun directly. Use `bun --watch src/main.ts` for local development and `bun dist/main.js` for the built server.
-- Bun can execute the current Nest app directly from TypeScript with decorators enabled, so `nest start --watch` is unnecessary in this workspace unless a Nest CLI-specific feature is explicitly needed.
+### Vite + Tenant branding
+- For the ERP app, tenant branding should be fetched at bootstrap and applied via CSS variables before or during initial render.
+- A short loading shell is acceptable. This app is an authenticated ERP, not an SEO-first public site.
+- Favicon, title, and other head branding can be updated dynamically on the client after branding is loaded.
 
 ### NestJS Configuration
-- In `apps/api`, use Nest's official `@nestjs/config` module via `ConfigModule.forRoot()` for environment loading and validation.
-- API env files belong to `apps/api` only. Do not read or fall back to `apps/web/.env*` from the backend.
-- Prefer namespaced config with `registerAs()` for backend concerns such as database settings, and inject typed config into providers/modules instead of importing ad hoc env helpers.
+- In `apps/api-erp`, use Nest's official `@nestjs/config` via `ConfigModule.forRoot()` for env loading and validation.
+- Prefer namespaced config with `registerAs()` for backend concerns.
+- API env files belong to the backend app only. Do not read frontend env files from the backend.
 
-### shadcn / @base-ui/react
-- This project's shadcn components are built on **`@base-ui/react`**, not Radix UI.
-- **No `asChild` prop** — use the **`render` prop** instead: `render={<a href="..." />}` or `render={<Button variant="ghost" />}`.
-- To render a `Button` as a link, wrap with `<Link>` directly: `<Link href="..."><Button>...</Button></Link>`.
-- To render a trigger as a custom element: `<DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>`.
-- Nesting `AlertDialogTrigger` inside a `DropdownMenuItem` causes issues — use state instead: `const [open, setOpen] = useState(false)` + `<AlertDialog open={open} onOpenChange={setOpen}>`.
-- In this monorepo, shadcn config lives in **`apps/web/components.json`**. Run shadcn commands from `apps/web` or with `bunx --cwd apps/web shadcn ...`, otherwise the CLI will not find the config or the correct `src/app/globals.css`.
+### NestJS + Passport
+- Keep auth ownership in NestJS.
+- Do not let frontend libraries become the source of truth for sessions or authorization.
+- Guards and backend authorization checks are mandatory even if the frontend also hides unauthorized UI.
+
+### NestJS + Scalar
+- Serve Scalar from Nest using `@scalar/nestjs-api-reference` and a generated OpenAPI document from `@nestjs/swagger`.
+- Prefer exposing `/reference` for docs and `/openapi.json` for machine-readable OpenAPI.
 
 ### Zod v4
-- This project uses **Zod v4**. `z.string().uuid()` is deprecated — use `z.uuid()` instead.
-- Same for `z.string().email()` → `z.email()`, `z.string().url()` → `z.url()`, etc.
+- This project uses `Zod v4`.
+- Use `z.uuid()` instead of `z.string().uuid()`.
+- Use `z.email()` instead of `z.string().email()`.
+- Use `z.url()` instead of `z.string().url()`.
 
 ### Drizzle + PostgreSQL
-- `sql` tagged template must be imported from `drizzle-orm`, **not** `drizzle-orm/pg-core`.
-- PostgreSQL does not enforce UNIQUE constraints when the column value is `NULL`. Use a partial unique index (`WHERE column IS NULL`) for nullable unique columns.
-- Use `postgres` (postgres.js) driver, not `pg`. No `@types/pg` needed.
-- Guard the connection with `globalThis` caching to prevent HMR from exhausting the connection pool in dev.
-- In the monorepo transition, `apps/api` owns its own Drizzle connection and schema copies for extracted domains. Do not import the web app's `apps/web/src/db/*` into Nest just because the table definitions already exist there; move ownership into the API as domains are extracted.
-- Shared persistence primitives should live in `packages/database`, not inside any app. Keep that package framework-agnostic: schema, client factories, and DB types belong there; Nest modules and runtime config wiring do not.
-- Drizzle migration files belong to `packages/database/drizzle`. `apps/web` should not own migration state once persistence has been extracted.
-- Shared Nest infrastructure belongs in `packages/backend-core`. Put reusable Nest modules, DI tokens, config wrappers, guards, filters, and interceptors there instead of duplicating them across services.
+- Import `sql` from `drizzle-orm`, not `drizzle-orm/pg-core`.
+- PostgreSQL UNIQUE constraints do not treat `NULL` values as duplicates. Use partial unique indexes where required.
+- Use the `postgres` driver, not `pg`.
+- Shared persistence primitives belong in `packages/database`.
+- Drizzle migration files belong in `packages/database/drizzle`.
 
-### Pencil
-- In raw `.pen` files, reusable components are established by setting `reusable: true` on the component root and consuming them with `type: "ref"` plus `ref: "<componentId>"`. Slots are regular frames marked with `slot: []` or a list of recommended component IDs.
-- The current Pencil MCP/editor metadata may still report **0 reusable components** after editing the file on disk, even when the JSON contains valid `reusable` and `ref` nodes and screenshots render correctly. When there is a mismatch, trust the on-disk `.pen` JSON and validate with JSON parsing / grep plus screenshots, not `get_editor_state()` alone.
-- Pencil does not autosave MCP edits to disk. Treat MCP changes as edits to the open document/editor state until the document is manually saved in Pencil.
-- Workflow rule: for normal design iteration, use Pencil MCP for inspection, targeted edits, and screenshot verification, then manually save in Pencil when the result looks correct. Use the `.pen` file itself as the persistence source of truth for important structural refactors or whenever MCP/editor state and disk diverge. In divergence cases, patch the `.pen` file directly, reload the document from disk, and only save from Pencil after confirming the reloaded state is correct.
-- **`replace_all_matching_properties` escapes `$` signs.** When passing `$variable.name` as a `to` value, the tool stores `\$variable.name` (a literal string) instead of a variable reference. This breaks all variable bindings silently — fills render as transparent/missing. **Never use `replace_all_matching_properties` to apply variable references.** Instead, use `batch_design` U() operations on individual nodes. Only use `replace_all_matching_properties` for hex-to-hex color swaps.
-- **Apply variables at creation time.** When creating new components via `batch_design` I(), use `$variable.name` in property values — these are stored correctly. Do not attempt to retrofit variables onto existing nodes in bulk.
-- **Always attach `theme: {"mode": "light"}` to new top-level page frames.** Without an explicit theme, the Theme section in Pencil's right panel shows nothing and the user can't toggle modes. Setting it explicitly makes the toggle visible in the UI.
-- Variables of type `"string"` cannot be used as `$` references for `fontFamily`. Use literal font names (`"Inter"`, `"Space Grotesk"`) in nodes. String variables are useful only as documentation/reference.
-
-### Pencil Design System (`design.pen`)
-
-**Canvas layout:**
-- **Left column** — Design system: Components / Shell Parts frame, then base shells below
-- **Right area** — Page screens in a grid
-
-**Reusable components (6):**
-- `Base / Admin App Shell` — full admin page shell (sidebar + topbar + workspace slot)
-- `Base / Auth Shell` — full auth page shell (brand panel + auth panel slot)
-- `Component / Admin Sidebar` — dark sidebar with nav, profile
-- `Component / Admin Topbar` — breadcrumbs, search, status, user pill
-- `Component / Auth Brand Panel` — dark brand panel with hero text, stats
-- `Component / Page Header` — cap label + title + actions slot (uses variables)
-
-**Creating new admin pages:** Ref `Base / Admin App Shell`, override sidebar/topbar text via `descendants`, inject content into the Workspace slot (`hfhcK`).
-
-**Creating new auth pages:** Ref `Base / Auth Shell`, override brand text via `descendants`, inject form into Auth Panel slot (`MTbKZ`).
-
-**Design variables:** Named to match `globals.css` — Pencil `$--background` = CSS `var(--background)` = Tailwind `bg-background`. Theme axis: `mode: ["light", "dark"]`. To preview dark mode on a frame, set `theme: { "mode": "dark" }`. Add new variables as needed — just keep the `--name` identical in both Pencil and `globals.css`. Use `get_variables` to see current tokens. When creating new components, always use `$--variable` references (e.g. `fill: "$--card"`, `stroke: "$--border"`) so designs stay in sync with code.
+### Legacy repo state
+- The repository may still contain the previous Next.js ERP app and Better Auth code during migration.
+- Do not extend that legacy architecture for new work.
+- If a migration task touches legacy files, treat them as transitional and move the system toward `apps/erp` and `apps/api-erp`.

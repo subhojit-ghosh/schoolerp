@@ -9,18 +9,15 @@
   ],
   "scripts": {
     "dev": "turbo dev",
-    "dev:web": "turbo dev --filter=web",
-    "dev:api": "turbo dev --filter=api",
+    "dev:erp": "turbo dev --filter=erp",
+    "dev:api-erp": "turbo dev --filter=api-erp",
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
-    "api:openapi": "bun run --cwd apps/api openapi:export",
-    "api:types": "bun run api:openapi && bun run --cwd apps/web api:types:generate",
+    "api-erp:openapi": "bun run --cwd apps/api-erp openapi:export",
     "db:generate": "bun run --cwd packages/database db:generate",
     "db:migrate": "bun run --cwd packages/database db:migrate",
-    "db:studio": "bun run --cwd packages/database db:studio",
-    "seed": "bun run --cwd apps/web seed",
-    "inngest:dev": "bun run --cwd apps/web inngest:dev"
+    "db:studio": "bun run --cwd packages/database db:studio"
   },
   "devDependencies": {
     "turbo": "^2.5.6"
