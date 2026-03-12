@@ -1,8 +1,5 @@
 import { Module } from "@nestjs/common";
-import {
-  DatabaseModule,
-  databaseConfig,
-} from "@repo/backend-core";
+import { DatabaseModule, databaseConfig } from "@repo/backend-core";
 import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";

@@ -30,4 +30,10 @@ export default defineConfig([
       'react-hooks/purity': 'off',
     },
   },
+  {
+    files: ['src/components/data-table.tsx'],
+    rules: {
+      'react-hooks/incompatible-library': 'off',
+    },
+  },
 ])
