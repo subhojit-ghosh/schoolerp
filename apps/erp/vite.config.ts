@@ -8,6 +8,11 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      // Resolve the workspace package source so Vite doesn't consume the CJS build artifact.
+      "@academic-platform/contracts": path.resolve(
+        __dirname,
+        "../../packages/contracts/src/index.ts",
+      ),
     },
   },
 });

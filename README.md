@@ -1,12 +1,17 @@
 # Education ERP Platform
 
-This repository is now a Turbo monorepo with a split application layout:
+This repository is a Bun + Turbo monorepo for a modular, multi-tenant school ERP.
 
-- `apps/web` — current Next.js web app
-- `apps/api` — NestJS backend scaffold
-- `packages/contracts` — shared API contracts
+Current workspace layout:
 
-The current business logic still lives mostly in `apps/web` and will be extracted into `apps/api` incrementally.
+- `apps/erp` — Vite + React ERP frontend
+- `apps/api-erp` — NestJS backend for ERP domains
+- `packages/backend-core` — shared Nest/database infrastructure
+- `packages/contracts` — shared DTOs and schema contracts
+- `packages/database` — Drizzle schema, client, and migrations
+- `packages/config` — shared config package placeholder
+
+The codebase is still in migration, but new ERP work should target `apps/erp` and `apps/api-erp`.
 
 ## Getting Started
 
@@ -16,20 +21,19 @@ Install dependencies:
 bun install
 ```
 
-Run the web app:
+Run the ERP frontend:
 
 ```bash
-bun run dev:web
+bun run dev:erp
 ```
 
 Run the Nest API:
 
 ```bash
-bun run dev:api
+bun run dev:api-erp
 ```
 
-The API runs on Bun directly from TypeScript in development and uses Bun to start the built server in production.
-The API owns its environment configuration. Put API variables in `apps/api/.env.local` or `apps/api/.env`.
+The backend owns its environment configuration. Put API variables in `apps/api-erp/.env.local` or `apps/api-erp/.env`.
 
 Run the full workspace:
 
@@ -41,27 +45,25 @@ Useful commands:
 
 ```bash
 bun run typecheck
+bun run build
 bun run lint
+bun run api-erp:openapi
 bun run db:generate
 bun run db:migrate
+bun run db:studio
 ```
 
-Drizzle migrations now live in `packages/database/drizzle`, with config in `packages/database/drizzle.config.ts`.
+Drizzle migrations live in `packages/database/drizzle`, with config in `packages/database/drizzle.config.ts`.
 
 ## Learn More
 
 Core technologies:
 
-- [Next.js](https://nextjs.org)
+- [Vite](https://vite.dev)
+- [React](https://react.dev)
 - [NestJS](https://nestjs.com)
-- [Better Auth](https://better-auth.com)
 - [Drizzle ORM](https://orm.drizzle.team)
 - [Turborepo](https://turbo.build/repo)
+- [Bun](https://bun.sh)
 
 Implementation and migration notes live under `docs/plans/`.
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
