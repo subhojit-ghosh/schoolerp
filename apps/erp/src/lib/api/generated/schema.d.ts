@@ -210,6 +210,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/institutions/{institutionId}/students/{studentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single student for an institution */
+        get: operations["StudentsController_getStudent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a student and reconcile guardians */
+        patch: operations["StudentsController_updateStudent"];
+        trace?: never;
+    };
     "/institutions/{institutionId}/academic-years": {
         parameters: {
             query?: never;
@@ -493,6 +511,13 @@ export interface components {
             isPrimary: boolean;
         };
         CreateStudentBodyDto: {
+            admissionNumber: string;
+            firstName: string;
+            lastName?: string | null;
+            campusId: string;
+            guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
+        };
+        UpdateStudentBodyDto: {
             admissionNumber: string;
             firstName: string;
             lastName?: string | null;
@@ -852,6 +877,54 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["CreateStudentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentDto"];
+                };
+            };
+        };
+    };
+    StudentsController_getStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentDto"];
+                };
+            };
+        };
+    };
+    StudentsController_updateStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStudentBodyDto"];
             };
         };
         responses: {

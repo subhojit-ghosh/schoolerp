@@ -21,4 +21,5 @@ export const API_ROUTES = {
   CURRENT: "current",
   ARCHIVE: "archive",
   RESTORE: "restore",
+  BRANDING: "branding",
 } as const;

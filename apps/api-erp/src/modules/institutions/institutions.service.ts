@@ -1,5 +1,5 @@
 import { DATABASE } from "@repo/backend-core";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
   and,
@@ -19,11 +19,13 @@ import {
   sortableInstitutionColumns,
   type ListInstitutionsQuery,
   type SortableInstitutionColumn,
+  type UpdateBranding,
 } from "./institutions.schemas";
 import {
   InstitutionCountsDto,
   InstitutionDto,
   ListInstitutionsResultDto,
+  UpdateBrandingResponseDto,
 } from "./institutions.dto";
 
 const sortableColumns = {
@@ -108,6 +110,49 @@ export class InstitutionsService {
       active: row?.active ?? 0,
       suspended: row?.suspended ?? 0,
     };
+  }
+
+  async updateBranding(
+    id: string,
+    data: UpdateBranding,
+  ): Promise<UpdateBrandingResponseDto> {
+    const [updated] = await this.db
+      .update(organization)
+      .set({
+        name: data.name,
+        shortName: data.shortName,
+        logoUrl: data.logoUrl || null,
+        faviconUrl: data.faviconUrl || null,
+        primaryColor: data.primaryColor,
+        accentColor: data.accentColor,
+        sidebarColor: data.sidebarColor,
+        fontHeading: data.fontHeading ?? null,
+        fontBody: data.fontBody ?? null,
+        fontMono: data.fontMono ?? null,
+        borderRadius: data.borderRadius ?? null,
+        uiDensity: data.uiDensity ?? null,
+      })
+      .where(eq(organization.id, id))
+      .returning({
+        name: organization.name,
+        shortName: organization.shortName,
+        logoUrl: organization.logoUrl,
+        faviconUrl: organization.faviconUrl,
+        primaryColor: organization.primaryColor,
+        accentColor: organization.accentColor,
+        sidebarColor: organization.sidebarColor,
+        fontHeading: organization.fontHeading,
+        fontBody: organization.fontBody,
+        fontMono: organization.fontMono,
+        borderRadius: organization.borderRadius,
+        uiDensity: organization.uiDensity,
+      });
+
+    if (!updated) {
+      throw new NotFoundException("Institution not found");
+    }
+
+    return updated;
   }
 
   async getInstitutionById(id: string): Promise<InstitutionDto | null> {

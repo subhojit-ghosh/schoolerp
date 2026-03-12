@@ -45,6 +45,26 @@ export class CreateStudentBodyDto {
   guardians!: CreateGuardianLinkBodyDto[];
 }
 
+export class UpdateStudentBodyDto {
+  @ApiProperty()
+  admissionNumber!: string;
+
+  @ApiProperty()
+  firstName!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  lastName?: string | null;
+
+  @ApiProperty()
+  campusId!: string;
+
+  @ApiProperty({
+    type: () => CreateGuardianLinkBodyDto,
+    isArray: true,
+  })
+  guardians!: CreateGuardianLinkBodyDto[];
+}
+
 export class StudentGuardianDto {
   @ApiProperty()
   membershipId!: string;

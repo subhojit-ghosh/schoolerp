@@ -60,6 +60,82 @@ export class InstitutionCountsDto {
   suspended!: number;
 }
 
+export class UpdateBrandingBodyDto {
+  @ApiProperty({ description: "Institution display name" })
+  name!: string;
+
+  @ApiProperty({ description: "Short name or abbreviation" })
+  shortName!: string;
+
+  @ApiPropertyOptional({ description: "Logo image URL", nullable: true })
+  logoUrl?: string;
+
+  @ApiPropertyOptional({ description: "Favicon URL", nullable: true })
+  faviconUrl?: string;
+
+  @ApiProperty({ description: "Primary color as a hex string, e.g. #8a5a44" })
+  primaryColor!: string;
+
+  @ApiProperty({ description: "Accent color as a hex string, e.g. #d59f6a" })
+  accentColor!: string;
+
+  @ApiProperty({ description: "Sidebar color as a hex string, e.g. #32241c" })
+  sidebarColor!: string;
+
+  @ApiPropertyOptional({ description: "Heading font family, e.g. Outfit" })
+  fontHeading?: string;
+
+  @ApiPropertyOptional({ description: "Body font family, e.g. Libre Baskerville" })
+  fontBody?: string;
+
+  @ApiPropertyOptional({ description: "Monospace font family, e.g. IBM Plex Mono" })
+  fontMono?: string;
+
+  @ApiPropertyOptional({ enum: ["sharp", "default", "rounded", "pill"] })
+  borderRadius?: string;
+
+  @ApiPropertyOptional({ enum: ["compact", "default", "comfortable"] })
+  uiDensity?: string;
+}
+
+export class UpdateBrandingResponseDto {
+  @ApiProperty()
+  name!: string;
+
+  @ApiProperty()
+  shortName!: string;
+
+  @ApiProperty({ nullable: true })
+  logoUrl!: string | null;
+
+  @ApiProperty({ nullable: true })
+  faviconUrl!: string | null;
+
+  @ApiProperty()
+  primaryColor!: string;
+
+  @ApiProperty()
+  accentColor!: string;
+
+  @ApiProperty()
+  sidebarColor!: string;
+
+  @ApiProperty({ nullable: true })
+  fontHeading!: string | null;
+
+  @ApiProperty({ nullable: true })
+  fontBody!: string | null;
+
+  @ApiProperty({ nullable: true })
+  fontMono!: string | null;
+
+  @ApiProperty({ nullable: true, enum: ["sharp", "default", "rounded", "pill"] })
+  borderRadius!: string | null;
+
+  @ApiProperty({ nullable: true, enum: ["compact", "default", "comfortable"] })
+  uiDensity!: string | null;
+}
+
 export class ListInstitutionsResultDto {
   @ApiProperty({
     type: () => InstitutionDto,

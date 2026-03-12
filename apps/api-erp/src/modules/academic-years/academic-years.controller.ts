@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
 import {
   ApiBody,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -8,6 +9,9 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES } from "../../constants";
+import { CurrentSession } from "../auth/current-session.decorator";
+import type { AuthenticatedSession } from "../auth/auth.types";
+import { SessionAuthGuard } from "../auth/session-auth.guard";
 import {
   AcademicYearDto,
   CreateAcademicYearBodyDto,
@@ -22,33 +26,47 @@ import { AcademicYearsService } from "./academic-years.service";
 export class AcademicYearsController {
   constructor(private readonly academicYearsService: AcademicYearsService) {}
 
+  @UseGuards(SessionAuthGuard)
   @Get()
+  @ApiCookieAuth()
   @ApiOperation({ summary: "List academic years for an institution" })
   @ApiParam({ name: "institutionId", type: String })
   @ApiOkResponse({
     description: "Academic years list",
     type: [AcademicYearDto],
   })
-  listAcademicYears(@Param("institutionId") institutionId: string) {
-    return this.academicYearsService.listAcademicYears(institutionId);
+  listAcademicYears(
+    @Param("institutionId") institutionId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+  ) {
+    return this.academicYearsService.listAcademicYears(
+      institutionId,
+      authSession.user.id,
+    );
   }
 
+  @UseGuards(SessionAuthGuard)
   @Post()
+  @ApiCookieAuth()
   @ApiOperation({ summary: "Create an academic year for an institution" })
   @ApiParam({ name: "institutionId", type: String })
   @ApiBody({ type: CreateAcademicYearBodyDto })
   @ApiCreatedResponse({ description: "Academic year created" })
   createAcademicYear(
     @Param("institutionId") institutionId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: CreateAcademicYearBodyDto,
   ) {
     return this.academicYearsService.createAcademicYear(
       institutionId,
+      authSession.user.id,
       parseCreateAcademicYear(body),
     );
   }
 
+  @UseGuards(SessionAuthGuard)
   @Patch(`:academicYearId/${API_ROUTES.CURRENT}`)
+  @ApiCookieAuth()
   @ApiOperation({ summary: "Set current academic year" })
   @ApiParam({ name: "institutionId", type: String })
   @ApiParam({ name: "academicYearId", type: String })
@@ -56,14 +74,18 @@ export class AcademicYearsController {
   setCurrentAcademicYear(
     @Param("institutionId") institutionId: string,
     @Param("academicYearId") academicYearId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
   ) {
     return this.academicYearsService.setCurrentAcademicYear(
       institutionId,
       academicYearId,
+      authSession.user.id,
     );
   }
 
+  @UseGuards(SessionAuthGuard)
   @Patch(`:academicYearId/${API_ROUTES.ARCHIVE}`)
+  @ApiCookieAuth()
   @ApiOperation({ summary: "Archive an academic year" })
   @ApiParam({ name: "institutionId", type: String })
   @ApiParam({ name: "academicYearId", type: String })
@@ -71,14 +93,18 @@ export class AcademicYearsController {
   archiveAcademicYear(
     @Param("institutionId") institutionId: string,
     @Param("academicYearId") academicYearId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
   ) {
     return this.academicYearsService.archiveAcademicYear(
       institutionId,
       academicYearId,
+      authSession.user.id,
     );
   }
 
+  @UseGuards(SessionAuthGuard)
   @Patch(`:academicYearId/${API_ROUTES.RESTORE}`)
+  @ApiCookieAuth()
   @ApiOperation({ summary: "Restore an academic year" })
   @ApiParam({ name: "institutionId", type: String })
   @ApiParam({ name: "academicYearId", type: String })
@@ -86,10 +112,12 @@ export class AcademicYearsController {
   restoreAcademicYear(
     @Param("institutionId") institutionId: string,
     @Param("academicYearId") academicYearId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
   ) {
     return this.academicYearsService.restoreAcademicYear(
       institutionId,
       academicYearId,
+      authSession.user.id,
     );
   }
 }

@@ -34,6 +34,15 @@ export const organization = pgTable("organization", {
   primaryColor: text("primary_color").notNull(),
   accentColor: text("accent_color").notNull(),
   sidebarColor: text("sidebar_color").notNull(),
+  fontHeading: text("font_heading"),
+  fontBody: text("font_body"),
+  fontMono: text("font_mono"),
+  borderRadius: text("border_radius", {
+    enum: ["sharp", "default", "rounded", "pill"],
+  }),
+  uiDensity: text("ui_density", {
+    enum: ["compact", "default", "comfortable"],
+  }),
   status: text("status", { enum: ["active", "suspended"] })
     .notNull()
     .default("active"),

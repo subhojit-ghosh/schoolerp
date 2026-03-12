@@ -5,6 +5,7 @@ import {
   IconCertificate,
   IconCurrencyRupee,
   IconDashboard,
+  IconPalette,
   IconUsers,
   IconUsersGroup,
 } from "@tabler/icons-react";
@@ -22,7 +23,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
 } from "@repo/ui/components/ui/sidebar";
 
 const NAV_OVERVIEW = [
@@ -35,6 +35,7 @@ const NAV_PEOPLE = [
 ] as const;
 
 const NAV_ACADEMICS = [
+  { icon: IconBook2,         title: "Academic Years", url: ERP_ROUTES.ACADEMIC_YEARS },
   { icon: IconBook2,         title: "Classes",    url: ERP_ROUTES.CLASSES,    disabled: true },
   { icon: IconCalendarStats, title: "Attendance", url: ERP_ROUTES.ATTENDANCE, disabled: true },
   { icon: IconCertificate,   title: "Exams",      url: ERP_ROUTES.EXAMS,      disabled: true },
@@ -43,6 +44,11 @@ const NAV_ACADEMICS = [
 const NAV_FINANCE = [
   { icon: IconCurrencyRupee, title: "Fees", url: ERP_ROUTES.FEES, disabled: true },
 ] as const;
+
+const NAV_SETTINGS = [
+  { icon: IconPalette, title: "Branding", url: ERP_ROUTES.SETTINGS_BRANDING },
+] as const;
+
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const session = useAuthStore((store) => store.session);
@@ -85,10 +91,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarContent>
         <NavMain items={[...NAV_OVERVIEW]} />
-        <SidebarSeparator />
         <NavMain items={[...NAV_PEOPLE]} label="People" />
         <NavMain items={[...NAV_ACADEMICS]} label="Academics" />
         <NavMain items={[...NAV_FINANCE]} label="Finance" />
+        <NavMain items={[...NAV_SETTINGS]} label="Settings" />
       </SidebarContent>
 
       <SidebarFooter>

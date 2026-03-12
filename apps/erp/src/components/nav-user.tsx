@@ -1,5 +1,6 @@
 import { IconDotsVertical, IconLogout } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
+import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Avatar,
   AvatarFallback,
@@ -49,6 +50,11 @@ export function NavUser() {
 
   const secondaryLabel = user.email ?? user.mobile;
   const initials = toInitials(user.name);
+  const institutionName = session?.activeOrganization?.name ?? "Institution";
+  const campusName = session?.activeCampus?.name ?? "Campus";
+  const memberTypes = Array.from(
+    new Set(session?.memberships.map((membership) => membership.memberType) ?? []),
+  );
 
   return (
     <SidebarMenu>
@@ -92,6 +98,20 @@ export function NavUser() {
                 </div>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className="flex flex-col gap-2 px-2 py-2">
+              <div>
+                <p className="text-xs font-medium text-foreground">{institutionName}</p>
+                <p className="text-xs text-muted-foreground">{campusName}</p>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {memberTypes.map((memberType) => (
+                  <Badge key={memberType} className="capitalize" variant="outline">
+                    {memberType}
+                  </Badge>
+                ))}
+              </div>
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               disabled={signOutMutation.isPending}

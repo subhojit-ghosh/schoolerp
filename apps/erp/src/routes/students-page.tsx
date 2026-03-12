@@ -1,10 +1,8 @@
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { IconPlus, IconTrash, IconUserPlus } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
+import { IconPlus, IconUserPlus } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
-import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -12,23 +10,6 @@ import {
   CardTitle,
   CardDescription,
 } from "@repo/ui/components/ui/card";
-import {
-  Field,
-  FieldContent,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@repo/ui/components/ui/field";
-import { Input } from "@repo/ui/components/ui/input";
-import { Label } from "@repo/ui/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui/components/ui/select";
 import {
   Table,
   TableBody,
@@ -42,10 +23,9 @@ import {
   useCreateStudentMutation,
   useStudentsQuery,
 } from "@/features/students/api/use-students";
-import {
-  studentFormSchema,
-  type StudentFormValues,
-} from "@/features/students/model/student-form-schema";
+import { StudentForm } from "@/features/students/ui/student-form";
+import { ERP_ROUTES } from "@/constants/routes";
+import type { StudentFormValues } from "@/features/students/model/student-form-schema";
 
 const DEFAULT_GUARDIAN = {
   name: "",
@@ -73,33 +53,12 @@ export function StudentsPage() {
   const createStudentMutation = useCreateStudentMutation(institutionId);
   const createStudentError = createStudentMutation.error as Error | null | undefined;
 
-  const { control, handleSubmit, reset } = useForm<StudentFormValues>({
-    resolver: zodResolver(studentFormSchema),
-    defaultValues: {
-      admissionNumber: "",
-      firstName: "",
-      lastName: "",
-      campusId: authSession?.activeCampus?.id ?? "",
-      guardians: [DEFAULT_GUARDIAN],
-    },
-  });
-
-  const guardiansFieldArray = useFieldArray({ control, name: "guardians" });
-
   async function onSubmit(values: StudentFormValues) {
     if (!institutionId) return;
 
     await createStudentMutation.mutateAsync({
       params: { path: { institutionId } },
       body: values,
-    });
-
-    reset({
-      admissionNumber: "",
-      firstName: "",
-      lastName: "",
-      campusId: authSession?.activeCampus?.id ?? "",
-      guardians: [DEFAULT_GUARDIAN],
     });
     setShowForm(false);
   }
@@ -151,244 +110,21 @@ export function StudentsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <FieldGroup className="gap-6">
-                {/* Student fields */}
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Controller
-                    control={control}
-                    name="admissionNumber"
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid || undefined}>
-                        <FieldLabel htmlFor="admission-number">Admission number</FieldLabel>
-                        <FieldContent>
-                          <Input
-                            {...field}
-                            aria-invalid={fieldState.invalid}
-                            id="admission-number"
-                            placeholder="ADM-2026-001"
-                          />
-                          <FieldError>{fieldState.error?.message}</FieldError>
-                        </FieldContent>
-                      </Field>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="campusId"
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid || undefined}>
-                        <FieldLabel>Campus</FieldLabel>
-                        <FieldContent>
-                          <Select onValueChange={field.onChange} value={field.value || undefined}>
-                            <SelectTrigger aria-invalid={fieldState.invalid}>
-                              <SelectValue placeholder="Select campus" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectGroup>
-                                {campuses.map((campus) => (
-                                  <SelectItem key={campus.id} value={campus.id}>
-                                    {campus.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectGroup>
-                            </SelectContent>
-                          </Select>
-                          <FieldError>{fieldState.error?.message}</FieldError>
-                        </FieldContent>
-                      </Field>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="firstName"
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid || undefined}>
-                        <FieldLabel htmlFor="first-name">First name</FieldLabel>
-                        <FieldContent>
-                          <Input
-                            {...field}
-                            aria-invalid={fieldState.invalid}
-                            id="first-name"
-                            placeholder="Aarav"
-                          />
-                          <FieldError>{fieldState.error?.message}</FieldError>
-                        </FieldContent>
-                      </Field>
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="lastName"
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid || undefined}>
-                        <FieldLabel htmlFor="last-name">Last name</FieldLabel>
-                        <FieldContent>
-                          <Input
-                            {...field}
-                            aria-invalid={fieldState.invalid}
-                            id="last-name"
-                            placeholder="Sharma"
-                          />
-                          <FieldError>{fieldState.error?.message}</FieldError>
-                        </FieldContent>
-                      </Field>
-                    )}
-                  />
-                </div>
-
-                {/* Guardian section */}
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium">Guardians</p>
-                      <p className="text-xs text-muted-foreground">At least one guardian is required.</p>
-                    </div>
-                    <Button
-                      className="gap-1.5"
-                      onClick={() => guardiansFieldArray.append({ ...DEFAULT_GUARDIAN, isPrimary: false })}
-                      size="sm"
-                      type="button"
-                      variant="outline"
-                    >
-                      <IconUserPlus className="size-3.5" />
-                      Add guardian
-                    </Button>
-                  </div>
-
-                  {guardiansFieldArray.fields.map((guardian, index) => (
-                    <div
-                      key={guardian.id}
-                      className="rounded-lg border bg-muted/30 p-4 grid gap-4 sm:grid-cols-2"
-                    >
-                      <Controller
-                        control={control}
-                        name={`guardians.${index}.name`}
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <FieldLabel>Name</FieldLabel>
-                            <FieldContent>
-                              <Input {...field} aria-invalid={fieldState.invalid} placeholder="Neha Sharma" />
-                              <FieldError>{fieldState.error?.message}</FieldError>
-                            </FieldContent>
-                          </Field>
-                        )}
-                      />
-                      <Controller
-                        control={control}
-                        name={`guardians.${index}.mobile`}
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <FieldLabel>Mobile</FieldLabel>
-                            <FieldContent>
-                              <Input
-                                {...field}
-                                aria-invalid={fieldState.invalid}
-                                inputMode="tel"
-                                placeholder="+91 98765 43210"
-                              />
-                              <FieldError>{fieldState.error?.message}</FieldError>
-                            </FieldContent>
-                          </Field>
-                        )}
-                      />
-                      <Controller
-                        control={control}
-                        name={`guardians.${index}.email`}
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <FieldLabel>Email</FieldLabel>
-                            <FieldContent>
-                              <Input
-                                {...field}
-                                aria-invalid={fieldState.invalid}
-                                placeholder="guardian@example.com"
-                                type="email"
-                              />
-                              <FieldError>{fieldState.error?.message}</FieldError>
-                            </FieldContent>
-                          </Field>
-                        )}
-                      />
-                      <Controller
-                        control={control}
-                        name={`guardians.${index}.relationship`}
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <FieldLabel>Relationship</FieldLabel>
-                            <FieldContent>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger aria-invalid={fieldState.invalid}>
-                                  <SelectValue placeholder="Select" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    <SelectItem value="father">Father</SelectItem>
-                                    <SelectItem value="mother">Mother</SelectItem>
-                                    <SelectItem value="guardian">Guardian</SelectItem>
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select>
-                              <FieldError>{fieldState.error?.message}</FieldError>
-                            </FieldContent>
-                          </Field>
-                        )}
-                      />
-                      <div className="flex items-center justify-between sm:col-span-2">
-                        <Controller
-                          control={control}
-                          name={`guardians.${index}.isPrimary`}
-                          render={({ field }) => (
-                            <div className="flex items-center gap-2">
-                              <Checkbox
-                                checked={field.value}
-                                id={`primary-${index}`}
-                                onCheckedChange={field.onChange}
-                              />
-                              <Label className="text-sm font-normal" htmlFor={`primary-${index}`}>
-                                Primary guardian
-                              </Label>
-                            </div>
-                          )}
-                        />
-                        {guardiansFieldArray.fields.length > 1 ? (
-                          <Button
-                            className="gap-1.5 text-destructive hover:text-destructive"
-                            onClick={() => guardiansFieldArray.remove(index)}
-                            size="sm"
-                            type="button"
-                            variant="ghost"
-                          >
-                            <IconTrash className="size-3.5" />
-                            Remove
-                          </Button>
-                        ) : null}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {createStudentError ? (
-                  <FieldError>{createStudentError.message ?? "Unable to create the student."}</FieldError>
-                ) : null}
-
-                <div className="flex gap-2">
-                  <Button
-                    disabled={createStudentMutation.isPending}
-                    type="submit"
-                  >
-                    {createStudentMutation.isPending ? "Creating…" : "Create student"}
-                  </Button>
-                  <Button
-                    onClick={() => setShowForm(false)}
-                    type="button"
-                    variant="ghost"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </FieldGroup>
-            </form>
+            <StudentForm
+              campuses={campuses}
+              defaultValues={{
+                admissionNumber: "",
+                firstName: "",
+                lastName: "",
+                campusId: authSession?.activeCampus?.id ?? "",
+                guardians: [DEFAULT_GUARDIAN],
+              }}
+              errorMessage={createStudentError?.message}
+              isPending={createStudentMutation.isPending}
+              onCancel={() => setShowForm(false)}
+              onSubmit={onSubmit}
+              submitLabel="Create student"
+            />
           </CardContent>
         </Card>
       ) : null}
@@ -440,7 +176,12 @@ export function StudentsPage() {
                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
                           {toInitials(student.fullName)}
                         </div>
-                        <span className="font-medium text-sm">{student.fullName}</span>
+                        <Link
+                          className="text-sm font-medium hover:underline underline-offset-4"
+                          to={ERP_ROUTES.STUDENT_DETAIL.replace(":studentId", student.id)}
+                        >
+                          {student.fullName}
+                        </Link>
                       </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm font-mono">

@@ -12,12 +12,21 @@ import type { AppDatabase } from "@repo/database";
 import { Inject } from "@nestjs/common";
 import { AcademicYearDto } from "./academic-years.dto";
 import type { CreateAcademicYearDto } from "./academic-years.schemas";
+import { AuthService } from "../auth/auth.service";
 
 @Injectable()
 export class AcademicYearsService {
-  constructor(@Inject(DATABASE) private readonly database: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly database: AppDatabase,
+    private readonly authService: AuthService,
+  ) {}
 
-  async listAcademicYears(institutionId: string): Promise<AcademicYearDto[]> {
+  async listAcademicYears(
+    institutionId: string,
+    actorUserId: string,
+  ): Promise<AcademicYearDto[]> {
+    await this.requireInstitutionAccess(actorUserId, institutionId);
+
     const rows = await this.database
       .select({
         id: academicYears.id,
@@ -46,8 +55,11 @@ export class AcademicYearsService {
 
   async createAcademicYear(
     institutionId: string,
+    actorUserId: string,
     payload: CreateAcademicYearDto,
   ): Promise<void> {
+    await this.requireInstitutionAccess(actorUserId, institutionId);
+
     const [existingCurrent] = await this.database
       .select({ id: academicYears.id })
       .from(academicYears)
@@ -88,7 +100,9 @@ export class AcademicYearsService {
   async setCurrentAcademicYear(
     institutionId: string,
     academicYearId: string,
+    actorUserId: string,
   ): Promise<void> {
+    await this.requireInstitutionAccess(actorUserId, institutionId);
     await this.getAcademicYearOrThrow(academicYearId, institutionId);
 
     await this.database
@@ -113,7 +127,9 @@ export class AcademicYearsService {
   async archiveAcademicYear(
     institutionId: string,
     academicYearId: string,
+    actorUserId: string,
   ): Promise<void> {
+    await this.requireInstitutionAccess(actorUserId, institutionId);
     const year = await this.getAcademicYearOrThrow(
       academicYearId,
       institutionId,
@@ -134,7 +150,9 @@ export class AcademicYearsService {
   async restoreAcademicYear(
     institutionId: string,
     academicYearId: string,
+    actorUserId: string,
   ): Promise<void> {
+    await this.requireInstitutionAccess(actorUserId, institutionId);
     await this.getAcademicYearOrThrow(academicYearId, institutionId);
 
     await this.database
@@ -168,5 +186,19 @@ export class AcademicYearsService {
     }
 
     return year;
+  }
+
+  private async requireInstitutionAccess(
+    userId: string,
+    institutionId: string,
+  ) {
+    const membership = await this.authService.getMembershipForOrganization(
+      userId,
+      institutionId,
+    );
+
+    if (!membership) {
+      throw new NotFoundException(ERROR_MESSAGES.AUTH.MEMBERSHIP_REQUIRED);
+    }
   }
 }

@@ -5,6 +5,12 @@ const NAME_MIN_LENGTH = 1;
 const ADMISSION_NUMBER_MIN_LENGTH = 1;
 const MOBILE_MIN_LENGTH = 10;
 
+function hasExactlyOnePrimaryGuardian(
+  guardians: { isPrimary: boolean }[],
+) {
+  return guardians.filter((guardian) => guardian.isPrimary).length === 1;
+}
+
 export const createGuardianLinkSchema = z.object({
   name: z.string().trim().min(NAME_MIN_LENGTH, "Guardian name is required"),
   mobile: z
@@ -35,11 +41,25 @@ export const createStudentSchema = z.object({
   guardians: z
     .array(createGuardianLinkSchema)
     .min(1, "At least one guardian is required"),
+}).refine((value) => hasExactlyOnePrimaryGuardian(value.guardians), {
+  path: ["guardians"],
+  message: "Select exactly one primary guardian.",
+});
+
+export const updateStudentSchema = createStudentSchema;
+
+export const studentIdSchema = z.object({
+  studentId: z.uuid(),
 });
 
 export type CreateGuardianLinkDto = z.infer<typeof createGuardianLinkSchema>;
 export type CreateStudentDto = z.infer<typeof createStudentSchema>;
+export type UpdateStudentDto = z.infer<typeof updateStudentSchema>;
 
 export function parseCreateStudent(input: unknown) {
   return createStudentSchema.parse(input);
+}
+
+export function parseUpdateStudent(input: unknown) {
+  return updateStudentSchema.parse(input);
 }

@@ -16,4 +16,21 @@ export const ONBOARDING_API_PATHS = {
 export const STUDENTS_API_PATHS = {
   LIST: "/institutions/{institutionId}/students",
   CREATE: "/institutions/{institutionId}/students",
+  DETAIL: "/institutions/{institutionId}/students/{studentId}",
+  UPDATE: "/institutions/{institutionId}/students/{studentId}",
+} as const;
+
+export const ACADEMIC_YEARS_API_PATHS = {
+  LIST: "/institutions/{institutionId}/academic-years",
+  CREATE: "/institutions/{institutionId}/academic-years",
+  SET_CURRENT:
+    "/institutions/{institutionId}/academic-years/{academicYearId}/current",
+  ARCHIVE:
+    "/institutions/{institutionId}/academic-years/{academicYearId}/archive",
+  RESTORE:
+    "/institutions/{institutionId}/academic-years/{academicYearId}/restore",
+} as const;
+
+export const INSTITUTIONS_API_PATHS = {
+  UPDATE_BRANDING: "/institutions/{id}/branding",
 } as const;

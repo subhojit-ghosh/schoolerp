@@ -16,6 +16,11 @@ export const DEFAULT_TENANT_BRANDING = tenantBrandingSchema.parse({
   primaryColor: "#8a5a44",
   accentColor: "#d59f6a",
   sidebarColor: "#32241c",
+  fontHeading: "Outfit",
+  fontBody: "Libre Baskerville",
+  fontMono: "IBM Plex Mono",
+  borderRadius: "default",
+  uiDensity: "default",
 });
 
 @Injectable()
@@ -55,6 +60,11 @@ export class TenantContextService {
         primaryColor: organization.primaryColor,
         accentColor: organization.accentColor,
         sidebarColor: organization.sidebarColor,
+        fontHeading: organization.fontHeading,
+        fontBody: organization.fontBody,
+        fontMono: organization.fontMono,
+        borderRadius: organization.borderRadius,
+        uiDensity: organization.uiDensity,
         status: organization.status,
         deletedAt: organization.deletedAt,
       })
@@ -138,6 +148,11 @@ export class TenantContextService {
       primaryColor: tenant.primaryColor,
       accentColor: tenant.accentColor,
       sidebarColor: tenant.sidebarColor,
+      fontHeading: tenant.fontHeading,
+      fontBody: tenant.fontBody,
+      fontMono: tenant.fontMono,
+      borderRadius: tenant.borderRadius,
+      uiDensity: tenant.uiDensity,
     });
   }
 }

@@ -1,8 +1,8 @@
 import {
   IconArrowRight,
+  IconBook2,
   IconCalendarStats,
   IconCurrencyRupee,
-  IconSchool,
   IconUsers,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
@@ -18,10 +18,10 @@ const QUICK_ACTIONS = [
     Icon: IconUsers,
   },
   {
-    label: "Academics",
-    description: "Classes, subjects and timetables",
-    href: "#",
-    Icon: IconSchool,
+    label: "Academic Years",
+    description: "Manage current and archived sessions",
+    href: ERP_ROUTES.ACADEMIC_YEARS,
+    Icon: IconBook2,
   },
   {
     label: "Attendance",

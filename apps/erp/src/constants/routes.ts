@@ -3,13 +3,17 @@ export const ERP_ROUTES = {
   DASHBOARD: "/dashboard",
   // People
   STUDENTS: "/students",
+  STUDENT_DETAIL: "/students/:studentId",
   STAFF: "/staff",
   // Academics
+  ACADEMIC_YEARS: "/academic-years",
   CLASSES: "/classes",
   ATTENDANCE: "/attendance",
   EXAMS: "/exams",
   // Finance
   FEES: "/fees",
+  // Settings
+  SETTINGS_BRANDING: "/settings/branding",
   // Auth
   SIGN_IN: "/sign-in",
   FORGOT_PASSWORD: "/forgot-password",

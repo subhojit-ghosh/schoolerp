@@ -2,19 +2,41 @@ import { useLocation } from "react-router-dom";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Separator } from "@repo/ui/components/ui/separator";
 import { SidebarTrigger } from "@repo/ui/components/ui/sidebar";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { useSelectCampusMutation } from "@/features/auth/api/use-auth";
+import { ThemeDrawer } from "@/components/theme-drawer";
+import { ModeToggle } from "@/components/mode-toggle";
 
-const PAGE_TITLES = {
+const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/students": "Students",
-} as const;
+  "/academic-years": "Academic Years",
+  "/settings/branding": "Branding",
+};
 
 export function SiteHeader() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
-  const title =
-    PAGE_TITLES[location.pathname as keyof typeof PAGE_TITLES] ?? "ERP";
+  const selectCampusMutation = useSelectCampusMutation();
+  const title = location.pathname.startsWith("/students/")
+    ? "Student"
+    : PAGE_TITLES[location.pathname] ?? "ERP";
   const campusName = session?.activeCampus?.name ?? "Campus";
+  const campuses = session?.campuses ?? [];
+
+  async function handleCampusChange(campusId: string) {
+    await selectCampusMutation.mutateAsync({
+      body: { campusId },
+    });
+  }
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -26,7 +48,30 @@ export function SiteHeader() {
         />
         <h1 className="text-base font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
-          <Badge variant="outline">{campusName}</Badge>
+          {campuses.length > 1 ? (
+            <Select
+              disabled={selectCampusMutation.isPending}
+              onValueChange={(value) => void handleCampusChange(value)}
+              value={session?.activeCampus?.id}
+            >
+              <SelectTrigger className="h-8 min-w-40 bg-background">
+                <SelectValue placeholder={campusName} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {campuses.map((campus) => (
+                    <SelectItem key={campus.id} value={campus.id}>
+                      {campus.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          ) : (
+            <Badge variant="outline">{campusName}</Badge>
+          )}
+          <ModeToggle />
+          <ThemeDrawer />
         </div>
       </div>
     </header>

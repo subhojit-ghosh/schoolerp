@@ -29,6 +29,20 @@
       "when": 1773330133936,
       "tag": "0003_stiff_iron_lad",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1773350512058,
+      "tag": "0004_bouncy_korath",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1773351380927,
+      "tag": "0005_yielding_sasquatch",
+      "breakpoints": true
     }
   ]
 }

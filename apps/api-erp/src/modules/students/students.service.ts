@@ -28,6 +28,7 @@ import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import type {
   CreateGuardianLinkDto,
   CreateStudentDto,
+  UpdateStudentDto,
 } from "./students.schemas";
 
 type StudentGuardianSummary = {
@@ -52,6 +53,150 @@ export class StudentsService {
   async listStudents(institutionId: string, actorUserId: string) {
     await this.requireInstitutionAccess(actorUserId, institutionId);
 
+    return this.listStudentsForInstitution(institutionId);
+  }
+
+  async getStudent(
+    institutionId: string,
+    studentId: string,
+    actorUserId: string,
+  ) {
+    await this.requireInstitutionAccess(actorUserId, institutionId);
+
+    const [studentRecord] = await this.listStudentsForInstitution(
+      institutionId,
+      studentId,
+    );
+
+    if (!studentRecord) {
+      throw new NotFoundException(ERROR_MESSAGES.STUDENTS.STUDENT_NOT_FOUND);
+    }
+
+    return studentRecord;
+  }
+
+  async updateStudent(
+    institutionId: string,
+    studentId: string,
+    actorUserId: string,
+    payload: UpdateStudentDto,
+  ) {
+    await this.requireInstitutionAccess(actorUserId, institutionId);
+
+    const existingStudent = await this.getStudentMembership(
+      institutionId,
+      studentId,
+    );
+    const selectedCampus = await this.getCampus(
+      institutionId,
+      payload.campusId,
+    );
+
+    await this.assertAdmissionNumberAvailable(
+      institutionId,
+      payload.admissionNumber.trim(),
+      studentId,
+    );
+
+    await this.db.transaction(async (tx) => {
+      await tx
+        .update(member)
+        .set({
+          primaryCampusId: selectedCampus.id,
+        })
+        .where(eq(member.id, existingStudent.membershipId));
+
+      await this.ensureCampusMembership(
+        tx,
+        existingStudent.membershipId,
+        selectedCampus.id,
+      );
+
+      await tx
+        .update(students)
+        .set({
+          admissionNumber: payload.admissionNumber.trim(),
+          firstName: payload.firstName.trim(),
+          lastName: payload.lastName?.trim() || null,
+        })
+        .where(eq(students.id, studentId));
+
+      const activeGuardianLinks = await tx
+        .select({
+          linkId: studentGuardianLinks.id,
+          parentMembershipId: studentGuardianLinks.parentMembershipId,
+        })
+        .from(studentGuardianLinks)
+        .where(
+          and(
+            eq(
+              studentGuardianLinks.studentMembershipId,
+              existingStudent.membershipId,
+            ),
+            isNull(studentGuardianLinks.deletedAt),
+          ),
+        );
+
+      const nextGuardianMembershipIds = new Set<string>();
+
+      for (const guardianPayload of payload.guardians) {
+        const guardianMembershipId = await this.getOrCreateGuardianMembership(
+          tx,
+          institutionId,
+          selectedCampus.id,
+          guardianPayload,
+        );
+
+        nextGuardianMembershipIds.add(guardianMembershipId);
+
+        const existingLink = activeGuardianLinks.find(
+          (link) => link.parentMembershipId === guardianMembershipId,
+        );
+
+        if (existingLink) {
+          await tx
+            .update(studentGuardianLinks)
+            .set({
+              relationship: guardianPayload.relationship,
+              isPrimary: guardianPayload.isPrimary,
+              deletedAt: null,
+            })
+            .where(eq(studentGuardianLinks.id, existingLink.linkId));
+          continue;
+        }
+
+        await tx.insert(studentGuardianLinks).values({
+          id: randomUUID(),
+          studentMembershipId: existingStudent.membershipId,
+          parentMembershipId: guardianMembershipId,
+          relationship: guardianPayload.relationship,
+          isPrimary: guardianPayload.isPrimary,
+          acceptedAt: null,
+          deletedAt: null,
+        });
+      }
+
+      const removedLinkIds = activeGuardianLinks
+        .filter((link) => !nextGuardianMembershipIds.has(link.parentMembershipId))
+        .map((link) => link.linkId);
+
+      if (removedLinkIds.length > 0) {
+        await tx
+          .update(studentGuardianLinks)
+          .set({
+            deletedAt: new Date(),
+          })
+          .where(inArray(studentGuardianLinks.id, removedLinkIds));
+      }
+    });
+
+    return this.getStudent(institutionId, studentId, actorUserId);
+  }
+
+  private async listStudentsForInstitution(
+    institutionId: string,
+    studentId?: string,
+  ) {
     const studentRows = await this.db
       .select({
         id: students.id,
@@ -70,6 +215,7 @@ export class StudentsService {
       .where(
         and(
           eq(students.institutionId, institutionId),
+          studentId ? eq(students.id, studentId) : undefined,
           isNull(students.deletedAt),
           isNull(member.deletedAt),
           isNull(campus.deletedAt),
@@ -157,7 +303,7 @@ export class StudentsService {
     });
 
     const [studentRecord] = (
-      await this.listStudents(institutionId, actorUserId)
+      await this.listStudentsForInstitution(institutionId)
     ).filter((row) => row.id === createdStudent.id);
 
     if (!studentRecord) {
@@ -260,8 +406,9 @@ export class StudentsService {
   private async assertAdmissionNumberAvailable(
     institutionId: string,
     admissionNumber: string,
+    studentIdToIgnore?: string,
   ) {
-    const [matchedStudent] = await this.db
+    const matchedStudents = await this.db
       .select({ id: students.id })
       .from(students)
       .where(
@@ -271,7 +418,11 @@ export class StudentsService {
           isNull(students.deletedAt),
         ),
       )
-      .limit(1);
+      .limit(studentIdToIgnore ? 2 : 1);
+
+    const matchedStudent = matchedStudents.find(
+      (student) => student.id !== studentIdToIgnore,
+    );
 
     if (matchedStudent) {
       throw new ConflictException(
@@ -334,27 +485,61 @@ export class StudentsService {
       });
     }
 
-    const [guardianCampusMembership] = await tx
+    await this.ensureCampusMembership(tx, guardianMembershipId, campusId);
+
+    return guardianMembershipId;
+  }
+
+  private async ensureCampusMembership(
+    tx: StudentsWriter,
+    membershipId: string,
+    campusId: string,
+  ) {
+    const [campusMembership] = await tx
       .select({ id: campusMemberships.id })
       .from(campusMemberships)
       .where(
         and(
-          eq(campusMemberships.membershipId, guardianMembershipId),
+          eq(campusMemberships.membershipId, membershipId),
           eq(campusMemberships.campusId, campusId),
           isNull(campusMemberships.deletedAt),
         ),
       )
       .limit(1);
 
-    if (!guardianCampusMembership) {
+    if (!campusMembership) {
       await tx.insert(campusMemberships).values({
         id: randomUUID(),
-        membershipId: guardianMembershipId,
+        membershipId,
         campusId,
       });
     }
+  }
 
-    return guardianMembershipId;
+  private async getStudentMembership(
+    institutionId: string,
+    studentId: string,
+  ) {
+    const [matchedStudent] = await this.db
+      .select({
+        id: students.id,
+        membershipId: students.membershipId,
+      })
+      .from(students)
+      .where(
+        and(
+          eq(students.id, studentId),
+          eq(students.institutionId, institutionId),
+          isNull(students.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!matchedStudent) {
+      throw new NotFoundException(ERROR_MESSAGES.STUDENTS.STUDENT_NOT_FOUND);
+    }
+
+    return matchedStudent;
   }
 
   private async findUserByIdentity(

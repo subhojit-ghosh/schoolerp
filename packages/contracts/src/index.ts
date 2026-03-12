@@ -21,6 +21,11 @@ export const tenantBrandingSchema = z.object({
   primaryColor: z.string(),
   accentColor: z.string(),
   sidebarColor: z.string(),
+  fontHeading: z.string().nullable(),
+  fontBody: z.string().nullable(),
+  fontMono: z.string().nullable(),
+  borderRadius: z.enum(["sharp", "default", "rounded", "pill"]).nullable(),
+  uiDensity: z.enum(["compact", "default", "comfortable"]).nullable(),
 });
 
 export type TenantBranding = z.infer<typeof tenantBrandingSchema>;
