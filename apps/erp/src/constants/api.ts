@@ -1,3 +1,5 @@
 export const APP_FALLBACKS = {
-  API_URL: "http://localhost:4000",
+  API_URL: "/api",
+  ROOT_HOST: "erp.test",
+  ROOT_DOMAIN: "erp.test",
 } as const;

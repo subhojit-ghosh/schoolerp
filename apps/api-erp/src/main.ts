@@ -20,7 +20,8 @@ function isAllowedFrontendOrigin(origin: string | undefined) {
     return (
       hostname === "localhost" ||
       hostname === "127.0.0.1" ||
-      hostname.endsWith(".localhost")
+      hostname === "erp.test" ||
+      hostname.endsWith(".erp.test")
     );
   } catch {
     return false;

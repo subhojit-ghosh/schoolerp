@@ -324,14 +324,14 @@ export class AuthService {
     response.cookie(AUTH_COOKIE.NAME, token, {
       ...AUTH_COOKIE_OPTIONS,
       expires: expiresAt,
-      secure: process.env.NODE_ENV === "production",
+      secure: AUTH_COOKIE.SECURE,
     });
   }
 
   clearSessionCookie(response: Response) {
     response.clearCookie(AUTH_COOKIE.NAME, {
       ...AUTH_COOKIE_OPTIONS,
-      secure: process.env.NODE_ENV === "production",
+      secure: AUTH_COOKIE.SECURE,
     });
   }
 

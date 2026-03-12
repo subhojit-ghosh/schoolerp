@@ -3,6 +3,8 @@ export const AUTH_COOKIE = {
   MAX_AGE_MS: 1000 * 60 * 60 * 24 * 7,
   SAME_SITE: "lax",
   PATH: "/",
+  DOMAIN: process.env.AUTH_COOKIE_DOMAIN ?? ".erp.test",
+  SECURE: process.env.AUTH_COOKIE_SECURE !== "false",
 } as const;
 
 export const AUTH_STRATEGY = {

@@ -226,6 +226,23 @@ export function ExampleForm() {
 - For the ERP app, tenant branding should be fetched at bootstrap and applied via CSS variables before or during initial render.
 - A short loading shell is acceptable. This app is an authenticated ERP, not an SEO-first public site.
 - Favicon, title, and other head branding can be updated dynamically on the client after branding is loaded.
+- Local dev now uses same-host routing behind Caddy: `https://erp.test` for the root app and `https://<tenant>.erp.test` for tenant app access.
+- In local dev and production-style routing, the frontend should call the backend via same-host `/api`, not direct `localhost:4000` URLs.
+- Vite must allow the custom local hosts in `server.allowedHosts` and `preview.allowedHosts`, or the dev server will block `erp.test` host headers.
+
+### Local DNS + Caddy
+- Local wildcard tenant DNS is set up through `dnsmasq` with `address=/.erp.test/127.0.0.1` and macOS resolver file `/etc/resolver/test`.
+- Use a global Caddy config to terminate HTTPS and route `erp.test` plus `*.erp.test`.
+- Current local routing shape is:
+  - `/api*` -> Nest on `127.0.0.1:4000`
+  - all other paths -> Vite on `127.0.0.1:3000`
+- Homebrew `dnsmasq` may need to be started with `sudo brew services start dnsmasq` because DNS port `53` requires elevated privileges.
+- Homebrew `caddy` can fail if its service account cannot read the local PKI files for `local_certs`; if that happens, check the service user, PKI path permissions, or run Caddy manually while debugging.
+
+### Cookie auth + local domains
+- Local HTTPS cookie auth is now tested successfully with cookie domain `.erp.test`.
+- With same-host `/api` routing, auth/session persistence works across redirects and hard reloads on `https://<tenant>.erp.test`.
+- For local HTTPS, backend cookie defaults should stay `Secure=true`; if local auth breaks, verify the request is actually coming through Caddy over HTTPS and not directly over plain HTTP.
 
 ### NestJS Configuration
 - In `apps/api-erp`, use Nest's official `@nestjs/config` via `ConfigModule.forRoot()` for env loading and validation.

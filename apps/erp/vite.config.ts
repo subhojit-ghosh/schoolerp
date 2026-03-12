@@ -9,11 +9,13 @@ export default defineConfig({
     host: true,
     port: 3000,
     strictPort: true,
+    allowedHosts: ["erp.test", ".erp.test"],
   },
   preview: {
     host: true,
     port: 3000,
     strictPort: true,
+    allowedHosts: ["erp.test", ".erp.test"],
   },
   resolve: {
     alias: {

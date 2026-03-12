@@ -1,5 +1,4 @@
-const LOCALHOST_NAMES = new Set(["localhost", "127.0.0.1"]);
-const LOCALHOST_SUFFIX = ".localhost";
+import { APP_FALLBACKS } from "@/constants/api";
 
 function normalizeHostname(hostname: string) {
   return hostname.toLowerCase();
@@ -7,24 +6,25 @@ function normalizeHostname(hostname: string) {
 
 export function getTenantSlugFromHostname(hostname: string) {
   const normalizedHostname = normalizeHostname(hostname);
+  const normalizedRootHost = normalizeHostname(APP_FALLBACKS.ROOT_HOST);
+  const normalizedRootDomain = normalizeHostname(APP_FALLBACKS.ROOT_DOMAIN);
 
-  if (LOCALHOST_NAMES.has(normalizedHostname)) {
+  if (
+    normalizedHostname === "localhost" ||
+    normalizedHostname === "127.0.0.1" ||
+    normalizedHostname === normalizedRootHost
+  ) {
     return null;
   }
 
-  if (normalizedHostname.endsWith(LOCALHOST_SUFFIX)) {
-    const tenantSlug = normalizedHostname.slice(0, -LOCALHOST_SUFFIX.length);
-
-    return tenantSlug || null;
-  }
-
-  const hostnameParts = normalizedHostname.split(".");
-
-  if (hostnameParts.length <= 2) {
+  const tenantSuffix = `.${normalizedRootDomain}`;
+  if (!normalizedHostname.endsWith(tenantSuffix)) {
     return null;
   }
 
-  return hostnameParts[0] || null;
+  const tenantSlug = normalizedHostname.slice(0, -tenantSuffix.length);
+
+  return tenantSlug || null;
 }
 
 export function getCurrentTenantSlug() {
@@ -40,22 +40,9 @@ export function buildTenantAppUrl(tenantSlug: string, path = "/") {
     return path;
   }
 
-  const { protocol, hostname, port } = window.location;
-  const normalizedHostname = normalizeHostname(hostname);
+  const { protocol, port } = window.location;
   const portSuffix = port ? `:${port}` : "";
+  const normalizedRootDomain = normalizeHostname(APP_FALLBACKS.ROOT_DOMAIN);
 
-  if (
-    LOCALHOST_NAMES.has(normalizedHostname) ||
-    normalizedHostname.endsWith(LOCALHOST_SUFFIX)
-  ) {
-    return `${protocol}//${tenantSlug}${LOCALHOST_SUFFIX}${portSuffix}${path}`;
-  }
-
-  const hostnameParts = normalizedHostname.split(".");
-  const baseHostname =
-    hostnameParts.length > 2
-      ? hostnameParts.slice(1).join(".")
-      : normalizedHostname;
-
-  return `${protocol}//${tenantSlug}.${baseHostname}${portSuffix}${path}`;
+  return `${protocol}//${tenantSlug}.${normalizedRootDomain}${portSuffix}${path}`;
 }
