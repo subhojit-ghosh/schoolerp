@@ -1,4 +1,5 @@
 import { Navigate, useNavigate } from "react-router-dom";
+import { AuthLayout } from "@/components/auth-layout";
 import { LoginForm } from "@/components/login-form";
 import { ERP_ROUTES } from "@/constants/routes";
 import {
@@ -49,13 +50,13 @@ export function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-svh items-center justify-center p-6 md:p-10">
+    <AuthLayout>
       <LoginForm
-        className="w-full max-w-md"
+        className="w-full max-w-[360px]"
         errorMessage={signInMutation.error ? errorMessage : undefined}
         isPending={signInMutation.isPending}
         onSubmitForm={onSubmit}
       />
-    </div>
+    </AuthLayout>
   );
 }

@@ -1,9 +1,19 @@
 import * as React from "react";
-import { IconBuilding, IconDashboard, IconUsers } from "@tabler/icons-react";
+import {
+  IconBook2,
+  IconCalendarStats,
+  IconCertificate,
+  IconCurrencyRupee,
+  IconDashboard,
+  IconUsers,
+  IconUsersGroup,
+} from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { readCachedTenantBranding } from "@/lib/tenant-branding";
+import { ERP_ROUTES } from "@/constants/routes";
 import {
   Sidebar,
   SidebarContent,
@@ -12,24 +22,35 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@repo/ui/components/ui/sidebar";
 
-const NAV_ITEMS = [
-  {
-    icon: IconDashboard,
-    title: "Dashboard",
-    url: "/dashboard",
-  },
-  {
-    icon: IconUsers,
-    title: "Students",
-    url: "/students",
-  },
+const NAV_OVERVIEW = [
+  { icon: IconDashboard, title: "Dashboard", url: ERP_ROUTES.DASHBOARD },
+] as const;
+
+const NAV_PEOPLE = [
+  { icon: IconUsers,      title: "Students",   url: ERP_ROUTES.STUDENTS },
+  { icon: IconUsersGroup, title: "Staff",       url: ERP_ROUTES.STAFF,    disabled: true },
+] as const;
+
+const NAV_ACADEMICS = [
+  { icon: IconBook2,         title: "Classes",    url: ERP_ROUTES.CLASSES,    disabled: true },
+  { icon: IconCalendarStats, title: "Attendance", url: ERP_ROUTES.ATTENDANCE, disabled: true },
+  { icon: IconCertificate,   title: "Exams",      url: ERP_ROUTES.EXAMS,      disabled: true },
+] as const;
+
+const NAV_FINANCE = [
+  { icon: IconCurrencyRupee, title: "Fees", url: ERP_ROUTES.FEES, disabled: true },
 ] as const;
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const session = useAuthStore((store) => store.session);
-  const institutionName = session?.activeOrganization?.name ?? "Academic Platform";
+  const branding = readCachedTenantBranding();
+  const institutionName =
+    branding?.institutionName ?? session?.activeOrganization?.name ?? "School ERP";
+  const logoUrl = branding?.logoUrl ?? null;
+  const initial = (branding?.shortName ?? institutionName).charAt(0).toUpperCase();
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -38,19 +59,38 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:p-1.5!"
+              className="data-[slot=sidebar-menu-button]:p-1.5! h-auto"
             >
               <Link to="/dashboard">
-                <IconBuilding className="size-5!" />
-                <span className="text-base font-semibold">{institutionName}</span>
+                {logoUrl ? (
+                  <img
+                    alt={institutionName}
+                    className="size-6 shrink-0 rounded object-contain"
+                    src={logoUrl}
+                  />
+                ) : (
+                  <span
+                    className="flex size-6 shrink-0 items-center justify-center rounded text-xs font-bold text-white"
+                    style={{ background: "var(--primary, #8a5a44)" }}
+                  >
+                    {initial}
+                  </span>
+                )}
+                <span className="text-sm font-semibold truncate">{institutionName}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
+
       <SidebarContent>
-        <NavMain items={[...NAV_ITEMS]} />
+        <NavMain items={[...NAV_OVERVIEW]} />
+        <SidebarSeparator />
+        <NavMain items={[...NAV_PEOPLE]} label="People" />
+        <NavMain items={[...NAV_ACADEMICS]} label="Academics" />
+        <NavMain items={[...NAV_FINANCE]} label="Finance" />
       </SidebarContent>
+
       <SidebarFooter>
         <NavUser />
       </SidebarFooter>

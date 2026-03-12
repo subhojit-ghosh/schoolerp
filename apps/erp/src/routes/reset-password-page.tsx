@@ -3,22 +3,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@repo/ui/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/ui/card";
-import {
-  Field,
-  FieldContent,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@repo/ui/components/ui/field";
+import { FieldError } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
+import { Label } from "@repo/ui/components/ui/label";
 import {
   useAuthErrorMessage,
   useResetPasswordMutation,
@@ -28,6 +15,7 @@ import {
   type ResetPasswordFormValues,
 } from "@/features/auth/model/auth-form-schema";
 import { ERP_ROUTES } from "@/constants/routes";
+import { AuthLayout } from "@/components/auth-layout";
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -63,93 +51,120 @@ export function ResetPasswordPage() {
   }
 
   return (
-    <Card className="max-w-2xl">
-      <CardHeader>
-        <CardTitle>Reset password</CardTitle>
-        <CardDescription>
-          Complete recovery with the reset token from the backend delivery
-          channel or local preview.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <FieldGroup>
-            <Controller
-              control={control}
-              name="token"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel htmlFor="reset-token">Reset token</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      id="reset-token"
-                      placeholder="Paste reset token"
-                    />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </FieldContent>
-                </Field>
-              )}
-            />
-            <Controller
-              control={control}
-              name="password"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel htmlFor="reset-password">New password</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      id="reset-password"
-                      placeholder="Enter a new password"
-                      type="password"
-                    />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </FieldContent>
-                </Field>
-              )}
-            />
-            <Controller
-              control={control}
-              name="confirmPassword"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel htmlFor="confirm-password">
-                    Confirm password
-                  </FieldLabel>
-                  <FieldContent>
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      id="confirm-password"
-                      placeholder="Confirm the new password"
-                      type="password"
-                    />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </FieldContent>
-                </Field>
-              )}
-            />
-            {resetPasswordMutation.error ? (
-              <FieldError>{errorMessage}</FieldError>
-            ) : null}
-          </FieldGroup>
-        </form>
-      </CardContent>
-      <CardFooter className="flex flex-wrap justify-between gap-2">
-        <Button
-          disabled={resetPasswordMutation.isPending}
-          onClick={handleSubmit(onSubmit)}
-          type="button"
+    <AuthLayout>
+      <div className="w-full max-w-[360px]">
+        {/* Back link */}
+        <Link
+          className="inline-flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors mb-8"
+          to={ERP_ROUTES.FORGOT_PASSWORD}
         >
-          {resetPasswordMutation.isPending ? "Resetting..." : "Reset password"}
-        </Button>
-        <Button asChild variant="ghost">
-          <Link to={ERP_ROUTES.FORGOT_PASSWORD}>Back to recovery</Link>
-        </Button>
-      </CardFooter>
-    </Card>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7" />
+          </svg>
+          Back to recovery
+        </Link>
+
+        {/* Heading */}
+        <div className="mb-8">
+          <h2
+            className="text-2xl text-foreground mb-1.5"
+            style={{ fontFamily: "'Lora', serif", fontWeight: 500 }}
+          >
+            Set new password
+          </h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Paste the reset token from your delivery channel and choose a strong new password.
+          </p>
+        </div>
+
+        <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
+          <Controller
+            control={control}
+            name="token"
+            render={({ field, fieldState }) => (
+              <div className="flex flex-col gap-1.5">
+                <Label
+                  className="text-[13px] font-medium text-foreground/80"
+                  htmlFor="reset-token"
+                >
+                  Reset token
+                </Label>
+                <Input
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  className="h-11 bg-white border-border/80 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1 font-mono"
+                  id="reset-token"
+                  placeholder="Paste reset token"
+                />
+                <FieldError>{fieldState.error?.message}</FieldError>
+              </div>
+            )}
+          />
+
+          {/* Divider */}
+          <div className="h-px bg-border/50" />
+
+          <Controller
+            control={control}
+            name="password"
+            render={({ field, fieldState }) => (
+              <div className="flex flex-col gap-1.5">
+                <Label
+                  className="text-[13px] font-medium text-foreground/80"
+                  htmlFor="reset-password"
+                >
+                  New password
+                </Label>
+                <Input
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  className="h-11 bg-white border-border/80 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1"
+                  id="reset-password"
+                  placeholder="Enter a new password"
+                  type="password"
+                />
+                <FieldError>{fieldState.error?.message}</FieldError>
+              </div>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="confirmPassword"
+            render={({ field, fieldState }) => (
+              <div className="flex flex-col gap-1.5">
+                <Label
+                  className="text-[13px] font-medium text-foreground/80"
+                  htmlFor="confirm-password"
+                >
+                  Confirm password
+                </Label>
+                <Input
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  className="h-11 bg-white border-border/80 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1"
+                  id="confirm-password"
+                  placeholder="Confirm the new password"
+                  type="password"
+                />
+                <FieldError>{fieldState.error?.message}</FieldError>
+              </div>
+            )}
+          />
+
+          {resetPasswordMutation.error ? (
+            <FieldError>{errorMessage}</FieldError>
+          ) : null}
+
+          <Button
+            className="w-full h-11 mt-1 text-sm font-medium tracking-wide"
+            disabled={resetPasswordMutation.isPending}
+            type="submit"
+          >
+            {resetPasswordMutation.isPending ? "Resetting…" : "Reset password"}
+          </Button>
+        </form>
+      </div>
+    </AuthLayout>
   );
 }

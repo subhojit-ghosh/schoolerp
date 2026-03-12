@@ -1,4 +1,10 @@
-import { IconTrendingUp } from "@tabler/icons-react";
+import {
+  IconTrendingUp,
+  IconUsers,
+  IconUsersGroup,
+  IconCalendarStats,
+  IconCurrencyRupee,
+} from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Card,
@@ -11,53 +17,57 @@ import {
 
 const METRICS = [
   {
-    description: "Students",
+    label: "Students",
     value: "1,248",
     delta: "+8.2%",
-    footer: "Active student records",
+    footer: "Active enrolled this term",
+    Icon: IconUsers,
   },
   {
-    description: "Staff",
+    label: "Staff",
     value: "84",
     delta: "+3.1%",
-    footer: "Teaching and admin members",
+    footer: "Teaching & administrative",
+    Icon: IconUsersGroup,
   },
   {
-    description: "Attendance",
+    label: "Attendance",
     value: "94.6%",
     delta: "+1.4%",
-    footer: "Average daily attendance",
+    footer: "Average daily this month",
+    Icon: IconCalendarStats,
   },
   {
-    description: "Fee collection",
+    label: "Fee collection",
     value: "82%",
     delta: "+5.6%",
-    footer: "Collected against current cycle",
+    footer: "Collected this billing cycle",
+    Icon: IconCurrencyRupee,
   },
 ] as const;
 
 export function SectionCards() {
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
-      {METRICS.map((metric) => (
-        <Card key={metric.description} className="@container/card">
+    <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+      {METRICS.map(({ label, value, delta, footer, Icon }) => (
+        <Card key={label} className="@container/card">
           <CardHeader>
-            <CardDescription>{metric.description}</CardDescription>
+            <CardDescription className="flex items-center gap-1.5">
+              <Icon className="size-3.5 text-muted-foreground/70" />
+              {label}
+            </CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-              {metric.value}
+              {value}
             </CardTitle>
             <CardAction>
-              <Badge variant="outline">
-                <IconTrendingUp />
-                {metric.delta}
+              <Badge className="gap-1" variant="outline">
+                <IconTrendingUp className="size-3" />
+                {delta}
               </Badge>
             </CardAction>
           </CardHeader>
-          <CardFooter className="flex-col items-start gap-1.5 text-sm">
-            <div className="line-clamp-1 flex gap-2 font-medium">
-              Current ERP baseline <IconTrendingUp className="size-4" />
-            </div>
-            <div className="text-muted-foreground">{metric.footer}</div>
+          <CardFooter>
+            <p className="text-sm text-muted-foreground">{footer}</p>
           </CardFooter>
         </Card>
       ))}

@@ -1,52 +1,99 @@
-import { Link } from "react-router-dom";
-import { Button } from "@repo/ui/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/ui/card";
+  IconArrowRight,
+  IconCalendarStats,
+  IconCurrencyRupee,
+  IconSchool,
+  IconUsers,
+} from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 import { SectionCards } from "@/components/section-cards";
-import { useSignOutMutation } from "@/features/auth/api/use-auth";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { ERP_ROUTES } from "@/constants/routes";
+
+const QUICK_ACTIONS = [
+  {
+    label: "Students",
+    description: "View and manage student records",
+    href: ERP_ROUTES.STUDENTS,
+    Icon: IconUsers,
+  },
+  {
+    label: "Academics",
+    description: "Classes, subjects and timetables",
+    href: "#",
+    Icon: IconSchool,
+  },
+  {
+    label: "Attendance",
+    description: "Daily attendance tracking",
+    href: "#",
+    Icon: IconCalendarStats,
+  },
+  {
+    label: "Fees",
+    description: "Billing, collections and dues",
+    href: "#",
+    Icon: IconCurrencyRupee,
+  },
+] as const;
+
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function firstName(name: string) {
+  return name.split(" ")[0] ?? name;
+}
 
 export function DashboardPage() {
-  const authSession = useAuthStore((store) => store.session);
-  const signOutMutation = useSignOutMutation();
+  const session = useAuthStore((store) => store.session);
+  const name = session?.user.name ?? "";
 
   return (
-    <div className="grid gap-6">
+    <div className="flex flex-col gap-6">
+      {/* Greeting */}
+      <div className="px-0.5">
+        <h2 className="text-xl font-semibold text-foreground">
+          {getGreeting()}, {firstName(name)}
+        </h2>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Here's what's happening at your school today.
+        </p>
+      </div>
+
+      {/* Stat cards */}
       <SectionCards />
-      <Card>
-        <CardHeader>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="grid gap-2">
-              <CardTitle>One shared structure for every school.</CardTitle>
-              <CardDescription>
-                Signed in as {authSession?.user.name} ({authSession?.user.mobile}
-                ).
-              </CardDescription>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Button asChild variant="outline">
-                <Link to="/students">Open students</Link>
-              </Button>
-              <Button
-                onClick={() => signOutMutation.mutate({})}
-                variant="outline"
+
+      {/* Quick actions */}
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-0.5">
+          Quick access
+        </p>
+        <div className="grid grid-cols-1 gap-3 @xl/main:grid-cols-2 @4xl/main:grid-cols-4">
+          {QUICK_ACTIONS.map(({ label, description, href, Icon }) => (
+            <Link
+              key={label}
+              to={href}
+              className="group flex items-center gap-4 rounded-xl border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
+            >
+              <div
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors group-hover:bg-primary/10"
+                style={{ background: "var(--primary, #8a5a44)1a" }}
               >
-                Sign out
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          The ERP app now uses the stock shadcn dashboard shell and shared
-          upstream primitives, while tenant rules and workflows remain owned by
-          the API.
-        </CardContent>
-      </Card>
+                <Icon className="size-5 text-primary" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground">{label}</p>
+                <p className="text-xs text-muted-foreground truncate">{description}</p>
+              </div>
+              <IconArrowRight className="size-4 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground shrink-0" />
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
