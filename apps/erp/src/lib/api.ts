@@ -1,7 +1,7 @@
 import {
   healthResponseSchema,
   tenantBrandingSchema,
-} from "@academic-platform/contracts";
+} from "@repo/contracts";
 import { apiFetchClient, getTenantSlug } from "@/lib/api/client";
 
 export async function fetchHealth() {

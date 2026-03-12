@@ -1,4 +1,4 @@
-import type { TenantBranding } from "@academic-platform/contracts";
+import type { TenantBranding } from "@repo/contracts";
 
 const BRANDING_CACHE_KEY = "erp-tenant-branding";
 const ROOT_SELECTOR = ":root";
@@ -43,7 +43,6 @@ export function applyTenantBranding(branding: TenantBranding) {
   root.style.setProperty("--primary", branding.primaryColor);
   root.style.setProperty("--accent", branding.accentColor);
   root.style.setProperty("--sidebar-primary", branding.sidebarColor);
-  root.style.setProperty("--tenant-ring", branding.primaryColor);
 
   document.title = `${branding.shortName} ${DOCUMENT_TITLE_SUFFIX}`;
 

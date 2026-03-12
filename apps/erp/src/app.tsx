@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import type { TenantBranding } from "@academic-platform/contracts";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { AppShell } from "@/components/app-shell";
+import type { TenantBranding } from "@repo/contracts";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import { DashboardLayout } from "@/components/dashboard-layout";
 import { RequireSession } from "@/features/auth/ui/require-session";
 import { fetchTenantBranding } from "@/lib/api";
 import {
@@ -11,38 +11,26 @@ import {
 } from "@/lib/tenant-branding";
 import { DashboardPage } from "@/routes/dashboard-page";
 import { ForgotPasswordPage } from "@/routes/forgot-password-page";
-import { HomePage } from "@/routes/home-page";
 import { ResetPasswordPage } from "@/routes/reset-password-page";
 import { SignInPage } from "@/routes/sign-in-page";
 import { SignUpPage } from "@/routes/sign-up-page";
 import { StudentsPage } from "@/routes/students-page";
 
 const router = createBrowserRouter([
+  { path: "/", element: <Navigate replace to="/sign-in" /> },
+  { path: "/sign-in", element: <SignInPage /> },
+  { path: "/sign-up", element: <SignUpPage /> },
+  { path: "/forgot-password", element: <ForgotPasswordPage /> },
+  { path: "/reset-password", element: <ResetPasswordPage /> },
   {
-    path: "/",
-    element: <AppShell />,
+    element: (
+      <RequireSession>
+        <DashboardLayout />
+      </RequireSession>
+    ),
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "sign-in", element: <SignInPage /> },
-      { path: "sign-up", element: <SignUpPage /> },
-      { path: "forgot-password", element: <ForgotPasswordPage /> },
-      { path: "reset-password", element: <ResetPasswordPage /> },
-      {
-        path: "dashboard",
-        element: (
-          <RequireSession>
-            <DashboardPage />
-          </RequireSession>
-        ),
-      },
-      {
-        path: "students",
-        element: (
-          <RequireSession>
-            <StudentsPage />
-          </RequireSession>
-        ),
-      },
+      { path: "/dashboard", element: <DashboardPage /> },
+      { path: "/students", element: <StudentsPage /> },
     ],
   },
 ]);

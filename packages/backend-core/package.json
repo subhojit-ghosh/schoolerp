@@ -1,5 +1,5 @@
 {
-  "name": "@academic-platform/backend-core",
+  "name": "@repo/backend-core",
   "version": "0.1.0",
   "private": true,
   "main": "./dist/index.js",
@@ -17,7 +17,7 @@
     "dev": "tsc -w -p tsconfig.json"
   },
   "dependencies": {
-    "@academic-platform/database": "workspace:*",
+    "@repo/database": "workspace:*",
     "@nestjs/common": "^11.1.8",
     "@nestjs/config": "^4.0.2"
   },

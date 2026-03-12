@@ -1,4 +1,4 @@
-import { createCachedDatabase } from "@academic-platform/database";
+import { createCachedDatabase } from "@repo/database";
 import { Global, Module } from "@nestjs/common";
 import { ConfigModule, ConfigType } from "@nestjs/config";
 import databaseConfig from "./database.config";

@@ -1,6 +1,6 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "radix-nova",
+  "style": "new-york",
   "rsc": false,
   "tsx": true,
   "tailwind": {
@@ -12,12 +12,11 @@
   },
   "iconLibrary": "lucide",
   "aliases": {
-    "components": "@academic-platform/ui/components",
-    "utils": "@academic-platform/ui/lib/utils",
-    "ui": "@academic-platform/ui/components/ui",
-    "lib": "@academic-platform/ui/lib"
+    "components": "@repo/ui/components",
+    "utils": "@repo/ui/lib/utils",
+    "ui": "@repo/ui/components/ui",
+    "lib": "@repo/ui/lib",
+    "hooks": "@repo/ui/hooks"
   },
-  "rtl": false,
-  "menuColor": "default",
-  "menuAccent": "subtle"
+  "rtl": false
 }

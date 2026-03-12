@@ -1,7 +1,7 @@
-import { DATABASE } from "@academic-platform/backend-core";
+import { DATABASE } from "@repo/backend-core";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import type { AppDatabase } from "@academic-platform/database";
-import { campus } from "@academic-platform/database";
+import type { AppDatabase } from "@repo/database";
+import { campus } from "@repo/database";
 import { and, eq, isNull } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";

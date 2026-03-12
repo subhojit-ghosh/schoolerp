@@ -1,7 +1,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
-import { Button } from "@academic-platform/ui/components/ui/button";
+import { Button } from "@repo/ui/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,15 +9,15 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@academic-platform/ui/components/ui/card";
+} from "@repo/ui/components/ui/card";
 import {
   Field,
   FieldContent,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@academic-platform/ui/components/ui/field";
-import { Input } from "@academic-platform/ui/components/ui/input";
+} from "@repo/ui/components/ui/field";
+import { Input } from "@repo/ui/components/ui/input";
 import {
   useAuthErrorMessage,
   useForgotPasswordMutation,

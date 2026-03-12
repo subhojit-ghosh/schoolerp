@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build:deps": "bunx turbo run build --filter=@academic-platform/backend-core --filter=@academic-platform/contracts --filter=@academic-platform/database",
+    "build:deps": "bunx turbo run build --filter=@repo/backend-core --filter=@repo/contracts --filter=@repo/database",
     "build": "bun run build:deps && bun run openapi:metadata && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
@@ -22,9 +22,9 @@
     "openapi:export": "bun run openapi:metadata && bun run src/export-openapi.ts"
   },
   "dependencies": {
-    "@academic-platform/backend-core": "workspace:*",
-    "@academic-platform/contracts": "workspace:*",
-    "@academic-platform/database": "workspace:*",
+    "@repo/backend-core": "workspace:*",
+    "@repo/contracts": "workspace:*",
+    "@repo/database": "workspace:*",
     "@nestjs/common": "^11.1.8",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.8",

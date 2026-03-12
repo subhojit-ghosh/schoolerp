@@ -12,7 +12,7 @@
     "verbatimModuleSyntax": true,
     "baseUrl": ".",
     "paths": {
-      "@academic-platform/ui/*": ["./src/*"]
+      "@repo/ui/*": ["./src/*"]
     }
   },
   "include": ["src"]

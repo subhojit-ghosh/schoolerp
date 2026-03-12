@@ -1,8 +1,8 @@
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
-import { Badge } from "@academic-platform/ui/components/ui/badge";
-import { Button } from "@academic-platform/ui/components/ui/button";
+import { Badge } from "@repo/ui/components/ui/badge";
+import { Button } from "@repo/ui/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,15 +10,15 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@academic-platform/ui/components/ui/card";
+} from "@repo/ui/components/ui/card";
 import {
   Field,
   FieldContent,
   FieldError,
   FieldGroup,
   FieldLabel,
-} from "@academic-platform/ui/components/ui/field";
-import { Input } from "@academic-platform/ui/components/ui/input";
+} from "@repo/ui/components/ui/field";
+import { Input } from "@repo/ui/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -26,7 +26,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@academic-platform/ui/components/ui/select";
+} from "@repo/ui/components/ui/select";
 import {
   Table,
   TableBody,
@@ -34,7 +34,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@academic-platform/ui/components/ui/table";
+} from "@repo/ui/components/ui/table";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
   useCreateStudentMutation,

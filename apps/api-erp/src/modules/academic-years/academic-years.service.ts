@@ -3,12 +3,12 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { DATABASE } from "@academic-platform/backend-core";
-import { academicYears } from "@academic-platform/database";
+import { DATABASE } from "@repo/backend-core";
+import { academicYears } from "@repo/database";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
-import type { AppDatabase } from "@academic-platform/database";
+import type { AppDatabase } from "@repo/database";
 import { Inject } from "@nestjs/common";
 import { AcademicYearDto } from "./academic-years.dto";
 import type { CreateAcademicYearDto } from "./academic-years.schemas";

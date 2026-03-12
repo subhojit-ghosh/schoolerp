@@ -4,8 +4,8 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { DATABASE } from "@academic-platform/backend-core";
-import type { AppDatabase } from "@academic-platform/database";
+import { DATABASE } from "@repo/backend-core";
+import type { AppDatabase } from "@repo/database";
 import {
   campus,
   member,
@@ -13,7 +13,7 @@ import {
   passwordResetToken,
   session,
   user,
-} from "@academic-platform/database";
+} from "@repo/database";
 import { and, eq, gt, isNull, or } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { createHash, randomBytes, randomUUID } from "node:crypto";

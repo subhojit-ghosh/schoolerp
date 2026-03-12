@@ -1,6 +1,6 @@
-import { DATABASE } from "@academic-platform/backend-core";
+import { DATABASE } from "@repo/backend-core";
 import { Inject, Injectable, ConflictException } from "@nestjs/common";
-import type { AppDatabase } from "@academic-platform/database";
+import type { AppDatabase } from "@repo/database";
 import {
   campus,
   campusMemberships,
@@ -9,7 +9,7 @@ import {
   organization,
   roles,
   user,
-} from "@academic-platform/database";
+} from "@repo/database";
 import { eq, and, isNull } from "drizzle-orm";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";

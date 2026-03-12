@@ -1,9 +1,9 @@
-import { DATABASE } from "@academic-platform/backend-core";
+import { DATABASE } from "@repo/backend-core";
 import { Inject, Injectable } from "@nestjs/common";
-import type { AppDatabase } from "@academic-platform/database";
+import type { AppDatabase } from "@repo/database";
 import { and, eq, isNull } from "drizzle-orm";
-import { campus, organization } from "@academic-platform/database";
-import { tenantBrandingSchema } from "@academic-platform/contracts";
+import { campus, organization } from "@repo/database";
+import { tenantBrandingSchema } from "@repo/contracts";
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
 

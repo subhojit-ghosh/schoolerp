@@ -1,10 +1,11 @@
 {
-  "name": "@academic-platform/ui",
+  "name": "@repo/ui",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "exports": {
     "./components/ui/*": "./src/components/ui/*.tsx",
+    "./hooks/*": "./src/hooks/*.ts",
     "./lib/*": "./src/lib/*.ts",
     "./styles.css": "./src/styles.css"
   },
@@ -19,9 +20,13 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",
+    "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
+    "recharts": "2.15.4",
+    "sonner": "^2.0.7",
+    "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.13",
-    "tailwind-merge": "^3.3.1"
+    "vaul": "^1.1.2"
   },
   "devDependencies": {
     "@types/react": "^19.2.7",

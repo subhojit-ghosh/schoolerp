@@ -1,11 +1,11 @@
-import { DATABASE } from "@academic-platform/backend-core";
+import { DATABASE } from "@repo/backend-core";
 import {
   ConflictException,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import type { AppDatabase } from "@academic-platform/database";
+import type { AppDatabase } from "@repo/database";
 import {
   campus,
   campusMemberships,
@@ -13,7 +13,7 @@ import {
   studentGuardianLinks,
   students,
   user,
-} from "@academic-platform/database";
+} from "@repo/database";
 import { and, eq, inArray, isNull } from "drizzle-orm";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";

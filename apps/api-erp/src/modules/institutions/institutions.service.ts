@@ -1,6 +1,6 @@
-import { DATABASE } from "@academic-platform/backend-core";
+import { DATABASE } from "@repo/backend-core";
 import { Inject, Injectable } from "@nestjs/common";
-import type { AppDatabase } from "@academic-platform/database";
+import type { AppDatabase } from "@repo/database";
 import {
   and,
   asc,
@@ -12,7 +12,7 @@ import {
   sql,
   type SQL,
 } from "drizzle-orm";
-import { organization } from "@academic-platform/database";
+import { organization } from "@repo/database";
 import { STATUS, SORT_ORDERS } from "../../constants";
 import {
   resolveInstitutionPageSize,

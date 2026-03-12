@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable } from "@nestjs/common";
-import { DATABASE } from "@academic-platform/backend-core";
-import type { AppDatabase } from "@academic-platform/database";
-import { authRateLimitEvent } from "@academic-platform/database";
+import { DATABASE } from "@repo/backend-core";
+import type { AppDatabase } from "@repo/database";
+import { authRateLimitEvent } from "@repo/database";
 import { and, eq, gt, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { AUTH_PASSWORD_RESET, ERROR_MESSAGES } from "../../constants";
