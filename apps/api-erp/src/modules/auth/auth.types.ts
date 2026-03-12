@@ -72,3 +72,8 @@ export type SessionAccessContext = {
   activeOrganizationId?: string | null;
   activeCampusId?: string | null;
 };
+
+export type PasswordResetRequestResult = {
+  success: boolean;
+  resetTokenPreview: string | null;
+};

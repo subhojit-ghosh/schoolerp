@@ -100,6 +100,27 @@ export const session = pgTable(
   ],
 );
 
+export const passwordResetToken = pgTable(
+  "password_reset_token",
+  {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    tokenHash: text("token_hash").notNull().unique(),
+    expiresAt: timestamp("expires_at").notNull(),
+    consumedAt: timestamp("consumed_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("password_reset_token_user_idx").on(table.userId),
+    index("password_reset_token_expires_idx").on(table.expiresAt),
+    uniqueIndex("password_reset_token_active_user_unique_idx")
+      .on(table.userId)
+      .where(sql`${table.consumedAt} IS NULL`),
+  ],
+);
+
 export const member = pgTable(
   "member",
   {
@@ -165,6 +186,16 @@ export const sessionRelations = relations(session, ({ one }) => ({
     references: [campus.id],
   }),
 }));
+
+export const passwordResetTokenRelations = relations(
+  passwordResetToken,
+  ({ one }) => ({
+    user: one(user, {
+      fields: [passwordResetToken.userId],
+      references: [user.id],
+    }),
+  }),
+);
 
 export const memberRelations = relations(member, ({ one }) => ({
   organization: one(organization, {

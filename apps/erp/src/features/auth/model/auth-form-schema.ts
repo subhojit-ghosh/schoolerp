@@ -8,6 +8,25 @@ export const signInFormSchema = z.object({
   password: z.string().min(PASSWORD_MIN_LENGTH, "Password must be at least 8 characters"),
 });
 
+export const forgotPasswordFormSchema = z.object({
+  identifier: z.string().trim().min(1, "Mobile number or email is required"),
+});
+
+export const resetPasswordFormSchema = z
+  .object({
+    token: z.string().trim().min(1, "Reset token is required"),
+    password: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, "Password must be at least 8 characters"),
+    confirmPassword: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, "Confirm your new password"),
+  })
+  .refine((value) => value.password === value.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
+
 export const signUpFormSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Mobile number is required"),
@@ -16,4 +35,6 @@ export const signUpFormSchema = z.object({
 });
 
 export type SignInFormValues = z.infer<typeof signInFormSchema>;
+export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordFormSchema>;
+export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>;
 export type SignUpFormValues = z.infer<typeof signUpFormSchema>;

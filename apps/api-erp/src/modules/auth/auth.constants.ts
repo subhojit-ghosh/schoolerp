@@ -5,6 +5,8 @@ export const AUTH_ROUTES = {
   SIGN_IN: "sign-in",
   SIGN_OUT: "sign-out",
   SESSION: "session",
+  FORGOT_PASSWORD: "forgot-password",
+  RESET_PASSWORD: "reset-password",
 } as const;
 
 export const AUTH_COOKIE_OPTIONS = {

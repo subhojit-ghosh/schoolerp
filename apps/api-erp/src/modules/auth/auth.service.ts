@@ -10,14 +10,19 @@ import {
   campus,
   member,
   organization,
+  passwordResetToken,
   session,
   user,
 } from "@academic-platform/database";
 import { and, eq, gt, isNull, or } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
-import { randomBytes, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Response } from "express";
-import { AUTH_COOKIE, ERROR_MESSAGES } from "../../constants";
+import {
+  AUTH_COOKIE,
+  AUTH_PASSWORD_RESET,
+  ERROR_MESSAGES,
+} from "../../constants";
 import { AUTH_COOKIE_OPTIONS } from "./auth.constants";
 import {
   AuthCampusDto,
@@ -33,6 +38,7 @@ import type {
   AuthenticatedOrganization,
   AuthenticatedSession,
   AuthenticatedUser,
+  PasswordResetRequestResult,
   SessionAccessContext,
   SessionRequestContext,
 } from "./auth.types";
@@ -89,22 +95,7 @@ export class AuthService {
     identifier: string,
     password: string,
   ): Promise<AuthenticatedUser | null> {
-    const normalizedIdentifier = identifier.trim();
-    const [matchedUser] = await this.database
-      .select({
-        id: user.id,
-        name: user.name,
-        mobile: user.mobile,
-        email: user.email,
-        passwordHash: user.passwordHash,
-      })
-      .from(user)
-      .where(
-        isEmailIdentifier(normalizedIdentifier)
-          ? eq(user.email, normalizeEmail(normalizedIdentifier))
-          : eq(user.mobile, normalizeMobile(normalizedIdentifier)),
-      )
-      .limit(1);
+    const matchedUser = await this.findUserByIdentifier(identifier);
 
     if (!matchedUser) {
       return null;
@@ -122,6 +113,93 @@ export class AuthService {
       mobile: matchedUser.mobile,
       email: matchedUser.email,
     };
+  }
+
+  async requestPasswordReset(
+    identifier: string,
+  ): Promise<PasswordResetRequestResult> {
+    const matchedUser = await this.findUserByIdentifier(identifier);
+    const token = this.createPasswordResetToken();
+    const tokenHash = this.hashPasswordResetToken(token);
+
+    if (!matchedUser) {
+      return {
+        success: true,
+        resetTokenPreview: AUTH_PASSWORD_RESET.PREVIEW_ENABLED ? token : null,
+      };
+    }
+
+    await this.database
+      .delete(passwordResetToken)
+      .where(
+        and(
+          eq(passwordResetToken.userId, matchedUser.id),
+          isNull(passwordResetToken.consumedAt),
+        ),
+      );
+
+    const expiresAt = new Date(Date.now() + AUTH_PASSWORD_RESET.TOKEN_TTL_MS);
+
+    await this.database.insert(passwordResetToken).values({
+      id: randomUUID(),
+      userId: matchedUser.id,
+      tokenHash,
+      expiresAt,
+      consumedAt: null,
+    });
+
+    return {
+      success: true,
+      resetTokenPreview: AUTH_PASSWORD_RESET.PREVIEW_ENABLED ? token : null,
+    };
+  }
+
+  async resetPassword(token: string, nextPassword: string) {
+    const now = new Date();
+    const tokenHash = this.hashPasswordResetToken(token);
+    const [matchedToken] = await this.database
+      .select({
+        id: passwordResetToken.id,
+        userId: passwordResetToken.userId,
+        expiresAt: passwordResetToken.expiresAt,
+        consumedAt: passwordResetToken.consumedAt,
+      })
+      .from(passwordResetToken)
+      .where(eq(passwordResetToken.tokenHash, tokenHash))
+      .limit(1);
+
+    if (
+      !matchedToken ||
+      matchedToken.consumedAt !== null ||
+      matchedToken.expiresAt <= now
+    ) {
+      throw new UnauthorizedException(
+        ERROR_MESSAGES.AUTH.PASSWORD_RESET_TOKEN_INVALID,
+      );
+    }
+
+    const passwordHash = await hash(nextPassword, 12);
+
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(user)
+        .set({
+          passwordHash,
+          updatedAt: now,
+        })
+        .where(eq(user.id, matchedToken.userId));
+
+      await tx
+        .update(passwordResetToken)
+        .set({
+          consumedAt: now,
+        })
+        .where(eq(passwordResetToken.id, matchedToken.id));
+
+      await tx.delete(session).where(eq(session.userId, matchedToken.userId));
+    });
+
+    return { success: true };
   }
 
   async createSession(
@@ -487,6 +565,35 @@ export class AuthService {
     if (email && existingUser?.email === email) {
       throw new ConflictException(ERROR_MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
+  }
+
+  private async findUserByIdentifier(identifier: string) {
+    const normalizedIdentifier = identifier.trim();
+    const [matchedUser] = await this.database
+      .select({
+        id: user.id,
+        name: user.name,
+        mobile: user.mobile,
+        email: user.email,
+        passwordHash: user.passwordHash,
+      })
+      .from(user)
+      .where(
+        isEmailIdentifier(normalizedIdentifier)
+          ? eq(user.email, normalizeEmail(normalizedIdentifier))
+          : eq(user.mobile, normalizeMobile(normalizedIdentifier)),
+      )
+      .limit(1);
+
+    return matchedUser ?? null;
+  }
+
+  private createPasswordResetToken() {
+    return randomBytes(AUTH_PASSWORD_RESET.TOKEN_BYTE_LENGTH).toString("hex");
+  }
+
+  private hashPasswordResetToken(token: string) {
+    return createHash("sha256").update(token).digest("hex");
   }
 
   private toAuthUserDto(authenticatedUser: AuthenticatedUser): AuthUserDto {

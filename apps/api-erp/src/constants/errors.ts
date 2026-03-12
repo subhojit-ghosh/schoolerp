@@ -6,6 +6,8 @@ export const ERROR_MESSAGES = {
     EMAIL_ALREADY_EXISTS: "An account already exists for this email address.",
     MEMBERSHIP_REQUIRED: "You do not have access to the selected institution.",
     CAMPUS_ACCESS_REQUIRED: "You do not have access to the selected campus.",
+    PASSWORD_RESET_TOKEN_INVALID:
+      "The password reset link is invalid or has expired.",
   },
   ONBOARDING: {
     ORGANIZATION_SLUG_EXISTS: "That institution slug is already in use.",

@@ -74,6 +74,14 @@ export function useSignOutMutation() {
   });
 }
 
+export function useForgotPasswordMutation() {
+  return apiQueryClient.useMutation("post", AUTH_API_PATHS.FORGOT_PASSWORD);
+}
+
+export function useResetPasswordMutation() {
+  return apiQueryClient.useMutation("post", AUTH_API_PATHS.RESET_PASSWORD);
+}
+
 export function useSelectCampusMutation() {
   const queryClient = useQueryClient();
   const setSession = useAuthStore((store) => store.setSession);

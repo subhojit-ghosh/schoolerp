@@ -14,4 +14,11 @@ export const AUTH_STRATEGY = {
 export const AUTH_FIELD_NAMES = {
   IDENTIFIER: "identifier",
   PASSWORD: "password",
+  TOKEN: "token",
+} as const;
+
+export const AUTH_PASSWORD_RESET = {
+  TOKEN_BYTE_LENGTH: 32,
+  TOKEN_TTL_MS: 1000 * 60 * 30,
+  PREVIEW_ENABLED: process.env.AUTH_PASSWORD_RESET_PREVIEW === "true",
 } as const;

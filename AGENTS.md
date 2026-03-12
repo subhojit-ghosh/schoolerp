@@ -229,6 +229,7 @@ export function ExampleForm() {
 - Local dev now uses same-host routing behind Caddy: `https://erp.test` for the root app and `https://<tenant>.erp.test` for tenant app access.
 - In local dev and production-style routing, the frontend should call the backend via same-host `/api`, not direct `localhost:4000` URLs.
 - Vite must allow the custom local hosts in `server.allowedHosts` and `preview.allowedHosts`, or the dev server will block `erp.test` host headers.
+- When manually testing in a browser or using browser automation, always use `https://erp.test` or `https://<tenant>.erp.test`, not `http://localhost:3000`, unless the user explicitly asks for a localhost-only override.
 
 ### Local DNS + Caddy
 - Local wildcard tenant DNS is set up through `dnsmasq` with `address=/.erp.test/127.0.0.1` and macOS resolver file `/etc/resolver/test`.

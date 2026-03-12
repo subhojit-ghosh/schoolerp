@@ -36,6 +36,32 @@ export class SignInBodyDto {
   tenantSlug?: string;
 }
 
+export class ForgotPasswordBodyDto {
+  @ApiProperty()
+  identifier!: string;
+}
+
+export class ForgotPasswordResponseDto {
+  @ApiProperty()
+  success!: boolean;
+
+  @ApiPropertyOptional({ nullable: true })
+  resetTokenPreview?: string | null;
+}
+
+export class ResetPasswordBodyDto {
+  @ApiProperty()
+  token!: string;
+
+  @ApiProperty()
+  password!: string;
+}
+
+export class ResetPasswordResponseDto {
+  @ApiProperty()
+  success!: boolean;
+}
+
 export class SwitchCampusBodyDto {
   @ApiProperty()
   campusId!: string;

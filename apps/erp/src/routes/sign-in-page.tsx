@@ -1,6 +1,6 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -104,6 +104,9 @@ export function SignInPage() {
         <div className="flex flex-wrap gap-3 pt-2">
           <Button disabled={signInMutation.isPending} type="submit">
             {signInMutation.isPending ? "Signing in..." : "Continue"}
+          </Button>
+          <Button asChild type="button" variant="ghost">
+            <Link to="/forgot-password">Forgot password?</Link>
           </Button>
         </div>
       </form>

@@ -11,7 +11,9 @@ import {
   readCachedTenantBranding,
 } from "@/lib/tenant-branding";
 import { DashboardPage } from "@/routes/dashboard-page";
+import { ForgotPasswordPage } from "@/routes/forgot-password-page";
 import { HomePage } from "@/routes/home-page";
+import { ResetPasswordPage } from "@/routes/reset-password-page";
 import { SignInPage } from "@/routes/sign-in-page";
 import { SignUpPage } from "@/routes/sign-up-page";
 
@@ -23,6 +25,8 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "sign-in", element: <SignInPage /> },
       { path: "sign-up", element: <SignUpPage /> },
+      { path: "forgot-password", element: <ForgotPasswordPage /> },
+      { path: "reset-password", element: <ResetPasswordPage /> },
       {
         path: "dashboard",
         element: (

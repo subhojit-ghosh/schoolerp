@@ -20,6 +20,10 @@ import { API_DOCS, API_ROUTES, AUTH_COOKIE } from "../../constants";
 import { CurrentSession } from "./current-session.decorator";
 import {
   AuthContextDto,
+  ForgotPasswordBodyDto,
+  ForgotPasswordResponseDto,
+  ResetPasswordBodyDto,
+  ResetPasswordResponseDto,
   SignInBodyDto,
   SignUpBodyDto,
   SwitchCampusBodyDto,
@@ -28,7 +32,12 @@ import { AUTH_ROUTES } from "./auth.constants";
 import { LocalAuthGuard } from "./local-auth.guard";
 import { SessionAuthGuard } from "./session-auth.guard";
 import { AuthService } from "./auth.service";
-import { parseSignUp, parseSwitchCampus } from "./auth.schemas";
+import {
+  parseForgotPassword,
+  parseResetPassword,
+  parseSignUp,
+  parseSwitchCampus,
+} from "./auth.schemas";
 import type { AuthenticatedSession, AuthenticatedUser } from "./auth.types";
 import { readCookieValue } from "./auth.utils";
 
@@ -98,6 +107,31 @@ export class AuthController {
     );
 
     return this.authService.toContextDto(authContext);
+  }
+
+  @Post(AUTH_ROUTES.FORGOT_PASSWORD)
+  @ApiOperation({
+    summary: "Request a password reset using mobile number or email",
+  })
+  @ApiBody({ type: ForgotPasswordBodyDto })
+  @ApiOkResponse({ type: ForgotPasswordResponseDto })
+  async forgotPassword(@Body() body: ForgotPasswordBodyDto) {
+    return this.authService.requestPasswordReset(
+      parseForgotPassword(body).identifier,
+    );
+  }
+
+  @Post(AUTH_ROUTES.RESET_PASSWORD)
+  @ApiOperation({ summary: "Reset password using a one-time recovery token" })
+  @ApiBody({ type: ResetPasswordBodyDto })
+  @ApiOkResponse({ type: ResetPasswordResponseDto })
+  async resetPassword(@Body() body: ResetPasswordBodyDto) {
+    const parsedBody = parseResetPassword(body);
+
+    return this.authService.resetPassword(
+      parsedBody.token,
+      parsedBody.password,
+    );
   }
 
   @UseGuards(SessionAuthGuard)

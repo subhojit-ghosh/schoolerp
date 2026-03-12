@@ -25,12 +25,23 @@ export const signInSchema = z.object({
   tenantSlug: z.string().trim().min(1).optional(),
 });
 
+export const forgotPasswordSchema = z.object({
+  identifier: z.string().trim().min(1, "Mobile number or email is required"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().trim().min(1, "Reset token is required"),
+  password: z.string().min(PASSWORD_MIN_LENGTH),
+});
+
 export const switchCampusSchema = z.object({
   campusId: z.uuid(),
 });
 
 export type SignUpDto = z.infer<typeof signUpSchema>;
 export type SignInDto = z.infer<typeof signInSchema>;
+export type ForgotPasswordDto = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>;
 export type SwitchCampusDto = z.infer<typeof switchCampusSchema>;
 
 function parseSchema<T>(schema: z.ZodType<T>, value: unknown) {
@@ -49,6 +60,14 @@ export function parseSignUp(value: unknown): SignUpDto {
 
 export function parseSignIn(value: unknown): SignInDto {
   return parseSchema(signInSchema, value);
+}
+
+export function parseForgotPassword(value: unknown): ForgotPasswordDto {
+  return parseSchema(forgotPasswordSchema, value);
+}
+
+export function parseResetPassword(value: unknown): ResetPasswordDto {
+  return parseSchema(resetPasswordSchema, value);
 }
 
 export function parseSwitchCampus(value: unknown): SwitchCampusDto {
