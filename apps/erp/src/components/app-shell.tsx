@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 
 const NAV_LINKS = [
   { label: "Sign In", to: "/sign-in" },
-  { label: "Create Account", to: "/sign-up" },
+  { label: "Create School", to: "/sign-up" },
   { label: "Workspace", to: "/dashboard" },
 ] as const;
 
@@ -44,7 +44,7 @@ export function AppShell() {
           </nav>
 
           <Button asChild className="hidden md:inline-flex">
-            <Link to="/sign-up">Create Account</Link>
+            <Link to="/sign-up">Create School</Link>
           </Button>
         </header>
 

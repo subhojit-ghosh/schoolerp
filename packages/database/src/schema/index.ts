@@ -1,16 +1,16 @@
 import {
-  pgTable,
-  text,
   boolean,
-  timestamp,
   date,
-  primaryKey,
-  unique,
   index,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  unique,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { organization, member } from "./auth";
+import { campus, member, organization } from "./auth";
 
 export const academicYears = pgTable(
   "academic_years",
@@ -48,7 +48,7 @@ export const roles = pgTable(
     name: text("name").notNull(),
     slug: text("slug").notNull(),
     roleType: text("role_type", {
-      enum: ["platform", "system", "staff"],
+      enum: ["platform", "system", "institution"],
     }).notNull(),
     institutionId: text("institution_id").references(() => organization.id, {
       onDelete: "restrict",
@@ -116,10 +116,32 @@ export const membershipRoleScopes = pgTable("membership_role_scopes", {
     .notNull()
     .references(() => membershipRoles.id, { onDelete: "restrict" }),
   scopeType: text("scope_type", {
-    enum: ["institution", "department", "class", "section"],
+    enum: ["institution", "campus", "department", "class", "section"],
   }).notNull(),
   scopeId: text("scope_id").notNull(),
 });
+
+export const campusMemberships = pgTable(
+  "campus_memberships",
+  {
+    id: text("id").primaryKey(),
+    membershipId: text("membership_id")
+      .notNull()
+      .references(() => member.id, { onDelete: "cascade" }),
+    campusId: text("campus_id")
+      .notNull()
+      .references(() => campus.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("campus_membership_membership_idx").on(table.membershipId),
+    index("campus_membership_campus_idx").on(table.campusId),
+    uniqueIndex("campus_membership_active_unique_idx")
+      .on(table.membershipId, table.campusId)
+      .where(sql`${table.deletedAt} IS NULL`),
+  ],
+);
 
 export const studentGuardianLinks = pgTable(
   "student_guardian_links",

@@ -4,20 +4,34 @@ import { z } from "zod";
 const MOBILE_MIN_LENGTH = 10;
 const PASSWORD_MIN_LENGTH = 8;
 
+const optionalEmailSchema = z
+  .string()
+  .trim()
+  .optional()
+  .transform((value) => value || undefined)
+  .pipe(z.email().optional());
+
 export const signUpSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Mobile number is required"),
-  email: z.email(),
+  email: optionalEmailSchema,
   password: z.string().min(PASSWORD_MIN_LENGTH),
+  tenantSlug: z.string().trim().min(1).optional(),
 });
 
 export const signInSchema = z.object({
   identifier: z.string().trim().min(1, "Mobile number or email is required"),
   password: z.string().min(PASSWORD_MIN_LENGTH),
+  tenantSlug: z.string().trim().min(1).optional(),
+});
+
+export const switchCampusSchema = z.object({
+  campusId: z.uuid(),
 });
 
 export type SignUpDto = z.infer<typeof signUpSchema>;
 export type SignInDto = z.infer<typeof signInSchema>;
+export type SwitchCampusDto = z.infer<typeof switchCampusSchema>;
 
 function parseSchema<T>(schema: z.ZodType<T>, value: unknown) {
   const result = schema.safeParse(value);
@@ -29,10 +43,14 @@ function parseSchema<T>(schema: z.ZodType<T>, value: unknown) {
   return result.data;
 }
 
-export function parseSignUp(value: unknown) {
+export function parseSignUp(value: unknown): SignUpDto {
   return parseSchema(signUpSchema, value);
 }
 
-export function parseSignIn(value: unknown) {
+export function parseSignIn(value: unknown): SignInDto {
   return parseSchema(signInSchema, value);
+}
+
+export function parseSwitchCampus(value: unknown): SwitchCampusDto {
+  return parseSchema(switchCampusSchema, value);
 }

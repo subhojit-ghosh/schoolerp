@@ -1,4 +1,7 @@
-import { healthResponseSchema, tenantBrandingSchema } from "@academic-platform/contracts";
+import {
+  healthResponseSchema,
+  tenantBrandingSchema,
+} from "@academic-platform/contracts";
 import { apiFetchClient, getTenantSlug } from "@/lib/api/client";
 
 export async function fetchHealth() {
@@ -14,11 +17,13 @@ export async function fetchHealth() {
 export async function fetchTenantBranding() {
   const tenantSlug = getTenantSlug();
   const response = await apiFetchClient.GET("/public/tenant-branding", {
-    params: {
-      query: {
-        tenant: tenantSlug,
-      },
-    },
+    params: tenantSlug
+      ? {
+          query: {
+            tenant: tenantSlug,
+          },
+        }
+      : undefined,
   });
 
   if (response.error) {

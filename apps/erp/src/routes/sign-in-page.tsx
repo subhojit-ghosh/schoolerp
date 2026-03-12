@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useAuthErrorMessage, useSignInMutation } from "@/features/auth/api/use-auth";
+import { getTenantSlug } from "@/lib/api/client";
+import { buildTenantAppUrl } from "@/lib/tenant-context";
+import {
+  useAuthErrorMessage,
+  useSignInMutation,
+} from "@/features/auth/api/use-auth";
 import {
   signInFormSchema,
   type SignInFormValues,
@@ -27,9 +32,24 @@ export function SignInPage() {
   });
 
   async function onSubmit(values: SignInFormValues) {
+    const tenantSlug = getTenantSlug() ?? undefined;
     const session = await signInMutation.mutateAsync({
-      body: values,
+      body: {
+        ...values,
+        tenantSlug,
+      },
     });
+
+    const activeTenantSlug = session?.activeOrganization?.slug;
+
+    if (activeTenantSlug) {
+      const dashboardUrl = buildTenantAppUrl(activeTenantSlug, "/dashboard");
+
+      if (dashboardUrl !== `${window.location.origin}/dashboard`) {
+        window.location.assign(dashboardUrl);
+        return;
+      }
+    }
 
     if (session) {
       void navigate("/dashboard");
@@ -39,11 +59,15 @@ export function SignInPage() {
   return (
     <Card className="max-w-2xl">
       <div className="space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">Sign In</p>
-        <h2 className="text-2xl font-semibold tracking-tight">Mobile-first sign in, email as fallback.</h2>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          Sign In
+        </p>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          Mobile-first sign in, email as fallback.
+        </h2>
         <p className="text-sm leading-6 text-muted-foreground">
-          This screen is intentionally simple for the foundation pass. Auth will be backed by Passport in Nest, not by
-          client-managed tokens.
+          This screen is intentionally simple for the foundation pass. Auth will
+          be backed by Passport in Nest, not by client-managed tokens.
         </p>
       </div>
 
@@ -65,7 +89,11 @@ export function SignInPage() {
           render={({ field, fieldState }) => (
             <Field>
               <FieldLabel>Password</FieldLabel>
-              <Input {...field} placeholder="Enter your password" type="password" />
+              <Input
+                {...field}
+                placeholder="Enter your password"
+                type="password"
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}

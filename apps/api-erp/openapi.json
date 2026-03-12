@@ -43,7 +43,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthSessionDto"
+                  "$ref": "#/components/schemas/AuthContextDto"
                 }
               }
             }
@@ -75,13 +75,40 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthSessionDto"
+                  "$ref": "#/components/schemas/AuthContextDto"
                 }
               }
             }
           }
         },
         "summary": "Sign in with mobile number or email and create a session cookie",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthContextDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get the current authenticated user context",
         "tags": [
           "auth"
         ]
@@ -97,7 +124,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AuthSessionDto"
+                  "$ref": "#/components/schemas/AuthContextDto"
                 }
               }
             }
@@ -108,7 +135,44 @@
             "cookie": []
           }
         ],
-        "summary": "Get the current authenticated session",
+        "summary": "Get the current authenticated session context",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/context/campus": {
+      "patch": {
+        "operationId": "AuthController_selectCampus",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchCampusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthContextDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Select the active campus inside the current tenant",
         "tags": [
           "auth"
         ]
@@ -138,6 +202,121 @@
         "summary": "Delete the current session and clear the cookie",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/onboarding/institutions": {
+      "post": {
+        "operationId": "OnboardingController_createInstitution",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInstitutionOnboardingBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthContextDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create an institution, default campus, and first admin account",
+        "tags": [
+          "onboarding"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/campuses": {
+      "get": {
+        "operationId": "CampusesController_listCampuses",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CampusDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List campuses for an institution",
+        "tags": [
+          "campuses"
+        ]
+      },
+      "post": {
+        "operationId": "CampusesController_createCampus",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCampusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampusDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a campus for an institution",
+        "tags": [
+          "campuses"
         ]
       }
     },
@@ -485,6 +664,14 @@
       "description": ""
     },
     {
+      "name": "onboarding",
+      "description": ""
+    },
+    {
+      "name": "campuses",
+      "description": ""
+    },
+    {
       "name": "academic-years",
       "description": ""
     },
@@ -517,16 +704,19 @@
             "type": "string"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           },
           "password": {
+            "type": "string"
+          },
+          "tenantSlug": {
             "type": "string"
           }
         },
         "required": [
           "name",
           "mobile",
-          "email",
           "password"
         ]
       },
@@ -543,7 +733,8 @@
             "type": "string"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
@@ -553,7 +744,151 @@
           "email"
         ]
       },
-      "AuthSessionDto": {
+      "AuthMembershipDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "organizationSlug": {
+            "type": "string"
+          },
+          "memberType": {
+            "type": "string",
+            "enum": [
+              "staff",
+              "student",
+              "guardian"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "suspended"
+            ]
+          },
+          "primaryCampusId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "organizationId",
+          "organizationName",
+          "organizationSlug",
+          "memberType",
+          "status",
+          "primaryCampusId"
+        ]
+      },
+      "AuthOrganizationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "shortName": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "institutionType": {
+            "type": "string",
+            "nullable": true
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "faviconUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "primaryColor": {
+            "type": "string"
+          },
+          "accentColor": {
+            "type": "string"
+          },
+          "sidebarColor": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "shortName",
+          "slug",
+          "institutionType",
+          "logoUrl",
+          "faviconUrl",
+          "primaryColor",
+          "accentColor",
+          "sidebarColor",
+          "status"
+        ]
+      },
+      "AuthCampusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "organizationId",
+          "name",
+          "slug",
+          "code",
+          "isDefault",
+          "status"
+        ]
+      },
+      "AuthContextDto": {
         "type": "object",
         "properties": {
           "user": {
@@ -562,11 +897,43 @@
           "expiresAt": {
             "type": "string",
             "format": "date-time"
+          },
+          "memberships": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthMembershipDto"
+            }
+          },
+          "activeOrganization": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthOrganizationDto"
+              }
+            ]
+          },
+          "activeCampus": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthCampusDto"
+              }
+            ]
+          },
+          "campuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthCampusDto"
+            }
           }
         },
         "required": [
           "user",
-          "expiresAt"
+          "expiresAt",
+          "memberships",
+          "activeOrganization",
+          "activeCampus",
+          "campuses"
         ]
       },
       "SignInBodyDto": {
@@ -577,11 +944,127 @@
           },
           "password": {
             "type": "string"
+          },
+          "tenantSlug": {
+            "type": "string"
           }
         },
         "required": [
           "identifier",
           "password"
+        ]
+      },
+      "SwitchCampusBodyDto": {
+        "type": "object",
+        "properties": {
+          "campusId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "campusId"
+        ]
+      },
+      "CreateInstitutionOnboardingBodyDto": {
+        "type": "object",
+        "properties": {
+          "institutionName": {
+            "type": "string"
+          },
+          "institutionSlug": {
+            "type": "string"
+          },
+          "institutionShortName": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "campusSlug": {
+            "type": "string"
+          },
+          "adminName": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "institutionName",
+          "institutionSlug",
+          "campusName",
+          "adminName",
+          "mobile",
+          "password"
+        ]
+      },
+      "CampusDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "organizationId",
+          "name",
+          "slug",
+          "code",
+          "isDefault",
+          "status"
+        ]
+      },
+      "CreateCampusBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "isDefault": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
         ]
       },
       "AcademicYearDto": {

@@ -8,7 +8,7 @@ import { useAuthStore } from "../model/auth-store";
 export function useSessionQuery() {
   const setSession = useAuthStore((store) => store.setSession);
   const clearSession = useAuthStore((store) => store.clearSession);
-  const query = apiQueryClient.useQuery("get", AUTH_API_PATHS.SESSION, undefined, {
+  const query = apiQueryClient.useQuery("get", AUTH_API_PATHS.ME, undefined, {
     retry: false,
   });
 
@@ -34,7 +34,7 @@ export function useSignInMutation() {
     onSuccess: (session) => {
       setSession(session);
       queryClient.setQueryData(
-        apiQueryClient.queryOptions("get", AUTH_API_PATHS.SESSION).queryKey,
+        apiQueryClient.queryOptions("get", AUTH_API_PATHS.ME).queryKey,
         session,
       );
     },
@@ -49,7 +49,7 @@ export function useSignUpMutation() {
     onSuccess: (session) => {
       setSession(session);
       queryClient.setQueryData(
-        apiQueryClient.queryOptions("get", AUTH_API_PATHS.SESSION).queryKey,
+        apiQueryClient.queryOptions("get", AUTH_API_PATHS.ME).queryKey,
         session,
       );
     },
@@ -64,11 +64,27 @@ export function useSignOutMutation() {
     onSuccess: () => {
       clearSession();
       queryClient.removeQueries({
-        queryKey: apiQueryClient.queryOptions("get", AUTH_API_PATHS.SESSION).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", AUTH_API_PATHS.ME)
+          .queryKey,
       });
     },
     onError: () => {
       clearSession();
+    },
+  });
+}
+
+export function useSelectCampusMutation() {
+  const queryClient = useQueryClient();
+  const setSession = useAuthStore((store) => store.setSession);
+
+  return apiQueryClient.useMutation("patch", AUTH_API_PATHS.SELECT_CAMPUS, {
+    onSuccess: (session) => {
+      setSession(session);
+      queryClient.setQueryData(
+        apiQueryClient.queryOptions("get", AUTH_API_PATHS.ME).queryKey,
+        session,
+      );
     },
   });
 }

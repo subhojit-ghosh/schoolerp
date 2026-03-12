@@ -5,33 +5,53 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useAuthErrorMessage, useSignUpMutation } from "@/features/auth/api/use-auth";
+import { useAuthErrorMessage } from "@/features/auth/api/use-auth";
+import { useCreateInstitutionMutation } from "@/features/onboarding/api/use-onboarding";
+import { buildTenantAppUrl } from "@/lib/tenant-context";
 import {
-  signUpFormSchema,
-  type SignUpFormValues,
-} from "@/features/auth/model/auth-form-schema";
+  onboardingFormSchema,
+  type OnboardingFormValues,
+} from "@/features/onboarding/model/onboarding-form-schema";
 
 export function SignUpPage() {
   const navigate = useNavigate();
-  const signUpMutation = useSignUpMutation();
+  const createInstitutionMutation = useCreateInstitutionMutation();
   const errorMessage = useAuthErrorMessage(
-    signUpMutation.error,
-    "Unable to create the account right now.",
+    createInstitutionMutation.error,
+    "Unable to create the school right now.",
   );
-  const { control, handleSubmit } = useForm<SignUpFormValues>({
-    resolver: zodResolver(signUpFormSchema),
+  const { control, handleSubmit } = useForm<OnboardingFormValues>({
+    resolver: zodResolver(onboardingFormSchema),
     defaultValues: {
-      name: "",
+      institutionName: "",
+      institutionSlug: "",
+      campusName: "",
+      adminName: "",
       mobile: "",
       email: "",
       password: "",
     },
   });
 
-  async function onSubmit(values: SignUpFormValues) {
-    const session = await signUpMutation.mutateAsync({
-      body: values,
+  async function onSubmit(values: OnboardingFormValues) {
+    const session = await createInstitutionMutation.mutateAsync({
+      body: {
+        institutionName: values.institutionName,
+        institutionSlug: values.institutionSlug,
+        campusName: values.campusName,
+        adminName: values.adminName,
+        mobile: values.mobile,
+        email: values.email,
+        password: values.password,
+      },
     });
+
+    const activeTenantSlug = session?.activeOrganization?.slug;
+
+    if (activeTenantSlug) {
+      window.location.assign(buildTenantAppUrl(activeTenantSlug, "/dashboard"));
+      return;
+    }
 
     if (session) {
       void navigate("/dashboard");
@@ -41,21 +61,61 @@ export function SignUpPage() {
   return (
     <Card className="max-w-3xl">
       <div className="space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">Create Account</p>
-        <h2 className="text-2xl font-semibold tracking-tight">Create a basic ERP user account backed by Nest auth.</h2>
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+          Free School Signup
+        </p>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          Create the institution, default campus, and first admin.
+        </h2>
         <p className="text-sm leading-6 text-muted-foreground">
-          This is a functionality-first setup: create a user, issue a secure HTTP-only cookie from Nest, and keep the
-          API client and auth state outside the UI components.
+          This provisions the tenant base first so later ERP features sit on a
+          clean institution, campus, membership, and session model.
         </p>
       </div>
 
-      <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="mt-6 grid gap-4 md:grid-cols-2"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <Controller
           control={control}
-          name="name"
+          name="institutionName"
           render={({ field, fieldState }) => (
             <Field className="md:col-span-2">
-              <FieldLabel>Name</FieldLabel>
+              <FieldLabel>School name</FieldLabel>
+              <Input {...field} placeholder="Springfield High School" />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+        <Controller
+          control={control}
+          name="institutionSlug"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Subdomain slug</FieldLabel>
+              <Input {...field} placeholder="springfield-high" />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+        <Controller
+          control={control}
+          name="campusName"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Default campus</FieldLabel>
+              <Input {...field} placeholder="Main Campus" />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+        <Controller
+          control={control}
+          name="adminName"
+          render={({ field, fieldState }) => (
+            <Field className="md:col-span-2">
+              <FieldLabel>Admin name</FieldLabel>
               <Input {...field} placeholder="Aparna Sen" />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
@@ -89,21 +149,27 @@ export function SignUpPage() {
           render={({ field, fieldState }) => (
             <Field className="md:col-span-2">
               <FieldLabel>Password</FieldLabel>
-              <Input {...field} placeholder="Create a password" type="password" />
+              <Input
+                {...field}
+                placeholder="Create a password"
+                type="password"
+              />
               <FieldError>{fieldState.error?.message}</FieldError>
             </Field>
           )}
         />
 
-        {signUpMutation.error ? (
+        {createInstitutionMutation.error ? (
           <div className="md:col-span-2">
             <FieldError>{errorMessage}</FieldError>
           </div>
         ) : null}
 
         <div className="flex gap-3 pt-2 md:col-span-2">
-          <Button disabled={signUpMutation.isPending} type="submit">
-            {signUpMutation.isPending ? "Creating account..." : "Create account"}
+          <Button disabled={createInstitutionMutation.isPending} type="submit">
+            {createInstitutionMutation.isPending
+              ? "Creating school..."
+              : "Create school"}
           </Button>
         </div>
       </form>

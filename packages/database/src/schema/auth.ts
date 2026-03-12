@@ -1,9 +1,10 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  boolean,
+  index,
   pgTable,
   text,
   timestamp,
-  index,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
@@ -11,8 +12,10 @@ export const user = pgTable("user", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   mobile: text("mobile").notNull().unique(),
-  email: text("email").notNull().unique(),
+  email: text("email").unique(),
   passwordHash: text("password_hash").notNull(),
+  mobileVerifiedAt: timestamp("mobile_verified_at"),
+  emailVerifiedAt: timestamp("email_verified_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -20,39 +23,81 @@ export const user = pgTable("user", {
     .notNull(),
 });
 
+export const organization = pgTable("organization", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  shortName: text("short_name").notNull(),
+  slug: text("slug").notNull().unique(),
+  institutionType: text("institution_type"),
+  logoUrl: text("logo_url"),
+  faviconUrl: text("favicon_url"),
+  primaryColor: text("primary_color").notNull(),
+  accentColor: text("accent_color").notNull(),
+  sidebarColor: text("sidebar_color").notNull(),
+  status: text("status", { enum: ["active", "suspended"] })
+    .notNull()
+    .default("active"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at"),
+});
+
+export const campus = pgTable(
+  "campus",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    slug: text("slug").notNull(),
+    code: text("code"),
+    isDefault: boolean("is_default").notNull().default(false),
+    status: text("status", { enum: ["active", "inactive"] })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("campus_organization_idx").on(table.organizationId),
+    uniqueIndex("campus_slug_org_unique_idx")
+      .on(table.organizationId, table.slug)
+      .where(sql`${table.deletedAt} IS NULL`),
+    uniqueIndex("campus_single_default_per_org_idx")
+      .on(table.organizationId)
+      .where(sql`${table.isDefault} IS TRUE AND ${table.deletedAt} IS NULL`),
+  ],
+);
+
 export const session = pgTable(
   "session",
   {
     id: text("id").primaryKey(),
-    expiresAt: timestamp("expires_at").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
     token: text("token").notNull().unique(),
+    expiresAt: timestamp("expires_at").notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    activeOrganizationId: text("active_organization_id").references(
+      () => organization.id,
+      { onDelete: "set null" },
+    ),
+    activeCampusId: text("active_campus_id").references(() => campus.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
-    ipAddress: text("ip_address"),
-    userAgent: text("user_agent"),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
   },
-  (table) => [index("session_userId_idx").on(table.userId)],
-);
-
-export const organization = pgTable(
-  "organization",
-  {
-    id: text("id").primaryKey(),
-    name: text("name").notNull(),
-    slug: text("slug").notNull().unique(),
-    logo: text("logo"),
-    createdAt: timestamp("created_at").notNull(),
-    metadata: text("metadata"),
-    institutionType: text("institution_type"),
-    status: text("status", { enum: ["active", "suspended"] }).default("active"),
-    deletedAt: timestamp("deleted_at"),
-  },
+  (table) => [
+    index("session_user_idx").on(table.userId),
+    index("session_org_idx").on(table.activeOrganizationId),
+    index("session_campus_idx").on(table.activeCampusId),
+  ],
 );
 
 export const member = pgTable(
@@ -65,16 +110,22 @@ export const member = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    role: text("role").default("member").notNull(),
+    primaryCampusId: text("primary_campus_id").references(() => campus.id, {
+      onDelete: "set null",
+    }),
+    memberType: text("member_type", {
+      enum: ["staff", "student", "guardian"],
+    }).notNull(),
     status: text("status", { enum: ["active", "inactive", "suspended"] })
-      .default("active")
-      .notNull(),
+      .notNull()
+      .default("active"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
     deletedAt: timestamp("deleted_at"),
-    createdAt: timestamp("created_at").notNull(),
   },
   (table) => [
-    index("member_organizationId_idx").on(table.organizationId),
-    index("member_userId_idx").on(table.userId),
+    index("member_organization_idx").on(table.organizationId),
+    index("member_user_idx").on(table.userId),
+    index("member_primary_campus_idx").on(table.primaryCampusId),
     uniqueIndex("member_org_user_active_unique_idx")
       .on(table.organizationId, table.userId)
       .where(sql`${table.deletedAt} IS NULL`),
@@ -83,7 +134,21 @@ export const member = pgTable(
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
-  members: many(member),
+  memberships: many(member),
+}));
+
+export const organizationRelations = relations(organization, ({ many }) => ({
+  campuses: many(campus),
+  memberships: many(member),
+}));
+
+export const campusRelations = relations(campus, ({ one, many }) => ({
+  organization: one(organization, {
+    fields: [campus.organizationId],
+    references: [organization.id],
+  }),
+  memberships: many(member),
+  sessions: many(session),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -91,10 +156,14 @@ export const sessionRelations = relations(session, ({ one }) => ({
     fields: [session.userId],
     references: [user.id],
   }),
-}));
-
-export const organizationRelations = relations(organization, ({ many }) => ({
-  members: many(member),
+  activeOrganization: one(organization, {
+    fields: [session.activeOrganizationId],
+    references: [organization.id],
+  }),
+  activeCampus: one(campus, {
+    fields: [session.activeCampusId],
+    references: [campus.id],
+  }),
 }));
 
 export const memberRelations = relations(member, ({ one }) => ({
@@ -105,5 +174,9 @@ export const memberRelations = relations(member, ({ one }) => ({
   user: one(user, {
     fields: [member.userId],
     references: [user.id],
+  }),
+  primaryCampus: one(campus, {
+    fields: [member.primaryCampusId],
+    references: [campus.id],
   }),
 }));

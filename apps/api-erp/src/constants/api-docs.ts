@@ -11,7 +11,9 @@ export const API_DOCS = {
     HEALTH: "health",
     PUBLIC: "public",
     AUTH: "auth",
+    ONBOARDING: "onboarding",
     INSTITUTIONS: "institutions",
+    CAMPUSES: "campuses",
     ACADEMIC_YEARS: "academic-years",
   },
   THEMES: {

@@ -55,6 +55,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the current authenticated user context */
+        get: operations["AuthController_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/session": {
         parameters: {
             query?: never;
@@ -62,7 +79,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get the current authenticated session */
+        /** Get the current authenticated session context */
         get: operations["AuthController_getSession"];
         put?: never;
         post?: never;
@@ -70,6 +87,23 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/auth/context/campus": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Select the active campus inside the current tenant */
+        patch: operations["AuthController_selectCampus"];
         trace?: never;
     };
     "/auth/sign-out": {
@@ -83,6 +117,41 @@ export interface paths {
         put?: never;
         /** Delete the current session and clear the cookie */
         post: operations["AuthController_signOut"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/onboarding/institutions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create an institution, default campus, and first admin account */
+        post: operations["OnboardingController_createInstitution"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/campuses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List campuses for an institution */
+        get: operations["CampusesController_listCampuses"];
+        put?: never;
+        /** Create a campus for an institution */
+        post: operations["CampusesController_createCampus"];
         delete?: never;
         options?: never;
         head?: never;
@@ -236,23 +305,94 @@ export interface components {
         SignUpBodyDto: {
             name: string;
             mobile: string;
-            email: string;
+            email?: string | null;
             password: string;
+            tenantSlug?: string;
         };
         AuthUserDto: {
             id: string;
             name: string;
             mobile: string;
-            email: string;
+            email: string | null;
         };
-        AuthSessionDto: {
+        AuthMembershipDto: {
+            id: string;
+            organizationId: string;
+            organizationName: string;
+            organizationSlug: string;
+            /** @enum {string} */
+            memberType: "staff" | "student" | "guardian";
+            /** @enum {string} */
+            status: "active" | "inactive" | "suspended";
+            primaryCampusId: string | null;
+        };
+        AuthOrganizationDto: {
+            id: string;
+            name: string;
+            shortName: string;
+            slug: string;
+            institutionType: string | null;
+            logoUrl: string | null;
+            faviconUrl: string | null;
+            primaryColor: string;
+            accentColor: string;
+            sidebarColor: string;
+            /** @enum {string} */
+            status: "active" | "suspended";
+        };
+        AuthCampusDto: {
+            id: string;
+            organizationId: string;
+            name: string;
+            slug: string;
+            code: string | null;
+            isDefault: boolean;
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        AuthContextDto: {
             user: components["schemas"]["AuthUserDto"];
             /** Format: date-time */
             expiresAt: string;
+            memberships: components["schemas"]["AuthMembershipDto"][];
+            activeOrganization: components["schemas"]["AuthOrganizationDto"] | null;
+            activeCampus: components["schemas"]["AuthCampusDto"] | null;
+            campuses: components["schemas"]["AuthCampusDto"][];
         };
         SignInBodyDto: {
             identifier: string;
             password: string;
+            tenantSlug?: string;
+        };
+        SwitchCampusBodyDto: {
+            campusId: string;
+        };
+        CreateInstitutionOnboardingBodyDto: {
+            institutionName: string;
+            institutionSlug: string;
+            institutionShortName?: string;
+            campusName: string;
+            campusSlug?: string;
+            adminName: string;
+            mobile: string;
+            email?: string | null;
+            password: string;
+        };
+        CampusDto: {
+            id: string;
+            organizationId: string;
+            name: string;
+            slug: string;
+            code: string | null;
+            isDefault: boolean;
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        CreateCampusBodyDto: {
+            name: string;
+            slug?: string;
+            code?: string | null;
+            isDefault?: boolean;
         };
         AcademicYearDto: {
             id: string;
@@ -349,7 +489,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AuthSessionDto"];
+                    "application/json": components["schemas"]["AuthContextDto"];
                 };
             };
         };
@@ -372,7 +512,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AuthSessionDto"];
+                    "application/json": components["schemas"]["AuthContextDto"];
+                };
+            };
+        };
+    };
+    AuthController_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthContextDto"];
                 };
             };
         };
@@ -391,7 +550,30 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AuthSessionDto"];
+                    "application/json": components["schemas"]["AuthContextDto"];
+                };
+            };
+        };
+    };
+    AuthController_selectCampus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SwitchCampusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthContextDto"];
                 };
             };
         };
@@ -413,6 +595,75 @@ export interface operations {
                     "application/json": {
                         success?: boolean;
                     };
+                };
+            };
+        };
+    };
+    OnboardingController_createInstitution: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateInstitutionOnboardingBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthContextDto"];
+                };
+            };
+        };
+    };
+    CampusesController_listCampuses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampusDto"][];
+                };
+            };
+        };
+    };
+    CampusesController_createCampus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCampusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CampusDto"];
                 };
             };
         };

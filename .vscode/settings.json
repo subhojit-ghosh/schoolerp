@@ -1,0 +1,28 @@
+{
+  "eslint.workingDirectories": [
+    {
+      "directory": "apps/erp",
+      "changeProcessCWD": true
+    },
+    {
+      "directory": "apps/api-erp",
+      "changeProcessCWD": true
+    },
+    {
+      "directory": "packages/backend-core",
+      "changeProcessCWD": true
+    },
+    {
+      "directory": "packages/config",
+      "changeProcessCWD": true
+    },
+    {
+      "directory": "packages/contracts",
+      "changeProcessCWD": true
+    },
+    {
+      "directory": "packages/database",
+      "changeProcessCWD": true
+    }
+  ]
+}

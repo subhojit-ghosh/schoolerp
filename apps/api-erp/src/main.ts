@@ -1,14 +1,42 @@
 import { NestFactory } from "@nestjs/core";
-import cookieParser from "cookie-parser";
+import * as cookieParser from "cookie-parser";
 import { AppModule } from "./app.module";
 import { configureOpenApi } from "./openapi";
 
+function isAllowedFrontendOrigin(origin: string | undefined) {
+  if (!origin) {
+    return true;
+  }
+
+  const configuredFrontendUrl = process.env.ERP_FRONTEND_URL;
+
+  if (configuredFrontendUrl && origin === configuredFrontendUrl) {
+    return true;
+  }
+
+  try {
+    const { hostname } = new URL(origin);
+
+    return (
+      hostname === "localhost" ||
+      hostname === "127.0.0.1" ||
+      hostname.endsWith(".localhost")
+    );
+  } catch {
+    return false;
+  }
+}
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const frontendUrl = process.env.ERP_FRONTEND_URL ?? "http://localhost:5173";
 
   app.enableCors({
-    origin: frontendUrl,
+    origin: (
+      origin: string | undefined,
+      callback: (error: Error | null, allow?: boolean) => void,
+    ) => {
+      callback(null, isAllowedFrontendOrigin(origin));
+    },
     credentials: true,
   });
   app.use(cookieParser());

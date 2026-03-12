@@ -5,6 +5,7 @@ export const QUERY_PARAMS = {
   SORT: "sort",
   ORDER: "order",
   TENANT: "tenant",
+  HOST: "host",
 } as const;
 
 export const SORT_ORDERS = {

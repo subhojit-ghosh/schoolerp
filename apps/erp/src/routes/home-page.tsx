@@ -21,7 +21,7 @@ export function HomePage() {
         <div className="flex flex-wrap gap-3">
           <Button asChild size="lg">
             <Link to="/sign-up">
-              Create an account
+              Create a school
               <ArrowRight className="size-4" />
             </Link>
           </Button>

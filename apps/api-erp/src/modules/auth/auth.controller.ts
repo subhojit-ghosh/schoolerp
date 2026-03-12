@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Req,
   Res,
@@ -17,12 +18,17 @@ import {
 import type { Request, Response } from "express";
 import { API_DOCS, API_ROUTES, AUTH_COOKIE } from "../../constants";
 import { CurrentSession } from "./current-session.decorator";
-import { AuthSessionDto, SignInBodyDto, SignUpBodyDto } from "./auth.dto";
+import {
+  AuthContextDto,
+  SignInBodyDto,
+  SignUpBodyDto,
+  SwitchCampusBodyDto,
+} from "./auth.dto";
 import { AUTH_ROUTES } from "./auth.constants";
 import { LocalAuthGuard } from "./local-auth.guard";
 import { SessionAuthGuard } from "./session-auth.guard";
 import { AuthService } from "./auth.service";
-import { parseSignUp } from "./auth.schemas";
+import { parseSignUp, parseSwitchCampus } from "./auth.schemas";
 import type { AuthenticatedSession, AuthenticatedUser } from "./auth.types";
 import { readCookieValue } from "./auth.utils";
 
@@ -34,7 +40,7 @@ export class AuthController {
   @Post(AUTH_ROUTES.SIGN_UP)
   @ApiOperation({ summary: "Create a user account and start a session" })
   @ApiBody({ type: SignUpBodyDto })
-  @ApiOkResponse({ type: AuthSessionDto })
+  @ApiOkResponse({ type: AuthContextDto })
   async signUp(
     @Body() body: SignUpBodyDto,
     @Req() request: Request,
@@ -51,7 +57,11 @@ export class AuthController {
       authSession.expiresAt,
     );
 
-    return this.authService.toSessionDto(authSession);
+    const authContext = this.authService.requireSession(
+      await this.authService.getAuthContext(authSession.token),
+    );
+
+    return this.authService.toContextDto(authContext);
   }
 
   @UseGuards(LocalAuthGuard)
@@ -60,15 +70,21 @@ export class AuthController {
     summary: "Sign in with mobile number or email and create a session cookie",
   })
   @ApiBody({ type: SignInBodyDto })
-  @ApiOkResponse({ type: AuthSessionDto })
+  @ApiOkResponse({ type: AuthContextDto })
   async signIn(
+    @Body() body: SignInBodyDto,
     @Req() request: Request & { user: AuthenticatedUser },
     @Res({ passthrough: true }) response: Response,
   ) {
     const authenticatedUser = request.user;
+    const accessContext = await this.authService.resolveSessionAccessContext(
+      authenticatedUser.id,
+      body.tenantSlug,
+    );
     const authSession = await this.authService.createSession(
       authenticatedUser,
       this.getSessionRequestContext(request),
+      accessContext,
     );
 
     this.authService.writeSessionCookie(
@@ -77,16 +93,57 @@ export class AuthController {
       authSession.expiresAt,
     );
 
-    return this.authService.toSessionDto(authSession);
+    const authContext = this.authService.requireSession(
+      await this.authService.getAuthContext(authSession.token),
+    );
+
+    return this.authService.toContextDto(authContext);
+  }
+
+  @UseGuards(SessionAuthGuard)
+  @Get(API_ROUTES.ME)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: "Get the current authenticated user context" })
+  @ApiOkResponse({ type: AuthContextDto })
+  async me(@CurrentSession() authSession: AuthenticatedSession) {
+    const authContext = this.authService.requireSession(
+      await this.authService.getAuthContext(authSession.token),
+    );
+
+    return this.authService.toContextDto(authContext);
   }
 
   @UseGuards(SessionAuthGuard)
   @Get(AUTH_ROUTES.SESSION)
   @ApiCookieAuth()
-  @ApiOperation({ summary: "Get the current authenticated session" })
-  @ApiOkResponse({ type: AuthSessionDto })
-  getSession(@CurrentSession() authSession: AuthenticatedSession) {
-    return this.authService.toSessionDto(authSession);
+  @ApiOperation({ summary: "Get the current authenticated session context" })
+  @ApiOkResponse({ type: AuthContextDto })
+  async getSession(@CurrentSession() authSession: AuthenticatedSession) {
+    const authContext = this.authService.requireSession(
+      await this.authService.getAuthContext(authSession.token),
+    );
+
+    return this.authService.toContextDto(authContext);
+  }
+
+  @UseGuards(SessionAuthGuard)
+  @Patch(`${API_ROUTES.CONTEXT}/${API_ROUTES.CAMPUS}`)
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: "Select the active campus inside the current tenant",
+  })
+  @ApiBody({ type: SwitchCampusBodyDto })
+  @ApiOkResponse({ type: AuthContextDto })
+  async selectCampus(
+    @CurrentSession() authSession: AuthenticatedSession,
+    @Body() body: SwitchCampusBodyDto,
+  ) {
+    const nextContext = await this.authService.setActiveCampus(
+      authSession.token,
+      parseSwitchCampus(body).campusId,
+    );
+
+    return this.authService.toContextDto(nextContext);
   }
 
   @Post(AUTH_ROUTES.SIGN_OUT)
