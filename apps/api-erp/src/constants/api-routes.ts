@@ -1,5 +1,10 @@
 export const API_ROUTES = {
   HEALTH: "health",
+  AUTH: "auth",
+  SIGN_UP: "sign-up",
+  SIGN_IN: "sign-in",
+  SIGN_OUT: "sign-out",
+  SESSION: "session",
   PUBLIC: "public",
   TENANT_BRANDING: "tenant-branding",
   INSTITUTIONS: "institutions",

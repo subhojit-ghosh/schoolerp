@@ -15,6 +15,7 @@ export function createOpenApiDocument(app: INestApplication) {
     .setVersion(API_DOCS.VERSION)
     .addTag(API_DOCS.TAGS.HEALTH)
     .addTag(API_DOCS.TAGS.PUBLIC)
+    .addTag(API_DOCS.TAGS.AUTH)
     .addTag(API_DOCS.TAGS.ACADEMIC_YEARS)
     .addTag(API_DOCS.TAGS.INSTITUTIONS)
     .build();

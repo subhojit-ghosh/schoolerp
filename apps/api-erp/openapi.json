@@ -23,6 +23,124 @@
         ]
       }
     },
+    "/auth/sign-up": {
+      "post": {
+        "operationId": "AuthController_signUp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a user account and start a session",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/sign-in": {
+      "post": {
+        "operationId": "AuthController_signIn",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Sign in with mobile number or email and create a session cookie",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/session": {
+      "get": {
+        "operationId": "AuthController_getSession",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthSessionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get the current authenticated session",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/sign-out": {
+      "post": {
+        "operationId": "AuthController_signOut",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Delete the current session and clear the cookie",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/institutions/{institutionId}/academic-years": {
       "get": {
         "operationId": "AcademicYearsController_listAcademicYears",
@@ -313,17 +431,57 @@
           "institutions"
         ]
       }
+    },
+    "/public/tenant-branding": {
+      "get": {
+        "operationId": "PublicController_getTenantBranding",
+        "parameters": [
+          {
+            "name": "tenant",
+            "required": false,
+            "in": "query",
+            "description": "Optional tenant slug override for localhost development.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TenantBrandingDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Return tenant branding for the current subdomain or local dev override.",
+        "tags": [
+          "public"
+        ]
+      }
     }
   },
   "info": {
-    "title": "Academic Platform API",
-    "description": "Backend API for the academic platform monorepo, serving web and future mobile clients.",
+    "title": "Academic Platform ERP API",
+    "description": "NestJS backend for ERP authentication, onboarding, tenant branding, and school operations.",
     "version": "0.1.0",
     "contact": {}
   },
   "tags": [
     {
       "name": "health",
+      "description": ""
+    },
+    {
+      "name": "public",
+      "description": ""
+    },
+    {
+      "name": "auth",
       "description": ""
     },
     {
@@ -347,6 +505,83 @@
         },
         "required": [
           "status"
+        ]
+      },
+      "SignUpBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "mobile",
+          "email",
+          "password"
+        ]
+      },
+      "AuthUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "mobile",
+          "email"
+        ]
+      },
+      "AuthSessionDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/AuthUserDto"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "user",
+          "expiresAt"
+        ]
+      },
+      "SignInBodyDto": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "identifier",
+          "password"
         ]
       },
       "AcademicYearDto": {
@@ -430,11 +665,11 @@
           },
           "status": {
             "type": "string",
+            "nullable": true,
             "enum": [
               "active",
               "suspended"
-            ],
-            "nullable": true
+            ]
           },
           "createdAt": {
             "type": "string",
@@ -497,6 +732,47 @@
           "total",
           "active",
           "suspended"
+        ]
+      },
+      "TenantBrandingDto": {
+        "type": "object",
+        "properties": {
+          "institutionName": {
+            "type": "string"
+          },
+          "shortName": {
+            "type": "string"
+          },
+          "tenantSlug": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "faviconUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "primaryColor": {
+            "type": "string"
+          },
+          "accentColor": {
+            "type": "string"
+          },
+          "sidebarColor": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "institutionName",
+          "shortName",
+          "tenantSlug",
+          "logoUrl",
+          "faviconUrl",
+          "primaryColor",
+          "accentColor",
+          "sidebarColor"
         ]
       }
     }

@@ -3,6 +3,7 @@ import type { TenantBranding } from "@academic-platform/contracts";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { AppShell } from "@/components/app-shell";
 import { Card } from "@/components/ui/card";
+import { RequireSession } from "@/features/auth/ui/require-session";
 import { fetchHealth, fetchTenantBranding } from "@/lib/api";
 import {
   applyTenantBranding,
@@ -22,7 +23,14 @@ const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: "sign-in", element: <SignInPage /> },
       { path: "sign-up", element: <SignUpPage /> },
-      { path: "dashboard", element: <DashboardPage /> },
+      {
+        path: "dashboard",
+        element: (
+          <RequireSession>
+            <DashboardPage />
+          </RequireSession>
+        ),
+      },
     ],
   },
 ]);

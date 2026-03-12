@@ -15,6 +15,7 @@
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
     "api-erp:openapi": "bun run --cwd apps/api-erp openapi:export",
+    "erp:openapi-types": "bun run --cwd apps/erp openapi:types",
     "db:generate": "bun run --cwd packages/database db:generate",
     "db:migrate": "bun run --cwd packages/database db:migrate",
     "db:studio": "bun run --cwd packages/database db:studio"

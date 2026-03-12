@@ -7,6 +7,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AcademicYearsModule } from "./modules/academic-years/academic-years.module";
+import { AuthModule } from "./modules/auth/auth.module";
 import { validateEnvironment } from "./config/env.validation";
 import { InstitutionsModule } from "./modules/institutions/institutions.module";
 import { PublicModule } from "./modules/public/public.module";
@@ -21,6 +22,7 @@ import { PublicModule } from "./modules/public/public.module";
       validate: validateEnvironment,
     }),
     DatabaseModule,
+    AuthModule,
     AcademicYearsModule,
     InstitutionsModule,
     PublicModule,

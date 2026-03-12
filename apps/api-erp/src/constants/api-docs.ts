@@ -10,6 +10,7 @@ export const API_DOCS = {
   TAGS: {
     HEALTH: "health",
     PUBLIC: "public",
+    AUTH: "auth",
     INSTITUTIONS: "institutions",
     ACADEMIC_YEARS: "academic-years",
   },

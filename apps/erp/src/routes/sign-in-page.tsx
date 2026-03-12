@@ -1,8 +1,41 @@
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useAuthErrorMessage, useSignInMutation } from "@/features/auth/api/use-auth";
+import {
+  signInFormSchema,
+  type SignInFormValues,
+} from "@/features/auth/model/auth-form-schema";
 
 export function SignInPage() {
+  const navigate = useNavigate();
+  const signInMutation = useSignInMutation();
+  const errorMessage = useAuthErrorMessage(
+    signInMutation.error,
+    "Unable to sign in with those credentials.",
+  );
+  const { control, handleSubmit } = useForm<SignInFormValues>({
+    resolver: zodResolver(signInFormSchema),
+    defaultValues: {
+      identifier: "",
+      password: "",
+    },
+  });
+
+  async function onSubmit(values: SignInFormValues) {
+    const session = await signInMutation.mutateAsync({
+      body: values,
+    });
+
+    if (session) {
+      void navigate("/dashboard");
+    }
+  }
+
   return (
     <Card className="max-w-2xl">
       <div className="space-y-2">
@@ -14,20 +47,35 @@ export function SignInPage() {
         </p>
       </div>
 
-      <form className="mt-6 grid gap-4">
-        <label className="grid gap-2 text-sm font-medium">
-          Mobile number or email
-          <Input placeholder="+91 98765 43210" />
-        </label>
-        <label className="grid gap-2 text-sm font-medium">
-          Password
-          <Input placeholder="Enter your password" type="password" />
-        </label>
+      <form className="mt-6 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+        <Controller
+          control={control}
+          name="identifier"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Mobile number or email</FieldLabel>
+              <Input {...field} placeholder="+91 98765 43210" />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+        <Controller
+          control={control}
+          name="password"
+          render={({ field, fieldState }) => (
+            <Field>
+              <FieldLabel>Password</FieldLabel>
+              <Input {...field} placeholder="Enter your password" type="password" />
+              <FieldError>{fieldState.error?.message}</FieldError>
+            </Field>
+          )}
+        />
+
+        {signInMutation.error ? <FieldError>{errorMessage}</FieldError> : null}
 
         <div className="flex flex-wrap gap-3 pt-2">
-          <Button type="button">Continue</Button>
-          <Button type="button" variant="outline">
-            Forgot password
+          <Button disabled={signInMutation.isPending} type="submit">
+            {signInMutation.isPending ? "Signing in..." : "Continue"}
           </Button>
         </div>
       </form>

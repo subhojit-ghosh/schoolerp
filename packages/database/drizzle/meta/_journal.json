@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1772569793164,
-      "tag": "0000_peaceful_nova",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1772601375431,
-      "tag": "0001_perpetual_network",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1772684609169,
-      "tag": "0002_narrow_madame_masque",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1772691793604,
-      "tag": "0003_little_lockheed",
+      "when": 1773301382681,
+      "tag": "0000_overconfident_frog_thor",
       "breakpoints": true
     }
   ]
