@@ -1,13 +1,17 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
+    "transit": {
+      "dependsOn": [
+        "^transit"
+      ]
+    },
     "build": {
       "dependsOn": [
         "^build"
       ],
       "outputs": [
-        "dist/**",
-        "openapi.json"
+        "dist/**"
       ]
     },
     "dev": {
@@ -16,12 +20,30 @@
     },
     "lint": {
       "dependsOn": [
-        "^lint"
-      ]
+        "transit"
+      ],
+      "outputs": []
     },
     "typecheck": {
       "dependsOn": [
-        "^typecheck"
+        "transit"
+      ],
+      "outputs": []
+    },
+    "openapi:export": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "openapi.json"
+      ]
+    },
+    "openapi:types": {
+      "dependsOn": [
+        "api-erp#openapi:export"
+      ],
+      "outputs": [
+        "src/lib/api/generated/schema.d.ts"
       ]
     }
   }

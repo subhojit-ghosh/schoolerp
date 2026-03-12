@@ -8,14 +8,14 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo dev",
-    "dev:erp": "turbo dev --filter=erp",
-    "dev:api-erp": "turbo dev --filter=api-erp",
-    "build": "turbo build",
-    "lint": "turbo lint",
-    "typecheck": "turbo typecheck",
-    "api-erp:openapi": "bun run --cwd apps/api-erp openapi:export",
-    "erp:openapi-types": "bun run --cwd apps/erp openapi:types",
+    "dev": "turbo run dev",
+    "dev:erp": "turbo run dev --filter=erp",
+    "dev:api-erp": "turbo run dev --filter=api-erp",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "api-erp:openapi": "turbo run openapi:export --filter=api-erp",
+    "erp:openapi-types": "turbo run openapi:types --filter=erp",
     "db:generate": "bun run --cwd packages/database db:generate",
     "db:migrate": "bun run --cwd packages/database db:migrate",
     "db:studio": "bun run --cwd packages/database db:studio"

@@ -10,6 +10,7 @@
     "./styles.css": "./src/styles.css"
   },
   "scripts": {
+    "lint": "tsc --noEmit -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "peerDependencies": {
