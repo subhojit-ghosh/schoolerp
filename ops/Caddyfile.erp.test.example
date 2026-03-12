@@ -2,7 +2,27 @@
 	local_certs
 }
 
-erp.test, *.erp.test {
+erp.test {
+	@api path /api* /openapi.json /reference*
+
+	handle_path /api/* {
+		reverse_proxy 127.0.0.1:4000
+	}
+
+	handle /openapi.json {
+		reverse_proxy 127.0.0.1:4000
+	}
+
+	handle /reference* {
+		reverse_proxy 127.0.0.1:4000
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:3001
+	}
+}
+
+*.erp.test {
 	@api path /api* /openapi.json /reference*
 
 	handle_path /api/* {

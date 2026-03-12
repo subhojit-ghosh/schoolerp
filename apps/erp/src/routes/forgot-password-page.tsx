@@ -26,6 +26,7 @@ import {
   forgotPasswordFormSchema,
   type ForgotPasswordFormValues,
 } from "@/features/auth/model/auth-form-schema";
+import { ERP_ROUTES } from "@/constants/routes";
 
 export function ForgotPasswordPage() {
   const forgotPasswordMutation = useForgotPasswordMutation();
@@ -101,7 +102,7 @@ export function ForgotPasswordPage() {
                 </code>
                 <Button asChild variant="outline">
                   <Link
-                    to={`/reset-password?token=${encodeURIComponent(tokenPreview)}`}
+                    to={`${ERP_ROUTES.RESET_PASSWORD}?token=${encodeURIComponent(tokenPreview)}`}
                   >
                     Continue with preview token
                   </Link>
@@ -120,7 +121,7 @@ export function ForgotPasswordPage() {
           {forgotPasswordMutation.isPending ? "Requesting..." : "Request reset"}
         </Button>
         <Button asChild variant="ghost">
-          <Link to="/sign-in">Back to sign in</Link>
+          <Link to={ERP_ROUTES.SIGN_IN}>Back to sign in</Link>
         </Button>
       </CardFooter>
     </Card>

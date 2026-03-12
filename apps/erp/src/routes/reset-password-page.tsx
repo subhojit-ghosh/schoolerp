@@ -27,6 +27,7 @@ import {
   resetPasswordFormSchema,
   type ResetPasswordFormValues,
 } from "@/features/auth/model/auth-form-schema";
+import { ERP_ROUTES } from "@/constants/routes";
 
 export function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -58,7 +59,7 @@ export function ResetPasswordPage() {
       },
     });
 
-    void navigate("/sign-in");
+    void navigate(ERP_ROUTES.SIGN_IN);
   }
 
   return (
@@ -146,7 +147,7 @@ export function ResetPasswordPage() {
           {resetPasswordMutation.isPending ? "Resetting..." : "Reset password"}
         </Button>
         <Button asChild variant="ghost">
-          <Link to="/forgot-password">Back to recovery</Link>
+          <Link to={ERP_ROUTES.FORGOT_PASSWORD}>Back to recovery</Link>
         </Button>
       </CardFooter>
     </Card>

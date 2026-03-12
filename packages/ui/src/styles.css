@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @source ".";
 @source "../../../apps/erp/src";
+@source "../../../apps/web/app";
+@source "../../../apps/web/src";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -1,6 +1,8 @@
+"use client";
+
+import { useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
 import { Button } from "@repo/ui/components/ui/button";
 import {
   Card,
@@ -12,23 +14,17 @@ import {
 import { FieldDescription, FieldError } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import { Label } from "@repo/ui/components/ui/label";
+import { createInstitution } from "@/features/onboarding/api/create-institution";
 import {
   onboardingFormSchema,
   type OnboardingFormValues,
 } from "@/features/onboarding/model/onboarding-form-schema";
+import { ERP_ROUTES } from "@/constants/routes";
+import { buildTenantAppUrl } from "@/lib/tenant-context";
 
-type SignupFormProps = React.ComponentProps<typeof Card> & {
-  errorMessage?: string;
-  isPending?: boolean;
-  onSubmitForm: (values: OnboardingFormValues) => Promise<void> | void;
-};
-
-export function SignupForm({
-  errorMessage,
-  isPending = false,
-  onSubmitForm,
-  ...props
-}: SignupFormProps) {
+export function SignupForm() {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const { control, handleSubmit } = useForm<OnboardingFormValues>({
     resolver: zodResolver(onboardingFormSchema),
     defaultValues: {
@@ -42,17 +38,42 @@ export function SignupForm({
     },
   });
 
+  function onSubmit(values: OnboardingFormValues) {
+    setErrorMessage(null);
+
+    startTransition(async () => {
+      try {
+        const session = await createInstitution(values);
+        const activeTenantSlug = session.activeOrganization?.slug;
+
+        if (!activeTenantSlug) {
+          throw new Error("The tenant was created, but no active tenant slug was returned.");
+        }
+
+        window.location.assign(
+          buildTenantAppUrl(activeTenantSlug, ERP_ROUTES.DASHBOARD),
+        );
+      } catch (error) {
+        setErrorMessage(
+          error instanceof Error
+            ? error.message
+            : "Unable to create the school right now.",
+        );
+      }
+    });
+  }
+
   return (
-    <Card {...props}>
+    <Card className="border-white/70 bg-white/78 shadow-xl shadow-primary/10 backdrop-blur">
       <CardHeader>
         <CardTitle>Create school</CardTitle>
         <CardDescription>
-          Provision the institution, default campus, and first admin in one
-          onboarding flow.
+          Provision the institution, default campus, and initial admin account
+          in one step.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmitForm)}>
+        <form className="flex flex-col gap-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-6 md:grid-cols-2">
             <Controller
               control={control}
@@ -148,7 +169,8 @@ export function SignupForm({
                     type="email"
                   />
                   <FieldDescription>
-                    Optional for now. Mobile remains the primary identifier.
+                    Optional for now. Mobile remains the primary login
+                    identifier.
                   </FieldDescription>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </div>
@@ -179,12 +201,6 @@ export function SignupForm({
           <Button className="w-full" disabled={isPending} type="submit">
             {isPending ? "Creating school..." : "Create school"}
           </Button>
-          <div className="text-center text-sm">
-            Already have access?{" "}
-            <Link className="underline underline-offset-4" to="/sign-in">
-              Sign in
-            </Link>
-          </div>
         </form>
       </CardContent>
     </Card>

@@ -1,5 +1,6 @@
 import { Navigate, useNavigate } from "react-router-dom";
 import { LoginForm } from "@/components/login-form";
+import { ERP_ROUTES } from "@/constants/routes";
 import {
   useAuthErrorMessage,
   useSignInMutation,
@@ -19,7 +20,7 @@ export function SignInPage() {
   );
 
   if (status === "authenticated") {
-    return <Navigate replace to="/dashboard" />;
+    return <Navigate replace to={ERP_ROUTES.DASHBOARD} />;
   }
 
   async function onSubmit(values: SignInFormValues) {
@@ -34,16 +35,16 @@ export function SignInPage() {
     const activeTenantSlug = session?.activeOrganization?.slug;
 
     if (activeTenantSlug) {
-      const dashboardUrl = buildTenantAppUrl(activeTenantSlug, "/dashboard");
+      const dashboardUrl = buildTenantAppUrl(activeTenantSlug, ERP_ROUTES.DASHBOARD);
 
-      if (dashboardUrl !== `${window.location.origin}/dashboard`) {
+      if (dashboardUrl !== `${window.location.origin}${ERP_ROUTES.DASHBOARD}`) {
         window.location.assign(dashboardUrl);
         return;
       }
     }
 
     if (session) {
-      void navigate("/dashboard");
+      void navigate(ERP_ROUTES.DASHBOARD);
     }
   }
 

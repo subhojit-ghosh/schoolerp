@@ -4,6 +4,13 @@ function normalizeHostname(hostname: string) {
   return hostname.toLowerCase();
 }
 
+export function isRootHostname(hostname: string) {
+  const normalizedHostname = normalizeHostname(hostname);
+  const normalizedRootHost = normalizeHostname(APP_FALLBACKS.ROOT_HOST);
+
+  return normalizedHostname === normalizedRootHost;
+}
+
 export function getTenantSlugFromHostname(hostname: string) {
   const normalizedHostname = normalizeHostname(hostname);
   const normalizedRootHost = normalizeHostname(APP_FALLBACKS.ROOT_HOST);
@@ -45,4 +52,16 @@ export function buildTenantAppUrl(tenantSlug: string, path = "/") {
   const normalizedRootDomain = normalizeHostname(APP_FALLBACKS.ROOT_DOMAIN);
 
   return `${protocol}//${tenantSlug}.${normalizedRootDomain}${portSuffix}${path}`;
+}
+
+export function buildRootAppUrl(path = "/") {
+  if (typeof window === "undefined") {
+    return path;
+  }
+
+  const { protocol, port } = window.location;
+  const portSuffix = port ? `:${port}` : "";
+  const normalizedRootHost = normalizeHostname(APP_FALLBACKS.ROOT_HOST);
+
+  return `${protocol}//${normalizedRootHost}${portSuffix}${path}`;
 }

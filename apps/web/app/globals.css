@@ -1,0 +1,36 @@
+@import "@repo/ui/styles.css";
+
+:root {
+  --background: oklch(0.98 0.018 92.3);
+  --foreground: oklch(0.23 0.02 56.8);
+  --card: oklch(0.995 0.008 95.1);
+  --card-foreground: oklch(0.23 0.02 56.8);
+  --popover: oklch(0.995 0.008 95.1);
+  --popover-foreground: oklch(0.23 0.02 56.8);
+  --border: oklch(0.9 0.018 88.2);
+  --input: oklch(0.94 0.016 88.2);
+  --muted: oklch(0.95 0.014 91.7);
+  --muted-foreground: oklch(0.47 0.02 58.7);
+  --primary: oklch(0.47 0.12 156.4);
+  --primary-foreground: oklch(0.98 0.01 95);
+  --secondary: oklch(0.9 0.03 154.2);
+  --secondary-foreground: oklch(0.27 0.05 156.4);
+  --accent: oklch(0.78 0.1 74.4);
+  --accent-foreground: oklch(0.25 0.04 59.3);
+  --ring: oklch(0.62 0.1 156.4);
+  --sidebar: oklch(0.95 0.014 91.7);
+  --sidebar-foreground: oklch(0.23 0.02 56.8);
+  --sidebar-primary: oklch(0.47 0.12 156.4);
+  --sidebar-primary-foreground: oklch(0.98 0.01 95);
+  --sidebar-accent: oklch(0.9 0.03 154.2);
+  --sidebar-accent-foreground: oklch(0.27 0.05 156.4);
+  --sidebar-border: oklch(0.9 0.018 88.2);
+  --sidebar-ring: oklch(0.62 0.1 156.4);
+}
+
+body {
+  background:
+    radial-gradient(circle at top left, oklch(0.97 0.04 140 / 0.9), transparent 32%),
+    radial-gradient(circle at right center, oklch(0.92 0.06 82 / 0.7), transparent 26%),
+    linear-gradient(180deg, oklch(0.985 0.012 96) 0%, oklch(0.955 0.018 88) 100%);
+}

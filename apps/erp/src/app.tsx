@@ -3,25 +3,29 @@ import type { TenantBranding } from "@repo/contracts";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { RequireSession } from "@/features/auth/ui/require-session";
+import { ERP_ROUTES } from "@/constants/routes";
 import { fetchTenantBranding } from "@/lib/api";
 import {
   applyTenantBranding,
   cacheTenantBranding,
   readCachedTenantBranding,
 } from "@/lib/tenant-branding";
+import {
+  buildRootAppUrl,
+  getCurrentTenantSlug,
+  isRootHostname,
+} from "@/lib/tenant-context";
 import { DashboardPage } from "@/routes/dashboard-page";
 import { ForgotPasswordPage } from "@/routes/forgot-password-page";
 import { ResetPasswordPage } from "@/routes/reset-password-page";
 import { SignInPage } from "@/routes/sign-in-page";
-import { SignUpPage } from "@/routes/sign-up-page";
 import { StudentsPage } from "@/routes/students-page";
 
 const router = createBrowserRouter([
-  { path: "/", element: <Navigate replace to="/sign-in" /> },
-  { path: "/sign-in", element: <SignInPage /> },
-  { path: "/sign-up", element: <SignUpPage /> },
-  { path: "/forgot-password", element: <ForgotPasswordPage /> },
-  { path: "/reset-password", element: <ResetPasswordPage /> },
+  { path: ERP_ROUTES.ROOT, element: <Navigate replace to={ERP_ROUTES.SIGN_IN} /> },
+  { path: ERP_ROUTES.SIGN_IN, element: <SignInPage /> },
+  { path: ERP_ROUTES.FORGOT_PASSWORD, element: <ForgotPasswordPage /> },
+  { path: ERP_ROUTES.RESET_PASSWORD, element: <ResetPasswordPage /> },
   {
     element: (
       <RequireSession>
@@ -29,8 +33,8 @@ const router = createBrowserRouter([
       </RequireSession>
     ),
     children: [
-      { path: "/dashboard", element: <DashboardPage /> },
-      { path: "/students", element: <StudentsPage /> },
+      { path: ERP_ROUTES.DASHBOARD, element: <DashboardPage /> },
+      { path: ERP_ROUTES.STUDENTS, element: <StudentsPage /> },
     ],
   },
 ]);
@@ -39,6 +43,16 @@ export function App() {
   const [branding, setBranding] = useState<TenantBranding | null>(() =>
     readCachedTenantBranding(),
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (!getCurrentTenantSlug() && isRootHostname(window.location.hostname)) {
+      window.location.replace(buildRootAppUrl());
+    }
+  }, []);
 
   useEffect(() => {
     if (branding) {

@@ -233,11 +233,15 @@ export function ExampleForm() {
 - For the ERP app, tenant branding should be fetched at bootstrap and applied via CSS variables before or during initial render.
 - A short loading shell is acceptable. This app is an authenticated ERP, not an SEO-first public site.
 - Favicon, title, and other head branding can be updated dynamically on the client after branding is loaded.
-- Local dev now uses same-host routing behind Caddy: `https://erp.test` for the root app and `https://<tenant>.erp.test` for tenant app access.
+- Local dev now uses same-host routing behind Caddy: `https://erp.test` for the public root app and `https://<tenant>.erp.test` for tenant ERP access.
 - In local dev and production-style routing, the frontend should call the backend via same-host `/api`, not direct `localhost:4000` URLs.
 - Vite must allow the custom local hosts in `server.allowedHosts` and `preview.allowedHosts`, or the dev server will block `erp.test` host headers.
 - When manually testing in a browser or using browser automation, always use `https://erp.test` or `https://<tenant>.erp.test`, not `http://localhost:3000`, unless the user explicitly asks for a localhost-only override.
 - On this manual Vite app, `shadcn add` can materialize literal `@/` and `@repo/` directories instead of resolving aliases to `src/*` or workspace package paths. After CLI installs, verify the output paths immediately and move files into the real source directories if needed.
+
+### Next.js + Root domain
+- The public root-domain app lives separately from the tenant ERP app. Use `apps/web` for `https://erp.test` and keep tenant workflows out of it.
+- Next.js dev behind `https://erp.test` needs `allowedDevOrigins` configured in `next.config.*`, or the dev server can reject the proxied custom origin.
 
 ### Local DNS + Caddy
 - Local wildcard tenant DNS is set up through `dnsmasq` with `address=/.erp.test/127.0.0.1` and macOS resolver file `/etc/resolver/test`.

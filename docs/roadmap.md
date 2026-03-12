@@ -16,6 +16,7 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 ## Direction
 
 - Build a school-first ERP around the target monorepo structure:
+  - `apps/web`
   - `apps/erp`
   - `apps/api-erp`
   - `packages/*`
@@ -61,6 +62,7 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 
 - One institution = one tenant.
 - Tenant is resolved from subdomain.
+- The root domain hosts public entry and onboarding, not tenant ERP workflows.
 - Campus switching happens inside a tenant only.
 - One user record per human identity.
 - A user may be both staff and parent.

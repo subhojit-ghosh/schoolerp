@@ -16,10 +16,13 @@ Keep this file evidence-based. Do not use it as a roadmap.
 ## Verified By Code
 
 - The repo is organized around:
+  - `apps/web`
   - `apps/erp`
   - `apps/api-erp`
   - `packages/*`
 - NestJS owns auth and tenant-scoped backend rules in `apps/api-erp`.
+- The root `erp.test` app now serves a public Next.js onboarding surface.
+- The Vite ERP app is intended for `https://<tenant>.erp.test` only.
 - The ERP frontend defaults to same-host `/api` calls.
 - Mobile is the canonical login identifier and email is secondary.
 - Institution onboarding provisions:

@@ -13,6 +13,8 @@ import {
 import { FieldError } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import { Label } from "@repo/ui/components/ui/label";
+import { ERP_ROUTES, WEB_ROUTES } from "@/constants/routes";
+import { buildRootAppUrl } from "@/lib/tenant-context";
 import {
   signInFormSchema,
   type SignInFormValues,
@@ -77,7 +79,7 @@ export function LoginForm({
                       <Label htmlFor="password">Password</Label>
                       <Link
                         className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-                        to="/forgot-password"
+                        to={ERP_ROUTES.FORGOT_PASSWORD}
                       >
                         Forgot your password?
                       </Link>
@@ -100,9 +102,12 @@ export function LoginForm({
             </Button>
             <div className="text-center text-sm">
               Don&apos;t have a school yet?{" "}
-              <Link className="underline underline-offset-4" to="/sign-up">
+              <a
+                className="underline underline-offset-4"
+                href={buildRootAppUrl(WEB_ROUTES.SIGN_UP)}
+              >
                 Create one
-              </Link>
+              </a>
             </div>
           </form>
         </CardContent>

@@ -9,6 +9,7 @@
   ],
   "scripts": {
     "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=web",
     "dev:erp": "turbo run dev --filter=erp",
     "dev:api-erp": "turbo run dev --filter=api-erp",
     "build": "turbo run build",

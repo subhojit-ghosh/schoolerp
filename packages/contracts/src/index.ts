@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+export const APP_FALLBACKS = {
+  API_URL: "/api",
+  ROOT_HOST: "erp.test",
+  ROOT_DOMAIN: "erp.test",
+} as const;
+
 export const healthResponseSchema = z.object({
   status: z.string(),
 });
