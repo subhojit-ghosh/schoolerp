@@ -12,3 +12,8 @@ export const AUTH_API_PATHS = {
 export const ONBOARDING_API_PATHS = {
   CREATE_INSTITUTION: "/onboarding/institutions",
 } as const;
+
+export const STUDENTS_API_PATHS = {
+  LIST: "/institutions/{institutionId}/students",
+  CREATE: "/institutions/{institutionId}/students",
+} as const;

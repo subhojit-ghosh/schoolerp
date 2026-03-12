@@ -25,20 +25,19 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 
 ## Now
 
-- Finish hardening the auth and onboarding foundation:
-  - add password recovery delivery abstraction
-  - add forgot-password throttling and abuse protection
-  - audit tenant/session enforcement with tests
-  - harden onboarding with backend tests
-- Keep frontend work pragmatic while the visual system remains temporary.
+- Lock the next backend boundary on top of the new auth foundation:
+  - extend authorization primitives and capability-driven APIs
+  - turn the first student domain slice into institution-admin workflows
+  - keep the temporary ERP frontend thin over backend-owned rules
+- Keep delivery integrations pragmatic:
+  - replace recovery preview delivery with real SMS/email adapters when infra is ready
 
 ## Next
 
-1. Lock authorization primitives and shared constants.
-2. Start the first real ERP domain slice:
-   students + guardians + campus assignment.
-3. Add tenant-aware backend tests around auth, onboarding, and campus context.
-4. Define the first institution admin workflows on top of the new backend boundaries.
+1. Add explicit authorization/capability primitives for institution admin workflows.
+2. Expand the student slice from create/list into detail, edit, and safer guardian management flows.
+3. Replace placeholder recovery delivery with production SMS/email providers.
+4. Add broader tenant-aware integration coverage around auth, onboarding, and new ERP modules.
 
 ## Later
 
@@ -53,8 +52,9 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 
 ## Risks And Dependencies
 
-- Password recovery is not production-ready until delivery and abuse protection are in place.
+- Password recovery still needs real SMS/email delivery providers before it is production-ready.
 - Authorization work should not spread across the frontend; backend guards and tenant checks must stay authoritative.
+- The new student slice relies on the updated membership model that allows one user to hold multiple member types inside a tenant.
 - Legacy migration residue may still exist in the repo and should not become the basis for new work.
 
 ## Locked Product Decisions

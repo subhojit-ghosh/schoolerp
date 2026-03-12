@@ -192,6 +192,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/institutions/{institutionId}/students": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List students for an institution */
+        get: operations["StudentsController_listStudents"];
+        put?: never;
+        /** Create a student and link guardians */
+        post: operations["StudentsController_createStudent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/institutions/{institutionId}/academic-years": {
         parameters: {
             query?: never;
@@ -441,6 +459,45 @@ export interface components {
             slug?: string;
             code?: string | null;
             isDefault?: boolean;
+        };
+        StudentGuardianDto: {
+            membershipId: string;
+            userId?: string | null;
+            name: string;
+            mobile: string;
+            email?: string | null;
+            /** @enum {string} */
+            relationship: "father" | "mother" | "guardian";
+            isPrimary: boolean;
+        };
+        StudentDto: {
+            id: string;
+            membershipId: string;
+            institutionId: string;
+            admissionNumber: string;
+            firstName: string;
+            lastName?: string | null;
+            fullName: string;
+            campusId: string;
+            campusName: string;
+            /** @enum {string} */
+            status: "active" | "inactive" | "suspended";
+            guardians: components["schemas"]["StudentGuardianDto"][];
+        };
+        CreateGuardianLinkBodyDto: {
+            name: string;
+            mobile: string;
+            email?: string | null;
+            /** @enum {string} */
+            relationship: "father" | "mother" | "guardian";
+            isPrimary: boolean;
+        };
+        CreateStudentBodyDto: {
+            admissionNumber: string;
+            firstName: string;
+            lastName?: string | null;
+            campusId: string;
+            guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
         };
         AcademicYearDto: {
             id: string;
@@ -758,6 +815,52 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CampusDto"];
+                };
+            };
+        };
+    };
+    StudentsController_listStudents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentDto"][];
+                };
+            };
+        };
+    };
+    StudentsController_createStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStudentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentDto"];
                 };
             };
         };

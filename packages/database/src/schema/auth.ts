@@ -121,6 +121,20 @@ export const passwordResetToken = pgTable(
   ],
 );
 
+export const authRateLimitEvent = pgTable(
+  "auth_rate_limit_event",
+  {
+    id: text("id").primaryKey(),
+    action: text("action").notNull(),
+    key: text("key").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("auth_rate_limit_action_key_idx").on(table.action, table.key),
+    index("auth_rate_limit_created_at_idx").on(table.createdAt),
+  ],
+);
+
 export const member = pgTable(
   "member",
   {
@@ -128,9 +142,7 @@ export const member = pgTable(
     organizationId: text("organization_id")
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    userId: text("user_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+    userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
     primaryCampusId: text("primary_campus_id").references(() => campus.id, {
       onDelete: "set null",
     }),
@@ -148,7 +160,7 @@ export const member = pgTable(
     index("member_user_idx").on(table.userId),
     index("member_primary_campus_idx").on(table.primaryCampusId),
     uniqueIndex("member_org_user_active_unique_idx")
-      .on(table.organizationId, table.userId)
+      .on(table.organizationId, table.userId, table.memberType)
       .where(sql`${table.deletedAt} IS NULL`),
   ],
 );

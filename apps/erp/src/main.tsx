@@ -1,10 +1,10 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { QueryClientProvider } from "@tanstack/react-query";
+import "@academic-platform/ui/styles.css";
 import { App } from "@/app";
 import { queryClient } from "@/lib/query-client";
 import { applyTenantBranding, readCachedTenantBranding } from "@/lib/tenant-branding";
-import "@/styles.css";
 
 const cachedBranding = readCachedTenantBranding();
 

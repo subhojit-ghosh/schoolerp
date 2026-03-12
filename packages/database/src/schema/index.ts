@@ -143,6 +143,34 @@ export const campusMemberships = pgTable(
   ],
 );
 
+export const students = pgTable(
+  "students",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    membershipId: text("membership_id")
+      .notNull()
+      .references(() => member.id, { onDelete: "cascade" }),
+    admissionNumber: text("admission_number").notNull(),
+    firstName: text("first_name").notNull(),
+    lastName: text("last_name"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("students_institution_idx").on(table.institutionId),
+    index("students_membership_idx").on(table.membershipId),
+    uniqueIndex("students_membership_active_unique_idx")
+      .on(table.membershipId)
+      .where(sql`${table.deletedAt} IS NULL`),
+    uniqueIndex("students_admission_number_unique_idx")
+      .on(table.institutionId, table.admissionNumber)
+      .where(sql`${table.deletedAt} IS NULL`),
+  ],
+);
+
 export const studentGuardianLinks = pgTable(
   "student_guardian_links",
   {

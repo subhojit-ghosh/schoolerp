@@ -115,9 +115,13 @@ export class AuthController {
   })
   @ApiBody({ type: ForgotPasswordBodyDto })
   @ApiOkResponse({ type: ForgotPasswordResponseDto })
-  async forgotPassword(@Body() body: ForgotPasswordBodyDto) {
+  async forgotPassword(
+    @Body() body: ForgotPasswordBodyDto,
+    @Req() request: Request,
+  ) {
     return this.authService.requestPasswordReset(
       parseForgotPassword(body).identifier,
+      this.getSessionRequestContext(request),
     );
   }
 

@@ -1,10 +1,23 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Button } from "@academic-platform/ui/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@academic-platform/ui/components/ui/card";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@academic-platform/ui/components/ui/field";
+import { Input } from "@academic-platform/ui/components/ui/input";
 import {
   useAuthErrorMessage,
   useForgotPasswordMutation,
@@ -38,47 +51,52 @@ export function ForgotPasswordPage() {
 
   return (
     <Card className="max-w-2xl">
-      <div className="space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          Password Recovery
-        </p>
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Request a password reset link.
-        </h2>
-        <p className="text-sm leading-6 text-muted-foreground">
-          Enter the mobile number or email tied to the account. The backend
-          handles recovery without exposing whether the account exists.
-        </p>
-      </div>
-
-      <form className="mt-6 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-        <Controller
-          control={control}
-          name="identifier"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Mobile number or email</FieldLabel>
-              <Input {...field} placeholder="+91 98765 43210" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-
-        {forgotPasswordMutation.error ? (
-          <FieldError>{errorMessage}</FieldError>
-        ) : null}
-
+      <CardHeader>
+        <CardTitle>Password recovery</CardTitle>
+        <CardDescription>
+          Request a reset with the mobile number or email linked to the account.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FieldGroup>
+            <Controller
+              control={control}
+              name="identifier"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="forgot-identifier">
+                    Mobile number or email
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="forgot-identifier"
+                      placeholder="+91 98765 43210"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            {forgotPasswordMutation.error ? (
+              <FieldError>{errorMessage}</FieldError>
+            ) : null}
+          </FieldGroup>
+        </form>
         {forgotPasswordMutation.isSuccess ? (
-          <div className="rounded-2xl border border-border bg-muted/40 p-4">
-            <p className="text-sm font-medium">
-              If the account exists, a password reset can now be completed.
-            </p>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Recovery requested</CardTitle>
+              <CardDescription>
+                If the account exists, recovery can continue through the backend
+                delivery channel.
+              </CardDescription>
+            </CardHeader>
             {tokenPreview ? (
-              <div className="mt-3 space-y-2">
-                <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
-                  Dev Preview Token
-                </p>
-                <code className="block overflow-x-auto rounded-lg bg-background px-3 py-2 text-xs">
+              <CardContent className="space-y-3">
+                <code className="block rounded-md border bg-muted px-3 py-2 text-sm">
                   {tokenPreview}
                 </code>
                 <Button asChild variant="outline">
@@ -88,22 +106,23 @@ export function ForgotPasswordPage() {
                     Continue with preview token
                   </Link>
                 </Button>
-              </div>
+              </CardContent>
             ) : null}
-          </div>
+          </Card>
         ) : null}
-
-        <div className="flex flex-wrap items-center gap-3 pt-2">
-          <Button disabled={forgotPasswordMutation.isPending} type="submit">
-            {forgotPasswordMutation.isPending
-              ? "Requesting..."
-              : "Request reset"}
-          </Button>
-          <Button asChild type="button" variant="ghost">
-            <Link to="/sign-in">Back to sign in</Link>
-          </Button>
-        </div>
-      </form>
+      </CardContent>
+      <CardFooter className="flex flex-wrap justify-between gap-2">
+        <Button
+          disabled={forgotPasswordMutation.isPending}
+          onClick={handleSubmit(onSubmit)}
+          type="button"
+        >
+          {forgotPasswordMutation.isPending ? "Requesting..." : "Request reset"}
+        </Button>
+        <Button asChild variant="ghost">
+          <Link to="/sign-in">Back to sign in</Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

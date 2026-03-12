@@ -25,6 +25,7 @@ export default defineConfig({
         __dirname,
         "../../packages/contracts/src/index.ts",
       ),
+      "@academic-platform/ui": path.resolve(__dirname, "../../packages/ui/src"),
     },
   },
 });

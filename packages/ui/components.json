@@ -1,0 +1,23 @@
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "radix-nova",
+  "rsc": false,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/styles.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "aliases": {
+    "components": "@academic-platform/ui/components",
+    "utils": "@academic-platform/ui/lib/utils",
+    "ui": "@academic-platform/ui/components/ui",
+    "lib": "@academic-platform/ui/lib"
+  },
+  "rtl": false,
+  "menuColor": "default",
+  "menuAccent": "subtle"
+}

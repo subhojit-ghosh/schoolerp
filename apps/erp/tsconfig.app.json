@@ -17,7 +17,8 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@academic-platform/ui/*": ["../../packages/ui/src/*"]
     },
 
     /* Linting */

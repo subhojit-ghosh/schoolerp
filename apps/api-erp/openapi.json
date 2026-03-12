@@ -384,6 +384,89 @@
         ]
       }
     },
+    "/institutions/{institutionId}/students": {
+      "get": {
+        "operationId": "StudentsController_listStudents",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudentDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List students for an institution",
+        "tags": [
+          "students"
+        ]
+      },
+      "post": {
+        "operationId": "StudentsController_createStudent",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a student and link guardians",
+        "tags": [
+          "students"
+        ]
+      }
+    },
     "/institutions/{institutionId}/academic-years": {
       "get": {
         "operationId": "AcademicYearsController_listAcademicYears",
@@ -1181,6 +1264,167 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "StudentGuardianDto": {
+        "type": "object",
+        "properties": {
+          "membershipId": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "father",
+              "mother",
+              "guardian"
+            ]
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "membershipId",
+          "name",
+          "mobile",
+          "relationship",
+          "isPrimary"
+        ]
+      },
+      "StudentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "membershipId": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "suspended"
+            ]
+          },
+          "guardians": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentGuardianDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "membershipId",
+          "institutionId",
+          "admissionNumber",
+          "firstName",
+          "fullName",
+          "campusId",
+          "campusName",
+          "status",
+          "guardians"
+        ]
+      },
+      "CreateGuardianLinkBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "father",
+              "mother",
+              "guardian"
+            ]
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "mobile",
+          "relationship",
+          "isPrimary"
+        ]
+      },
+      "CreateStudentBodyDto": {
+        "type": "object",
+        "properties": {
+          "admissionNumber": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "guardians": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateGuardianLinkBodyDto"
+            }
+          }
+        },
+        "required": [
+          "admissionNumber",
+          "firstName",
+          "campusId",
+          "guardians"
         ]
       },
       "AcademicYearDto": {

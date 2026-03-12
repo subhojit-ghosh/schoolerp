@@ -4,6 +4,18 @@
 
 Define the next implementation sequence for the ERP foundation while keeping the frontend replaceable. The immediate priority is not UI polish. The immediate priority is to finish the auth and tenant boundary so later ERP modules are built on stable backend rules.
 
+## Progress Snapshot
+
+Completed on March 12, 2026:
+
+- auth recovery now includes delivery abstraction, throttling, and clearer reset-token error handling
+- tenant/session enforcement now has backend unit coverage for main selection and campus-safety paths
+- onboarding now has backend test coverage for slug collision and created-session context
+- shared constants now cover the new auth throttling and guardian relationship values
+- the first student + guardian + campus vertical slice now exists across database schema, Nest module, OpenAPI, and ERP frontend feature modules
+
+The next pass should deepen authorization primitives and turn the student slice into fuller institution-admin workflows instead of restarting foundation work.
+
 ## Working Rules
 
 - Backend owns business logic, validation, authorization, tenant resolution, and session behavior.

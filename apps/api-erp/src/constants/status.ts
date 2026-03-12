@@ -24,6 +24,12 @@ export const MEMBER_TYPES = {
   GUARDIAN: "guardian",
 } as const;
 
+export const GUARDIAN_RELATIONSHIPS = {
+  FATHER: "father",
+  MOTHER: "mother",
+  GUARDIAN: "guardian",
+} as const;
+
 export const ROLE_TYPES = {
   PLATFORM: "platform",
   SYSTEM: "system",
@@ -52,3 +58,5 @@ export type MemberStatus = (typeof STATUS.MEMBER)[keyof typeof STATUS.MEMBER];
 export type AcademicYearStatus =
   (typeof STATUS.ACADEMIC_YEAR)[keyof typeof STATUS.ACADEMIC_YEAR];
 export type MemberType = (typeof MEMBER_TYPES)[keyof typeof MEMBER_TYPES];
+export type GuardianRelationship =
+  (typeof GUARDIAN_RELATIONSHIPS)[keyof typeof GUARDIAN_RELATIONSHIPS];

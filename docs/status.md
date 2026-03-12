@@ -33,28 +33,42 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - reset-password endpoint
   - one-time reset tokens
   - hashed reset tokens at rest
+  - forgot-password throttling and abuse protection
+  - delivery abstraction for reset delivery
   - session invalidation after password reset
 - Password recovery frontend exists with:
   - forgot-password route
   - reset-password route
   - feature-level API hooks and schemas
   - route components that stay thin
+- Automated backend coverage exists for:
+  - tenant slug resolution
+  - tenant membership/session selection paths in auth service
+  - forgot-password throttling
+  - onboarding slug collision and created-session context
+- The first ERP domain slice exists with:
+  - institution-scoped student create/list APIs
+  - guardian linking for one or more guardians per student
+  - campus assignment stored on the backend
+  - ERP frontend route and feature module for student creation/listing
+- Memberships now allow one user to hold multiple member types inside the same institution.
 
 ## Implemented But Not Strongly Verified
 
 - Local `erp.test` cookie auth wiring appears to be configured correctly, but this file should only call it strongly verified when backed by repeatable tests or an explicit manual verification record.
-- Recovery flow appears fully implemented end to end, but this repo does not currently contain automated coverage or a stored verification artifact for the full browser flow.
+- Recovery flow is covered at the service level, but this repo does not currently contain a stored browser verification artifact for the full flow.
+- The student slice is covered by typecheck and targeted backend tests, but not yet by end-to-end browser automation.
 
 ## In Progress
 
 - Auth delivery infrastructure remains incomplete:
-  - no SMS delivery yet
-  - no email delivery yet
-  - no forgot-password throttling or abuse protection yet
+  - no SMS delivery provider yet
+  - no email delivery provider yet
+- Authorization primitives are still thin beyond membership checks.
 - Frontend presentation remains temporary.
 
 ## Missing
 
-- Automated backend tests for onboarding hardening.
-- Automated tests for tenant/session enforcement.
-- The first full ERP domain slice for students, guardians, and campus assignment.
+- Broader integration coverage for tenant host routing and cookie auth in browser flows.
+- Student detail/edit workflows and richer guardian lifecycle management.
+- Capability-oriented authorization APIs for institution admin flows.

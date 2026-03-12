@@ -1,12 +1,23 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import { getTenantSlug } from "@/lib/api/client";
-import { buildTenantAppUrl } from "@/lib/tenant-context";
+import { Button } from "@academic-platform/ui/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@academic-platform/ui/components/ui/card";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@academic-platform/ui/components/ui/field";
+import { Input } from "@academic-platform/ui/components/ui/input";
 import {
   useAuthErrorMessage,
   useSignInMutation,
@@ -15,6 +26,8 @@ import {
   signInFormSchema,
   type SignInFormValues,
 } from "@/features/auth/model/auth-form-schema";
+import { getTenantSlug } from "@/lib/api/client";
+import { buildTenantAppUrl } from "@/lib/tenant-context";
 
 export function SignInPage() {
   const navigate = useNavigate();
@@ -58,58 +71,71 @@ export function SignInPage() {
 
   return (
     <Card className="max-w-2xl">
-      <div className="space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          Sign In
-        </p>
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Mobile-first sign in, email as fallback.
-        </h2>
-        <p className="text-sm leading-6 text-muted-foreground">
-          This screen is intentionally simple for the foundation pass. Auth will
-          be backed by Passport in Nest, not by client-managed tokens.
-        </p>
-      </div>
-
-      <form className="mt-6 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-        <Controller
-          control={control}
-          name="identifier"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Mobile number or email</FieldLabel>
-              <Input {...field} placeholder="+91 98765 43210" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-        <Controller
-          control={control}
-          name="password"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Password</FieldLabel>
-              <Input
-                {...field}
-                placeholder="Enter your password"
-                type="password"
-              />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-
-        {signInMutation.error ? <FieldError>{errorMessage}</FieldError> : null}
-
-        <div className="flex flex-wrap gap-3 pt-2">
-          <Button disabled={signInMutation.isPending} type="submit">
-            {signInMutation.isPending ? "Signing in..." : "Continue"}
-          </Button>
-          <Button asChild type="button" variant="ghost">
-            <Link to="/forgot-password">Forgot password?</Link>
-          </Button>
-        </div>
-      </form>
+      <CardHeader>
+        <CardTitle>Sign in</CardTitle>
+        <CardDescription>
+          Use your mobile number by default. Email remains a fallback
+          identifier.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FieldGroup>
+            <Controller
+              control={control}
+              name="identifier"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="identifier">
+                    Mobile number or email
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="identifier"
+                      placeholder="+91 98765 43210"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="password">Password</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="password"
+                      placeholder="Enter your password"
+                      type="password"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            {signInMutation.error ? <FieldError>{errorMessage}</FieldError> : null}
+          </FieldGroup>
+        </form>
+      </CardContent>
+      <CardFooter className="flex flex-wrap justify-between gap-2">
+        <Button
+          disabled={signInMutation.isPending}
+          onClick={handleSubmit(onSubmit)}
+          type="button"
+        >
+          {signInMutation.isPending ? "Signing in..." : "Continue"}
+        </Button>
+        <Button asChild variant="ghost">
+          <Link to="/forgot-password">Forgot password?</Link>
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

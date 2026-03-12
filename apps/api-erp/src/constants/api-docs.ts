@@ -14,6 +14,7 @@ export const API_DOCS = {
     ONBOARDING: "onboarding",
     INSTITUTIONS: "institutions",
     CAMPUSES: "campuses",
+    STUDENTS: "students",
     ACADEMIC_YEARS: "academic-years",
   },
   THEMES: {

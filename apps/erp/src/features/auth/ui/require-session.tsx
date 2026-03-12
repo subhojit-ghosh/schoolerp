@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
 import { Navigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
+import { Card } from "@academic-platform/ui/components/ui/card";
 import { useSessionQuery } from "../api/use-auth";
 import { useAuthStore } from "../model/auth-store";
 

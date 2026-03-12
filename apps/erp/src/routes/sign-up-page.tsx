@@ -1,17 +1,30 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Button } from "@academic-platform/ui/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@academic-platform/ui/components/ui/card";
+import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@academic-platform/ui/components/ui/field";
+import { Input } from "@academic-platform/ui/components/ui/input";
 import { useAuthErrorMessage } from "@/features/auth/api/use-auth";
 import { useCreateInstitutionMutation } from "@/features/onboarding/api/use-onboarding";
-import { buildTenantAppUrl } from "@/lib/tenant-context";
 import {
   onboardingFormSchema,
   type OnboardingFormValues,
 } from "@/features/onboarding/model/onboarding-form-schema";
+import { buildTenantAppUrl } from "@/lib/tenant-context";
 
 export function SignUpPage() {
   const navigate = useNavigate();
@@ -59,120 +72,173 @@ export function SignUpPage() {
   }
 
   return (
-    <Card className="max-w-3xl">
-      <div className="space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
-          Free School Signup
-        </p>
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Create the institution, default campus, and first admin.
-        </h2>
-        <p className="text-sm leading-6 text-muted-foreground">
-          This provisions the tenant base first so later ERP features sit on a
-          clean institution, campus, membership, and session model.
-        </p>
-      </div>
-
-      <form
-        className="mt-6 grid gap-4 md:grid-cols-2"
-        onSubmit={handleSubmit(onSubmit)}
-      >
-        <Controller
-          control={control}
-          name="institutionName"
-          render={({ field, fieldState }) => (
-            <Field className="md:col-span-2">
-              <FieldLabel>School name</FieldLabel>
-              <Input {...field} placeholder="Springfield High School" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-        <Controller
-          control={control}
-          name="institutionSlug"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Subdomain slug</FieldLabel>
-              <Input {...field} placeholder="springfield-high" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-        <Controller
-          control={control}
-          name="campusName"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Default campus</FieldLabel>
-              <Input {...field} placeholder="Main Campus" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-        <Controller
-          control={control}
-          name="adminName"
-          render={({ field, fieldState }) => (
-            <Field className="md:col-span-2">
-              <FieldLabel>Admin name</FieldLabel>
-              <Input {...field} placeholder="Aparna Sen" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-        <Controller
-          control={control}
-          name="mobile"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Mobile number</FieldLabel>
-              <Input {...field} placeholder="+91 98765 43210" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-        <Controller
-          control={control}
-          name="email"
-          render={({ field, fieldState }) => (
-            <Field>
-              <FieldLabel>Email</FieldLabel>
-              <Input {...field} placeholder="admin@school.edu" type="email" />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-        <Controller
-          control={control}
-          name="password"
-          render={({ field, fieldState }) => (
-            <Field className="md:col-span-2">
-              <FieldLabel>Password</FieldLabel>
-              <Input
-                {...field}
-                placeholder="Create a password"
-                type="password"
-              />
-              <FieldError>{fieldState.error?.message}</FieldError>
-            </Field>
-          )}
-        />
-
-        {createInstitutionMutation.error ? (
-          <div className="md:col-span-2">
-            <FieldError>{errorMessage}</FieldError>
-          </div>
-        ) : null}
-
-        <div className="flex gap-3 pt-2 md:col-span-2">
-          <Button disabled={createInstitutionMutation.isPending} type="submit">
-            {createInstitutionMutation.isPending
-              ? "Creating school..."
-              : "Create school"}
-          </Button>
-        </div>
-      </form>
+    <Card className="max-w-4xl">
+      <CardHeader>
+        <CardTitle>Create school</CardTitle>
+        <CardDescription>
+          Provision the institution, default campus, and first admin in one
+          onboarding flow.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <FieldGroup className="md:grid md:grid-cols-2 md:gap-6">
+            <Controller
+              control={control}
+              name="institutionName"
+              render={({ field, fieldState }) => (
+                <Field
+                  className="md:col-span-2"
+                  data-invalid={fieldState.invalid || undefined}
+                >
+                  <FieldLabel htmlFor="institution-name">School name</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="institution-name"
+                      placeholder="Springfield High School"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="institutionSlug"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="institution-slug">
+                    Subdomain slug
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="institution-slug"
+                      placeholder="springfield-high"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="campusName"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="campus-name">Default campus</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="campus-name"
+                      placeholder="Main Campus"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="adminName"
+              render={({ field, fieldState }) => (
+                <Field
+                  className="md:col-span-2"
+                  data-invalid={fieldState.invalid || undefined}
+                >
+                  <FieldLabel htmlFor="admin-name">Admin name</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="admin-name"
+                      placeholder="Aparna Sen"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="mobile"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="admin-mobile">Mobile number</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="admin-mobile"
+                      placeholder="+91 98765 43210"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="email"
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="admin-email">Email</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="admin-email"
+                      placeholder="admin@school.edu"
+                      type="email"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field, fieldState }) => (
+                <Field
+                  className="md:col-span-2"
+                  data-invalid={fieldState.invalid || undefined}
+                >
+                  <FieldLabel htmlFor="admin-password">Password</FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="admin-password"
+                      placeholder="Create a password"
+                      type="password"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            {createInstitutionMutation.error ? (
+              <FieldError className="md:col-span-2">{errorMessage}</FieldError>
+            ) : null}
+          </FieldGroup>
+        </form>
+      </CardContent>
+      <CardFooter>
+        <Button
+          disabled={createInstitutionMutation.isPending}
+          onClick={handleSubmit(onSubmit)}
+          type="button"
+        >
+          {createInstitutionMutation.isPending
+            ? "Creating school..."
+            : "Create school"}
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

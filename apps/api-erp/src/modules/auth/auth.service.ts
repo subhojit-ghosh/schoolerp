@@ -21,6 +21,7 @@ import type { Response } from "express";
 import {
   AUTH_COOKIE,
   AUTH_PASSWORD_RESET,
+  AUTH_RECOVERY_CHANNELS,
   ERROR_MESSAGES,
 } from "../../constants";
 import { AUTH_COOKIE_OPTIONS } from "./auth.constants";
@@ -49,10 +50,16 @@ import {
   normalizeOptionalEmail,
 } from "./auth.utils";
 import type { SignUpDto } from "./auth.schemas";
+import { AuthRateLimitService } from "./auth-rate-limit.service";
+import { PasswordResetDeliveryService } from "./password-reset-delivery.service";
 
 @Injectable()
 export class AuthService {
-  constructor(@Inject(DATABASE) private readonly database: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly database: AppDatabase,
+    private readonly authRateLimitService: AuthRateLimitService,
+    private readonly passwordResetDeliveryService: PasswordResetDeliveryService,
+  ) {}
 
   async signUp(
     payload: SignUpDto,
@@ -117,10 +124,23 @@ export class AuthService {
 
   async requestPasswordReset(
     identifier: string,
+    requestContext: SessionRequestContext,
   ): Promise<PasswordResetRequestResult> {
-    const matchedUser = await this.findUserByIdentifier(identifier);
+    const normalizedIdentifier = this.normalizeIdentifier(identifier);
+
+    await this.authRateLimitService.assertForgotPasswordAllowed(
+      normalizedIdentifier,
+      requestContext.ipAddress,
+    );
+
+    const matchedUser = await this.findUserByIdentifier(normalizedIdentifier);
     const token = this.createPasswordResetToken();
     const tokenHash = this.hashPasswordResetToken(token);
+
+    await this.authRateLimitService.recordForgotPasswordAttempt(
+      normalizedIdentifier,
+      requestContext.ipAddress,
+    );
 
     if (!matchedUser) {
       return {
@@ -148,6 +168,14 @@ export class AuthService {
       consumedAt: null,
     });
 
+    this.passwordResetDeliveryService.sendPasswordReset({
+      channel: matchedUser.email
+        ? AUTH_RECOVERY_CHANNELS.EMAIL
+        : AUTH_RECOVERY_CHANNELS.MOBILE,
+      recipient: matchedUser.email ?? matchedUser.mobile,
+      token,
+    });
+
     return {
       success: true,
       resetTokenPreview: AUTH_PASSWORD_RESET.PREVIEW_ENABLED ? token : null,
@@ -168,13 +196,15 @@ export class AuthService {
       .where(eq(passwordResetToken.tokenHash, tokenHash))
       .limit(1);
 
-    if (
-      !matchedToken ||
-      matchedToken.consumedAt !== null ||
-      matchedToken.expiresAt <= now
-    ) {
+    if (!matchedToken || matchedToken.consumedAt !== null) {
       throw new UnauthorizedException(
         ERROR_MESSAGES.AUTH.PASSWORD_RESET_TOKEN_INVALID,
+      );
+    }
+
+    if (matchedToken.expiresAt <= now) {
+      throw new UnauthorizedException(
+        ERROR_MESSAGES.AUTH.PASSWORD_RESET_TOKEN_EXPIRED,
       );
     }
 
@@ -568,7 +598,7 @@ export class AuthService {
   }
 
   private async findUserByIdentifier(identifier: string) {
-    const normalizedIdentifier = identifier.trim();
+    const normalizedIdentifier = this.normalizeIdentifier(identifier);
     const [matchedUser] = await this.database
       .select({
         id: user.id,
@@ -594,6 +624,14 @@ export class AuthService {
 
   private hashPasswordResetToken(token: string) {
     return createHash("sha256").update(token).digest("hex");
+  }
+
+  private normalizeIdentifier(identifier: string) {
+    const trimmedIdentifier = identifier.trim();
+
+    return isEmailIdentifier(trimmedIdentifier)
+      ? normalizeEmail(trimmedIdentifier)
+      : normalizeMobile(trimmedIdentifier);
   }
 
   private toAuthUserDto(authenticatedUser: AuthenticatedUser): AuthUserDto {

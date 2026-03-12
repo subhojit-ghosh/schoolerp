@@ -14,6 +14,7 @@ import { InstitutionsModule } from "./modules/institutions/institutions.module";
 import { OnboardingModule } from "./modules/onboarding/onboarding.module";
 import { PublicModule } from "./modules/public/public.module";
 import { TenantContextModule } from "./modules/tenant-context/tenant-context.module";
+import { StudentsModule } from "./modules/students/students.module";
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { TenantContextModule } from "./modules/tenant-context/tenant-context.mod
     AuthModule,
     OnboardingModule,
     CampusesModule,
+    StudentsModule,
     AcademicYearsModule,
     InstitutionsModule,
     PublicModule,
