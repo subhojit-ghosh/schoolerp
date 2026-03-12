@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["https://erp.test"],
+  allowedDevOrigins: ["erp.test", "*.erp.test"],
   transpilePackages: ["@repo/ui"],
 };
 
