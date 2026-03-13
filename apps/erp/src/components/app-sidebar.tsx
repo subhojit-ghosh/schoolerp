@@ -29,8 +29,8 @@ const NAV_OVERVIEW = [
 ] as const;
 
 const NAV_PEOPLE = [
-  { icon: IconUsers,      title: "Students",   url: ERP_ROUTES.STUDENTS },
-  { icon: IconUsersGroup, title: "Staff",       url: ERP_ROUTES.STAFF,    disabled: true },
+  { icon: IconUsers, title: "Students", url: ERP_ROUTES.STUDENTS },
+  { icon: IconUsersGroup, title: "Staff", url: ERP_ROUTES.STAFF },
 ] as const;
 
 const NAV_ACADEMICS = [

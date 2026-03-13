@@ -281,6 +281,59 @@ export interface paths {
         patch: operations["StudentsController_updateStudent"];
         trace?: never;
     };
+    "/institutions/{institutionId}/staff": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List staff for an institution */
+        get: operations["StaffController_listStaff"];
+        put?: never;
+        /** Create a staff membership for an institution */
+        post: operations["StaffController_createStaff"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/staff/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available staff roles for an institution */
+        get: operations["StaffController_listRoles"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/staff/{staffId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single staff record for an institution */
+        get: operations["StaffController_getStaff"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a staff membership for an institution */
+        patch: operations["StaffController_updateStaff"];
+        trace?: never;
+    };
     "/institutions/{institutionId}/academic-years": {
         parameters: {
             query?: never;
@@ -629,6 +682,36 @@ export interface components {
             campusId: string;
             guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
             currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
+        };
+        StaffRoleDto: {
+            id: string;
+            name: string;
+            slug: string;
+        };
+        CreateStaffBodyDto: {
+            name: string;
+            mobile: string;
+            email?: string | null;
+            campusId: string;
+            roleId?: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive" | "suspended";
+        };
+        UpdateStaffBodyDto: components["schemas"]["CreateStaffBodyDto"];
+        StaffDto: {
+            id: string;
+            userId: string;
+            institutionId: string;
+            name: string;
+            mobile: string;
+            email: string | null;
+            /** @enum {string} */
+            memberType: "staff" | "student" | "guardian";
+            campusId: string;
+            campusName: string;
+            /** @enum {string} */
+            status: "active" | "inactive" | "suspended";
+            role: components["schemas"]["StaffRoleDto"] | null;
         };
         AcademicYearDto: {
             id: string;
@@ -1205,6 +1288,121 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudentDto"];
+                };
+            };
+        };
+    };
+    StaffController_listStaff: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffDto"][];
+                };
+            };
+        };
+    };
+    StaffController_listRoles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffRoleDto"][];
+                };
+            };
+        };
+    };
+    StaffController_createStaff: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStaffBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffDto"];
+                };
+            };
+        };
+    };
+    StaffController_getStaff: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffDto"];
+                };
+            };
+        };
+    };
+    StaffController_updateStaff: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStaffBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffDto"];
                 };
             };
         };

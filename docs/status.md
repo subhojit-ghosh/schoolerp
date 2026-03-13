@@ -66,6 +66,12 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - ERP frontend route and feature module for academic year create/edit flows
   - backend-owned current student enrollment tied to academic year plus class/section
   - ERP frontend route and feature module for student creation/detail/listing
+- A minimal staff slice now exists with:
+  - institution-scoped staff list/detail/create/update APIs
+  - staff memberships backed by the existing `member` model
+  - primary campus assignment plus campus-membership syncing
+  - basic single-role assignment backed by `membership_roles`
+  - ERP frontend list/create/edit screens
 - The ERP shell now changes navigation and dashboard behavior from backend-provided active context instead of separate role-specific login screens.
 - Memberships now allow one user to hold multiple member types inside the same institution.
 
@@ -76,6 +82,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - The student slice is covered by typecheck and targeted backend tests, but not yet by end-to-end browser automation.
 - The academic-year slice is covered by typecheck, but not yet by backend tests or browser automation.
 - The classes and sections slice is covered by schema generation, OpenAPI export, and typecheck, but not by backend tests or browser automation.
+- The staff slice is covered by typecheck, but not yet by targeted backend tests or browser automation.
 
 ## In Progress
 
@@ -91,5 +98,6 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Student detail/edit workflows and richer guardian lifecycle management.
 - Automated coverage for academic-year create/edit flows.
 - Broader student workflow test coverage.
+- Richer staff workflows such as multi-role assignment, advanced permissions, departments, leave, and payroll.
 - Capability-oriented authorization APIs for institution admin flows.
 - Class allocation, timetable, and broader academic workflows beyond structure management.

@@ -5,6 +5,7 @@ export const ERP_ROUTES = {
   STUDENTS: "/students",
   STUDENT_DETAIL: "/students/:studentId",
   STAFF: "/staff",
+  STAFF_DETAIL: "/staff/:staffId",
   // Academics
   ACADEMIC_YEARS: "/academic-years",
   CLASSES: "/classes",
