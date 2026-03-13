@@ -41,9 +41,9 @@ const QUICK_ACTIONS = [
   {
     label: "Fees",
     description: "Collect fees, track payments, and manage dues.",
-    href: ERP_ROUTES.DASHBOARD,
+    href: ERP_ROUTES.FEES,
     Icon: IconCurrencyRupee,
-    disabled: true,
+    disabled: false,
   },
 ] as const;
 

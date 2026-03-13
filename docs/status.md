@@ -55,6 +55,12 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - guardian linking for one or more guardians per student
   - campus assignment stored on the backend
   - ERP frontend route and feature module for student creation/listing
+- A minimal fees slice now exists with:
+  - institution-scoped fee structure create/list APIs
+  - student fee assignment create/list APIs
+  - payment entry API with backend-owned outstanding-balance checks
+  - dues list API derived from fee assignments and payments
+  - ERP frontend fee management route with thin forms over those APIs
 - The ERP shell now changes navigation and dashboard behavior from backend-provided active context instead of separate role-specific login screens.
 - Memberships now allow one user to hold multiple member types inside the same institution.
 
@@ -63,6 +69,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Local `erp.test` cookie auth wiring appears to be configured correctly, but this file should only call it strongly verified when backed by repeatable tests or an explicit manual verification record.
 - Recovery flow is covered at the service level, but this repo does not currently contain a stored browser verification artifact for the full flow.
 - The student slice is covered by typecheck and targeted backend tests, but not yet by end-to-end browser automation.
+- The fees slice is covered by typecheck and generated OpenAPI types, but not yet by targeted backend tests or end-to-end browser automation.
 
 ## In Progress
 
@@ -77,3 +84,4 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Broader integration coverage for tenant host routing and cookie auth in browser flows.
 - Student detail/edit workflows and richer guardian lifecycle management.
 - Capability-oriented authorization APIs for institution admin flows.
+- Fees reports, reminder automation, and accounting integrations.

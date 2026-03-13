@@ -1,6 +1,7 @@
 import {
   boolean,
   date,
+  integer,
   index,
   pgTable,
   primaryKey,
@@ -11,6 +12,15 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { campus, member, organization } from "./auth";
+
+const FEE_STRUCTURE_SCOPE_ENUM = ["institution", "campus"] as const;
+const FEE_ASSIGNMENT_STATUS_ENUM = ["pending", "partial", "paid"] as const;
+const FEE_PAYMENT_METHOD_ENUM = [
+  "cash",
+  "upi",
+  "bank_transfer",
+  "card",
+] as const;
 
 export const academicYears = pgTable(
   "academic_years",
@@ -192,5 +202,103 @@ export const studentGuardianLinks = pgTable(
   (t) => [
     index("sgl_student_idx").on(t.studentMembershipId),
     index("sgl_parent_idx").on(t.parentMembershipId),
+  ],
+);
+
+export const feeStructures = pgTable(
+  "fee_structures",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    academicYearId: text("academic_year_id")
+      .notNull()
+      .references(() => academicYears.id, { onDelete: "restrict" }),
+    campusId: text("campus_id").references(() => campus.id, {
+      onDelete: "restrict",
+    }),
+    name: text("name").notNull(),
+    description: text("description"),
+    scope: text("scope", {
+      enum: FEE_STRUCTURE_SCOPE_ENUM,
+    }).notNull(),
+    amountInPaise: integer("amount_in_paise").notNull(),
+    dueDate: date("due_date").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("fee_structures_institution_idx").on(table.institutionId),
+    index("fee_structures_academic_year_idx").on(table.academicYearId),
+    index("fee_structures_campus_idx").on(table.campusId),
+    uniqueIndex("fee_structures_name_scope_unique_idx")
+      .on(
+        table.institutionId,
+        table.academicYearId,
+        table.campusId,
+        table.name,
+      )
+      .where(sql`${table.deletedAt} IS NULL`),
+  ],
+);
+
+export const feeAssignments = pgTable(
+  "fee_assignments",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    feeStructureId: text("fee_structure_id")
+      .notNull()
+      .references(() => feeStructures.id, { onDelete: "restrict" }),
+    studentId: text("student_id")
+      .notNull()
+      .references(() => students.id, { onDelete: "restrict" }),
+    assignedAmountInPaise: integer("assigned_amount_in_paise").notNull(),
+    dueDate: date("due_date").notNull(),
+    status: text("status", {
+      enum: FEE_ASSIGNMENT_STATUS_ENUM,
+    }).notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("fee_assignments_institution_idx").on(table.institutionId),
+    index("fee_assignments_structure_idx").on(table.feeStructureId),
+    index("fee_assignments_student_idx").on(table.studentId),
+    index("fee_assignments_due_date_idx").on(table.dueDate),
+    uniqueIndex("fee_assignments_student_structure_unique_idx")
+      .on(table.studentId, table.feeStructureId)
+      .where(sql`${table.deletedAt} IS NULL`),
+  ],
+);
+
+export const feePayments = pgTable(
+  "fee_payments",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    feeAssignmentId: text("fee_assignment_id")
+      .notNull()
+      .references(() => feeAssignments.id, { onDelete: "restrict" }),
+    amountInPaise: integer("amount_in_paise").notNull(),
+    paymentDate: date("payment_date").notNull(),
+    paymentMethod: text("payment_method", {
+      enum: FEE_PAYMENT_METHOD_ENUM,
+    }).notNull(),
+    referenceNumber: text("reference_number"),
+    notes: text("notes"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("fee_payments_institution_idx").on(table.institutionId),
+    index("fee_payments_assignment_idx").on(table.feeAssignmentId),
+    index("fee_payments_payment_date_idx").on(table.paymentDate),
   ],
 );

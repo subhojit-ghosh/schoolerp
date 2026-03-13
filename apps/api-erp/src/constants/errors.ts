@@ -34,4 +34,23 @@ export const ERROR_MESSAGES = {
       "Select another academic year as current before archiving this one.",
     YEAR_NOT_FOUND: "The selected academic year was not found.",
   },
+  FEES: {
+    ACADEMIC_YEAR_NOT_FOUND: "The selected academic year was not found.",
+    FEE_STRUCTURE_NOT_FOUND: "The selected fee structure was not found.",
+    FEE_STRUCTURE_NAME_EXISTS:
+      "That fee structure already exists for the selected scope.",
+    FEE_ASSIGNMENT_NOT_FOUND: "The selected fee assignment was not found.",
+    FEE_PAYMENT_NOT_FOUND: "The selected fee payment was not found.",
+    FEE_ASSIGNMENT_EXISTS:
+      "That student already has an active assignment for this fee structure.",
+    FEE_STRUCTURE_AMOUNT_INVALID: "Fee amount must be greater than zero.",
+    FEE_ASSIGNMENT_AMOUNT_INVALID: "Assigned amount must be greater than zero.",
+    FEE_PAYMENT_AMOUNT_INVALID: "Payment amount must be greater than zero.",
+    FEE_PAYMENT_EXCEEDS_DUE:
+      "Payment amount cannot exceed the outstanding dues for this assignment.",
+    FEE_STRUCTURE_SCOPE_INVALID:
+      "Campus-scoped fee structures must target a campus.",
+    FEE_STRUCTURE_CAMPUS_MISMATCH:
+      "Student campus must match the selected campus-scoped fee structure.",
+  },
 } as const;

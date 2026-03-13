@@ -41,7 +41,7 @@ const NAV_ACADEMICS = [
 ] as const;
 
 const NAV_FINANCE = [
-  { icon: IconCurrencyRupee, title: "Fees", url: ERP_ROUTES.FEES, disabled: true },
+  { icon: IconCurrencyRupee, title: "Fees", url: ERP_ROUTES.FEES },
 ] as const;
 
 const NAV_SETTINGS = [

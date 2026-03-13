@@ -37,8 +37,9 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 
 1. Add explicit authorization/capability primitives for institution admin workflows.
 2. Expand the student slice from create/list into detail, edit, and safer guardian management flows.
-3. Replace placeholder recovery delivery with production SMS/email providers.
-4. Add broader tenant-aware integration coverage around auth, onboarding, and new ERP modules.
+3. Stabilize the new fees slice with stronger automated coverage and richer collection workflows without expanding into reporting or accounting integrations yet.
+4. Replace placeholder recovery delivery with production SMS/email providers.
+5. Add broader tenant-aware integration coverage around auth, onboarding, and new ERP modules.
 
 ## Later
 
@@ -47,7 +48,8 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
   - academics
   - attendance
   - exams
-  - fees
+- Deepen existing ERP domains after the initial operational slices are in place:
+  - fees reporting and collection edge cases
 - Move more shared UI and shared backend primitives into packages as patterns settle.
 - Replace temporary frontend presentation with the intended ERP design system.
 

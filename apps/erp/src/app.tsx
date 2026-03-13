@@ -21,6 +21,7 @@ import { ForgotPasswordPage } from "@/routes/forgot-password-page";
 import { ResetPasswordPage } from "@/routes/reset-password-page";
 import { SignInPage } from "@/routes/sign-in-page";
 import { AcademicYearsPage } from "@/routes/academic-years-page";
+import { FeesPage } from "@/routes/fees-page";
 import { BrandingPage } from "@/routes/settings/branding-page";
 import { StudentDetailPage } from "@/routes/student-detail-page";
 import { StudentsPage } from "@/routes/students-page";
@@ -58,6 +59,7 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.STUDENTS, element: <StudentsPage /> },
       { path: ERP_ROUTES.STUDENT_DETAIL, element: <StudentDetailPage /> },
       { path: ERP_ROUTES.ACADEMIC_YEARS, element: <AcademicYearsPage /> },
+      { path: ERP_ROUTES.FEES, element: <FeesPage /> },
       { path: ERP_ROUTES.SETTINGS_BRANDING, element: <BrandingPage /> },
     ],
   },
