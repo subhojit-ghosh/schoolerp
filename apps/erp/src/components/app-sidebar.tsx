@@ -30,6 +30,7 @@ const NAV_OVERVIEW = [
 
 const NAV_PEOPLE = [
   { icon: IconUsers,      title: "Students",   url: ERP_ROUTES.STUDENTS },
+  { icon: IconUsers,      title: "Guardians",  url: ERP_ROUTES.GUARDIANS },
   { icon: IconUsersGroup, title: "Staff",       url: ERP_ROUTES.STAFF,    disabled: true },
 ] as const;
 

@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { components } from "@/lib/api/generated/schema";
 
 const MOBILE_MIN_LENGTH = 10;
+
 export const GUARDIAN_RELATIONSHIP_OPTIONS = [
   GUARDIAN_RELATIONSHIPS.FATHER,
   GUARDIAN_RELATIONSHIPS.MOTHER,
@@ -16,23 +17,17 @@ export const guardianFormSchema = z.object({
   name: z.string().trim().min(1, "Guardian name is required"),
   mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
   email: z.email().optional().or(z.literal("")),
+  campusId: z.uuid("Select a campus"),
+});
+
+export const guardianStudentLinkFormSchema = z.object({
+  studentId: z.uuid("Select a student"),
   relationship: guardianRelationshipSchema,
   isPrimary: z.boolean(),
 });
 
-export const studentFormSchema = z.object({
-  admissionNumber: z.string().trim().min(1, "Admission number is required"),
-  firstName: z.string().trim().min(1, "First name is required"),
-  lastName: z.string().trim().optional(),
-  campusId: z.uuid("Select a campus"),
-  guardians: z.array(guardianFormSchema).min(1, "Add at least one guardian"),
-}).refine(
-  (value) => value.guardians.filter((guardian) => guardian.isPrimary).length === 1,
-  {
-    path: ["guardians"],
-    message: "Select exactly one primary guardian",
-  },
-);
-
-export type StudentFormValues = z.infer<typeof studentFormSchema>;
-export type StudentRecord = components["schemas"]["StudentDto"];
+export type GuardianFormValues = z.infer<typeof guardianFormSchema>;
+export type GuardianStudentLinkFormValues = z.infer<
+  typeof guardianStudentLinkFormSchema
+>;
+export type GuardianRecord = components["schemas"]["GuardianDto"];

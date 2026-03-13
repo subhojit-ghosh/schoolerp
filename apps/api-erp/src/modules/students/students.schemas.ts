@@ -1,5 +1,5 @@
+import { guardianRelationshipSchema } from "@repo/contracts";
 import { z } from "zod";
-import { GUARDIAN_RELATIONSHIPS } from "../../constants";
 
 const NAME_MIN_LENGTH = 1;
 const ADMISSION_NUMBER_MIN_LENGTH = 1;
@@ -22,11 +22,7 @@ export const createGuardianLinkSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((value) => value || undefined),
-  relationship: z.enum([
-    GUARDIAN_RELATIONSHIPS.FATHER,
-    GUARDIAN_RELATIONSHIPS.MOTHER,
-    GUARDIAN_RELATIONSHIPS.GUARDIAN,
-  ]),
+  relationship: guardianRelationshipSchema,
   isPrimary: z.boolean().default(false),
 });
 

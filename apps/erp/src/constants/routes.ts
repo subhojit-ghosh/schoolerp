@@ -4,6 +4,8 @@ export const ERP_ROUTES = {
   // People
   STUDENTS: "/students",
   STUDENT_DETAIL: "/students/:studentId",
+  GUARDIANS: "/guardians",
+  GUARDIAN_DETAIL: "/guardians/:guardianId",
   STAFF: "/staff",
   // Academics
   ACADEMIC_YEARS: "/academic-years",

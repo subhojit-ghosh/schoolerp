@@ -22,6 +22,8 @@ import { ResetPasswordPage } from "@/routes/reset-password-page";
 import { SignInPage } from "@/routes/sign-in-page";
 import { AcademicYearsPage } from "@/routes/academic-years-page";
 import { BrandingPage } from "@/routes/settings/branding-page";
+import { GuardianDetailPage } from "@/routes/guardian-detail-page";
+import { GuardiansPage } from "@/routes/guardians-page";
 import { StudentDetailPage } from "@/routes/student-detail-page";
 import { StudentsPage } from "@/routes/students-page";
 
@@ -57,6 +59,8 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.DASHBOARD, element: <DashboardPage /> },
       { path: ERP_ROUTES.STUDENTS, element: <StudentsPage /> },
       { path: ERP_ROUTES.STUDENT_DETAIL, element: <StudentDetailPage /> },
+      { path: ERP_ROUTES.GUARDIANS, element: <GuardiansPage /> },
+      { path: ERP_ROUTES.GUARDIAN_DETAIL, element: <GuardianDetailPage /> },
       { path: ERP_ROUTES.ACADEMIC_YEARS, element: <AcademicYearsPage /> },
       { path: ERP_ROUTES.SETTINGS_BRANDING, element: <BrandingPage /> },
     ],

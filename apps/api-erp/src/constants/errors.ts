@@ -28,6 +28,13 @@ export const ERROR_MESSAGES = {
     GUARDIAN_MEMBERSHIP_REQUIRED:
       "Each guardian must belong to the selected institution.",
   },
+  GUARDIANS: {
+    GUARDIAN_NOT_FOUND: "The selected guardian was not found.",
+    STUDENT_LINK_NOT_FOUND:
+      "The selected guardian-student relationship was not found.",
+    LAST_GUARDIAN_LINK:
+      "A student must keep at least one linked guardian.",
+  },
   ACADEMIC_YEARS: {
     INVALID_DATE_RANGE: "End date must be after the start date.",
     CURRENT_YEAR_REQUIRED:

@@ -245,6 +245,76 @@ export interface paths {
         patch: operations["StudentsController_updateStudent"];
         trace?: never;
     };
+    "/institutions/{institutionId}/guardians": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List guardians for an institution */
+        get: operations["GuardiansController_listGuardians"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/guardians/{guardianId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single guardian for an institution */
+        get: operations["GuardiansController_getGuardian"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update guardian details */
+        patch: operations["GuardiansController_updateGuardian"];
+        trace?: never;
+    };
+    "/institutions/{institutionId}/guardians/{guardianId}/students": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Link a guardian to a student */
+        post: operations["GuardiansController_linkStudent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/guardians/{guardianId}/students/{studentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Unlink a guardian from a student */
+        delete: operations["GuardiansController_unlinkStudent"];
+        options?: never;
+        head?: never;
+        /** Update a guardian-student relationship */
+        patch: operations["GuardiansController_updateStudentLink"];
+        trace?: never;
+    };
     "/institutions/{institutionId}/academic-years": {
         parameters: {
             query?: never;
@@ -560,6 +630,30 @@ export interface components {
             status: "active" | "inactive" | "suspended";
             guardians: components["schemas"]["StudentGuardianDto"][];
         };
+        GuardianLinkedStudentDto: {
+            studentId: string;
+            membershipId: string;
+            fullName: string;
+            admissionNumber: string;
+            campusId: string;
+            campusName: string;
+            /** @enum {string} */
+            relationship: "father" | "mother" | "guardian";
+            isPrimary: boolean;
+        };
+        GuardianDto: {
+            id: string;
+            userId: string | null;
+            institutionId: string;
+            name: string;
+            mobile: string;
+            email: string | null;
+            campusId: string;
+            campusName: string;
+            /** @enum {string} */
+            status: "active" | "inactive" | "suspended";
+            linkedStudents: components["schemas"]["GuardianLinkedStudentDto"][];
+        };
         CreateGuardianLinkBodyDto: {
             name: string;
             mobile: string;
@@ -581,6 +675,23 @@ export interface components {
             lastName?: string | null;
             campusId: string;
             guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
+        };
+        UpdateGuardianBodyDto: {
+            name: string;
+            mobile: string;
+            email?: string | null;
+            campusId: string;
+        };
+        LinkGuardianStudentBodyDto: {
+            studentId: string;
+            /** @enum {string} */
+            relationship: "father" | "mother" | "guardian";
+            isPrimary: boolean;
+        };
+        UpdateGuardianStudentLinkBodyDto: {
+            /** @enum {string} */
+            relationship: "father" | "mother" | "guardian";
+            isPrimary: boolean;
         };
         AcademicYearDto: {
             id: string;
@@ -1057,6 +1168,151 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudentDto"];
+                };
+            };
+        };
+    };
+    GuardiansController_listGuardians: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"][];
+                };
+            };
+        };
+    };
+    GuardiansController_getGuardian: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                guardianId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"];
+                };
+            };
+        };
+    };
+    GuardiansController_updateGuardian: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                guardianId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGuardianBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"];
+                };
+            };
+        };
+    };
+    GuardiansController_linkStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                guardianId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LinkGuardianStudentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"];
+                };
+            };
+        };
+    };
+    GuardiansController_updateStudentLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                guardianId: string;
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGuardianStudentLinkBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"];
+                };
+            };
+        };
+    };
+    GuardiansController_unlinkStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                guardianId: string;
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"];
                 };
             };
         };

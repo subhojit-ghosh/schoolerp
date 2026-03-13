@@ -1,3 +1,4 @@
+import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
 import { useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -35,7 +36,7 @@ const DEFAULT_GUARDIAN = {
   name: "",
   mobile: "",
   email: "",
-  relationship: "guardian" as const,
+  relationship: GUARDIAN_RELATIONSHIPS.GUARDIAN,
   isPrimary: true,
 };
 const ERROR_BOUNDARY_PREVIEW_PARAM = "previewErrorBoundary";

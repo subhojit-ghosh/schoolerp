@@ -47,6 +47,7 @@ import { useAuthStore } from "@/features/auth/model/auth-store";
 const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/students": "Students",
+  "/guardians": "Guardians",
   "/academic-years": "Academic Years",
   "/settings/branding": "Branding",
 };
@@ -117,7 +118,9 @@ export function SiteHeader() {
   );
   const title = location.pathname.startsWith("/students/")
     ? "Student"
-    : PAGE_TITLES[location.pathname] ?? "ERP";
+    : location.pathname.startsWith("/guardians/")
+      ? "Guardian"
+      : PAGE_TITLES[location.pathname] ?? "ERP";
   const activeContext = getActiveContext(session);
   const campusName = session?.activeCampus?.name ?? "Campus";
   const campuses = session?.campuses ?? [];

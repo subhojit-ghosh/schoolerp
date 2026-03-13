@@ -18,13 +18,26 @@ export const AUTH_CONTEXT_LABELS = {
   [AUTH_CONTEXT_KEYS.STUDENT]: "Student",
 } as const;
 
+export const GUARDIAN_RELATIONSHIPS = {
+  FATHER: "father",
+  MOTHER: "mother",
+  GUARDIAN: "guardian",
+} as const;
+
 export const authContextKeySchema = z.enum([
   AUTH_CONTEXT_KEYS.STAFF,
   AUTH_CONTEXT_KEYS.PARENT,
   AUTH_CONTEXT_KEYS.STUDENT,
 ]);
 
+export const guardianRelationshipSchema = z.enum([
+  GUARDIAN_RELATIONSHIPS.FATHER,
+  GUARDIAN_RELATIONSHIPS.MOTHER,
+  GUARDIAN_RELATIONSHIPS.GUARDIAN,
+]);
+
 export type AuthContextKey = z.infer<typeof authContextKeySchema>;
+export type GuardianRelationship = z.infer<typeof guardianRelationshipSchema>;
 
 export const healthResponseSchema = z.object({
   status: z.string(),
