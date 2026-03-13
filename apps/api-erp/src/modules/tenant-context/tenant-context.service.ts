@@ -1,9 +1,9 @@
 import { DATABASE } from "@repo/backend-core";
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import { and, eq, isNull } from "drizzle-orm";
 import { campus, organization } from "@repo/database";
-import { tenantBrandingSchema } from "@repo/contracts";
+import { APP_FALLBACKS, tenantBrandingSchema } from "@repo/contracts";
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
 
@@ -36,15 +36,20 @@ export class TenantContextService {
       return undefined;
     }
 
-    const hostname = host.split(":")[0];
+    const hostname = host.split(":")[0].toLowerCase();
 
-    if (LOCAL_HOSTS.has(hostname)) {
+    if (LOCAL_HOSTS.has(hostname) || hostname === APP_FALLBACKS.ROOT_HOST) {
       return undefined;
     }
 
-    const [subdomain] = hostname.split(".");
+    const tenantSuffix = `.${APP_FALLBACKS.ROOT_DOMAIN}`;
+    if (!hostname.endsWith(tenantSuffix)) {
+      return undefined;
+    }
 
-    return subdomain || undefined;
+    const tenantSlug = hostname.slice(0, -tenantSuffix.length);
+
+    return tenantSlug || undefined;
   }
 
   async getOrganizationBySlug(slug: string) {
@@ -136,7 +141,7 @@ export class TenantContextService {
     const tenant = await this.getOrganizationBySlug(tenantSlug);
 
     if (!tenant) {
-      return DEFAULT_TENANT_BRANDING;
+      throw new NotFoundException(`Organization not found for subdomain.`);
     }
 
     return tenantBrandingSchema.parse({

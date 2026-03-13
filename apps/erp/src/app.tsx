@@ -34,6 +34,8 @@ import { StaffPage } from "@/routes/staff-page";
 import { StudentDetailPage } from "@/routes/student-detail-page";
 import { StudentsPage } from "@/routes/students-page";
 
+import { Button } from "@repo/ui/components/ui/button";
+
 const router = createBrowserRouter([
   {
     path: ERP_ROUTES.ROOT,
@@ -89,6 +91,7 @@ export function App() {
   const [branding, setBranding] = useState<TenantBranding | null>(() =>
     readCachedTenantBranding(),
   );
+  const [tenantNotFound, setTenantNotFound] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -121,7 +124,9 @@ export function App() {
         cacheTenantBranding(brandingPayload);
         applyTenantBranding(brandingPayload);
       } catch (error) {
-        void error;
+        if (!isCancelled && error instanceof Error && error.message === "TENANT_NOT_FOUND") {
+          setTenantNotFound(true);
+        }
       }
     }
 
@@ -131,6 +136,46 @@ export function App() {
       isCancelled = true;
     };
   }, []);
+
+  if (tenantNotFound) {
+    return (
+      <div className="flex min-h-svh flex-col items-center justify-center bg-background p-6">
+        <div className="flex max-w-md flex-col items-center text-center">
+          <div className="mb-4 flex size-16 items-center justify-center rounded-2xl bg-muted">
+            <svg
+              className="size-8 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="m15 9-6 6" />
+              <path d="m9 9 6 6" />
+            </svg>
+          </div>
+          <h1 className="mb-2 text-2xl font-bold tracking-tight text-foreground">
+            Organization Not Found
+          </h1>
+          <p className="mb-8 text-sm leading-relaxed text-muted-foreground">
+            We couldn't find an organization matching this URL. It might have been typed incorrectly or the organization has been removed.
+          </p>
+          <Button
+            asChild
+            className="h-11 rounded-xl px-8 shadow-sm"
+            style={{
+              backgroundColor: "#18181b",
+              color: "#fafafa",
+            }}
+          >
+            <a href={buildRootAppUrl()}>Go to main platform</a>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return <RouterProvider router={router} />;
 }

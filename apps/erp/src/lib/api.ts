@@ -15,11 +15,14 @@ export async function fetchHealth() {
 }
 
 export async function fetchTenantBranding() {
-  const response = await apiFetchClient.GET("/public/tenant-branding");
+  const { data, error, response } = await apiFetchClient.GET("/public/tenant-branding");
 
-  if (response.error) {
+  if (error || !response.ok) {
+    if (response.status === 404) {
+      throw new Error("TENANT_NOT_FOUND");
+    }
     throw new Error("Failed to fetch tenant branding.");
   }
 
-  return tenantBrandingSchema.parse(response.data);
+  return tenantBrandingSchema.parse(data);
 }
