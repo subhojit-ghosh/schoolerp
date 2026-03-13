@@ -18,6 +18,7 @@ export const API_ROUTES = {
   CAMPUSES: "campuses",
   STUDENTS: "students",
   ACADEMIC_YEARS: "academic-years",
+  CLASSES: "classes",
   CURRENT: "current",
   ARCHIVE: "archive",
   RESTORE: "restore",

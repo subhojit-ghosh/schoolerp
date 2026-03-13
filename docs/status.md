@@ -54,7 +54,12 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - institution-scoped student create/list APIs
   - guardian linking for one or more guardians per student
   - campus assignment stored on the backend
-  - ERP frontend route and feature module for student creation/listing
+  - ERP frontend routes and feature modules for student create/list/detail/edit
+- A shallow academics structure slice exists with:
+  - institution-scoped class create/list/detail/update APIs
+  - nested section create/edit reconciliation owned by NestJS
+  - campus assignment stored on the backend
+  - ERP frontend routes and feature modules for class create/list/detail/edit
 - A minimal academics slice exists with:
   - institution-scoped academic year list/create/detail/update APIs
   - backend-owned current-year enforcement during create and edit
@@ -68,6 +73,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Recovery flow is covered at the service level, but this repo does not currently contain a stored browser verification artifact for the full flow.
 - The student slice is covered by typecheck and targeted backend tests, but not yet by end-to-end browser automation.
 - The academic-year slice is covered by typecheck, but not yet by backend tests or browser automation.
+- The classes and sections slice is covered by schema generation, OpenAPI export, and typecheck, but not by backend tests or browser automation.
 
 ## In Progress
 
@@ -83,3 +89,4 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Student detail/edit workflows and richer guardian lifecycle management.
 - Automated coverage for academic-year create/edit flows.
 - Capability-oriented authorization APIs for institution admin flows.
+- Class allocation, timetable, and broader academic workflows beyond structure management.

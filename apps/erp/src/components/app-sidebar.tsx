@@ -35,7 +35,7 @@ const NAV_PEOPLE = [
 
 const NAV_ACADEMICS = [
   { icon: IconBook2,         title: "Academic Years", url: ERP_ROUTES.ACADEMIC_YEARS },
-  { icon: IconBook2,         title: "Classes",    url: ERP_ROUTES.CLASSES,    disabled: true },
+  { icon: IconBook2,         title: "Classes",    url: ERP_ROUTES.CLASSES },
   { icon: IconCalendarStats, title: "Attendance", url: ERP_ROUTES.ATTENDANCE, disabled: true },
   { icon: IconCertificate,   title: "Exams",      url: ERP_ROUTES.EXAMS,      disabled: true },
 ] as const;

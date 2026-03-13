@@ -1,6 +1,7 @@
 import {
   boolean,
   date,
+  integer,
   index,
   pgTable,
   primaryKey,
@@ -192,5 +193,57 @@ export const studentGuardianLinks = pgTable(
   (t) => [
     index("sgl_student_idx").on(t.studentMembershipId),
     index("sgl_parent_idx").on(t.parentMembershipId),
+  ],
+);
+
+export const schoolClasses = pgTable(
+  "classes",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text("campus_id")
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    name: text("name").notNull(),
+    code: text("code"),
+    displayOrder: integer("display_order").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("classes_institution_idx").on(table.institutionId),
+    index("classes_campus_idx").on(table.campusId),
+    uniqueIndex("classes_name_per_campus_unique_idx")
+      .on(table.campusId, table.name)
+      .where(sql`${table.deletedAt} IS NULL`),
+    uniqueIndex("classes_code_per_institution_unique_idx")
+      .on(table.institutionId, table.code)
+      .where(sql`${table.deletedAt} IS NULL AND ${table.code} IS NOT NULL`),
+  ],
+);
+
+export const classSections = pgTable(
+  "sections",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    classId: text("class_id")
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    displayOrder: integer("display_order").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("sections_institution_idx").on(table.institutionId),
+    index("sections_class_idx").on(table.classId),
+    uniqueIndex("sections_name_per_class_unique_idx")
+      .on(table.classId, table.name)
+      .where(sql`${table.deletedAt} IS NULL`),
   ],
 );

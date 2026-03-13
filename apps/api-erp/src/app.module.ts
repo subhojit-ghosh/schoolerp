@@ -6,6 +6,7 @@ import { AppService } from "./app.service";
 import { AcademicYearsModule } from "./modules/academic-years/academic-years.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { CampusesModule } from "./modules/campuses/campuses.module";
+import { ClassesModule } from "./modules/classes/classes.module";
 import { validateEnvironment } from "./config/env.validation";
 import { InstitutionsModule } from "./modules/institutions/institutions.module";
 import { OnboardingModule } from "./modules/onboarding/onboarding.module";
@@ -27,6 +28,7 @@ import { StudentsModule } from "./modules/students/students.module";
     AuthModule,
     OnboardingModule,
     CampusesModule,
+    ClassesModule,
     StudentsModule,
     AcademicYearsModule,
     InstitutionsModule,
