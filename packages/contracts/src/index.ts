@@ -12,6 +12,24 @@ export const AUTH_CONTEXT_KEYS = {
   STUDENT: "student",
 } as const;
 
+export const FEE_STRUCTURE_SCOPES = {
+  INSTITUTION: "institution",
+  CAMPUS: "campus",
+} as const;
+
+export const FEE_ASSIGNMENT_STATUSES = {
+  PENDING: "pending",
+  PARTIAL: "partial",
+  PAID: "paid",
+} as const;
+
+export const FEE_PAYMENT_METHODS = {
+  CASH: "cash",
+  UPI: "upi",
+  BANK_TRANSFER: "bank_transfer",
+  CARD: "card",
+} as const;
+
 export const AUTH_CONTEXT_LABELS = {
   [AUTH_CONTEXT_KEYS.STAFF]: "Staff",
   [AUTH_CONTEXT_KEYS.PARENT]: "Parent",
@@ -35,6 +53,28 @@ export const authContextKeySchema = z.enum([
   AUTH_CONTEXT_KEYS.STUDENT,
 ]);
 
+export const feeStructureScopeSchema = z.enum([
+  FEE_STRUCTURE_SCOPES.INSTITUTION,
+  FEE_STRUCTURE_SCOPES.CAMPUS,
+]);
+
+export const feeAssignmentStatusSchema = z.enum([
+  FEE_ASSIGNMENT_STATUSES.PENDING,
+  FEE_ASSIGNMENT_STATUSES.PARTIAL,
+  FEE_ASSIGNMENT_STATUSES.PAID,
+]);
+
+export const feePaymentMethodSchema = z.enum([
+  FEE_PAYMENT_METHODS.CASH,
+  FEE_PAYMENT_METHODS.UPI,
+  FEE_PAYMENT_METHODS.BANK_TRANSFER,
+  FEE_PAYMENT_METHODS.CARD,
+]);
+
+export type AuthContextKey = z.infer<typeof authContextKeySchema>;
+export type FeeStructureScope = z.infer<typeof feeStructureScopeSchema>;
+export type FeeAssignmentStatus = z.infer<typeof feeAssignmentStatusSchema>;
+export type FeePaymentMethod = z.infer<typeof feePaymentMethodSchema>;
 export const academicYearStatusSchema = z.enum([
   ACADEMIC_YEAR_STATUS.ACTIVE,
   ACADEMIC_YEAR_STATUS.ARCHIVED,
@@ -44,25 +84,6 @@ export const guardianRelationshipSchema = z.enum([
   GUARDIAN_RELATIONSHIPS.MOTHER,
   GUARDIAN_RELATIONSHIPS.GUARDIAN,
 ]);
-
-export type AuthContextKey = z.infer<typeof authContextKeySchema>;
-export type AcademicYearStatus = z.infer<typeof academicYearStatusSchema>;
-export type GuardianRelationship = z.infer<typeof guardianRelationshipSchema>;
-
-export const ATTENDANCE_STATUSES = {
-  PRESENT: "present",
-  ABSENT: "absent",
-  LATE: "late",
-  EXCUSED: "excused",
-} as const;
-
-export const ATTENDANCE_STATUS_LABELS = {
-  [ATTENDANCE_STATUSES.PRESENT]: "Present",
-  [ATTENDANCE_STATUSES.ABSENT]: "Absent",
-  [ATTENDANCE_STATUSES.LATE]: "Late",
-  [ATTENDANCE_STATUSES.EXCUSED]: "Excused",
-} as const;
-
 export const attendanceStatusSchema = z.enum([
   ATTENDANCE_STATUSES.PRESENT,
   ATTENDANCE_STATUSES.ABSENT,
@@ -70,6 +91,11 @@ export const attendanceStatusSchema = z.enum([
   ATTENDANCE_STATUSES.EXCUSED,
 ]);
 
+export type AcademicYearStatus = z.infer<typeof academicYearStatusSchema>;
+export type GuardianRelationship = z.infer<typeof guardianRelationshipSchema>;
+export type FeeStructureScope = z.infer<typeof feeStructureScopeSchema>;
+export type FeeAssignmentStatus = z.infer<typeof feeAssignmentStatusSchema>;
+export type FeePaymentMethod = z.infer<typeof feePaymentMethodSchema>;
 export type AttendanceStatus = z.infer<typeof attendanceStatusSchema>;
 
 export const healthResponseSchema = z.object({

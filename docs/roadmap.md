@@ -50,7 +50,8 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
   - academics
   - attendance
   - exams
-  - fees
+- Deepen existing ERP domains after the initial operational slices are in place:
+  - fees reporting and collection edge cases
 - Move more shared UI and shared backend primitives into packages as patterns settle.
 - Replace temporary frontend presentation with the intended ERP design system.
 

@@ -72,3 +72,12 @@ export const EXAMS_API_PATHS = {
 export const INSTITUTIONS_API_PATHS = {
   UPDATE_BRANDING: "/institutions/{id}/branding",
 } as const;
+
+export const FEES_API_PATHS = {
+  LIST_STRUCTURES: "/institutions/{institutionId}/fees/structures",
+  CREATE_STRUCTURE: "/institutions/{institutionId}/fees/structures",
+  LIST_ASSIGNMENTS: "/institutions/{institutionId}/fees/assignments",
+  CREATE_ASSIGNMENT: "/institutions/{institutionId}/fees/assignments",
+  CREATE_PAYMENT: "/institutions/{institutionId}/fees/payments",
+  LIST_DUES: "/institutions/{institutionId}/fees/dues",
+} as const;

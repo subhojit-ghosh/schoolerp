@@ -45,6 +45,13 @@ const QUICK_ACTIONS = [
     Icon: IconCalendarStats,
     disabled: true,
   },
+  {
+    label: "Fees",
+    description: "Collect fees, track payments, and manage dues.",
+    href: ERP_ROUTES.FEES,
+    Icon: IconCurrencyRupee,
+    disabled: false,
+  },
 ] as const;
 
 function getGreeting() {

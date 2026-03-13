@@ -87,6 +87,12 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - institution-scoped exam term create/list APIs linked to academic years
   - backend-owned batch marks replacement and marks listing for an exam term
   - ERP frontend route for exam term creation, term selection, marks entry, and marks display
+- A minimal fees slice now exists with:
+  - institution-scoped fee structure create/list APIs
+  - student fee assignment create/list APIs
+  - payment entry API with backend-owned outstanding-balance checks
+  - dues list API derived from fee assignments and payments
+  - ERP frontend fee management route with thin forms over those APIs
 - The ERP shell now changes navigation and dashboard behavior from backend-provided active context instead of separate role-specific login screens.
 - Memberships now allow one user to hold multiple member types inside the same institution.
 
@@ -95,13 +101,13 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Local `erp.test` cookie auth wiring appears to be configured correctly, but this file should only call it strongly verified when backed by repeatable tests or an explicit manual verification record.
 - Recovery flow is covered at the service level, but this repo does not currently contain a stored browser verification artifact for the full flow.
 - The student slice is covered by typecheck and targeted backend tests, but not yet by end-to-end browser automation.
-<<<<<<< HEAD
 - The academic-year slice is covered by typecheck, but not yet by backend tests or browser automation.
 - The classes and sections slice is covered by schema generation, OpenAPI export, and typecheck, but not by backend tests or browser automation.
 - The staff slice is covered by typecheck, but not yet by targeted backend tests or browser automation.
 - The guardian slice is covered by typecheck, but not yet by targeted backend tests or browser automation.
 - The attendance slice is covered by repo typecheck and generated API types, but not yet by service tests or browser automation.
 - The exams slice is covered by typecheck and OpenAPI regeneration, but not yet by targeted backend tests or browser automation.
+- The fees slice is covered by typecheck and generated OpenAPI types, but not yet by targeted backend tests or end-to-end browser automation.
 
 ## In Progress
 
@@ -122,3 +128,4 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Class allocation, timetable, and broader academic workflows beyond structure management.
 - Attendance analytics, reporting, notifications, and import flows.
 - Exam workflows beyond shallow term + marks entry, including report cards, ranking, analytics, and grading schemes.
+- Fees reports, reminder automation, and accounting integrations.
