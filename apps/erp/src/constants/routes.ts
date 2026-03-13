@@ -8,6 +8,7 @@ export const ERP_ROUTES = {
   // Academics
   ACADEMIC_YEARS: "/academic-years",
   CLASSES: "/classes",
+  CLASS_DETAIL: "/classes/:classId",
   ATTENDANCE: "/attendance",
   EXAMS: "/exams",
   // Finance

@@ -34,4 +34,11 @@ export const ERROR_MESSAGES = {
       "Select another academic year as current before archiving this one.",
     YEAR_NOT_FOUND: "The selected academic year was not found.",
   },
+  CLASSES: {
+    CLASS_NOT_FOUND: "The selected class was not found.",
+    CLASS_NAME_EXISTS:
+      "That class name is already in use for the selected campus.",
+    CLASS_CODE_EXISTS: "That class code is already in use for this institution.",
+    SECTION_NAME_EXISTS: "Section names must be unique within a class.",
+  },
 } as const;

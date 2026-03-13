@@ -4,7 +4,6 @@ import {
   IconBook2,
   IconCalendarStats,
   IconMoodKid,
-  IconCurrencyRupee,
   IconUsers,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
@@ -32,17 +31,17 @@ const QUICK_ACTIONS = [
     disabled: false,
   },
   {
+    label: "Classes",
+    description: "Maintain class and section structure by campus.",
+    href: ERP_ROUTES.CLASSES,
+    Icon: IconBook2,
+    disabled: false,
+  },
+  {
     label: "Attendance",
     description: "Track daily attendance and view class-wise reports.",
     href: ERP_ROUTES.DASHBOARD,
     Icon: IconCalendarStats,
-    disabled: true,
-  },
-  {
-    label: "Fees",
-    description: "Collect fees, track payments, and manage dues.",
-    href: ERP_ROUTES.DASHBOARD,
-    Icon: IconCurrencyRupee,
     disabled: true,
   },
 ] as const;

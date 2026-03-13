@@ -32,6 +32,13 @@ export const ACADEMIC_YEARS_API_PATHS = {
     "/institutions/{institutionId}/academic-years/{academicYearId}/restore",
 } as const;
 
+export const CLASSES_API_PATHS = {
+  LIST: "/institutions/{institutionId}/classes",
+  CREATE: "/institutions/{institutionId}/classes",
+  DETAIL: "/institutions/{institutionId}/classes/{classId}",
+  UPDATE: "/institutions/{institutionId}/classes/{classId}",
+} as const;
+
 export const INSTITUTIONS_API_PATHS = {
   UPDATE_BRANDING: "/institutions/{id}/branding",
 } as const;

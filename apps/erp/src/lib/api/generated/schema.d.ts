@@ -209,6 +209,42 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/institutions/{institutionId}/classes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List classes for an institution */
+        get: operations["ClassesController_listClasses"];
+        put?: never;
+        /** Create a class with sections */
+        post: operations["ClassesController_createClass"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/classes/{classId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a class with sections */
+        get: operations["ClassesController_getClass"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a class and reconcile sections */
+        patch: operations["ClassesController_updateClass"];
+        trace?: never;
+    };
     "/institutions/{institutionId}/students": {
         parameters: {
             query?: never;
@@ -535,6 +571,37 @@ export interface components {
             slug?: string;
             code?: string | null;
             isDefault?: boolean;
+        };
+        ClassSectionDto: {
+            id: string;
+            name: string;
+            displayOrder: number;
+        };
+        ClassDto: {
+            id: string;
+            institutionId: string;
+            campusId: string;
+            campusName: string;
+            name: string;
+            code?: string | null;
+            displayOrder: number;
+            sections: components["schemas"]["ClassSectionDto"][];
+        };
+        ClassSectionBodyDto: {
+            id?: string | null;
+            name: string;
+        };
+        CreateClassBodyDto: {
+            name: string;
+            code?: string | null;
+            campusId: string;
+            sections: components["schemas"]["ClassSectionBodyDto"][];
+        };
+        UpdateClassBodyDto: {
+            name: string;
+            code?: string | null;
+            campusId: string;
+            sections: components["schemas"]["ClassSectionBodyDto"][];
         };
         StudentGuardianDto: {
             membershipId: string;
@@ -963,6 +1030,100 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CampusDto"];
+                };
+            };
+        };
+    };
+    ClassesController_listClasses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassDto"][];
+                };
+            };
+        };
+    };
+    ClassesController_createClass: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateClassBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassDto"];
+                };
+            };
+        };
+    };
+    ClassesController_getClass: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                classId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassDto"];
+                };
+            };
+        };
+    };
+    ClassesController_updateClass: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                classId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateClassBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassDto"];
                 };
             };
         };
