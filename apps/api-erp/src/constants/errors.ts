@@ -74,6 +74,7 @@ export const ERROR_MESSAGES = {
       "Each student can only have one mark entry per subject in the same exam term.",
     STUDENT_REQUIRED:
       "Every marks entry must belong to a student in the selected institution.",
+  },
   FEES: {
     ACADEMIC_YEAR_NOT_FOUND: "The selected academic year was not found.",
     FEE_STRUCTURE_NOT_FOUND: "The selected fee structure was not found.",

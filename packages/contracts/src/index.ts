@@ -84,6 +84,18 @@ export const guardianRelationshipSchema = z.enum([
   GUARDIAN_RELATIONSHIPS.MOTHER,
   GUARDIAN_RELATIONSHIPS.GUARDIAN,
 ]);
+export const ATTENDANCE_STATUSES = {
+  PRESENT: "present",
+  ABSENT: "absent",
+  LATE: "late",
+  EXCUSED: "excused",
+} as const;
+export const ATTENDANCE_STATUS_LABELS = {
+  [ATTENDANCE_STATUSES.PRESENT]: "Present",
+  [ATTENDANCE_STATUSES.ABSENT]: "Absent",
+  [ATTENDANCE_STATUSES.LATE]: "Late",
+  [ATTENDANCE_STATUSES.EXCUSED]: "Excused",
+} as const;
 export const attendanceStatusSchema = z.enum([
   ATTENDANCE_STATUSES.PRESENT,
   ATTENDANCE_STATUSES.ABSENT,
@@ -93,9 +105,6 @@ export const attendanceStatusSchema = z.enum([
 
 export type AcademicYearStatus = z.infer<typeof academicYearStatusSchema>;
 export type GuardianRelationship = z.infer<typeof guardianRelationshipSchema>;
-export type FeeStructureScope = z.infer<typeof feeStructureScopeSchema>;
-export type FeeAssignmentStatus = z.infer<typeof feeAssignmentStatusSchema>;
-export type FeePaymentMethod = z.infer<typeof feePaymentMethodSchema>;
 export type AttendanceStatus = z.infer<typeof attendanceStatusSchema>;
 
 export const healthResponseSchema = z.object({

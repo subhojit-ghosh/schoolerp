@@ -61,4 +61,3 @@ export type AcademicYearStatus =
   (typeof STATUS.ACADEMIC_YEAR)[keyof typeof STATUS.ACADEMIC_YEAR];
 export type { GuardianRelationship };
 export type AttendanceRecordStatus = AttendanceStatus;
-export type { GuardianRelationship };

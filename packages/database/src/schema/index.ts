@@ -12,7 +12,6 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { campus, member, organization } from "./auth";
-import { ATTENDANCE_STATUSES } from "@repo/contracts";
 
 const FEE_STRUCTURE_SCOPE_ENUM = ["institution", "campus"] as const;
 const FEE_ASSIGNMENT_STATUS_ENUM = ["pending", "partial", "paid"] as const;
@@ -21,6 +20,12 @@ const FEE_PAYMENT_METHOD_ENUM = [
   "upi",
   "bank_transfer",
   "card",
+] as const;
+const ATTENDANCE_STATUS_ENUM = [
+  "present",
+  "absent",
+  "late",
+  "excused",
 ] as const;
 
 export const academicYears = pgTable(
@@ -206,12 +211,7 @@ export const attendanceRecords = pgTable(
     className: text("class_name").notNull(),
     sectionName: text("section_name").notNull(),
     status: text("status", {
-      enum: [
-        ATTENDANCE_STATUSES.PRESENT,
-        ATTENDANCE_STATUSES.ABSENT,
-        ATTENDANCE_STATUSES.LATE,
-        ATTENDANCE_STATUSES.EXCUSED,
-      ],
+      enum: ATTENDANCE_STATUS_ENUM,
     }).notNull(),
     markedByMembershipId: text("marked_by_membership_id")
       .notNull()
