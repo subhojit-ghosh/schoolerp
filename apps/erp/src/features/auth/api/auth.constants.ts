@@ -24,12 +24,8 @@ export const STUDENTS_API_PATHS = {
 export const ACADEMIC_YEARS_API_PATHS = {
   LIST: "/institutions/{institutionId}/academic-years",
   CREATE: "/institutions/{institutionId}/academic-years",
-  SET_CURRENT:
-    "/institutions/{institutionId}/academic-years/{academicYearId}/current",
-  ARCHIVE:
-    "/institutions/{institutionId}/academic-years/{academicYearId}/archive",
-  RESTORE:
-    "/institutions/{institutionId}/academic-years/{academicYearId}/restore",
+  DETAIL: "/institutions/{institutionId}/academic-years/{academicYearId}",
+  UPDATE: "/institutions/{institutionId}/academic-years/{academicYearId}",
 } as const;
 
 export const INSTITUTIONS_API_PATHS = {

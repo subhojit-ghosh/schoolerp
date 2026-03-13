@@ -12,9 +12,22 @@ import { ERROR_MESSAGES, STATUS } from "../../constants";
 import type { AppDatabase } from "@repo/database";
 import { Inject } from "@nestjs/common";
 import { AcademicYearDto } from "./academic-years.dto";
-import type { CreateAcademicYearDto } from "./academic-years.schemas";
+import type {
+  CreateAcademicYearDto,
+  UpdateAcademicYearDto,
+} from "./academic-years.schemas";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
+
+type AcademicYearRecord = {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  status: AcademicYearDto["status"];
+  createdAt: Date;
+};
 
 @Injectable()
 export class AcademicYearsService {
@@ -30,15 +43,7 @@ export class AcademicYearsService {
     await this.requireInstitutionAccess(authSession, institutionId);
 
     const rows = await this.database
-      .select({
-        id: academicYears.id,
-        name: academicYears.name,
-        startDate: academicYears.startDate,
-        endDate: academicYears.endDate,
-        isCurrent: academicYears.isCurrent,
-        status: academicYears.status,
-        createdAt: academicYears.createdAt,
-      })
+      .select(this.academicYearSelect)
       .from(academicYears)
       .where(
         and(
@@ -48,146 +53,138 @@ export class AcademicYearsService {
       )
       .orderBy(desc(academicYears.isCurrent), desc(academicYears.startDate));
 
-    return rows.map((row) => ({
-      ...row,
-      status: row.status,
-      createdAt: row.createdAt.toISOString(),
-    }));
+    return rows.map((row) => this.toAcademicYearDto(row));
+  }
+
+  async getAcademicYear(
+    institutionId: string,
+    academicYearId: string,
+    authSession: AuthenticatedSession,
+  ): Promise<AcademicYearDto> {
+    await this.requireInstitutionAccess(authSession, institutionId);
+
+    return this.getAcademicYearOrThrow(academicYearId, institutionId);
   }
 
   async createAcademicYear(
     institutionId: string,
     authSession: AuthenticatedSession,
     payload: CreateAcademicYearDto,
-  ): Promise<void> {
+  ): Promise<AcademicYearDto> {
     await this.requireInstitutionAccess(authSession, institutionId);
+    const academicYearId = randomUUID();
 
-    const [existingCurrent] = await this.database
-      .select({ id: academicYears.id })
-      .from(academicYears)
-      .where(
-        and(
-          eq(academicYears.institutionId, institutionId),
-          eq(academicYears.isCurrent, true),
-          isNull(academicYears.deletedAt),
-        ),
-      )
-      .limit(1);
-
-    const shouldMakeCurrent = payload.makeCurrent || !existingCurrent;
-
-    if (shouldMakeCurrent) {
-      await this.database
-        .update(academicYears)
-        .set({ isCurrent: false })
+    return this.database.transaction(async (tx) => {
+      const [existingCurrent] = await tx
+        .select({ id: academicYears.id })
+        .from(academicYears)
         .where(
           and(
             eq(academicYears.institutionId, institutionId),
+            eq(academicYears.isCurrent, true),
             isNull(academicYears.deletedAt),
           ),
-        );
-    }
+        )
+        .limit(1);
 
-    await this.database.insert(academicYears).values({
-      id: randomUUID(),
-      institutionId,
-      name: payload.name,
-      startDate: payload.startDate,
-      endDate: payload.endDate,
-      isCurrent: shouldMakeCurrent,
-      status: STATUS.ACADEMIC_YEAR.ACTIVE,
+      const shouldMakeCurrent = payload.isCurrent || !existingCurrent;
+
+      if (shouldMakeCurrent) {
+        await tx
+          .update(academicYears)
+          .set({ isCurrent: false })
+          .where(
+            and(
+              eq(academicYears.institutionId, institutionId),
+              isNull(academicYears.deletedAt),
+            ),
+          );
+      }
+
+      await tx.insert(academicYears).values({
+        id: academicYearId,
+        institutionId,
+        name: payload.name,
+        startDate: payload.startDate,
+        endDate: payload.endDate,
+        isCurrent: shouldMakeCurrent,
+        status: STATUS.ACADEMIC_YEAR.ACTIVE,
+      });
+
+      const createdYear = await this.getAcademicYearByIdOrThrow(
+        tx,
+        academicYearId,
+        institutionId,
+      );
+
+      return this.toAcademicYearDto(createdYear);
     });
   }
 
-  async setCurrentAcademicYear(
+  async updateAcademicYear(
     institutionId: string,
     academicYearId: string,
     authSession: AuthenticatedSession,
-  ): Promise<void> {
+    payload: UpdateAcademicYearDto,
+  ): Promise<AcademicYearDto> {
     await this.requireInstitutionAccess(authSession, institutionId);
-    await this.getAcademicYearOrThrow(academicYearId, institutionId);
 
-    await this.database
-      .update(academicYears)
-      .set({ isCurrent: false })
-      .where(
-        and(
-          eq(academicYears.institutionId, institutionId),
-          isNull(academicYears.deletedAt),
-        ),
+    return this.database.transaction(async (tx) => {
+      const existingYear = await this.getAcademicYearByIdOrThrow(
+        tx,
+        academicYearId,
+        institutionId,
       );
 
-    await this.database
-      .update(academicYears)
-      .set({
-        isCurrent: true,
-        status: STATUS.ACADEMIC_YEAR.ACTIVE,
-      })
-      .where(eq(academicYears.id, academicYearId));
-  }
+      if (existingYear.isCurrent && !payload.isCurrent) {
+        throw new BadRequestException(
+          ERROR_MESSAGES.ACADEMIC_YEARS.CURRENT_YEAR_REQUIRED,
+        );
+      }
 
-  async archiveAcademicYear(
-    institutionId: string,
-    academicYearId: string,
-    authSession: AuthenticatedSession,
-  ): Promise<void> {
-    await this.requireInstitutionAccess(authSession, institutionId);
-    const year = await this.getAcademicYearOrThrow(
-      academicYearId,
-      institutionId,
-    );
+      if (payload.isCurrent) {
+        await tx
+          .update(academicYears)
+          .set({ isCurrent: false })
+          .where(
+            and(
+              eq(academicYears.institutionId, institutionId),
+              isNull(academicYears.deletedAt),
+            ),
+          );
+      }
 
-    if (year.isCurrent) {
-      throw new BadRequestException(
-        ERROR_MESSAGES.ACADEMIC_YEARS.CURRENT_YEAR_REQUIRED,
+      await tx
+        .update(academicYears)
+        .set({
+          name: payload.name,
+          startDate: payload.startDate,
+          endDate: payload.endDate,
+          isCurrent: payload.isCurrent,
+        })
+        .where(eq(academicYears.id, academicYearId));
+
+      const updatedYear = await this.getAcademicYearByIdOrThrow(
+        tx,
+        academicYearId,
+        institutionId,
       );
-    }
 
-    await this.database
-      .update(academicYears)
-      .set({ status: STATUS.ACADEMIC_YEAR.ARCHIVED })
-      .where(eq(academicYears.id, academicYearId));
-  }
-
-  async restoreAcademicYear(
-    institutionId: string,
-    academicYearId: string,
-    authSession: AuthenticatedSession,
-  ): Promise<void> {
-    await this.requireInstitutionAccess(authSession, institutionId);
-    await this.getAcademicYearOrThrow(academicYearId, institutionId);
-
-    await this.database
-      .update(academicYears)
-      .set({ status: STATUS.ACADEMIC_YEAR.ACTIVE })
-      .where(eq(academicYears.id, academicYearId));
+      return this.toAcademicYearDto(updatedYear);
+    });
   }
 
   private async getAcademicYearOrThrow(
     academicYearId: string,
     institutionId: string,
-  ) {
-    const [year] = await this.database
-      .select({
-        id: academicYears.id,
-        isCurrent: academicYears.isCurrent,
-        status: academicYears.status,
-        deletedAt: academicYears.deletedAt,
-      })
-      .from(academicYears)
-      .where(
-        and(
-          eq(academicYears.id, academicYearId),
-          eq(academicYears.institutionId, institutionId),
-        ),
-      )
-      .limit(1);
+  ): Promise<AcademicYearDto> {
+    const year = await this.getAcademicYearByIdOrThrow(
+      this.database,
+      academicYearId,
+      institutionId,
+    );
 
-    if (!year || year.deletedAt !== null) {
-      throw new NotFoundException(ERROR_MESSAGES.ACADEMIC_YEARS.YEAR_NOT_FOUND);
-    }
-
-    return year;
+    return this.toAcademicYearDto(year);
   }
 
   private async requireInstitutionAccess(
@@ -199,5 +196,47 @@ export class AcademicYearsService {
       institutionId,
       AUTH_CONTEXT_KEYS.STAFF,
     );
+  }
+
+  private readonly academicYearSelect = {
+    id: academicYears.id,
+    name: academicYears.name,
+    startDate: academicYears.startDate,
+    endDate: academicYears.endDate,
+    isCurrent: academicYears.isCurrent,
+    status: academicYears.status,
+    createdAt: academicYears.createdAt,
+  };
+
+  private toAcademicYearDto(row: AcademicYearRecord): AcademicYearDto {
+    return {
+      ...row,
+      status: row.status,
+      createdAt: row.createdAt.toISOString(),
+    };
+  }
+
+  private async getAcademicYearByIdOrThrow(
+    databaseClient: Pick<AppDatabase, "select">,
+    academicYearId: string,
+    institutionId: string,
+  ): Promise<AcademicYearRecord> {
+    const [year] = await databaseClient
+      .select(this.academicYearSelect)
+      .from(academicYears)
+      .where(
+        and(
+          eq(academicYears.id, academicYearId),
+          eq(academicYears.institutionId, institutionId),
+          isNull(academicYears.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!year) {
+      throw new NotFoundException(ERROR_MESSAGES.ACADEMIC_YEARS.YEAR_NOT_FOUND);
+    }
+
+    return year;
   }
 }

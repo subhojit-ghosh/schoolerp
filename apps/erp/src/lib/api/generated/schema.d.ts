@@ -263,55 +263,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/academic-years/{academicYearId}/current": {
+    "/institutions/{institutionId}/academic-years/{academicYearId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get a single academic year */
+        get: operations["AcademicYearsController_getAcademicYear"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Set current academic year */
-        patch: operations["AcademicYearsController_setCurrentAcademicYear"];
-        trace?: never;
-    };
-    "/institutions/{institutionId}/academic-years/{academicYearId}/archive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Archive an academic year */
-        patch: operations["AcademicYearsController_archiveAcademicYear"];
-        trace?: never;
-    };
-    "/institutions/{institutionId}/academic-years/{academicYearId}/restore": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Restore an academic year */
-        patch: operations["AcademicYearsController_restoreAcademicYear"];
+        /** Update an academic year */
+        patch: operations["AcademicYearsController_updateAcademicYear"];
         trace?: never;
     };
     "/institutions": {
@@ -597,7 +564,13 @@ export interface components {
             name: string;
             startDate: string;
             endDate: string;
-            makeCurrent: boolean;
+            isCurrent: boolean;
+        };
+        UpdateAcademicYearBodyDto: {
+            name: string;
+            startDate: string;
+            endDate: string;
+            isCurrent: boolean;
         };
         InstitutionDto: {
             id: string;
@@ -1103,11 +1076,13 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AcademicYearDto"];
+                };
             };
         };
     };
-    AcademicYearsController_setCurrentAcademicYear: {
+    AcademicYearsController_getAcademicYear: {
         parameters: {
             query?: never;
             header?: never;
@@ -1119,16 +1094,18 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            /** @description Academic year set as current */
+            /** @description Academic year detail */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["AcademicYearDto"];
+                };
             };
         };
     };
-    AcademicYearsController_archiveAcademicYear: {
+    AcademicYearsController_updateAcademicYear: {
         parameters: {
             query?: never;
             header?: never;
@@ -1138,35 +1115,20 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAcademicYearBodyDto"];
+            };
+        };
         responses: {
-            /** @description Academic year archived */
+            /** @description Academic year updated */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
-            };
-        };
-    };
-    AcademicYearsController_restoreAcademicYear: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                institutionId: string;
-                academicYearId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Academic year restored */
-            200: {
-                headers: {
-                    [name: string]: unknown;
+                content: {
+                    "application/json": components["schemas"]["AcademicYearDto"];
                 };
-                content?: never;
             };
         };
     };

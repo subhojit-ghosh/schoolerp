@@ -1,3 +1,8 @@
+import {
+  ACADEMIC_YEAR_STATUS,
+  type AcademicYearStatus,
+} from "@repo/contracts";
+
 export const STATUS = {
   ORG: {
     ACTIVE: "active",
@@ -12,10 +17,7 @@ export const STATUS = {
     INACTIVE: "inactive",
     SUSPENDED: "suspended",
   },
-  ACADEMIC_YEAR: {
-    ACTIVE: "active",
-    ARCHIVED: "archived",
-  },
+  ACADEMIC_YEAR: ACADEMIC_YEAR_STATUS,
 } as const;
 
 export const MEMBER_TYPES = {
@@ -55,8 +57,6 @@ export const SCOPE_TYPES = {
 export type OrgStatus = (typeof STATUS.ORG)[keyof typeof STATUS.ORG];
 export type CampusStatus = (typeof STATUS.CAMPUS)[keyof typeof STATUS.CAMPUS];
 export type MemberStatus = (typeof STATUS.MEMBER)[keyof typeof STATUS.MEMBER];
-export type AcademicYearStatus =
-  (typeof STATUS.ACADEMIC_YEAR)[keyof typeof STATUS.ACADEMIC_YEAR];
 export type MemberType = (typeof MEMBER_TYPES)[keyof typeof MEMBER_TYPES];
 export type GuardianRelationship =
   (typeof GUARDIAN_RELATIONSHIPS)[keyof typeof GUARDIAN_RELATIONSHIPS];
