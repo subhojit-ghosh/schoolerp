@@ -77,6 +77,12 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - backend-owned guardian-student link, unlink, and primary reconciliation rules
   - ERP frontend guardian list and detail routes
   - guardian edit form plus linked-student relationship management forms
+- A minimal attendance slice now exists with:
+  - tenant-scoped class-section option lookup
+  - daily attendance roster read/write APIs by campus, class, section, and date
+  - simple saved day-view summaries for a selected date
+  - ERP attendance entry and review flow on generated OpenAPI types
+  - shared attendance status constants consumed by backend and frontend
 - The ERP shell now changes navigation and dashboard behavior from backend-provided active context instead of separate role-specific login screens.
 - Memberships now allow one user to hold multiple member types inside the same institution.
 
@@ -89,6 +95,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - The classes and sections slice is covered by schema generation, OpenAPI export, and typecheck, but not by backend tests or browser automation.
 - The staff slice is covered by typecheck, but not yet by targeted backend tests or browser automation.
 - The guardian slice is covered by typecheck, but not yet by targeted backend tests or browser automation.
+- The attendance slice is covered by repo typecheck and generated API types, but not yet by service tests or browser automation.
 
 ## In Progress
 
@@ -107,3 +114,4 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Richer staff workflows such as multi-role assignment, advanced permissions, departments, leave, and payroll.
 - Capability-oriented authorization APIs for institution admin flows.
 - Class allocation, timetable, and broader academic workflows beyond structure management.
+- Attendance analytics, reporting, notifications, and import flows.

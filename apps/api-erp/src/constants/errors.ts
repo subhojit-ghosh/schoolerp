@@ -35,6 +35,7 @@ export const ERROR_MESSAGES = {
   },
   ROLES: {
     ROLE_NOT_FOUND: "The selected role was not found for this institution.",
+  },
   GUARDIANS: {
     GUARDIAN_NOT_FOUND: "The selected guardian was not found.",
     STUDENT_LINK_NOT_FOUND:
@@ -54,5 +55,11 @@ export const ERROR_MESSAGES = {
       "That class name is already in use for the selected campus.",
     CLASS_CODE_EXISTS: "That class code is already in use for this institution.",
     SECTION_NAME_EXISTS: "Section names must be unique within a class.",
+  ATTENDANCE: {
+    CLASS_SECTION_REQUIRED: "Class and section are required for attendance.",
+    NO_STUDENTS_FOUND:
+      "No students were found for the selected campus, class, and section.",
+    ROSTER_MISMATCH:
+      "Attendance must be submitted for the full class roster returned by the API.",
   },
 } as const;

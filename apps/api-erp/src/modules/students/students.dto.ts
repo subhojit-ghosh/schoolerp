@@ -47,6 +47,12 @@ export class CreateStudentBodyDto {
   lastName?: string | null;
 
   @ApiProperty()
+  className!: string;
+
+  @ApiProperty()
+  sectionName!: string;
+
+  @ApiProperty()
   campusId!: string;
 
   @ApiProperty({
@@ -71,6 +77,12 @@ export class UpdateStudentBodyDto {
 
   @ApiPropertyOptional({ nullable: true })
   lastName?: string | null;
+
+  @ApiProperty()
+  className!: string;
+
+  @ApiProperty()
+  sectionName!: string;
 
   @ApiProperty()
   campusId!: string;
@@ -145,6 +157,12 @@ export class StudentDto {
 
   @ApiPropertyOptional({ nullable: true })
   lastName!: string | null;
+
+  @ApiProperty()
+  className!: string;
+
+  @ApiProperty()
+  sectionName!: string;
 
   @ApiProperty()
   fullName!: string;

@@ -4,6 +4,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { AcademicYearsModule } from "./modules/academic-years/academic-years.module";
+import { AttendanceModule } from "./modules/attendance/attendance.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { CampusesModule } from "./modules/campuses/campuses.module";
 import { ClassesModule } from "./modules/classes/classes.module";
@@ -35,6 +36,7 @@ import { StudentsModule } from "./modules/students/students.module";
     StaffModule,
     GuardiansModule,
     AcademicYearsModule,
+    AttendanceModule,
     InstitutionsModule,
     PublicModule,
   ],

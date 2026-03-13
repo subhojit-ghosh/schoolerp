@@ -260,6 +260,8 @@ export function StudentsPage() {
                 admissionNumber: "",
                 firstName: "",
                 lastName: "",
+                className: "",
+                sectionName: "",
                 campusId: authSession?.activeCampus?.id ?? "",
                 guardians: [DEFAULT_GUARDIAN],
                 currentEnrollment: EMPTY_CURRENT_ENROLLMENT,

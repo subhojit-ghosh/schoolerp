@@ -55,6 +55,12 @@ export const CLASSES_API_PATHS = {
   UPDATE: "/institutions/{institutionId}/classes/{classId}",
 } as const;
 
+export const ATTENDANCE_API_PATHS = {
+  CLASS_SECTIONS: "/institutions/{institutionId}/attendance/class-sections",
+  DAY: "/institutions/{institutionId}/attendance/day",
+  DAY_VIEW: "/institutions/{institutionId}/attendance/day-view",
+} as const;
+
 export const INSTITUTIONS_API_PATHS = {
   UPDATE_BRANDING: "/institutions/{id}/branding",
 } as const;

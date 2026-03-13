@@ -1,6 +1,8 @@
 import {
   ACADEMIC_YEAR_STATUS,
+  ATTENDANCE_STATUSES,
   GUARDIAN_RELATIONSHIPS,
+  type AttendanceStatus,
   type GuardianRelationship,
 } from "@repo/contracts";
 
@@ -20,6 +22,7 @@ export const STATUS = {
     SUSPENDED: "suspended",
   },
   ACADEMIC_YEAR: ACADEMIC_YEAR_STATUS,
+  ATTENDANCE: ATTENDANCE_STATUSES,
 } as const;
 
 export const MEMBER_TYPES = {
@@ -56,4 +59,6 @@ export type MemberStatus = (typeof STATUS.MEMBER)[keyof typeof STATUS.MEMBER];
 export type MemberType = (typeof MEMBER_TYPES)[keyof typeof MEMBER_TYPES];
 export type AcademicYearStatus =
   (typeof STATUS.ACADEMIC_YEAR)[keyof typeof STATUS.ACADEMIC_YEAR];
+export type { GuardianRelationship };
+export type AttendanceRecordStatus = AttendanceStatus;
 export type { GuardianRelationship };

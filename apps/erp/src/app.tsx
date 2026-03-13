@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom"
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { RouteErrorBoundary } from "@/components/route-error-boundary";
 import { RequireSession } from "@/features/auth/ui/require-session";
+import { AttendancePage } from "@/routes/attendance-page";
 import { ERP_ROUTES } from "@/constants/routes";
 import { fetchTenantBranding } from "@/lib/api";
 import {
@@ -63,8 +64,6 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.DASHBOARD, element: <DashboardPage /> },
       { path: ERP_ROUTES.STUDENTS, element: <StudentsPage /> },
       { path: ERP_ROUTES.STUDENT_DETAIL, element: <StudentDetailPage /> },
-      { path: ERP_ROUTES.STAFF, element: <StaffPage /> },
-      { path: ERP_ROUTES.STAFF_DETAIL, element: <StaffDetailPage /> },
       { path: ERP_ROUTES.GUARDIANS, element: <GuardiansPage /> },
       { path: ERP_ROUTES.GUARDIAN_DETAIL, element: <GuardianDetailPage /> },
       { path: ERP_ROUTES.STAFF, element: <StaffPage /> },
@@ -72,6 +71,7 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.ACADEMIC_YEARS, element: <AcademicYearsPage /> },
       { path: ERP_ROUTES.CLASSES, element: <ClassesPage /> },
       { path: ERP_ROUTES.CLASS_DETAIL, element: <ClassDetailPage /> },
+      { path: ERP_ROUTES.ATTENDANCE, element: <AttendancePage /> },
       { path: ERP_ROUTES.SETTINGS_BRANDING, element: <BrandingPage /> },
     ],
   },
