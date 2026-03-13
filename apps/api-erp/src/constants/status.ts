@@ -1,3 +1,8 @@
+import {
+  ATTENDANCE_STATUSES,
+  type AttendanceStatus,
+} from "@repo/contracts";
+
 export const STATUS = {
   ORG: {
     ACTIVE: "active",
@@ -16,6 +21,7 @@ export const STATUS = {
     ACTIVE: "active",
     ARCHIVED: "archived",
   },
+  ATTENDANCE: ATTENDANCE_STATUSES,
 } as const;
 
 export const MEMBER_TYPES = {
@@ -57,6 +63,7 @@ export type CampusStatus = (typeof STATUS.CAMPUS)[keyof typeof STATUS.CAMPUS];
 export type MemberStatus = (typeof STATUS.MEMBER)[keyof typeof STATUS.MEMBER];
 export type AcademicYearStatus =
   (typeof STATUS.ACADEMIC_YEAR)[keyof typeof STATUS.ACADEMIC_YEAR];
+export type AttendanceRecordStatus = AttendanceStatus;
 export type MemberType = (typeof MEMBER_TYPES)[keyof typeof MEMBER_TYPES];
 export type GuardianRelationship =
   (typeof GUARDIAN_RELATIONSHIPS)[keyof typeof GUARDIAN_RELATIONSHIPS];

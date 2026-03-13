@@ -20,6 +20,8 @@ export const studentFormSchema = z.object({
   admissionNumber: z.string().trim().min(1, "Admission number is required"),
   firstName: z.string().trim().min(1, "First name is required"),
   lastName: z.string().trim().optional(),
+  className: z.string().trim().min(1, "Class is required"),
+  sectionName: z.string().trim().min(1, "Section is required"),
   campusId: z.uuid("Select a campus"),
   guardians: z.array(guardianFormSchema).min(1, "Add at least one guardian"),
 }).refine(

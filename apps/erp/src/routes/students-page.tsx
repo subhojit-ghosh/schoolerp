@@ -253,6 +253,8 @@ export function StudentsPage() {
                 admissionNumber: "",
                 firstName: "",
                 lastName: "",
+                className: "",
+                sectionName: "",
                 campusId: authSession?.activeCampus?.id ?? "",
                 guardians: [DEFAULT_GUARDIAN],
               }}
@@ -339,7 +341,7 @@ export function StudentsPage() {
                           {student.fullName}
                         </p>
                         <p className="truncate text-sm text-muted-foreground">
-                          Admission {student.admissionNumber}
+                          Admission {student.admissionNumber} • {student.className} {student.sectionName}
                         </p>
                       </div>
                     </div>

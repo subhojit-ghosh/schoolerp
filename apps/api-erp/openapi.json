@@ -787,6 +787,212 @@
         ]
       }
     },
+    "/institutions/{institutionId}/attendance/class-sections": {
+      "get": {
+        "operationId": "AttendanceController_listClassSections",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "campusId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttendanceClassSectionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List available class-section combinations for attendance",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/attendance/day": {
+      "get": {
+        "operationId": "AttendanceController_listAttendanceDay",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "attendanceDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "campusId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "className",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionName",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceDayDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get the attendance roster for a class-section and day",
+        "tags": [
+          "attendance"
+        ]
+      },
+      "post": {
+        "operationId": "AttendanceController_upsertAttendanceDay",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertAttendanceDayBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceDayDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create or update daily attendance for a class-section",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/attendance/day-view": {
+      "get": {
+        "operationId": "AttendanceController_listAttendanceDayView",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "attendanceDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttendanceDayViewItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List simple attendance summaries for a day",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
     "/institutions": {
       "get": {
         "operationId": "InstitutionsController_listInstitutions",
@@ -1024,6 +1230,10 @@
     },
     {
       "name": "academic-years",
+      "description": ""
+    },
+    {
+      "name": "attendance",
       "description": ""
     },
     {
@@ -1644,6 +1854,12 @@
             "type": "string",
             "nullable": true
           },
+          "className": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
           "fullName": {
             "type": "string"
           },
@@ -1674,6 +1890,8 @@
           "institutionId",
           "admissionNumber",
           "firstName",
+          "className",
+          "sectionName",
           "fullName",
           "campusId",
           "campusName",
@@ -1726,6 +1944,12 @@
             "type": "string",
             "nullable": true
           },
+          "className": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
           "campusId": {
             "type": "string"
           },
@@ -1739,6 +1963,8 @@
         "required": [
           "admissionNumber",
           "firstName",
+          "className",
+          "sectionName",
           "campusId",
           "guardians"
         ]
@@ -1756,6 +1982,12 @@
             "type": "string",
             "nullable": true
           },
+          "className": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
           "campusId": {
             "type": "string"
           },
@@ -1769,6 +2001,8 @@
         "required": [
           "admissionNumber",
           "firstName",
+          "className",
+          "sectionName",
           "campusId",
           "guardians"
         ]
@@ -1834,6 +2068,202 @@
           "startDate",
           "endDate",
           "makeCurrent"
+        ]
+      },
+      "AttendanceClassSectionDto": {
+        "type": "object",
+        "properties": {
+          "className": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "studentCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "className",
+          "sectionName",
+          "studentCount"
+        ]
+      },
+      "AttendanceStudentEntryDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "present",
+              "absent",
+              "late",
+              "excused"
+            ]
+          }
+        },
+        "required": [
+          "studentId",
+          "admissionNumber",
+          "fullName",
+          "status"
+        ]
+      },
+      "AttendanceDayDto": {
+        "type": "object",
+        "properties": {
+          "attendanceDate": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "totalStudents": {
+            "type": "number"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceStudentEntryDto"
+            }
+          }
+        },
+        "required": [
+          "attendanceDate",
+          "campusId",
+          "campusName",
+          "className",
+          "sectionName",
+          "totalStudents",
+          "entries"
+        ]
+      },
+      "AttendanceDayEntryBodyDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "present",
+              "absent",
+              "late",
+              "excused"
+            ]
+          }
+        },
+        "required": [
+          "studentId",
+          "status"
+        ]
+      },
+      "UpsertAttendanceDayBodyDto": {
+        "type": "object",
+        "properties": {
+          "attendanceDate": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceDayEntryBodyDto"
+            }
+          }
+        },
+        "required": [
+          "attendanceDate",
+          "campusId",
+          "className",
+          "sectionName",
+          "entries"
+        ]
+      },
+      "AttendanceSummaryCountsDto": {
+        "type": "object",
+        "properties": {
+          "present": {
+            "type": "number"
+          },
+          "absent": {
+            "type": "number"
+          },
+          "late": {
+            "type": "number"
+          },
+          "excused": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "present",
+          "absent",
+          "late",
+          "excused"
+        ]
+      },
+      "AttendanceDayViewItemDto": {
+        "type": "object",
+        "properties": {
+          "attendanceDate": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "totalStudents": {
+            "type": "number"
+          },
+          "counts": {
+            "$ref": "#/components/schemas/AttendanceSummaryCountsDto"
+          }
+        },
+        "required": [
+          "attendanceDate",
+          "campusId",
+          "campusName",
+          "className",
+          "sectionName",
+          "totalStudents",
+          "counts"
         ]
       },
       "InstitutionDto": {

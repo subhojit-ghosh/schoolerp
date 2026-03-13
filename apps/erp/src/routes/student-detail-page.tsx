@@ -55,6 +55,8 @@ export function StudentDetailPage() {
         admissionNumber: "",
         firstName: "",
         lastName: "",
+        className: "",
+        sectionName: "",
         campusId: session?.activeCampus?.id ?? "",
         guardians: [],
       };
@@ -64,6 +66,8 @@ export function StudentDetailPage() {
       admissionNumber: student.admissionNumber,
       firstName: student.firstName,
       lastName: student.lastName ?? "",
+      className: student.className,
+      sectionName: student.sectionName,
       campusId: student.campusId,
       guardians: student.guardians.map((guardian) => ({
         name: guardian.name,
@@ -178,7 +182,7 @@ export function StudentDetailPage() {
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              Admission {student.admissionNumber} • {student.campusName}
+              Admission {student.admissionNumber} • {student.className} {student.sectionName} • {student.campusName}
             </p>
           </div>
         </div>

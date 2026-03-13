@@ -141,6 +141,42 @@ export function StudentForm({
           />
           <Controller
             control={control}
+            name="className"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel htmlFor="class-name">Class</FieldLabel>
+                <FieldContent>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    id="class-name"
+                    placeholder="Grade 7"
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+          <Controller
+            control={control}
+            name="sectionName"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel htmlFor="section-name">Section</FieldLabel>
+                <FieldContent>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    id="section-name"
+                    placeholder="A"
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+          <Controller
+            control={control}
             name="lastName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>

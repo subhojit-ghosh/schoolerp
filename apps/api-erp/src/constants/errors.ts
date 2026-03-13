@@ -34,4 +34,11 @@ export const ERROR_MESSAGES = {
       "Select another academic year as current before archiving this one.",
     YEAR_NOT_FOUND: "The selected academic year was not found.",
   },
+  ATTENDANCE: {
+    CLASS_SECTION_REQUIRED: "Class and section are required for attendance.",
+    NO_STUDENTS_FOUND:
+      "No students were found for the selected campus, class, and section.",
+    ROSTER_MISMATCH:
+      "Attendance must be submitted for the full class roster returned by the API.",
+  },
 } as const;

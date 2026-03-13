@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { campus, member, organization } from "./auth";
+import { ATTENDANCE_STATUSES } from "@repo/contracts";
 
 export const academicYears = pgTable(
   "academic_years",
@@ -156,6 +157,8 @@ export const students = pgTable(
     admissionNumber: text("admission_number").notNull(),
     firstName: text("first_name").notNull(),
     lastName: text("last_name"),
+    className: text("class_name").notNull(),
+    sectionName: text("section_name").notNull(),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),
   },
@@ -168,6 +171,64 @@ export const students = pgTable(
     uniqueIndex("students_admission_number_unique_idx")
       .on(table.institutionId, table.admissionNumber)
       .where(sql`${table.deletedAt} IS NULL`),
+    index("students_class_section_idx").on(
+      table.institutionId,
+      table.className,
+      table.sectionName,
+    ),
+  ],
+);
+
+export const attendanceRecords = pgTable(
+  "attendance_records",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text("campus_id")
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    studentId: text("student_id")
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    attendanceDate: date("attendance_date").notNull(),
+    className: text("class_name").notNull(),
+    sectionName: text("section_name").notNull(),
+    status: text("status", {
+      enum: [
+        ATTENDANCE_STATUSES.PRESENT,
+        ATTENDANCE_STATUSES.ABSENT,
+        ATTENDANCE_STATUSES.LATE,
+        ATTENDANCE_STATUSES.EXCUSED,
+      ],
+    }).notNull(),
+    markedByMembershipId: text("marked_by_membership_id")
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+  },
+  (table) => [
+    unique("attendance_records_student_date_unique").on(
+      table.institutionId,
+      table.studentId,
+      table.attendanceDate,
+    ),
+    index("attendance_records_day_idx").on(
+      table.institutionId,
+      table.attendanceDate,
+    ),
+    index("attendance_records_scope_idx").on(
+      table.institutionId,
+      table.campusId,
+      table.attendanceDate,
+      table.className,
+      table.sectionName,
+    ),
   ],
 );
 

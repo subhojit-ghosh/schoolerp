@@ -29,6 +29,7 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 - Lock the next backend boundary on top of the new auth foundation:
   - extend authorization primitives and capability-driven APIs
   - turn the first student domain slice into institution-admin workflows
+  - add the first attendance workflow around daily class-section entry and day views
   - keep the temporary ERP frontend thin over backend-owned rules
 - Keep delivery integrations pragmatic:
   - replace recovery preview delivery with real SMS/email adapters when infra is ready
@@ -45,7 +46,6 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 - Expand ERP domains after the identity and tenant core is stable:
   - staff
   - academics
-  - attendance
   - exams
   - fees
 - Move more shared UI and shared backend primitives into packages as patterns settle.

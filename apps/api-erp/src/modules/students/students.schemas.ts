@@ -37,6 +37,8 @@ export const createStudentSchema = z.object({
     .min(ADMISSION_NUMBER_MIN_LENGTH, "Admission number is required"),
   firstName: z.string().trim().min(NAME_MIN_LENGTH, "First name is required"),
   lastName: z.string().trim().optional(),
+  className: z.string().trim().min(NAME_MIN_LENGTH, "Class is required"),
+  sectionName: z.string().trim().min(NAME_MIN_LENGTH, "Section is required"),
   campusId: z.uuid(),
   guardians: z
     .array(createGuardianLinkSchema)

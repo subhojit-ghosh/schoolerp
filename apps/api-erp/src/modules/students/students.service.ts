@@ -123,6 +123,8 @@ export class StudentsService {
           admissionNumber: payload.admissionNumber.trim(),
           firstName: payload.firstName.trim(),
           lastName: payload.lastName?.trim() || null,
+          className: payload.className.trim(),
+          sectionName: payload.sectionName.trim(),
         })
         .where(eq(students.id, studentId));
 
@@ -210,6 +212,8 @@ export class StudentsService {
         admissionNumber: students.admissionNumber,
         firstName: students.firstName,
         lastName: students.lastName,
+        className: students.className,
+        sectionName: students.sectionName,
         campusId: campus.id,
         campusName: campus.name,
         status: member.status,
@@ -280,6 +284,8 @@ export class StudentsService {
         admissionNumber: payload.admissionNumber.trim(),
         firstName: payload.firstName.trim(),
         lastName: payload.lastName?.trim() || null,
+        className: payload.className.trim(),
+        sectionName: payload.sectionName.trim(),
       });
 
       for (const guardianPayload of payload.guardians) {

@@ -314,6 +314,58 @@ export interface paths {
         patch: operations["AcademicYearsController_restoreAcademicYear"];
         trace?: never;
     };
+    "/institutions/{institutionId}/attendance/class-sections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available class-section combinations for attendance */
+        get: operations["AttendanceController_listClassSections"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/attendance/day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the attendance roster for a class-section and day */
+        get: operations["AttendanceController_listAttendanceDay"];
+        put?: never;
+        /** Create or update daily attendance for a class-section */
+        post: operations["AttendanceController_upsertAttendanceDay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/attendance/day-view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List simple attendance summaries for a day */
+        get: operations["AttendanceController_listAttendanceDayView"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/institutions": {
         parameters: {
             query?: never;
@@ -553,6 +605,8 @@ export interface components {
             admissionNumber: string;
             firstName: string;
             lastName?: string | null;
+            className: string;
+            sectionName: string;
             fullName: string;
             campusId: string;
             campusName: string;
@@ -572,6 +626,8 @@ export interface components {
             admissionNumber: string;
             firstName: string;
             lastName?: string | null;
+            className: string;
+            sectionName: string;
             campusId: string;
             guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
         };
@@ -579,6 +635,8 @@ export interface components {
             admissionNumber: string;
             firstName: string;
             lastName?: string | null;
+            className: string;
+            sectionName: string;
             campusId: string;
             guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
         };
@@ -598,6 +656,54 @@ export interface components {
             startDate: string;
             endDate: string;
             makeCurrent: boolean;
+        };
+        AttendanceClassSectionDto: {
+            className: string;
+            sectionName: string;
+            studentCount: number;
+        };
+        AttendanceStudentEntryDto: {
+            studentId: string;
+            admissionNumber: string;
+            fullName: string;
+            /** @enum {string|null} */
+            status: "present" | "absent" | "late" | "excused" | null;
+        };
+        AttendanceDayDto: {
+            attendanceDate: string;
+            campusId: string;
+            campusName: string;
+            className: string;
+            sectionName: string;
+            totalStudents: number;
+            entries: components["schemas"]["AttendanceStudentEntryDto"][];
+        };
+        AttendanceDayEntryBodyDto: {
+            studentId: string;
+            /** @enum {string} */
+            status: "present" | "absent" | "late" | "excused";
+        };
+        UpsertAttendanceDayBodyDto: {
+            attendanceDate: string;
+            campusId: string;
+            className: string;
+            sectionName: string;
+            entries: components["schemas"]["AttendanceDayEntryBodyDto"][];
+        };
+        AttendanceSummaryCountsDto: {
+            present: number;
+            absent: number;
+            late: number;
+            excused: number;
+        };
+        AttendanceDayViewItemDto: {
+            attendanceDate: string;
+            campusId: string;
+            campusName: string;
+            className: string;
+            sectionName: string;
+            totalStudents: number;
+            counts: components["schemas"]["AttendanceSummaryCountsDto"];
         };
         InstitutionDto: {
             id: string;
@@ -1167,6 +1273,103 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    AttendanceController_listClassSections: {
+        parameters: {
+            query: {
+                campusId: string;
+            };
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceClassSectionDto"][];
+                };
+            };
+        };
+    };
+    AttendanceController_listAttendanceDay: {
+        parameters: {
+            query: {
+                attendanceDate: string;
+                campusId: string;
+                className: string;
+                sectionName: string;
+            };
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceDayDto"];
+                };
+            };
+        };
+    };
+    AttendanceController_upsertAttendanceDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertAttendanceDayBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceDayDto"];
+                };
+            };
+        };
+    };
+    AttendanceController_listAttendanceDayView: {
+        parameters: {
+            query: {
+                attendanceDate: string;
+            };
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceDayViewItemDto"][];
+                };
             };
         };
     };
