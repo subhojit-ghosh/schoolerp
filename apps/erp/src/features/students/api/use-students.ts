@@ -6,13 +6,7 @@ export function useStudentsQuery(institutionId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
     STUDENTS_API_PATHS.LIST,
-    {
-      params: {
-        path: {
-          institutionId: institutionId ?? "",
-        },
-      },
-    },
+    undefined,
     {
       enabled: Boolean(institutionId),
     },
@@ -29,17 +23,7 @@ export function useCreateStudentMutation(institutionId: string | undefined) {
       }
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          STUDENTS_API_PATHS.LIST,
-          {
-            params: {
-              path: {
-                institutionId,
-              },
-            },
-          },
-        ).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.LIST).queryKey,
       });
     },
   });
@@ -55,7 +39,6 @@ export function useStudentQuery(
     {
       params: {
         path: {
-          institutionId: institutionId ?? "",
           studentId: studentId ?? "",
         },
       },
@@ -76,17 +59,7 @@ export function useUpdateStudentMutation(institutionId: string | undefined) {
       }
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          STUDENTS_API_PATHS.LIST,
-          {
-            params: {
-              path: {
-                institutionId,
-              },
-            },
-          },
-        ).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.LIST).queryKey,
       });
 
       void queryClient.invalidateQueries({
@@ -96,7 +69,6 @@ export function useUpdateStudentMutation(institutionId: string | undefined) {
           {
             params: {
               path: {
-                institutionId,
                 studentId: variables.params.path.studentId,
               },
             },

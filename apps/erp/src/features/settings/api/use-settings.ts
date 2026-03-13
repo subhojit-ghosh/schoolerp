@@ -1,5 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 
+import { INSTITUTIONS_API_PATHS } from "@/features/auth/api/auth.constants";
+
 const API_BASE = import.meta.env.VITE_API_URL ?? "/api";
 
 export type UpdateBrandingBody = {
@@ -40,7 +42,7 @@ export function useUpdateBrandingMutation(institutionId: string | undefined) {
       }
 
       const response = await fetch(
-        `${API_BASE}/institutions/${institutionId}/branding`,
+        `${API_BASE}${INSTITUTIONS_API_PATHS.UPDATE_BRANDING}`,
         {
           method: "PATCH",
           credentials: "include",

@@ -8,7 +8,7 @@ import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES } from "../../constants";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
-import type { CreateClassDto, UpdateClassDto } from "./classes.schemas";
+import type { CreateClassDto, SetClassStatusDto, UpdateClassDto } from "./classes.schemas";
 
 @Injectable()
 export class ClassesService {
@@ -50,7 +50,6 @@ export class ClassesService {
 
     const selectedCampus = await this.getCampus(institutionId, payload.campusId);
     await this.assertClassNameAvailable(institutionId, selectedCampus.id, payload.name);
-    await this.assertClassCodeAvailable(institutionId, payload.code);
 
     const createdClassId = randomUUID();
 
@@ -60,7 +59,6 @@ export class ClassesService {
         institutionId,
         campusId: selectedCampus.id,
         name: payload.name.trim(),
-        code: payload.code?.trim() || null,
         displayOrder: await this.getNextClassDisplayOrder(tx, institutionId),
       });
 
@@ -94,7 +92,6 @@ export class ClassesService {
       payload.name,
       classId,
     );
-    await this.assertClassCodeAvailable(institutionId, payload.code, classId);
 
     await this.db.transaction(async (tx) => {
       await tx
@@ -102,7 +99,6 @@ export class ClassesService {
         .set({
           campusId: selectedCampus.id,
           name: payload.name.trim(),
-          code: payload.code?.trim() || null,
         })
         .where(eq(schoolClasses.id, classId));
 
@@ -170,6 +166,47 @@ export class ClassesService {
     return this.getClass(institutionId, classId, authSession);
   }
 
+  async setClassStatus(
+    institutionId: string,
+    classId: string,
+    authSession: AuthenticatedSession,
+    payload: SetClassStatusDto,
+  ) {
+    await this.requireInstitutionAccess(authSession, institutionId);
+    await this.getClassOrThrow(institutionId, classId);
+
+    await this.db
+      .update(schoolClasses)
+      .set({ isActive: payload.isActive })
+      .where(
+        and(
+          eq(schoolClasses.id, classId),
+          eq(schoolClasses.institutionId, institutionId),
+        ),
+      );
+
+    return this.getClass(institutionId, classId, authSession);
+  }
+
+  async deleteClass(
+    institutionId: string,
+    classId: string,
+    authSession: AuthenticatedSession,
+  ) {
+    await this.requireInstitutionAccess(authSession, institutionId);
+    await this.getClassOrThrow(institutionId, classId);
+
+    await this.db
+      .update(schoolClasses)
+      .set({ deletedAt: new Date() })
+      .where(
+        and(
+          eq(schoolClasses.id, classId),
+          eq(schoolClasses.institutionId, institutionId),
+        ),
+      );
+  }
+
   private async listClassesForInstitution(
     institutionId: string,
     classId?: string,
@@ -181,7 +218,7 @@ export class ClassesService {
         campusId: schoolClasses.campusId,
         campusName: campus.name,
         name: schoolClasses.name,
-        code: schoolClasses.code,
+        isActive: schoolClasses.isActive,
         displayOrder: schoolClasses.displayOrder,
       })
       .from(schoolClasses)
@@ -313,34 +350,6 @@ export class ClassesService {
 
     if (existingClass && existingClass.id !== classIdToIgnore) {
       throw new ConflictException(ERROR_MESSAGES.CLASSES.CLASS_NAME_EXISTS);
-    }
-  }
-
-  private async assertClassCodeAvailable(
-    institutionId: string,
-    code: string | undefined,
-    classIdToIgnore?: string,
-  ) {
-    if (!code?.trim()) {
-      return;
-    }
-
-    const [existingClass] = await this.db
-      .select({
-        id: schoolClasses.id,
-      })
-      .from(schoolClasses)
-      .where(
-        and(
-          eq(schoolClasses.institutionId, institutionId),
-          eq(schoolClasses.code, code.trim()),
-          isNull(schoolClasses.deletedAt),
-        ),
-      )
-      .limit(1);
-
-    if (existingClass && existingClass.id !== classIdToIgnore) {
-      throw new ConflictException(ERROR_MESSAGES.CLASSES.CLASS_CODE_EXISTS);
     }
   }
 

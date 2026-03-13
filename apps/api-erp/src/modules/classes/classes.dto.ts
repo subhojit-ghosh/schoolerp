@@ -12,9 +12,6 @@ export class CreateClassBodyDto {
   @ApiProperty()
   name!: string;
 
-  @ApiPropertyOptional({ nullable: true })
-  code?: string | null;
-
   @ApiProperty()
   campusId!: string;
 
@@ -28,9 +25,6 @@ export class CreateClassBodyDto {
 export class UpdateClassBodyDto {
   @ApiProperty()
   name!: string;
-
-  @ApiPropertyOptional({ nullable: true })
-  code?: string | null;
 
   @ApiProperty()
   campusId!: string;
@@ -53,6 +47,11 @@ export class ClassSectionDto {
   displayOrder!: number;
 }
 
+export class SetClassStatusBodyDto {
+  @ApiProperty()
+  isActive!: boolean;
+}
+
 export class ClassDto {
   @ApiProperty()
   id!: string;
@@ -69,8 +68,8 @@ export class ClassDto {
   @ApiProperty()
   name!: string;
 
-  @ApiPropertyOptional({ nullable: true })
-  code!: string | null;
+  @ApiProperty()
+  isActive!: boolean;
 
   @ApiProperty()
   displayOrder!: number;

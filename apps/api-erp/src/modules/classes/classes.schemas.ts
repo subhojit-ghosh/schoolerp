@@ -20,12 +20,6 @@ function hasUniqueSectionNames(
 export const createClassSchema = z
   .object({
     name: z.string().trim().min(CLASS_NAME_MIN_LENGTH, "Class name is required"),
-    code: z
-      .string()
-      .trim()
-      .optional()
-      .or(z.literal(""))
-      .transform((value) => value || undefined),
     campusId: z.uuid(),
     sections: z.array(sectionSchema).min(1, "Add at least one section"),
   })
@@ -36,12 +30,17 @@ export const createClassSchema = z
 
 export const updateClassSchema = createClassSchema;
 
+export const setClassStatusSchema = z.object({
+  isActive: z.boolean(),
+});
+
 export const classIdSchema = z.object({
   classId: z.uuid(),
 });
 
 export type CreateClassDto = z.infer<typeof createClassSchema>;
 export type UpdateClassDto = z.infer<typeof updateClassSchema>;
+export type SetClassStatusDto = z.infer<typeof setClassStatusSchema>;
 
 function parseSchema<T>(schema: z.ZodType<T>, input: unknown): T {
   const result = schema.safeParse(input);
@@ -59,4 +58,8 @@ export function parseCreateClass(body: unknown): CreateClassDto {
 
 export function parseUpdateClass(body: unknown): UpdateClassDto {
   return parseSchema(updateClassSchema, body);
+}
+
+export function parseSetClassStatus(body: unknown): SetClassStatusDto {
+  return parseSchema(setClassStatusSchema, body);
 }

@@ -18,6 +18,6 @@ import { SessionAuthGuard } from "./session-auth.guard";
     LocalStrategy,
     SessionAuthGuard,
   ],
-  exports: [AuthService, SessionAuthGuard],
+  exports: [AuthService, SessionAuthGuard, TenantContextModule],
 })
 export class AuthModule {}

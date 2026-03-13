@@ -130,7 +130,6 @@ export function GuardianDetailPage() {
     await updateGuardianMutation.mutateAsync({
       params: {
         path: {
-          institutionId,
           guardianId,
         },
       },
@@ -148,7 +147,6 @@ export function GuardianDetailPage() {
     await linkStudentMutation.mutateAsync({
       params: {
         path: {
-          institutionId,
           guardianId,
         },
       },
@@ -347,7 +345,6 @@ export function GuardianDetailPage() {
                       await unlinkStudentMutation.mutateAsync({
                         params: {
                           path: {
-                            institutionId,
                             guardianId,
                             studentId: linkedStudent.studentId,
                           },
@@ -364,7 +361,6 @@ export function GuardianDetailPage() {
                       await updateStudentLinkMutation.mutateAsync({
                         params: {
                           path: {
-                            institutionId,
                             guardianId,
                             studentId: linkedStudent.studentId,
                           },

@@ -83,7 +83,6 @@ export function StaffDetailPage() {
     await updateStaffMutation.mutateAsync({
       params: {
         path: {
-          institutionId,
           staffId,
         },
       },

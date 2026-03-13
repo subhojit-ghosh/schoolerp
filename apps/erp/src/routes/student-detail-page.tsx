@@ -101,7 +101,6 @@ export function StudentDetailPage() {
     await updateStudentMutation.mutateAsync({
       params: {
         path: {
-          institutionId,
           studentId,
         },
       },

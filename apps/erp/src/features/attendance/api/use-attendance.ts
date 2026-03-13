@@ -15,9 +15,6 @@ export function useAttendanceClassSectionsQuery(
     ATTENDANCE_API_PATHS.CLASS_SECTIONS,
     {
       params: {
-        path: {
-          institutionId: institutionId ?? "",
-        },
         query: {
           campusId: campusId ?? "",
         },
@@ -38,9 +35,6 @@ export function useAttendanceDayQuery(
     ATTENDANCE_API_PATHS.DAY,
     {
       params: {
-        path: {
-          institutionId: institutionId ?? "",
-        },
         query: {
           attendanceDate: filters?.attendanceDate ?? "",
           campusId: filters?.campusId ?? "",
@@ -70,9 +64,6 @@ export function useAttendanceDayViewQuery(
     ATTENDANCE_API_PATHS.DAY_VIEW,
     {
       params: {
-        path: {
-          institutionId: institutionId ?? "",
-        },
         query: {
           attendanceDate: filters.attendanceDate,
         },
@@ -104,9 +95,6 @@ export function useUpsertAttendanceDayMutation(
             ATTENDANCE_API_PATHS.DAY,
             {
               params: {
-                path: {
-                  institutionId,
-                },
                 query: {
                   attendanceDate: activeFilters.attendanceDate,
                   campusId: activeFilters.campusId,
@@ -125,9 +113,6 @@ export function useUpsertAttendanceDayMutation(
           ATTENDANCE_API_PATHS.DAY_VIEW,
           {
             params: {
-              path: {
-                institutionId,
-              },
               query: {
                 attendanceDate: dayViewFilters.attendanceDate,
               },

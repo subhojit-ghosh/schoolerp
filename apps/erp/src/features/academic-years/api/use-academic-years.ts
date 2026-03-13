@@ -2,17 +2,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import { apiQueryClient } from "@/lib/api/client";
 import { ACADEMIC_YEARS_API_PATHS } from "@/features/auth/api/auth.constants";
 
-function getAcademicYearsListQueryKey(institutionId: string) {
+function getAcademicYearsListQueryKey(_institutionId: string) {
   return apiQueryClient.queryOptions(
     "get",
     ACADEMIC_YEARS_API_PATHS.LIST,
-    {
-      params: {
-        path: {
-          institutionId,
-        },
-      },
-    },
+    undefined,
   ).queryKey;
 }
 
@@ -20,13 +14,7 @@ export function useAcademicYearsQuery(institutionId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
     ACADEMIC_YEARS_API_PATHS.LIST,
-    {
-      params: {
-        path: {
-          institutionId: institutionId ?? "",
-        },
-      },
-    },
+    undefined,
     {
       enabled: Boolean(institutionId),
     },
@@ -43,7 +31,6 @@ export function useAcademicYearQuery(
     {
       params: {
         path: {
-          institutionId: institutionId ?? "",
           academicYearId: academicYearId ?? "",
         },
       },
@@ -90,7 +77,6 @@ export function useUpdateAcademicYearMutation(institutionId: string | undefined)
           {
             params: {
               path: {
-                institutionId,
                 academicYearId: variables.params.path.academicYearId,
               },
             },

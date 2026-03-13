@@ -67,11 +67,6 @@ export function AcademicYearsPage() {
     }
 
     const createdAcademicYear = await createAcademicYearMutation.mutateAsync({
-      params: {
-        path: {
-          institutionId,
-        },
-      },
       body: values,
     });
 
@@ -87,7 +82,6 @@ export function AcademicYearsPage() {
     await updateAcademicYearMutation.mutateAsync({
       params: {
         path: {
-          institutionId,
           academicYearId: selectedAcademicYearId,
         },
       },

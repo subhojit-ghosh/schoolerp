@@ -1,7 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -10,94 +13,118 @@ import {
 import {
   ApiBody,
   ApiCookieAuth,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES } from "../../constants";
 import { CurrentSession } from "../auth/current-session.decorator";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
+import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
+import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
+import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   ClassDto,
   CreateClassBodyDto,
+  SetClassStatusBodyDto,
   UpdateClassBodyDto,
 } from "./classes.dto";
-import { parseCreateClass, parseUpdateClass } from "./classes.schemas";
+import { parseCreateClass, parseSetClassStatus, parseUpdateClass } from "./classes.schemas";
 import { ClassesService } from "./classes.service";
 
 @ApiTags(API_DOCS.TAGS.CLASSES)
-@Controller(`${API_ROUTES.INSTITUTIONS}/:institutionId/${API_ROUTES.CLASSES}`)
+@ApiCookieAuth()
+@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@Controller(API_ROUTES.CLASSES)
 export class ClassesController {
   constructor(private readonly classesService: ClassesService) {}
 
-  @UseGuards(SessionAuthGuard)
   @Get()
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "List classes for an institution" })
-  @ApiParam({ name: "institutionId", type: String })
+  @ApiOperation({ summary: "List classes for the current tenant institution" })
   @ApiOkResponse({ type: ClassDto, isArray: true })
   listClasses(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.classesService.listClasses(institutionId, authSession);
+    return this.classesService.listClasses(institution.id, authSession);
   }
 
-  @UseGuards(SessionAuthGuard)
   @Post()
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Create a class with sections" })
-  @ApiParam({ name: "institutionId", type: String })
+  @ApiOperation({ summary: "Create a class with sections for the current tenant" })
   @ApiBody({ type: CreateClassBodyDto })
   @ApiOkResponse({ type: ClassDto })
   createClass(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: CreateClassBodyDto,
   ) {
     return this.classesService.createClass(
-      institutionId,
+      institution.id,
       authSession,
       parseCreateClass(body),
     );
   }
 
-  @UseGuards(SessionAuthGuard)
   @Get(":classId")
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Get a class with sections" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "classId", type: String })
+  @ApiOperation({ summary: "Get a class with sections for the current tenant" })
   @ApiOkResponse({ type: ClassDto })
   getClass(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("classId") classId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.classesService.getClass(institutionId, classId, authSession);
+    return this.classesService.getClass(institution.id, classId, authSession);
   }
 
-  @UseGuards(SessionAuthGuard)
   @Patch(":classId")
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Update a class and reconcile sections" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "classId", type: String })
+  @ApiOperation({
+    summary: "Update a class and reconcile sections for the current tenant",
+  })
   @ApiBody({ type: UpdateClassBodyDto })
   @ApiOkResponse({ type: ClassDto })
   updateClass(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("classId") classId: string,
     @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: UpdateClassBodyDto,
   ) {
     return this.classesService.updateClass(
-      institutionId,
+      institution.id,
       classId,
       authSession,
       parseUpdateClass(body),
     );
+  }
+
+  @Patch(":classId/status")
+  @ApiOperation({ summary: "Enable or disable a class for the current tenant" })
+  @ApiBody({ type: SetClassStatusBodyDto })
+  @ApiOkResponse({ type: ClassDto })
+  setClassStatus(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("classId") classId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @Body() body: SetClassStatusBodyDto,
+  ) {
+    return this.classesService.setClassStatus(
+      institution.id,
+      classId,
+      authSession,
+      parseSetClassStatus(body),
+    );
+  }
+
+  @Delete(":classId")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Delete a class for the current tenant" })
+  @ApiNoContentResponse()
+  deleteClass(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("classId") classId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+  ) {
+    return this.classesService.deleteClass(institution.id, classId, authSession);
   }
 }

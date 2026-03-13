@@ -99,11 +99,6 @@ export function ExamsPage() {
     }
 
     const createdTerm = await createExamTermMutation.mutateAsync({
-      params: {
-        path: {
-          institutionId,
-        },
-      },
       body: values,
     });
 
@@ -119,7 +114,6 @@ export function ExamsPage() {
     await replaceMarksMutation.mutateAsync({
       params: {
         path: {
-          institutionId,
           examTermId: selectedExamTermId,
         },
       },

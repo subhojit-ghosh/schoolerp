@@ -324,6 +324,7 @@ export const schoolClasses = pgTable(
       .references(() => campus.id, { onDelete: "restrict" }),
     name: text("name").notNull(),
     code: text("code"),
+    isActive: boolean("is_active").notNull().default(true),
     displayOrder: integer("display_order").notNull().default(0),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),

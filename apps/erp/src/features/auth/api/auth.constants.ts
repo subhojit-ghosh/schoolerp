@@ -15,69 +15,67 @@ export const ONBOARDING_API_PATHS = {
 } as const;
 
 export const STUDENTS_API_PATHS = {
-  LIST: "/institutions/{institutionId}/students",
-  CREATE: "/institutions/{institutionId}/students",
-  DETAIL: "/institutions/{institutionId}/students/{studentId}",
-  UPDATE: "/institutions/{institutionId}/students/{studentId}",
+  LIST: "/students",
+  CREATE: "/students",
+  DETAIL: "/students/{studentId}",
+  UPDATE: "/students/{studentId}",
 } as const;
 
 export const STAFF_API_PATHS = {
-  LIST: "/institutions/{institutionId}/staff",
-  CREATE: "/institutions/{institutionId}/staff",
-  DETAIL: "/institutions/{institutionId}/staff/{staffId}",
-  UPDATE: "/institutions/{institutionId}/staff/{staffId}",
-  ROLES: "/institutions/{institutionId}/staff/roles",
+  LIST: "/staff",
+  CREATE: "/staff",
+  DETAIL: "/staff/{staffId}",
+  UPDATE: "/staff/{staffId}",
+  ROLES: "/staff/roles",
 } as const;
 
 export const GUARDIANS_API_PATHS = {
-  LIST: "/institutions/{institutionId}/guardians",
-  DETAIL: "/institutions/{institutionId}/guardians/{guardianId}",
-  UPDATE: "/institutions/{institutionId}/guardians/{guardianId}",
-  LINK_STUDENT:
-    "/institutions/{institutionId}/guardians/{guardianId}/students",
-  UPDATE_STUDENT_LINK:
-    "/institutions/{institutionId}/guardians/{guardianId}/students/{studentId}",
-  UNLINK_STUDENT:
-    "/institutions/{institutionId}/guardians/{guardianId}/students/{studentId}",
+  LIST: "/guardians",
+  DETAIL: "/guardians/{guardianId}",
+  UPDATE: "/guardians/{guardianId}",
+  LINK_STUDENT: "/guardians/{guardianId}/students",
+  UPDATE_STUDENT_LINK: "/guardians/{guardianId}/students/{studentId}",
+  UNLINK_STUDENT: "/guardians/{guardianId}/students/{studentId}",
 } as const;
 
 export const ACADEMIC_YEARS_API_PATHS = {
-  LIST: "/institutions/{institutionId}/academic-years",
-  CREATE: "/institutions/{institutionId}/academic-years",
-  DETAIL: "/institutions/{institutionId}/academic-years/{academicYearId}",
-  UPDATE: "/institutions/{institutionId}/academic-years/{academicYearId}",
+  LIST: "/academic-years",
+  CREATE: "/academic-years",
+  DETAIL: "/academic-years/{academicYearId}",
+  UPDATE: "/academic-years/{academicYearId}",
 } as const;
 
 export const CLASSES_API_PATHS = {
-  LIST: "/institutions/{institutionId}/classes",
-  CREATE: "/institutions/{institutionId}/classes",
-  DETAIL: "/institutions/{institutionId}/classes/{classId}",
-  UPDATE: "/institutions/{institutionId}/classes/{classId}",
+  LIST: "/classes",
+  CREATE: "/classes",
+  DETAIL: "/classes/{classId}",
+  UPDATE: "/classes/{classId}",
+  SET_STATUS: "/classes/{classId}/status",
+  DELETE: "/classes/{classId}",
 } as const;
 
 export const ATTENDANCE_API_PATHS = {
-  CLASS_SECTIONS: "/institutions/{institutionId}/attendance/class-sections",
-  DAY: "/institutions/{institutionId}/attendance/day",
-  DAY_VIEW: "/institutions/{institutionId}/attendance/day-view",
+  CLASS_SECTIONS: "/attendance/class-sections",
+  DAY: "/attendance/day",
+  DAY_VIEW: "/attendance/day-view",
 } as const;
 
 export const EXAMS_API_PATHS = {
-  LIST_TERMS: "/institutions/{institutionId}/exams/terms",
-  CREATE_TERM: "/institutions/{institutionId}/exams/terms",
-  LIST_MARKS: "/institutions/{institutionId}/exams/terms/{examTermId}/marks",
-  REPLACE_MARKS:
-    "/institutions/{institutionId}/exams/terms/{examTermId}/marks",
+  LIST_TERMS: "/exams/terms",
+  CREATE_TERM: "/exams/terms",
+  LIST_MARKS: "/exams/terms/{examTermId}/marks",
+  REPLACE_MARKS: "/exams/terms/{examTermId}/marks",
 } as const;
 
 export const INSTITUTIONS_API_PATHS = {
-  UPDATE_BRANDING: "/institutions/{id}/branding",
+  UPDATE_BRANDING: "/institutions/current/branding",
 } as const;
 
 export const FEES_API_PATHS = {
-  LIST_STRUCTURES: "/institutions/{institutionId}/fees/structures",
-  CREATE_STRUCTURE: "/institutions/{institutionId}/fees/structures",
-  LIST_ASSIGNMENTS: "/institutions/{institutionId}/fees/assignments",
-  CREATE_ASSIGNMENT: "/institutions/{institutionId}/fees/assignments",
-  CREATE_PAYMENT: "/institutions/{institutionId}/fees/payments",
-  LIST_DUES: "/institutions/{institutionId}/fees/dues",
+  LIST_STRUCTURES: "/fees/structures",
+  CREATE_STRUCTURE: "/fees/structures",
+  LIST_ASSIGNMENTS: "/fees/assignments",
+  CREATE_ASSIGNMENT: "/fees/assignments",
+  CREATE_PAYMENT: "/fees/payments",
+  LIST_DUES: "/fees/dues",
 } as const;

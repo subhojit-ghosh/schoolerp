@@ -2,28 +2,21 @@ import { useQueryClient } from "@tanstack/react-query";
 import { GUARDIANS_API_PATHS, STUDENTS_API_PATHS } from "@/features/auth/api/auth.constants";
 import { apiQueryClient } from "@/lib/api/client";
 
-function invalidateGuardianList(queryClient: ReturnType<typeof useQueryClient>, institutionId: string) {
+function invalidateGuardianList(queryClient: ReturnType<typeof useQueryClient>, _institutionId: string) {
   return queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", GUARDIANS_API_PATHS.LIST, {
-      params: {
-        path: {
-          institutionId,
-        },
-      },
-    }).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", GUARDIANS_API_PATHS.LIST).queryKey,
   });
 }
 
 function invalidateGuardianDetail(
   queryClient: ReturnType<typeof useQueryClient>,
-  institutionId: string,
+  _institutionId: string,
   guardianId: string,
 ) {
   return queryClient.invalidateQueries({
     queryKey: apiQueryClient.queryOptions("get", GUARDIANS_API_PATHS.DETAIL, {
       params: {
         path: {
-          institutionId,
           guardianId,
         },
       },
@@ -31,28 +24,21 @@ function invalidateGuardianDetail(
   });
 }
 
-function invalidateStudentsList(queryClient: ReturnType<typeof useQueryClient>, institutionId: string) {
+function invalidateStudentsList(queryClient: ReturnType<typeof useQueryClient>, _institutionId: string) {
   return queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.LIST, {
-      params: {
-        path: {
-          institutionId,
-        },
-      },
-    }).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.LIST).queryKey,
   });
 }
 
 function invalidateStudentDetail(
   queryClient: ReturnType<typeof useQueryClient>,
-  institutionId: string,
+  _institutionId: string,
   studentId: string,
 ) {
   return queryClient.invalidateQueries({
     queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.DETAIL, {
       params: {
         path: {
-          institutionId,
           studentId,
         },
       },
@@ -64,13 +50,7 @@ export function useGuardiansQuery(institutionId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
     GUARDIANS_API_PATHS.LIST,
-    {
-      params: {
-        path: {
-          institutionId: institutionId ?? "",
-        },
-      },
-    },
+    undefined,
     {
       enabled: Boolean(institutionId),
     },
@@ -87,7 +67,6 @@ export function useGuardianQuery(
     {
       params: {
         path: {
-          institutionId: institutionId ?? "",
           guardianId: guardianId ?? "",
         },
       },

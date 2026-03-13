@@ -64,11 +64,6 @@ export function StaffPage() {
     }
 
     await createStaffMutation.mutateAsync({
-      params: {
-        path: {
-          institutionId,
-        },
-      },
       body: values,
     });
 

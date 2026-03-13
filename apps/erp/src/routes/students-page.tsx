@@ -101,7 +101,6 @@ export function StudentsPage() {
     }
 
     await createStudentMutation.mutateAsync({
-      params: { path: { institutionId } },
       body: toStudentMutationBody(values),
     });
     setShowForm(false);

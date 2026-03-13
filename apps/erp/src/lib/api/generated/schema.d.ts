@@ -191,17 +191,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/campuses": {
+    "/campuses": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List campuses for an institution */
+        /** List campuses for the current tenant institution */
         get: operations["CampusesController_listCampuses"];
         put?: never;
-        /** Create a campus for an institution */
+        /** Create a campus for the current tenant institution */
         post: operations["CampusesController_createCampus"];
         delete?: never;
         options?: never;
@@ -209,17 +209,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/classes": {
+    "/classes": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List classes for an institution */
+        /** List classes for the current tenant institution */
         get: operations["ClassesController_listClasses"];
         put?: never;
-        /** Create a class with sections */
+        /** Create a class with sections for the current tenant */
         post: operations["ClassesController_createClass"];
         delete?: never;
         options?: never;
@@ -227,35 +227,53 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/classes/{classId}": {
+    "/classes/{classId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get a class with sections */
+        /** Get a class with sections for the current tenant */
         get: operations["ClassesController_getClass"];
+        put?: never;
+        post?: never;
+        /** Delete a class for the current tenant */
+        delete: operations["ClassesController_deleteClass"];
+        options?: never;
+        head?: never;
+        /** Update a class and reconcile sections for the current tenant */
+        patch: operations["ClassesController_updateClass"];
+        trace?: never;
+    };
+    "/classes/{classId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Update a class and reconcile sections */
-        patch: operations["ClassesController_updateClass"];
+        /** Enable or disable a class for the current tenant */
+        patch: operations["ClassesController_setClassStatus"];
         trace?: never;
     };
-    "/institutions/{institutionId}/students": {
+    "/students": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List students for an institution */
+        /** List students for the current tenant institution */
         get: operations["StudentsController_listStudents"];
         put?: never;
-        /** Create a student and link guardians */
+        /** Create a student and link guardians for the current tenant */
         post: operations["StudentsController_createStudent"];
         delete?: never;
         options?: never;
@@ -263,35 +281,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/students/{studentId}": {
+    "/students/{studentId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get a single student for an institution */
+        /** Get a single student for the current tenant institution */
         get: operations["StudentsController_getStudent"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Update a student and reconcile guardians */
+        /** Update a student and reconcile guardians for the current tenant */
         patch: operations["StudentsController_updateStudent"];
         trace?: never;
     };
-    "/institutions/{institutionId}/staff": {
+    "/staff": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List staff for an institution */
+        /** List staff for the current tenant institution */
         get: operations["StaffController_listStaff"];
         put?: never;
-        /** Create a staff membership for an institution */
+        /** Create a staff membership for the current tenant */
         post: operations["StaffController_createStaff"];
         delete?: never;
         options?: never;
@@ -299,14 +317,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/staff/roles": {
+    "/staff/roles": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List available staff roles for an institution */
+        /** List available staff roles for the current tenant */
         get: operations["StaffController_listRoles"];
         put?: never;
         post?: never;
@@ -316,32 +334,32 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/staff/{staffId}": {
+    "/staff/{staffId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get a single staff record for an institution */
+        /** Get a single staff record for the current tenant */
         get: operations["StaffController_getStaff"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        /** Update a staff membership for an institution */
+        /** Update a staff membership for the current tenant */
         patch: operations["StaffController_updateStaff"];
         trace?: never;
     };
-    "/institutions/{institutionId}/guardians": {
+    "/guardians": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List guardians for an institution */
+        /** List guardians for the current tenant institution */
         get: operations["GuardiansController_listGuardians"];
         put?: never;
         post?: never;
@@ -351,14 +369,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/guardians/{guardianId}": {
+    "/guardians/{guardianId}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get a single guardian for an institution */
+        /** Get a single guardian for the current tenant */
         get: operations["GuardiansController_getGuardian"];
         put?: never;
         post?: never;
@@ -369,7 +387,7 @@ export interface paths {
         patch: operations["GuardiansController_updateGuardian"];
         trace?: never;
     };
-    "/institutions/{institutionId}/guardians/{guardianId}/students": {
+    "/guardians/{guardianId}/students": {
         parameters: {
             query?: never;
             header?: never;
@@ -386,7 +404,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/guardians/{guardianId}/students/{studentId}": {
+    "/guardians/{guardianId}/students/{studentId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -404,17 +422,17 @@ export interface paths {
         patch: operations["GuardiansController_updateStudentLink"];
         trace?: never;
     };
-    "/institutions/{institutionId}/academic-years": {
+    "/academic-years": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List academic years for an institution */
+        /** List academic years for the current tenant institution */
         get: operations["AcademicYearsController_listAcademicYears"];
         put?: never;
-        /** Create an academic year for an institution */
+        /** Create an academic year for the current tenant */
         post: operations["AcademicYearsController_createAcademicYear"];
         delete?: never;
         options?: never;
@@ -422,7 +440,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/academic-years/{academicYearId}": {
+    "/academic-years/{academicYearId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -440,7 +458,7 @@ export interface paths {
         patch: operations["AcademicYearsController_updateAcademicYear"];
         trace?: never;
     };
-    "/institutions/{institutionId}/attendance/class-sections": {
+    "/attendance/class-sections": {
         parameters: {
             query?: never;
             header?: never;
@@ -457,7 +475,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/attendance/day": {
+    "/attendance/day": {
         parameters: {
             query?: never;
             header?: never;
@@ -475,7 +493,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/attendance/day-view": {
+    "/attendance/day-view": {
         parameters: {
             query?: never;
             header?: never;
@@ -492,17 +510,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/exams/terms": {
+    "/exams/terms": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List exam terms for an institution */
+        /** List exam terms for the current tenant institution */
         get: operations["ExamsController_listExamTerms"];
         put?: never;
-        /** Create an exam term for an institution */
+        /** Create an exam term for the current tenant */
         post: operations["ExamsController_createExamTerm"];
         delete?: never;
         options?: never;
@@ -510,7 +528,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/exams/terms/{examTermId}/marks": {
+    "/exams/terms/{examTermId}/marks": {
         parameters: {
             query?: never;
             header?: never;
@@ -528,17 +546,17 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/fees/structures": {
+    "/fees/structures": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List fee structures for an institution */
+        /** List fee structures for the current tenant institution */
         get: operations["FeesController_listFeeStructures"];
         put?: never;
-        /** Create a fee structure for an institution */
+        /** Create a fee structure for the current tenant */
         post: operations["FeesController_createFeeStructure"];
         delete?: never;
         options?: never;
@@ -546,14 +564,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/fees/assignments": {
+    "/fees/assignments": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List fee assignments for an institution */
+        /** List fee assignments for the current tenant institution */
         get: operations["FeesController_listFeeAssignments"];
         put?: never;
         /** Assign a fee structure to a student */
@@ -564,7 +582,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/fees/payments": {
+    "/fees/payments": {
         parameters: {
             query?: never;
             header?: never;
@@ -581,14 +599,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{institutionId}/fees/dues": {
+    "/fees/dues": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List outstanding fee dues for an institution */
+        /** List outstanding fee dues for the current tenant */
         get: operations["FeesController_listFeeDues"];
         put?: never;
         post?: never;
@@ -831,7 +849,7 @@ export interface components {
             campusId: string;
             campusName: string;
             name: string;
-            code?: string | null;
+            isActive: boolean;
             displayOrder: number;
             sections: components["schemas"]["ClassSectionDto"][];
         };
@@ -841,15 +859,16 @@ export interface components {
         };
         CreateClassBodyDto: {
             name: string;
-            code?: string | null;
             campusId: string;
             sections: components["schemas"]["ClassSectionBodyDto"][];
         };
         UpdateClassBodyDto: {
             name: string;
-            code?: string | null;
             campusId: string;
             sections: components["schemas"]["ClassSectionBodyDto"][];
+        };
+        SetClassStatusBodyDto: {
+            isActive: boolean;
         };
         StudentGuardianDto: {
             membershipId: string;
@@ -1508,9 +1527,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1529,9 +1546,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -1554,9 +1569,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1575,9 +1588,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -1601,7 +1612,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 classId: string;
             };
             cookie?: never;
@@ -1618,12 +1628,30 @@ export interface operations {
             };
         };
     };
+    ClassesController_deleteClass: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                classId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     ClassesController_updateClass: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 classId: string;
             };
             cookie?: never;
@@ -1644,13 +1672,36 @@ export interface operations {
             };
         };
     };
-    StudentsController_listStudents: {
+    ClassesController_setClassStatus: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
+                classId: string;
             };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetClassStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassDto"];
+                };
+            };
+        };
+    };
+    StudentsController_listStudents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1669,9 +1720,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -1695,7 +1744,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 studentId: string;
             };
             cookie?: never;
@@ -1717,7 +1765,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 studentId: string;
             };
             cookie?: never;
@@ -1742,9 +1789,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1763,9 +1808,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -1788,9 +1831,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1810,7 +1851,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 staffId: string;
             };
             cookie?: never;
@@ -1832,7 +1872,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 staffId: string;
             };
             cookie?: never;
@@ -1857,9 +1896,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -1879,7 +1916,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 guardianId: string;
             };
             cookie?: never;
@@ -1901,7 +1937,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 guardianId: string;
             };
             cookie?: never;
@@ -1927,7 +1962,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 guardianId: string;
             };
             cookie?: never;
@@ -1953,7 +1987,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 guardianId: string;
                 studentId: string;
             };
@@ -1976,7 +2009,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 guardianId: string;
                 studentId: string;
             };
@@ -2002,9 +2034,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2024,9 +2054,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -2051,7 +2079,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 academicYearId: string;
             };
             cookie?: never;
@@ -2074,7 +2101,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 academicYearId: string;
             };
             cookie?: never;
@@ -2102,9 +2128,7 @@ export interface operations {
                 campusId: string;
             };
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2128,9 +2152,7 @@ export interface operations {
                 sectionId: string;
             };
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2149,9 +2171,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -2176,9 +2196,7 @@ export interface operations {
                 attendanceDate: string;
             };
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2197,9 +2215,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2218,9 +2234,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -2244,7 +2258,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 examTermId: string;
             };
             cookie?: never;
@@ -2266,7 +2279,6 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                institutionId: string;
                 examTermId: string;
             };
             cookie?: never;
@@ -2291,9 +2303,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2312,9 +2322,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -2337,9 +2345,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;
@@ -2358,9 +2364,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -2383,9 +2387,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
@@ -2408,9 +2410,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                institutionId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody?: never;

@@ -6,13 +6,7 @@ export function useExamTermsQuery(institutionId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
     EXAMS_API_PATHS.LIST_TERMS,
-    {
-      params: {
-        path: {
-          institutionId: institutionId ?? "",
-        },
-      },
-    },
+    undefined,
     {
       enabled: Boolean(institutionId),
     },
@@ -29,13 +23,7 @@ export function useCreateExamTermMutation(institutionId: string | undefined) {
       }
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", EXAMS_API_PATHS.LIST_TERMS, {
-          params: {
-            path: {
-              institutionId,
-            },
-          },
-        }).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", EXAMS_API_PATHS.LIST_TERMS).queryKey,
       });
     },
   });
@@ -51,7 +39,6 @@ export function useExamMarksQuery(
     {
       params: {
         path: {
-          institutionId: institutionId ?? "",
           examTermId: examTermId ?? "",
         },
       },
@@ -75,7 +62,6 @@ export function useReplaceExamMarksMutation(institutionId: string | undefined) {
         queryKey: apiQueryClient.queryOptions("get", EXAMS_API_PATHS.LIST_MARKS, {
           params: {
             path: {
-              institutionId,
               examTermId: variables.params.path.examTermId,
             },
           },
@@ -83,13 +69,7 @@ export function useReplaceExamMarksMutation(institutionId: string | undefined) {
       });
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", EXAMS_API_PATHS.LIST_TERMS, {
-          params: {
-            path: {
-              institutionId,
-            },
-          },
-        }).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", EXAMS_API_PATHS.LIST_TERMS).queryKey,
       });
     },
   });

@@ -6,13 +6,7 @@ export function useStaffQuery(institutionId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
     STAFF_API_PATHS.LIST,
-    {
-      params: {
-        path: {
-          institutionId: institutionId ?? "",
-        },
-      },
-    },
+    undefined,
     {
       enabled: Boolean(institutionId),
     },
@@ -23,13 +17,7 @@ export function useStaffRolesQuery(institutionId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
     STAFF_API_PATHS.ROLES,
-    {
-      params: {
-        path: {
-          institutionId: institutionId ?? "",
-        },
-      },
-    },
+    undefined,
     {
       enabled: Boolean(institutionId),
     },
@@ -46,17 +34,7 @@ export function useCreateStaffMutation(institutionId: string | undefined) {
       }
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          STAFF_API_PATHS.LIST,
-          {
-            params: {
-              path: {
-                institutionId,
-              },
-            },
-          },
-        ).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", STAFF_API_PATHS.LIST).queryKey,
       });
     },
   });
@@ -72,7 +50,6 @@ export function useStaffDetailQuery(
     {
       params: {
         path: {
-          institutionId: institutionId ?? "",
           staffId: staffId ?? "",
         },
       },
@@ -93,17 +70,7 @@ export function useUpdateStaffMutation(institutionId: string | undefined) {
       }
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          STAFF_API_PATHS.LIST,
-          {
-            params: {
-              path: {
-                institutionId,
-              },
-            },
-          },
-        ).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", STAFF_API_PATHS.LIST).queryKey,
       });
 
       void queryClient.invalidateQueries({
@@ -113,7 +80,6 @@ export function useUpdateStaffMutation(institutionId: string | undefined) {
           {
             params: {
               path: {
-                institutionId,
                 staffId: variables.params.path.staffId,
               },
             },

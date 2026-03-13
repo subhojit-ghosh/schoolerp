@@ -21,6 +21,9 @@ import { API_DOCS, API_ROUTES } from "../../constants";
 import { CurrentSession } from "../auth/current-session.decorator";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
 import type { AuthenticatedSession } from "../auth/auth.types";
+import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
+import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
+import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   InstitutionCountsDto,
   InstitutionDto,
@@ -61,24 +64,27 @@ export class InstitutionsController {
     return this.institutionsService.countInstitutionsByStatus();
   }
 
-  @UseGuards(SessionAuthGuard)
-  @Patch(`:id/${API_ROUTES.BRANDING}`)
+  @UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+  @Patch(`${API_ROUTES.CURRENT}/${API_ROUTES.BRANDING}`)
   @ApiCookieAuth()
-  @ApiOperation({ summary: "Update branding colors for an institution" })
+  @ApiOperation({ summary: "Update branding colors for the current tenant institution" })
   @ApiBody({ type: UpdateBrandingBodyDto })
   @ApiOkResponse({ type: UpdateBrandingResponseDto })
   async updateBranding(
-    @Param("id") id: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Body() body: UpdateBrandingBodyDto,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    if (authSession.activeOrganizationId !== id) {
+    if (authSession.activeOrganizationId !== institution.id) {
       throw new ForbiddenException(
         "You do not have permission to update this institution.",
       );
     }
 
-    return this.institutionsService.updateBranding(id, parseUpdateBranding(body));
+    return this.institutionsService.updateBranding(
+      institution.id,
+      parseUpdateBranding(body),
+    );
   }
 
   @Get(":id")

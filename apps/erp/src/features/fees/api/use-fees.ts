@@ -4,22 +4,16 @@ import { apiQueryClient } from "@/lib/api/client";
 
 function invalidateFeesQueries(
   queryClient: ReturnType<typeof useQueryClient>,
-  institutionId: string,
+  _institutionId: string,
 ) {
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_STRUCTURES, {
-      params: { path: { institutionId } },
-    }).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_STRUCTURES).queryKey,
   });
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_ASSIGNMENTS, {
-      params: { path: { institutionId } },
-    }).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_ASSIGNMENTS).queryKey,
   });
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_DUES, {
-      params: { path: { institutionId } },
-    }).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_DUES).queryKey,
   });
 }
 
@@ -27,9 +21,7 @@ export function useFeeStructuresQuery(institutionId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
     FEES_API_PATHS.LIST_STRUCTURES,
-    {
-      params: { path: { institutionId: institutionId ?? "" } },
-    },
+    undefined,
     {
       enabled: Boolean(institutionId),
     },
@@ -54,9 +46,7 @@ export function useFeeAssignmentsQuery(institutionId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
     FEES_API_PATHS.LIST_ASSIGNMENTS,
-    {
-      params: { path: { institutionId: institutionId ?? "" } },
-    },
+    undefined,
     {
       enabled: Boolean(institutionId),
     },
@@ -97,9 +87,7 @@ export function useFeeDuesQuery(institutionId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
     FEES_API_PATHS.LIST_DUES,
-    {
-      params: { path: { institutionId: institutionId ?? "" } },
-    },
+    undefined,
     {
       enabled: Boolean(institutionId),
     },

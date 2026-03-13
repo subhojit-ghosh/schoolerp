@@ -5,13 +5,15 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES } from "../../constants";
 import { CurrentSession } from "../auth/current-session.decorator";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
+import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
+import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
+import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   AcademicYearDto,
   CreateAcademicYearBodyDto,
@@ -24,85 +26,71 @@ import {
 import { AcademicYearsService } from "./academic-years.service";
 
 @ApiTags(API_DOCS.TAGS.ACADEMIC_YEARS)
-@Controller(
-  `${API_ROUTES.INSTITUTIONS}/:institutionId/${API_ROUTES.ACADEMIC_YEARS}`,
-)
+@ApiCookieAuth()
+@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@Controller(API_ROUTES.ACADEMIC_YEARS)
 export class AcademicYearsController {
   constructor(private readonly academicYearsService: AcademicYearsService) {}
 
-  @UseGuards(SessionAuthGuard)
   @Get()
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "List academic years for an institution" })
-  @ApiParam({ name: "institutionId", type: String })
+  @ApiOperation({ summary: "List academic years for the current tenant institution" })
   @ApiOkResponse({
     description: "Academic years list",
     type: [AcademicYearDto],
   })
   listAcademicYears(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.academicYearsService.listAcademicYears(institutionId, authSession);
+    return this.academicYearsService.listAcademicYears(institution.id, authSession);
   }
 
-  @UseGuards(SessionAuthGuard)
   @Post()
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Create an academic year for an institution" })
-  @ApiParam({ name: "institutionId", type: String })
+  @ApiOperation({ summary: "Create an academic year for the current tenant" })
   @ApiBody({ type: CreateAcademicYearBodyDto })
   @ApiCreatedResponse({
     description: "Academic year created",
     type: AcademicYearDto,
   })
   createAcademicYear(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: CreateAcademicYearBodyDto,
   ) {
     return this.academicYearsService.createAcademicYear(
-      institutionId,
+      institution.id,
       authSession,
       parseCreateAcademicYear(body),
     );
   }
 
-  @UseGuards(SessionAuthGuard)
   @Get(":academicYearId")
-  @ApiCookieAuth()
   @ApiOperation({ summary: "Get a single academic year" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "academicYearId", type: String })
   @ApiOkResponse({ description: "Academic year detail", type: AcademicYearDto })
   getAcademicYear(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("academicYearId") academicYearId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
     return this.academicYearsService.getAcademicYear(
-      institutionId,
+      institution.id,
       academicYearId,
       authSession,
     );
   }
 
-  @UseGuards(SessionAuthGuard)
   @Patch(":academicYearId")
-  @ApiCookieAuth()
   @ApiOperation({ summary: "Update an academic year" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "academicYearId", type: String })
   @ApiBody({ type: UpdateAcademicYearBodyDto })
   @ApiOkResponse({ description: "Academic year updated", type: AcademicYearDto })
   updateAcademicYear(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("academicYearId") academicYearId: string,
     @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: UpdateAcademicYearBodyDto,
   ) {
     return this.academicYearsService.updateAcademicYear(
-      institutionId,
+      institution.id,
       academicYearId,
       authSession,
       parseUpdateAcademicYear(body),

@@ -153,11 +153,6 @@ export function AttendancePage() {
     }
 
     await saveAttendanceMutation.mutateAsync({
-      params: {
-        path: {
-          institutionId,
-        },
-      },
       body: values,
     });
 

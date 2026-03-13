@@ -4,46 +4,44 @@ import {
   ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES } from "../../constants";
 import { CurrentSession } from "../auth/current-session.decorator";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
+import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
+import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
+import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import { CampusDto, CreateCampusBodyDto } from "./campuses.dto";
 import { parseCreateCampus } from "./campuses.schemas";
 import { CampusesService } from "./campuses.service";
 
 @ApiTags(API_DOCS.TAGS.CAMPUSES)
-@Controller(`${API_ROUTES.INSTITUTIONS}/:institutionId/${API_ROUTES.CAMPUSES}`)
+@ApiCookieAuth()
+@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@Controller(API_ROUTES.CAMPUSES)
 export class CampusesController {
   constructor(private readonly campusesService: CampusesService) {}
 
-  @UseGuards(SessionAuthGuard)
   @Get()
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "List campuses for an institution" })
-  @ApiParam({ name: "institutionId", type: String })
+  @ApiOperation({ summary: "List campuses for the current tenant institution" })
   @ApiOkResponse({ type: CampusDto, isArray: true })
-  listCampuses(@Param("institutionId") institutionId: string) {
-    return this.campusesService.listCampuses(institutionId);
+  listCampuses(@CurrentInstitution() institution: TenantInstitution) {
+    return this.campusesService.listCampuses(institution.id);
   }
 
-  @UseGuards(SessionAuthGuard)
   @Post()
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Create a campus for an institution" })
-  @ApiParam({ name: "institutionId", type: String })
+  @ApiOperation({ summary: "Create a campus for the current tenant institution" })
   @ApiBody({ type: CreateCampusBodyDto })
   @ApiOkResponse({ type: CampusDto })
   createCampus(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: CreateCampusBodyDto,
   ) {
     return this.campusesService.createCampus(
-      institutionId,
+      institution.id,
       authSession.user.id,
       parseCreateCampus(body),
     );

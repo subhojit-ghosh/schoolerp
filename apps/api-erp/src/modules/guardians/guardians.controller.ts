@@ -13,13 +13,15 @@ import {
   ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES } from "../../constants";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { CurrentSession } from "../auth/current-session.decorator";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
+import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
+import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
+import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   GuardianDto,
   LinkGuardianStudentBodyDto,
@@ -34,104 +36,86 @@ import {
 import { GuardiansService } from "./guardians.service";
 
 @ApiTags(API_DOCS.TAGS.GUARDIANS)
-@Controller(`${API_ROUTES.INSTITUTIONS}/:institutionId/${API_ROUTES.GUARDIANS}`)
+@ApiCookieAuth()
+@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@Controller(API_ROUTES.GUARDIANS)
 export class GuardiansController {
   constructor(private readonly guardiansService: GuardiansService) {}
 
-  @UseGuards(SessionAuthGuard)
   @Get()
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "List guardians for an institution" })
-  @ApiParam({ name: "institutionId", type: String })
+  @ApiOperation({ summary: "List guardians for the current tenant institution" })
   @ApiOkResponse({ type: GuardianDto, isArray: true })
   listGuardians(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.guardiansService.listGuardians(institutionId, authSession);
+    return this.guardiansService.listGuardians(institution.id, authSession);
   }
 
-  @UseGuards(SessionAuthGuard)
   @Get(":guardianId")
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Get a single guardian for an institution" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "guardianId", type: String })
+  @ApiOperation({ summary: "Get a single guardian for the current tenant" })
   @ApiOkResponse({ type: GuardianDto })
   getGuardian(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("guardianId") guardianId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
     return this.guardiansService.getGuardian(
-      institutionId,
+      institution.id,
       guardianId,
       authSession,
     );
   }
 
-  @UseGuards(SessionAuthGuard)
   @Patch(":guardianId")
-  @ApiCookieAuth()
   @ApiOperation({ summary: "Update guardian details" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "guardianId", type: String })
   @ApiBody({ type: UpdateGuardianBodyDto })
   @ApiOkResponse({ type: GuardianDto })
   updateGuardian(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("guardianId") guardianId: string,
     @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: UpdateGuardianBodyDto,
   ) {
     return this.guardiansService.updateGuardian(
-      institutionId,
+      institution.id,
       guardianId,
       authSession,
       parseUpdateGuardian(body),
     );
   }
 
-  @UseGuards(SessionAuthGuard)
   @Post(":guardianId/students")
-  @ApiCookieAuth()
   @ApiOperation({ summary: "Link a guardian to a student" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "guardianId", type: String })
   @ApiBody({ type: LinkGuardianStudentBodyDto })
   @ApiOkResponse({ type: GuardianDto })
   linkStudent(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("guardianId") guardianId: string,
     @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: LinkGuardianStudentBodyDto,
   ) {
     return this.guardiansService.linkStudent(
-      institutionId,
+      institution.id,
       guardianId,
       authSession,
       parseLinkGuardianStudent(body),
     );
   }
 
-  @UseGuards(SessionAuthGuard)
   @Patch(":guardianId/students/:studentId")
-  @ApiCookieAuth()
   @ApiOperation({ summary: "Update a guardian-student relationship" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "guardianId", type: String })
-  @ApiParam({ name: "studentId", type: String })
   @ApiBody({ type: UpdateGuardianStudentLinkBodyDto })
   @ApiOkResponse({ type: GuardianDto })
   updateStudentLink(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("guardianId") guardianId: string,
     @Param("studentId") studentId: string,
     @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: UpdateGuardianStudentLinkBodyDto,
   ) {
     return this.guardiansService.updateStudentLink(
-      institutionId,
+      institution.id,
       guardianId,
       studentId,
       authSession,
@@ -139,22 +123,17 @@ export class GuardiansController {
     );
   }
 
-  @UseGuards(SessionAuthGuard)
   @Delete(":guardianId/students/:studentId")
-  @ApiCookieAuth()
   @ApiOperation({ summary: "Unlink a guardian from a student" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "guardianId", type: String })
-  @ApiParam({ name: "studentId", type: String })
   @ApiOkResponse({ type: GuardianDto })
   unlinkStudent(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("guardianId") guardianId: string,
     @Param("studentId") studentId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
     return this.guardiansService.unlinkStudent(
-      institutionId,
+      institution.id,
       guardianId,
       studentId,
       authSession,

@@ -12,13 +12,15 @@ import {
   ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES } from "../../constants";
 import { CurrentSession } from "../auth/current-session.decorator";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
+import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
+import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
+import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   CreateStudentBodyDto,
   StudentDto,
@@ -28,73 +30,63 @@ import { parseCreateStudent, parseUpdateStudent } from "./students.schemas";
 import { StudentsService } from "./students.service";
 
 @ApiTags(API_DOCS.TAGS.STUDENTS)
-@Controller(`${API_ROUTES.INSTITUTIONS}/:institutionId/${API_ROUTES.STUDENTS}`)
+@ApiCookieAuth()
+@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@Controller(API_ROUTES.STUDENTS)
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
-  @UseGuards(SessionAuthGuard)
   @Get()
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "List students for an institution" })
-  @ApiParam({ name: "institutionId", type: String })
+  @ApiOperation({ summary: "List students for the current tenant institution" })
   @ApiOkResponse({ type: StudentDto, isArray: true })
   listStudents(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.studentsService.listStudents(institutionId, authSession);
+    return this.studentsService.listStudents(institution.id, authSession);
   }
 
-  @UseGuards(SessionAuthGuard)
   @Post()
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Create a student and link guardians" })
-  @ApiParam({ name: "institutionId", type: String })
+  @ApiOperation({ summary: "Create a student and link guardians for the current tenant" })
   @ApiBody({ type: CreateStudentBodyDto })
   @ApiOkResponse({ type: StudentDto })
   createStudent(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: CreateStudentBodyDto,
   ) {
     return this.studentsService.createStudent(
-      institutionId,
+      institution.id,
       authSession,
       parseCreateStudent(body),
     );
   }
 
-  @UseGuards(SessionAuthGuard)
   @Get(":studentId")
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Get a single student for an institution" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "studentId", type: String })
+  @ApiOperation({ summary: "Get a single student for the current tenant institution" })
   @ApiOkResponse({ type: StudentDto })
   getStudent(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("studentId") studentId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.studentsService.getStudent(institutionId, studentId, authSession);
+    return this.studentsService.getStudent(institution.id, studentId, authSession);
   }
 
-  @UseGuards(SessionAuthGuard)
   @Patch(":studentId")
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Update a student and reconcile guardians" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "studentId", type: String })
+  @ApiOperation({
+    summary: "Update a student and reconcile guardians for the current tenant",
+  })
   @ApiBody({ type: UpdateStudentBodyDto })
   @ApiOkResponse({ type: StudentDto })
   updateStudent(
-    @Param("institutionId") institutionId: string,
+    @CurrentInstitution() institution: TenantInstitution,
     @Param("studentId") studentId: string,
     @CurrentSession() authSession: AuthenticatedSession,
     @Body() body: UpdateStudentBodyDto,
   ) {
     return this.studentsService.updateStudent(
-      institutionId,
+      institution.id,
       studentId,
       authSession,
       parseUpdateStudent(body),

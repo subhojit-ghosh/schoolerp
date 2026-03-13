@@ -421,19 +421,9 @@
         ]
       }
     },
-    "/institutions/{institutionId}/classes": {
+    "/classes": {
       "get": {
         "operationId": "ClassesController_listClasses",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "",
@@ -454,23 +444,13 @@
             "cookie": []
           }
         ],
-        "summary": "List classes for an institution",
+        "summary": "List classes for the current tenant institution",
         "tags": [
           "classes"
         ]
       },
       "post": {
         "operationId": "ClassesController_createClass",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -498,24 +478,16 @@
             "cookie": []
           }
         ],
-        "summary": "Create a class with sections",
+        "summary": "Create a class with sections for the current tenant",
         "tags": [
           "classes"
         ]
       }
     },
-    "/institutions/{institutionId}/classes/{classId}": {
+    "/classes/{classId}": {
       "get": {
         "operationId": "ClassesController_getClass",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "classId",
             "required": true,
@@ -542,7 +514,7 @@
             "cookie": []
           }
         ],
-        "summary": "Get a class with sections",
+        "summary": "Get a class with sections for the current tenant",
         "tags": [
           "classes"
         ]
@@ -550,14 +522,6 @@
       "patch": {
         "operationId": "ClassesController_updateClass",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "classId",
             "required": true,
@@ -594,7 +558,80 @@
             "cookie": []
           }
         ],
-        "summary": "Update a class and reconcile sections",
+        "summary": "Update a class and reconcile sections for the current tenant",
+        "tags": [
+          "classes"
+        ]
+      },
+      "delete": {
+        "operationId": "ClassesController_deleteClass",
+        "parameters": [
+          {
+            "name": "classId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Delete a class for the current tenant",
+        "tags": [
+          "classes"
+        ]
+      }
+    },
+    "/classes/{classId}/status": {
+      "patch": {
+        "operationId": "ClassesController_setClassStatus",
+        "parameters": [
+          {
+            "name": "classId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetClassStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Enable or disable a class for the current tenant",
         "tags": [
           "classes"
         ]
@@ -2979,6 +3016,9 @@
             "type": "string",
             "nullable": true
           },
+          "isActive": {
+            "type": "boolean"
+          },
           "displayOrder": {
             "type": "number"
           },
@@ -2995,6 +3035,7 @@
           "campusId",
           "campusName",
           "name",
+          "isActive",
           "displayOrder",
           "sections"
         ]
@@ -3064,6 +3105,17 @@
           "name",
           "campusId",
           "sections"
+        ]
+      },
+      "SetClassStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "isActive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "isActive"
         ]
       },
       "StudentGuardianDto": {

@@ -1,4 +1,9 @@
 export const ERROR_MESSAGES = {
+  TENANT: {
+    SUBDOMAIN_REQUIRED:
+      "A tenant subdomain is required for this institution-scoped API.",
+    INSTITUTION_NOT_FOUND: "Institution not found for the current subdomain.",
+  },
   AUTH: {
     INVALID_CREDENTIALS: "Invalid mobile number, email, or password.",
     SESSION_REQUIRED: "You must be signed in to access this resource.",

@@ -51,29 +51,29 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - forgot-password throttling
   - onboarding slug collision and created-session context
 - The first ERP domain slice exists with:
-  - institution-scoped student create/list APIs
+  - tenant-scoped student create/list/detail/update APIs resolved from the subdomain
   - guardian linking for one or more guardians per student
   - campus assignment stored on the backend
   - ERP frontend routes and feature modules for student create/list/detail/edit
 - A shallow academics structure slice exists with:
-  - institution-scoped class create/list/detail/update APIs
+  - tenant-scoped class create/list/detail/update APIs resolved from the subdomain
   - nested section create/edit reconciliation owned by NestJS
   - campus assignment stored on the backend
   - ERP frontend routes and feature modules for class create/list/detail/edit
 - A minimal academics slice exists with:
-  - institution-scoped academic year list/create/detail/update APIs
+  - tenant-scoped academic year list/create/detail/update APIs resolved from the subdomain
   - backend-owned current-year enforcement during create and edit
   - ERP frontend route and feature module for academic year create/edit flows
   - backend-owned current student enrollment tied to academic year plus class/section
   - ERP frontend route and feature module for student creation/detail/listing
 - A minimal staff slice now exists with:
-  - institution-scoped staff list/detail/create/update APIs
+  - tenant-scoped staff list/detail/create/update APIs resolved from the subdomain
   - staff memberships backed by the existing `member` model
   - primary campus assignment plus campus-membership syncing
   - basic single-role assignment backed by `membership_roles`
   - ERP frontend list/create/edit screens
 - A minimal guardian management slice now exists with:
-  - institution-scoped guardian list/detail/update APIs
+  - tenant-scoped guardian list/detail/update APIs resolved from the subdomain
   - backend-owned guardian-student link, unlink, and primary reconciliation rules
   - ERP frontend guardian list and detail routes
   - guardian edit form plus linked-student relationship management forms
@@ -84,11 +84,11 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - ERP attendance entry and review flow on generated OpenAPI types
   - shared attendance status constants consumed by backend and frontend
 - A shallow exams slice now exists with:
-  - institution-scoped exam term create/list APIs linked to academic years
+  - tenant-scoped exam term create/list APIs linked to academic years
   - backend-owned batch marks replacement and marks listing for an exam term
   - ERP frontend route for exam term creation, term selection, marks entry, and marks display
 - A minimal fees slice now exists with:
-  - institution-scoped fee structure create/list APIs
+  - tenant-scoped fee structure create/list APIs resolved from the subdomain
   - student fee assignment create/list APIs
   - payment entry API with backend-owned outstanding-balance checks
   - dues list API derived from fee assignments and payments

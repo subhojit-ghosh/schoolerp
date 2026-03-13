@@ -144,7 +144,6 @@ export function FeesPage() {
     }
 
     await createStructureMutation.mutateAsync({
-      params: { path: { institutionId } },
       body: {
         ...values,
         amount: Number(values.amount),
@@ -160,7 +159,6 @@ export function FeesPage() {
     }
 
     await createAssignmentMutation.mutateAsync({
-      params: { path: { institutionId } },
       body: {
         ...values,
         amount: Number(values.amount),
@@ -176,7 +174,6 @@ export function FeesPage() {
     }
 
     await createPaymentMutation.mutateAsync({
-      params: { path: { institutionId } },
       body: {
         ...values,
         amount: Number(values.amount),
