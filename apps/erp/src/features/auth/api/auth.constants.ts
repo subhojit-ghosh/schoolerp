@@ -21,6 +21,14 @@ export const STUDENTS_API_PATHS = {
   UPDATE: "/institutions/{institutionId}/students/{studentId}",
 } as const;
 
+export const STAFF_API_PATHS = {
+  LIST: "/institutions/{institutionId}/staff",
+  CREATE: "/institutions/{institutionId}/staff",
+  DETAIL: "/institutions/{institutionId}/staff/{staffId}",
+  UPDATE: "/institutions/{institutionId}/staff/{staffId}",
+  ROLES: "/institutions/{institutionId}/staff/roles",
+} as const;
+
 export const ACADEMIC_YEARS_API_PATHS = {
   LIST: "/institutions/{institutionId}/academic-years",
   CREATE: "/institutions/{institutionId}/academic-years",

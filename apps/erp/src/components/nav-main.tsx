@@ -24,6 +24,13 @@ export function NavMain({
 }) {
   const location = useLocation();
 
+  function isActivePath(itemUrl: string) {
+    return (
+      location.pathname === itemUrl ||
+      (itemUrl !== "/" && location.pathname.startsWith(`${itemUrl}/`))
+    );
+  }
+
   return (
     <SidebarGroup>
       {label ? (
@@ -37,7 +44,7 @@ export function NavMain({
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton
                 asChild={!item.disabled}
-                isActive={location.pathname === item.url}
+                isActive={isActivePath(item.url)}
                 tooltip={item.title}
                 className={cn(
                   "rounded-xl px-3 py-2.5 data-[active=true]:bg-white/10 data-[active=true]:font-medium data-[active=true]:shadow-[inset_2px_0_0_var(--accent)] hover:bg-white/6",

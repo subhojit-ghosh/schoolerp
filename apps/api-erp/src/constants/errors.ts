@@ -28,6 +28,14 @@ export const ERROR_MESSAGES = {
     GUARDIAN_MEMBERSHIP_REQUIRED:
       "Each guardian must belong to the selected institution.",
   },
+  STAFF: {
+    STAFF_NOT_FOUND: "The selected staff record was not found.",
+    STAFF_MEMBERSHIP_EXISTS:
+      "That user already has a staff membership in this institution.",
+  },
+  ROLES: {
+    ROLE_NOT_FOUND: "The selected role was not found for this institution.",
+  },
   ACADEMIC_YEARS: {
     INVALID_DATE_RANGE: "End date must be after the start date.",
     CURRENT_YEAR_REQUIRED:

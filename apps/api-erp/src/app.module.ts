@@ -10,6 +10,7 @@ import { validateEnvironment } from "./config/env.validation";
 import { InstitutionsModule } from "./modules/institutions/institutions.module";
 import { OnboardingModule } from "./modules/onboarding/onboarding.module";
 import { PublicModule } from "./modules/public/public.module";
+import { StaffModule } from "./modules/staff/staff.module";
 import { TenantContextModule } from "./modules/tenant-context/tenant-context.module";
 import { StudentsModule } from "./modules/students/students.module";
 
@@ -28,6 +29,7 @@ import { StudentsModule } from "./modules/students/students.module";
     OnboardingModule,
     CampusesModule,
     StudentsModule,
+    StaffModule,
     AcademicYearsModule,
     InstitutionsModule,
     PublicModule,
