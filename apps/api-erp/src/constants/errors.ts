@@ -35,6 +35,12 @@ export const ERROR_MESSAGES = {
   },
   ROLES: {
     ROLE_NOT_FOUND: "The selected role was not found for this institution.",
+  GUARDIANS: {
+    GUARDIAN_NOT_FOUND: "The selected guardian was not found.",
+    STUDENT_LINK_NOT_FOUND:
+      "The selected guardian-student relationship was not found.",
+    LAST_GUARDIAN_LINK:
+      "A student must keep at least one linked guardian.",
   },
   ACADEMIC_YEARS: {
     INVALID_DATE_RANGE: "End date must be after the start date.",

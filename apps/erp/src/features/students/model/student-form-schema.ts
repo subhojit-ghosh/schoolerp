@@ -1,3 +1,7 @@
+import {
+  GUARDIAN_RELATIONSHIPS,
+  guardianRelationshipSchema,
+} from "@repo/contracts";
 import { z } from "zod";
 import type { components } from "@/lib/api/generated/schema";
 
@@ -5,9 +9,9 @@ const MOBILE_MIN_LENGTH = 10;
 const REQUIRED_TEXT_MIN_LENGTH = 1;
 
 export const GUARDIAN_RELATIONSHIP_OPTIONS = [
-  "father",
-  "mother",
-  "guardian",
+  GUARDIAN_RELATIONSHIPS.FATHER,
+  GUARDIAN_RELATIONSHIPS.MOTHER,
+  GUARDIAN_RELATIONSHIPS.GUARDIAN,
 ] as const;
 
 export const EMPTY_CURRENT_ENROLLMENT = {
@@ -22,7 +26,7 @@ export const guardianFormSchema = z.object({
   name: z.string().trim().min(REQUIRED_TEXT_MIN_LENGTH, "Guardian name is required"),
   mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
   email: z.email().optional().or(z.literal("")),
-  relationship: z.enum(GUARDIAN_RELATIONSHIP_OPTIONS),
+  relationship: guardianRelationshipSchema,
   isPrimary: z.boolean(),
 });
 

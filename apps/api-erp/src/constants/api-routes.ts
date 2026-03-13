@@ -19,6 +19,7 @@ export const API_ROUTES = {
   STUDENTS: "students",
   STAFF: "staff",
   ROLES: "roles",
+  GUARDIANS: "guardians",
   ACADEMIC_YEARS: "academic-years",
   CLASSES: "classes",
   CURRENT: "current",

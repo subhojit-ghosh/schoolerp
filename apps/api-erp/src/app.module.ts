@@ -13,6 +13,7 @@ import { OnboardingModule } from "./modules/onboarding/onboarding.module";
 import { PublicModule } from "./modules/public/public.module";
 import { StaffModule } from "./modules/staff/staff.module";
 import { TenantContextModule } from "./modules/tenant-context/tenant-context.module";
+import { GuardiansModule } from "./modules/guardians/guardians.module";
 import { StudentsModule } from "./modules/students/students.module";
 
 @Module({
@@ -32,6 +33,7 @@ import { StudentsModule } from "./modules/students/students.module";
     ClassesModule,
     StudentsModule,
     StaffModule,
+    GuardiansModule,
     AcademicYearsModule,
     InstitutionsModule,
     PublicModule,

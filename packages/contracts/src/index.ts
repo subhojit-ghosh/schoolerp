@@ -24,7 +24,11 @@ export const ACADEMIC_YEAR_STATUS = {
 } as const;
 
 export const ACADEMIC_YEAR_NAME_MAX_LENGTH = 100;
-
+export const GUARDIAN_RELATIONSHIPS = {
+  FATHER: "father",
+  MOTHER: "mother",
+  GUARDIAN: "guardian",
+} as const;
 export const authContextKeySchema = z.enum([
   AUTH_CONTEXT_KEYS.STAFF,
   AUTH_CONTEXT_KEYS.PARENT,
@@ -35,9 +39,15 @@ export const academicYearStatusSchema = z.enum([
   ACADEMIC_YEAR_STATUS.ACTIVE,
   ACADEMIC_YEAR_STATUS.ARCHIVED,
 ]);
+export const guardianRelationshipSchema = z.enum([
+  GUARDIAN_RELATIONSHIPS.FATHER,
+  GUARDIAN_RELATIONSHIPS.MOTHER,
+  GUARDIAN_RELATIONSHIPS.GUARDIAN,
+]);
 
 export type AuthContextKey = z.infer<typeof authContextKeySchema>;
 export type AcademicYearStatus = z.infer<typeof academicYearStatusSchema>;
+export type GuardianRelationship = z.infer<typeof guardianRelationshipSchema>;
 
 export const healthResponseSchema = z.object({
   status: z.string(),

@@ -1,3 +1,4 @@
+import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
 import { useEffect } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,7 +33,7 @@ const DEFAULT_GUARDIAN: StudentFormValues["guardians"][number] = {
   name: "",
   mobile: "",
   email: "",
-  relationship: "guardian",
+  relationship: GUARDIAN_RELATIONSHIPS.GUARDIAN,
   isPrimary: true,
 };
 

@@ -72,6 +72,11 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - primary campus assignment plus campus-membership syncing
   - basic single-role assignment backed by `membership_roles`
   - ERP frontend list/create/edit screens
+- A minimal guardian management slice now exists with:
+  - institution-scoped guardian list/detail/update APIs
+  - backend-owned guardian-student link, unlink, and primary reconciliation rules
+  - ERP frontend guardian list and detail routes
+  - guardian edit form plus linked-student relationship management forms
 - The ERP shell now changes navigation and dashboard behavior from backend-provided active context instead of separate role-specific login screens.
 - Memberships now allow one user to hold multiple member types inside the same institution.
 
@@ -83,6 +88,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - The academic-year slice is covered by typecheck, but not yet by backend tests or browser automation.
 - The classes and sections slice is covered by schema generation, OpenAPI export, and typecheck, but not by backend tests or browser automation.
 - The staff slice is covered by typecheck, but not yet by targeted backend tests or browser automation.
+- The guardian slice is covered by typecheck, but not yet by targeted backend tests or browser automation.
 
 ## In Progress
 
