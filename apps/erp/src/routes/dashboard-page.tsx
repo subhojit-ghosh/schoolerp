@@ -1,14 +1,17 @@
+import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import {
   IconArrowRight,
   IconBook2,
   IconCalendarStats,
+  IconMoodKid,
   IconCurrencyRupee,
-  IconClockHour4,
   IconUsers,
 } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@repo/ui/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
 import { SectionCards } from "@/components/section-cards";
+import { getActiveContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useStudentsQuery } from "@/features/students/api/use-students";
@@ -30,14 +33,14 @@ const QUICK_ACTIONS = [
   },
   {
     label: "Attendance",
-    description: "Attendance workflows are queued after the current student slice.",
+    description: "Track daily attendance and view class-wise reports.",
     href: ERP_ROUTES.DASHBOARD,
     Icon: IconCalendarStats,
     disabled: true,
   },
   {
     label: "Fees",
-    description: "Finance surfaces are intentionally hidden until backend modules exist.",
+    description: "Collect fees, track payments, and manage dues.",
     href: ERP_ROUTES.DASHBOARD,
     Icon: IconCurrencyRupee,
     disabled: true,
@@ -57,19 +60,111 @@ function firstName(name: string) {
 
 export function DashboardPage() {
   const session = useAuthStore((store) => store.session);
+  const activeContext = getActiveContext(session);
   const name = session?.user.name ?? "";
   const institutionId = session?.activeOrganization?.id;
+  const linkedStudents = session?.linkedStudents ?? [];
   const studentsQuery = useStudentsQuery(institutionId);
   const studentCount = studentsQuery.data?.length ?? 0;
+
+  if (activeContext?.key === AUTH_CONTEXT_KEYS.PARENT) {
+    return (
+      <div className="flex flex-col gap-6">
+        <div className="px-0.5">
+          <div className="mb-1.5 flex items-center gap-2">
+            <div className="h-0.5 w-5 rounded-full" style={{ background: "var(--primary)" }} />
+            <Badge variant="secondary">Parent view</Badge>
+          </div>
+          <h2
+            className="text-3xl font-bold text-foreground"
+            style={{ fontFamily: "var(--font-heading)" }}
+          >
+            {getGreeting()}, {firstName(name)}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            This is the lighter family view. Switch back to Staff when you want to manage institution data.
+          </p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {linkedStudents.map((student) => (
+            <Card key={student.studentId} className="overflow-hidden border-primary/15 bg-card">
+              <CardHeader className="pb-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <CardTitle className="text-lg">{student.fullName}</CardTitle>
+                    <p className="mt-1 text-sm text-muted-foreground">{student.campusName}</p>
+                  </div>
+                  <div
+                    className="flex size-11 items-center justify-center rounded-2xl"
+                    style={{
+                      background:
+                        "color-mix(in srgb, var(--primary) 14%, transparent)",
+                    }}
+                  >
+                    <IconMoodKid className="size-5" style={{ color: "var(--primary)" }} />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline" className="font-mono">
+                    {student.admissionNumber}
+                  </Badge>
+                  {student.relationship ? (
+                    <Badge className="capitalize" variant="secondary">
+                      {student.relationship}
+                    </Badge>
+                  ) : null}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Minimal parent access is live. Attendance, reports, fees, and notices can layer onto this context later.
+                </p>
+              </CardContent>
+            </Card>
+          ))}
+          {linkedStudents.length === 0 ? (
+            <Card className="border-dashed bg-muted/25 md:col-span-2 xl:col-span-3">
+              <CardContent className="py-12 text-center text-sm text-muted-foreground">
+                No linked students are visible in this tenant yet.
+              </CardContent>
+            </Card>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  if (activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Badge variant="secondary">Student view</Badge>
+            <CardTitle>Student dashboard</CardTitle>
+          </div>
+        </CardHeader>
+        <CardContent className="text-sm text-muted-foreground">
+          Student-mode shell support is ready. Student-specific academics and attendance can now be added without changing login.
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
       {/* Greeting */}
       <div className="px-0.5">
-        <h2 className="text-xl font-semibold text-foreground">
+        <div className="mb-1.5 flex items-center gap-2">
+          <div className="h-0.5 w-5 rounded-full" style={{ background: "var(--primary)" }} />
+        </div>
+        <h2
+          className="text-3xl font-bold text-foreground"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
           {getGreeting()}, {firstName(name)}
         </h2>
-        <p className="text-sm text-muted-foreground mt-0.5">
+        <p className="text-sm text-muted-foreground mt-1">
           Here's what's happening at your school today.
         </p>
       </div>
@@ -92,39 +187,42 @@ export function DashboardPage() {
               <div
                 key={label}
                 aria-disabled="true"
-                className="flex items-center gap-4 rounded-xl border border-dashed bg-card/70 p-4"
+                className="flex items-center gap-4 rounded-xl border border-dashed bg-card/40 p-4"
               >
-                <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted"
-                >
-                  <Icon className="size-5 text-muted-foreground" />
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-muted/60">
+                  <Icon className="size-5 text-muted-foreground/50" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-foreground">{label}</p>
-                    <Badge variant="outline">Coming soon</Badge>
+                    <p className="text-sm font-medium text-muted-foreground">{label}</p>
+                    <Badge variant="outline" className="text-[10px]">Coming soon</Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground">{description}</p>
+                  <p className="text-xs text-muted-foreground/70">{description}</p>
                 </div>
-                <IconClockHour4 className="size-4 text-muted-foreground/50 shrink-0" />
               </div>
             ) : (
               <Link
                 key={label}
                 to={href}
-                className="group flex items-center gap-4 rounded-xl border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
+                className="group flex items-center gap-4 rounded-xl border bg-card p-4 transition-all hover:border-primary/40 hover:shadow-md"
               >
                 <div
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors group-hover:bg-primary/10"
-                  style={{ background: "color-mix(in srgb, var(--primary, #8a5a44) 12%, white)" }}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-all group-hover:scale-105"
+                  style={{
+                    background: "color-mix(in srgb, var(--primary) 10%, transparent)",
+                    border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+                  }}
                 >
-                  <Icon className="size-5 text-primary" />
+                  <Icon className="size-5" style={{ color: "var(--primary)" }} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-foreground">{label}</p>
-                  <p className="text-xs text-muted-foreground truncate">{description}</p>
+                  <p className="text-sm font-semibold text-foreground">{label}</p>
+                  <p className="text-xs text-muted-foreground">{description}</p>
                 </div>
-                <IconArrowRight className="size-4 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-muted-foreground shrink-0" />
+                <IconArrowRight
+                  className="size-4 text-muted-foreground/40 transition-all group-hover:translate-x-1 shrink-0"
+                  style={{ color: "color-mix(in srgb, var(--primary) 60%, transparent)" }}
+                />
               </Link>
             ),
           )}

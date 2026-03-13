@@ -1,17 +1,16 @@
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Link } from "react-router-dom";
-import { cn } from "@repo/ui/lib/utils";
-import { Button } from "@repo/ui/components/ui/button";
-import { FieldError } from "@repo/ui/components/ui/field";
-import { Input } from "@repo/ui/components/ui/input";
-import { Label } from "@repo/ui/components/ui/label";
-import { ERP_ROUTES, WEB_ROUTES } from "@/constants/routes";
-import { buildRootAppUrl } from "@/lib/tenant-context";
+import { ERP_ROUTES } from "@/constants/routes";
 import {
   signInFormSchema,
   type SignInFormValues,
 } from "@/features/auth/model/auth-form-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@repo/ui/components/ui/button";
+import { FieldError } from "@repo/ui/components/ui/field";
+import { Input } from "@repo/ui/components/ui/input";
+import { Label } from "@repo/ui/components/ui/label";
+import { cn } from "@repo/ui/lib/utils";
+import { Controller, useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 
 type LoginFormProps = React.ComponentProps<"div"> & {
   errorMessage?: string;
@@ -49,7 +48,10 @@ export function LoginForm({
         </p>
       </div>
 
-      <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmitForm)}>
+      <form
+        className="flex flex-col gap-5"
+        onSubmit={handleSubmit(onSubmitForm)}
+      >
         <Controller
           control={control}
           name="identifier"
@@ -117,23 +119,6 @@ export function LoginForm({
           {isPending ? "Signing in…" : "Continue"}
         </Button>
       </form>
-
-      {/* Divider */}
-      <div className="flex items-center gap-3 my-6">
-        <div className="h-px flex-1 bg-border/60" />
-        <span className="text-[11px] text-muted-foreground/60 uppercase tracking-wider">or</span>
-        <div className="h-px flex-1 bg-border/60" />
-      </div>
-
-      <p className="text-center text-[13px] text-muted-foreground">
-        New school?{" "}
-        <a
-          className="text-foreground font-medium hover:underline underline-offset-4 transition-colors"
-          href={buildRootAppUrl(WEB_ROUTES.SIGN_UP)}
-        >
-          Set it up here
-        </a>
-      </p>
     </div>
   );
 }

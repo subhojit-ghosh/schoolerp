@@ -42,10 +42,7 @@ export class StudentsController {
     @Param("institutionId") institutionId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.studentsService.listStudents(
-      institutionId,
-      authSession.user.id,
-    );
+    return this.studentsService.listStudents(institutionId, authSession);
   }
 
   @UseGuards(SessionAuthGuard)
@@ -62,7 +59,7 @@ export class StudentsController {
   ) {
     return this.studentsService.createStudent(
       institutionId,
-      authSession.user.id,
+      authSession,
       parseCreateStudent(body),
     );
   }
@@ -79,11 +76,7 @@ export class StudentsController {
     @Param("studentId") studentId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.studentsService.getStudent(
-      institutionId,
-      studentId,
-      authSession.user.id,
-    );
+    return this.studentsService.getStudent(institutionId, studentId, authSession);
   }
 
   @UseGuards(SessionAuthGuard)
@@ -103,7 +96,7 @@ export class StudentsController {
     return this.studentsService.updateStudent(
       institutionId,
       studentId,
-      authSession.user.id,
+      authSession,
       parseUpdateStudent(body),
     );
   }

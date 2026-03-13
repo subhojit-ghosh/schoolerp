@@ -1,3 +1,4 @@
+import { authContextKeySchema } from "@repo/contracts";
 import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
 
@@ -38,11 +39,16 @@ export const switchCampusSchema = z.object({
   campusId: z.uuid(),
 });
 
+export const switchContextSchema = z.object({
+  contextKey: authContextKeySchema,
+});
+
 export type SignUpDto = z.infer<typeof signUpSchema>;
 export type SignInDto = z.infer<typeof signInSchema>;
 export type ForgotPasswordDto = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordDto = z.infer<typeof resetPasswordSchema>;
 export type SwitchCampusDto = z.infer<typeof switchCampusSchema>;
+export type SwitchContextDto = z.infer<typeof switchContextSchema>;
 
 function parseSchema<T>(schema: z.ZodType<T>, value: unknown) {
   const result = schema.safeParse(value);
@@ -72,4 +78,8 @@ export function parseResetPassword(value: unknown): ResetPasswordDto {
 
 export function parseSwitchCampus(value: unknown): SwitchCampusDto {
   return parseSchema(switchCampusSchema, value);
+}
+
+export function parseSwitchContext(value: unknown): SwitchContextDto {
+  return parseSchema(switchContextSchema, value);
 }

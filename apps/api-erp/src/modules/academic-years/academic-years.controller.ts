@@ -39,10 +39,7 @@ export class AcademicYearsController {
     @Param("institutionId") institutionId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.academicYearsService.listAcademicYears(
-      institutionId,
-      authSession.user.id,
-    );
+    return this.academicYearsService.listAcademicYears(institutionId, authSession);
   }
 
   @UseGuards(SessionAuthGuard)
@@ -59,7 +56,7 @@ export class AcademicYearsController {
   ) {
     return this.academicYearsService.createAcademicYear(
       institutionId,
-      authSession.user.id,
+      authSession,
       parseCreateAcademicYear(body),
     );
   }
@@ -79,7 +76,7 @@ export class AcademicYearsController {
     return this.academicYearsService.setCurrentAcademicYear(
       institutionId,
       academicYearId,
-      authSession.user.id,
+      authSession,
     );
   }
 
@@ -98,7 +95,7 @@ export class AcademicYearsController {
     return this.academicYearsService.archiveAcademicYear(
       institutionId,
       academicYearId,
-      authSession.user.id,
+      authSession,
     );
   }
 
@@ -117,7 +114,7 @@ export class AcademicYearsController {
     return this.academicYearsService.restoreAcademicYear(
       institutionId,
       academicYearId,
-      authSession.user.id,
+      authSession,
     );
   }
 }

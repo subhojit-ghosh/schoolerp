@@ -21,6 +21,7 @@ import {
   useSidebar,
 } from "@repo/ui/components/ui/sidebar";
 import { useSignOutMutation } from "@/features/auth/api/use-auth";
+import { getActiveContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 
 function toInitials(name: string) {
@@ -52,6 +53,7 @@ export function NavUser() {
   const initials = toInitials(user.name);
   const institutionName = session?.activeOrganization?.name ?? "Institution";
   const campusName = session?.activeCampus?.name ?? "Campus";
+  const activeContext = getActiveContext(session);
   const memberTypes = Array.from(
     new Set(session?.memberships.map((membership) => membership.memberType) ?? []),
   );
@@ -102,9 +104,14 @@ export function NavUser() {
             <div className="flex flex-col gap-2 px-2 py-2">
               <div>
                 <p className="text-xs font-medium text-foreground">{institutionName}</p>
-                <p className="text-xs text-muted-foreground">{campusName}</p>
+                <p className="text-xs text-muted-foreground">
+                  {activeContext ? `${activeContext.label} view` : campusName}
+                </p>
               </div>
               <div className="flex flex-wrap gap-1">
+                {activeContext ? (
+                  <Badge variant="secondary">{activeContext.label}</Badge>
+                ) : null}
                 {memberTypes.map((memberType) => (
                   <Badge key={memberType} className="capitalize" variant="outline">
                     {memberType}

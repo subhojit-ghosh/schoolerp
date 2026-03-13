@@ -1,4 +1,5 @@
 import { DATABASE } from "@repo/backend-core";
+import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import { Inject, Injectable, ConflictException } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
@@ -154,6 +155,7 @@ export class OnboardingService {
       requestContext,
       {
         activeOrganizationId: created.organizationId,
+        activeContextKey: AUTH_CONTEXT_KEYS.STAFF,
         activeCampusId: created.campusId,
       },
     );

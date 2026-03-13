@@ -6,6 +6,26 @@ export const APP_FALLBACKS = {
   ROOT_DOMAIN: "erp.test",
 } as const;
 
+export const AUTH_CONTEXT_KEYS = {
+  STAFF: "staff",
+  PARENT: "parent",
+  STUDENT: "student",
+} as const;
+
+export const AUTH_CONTEXT_LABELS = {
+  [AUTH_CONTEXT_KEYS.STAFF]: "Staff",
+  [AUTH_CONTEXT_KEYS.PARENT]: "Parent",
+  [AUTH_CONTEXT_KEYS.STUDENT]: "Student",
+} as const;
+
+export const authContextKeySchema = z.enum([
+  AUTH_CONTEXT_KEYS.STAFF,
+  AUTH_CONTEXT_KEYS.PARENT,
+  AUTH_CONTEXT_KEYS.STUDENT,
+]);
+
+export type AuthContextKey = z.infer<typeof authContextKeySchema>;
+
 export const healthResponseSchema = z.object({
   status: z.string(),
 });

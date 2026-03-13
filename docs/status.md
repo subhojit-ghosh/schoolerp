@@ -25,6 +25,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - The Vite ERP app is intended for `https://<tenant>.erp.test` only.
 - The ERP frontend defaults to same-host `/api` calls.
 - Mobile is the canonical login identifier and email is secondary.
+- Auth/session context now supports one logged-in user switching between available tenant contexts such as staff and parent without re-authentication.
 - Institution onboarding provisions:
   - institution
   - default campus
@@ -54,6 +55,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - guardian linking for one or more guardians per student
   - campus assignment stored on the backend
   - ERP frontend route and feature module for student creation/listing
+- The ERP shell now changes navigation and dashboard behavior from backend-provided active context instead of separate role-specific login screens.
 - Memberships now allow one user to hold multiple member types inside the same institution.
 
 ## Implemented But Not Strongly Verified

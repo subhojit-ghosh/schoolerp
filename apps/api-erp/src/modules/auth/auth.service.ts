@@ -1,4 +1,9 @@
 import {
+  AUTH_CONTEXT_KEYS,
+  AUTH_CONTEXT_LABELS,
+  type AuthContextKey,
+} from "@repo/contracts";
+import {
   ConflictException,
   Inject,
   Injectable,
@@ -12,9 +17,11 @@ import {
   organization,
   passwordResetToken,
   session,
+  studentGuardianLinks,
+  students,
   user,
 } from "@repo/database";
-import { and, eq, gt, isNull, or } from "drizzle-orm";
+import { and, eq, gt, inArray, isNull, or } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Response } from "express";
@@ -27,14 +34,18 @@ import {
 import { AUTH_COOKIE_OPTIONS } from "./auth.constants";
 import {
   AuthCampusDto,
+  AuthAccessContextDto,
   AuthContextDto,
+  AuthLinkedStudentDto,
   AuthMembershipDto,
   AuthOrganizationDto,
   type AuthUserDto,
 } from "./auth.dto";
 import type {
   AuthContext,
+  AuthenticatedAccessContext,
   AuthenticatedCampus,
+  AuthenticatedLinkedStudent,
   AuthenticatedMembership,
   AuthenticatedOrganization,
   AuthenticatedSession,
@@ -249,6 +260,7 @@ export class AuthService {
       ipAddress: requestContext.ipAddress ?? null,
       userAgent: requestContext.userAgent ?? null,
       activeOrganizationId: accessContext.activeOrganizationId ?? null,
+      activeContextKey: accessContext.activeContextKey ?? null,
       activeCampusId: accessContext.activeCampusId ?? null,
       createdAt: now,
       updatedAt: now,
@@ -259,6 +271,7 @@ export class AuthService {
       expiresAt,
       user: authenticatedUser,
       activeOrganizationId: accessContext.activeOrganizationId ?? null,
+      activeContextKey: accessContext.activeContextKey ?? null,
       activeCampusId: accessContext.activeCampusId ?? null,
     };
   }
@@ -269,6 +282,7 @@ export class AuthService {
         token: session.token,
         expiresAt: session.expiresAt,
         activeOrganizationId: session.activeOrganizationId,
+        activeContextKey: session.activeContextKey,
         activeCampusId: session.activeCampusId,
         userId: user.id,
         name: user.name,
@@ -288,6 +302,7 @@ export class AuthService {
       token: matchedSession.token,
       expiresAt: matchedSession.expiresAt,
       activeOrganizationId: matchedSession.activeOrganizationId,
+      activeContextKey: matchedSession.activeContextKey,
       activeCampusId: matchedSession.activeCampusId,
       user: {
         id: matchedSession.userId,
@@ -351,6 +366,29 @@ export class AuthService {
     return this.requireSession(await this.getAuthContext(token));
   }
 
+  async setActiveContext(token: string, contextKey: AuthContextKey) {
+    const authSession = this.requireSession(await this.getSession(token));
+    const authContext = await this.buildAuthContext(authSession);
+    const nextContext = authContext.availableContexts.find(
+      (contextOption) => contextOption.key === contextKey,
+    );
+
+    if (!nextContext) {
+      throw new UnauthorizedException(
+        ERROR_MESSAGES.AUTH.CONTEXT_ACCESS_REQUIRED,
+      );
+    }
+
+    await this.database
+      .update(session)
+      .set({
+        activeContextKey: nextContext.key,
+      })
+      .where(eq(session.token, token));
+
+    return this.requireSession(await this.getAuthContext(token));
+  }
+
   async signOut(token: string | undefined) {
     if (!token) {
       return;
@@ -365,6 +403,7 @@ export class AuthService {
     if (memberships.length === 0) {
       return {
         activeOrganizationId: null,
+        activeContextKey: null,
         activeCampusId: null,
       };
     }
@@ -387,6 +426,11 @@ export class AuthService {
 
       return {
         activeOrganizationId: matchedMembership.organizationId,
+        activeContextKey: this.resolveDefaultContextKey(
+          memberships.filter(
+            (item) => item.organizationId === matchedMembership.organizationId,
+          ),
+        ),
         activeCampusId,
       };
     }
@@ -396,6 +440,7 @@ export class AuthService {
 
       return {
         activeOrganizationId: singleMembership.organizationId,
+        activeContextKey: this.resolveDefaultContextKey([singleMembership]),
         activeCampusId: await this.resolveDefaultCampusId(
           singleMembership.organizationId,
           singleMembership.primaryCampusId,
@@ -405,6 +450,7 @@ export class AuthService {
 
     return {
       activeOrganizationId: null,
+      activeContextKey: null,
       activeCampusId: null,
     };
   }
@@ -419,13 +465,49 @@ export class AuthService {
       activeOrganization: authContext.activeOrganization
         ? this.toOrganizationDto(authContext.activeOrganization)
         : null,
+      availableContexts: authContext.availableContexts.map((contextOption) =>
+        this.toAccessContextDto(contextOption),
+      ),
+      activeContext: authContext.activeContext
+        ? this.toAccessContextDto(authContext.activeContext)
+        : null,
       activeCampus: authContext.activeCampus
         ? this.toCampusDto(authContext.activeCampus)
         : null,
       campuses: authContext.campuses.map((campusOption) =>
         this.toCampusDto(campusOption),
       ),
+      linkedStudents: authContext.linkedStudents.map((student) =>
+        this.toLinkedStudentDto(student),
+      ),
     };
+  }
+
+  async requireOrganizationContext(
+    authSession: AuthenticatedSession,
+    organizationId: string,
+    requiredContextKey: AuthContextKey,
+  ) {
+    const authContext = this.requireSession(
+      await this.getAuthContext(authSession.token),
+    );
+
+    const membership = await this.getMembershipForOrganization(
+      authSession.user.id,
+      organizationId,
+    );
+
+    if (!membership || authContext.activeOrganization?.id !== organizationId) {
+      throw new UnauthorizedException(ERROR_MESSAGES.AUTH.MEMBERSHIP_REQUIRED);
+    }
+
+    if (authContext.activeContext?.key !== requiredContextKey) {
+      throw new UnauthorizedException(
+        ERROR_MESSAGES.AUTH.CONTEXT_ACCESS_REQUIRED,
+      );
+    }
+
+    return authContext;
   }
 
   writeSessionCookie(response: Response, token: string, expiresAt: Date) {
@@ -461,6 +543,24 @@ export class AuthService {
     const campuses = authSession.activeOrganizationId
       ? await this.listCampusSummaries(authSession.activeOrganizationId)
       : [];
+    const linkedStudents = authSession.activeOrganizationId
+      ? await this.listLinkedStudents(
+          authSession.user.id,
+          authSession.activeOrganizationId,
+        )
+      : [];
+    const availableContexts = authSession.activeOrganizationId
+      ? this.buildAvailableContexts(
+          memberships.filter(
+            (membership) =>
+              membership.organizationId === authSession.activeOrganizationId,
+          ),
+        )
+      : [];
+    const activeContext = this.resolveActiveContext(
+      authSession.activeContextKey,
+      availableContexts,
+    );
     const activeCampus =
       campuses.find(
         (campusOption) => campusOption.id === authSession.activeCampusId,
@@ -471,8 +571,11 @@ export class AuthService {
       expiresAt: authSession.expiresAt,
       memberships,
       activeOrganization,
+      availableContexts,
+      activeContext,
       activeCampus,
       campuses,
+      linkedStudents,
     };
   }
 
@@ -520,6 +623,88 @@ export class AuthService {
           isNull(campus.deletedAt),
         ),
       );
+  }
+
+  private async listLinkedStudents(
+    userId: string,
+    organizationId: string,
+  ): Promise<AuthenticatedLinkedStudent[]> {
+    const linkedRows = await this.database
+      .select({
+        studentId: students.id,
+        membershipId: students.membershipId,
+        admissionNumber: students.admissionNumber,
+        firstName: students.firstName,
+        lastName: students.lastName,
+        relationship: studentGuardianLinks.relationship,
+      })
+      .from(studentGuardianLinks)
+      .innerJoin(
+        member,
+        eq(studentGuardianLinks.parentMembershipId, member.id),
+      )
+      .innerJoin(
+        students,
+        eq(studentGuardianLinks.studentMembershipId, students.membershipId),
+      )
+      .where(
+        and(
+          eq(member.userId, userId),
+          eq(member.organizationId, organizationId),
+          isNull(member.deletedAt),
+          isNull(studentGuardianLinks.deletedAt),
+          isNull(students.deletedAt),
+        ),
+      );
+
+    if (linkedRows.length === 0) {
+      return [];
+    }
+
+    const campusRows = await this.database
+      .select({
+        membershipId: member.id,
+        campusId: campus.id,
+        campusName: campus.name,
+      })
+      .from(member)
+      .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .where(
+        and(
+          inArray(
+            member.id,
+            linkedRows.map((row) => row.membershipId),
+          ),
+          isNull(member.deletedAt),
+          isNull(campus.deletedAt),
+        ),
+      );
+
+    const campusByMembershipId = new Map(
+      campusRows.map((row) => [row.membershipId, row]),
+    );
+
+    const linkedStudents: AuthenticatedLinkedStudent[] = [];
+
+    for (const row of linkedRows) {
+      const campusSummary = campusByMembershipId.get(row.membershipId);
+
+      if (!campusSummary) {
+        continue;
+      }
+
+      linkedStudents.push({
+        studentId: row.studentId,
+        membershipId: row.membershipId,
+        fullName: [row.firstName, row.lastName].filter(Boolean).join(" "),
+        admissionNumber: row.admissionNumber,
+        campusId: campusSummary.campusId,
+        campusName: campusSummary.campusName,
+        relationship: row.relationship,
+      });
+    }
+
+    return linkedStudents;
   }
 
   private async getOrganizationSummary(
@@ -657,5 +842,96 @@ export class AuthService {
     membershipSummary: AuthenticatedMembership,
   ): AuthMembershipDto {
     return membershipSummary;
+  }
+
+  private toAccessContextDto(
+    contextSummary: AuthenticatedAccessContext,
+  ): AuthAccessContextDto {
+    return {
+      key: contextSummary.key,
+      label: contextSummary.label,
+      membershipIds: contextSummary.membershipIds,
+    };
+  }
+
+  private toLinkedStudentDto(
+    linkedStudent: AuthenticatedLinkedStudent,
+  ): AuthLinkedStudentDto {
+    return linkedStudent;
+  }
+
+  private buildAvailableContexts(
+    memberships: AuthenticatedMembership[],
+  ): AuthenticatedAccessContext[] {
+    const contextMap = new Map<AuthContextKey, AuthenticatedAccessContext>();
+
+    for (const membership of memberships) {
+      const contextKey = this.memberTypeToContextKey(membership.memberType);
+
+      if (!contextKey) {
+        continue;
+      }
+
+      const existingContext = contextMap.get(contextKey);
+
+      if (existingContext) {
+        existingContext.membershipIds.push(membership.id);
+        continue;
+      }
+
+      contextMap.set(contextKey, {
+        key: contextKey,
+        label: AUTH_CONTEXT_LABELS[contextKey],
+        membershipIds: [membership.id],
+      });
+    }
+
+    return [
+      AUTH_CONTEXT_KEYS.STAFF,
+      AUTH_CONTEXT_KEYS.PARENT,
+      AUTH_CONTEXT_KEYS.STUDENT,
+    ]
+      .map((contextKey) => contextMap.get(contextKey))
+      .filter((contextOption): contextOption is AuthenticatedAccessContext =>
+        Boolean(contextOption),
+      );
+  }
+
+  private resolveDefaultContextKey(
+    memberships: AuthenticatedMembership[],
+  ): AuthContextKey | null {
+    const [defaultContext] = this.buildAvailableContexts(memberships);
+
+    return defaultContext?.key ?? null;
+  }
+
+  private resolveActiveContext(
+    activeContextKey: AuthContextKey | null,
+    availableContexts: AuthenticatedAccessContext[],
+  ) {
+    if (availableContexts.length === 0) {
+      return null;
+    }
+
+    return (
+      availableContexts.find(
+        (contextOption) => contextOption.key === activeContextKey,
+      ) ?? availableContexts[0]
+    );
+  }
+
+  private memberTypeToContextKey(
+    memberType: AuthenticatedMembership["memberType"],
+  ): AuthContextKey | null {
+    switch (memberType) {
+      case "staff":
+        return AUTH_CONTEXT_KEYS.STAFF;
+      case "guardian":
+        return AUTH_CONTEXT_KEYS.PARENT;
+      case "student":
+        return AUTH_CONTEXT_KEYS.STUDENT;
+      default:
+        return null;
+    }
   }
 }

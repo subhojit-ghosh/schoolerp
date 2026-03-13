@@ -42,9 +42,9 @@
 }
 
 :root {
-  --font-heading: 'Outfit', system-ui, sans-serif;
-  --font-body: 'Libre Baskerville', Georgia, serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-heading: 'Outfit', 'Noto Sans', system-ui, sans-serif;
+  --font-body: 'DM Sans', 'Noto Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Noto Sans', ui-monospace, monospace;
   --primary-hover: color-mix(in srgb, var(--primary) 85%, white);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -140,6 +140,14 @@ body {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+button:not(:disabled),
+a[href],
+summary,
+[role="button"]:not([aria-disabled="true"]):not([data-disabled]),
+[role="link"]:not([aria-disabled="true"]):not([data-disabled]) {
+  cursor: pointer;
 }
 
 button,

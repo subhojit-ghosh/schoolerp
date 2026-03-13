@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { TenantBranding } from "@repo/contracts";
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { RouteErrorBoundary } from "@/components/route-error-boundary";
 import { RequireSession } from "@/features/auth/ui/require-session";
 import { ERP_ROUTES } from "@/constants/routes";
 import { fetchTenantBranding } from "@/lib/api";
@@ -25,16 +26,33 @@ import { StudentDetailPage } from "@/routes/student-detail-page";
 import { StudentsPage } from "@/routes/students-page";
 
 const router = createBrowserRouter([
-  { path: ERP_ROUTES.ROOT, element: <Navigate replace to={ERP_ROUTES.SIGN_IN} /> },
-  { path: ERP_ROUTES.SIGN_IN, element: <SignInPage /> },
-  { path: ERP_ROUTES.FORGOT_PASSWORD, element: <ForgotPasswordPage /> },
-  { path: ERP_ROUTES.RESET_PASSWORD, element: <ResetPasswordPage /> },
+  {
+    path: ERP_ROUTES.ROOT,
+    element: <Navigate replace to={ERP_ROUTES.SIGN_IN} />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.SIGN_IN,
+    element: <SignInPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.FORGOT_PASSWORD,
+    element: <ForgotPasswordPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.RESET_PASSWORD,
+    element: <ResetPasswordPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
   {
     element: (
       <RequireSession>
         <DashboardLayout />
       </RequireSession>
     ),
+    errorElement: <RouteErrorBoundary />,
     children: [
       { path: ERP_ROUTES.DASHBOARD, element: <DashboardPage /> },
       { path: ERP_ROUTES.STUDENTS, element: <StudentsPage /> },

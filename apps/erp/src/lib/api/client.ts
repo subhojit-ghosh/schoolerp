@@ -2,14 +2,8 @@ import createFetchClient from "openapi-fetch";
 import createQueryClient from "openapi-react-query";
 import type { paths } from "@/lib/api/generated/schema";
 import { APP_FALLBACKS } from "@/constants/api";
-import { getCurrentTenantSlug } from "@/lib/tenant-context";
-
 function getApiBaseUrl() {
   return import.meta.env.VITE_API_URL ?? APP_FALLBACKS.API_URL;
-}
-
-export function getTenantSlug() {
-  return getCurrentTenantSlug();
 }
 
 const fetchWithCredentials: typeof fetch = (input, init) =>

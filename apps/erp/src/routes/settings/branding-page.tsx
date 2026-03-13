@@ -14,6 +14,7 @@ import {
   cacheTenantBranding,
   readCachedTenantBranding,
   deriveSidebarTokens,
+  contrastForeground,
 } from "@/lib/tenant-branding";
 import {
   FONT_PAIRINGS,
@@ -79,13 +80,6 @@ function getInitialValues(
   };
 }
 
-function contrastForeground(hex: string): string {
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
-  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return lum < 0.45 ? "#f5f5f5" : "#1a1a1a";
-}
 
 function applyColorPreview(primary: string, accent: string, sidebar: string) {
   const root = document.querySelector(":root") as HTMLElement | null;
@@ -116,9 +110,9 @@ function applyFontPreview(
 ) {
   const root = document.querySelector(":root") as HTMLElement | null;
   if (!root) return;
-  if (fontHeading) root.style.setProperty("--font-heading", `'${fontHeading}', system-ui, sans-serif`);
-  if (fontBody) root.style.setProperty("--font-body", `'${fontBody}', Georgia, serif`);
-  if (fontMono) root.style.setProperty("--font-mono", `'${fontMono}', ui-monospace, monospace`);
+  if (fontHeading) root.style.setProperty("--font-heading", `'${fontHeading}', 'Noto Sans', system-ui, sans-serif`);
+  if (fontBody) root.style.setProperty("--font-body", `'${fontBody}', 'Noto Sans', system-ui, sans-serif`);
+  if (fontMono) root.style.setProperty("--font-mono", `'${fontMono}', 'Noto Sans', ui-monospace, monospace`);
 }
 
 export function BrandingPage() {

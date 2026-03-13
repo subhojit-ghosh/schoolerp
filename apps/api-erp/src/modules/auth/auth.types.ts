@@ -1,5 +1,7 @@
+import type { AuthContextKey } from "@repo/contracts";
 import type {
   CampusStatus,
+  GuardianRelationship,
   MemberStatus,
   MemberType,
   OrgStatus,
@@ -51,7 +53,24 @@ export type AuthenticatedSession = {
   expiresAt: Date;
   user: AuthenticatedUser;
   activeOrganizationId: string | null;
+  activeContextKey: AuthContextKey | null;
   activeCampusId: string | null;
+};
+
+export type AuthenticatedAccessContext = {
+  key: AuthContextKey;
+  label: (typeof import("@repo/contracts").AUTH_CONTEXT_LABELS)[AuthContextKey];
+  membershipIds: string[];
+};
+
+export type AuthenticatedLinkedStudent = {
+  studentId: string;
+  membershipId: string;
+  fullName: string;
+  admissionNumber: string;
+  campusId: string;
+  campusName: string;
+  relationship: GuardianRelationship | null;
 };
 
 export type AuthContext = {
@@ -59,8 +78,11 @@ export type AuthContext = {
   expiresAt: Date;
   memberships: AuthenticatedMembership[];
   activeOrganization: AuthenticatedOrganization | null;
+  availableContexts: AuthenticatedAccessContext[];
+  activeContext: AuthenticatedAccessContext | null;
   activeCampus: AuthenticatedCampus | null;
   campuses: AuthenticatedCampus[];
+  linkedStudents: AuthenticatedLinkedStudent[];
 };
 
 export type SessionRequestContext = {
@@ -70,6 +92,7 @@ export type SessionRequestContext = {
 
 export type SessionAccessContext = {
   activeOrganizationId?: string | null;
+  activeContextKey?: AuthContextKey | null;
   activeCampusId?: string | null;
 };
 

@@ -5,6 +5,8 @@ export const ERROR_MESSAGES = {
     MOBILE_ALREADY_EXISTS: "An account already exists for this mobile number.",
     EMAIL_ALREADY_EXISTS: "An account already exists for this email address.",
     MEMBERSHIP_REQUIRED: "You do not have access to the selected institution.",
+    CONTEXT_ACCESS_REQUIRED:
+      "You do not have access to the selected context for this institution.",
     CAMPUS_ACCESS_REQUIRED: "You do not have access to the selected campus.",
     PASSWORD_RESET_REQUEST_BLOCKED:
       "Too many password reset attempts. Try again later.",

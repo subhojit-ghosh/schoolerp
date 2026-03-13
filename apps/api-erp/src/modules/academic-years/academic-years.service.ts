@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
+import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import { academicYears } from "@repo/database";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
@@ -13,6 +14,7 @@ import { Inject } from "@nestjs/common";
 import { AcademicYearDto } from "./academic-years.dto";
 import type { CreateAcademicYearDto } from "./academic-years.schemas";
 import { AuthService } from "../auth/auth.service";
+import type { AuthenticatedSession } from "../auth/auth.types";
 
 @Injectable()
 export class AcademicYearsService {
@@ -23,9 +25,9 @@ export class AcademicYearsService {
 
   async listAcademicYears(
     institutionId: string,
-    actorUserId: string,
+    authSession: AuthenticatedSession,
   ): Promise<AcademicYearDto[]> {
-    await this.requireInstitutionAccess(actorUserId, institutionId);
+    await this.requireInstitutionAccess(authSession, institutionId);
 
     const rows = await this.database
       .select({
@@ -55,10 +57,10 @@ export class AcademicYearsService {
 
   async createAcademicYear(
     institutionId: string,
-    actorUserId: string,
+    authSession: AuthenticatedSession,
     payload: CreateAcademicYearDto,
   ): Promise<void> {
-    await this.requireInstitutionAccess(actorUserId, institutionId);
+    await this.requireInstitutionAccess(authSession, institutionId);
 
     const [existingCurrent] = await this.database
       .select({ id: academicYears.id })
@@ -100,9 +102,9 @@ export class AcademicYearsService {
   async setCurrentAcademicYear(
     institutionId: string,
     academicYearId: string,
-    actorUserId: string,
+    authSession: AuthenticatedSession,
   ): Promise<void> {
-    await this.requireInstitutionAccess(actorUserId, institutionId);
+    await this.requireInstitutionAccess(authSession, institutionId);
     await this.getAcademicYearOrThrow(academicYearId, institutionId);
 
     await this.database
@@ -127,9 +129,9 @@ export class AcademicYearsService {
   async archiveAcademicYear(
     institutionId: string,
     academicYearId: string,
-    actorUserId: string,
+    authSession: AuthenticatedSession,
   ): Promise<void> {
-    await this.requireInstitutionAccess(actorUserId, institutionId);
+    await this.requireInstitutionAccess(authSession, institutionId);
     const year = await this.getAcademicYearOrThrow(
       academicYearId,
       institutionId,
@@ -150,9 +152,9 @@ export class AcademicYearsService {
   async restoreAcademicYear(
     institutionId: string,
     academicYearId: string,
-    actorUserId: string,
+    authSession: AuthenticatedSession,
   ): Promise<void> {
-    await this.requireInstitutionAccess(actorUserId, institutionId);
+    await this.requireInstitutionAccess(authSession, institutionId);
     await this.getAcademicYearOrThrow(academicYearId, institutionId);
 
     await this.database
@@ -189,16 +191,13 @@ export class AcademicYearsService {
   }
 
   private async requireInstitutionAccess(
-    userId: string,
+    authSession: AuthenticatedSession,
     institutionId: string,
   ) {
-    const membership = await this.authService.getMembershipForOrganization(
-      userId,
+    await this.authService.requireOrganizationContext(
+      authSession,
       institutionId,
+      AUTH_CONTEXT_KEYS.STAFF,
     );
-
-    if (!membership) {
-      throw new NotFoundException(ERROR_MESSAGES.AUTH.MEMBERSHIP_REQUIRED);
-    }
   }
 }

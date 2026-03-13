@@ -242,6 +242,43 @@
         ]
       }
     },
+    "/auth/context/select": {
+      "patch": {
+        "operationId": "AuthController_selectContext",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SwitchContextBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthContextDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Select the active access context inside the current tenant",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/auth/sign-out": {
       "post": {
         "operationId": "AuthController_signOut",
@@ -467,6 +504,102 @@
         ]
       }
     },
+    "/institutions/{institutionId}/students/{studentId}": {
+      "get": {
+        "operationId": "StudentsController_getStudent",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a single student for an institution",
+        "tags": [
+          "students"
+        ]
+      },
+      "patch": {
+        "operationId": "StudentsController_updateStudent",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStudentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a student and reconcile guardians",
+        "tags": [
+          "students"
+        ]
+      }
+    },
     "/institutions/{institutionId}/academic-years": {
       "get": {
         "operationId": "AcademicYearsController_listAcademicYears",
@@ -495,6 +628,11 @@
             }
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "List academic years for an institution",
         "tags": [
           "academic-years"
@@ -527,6 +665,11 @@
             "description": "Academic year created"
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Create an academic year for an institution",
         "tags": [
           "academic-years"
@@ -559,6 +702,11 @@
             "description": "Academic year set as current"
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Set current academic year",
         "tags": [
           "academic-years"
@@ -591,6 +739,11 @@
             "description": "Academic year archived"
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Archive an academic year",
         "tags": [
           "academic-years"
@@ -623,6 +776,11 @@
             "description": "Academic year restored"
           }
         },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
         "summary": "Restore an academic year",
         "tags": [
           "academic-years"
@@ -719,6 +877,52 @@
           }
         },
         "summary": "Count institutions by status",
+        "tags": [
+          "institutions"
+        ]
+      }
+    },
+    "/institutions/{id}/branding": {
+      "patch": {
+        "operationId": "InstitutionsController_updateBranding",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBrandingBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdateBrandingResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update branding colors for an institution",
         "tags": [
           "institutions"
         ]
@@ -995,6 +1199,38 @@
           "status"
         ]
       },
+      "AuthAccessContextDto": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "enum": [
+              "staff",
+              "parent",
+              "student"
+            ]
+          },
+          "label": {
+            "type": "string",
+            "enum": [
+              "Staff",
+              "Parent",
+              "Student"
+            ]
+          },
+          "membershipIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "key",
+          "label",
+          "membershipIds"
+        ]
+      },
       "AuthCampusDto": {
         "type": "object",
         "properties": {
@@ -1035,6 +1271,47 @@
           "status"
         ]
       },
+      "AuthLinkedStudentDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "membershipId": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "father",
+              "mother",
+              "guardian"
+            ]
+          }
+        },
+        "required": [
+          "studentId",
+          "membershipId",
+          "fullName",
+          "admissionNumber",
+          "campusId",
+          "campusName",
+          "relationship"
+        ]
+      },
       "AuthContextDto": {
         "type": "object",
         "properties": {
@@ -1059,6 +1336,20 @@
               }
             ]
           },
+          "availableContexts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthAccessContextDto"
+            }
+          },
+          "activeContext": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthAccessContextDto"
+              }
+            ]
+          },
           "activeCampus": {
             "nullable": true,
             "allOf": [
@@ -1072,6 +1363,12 @@
             "items": {
               "$ref": "#/components/schemas/AuthCampusDto"
             }
+          },
+          "linkedStudents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthLinkedStudentDto"
+            }
           }
         },
         "required": [
@@ -1079,8 +1376,11 @@
           "expiresAt",
           "memberships",
           "activeOrganization",
+          "availableContexts",
+          "activeContext",
           "activeCampus",
-          "campuses"
+          "campuses",
+          "linkedStudents"
         ]
       },
       "SignInBodyDto": {
@@ -1162,6 +1462,22 @@
         },
         "required": [
           "campusId"
+        ]
+      },
+      "SwitchContextBodyDto": {
+        "type": "object",
+        "properties": {
+          "contextKey": {
+            "type": "string",
+            "enum": [
+              "staff",
+              "parent",
+              "student"
+            ]
+          }
+        },
+        "required": [
+          "contextKey"
         ]
       },
       "CreateInstitutionOnboardingBodyDto": {
@@ -1427,6 +1743,36 @@
           "guardians"
         ]
       },
+      "UpdateStudentBodyDto": {
+        "type": "object",
+        "properties": {
+          "admissionNumber": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "guardians": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateGuardianLinkBodyDto"
+            }
+          }
+        },
+        "required": [
+          "admissionNumber",
+          "firstName",
+          "campusId",
+          "guardians"
+        ]
+      },
       "AcademicYearDto": {
         "type": "object",
         "properties": {
@@ -1575,6 +1921,150 @@
           "total",
           "active",
           "suspended"
+        ]
+      },
+      "UpdateBrandingBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Institution display name"
+          },
+          "shortName": {
+            "type": "string",
+            "description": "Short name or abbreviation"
+          },
+          "logoUrl": {
+            "type": "string",
+            "description": "Logo image URL",
+            "nullable": true
+          },
+          "faviconUrl": {
+            "type": "string",
+            "description": "Favicon URL",
+            "nullable": true
+          },
+          "primaryColor": {
+            "type": "string",
+            "description": "Primary color as a hex string, e.g. #8a5a44"
+          },
+          "accentColor": {
+            "type": "string",
+            "description": "Accent color as a hex string, e.g. #d59f6a"
+          },
+          "sidebarColor": {
+            "type": "string",
+            "description": "Sidebar color as a hex string, e.g. #32241c"
+          },
+          "fontHeading": {
+            "type": "string",
+            "description": "Heading font family, e.g. Outfit"
+          },
+          "fontBody": {
+            "type": "string",
+            "description": "Body font family, e.g. Libre Baskerville"
+          },
+          "fontMono": {
+            "type": "string",
+            "description": "Monospace font family, e.g. IBM Plex Mono"
+          },
+          "borderRadius": {
+            "type": "string",
+            "enum": [
+              "sharp",
+              "default",
+              "rounded",
+              "pill"
+            ]
+          },
+          "uiDensity": {
+            "type": "string",
+            "enum": [
+              "compact",
+              "default",
+              "comfortable"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "shortName",
+          "primaryColor",
+          "accentColor",
+          "sidebarColor"
+        ]
+      },
+      "UpdateBrandingResponseDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "shortName": {
+            "type": "string"
+          },
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "faviconUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "primaryColor": {
+            "type": "string"
+          },
+          "accentColor": {
+            "type": "string"
+          },
+          "sidebarColor": {
+            "type": "string"
+          },
+          "fontHeading": {
+            "type": "string",
+            "nullable": true
+          },
+          "fontBody": {
+            "type": "string",
+            "nullable": true
+          },
+          "fontMono": {
+            "type": "string",
+            "nullable": true
+          },
+          "borderRadius": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "sharp",
+              "default",
+              "rounded",
+              "pill"
+            ]
+          },
+          "uiDensity": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "compact",
+              "default",
+              "comfortable"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "shortName",
+          "logoUrl",
+          "faviconUrl",
+          "primaryColor",
+          "accentColor",
+          "sidebarColor",
+          "fontHeading",
+          "fontBody",
+          "fontMono",
+          "borderRadius",
+          "uiDensity"
         ]
       },
       "TenantBrandingDto": {

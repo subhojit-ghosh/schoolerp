@@ -1,5 +1,5 @@
 import type { Icon } from "@tabler/icons-react";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { cn } from "@repo/ui/lib/utils";
 import {
   SidebarGroup,
@@ -26,7 +26,11 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      {label ? <SidebarGroupLabel>{label}</SidebarGroupLabel> : null}
+      {label ? (
+        <SidebarGroupLabel className="px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/50">
+          {label}
+        </SidebarGroupLabel>
+      ) : null}
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
@@ -36,20 +40,25 @@ export function NavMain({
                 isActive={location.pathname === item.url}
                 tooltip={item.title}
                 className={cn(
-                  "data-[active=true]:bg-primary/10 data-[active=true]:text-primary",
-                  item.disabled ? "opacity-40 cursor-not-allowed pointer-events-none" : undefined,
+                  "rounded-xl px-3 py-2.5 data-[active=true]:bg-white/10 data-[active=true]:font-medium data-[active=true]:shadow-[inset_2px_0_0_var(--accent)] hover:bg-white/6",
+                  item.disabled
+                    ? "cursor-not-allowed pointer-events-none text-muted-foreground/60"
+                    : undefined,
                 )}
               >
                 {item.disabled ? (
-                  <span className="flex items-center gap-2">
-                    {item.icon ? <item.icon /> : null}
-                    <span>{item.title}</span>
-                  </span>
+                  <>
+                    {item.icon ? <item.icon className="shrink-0" /> : null}
+                    <span className="flex-1 truncate">{item.title}</span>
+                    <span className="ml-auto text-[10px] font-medium tracking-wide text-muted-foreground/60 uppercase">
+                      Soon
+                    </span>
+                  </>
                 ) : (
-                  <NavLink to={item.url}>
+                  <Link to={item.url}>
                     {item.icon ? <item.icon /> : null}
                     <span>{item.title}</span>
-                  </NavLink>
+                  </Link>
                 )}
               </SidebarMenuButton>
             </SidebarMenuItem>

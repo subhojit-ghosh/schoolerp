@@ -97,6 +97,21 @@ export function useSelectCampusMutation() {
   });
 }
 
+export function useSelectContextMutation() {
+  const queryClient = useQueryClient();
+  const setSession = useAuthStore((store) => store.setSession);
+
+  return apiQueryClient.useMutation("patch", AUTH_API_PATHS.SELECT_CONTEXT, {
+    onSuccess: (session) => {
+      setSession(session);
+      queryClient.setQueryData(
+        apiQueryClient.queryOptions("get", AUTH_API_PATHS.ME).queryKey,
+        session,
+      );
+    },
+  });
+}
+
 export function useAuthErrorMessage(error: unknown, fallbackMessage: string) {
   return getApiErrorMessage(error, fallbackMessage);
 }

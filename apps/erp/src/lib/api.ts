@@ -2,7 +2,7 @@ import {
   healthResponseSchema,
   tenantBrandingSchema,
 } from "@repo/contracts";
-import { apiFetchClient, getTenantSlug } from "@/lib/api/client";
+import { apiFetchClient } from "@/lib/api/client";
 
 export async function fetchHealth() {
   const response = await apiFetchClient.GET("/health");
@@ -15,16 +15,7 @@ export async function fetchHealth() {
 }
 
 export async function fetchTenantBranding() {
-  const tenantSlug = getTenantSlug();
-  const response = await apiFetchClient.GET("/public/tenant-branding", {
-    params: tenantSlug
-      ? {
-          query: {
-            tenant: tenantSlug,
-          },
-        }
-      : undefined,
-  });
+  const response = await apiFetchClient.GET("/public/tenant-branding");
 
   if (response.error) {
     throw new Error("Failed to fetch tenant branding.");

@@ -21,6 +21,10 @@ import {
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import { Label } from "@repo/ui/components/ui/label";
+import {
+  getActiveContext,
+  isStaffContext,
+} from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
   useAcademicYearsQuery,
@@ -43,12 +47,15 @@ const DEFAULT_VALUES: AcademicYearFormValues = {
 
 export function AcademicYearsPage() {
   const session = useAuthStore((store) => store.session);
+  const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const academicYearsQuery = useAcademicYearsQuery(institutionId);
-  const createMutation = useCreateAcademicYearMutation(institutionId);
-  const setCurrentMutation = useSetCurrentAcademicYearMutation(institutionId);
-  const archiveMutation = useArchiveAcademicYearMutation(institutionId);
-  const restoreMutation = useRestoreAcademicYearMutation(institutionId);
+  const canManageAcademicYears = isStaffContext(session);
+  const managedInstitutionId = canManageAcademicYears ? institutionId : undefined;
+  const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
+  const createMutation = useCreateAcademicYearMutation(managedInstitutionId);
+  const setCurrentMutation = useSetCurrentAcademicYearMutation(managedInstitutionId);
+  const archiveMutation = useArchiveAcademicYearMutation(managedInstitutionId);
+  const restoreMutation = useRestoreAcademicYearMutation(managedInstitutionId);
   const createError = createMutation.error as Error | null | undefined;
 
   const { control, handleSubmit, reset } = useForm<AcademicYearFormValues>({
@@ -132,6 +139,19 @@ export function AcademicYearsPage() {
           <CardTitle>Academic years</CardTitle>
           <CardDescription>
             Sign in with an institution-backed session to manage academic years.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+
+  if (!canManageAcademicYears) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Academic years</CardTitle>
+          <CardDescription>
+            Academic-year administration is available in Staff view. You are currently in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>

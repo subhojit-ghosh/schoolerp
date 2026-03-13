@@ -21,6 +21,7 @@ import {
   cacheTenantBranding,
   readCachedTenantBranding,
   deriveSidebarTokens,
+  contrastForeground,
 } from "@/lib/tenant-branding";
 import {
   FONT_PAIRINGS,
@@ -96,10 +97,15 @@ export function ThemeDrawer() {
   useEffect(() => {
     const root = document.querySelector(":root") as HTMLElement | null;
     if (!root) return;
-    if (HEX_COLOR_REGEX.test(primaryColor))
+    if (HEX_COLOR_REGEX.test(primaryColor)) {
       root.style.setProperty("--primary", primaryColor);
-    if (HEX_COLOR_REGEX.test(accentColor))
+      root.style.setProperty("--primary-foreground", contrastForeground(primaryColor));
+      root.style.setProperty("--ring", primaryColor);
+    }
+    if (HEX_COLOR_REGEX.test(accentColor)) {
       root.style.setProperty("--accent", accentColor);
+      root.style.setProperty("--accent-foreground", contrastForeground(accentColor));
+    }
     if (HEX_COLOR_REGEX.test(sidebarColor)) {
       const tokens = deriveSidebarTokens(sidebarColor);
       root.style.setProperty("--sidebar", tokens.background);
@@ -113,9 +119,9 @@ export function ThemeDrawer() {
   useEffect(() => {
     const root = document.querySelector(":root") as HTMLElement | null;
     if (!root) return;
-    if (fontHeading) root.style.setProperty("--font-heading", `'${fontHeading}', system-ui, sans-serif`);
-    if (fontBody) root.style.setProperty("--font-body", `'${fontBody}', Georgia, serif`);
-    if (fontMono) root.style.setProperty("--font-mono", `'${fontMono}', ui-monospace, monospace`);
+    if (fontHeading) root.style.setProperty("--font-heading", `'${fontHeading}', 'Noto Sans', system-ui, sans-serif`);
+    if (fontBody) root.style.setProperty("--font-body", `'${fontBody}', 'Noto Sans', system-ui, sans-serif`);
+    if (fontMono) root.style.setProperty("--font-mono", `'${fontMono}', 'Noto Sans', ui-monospace, monospace`);
   }, [fontHeading, fontBody, fontMono]);
 
   useEffect(() => {
@@ -232,7 +238,7 @@ export function ThemeDrawer() {
                         <span className="h-3 w-3 rounded-full" style={{ background: preset.primaryColor }} />
                         <span className="h-3 w-3 rounded-full" style={{ background: preset.sidebarColor }} />
                       </div>
-                      <span className="text-[9px] text-muted-foreground leading-none truncate w-full text-center">
+                      <span className="text-[10px] text-muted-foreground leading-none truncate w-full text-center">
                         {preset.name}
                       </span>
                       {isSelected && (
@@ -354,7 +360,7 @@ export function ThemeDrawer() {
                           ].join(" ")}
                         >
                           <span className="text-xs font-medium">{option.label}</span>
-                          <span className="text-[10px] text-muted-foreground leading-tight">
+                          <span className="text-xs text-muted-foreground leading-tight">
                             {option.description}
                           </span>
                         </button>
@@ -430,7 +436,7 @@ function CompactFontPairingPicker({
               )}
             </div>
             <p
-              className="mt-1 text-[11px] text-muted-foreground truncate"
+              className="mt-1 text-xs text-muted-foreground truncate"
               title={`${pairing.fontHeading} · ${pairing.fontBody} · ${pairing.fontMono}`}
             >
               <span style={{ fontFamily: `'${pairing.fontHeading}', sans-serif` }}>{pairing.fontHeading}</span>

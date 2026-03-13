@@ -140,6 +140,23 @@ export interface paths {
         patch: operations["AuthController_selectCampus"];
         trace?: never;
     };
+    "/auth/context/select": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Select the active access context inside the current tenant */
+        patch: operations["AuthController_selectContext"];
+        trace?: never;
+    };
     "/auth/sign-out": {
         parameters: {
             query?: never;
@@ -331,6 +348,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/institutions/{id}/branding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update branding colors for an institution */
+        patch: operations["InstitutionsController_updateBranding"];
+        trace?: never;
+    };
     "/institutions/{id}": {
         parameters: {
             query?: never;
@@ -410,6 +444,13 @@ export interface components {
             /** @enum {string} */
             status: "active" | "suspended";
         };
+        AuthAccessContextDto: {
+            /** @enum {string} */
+            key: "staff" | "parent" | "student";
+            /** @enum {string} */
+            label: "Staff" | "Parent" | "Student";
+            membershipIds: string[];
+        };
         AuthCampusDto: {
             id: string;
             organizationId: string;
@@ -420,14 +461,27 @@ export interface components {
             /** @enum {string} */
             status: "active" | "inactive";
         };
+        AuthLinkedStudentDto: {
+            studentId: string;
+            membershipId: string;
+            fullName: string;
+            admissionNumber: string;
+            campusId: string;
+            campusName: string;
+            /** @enum {string|null} */
+            relationship: "father" | "mother" | "guardian" | null;
+        };
         AuthContextDto: {
             user: components["schemas"]["AuthUserDto"];
             /** Format: date-time */
             expiresAt: string;
             memberships: components["schemas"]["AuthMembershipDto"][];
             activeOrganization: components["schemas"]["AuthOrganizationDto"] | null;
+            availableContexts: components["schemas"]["AuthAccessContextDto"][];
+            activeContext: components["schemas"]["AuthAccessContextDto"] | null;
             activeCampus: components["schemas"]["AuthCampusDto"] | null;
             campuses: components["schemas"]["AuthCampusDto"][];
+            linkedStudents: components["schemas"]["AuthLinkedStudentDto"][];
         };
         SignInBodyDto: {
             identifier: string;
@@ -450,6 +504,10 @@ export interface components {
         };
         SwitchCampusBodyDto: {
             campusId: string;
+        };
+        SwitchContextBodyDto: {
+            /** @enum {string} */
+            contextKey: "staff" | "parent" | "student";
         };
         CreateInstitutionOnboardingBodyDto: {
             institutionName: string;
@@ -562,6 +620,48 @@ export interface components {
             total: number;
             active: number;
             suspended: number;
+        };
+        UpdateBrandingBodyDto: {
+            /** @description Institution display name */
+            name: string;
+            /** @description Short name or abbreviation */
+            shortName: string;
+            /** @description Logo image URL */
+            logoUrl?: string | null;
+            /** @description Favicon URL */
+            faviconUrl?: string | null;
+            /** @description Primary color as a hex string, e.g. #8a5a44 */
+            primaryColor: string;
+            /** @description Accent color as a hex string, e.g. #d59f6a */
+            accentColor: string;
+            /** @description Sidebar color as a hex string, e.g. #32241c */
+            sidebarColor: string;
+            /** @description Heading font family, e.g. Outfit */
+            fontHeading?: string;
+            /** @description Body font family, e.g. Libre Baskerville */
+            fontBody?: string;
+            /** @description Monospace font family, e.g. IBM Plex Mono */
+            fontMono?: string;
+            /** @enum {string} */
+            borderRadius?: "sharp" | "default" | "rounded" | "pill";
+            /** @enum {string} */
+            uiDensity?: "compact" | "default" | "comfortable";
+        };
+        UpdateBrandingResponseDto: {
+            name: string;
+            shortName: string;
+            logoUrl: string | null;
+            faviconUrl: string | null;
+            primaryColor: string;
+            accentColor: string;
+            sidebarColor: string;
+            fontHeading: string | null;
+            fontBody: string | null;
+            fontMono: string | null;
+            /** @enum {string|null} */
+            borderRadius: "sharp" | "default" | "rounded" | "pill" | null;
+            /** @enum {string|null} */
+            uiDensity: "compact" | "default" | "comfortable" | null;
         };
         TenantBrandingDto: {
             institutionName: string;
@@ -741,6 +841,29 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["SwitchCampusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthContextDto"];
+                };
+            };
+        };
+    };
+    AuthController_selectContext: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SwitchContextBodyDto"];
             };
         };
         responses: {
@@ -1089,6 +1212,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["InstitutionCountsDto"];
+                };
+            };
+        };
+    };
+    InstitutionsController_updateBranding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBrandingBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UpdateBrandingResponseDto"];
                 };
             };
         };

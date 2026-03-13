@@ -17,10 +17,20 @@ function getBrandingCacheKey() {
 }
 
 function hexLuminance(hex: string): number {
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const toLinear = (c: number) =>
+    c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  const r = toLinear(parseInt(hex.slice(1, 3), 16) / 255);
+  const g = toLinear(parseInt(hex.slice(3, 5), 16) / 255);
+  const b = toLinear(parseInt(hex.slice(5, 7), 16) / 255);
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrastRatio(bgHex: string, fgHex: string): number {
+  const l1 = hexLuminance(bgHex);
+  const l2 = hexLuminance(fgHex);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
 }
 
 function mixToward(hex: string, target: number, t: number): string {
@@ -33,13 +43,14 @@ function mixToward(hex: string, target: number, t: number): string {
 }
 
 export function deriveSidebarTokens(hex: string) {
-  const isDark = hexLuminance(hex) < 0.35;
+  const fg = contrastForeground(hex);
+  const isDark = hexLuminance(hex) < 0.18;
   return {
     background: hex,
-    foreground: isDark ? "#f0f0f0" : "#1a1a1a",
-    accent: isDark ? mixToward(hex, 255, 0.15) : mixToward(hex, 0, 0.08),
-    accentForeground: isDark ? "#f0f0f0" : "#1a1a1a",
-    border: isDark ? mixToward(hex, 255, 0.1) : mixToward(hex, 0, 0.06),
+    foreground: fg,
+    accent: isDark ? mixToward(hex, 255, 0.28) : mixToward(hex, 0, 0.14),
+    accentForeground: fg,
+    border: isDark ? mixToward(hex, 255, 0.12) : mixToward(hex, 0, 0.08),
   };
 }
 
@@ -71,16 +82,17 @@ function upsertMeta(name: string, content: string) {
   meta.content = content;
 }
 
+const INDIC_FALLBACK_FONT = "Noto Sans";
+
 function injectTenantFonts(
   fontHeading: string | null,
   fontBody: string | null,
   fontMono: string | null,
 ) {
-  const families = [fontHeading, fontBody, fontMono].filter(
+  // Always include Noto Sans for Devanagari, Bengali, and other Indic script coverage.
+  const families = [fontHeading, fontBody, fontMono, INDIC_FALLBACK_FONT].filter(
     (f): f is string => Boolean(f),
   );
-
-  if (families.length === 0) return;
 
   const url = buildGoogleFontsUrl(families);
   if (!url) return;
@@ -97,8 +109,10 @@ function injectTenantFonts(
   link.href = url;
 }
 
-function contrastForeground(hex: string): string {
-  return hexLuminance(hex) < 0.45 ? "#f5f5f5" : "#1a1a1a";
+export function contrastForeground(hex: string): string {
+  return contrastRatio(hex, "#ffffff") >= contrastRatio(hex, "#1a1a1a")
+    ? "#ffffff"
+    : "#1a1a1a";
 }
 
 export function applyTenantBranding(branding: TenantBranding) {
@@ -121,25 +135,27 @@ export function applyTenantBranding(branding: TenantBranding) {
   root.style.setProperty("--sidebar-accent-foreground", sidebar.accentForeground);
   root.style.setProperty("--sidebar-border", sidebar.border);
 
-  if (branding.fontHeading || branding.fontBody || branding.fontMono) {
-    injectTenantFonts(branding.fontHeading, branding.fontBody, branding.fontMono);
+  // Always load fonts — even if no custom fonts are set, Noto Sans must be fetched
+  // so Devanagari and Bengali characters render correctly as a baseline.
+  injectTenantFonts(branding.fontHeading, branding.fontBody, branding.fontMono);
 
+  if (branding.fontHeading || branding.fontBody || branding.fontMono) {
     if (branding.fontHeading) {
       root.style.setProperty(
         "--font-heading",
-        `'${branding.fontHeading}', system-ui, sans-serif`,
+        `'${branding.fontHeading}', '${INDIC_FALLBACK_FONT}', system-ui, sans-serif`,
       );
     }
     if (branding.fontBody) {
       root.style.setProperty(
         "--font-body",
-        `'${branding.fontBody}', Georgia, serif`,
+        `'${branding.fontBody}', '${INDIC_FALLBACK_FONT}', system-ui, sans-serif`,
       );
     }
     if (branding.fontMono) {
       root.style.setProperty(
         "--font-mono",
-        `'${branding.fontMono}', ui-monospace, monospace`,
+        `'${branding.fontMono}', '${INDIC_FALLBACK_FONT}', ui-monospace, monospace`,
       );
     }
   }

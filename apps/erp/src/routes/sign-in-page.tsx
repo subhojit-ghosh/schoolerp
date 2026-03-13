@@ -8,7 +8,6 @@ import {
 } from "@/features/auth/api/use-auth";
 import type { SignInFormValues } from "@/features/auth/model/auth-form-schema";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { getTenantSlug } from "@/lib/api/client";
 import { buildTenantAppUrl } from "@/lib/tenant-context";
 
 export function SignInPage() {
@@ -25,12 +24,8 @@ export function SignInPage() {
   }
 
   async function onSubmit(values: SignInFormValues) {
-    const tenantSlug = getTenantSlug() ?? undefined;
     const session = await signInMutation.mutateAsync({
-      body: {
-        ...values,
-        tenantSlug,
-      },
+      body: values,
     });
 
     const activeTenantSlug = session?.activeOrganization?.slug;

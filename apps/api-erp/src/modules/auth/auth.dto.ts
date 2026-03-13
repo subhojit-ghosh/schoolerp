@@ -1,8 +1,15 @@
+import {
+  AUTH_CONTEXT_KEYS,
+  AUTH_CONTEXT_LABELS,
+  type AuthContextKey,
+} from "@repo/contracts";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
+  GUARDIAN_RELATIONSHIPS,
   MEMBER_TYPES,
   STATUS,
   type CampusStatus,
+  type GuardianRelationship,
   type MemberStatus,
   type MemberType,
   type OrgStatus,
@@ -65,6 +72,13 @@ export class ResetPasswordResponseDto {
 export class SwitchCampusBodyDto {
   @ApiProperty()
   campusId!: string;
+}
+
+export class SwitchContextBodyDto {
+  @ApiProperty({
+    enum: Object.values(AUTH_CONTEXT_KEYS),
+  })
+  contextKey!: AuthContextKey;
 }
 
 export class AuthUserDto {
@@ -170,6 +184,50 @@ export class AuthMembershipDto {
   primaryCampusId!: string | null;
 }
 
+export class AuthAccessContextDto {
+  @ApiProperty({
+    enum: Object.values(AUTH_CONTEXT_KEYS),
+  })
+  key!: AuthContextKey;
+
+  @ApiProperty({
+    enum: Object.values(AUTH_CONTEXT_LABELS),
+  })
+  label!: (typeof AUTH_CONTEXT_LABELS)[AuthContextKey];
+
+  @ApiProperty({
+    type: () => String,
+    isArray: true,
+  })
+  membershipIds!: string[];
+}
+
+export class AuthLinkedStudentDto {
+  @ApiProperty()
+  studentId!: string;
+
+  @ApiProperty()
+  membershipId!: string;
+
+  @ApiProperty()
+  fullName!: string;
+
+  @ApiProperty()
+  admissionNumber!: string;
+
+  @ApiProperty()
+  campusId!: string;
+
+  @ApiProperty()
+  campusName!: string;
+
+  @ApiProperty({
+    enum: Object.values(GUARDIAN_RELATIONSHIPS),
+    nullable: true,
+  })
+  relationship!: GuardianRelationship | null;
+}
+
 export class AuthContextDto {
   @ApiProperty({ type: () => AuthUserDto })
   user!: AuthUserDto;
@@ -193,6 +251,18 @@ export class AuthContextDto {
   activeOrganization!: AuthOrganizationDto | null;
 
   @ApiProperty({
+    type: () => AuthAccessContextDto,
+    isArray: true,
+  })
+  availableContexts!: AuthAccessContextDto[];
+
+  @ApiProperty({
+    type: () => AuthAccessContextDto,
+    nullable: true,
+  })
+  activeContext!: AuthAccessContextDto | null;
+
+  @ApiProperty({
     type: () => AuthCampusDto,
     nullable: true,
   })
@@ -203,4 +273,10 @@ export class AuthContextDto {
     isArray: true,
   })
   campuses!: AuthCampusDto[];
+
+  @ApiProperty({
+    type: () => AuthLinkedStudentDto,
+    isArray: true,
+  })
+  linkedStudents!: AuthLinkedStudentDto[];
 }

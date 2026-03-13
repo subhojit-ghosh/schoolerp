@@ -237,6 +237,8 @@ export function ExampleForm() {
 - In local dev and production-style routing, the frontend should call the backend via same-host `/api`, not direct `localhost:4000` URLs.
 - Vite must allow the custom local hosts in `server.allowedHosts` and `preview.allowedHosts`, or the dev server will block `erp.test` host headers.
 - When manually testing in a browser or using browser automation, always use `https://erp.test` or `https://<tenant>.erp.test`, not `http://localhost:3000`, unless the user explicitly asks for a localhost-only override.
+- To visually verify UI changes in the browser, use the `playwright-cli` skill. Do not ask the user to take screenshots manually.
+- Demo tenant credentials: `https://demo.erp.test` — mobile `6291633219`, password `Password@01`
 - On this manual Vite app, `shadcn add` can materialize literal `@/` and `@repo/` directories instead of resolving aliases to `src/*` or workspace package paths. After CLI installs, verify the output paths immediately and move files into the real source directories if needed.
 
 ### Next.js + Root domain

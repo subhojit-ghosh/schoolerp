@@ -27,16 +27,19 @@ import {
   SignInBodyDto,
   SignUpBodyDto,
   SwitchCampusBodyDto,
+  SwitchContextBodyDto,
 } from "./auth.dto";
 import { AUTH_ROUTES } from "./auth.constants";
 import { LocalAuthGuard } from "./local-auth.guard";
 import { SessionAuthGuard } from "./session-auth.guard";
+import { TenantContextService } from "../tenant-context/tenant-context.service";
 import { AuthService } from "./auth.service";
 import {
   parseForgotPassword,
   parseResetPassword,
   parseSignUp,
   parseSwitchCampus,
+  parseSwitchContext,
 } from "./auth.schemas";
 import type { AuthenticatedSession, AuthenticatedUser } from "./auth.types";
 import { readCookieValue } from "./auth.utils";
@@ -44,7 +47,10 @@ import { readCookieValue } from "./auth.utils";
 @ApiTags(API_DOCS.TAGS.AUTH)
 @Controller(API_ROUTES.AUTH)
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly tenantContextService: TenantContextService,
+  ) {}
 
   @Post(AUTH_ROUTES.SIGN_UP)
   @ApiOperation({ summary: "Create a user account and start a session" })
@@ -86,9 +92,13 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const authenticatedUser = request.user;
+    const tenantSlug = this.tenantContextService.resolveTenantSlug(
+      request.headers.host,
+      body.tenantSlug,
+    );
     const accessContext = await this.authService.resolveSessionAccessContext(
       authenticatedUser.id,
-      body.tenantSlug,
+      tenantSlug,
     );
     const authSession = await this.authService.createSession(
       authenticatedUser,
@@ -179,6 +189,26 @@ export class AuthController {
     const nextContext = await this.authService.setActiveCampus(
       authSession.token,
       parseSwitchCampus(body).campusId,
+    );
+
+    return this.authService.toContextDto(nextContext);
+  }
+
+  @UseGuards(SessionAuthGuard)
+  @Patch(`${API_ROUTES.CONTEXT}/${API_ROUTES.SELECT}`)
+  @ApiCookieAuth()
+  @ApiOperation({
+    summary: "Select the active access context inside the current tenant",
+  })
+  @ApiBody({ type: SwitchContextBodyDto })
+  @ApiOkResponse({ type: AuthContextDto })
+  async selectContext(
+    @CurrentSession() authSession: AuthenticatedSession,
+    @Body() body: SwitchContextBodyDto,
+  ) {
+    const nextContext = await this.authService.setActiveContext(
+      authSession.token,
+      parseSwitchContext(body).contextKey,
     );
 
     return this.authService.toContextDto(nextContext);

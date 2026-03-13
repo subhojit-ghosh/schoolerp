@@ -12,6 +12,10 @@ import {
   CardTitle,
 } from "@repo/ui/components/ui/card";
 import { Separator } from "@repo/ui/components/ui/separator";
+import {
+  getActiveContext,
+  isStaffContext,
+} from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
   useStudentQuery,
@@ -34,10 +38,13 @@ export function StudentDetailPage() {
   const navigate = useNavigate();
   const { studentId } = useParams();
   const session = useAuthStore((store) => store.session);
+  const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
+  const canManageStudents = isStaffContext(session);
+  const managedInstitutionId = canManageStudents ? institutionId : undefined;
   const campuses = session?.campuses ?? [];
-  const studentQuery = useStudentQuery(institutionId, studentId);
-  const updateStudentMutation = useUpdateStudentMutation(institutionId);
+  const studentQuery = useStudentQuery(managedInstitutionId, studentId);
+  const updateStudentMutation = useUpdateStudentMutation(managedInstitutionId);
   const updateError = updateStudentMutation.error as Error | null | undefined;
 
   const defaultValues = useMemo<StudentFormValues>(() => {
@@ -95,6 +102,24 @@ export function StudentDetailPage() {
             Sign in with an institution-backed session to manage student records.
           </CardDescription>
         </CardHeader>
+      </Card>
+    );
+  }
+
+  if (!canManageStudents) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Student</CardTitle>
+          <CardDescription>
+            Student editing is available in Staff view. You are currently in {activeContext?.label ?? "another"} view.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild variant="outline">
+            <Link to={ERP_ROUTES.DASHBOARD}>Back to dashboard</Link>
+          </Button>
+        </CardContent>
       </Card>
     );
   }

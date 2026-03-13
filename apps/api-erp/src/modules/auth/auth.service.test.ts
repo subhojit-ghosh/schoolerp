@@ -1,3 +1,4 @@
+import { AUTH_CONTEXT_KEYS, AUTH_CONTEXT_LABELS } from "@repo/contracts";
 import { describe, expect, mock, test } from "bun:test";
 import { ConflictException } from "@nestjs/common";
 import { ERROR_MESSAGES, MEMBER_TYPES, STATUS } from "../../constants";
@@ -73,6 +74,7 @@ describe("AuthService.resolveSessionAccessContext", () => {
 
     expect(result).toEqual({
       activeOrganizationId: "org-1",
+      activeContextKey: AUTH_CONTEXT_KEYS.STAFF,
       activeCampusId: "campus-1",
     });
   });
@@ -107,6 +109,7 @@ describe("AuthService.resolveSessionAccessContext", () => {
 
     expect(result).toEqual({
       activeOrganizationId: null,
+      activeContextKey: null,
       activeCampusId: null,
     });
   });
@@ -155,6 +158,7 @@ describe("AuthService.setActiveCampus", () => {
           email: null,
         },
         activeOrganizationId: "org-1",
+        activeContextKey: AUTH_CONTEXT_KEYS.STAFF,
         activeCampusId: "campus-1",
       }),
     );
@@ -169,6 +173,18 @@ describe("AuthService.setActiveCampus", () => {
         expiresAt: new Date(),
         memberships: [],
         activeOrganization: null,
+        availableContexts: [
+          {
+            key: AUTH_CONTEXT_KEYS.STAFF,
+            label: AUTH_CONTEXT_LABELS[AUTH_CONTEXT_KEYS.STAFF],
+            membershipIds: ["membership-1"],
+          },
+        ],
+        activeContext: {
+          key: AUTH_CONTEXT_KEYS.STAFF,
+          label: AUTH_CONTEXT_LABELS[AUTH_CONTEXT_KEYS.STAFF],
+          membershipIds: ["membership-1"],
+        },
         activeCampus: null,
         campuses: [
           {
@@ -181,6 +197,7 @@ describe("AuthService.setActiveCampus", () => {
             status: STATUS.CAMPUS.ACTIVE,
           },
         ],
+        linkedStudents: [],
       }),
     );
 
@@ -193,6 +210,96 @@ describe("AuthService.setActiveCampus", () => {
         ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED,
       );
     }
+  });
+});
+
+describe("AuthService.setActiveContext", () => {
+  test("switches to another available context in the same tenant session", async () => {
+    const { service } = createAuthService();
+
+    setPrivateMethod(service, "getSession", () =>
+      Promise.resolve({
+        token: "session-token",
+        expiresAt: new Date(),
+        user: {
+          id: "user-1",
+          name: "Admin",
+          mobile: "9999999999",
+          email: null,
+        },
+        activeOrganizationId: "org-1",
+        activeContextKey: AUTH_CONTEXT_KEYS.STAFF,
+        activeCampusId: "campus-1",
+      }),
+    );
+    setPrivateMethod(service, "buildAuthContext", () =>
+      Promise.resolve({
+        user: {
+          id: "user-1",
+          name: "Admin",
+          mobile: "9999999999",
+          email: null,
+        },
+        expiresAt: new Date(),
+        memberships: [],
+        activeOrganization: null,
+        availableContexts: [
+          {
+            key: AUTH_CONTEXT_KEYS.STAFF,
+            label: AUTH_CONTEXT_LABELS[AUTH_CONTEXT_KEYS.STAFF],
+            membershipIds: ["membership-1"],
+          },
+          {
+            key: AUTH_CONTEXT_KEYS.PARENT,
+            label: AUTH_CONTEXT_LABELS[AUTH_CONTEXT_KEYS.PARENT],
+            membershipIds: ["membership-2"],
+          },
+        ],
+        activeContext: {
+          key: AUTH_CONTEXT_KEYS.STAFF,
+          label: AUTH_CONTEXT_LABELS[AUTH_CONTEXT_KEYS.STAFF],
+          membershipIds: ["membership-1"],
+        },
+        activeCampus: null,
+        campuses: [],
+        linkedStudents: [],
+      }),
+    );
+    setPrivateMethod(service, "getAuthContext", () =>
+      Promise.resolve({
+        user: {
+          id: "user-1",
+          name: "Admin",
+          mobile: "9999999999",
+          email: null,
+        },
+        expiresAt: new Date(),
+        memberships: [],
+        activeOrganization: null,
+        availableContexts: [
+          {
+            key: AUTH_CONTEXT_KEYS.PARENT,
+            label: AUTH_CONTEXT_LABELS[AUTH_CONTEXT_KEYS.PARENT],
+            membershipIds: ["membership-2"],
+          },
+        ],
+        activeContext: {
+          key: AUTH_CONTEXT_KEYS.PARENT,
+          label: AUTH_CONTEXT_LABELS[AUTH_CONTEXT_KEYS.PARENT],
+          membershipIds: ["membership-2"],
+        },
+        activeCampus: null,
+        campuses: [],
+        linkedStudents: [],
+      }),
+    );
+
+    const result = await service.setActiveContext(
+      "session-token",
+      AUTH_CONTEXT_KEYS.PARENT,
+    );
+
+    expect(result.activeContext?.key).toBe(AUTH_CONTEXT_KEYS.PARENT);
   });
 });
 

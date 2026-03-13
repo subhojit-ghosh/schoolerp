@@ -93,6 +93,9 @@ export const session = pgTable(
       () => organization.id,
       { onDelete: "set null" },
     ),
+    activeContextKey: text("active_context_key", {
+      enum: ["staff", "parent", "student"],
+    }),
     activeCampusId: text("active_campus_id").references(() => campus.id, {
       onDelete: "set null",
     }),
@@ -105,6 +108,7 @@ export const session = pgTable(
   (table) => [
     index("session_user_idx").on(table.userId),
     index("session_org_idx").on(table.activeOrganizationId),
+    index("session_context_idx").on(table.activeContextKey),
     index("session_campus_idx").on(table.activeCampusId),
   ],
 );

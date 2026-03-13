@@ -1,4 +1,5 @@
 import { DATABASE } from "@repo/backend-core";
+import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import {
   ConflictException,
   Inject,
@@ -25,6 +26,7 @@ import {
 } from "../../constants";
 import { AuthService } from "../auth/auth.service";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
+import type { AuthenticatedSession } from "../auth/auth.types";
 import type {
   CreateGuardianLinkDto,
   CreateStudentDto,
@@ -50,8 +52,11 @@ export class StudentsService {
     private readonly authService: AuthService,
   ) {}
 
-  async listStudents(institutionId: string, actorUserId: string) {
-    await this.requireInstitutionAccess(actorUserId, institutionId);
+  async listStudents(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+  ) {
+    await this.requireInstitutionAccess(authSession, institutionId);
 
     return this.listStudentsForInstitution(institutionId);
   }
@@ -59,9 +64,9 @@ export class StudentsService {
   async getStudent(
     institutionId: string,
     studentId: string,
-    actorUserId: string,
+    authSession: AuthenticatedSession,
   ) {
-    await this.requireInstitutionAccess(actorUserId, institutionId);
+    await this.requireInstitutionAccess(authSession, institutionId);
 
     const [studentRecord] = await this.listStudentsForInstitution(
       institutionId,
@@ -78,10 +83,10 @@ export class StudentsService {
   async updateStudent(
     institutionId: string,
     studentId: string,
-    actorUserId: string,
+    authSession: AuthenticatedSession,
     payload: UpdateStudentDto,
   ) {
-    await this.requireInstitutionAccess(actorUserId, institutionId);
+    await this.requireInstitutionAccess(authSession, institutionId);
 
     const existingStudent = await this.getStudentMembership(
       institutionId,
@@ -190,7 +195,7 @@ export class StudentsService {
       }
     });
 
-    return this.getStudent(institutionId, studentId, actorUserId);
+    return this.getStudent(institutionId, studentId, authSession);
   }
 
   private async listStudentsForInstitution(
@@ -235,10 +240,10 @@ export class StudentsService {
 
   async createStudent(
     institutionId: string,
-    actorUserId: string,
+    authSession: AuthenticatedSession,
     payload: CreateStudentDto,
   ) {
-    await this.requireInstitutionAccess(actorUserId, institutionId);
+    await this.requireInstitutionAccess(authSession, institutionId);
 
     const selectedCampus = await this.getCampus(
       institutionId,
@@ -314,17 +319,14 @@ export class StudentsService {
   }
 
   private async requireInstitutionAccess(
-    userId: string,
+    authSession: AuthenticatedSession,
     institutionId: string,
   ) {
-    const membership = await this.authService.getMembershipForOrganization(
-      userId,
+    await this.authService.requireOrganizationContext(
+      authSession,
       institutionId,
+      AUTH_CONTEXT_KEYS.STAFF,
     );
-
-    if (!membership) {
-      throw new NotFoundException(ERROR_MESSAGES.AUTH.MEMBERSHIP_REQUIRED);
-    }
   }
 
   private async getCampus(institutionId: string, campusId: string) {
