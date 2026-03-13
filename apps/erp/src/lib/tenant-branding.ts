@@ -1,12 +1,20 @@
 import type { TenantBranding } from "@repo/contracts";
 import { buildGoogleFontsUrl } from "./font-pairings";
 import { getRadiusValue, getSpacingValue } from "./theme-presets";
+import { getCurrentTenantSlug } from "./tenant-context";
 
-const BRANDING_CACHE_KEY = "erp-tenant-branding";
+const BRANDING_CACHE_KEY_PREFIX = "erp-tenant-branding";
 const ROOT_SELECTOR = ":root";
 const DOCUMENT_TITLE_SUFFIX = "ERP";
 const DEFAULT_THEME_COLOR = "#f6efe6";
 const TENANT_FONTS_LINK_ID = "tenant-fonts";
+const ROOT_CACHE_SCOPE = "root";
+
+function getBrandingCacheKey() {
+  const tenantSlug = getCurrentTenantSlug() ?? ROOT_CACHE_SCOPE;
+
+  return `${BRANDING_CACHE_KEY_PREFIX}:${tenantSlug}`;
+}
 
 function hexLuminance(hex: string): number {
   const r = parseInt(hex.slice(1, 3), 16) / 255;
@@ -157,11 +165,11 @@ export function applyTenantBranding(branding: TenantBranding) {
 }
 
 export function cacheTenantBranding(branding: TenantBranding) {
-  localStorage.setItem(BRANDING_CACHE_KEY, JSON.stringify(branding));
+  localStorage.setItem(getBrandingCacheKey(), JSON.stringify(branding));
 }
 
 export function readCachedTenantBranding() {
-  const cachedValue = localStorage.getItem(BRANDING_CACHE_KEY);
+  const cachedValue = localStorage.getItem(getBrandingCacheKey());
 
   if (!cachedValue) {
     return null;
@@ -170,7 +178,7 @@ export function readCachedTenantBranding() {
   try {
     return JSON.parse(cachedValue) as TenantBranding;
   } catch {
-    localStorage.removeItem(BRANDING_CACHE_KEY);
+    localStorage.removeItem(getBrandingCacheKey());
 
     return null;
   }
