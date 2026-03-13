@@ -172,8 +172,12 @@ export const students = pgTable(
     admissionNumber: text("admission_number").notNull(),
     firstName: text("first_name").notNull(),
     lastName: text("last_name"),
-    className: text("class_name").notNull(),
-    sectionName: text("section_name").notNull(),
+    classId: text("class_id")
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "restrict" }),
+    sectionId: text("section_id")
+      .notNull()
+      .references(() => classSections.id, { onDelete: "restrict" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),
   },
@@ -188,8 +192,8 @@ export const students = pgTable(
       .where(sql`${table.deletedAt} IS NULL`),
     index("students_class_section_idx").on(
       table.institutionId,
-      table.className,
-      table.sectionName,
+      table.classId,
+      table.sectionId,
     ),
   ],
 );
@@ -208,8 +212,12 @@ export const attendanceRecords = pgTable(
       .notNull()
       .references(() => students.id, { onDelete: "cascade" }),
     attendanceDate: date("attendance_date").notNull(),
-    className: text("class_name").notNull(),
-    sectionName: text("section_name").notNull(),
+    classId: text("class_id")
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "restrict" }),
+    sectionId: text("section_id")
+      .notNull()
+      .references(() => classSections.id, { onDelete: "restrict" }),
     status: text("status", {
       enum: ATTENDANCE_STATUS_ENUM,
     }).notNull(),
@@ -236,8 +244,8 @@ export const attendanceRecords = pgTable(
       table.institutionId,
       table.campusId,
       table.attendanceDate,
-      table.className,
-      table.sectionName,
+      table.classId,
+      table.sectionId,
     ),
   ],
 );
@@ -255,8 +263,12 @@ export const studentCurrentEnrollments = pgTable(
     academicYearId: text("academic_year_id")
       .notNull()
       .references(() => academicYears.id, { onDelete: "restrict" }),
-    className: text("class_name").notNull(),
-    sectionName: text("section_name").notNull(),
+    classId: text("class_id")
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "restrict" }),
+    sectionId: text("section_id")
+      .notNull()
+      .references(() => classSections.id, { onDelete: "restrict" }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     deletedAt: timestamp("deleted_at"),
   },

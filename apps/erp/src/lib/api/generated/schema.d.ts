@@ -334,6 +334,76 @@ export interface paths {
         patch: operations["StaffController_updateStaff"];
         trace?: never;
     };
+    "/institutions/{institutionId}/guardians": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List guardians for an institution */
+        get: operations["GuardiansController_listGuardians"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/guardians/{guardianId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single guardian for an institution */
+        get: operations["GuardiansController_getGuardian"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update guardian details */
+        patch: operations["GuardiansController_updateGuardian"];
+        trace?: never;
+    };
+    "/institutions/{institutionId}/guardians/{guardianId}/students": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Link a guardian to a student */
+        post: operations["GuardiansController_linkStudent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/guardians/{guardianId}/students/{studentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Unlink a guardian from a student */
+        delete: operations["GuardiansController_unlinkStudent"];
+        options?: never;
+        head?: never;
+        /** Update a guardian-student relationship */
+        patch: operations["GuardiansController_updateStudentLink"];
+        trace?: never;
+    };
     "/institutions/{institutionId}/academic-years": {
         parameters: {
             query?: never;
@@ -794,8 +864,8 @@ export interface components {
         CurrentStudentEnrollmentDto: {
             academicYearId: string;
             academicYearName: string;
-            className: string;
-            sectionName: string;
+            classId: string;
+            sectionId: string;
         };
         StudentDto: {
             id: string;
@@ -804,8 +874,8 @@ export interface components {
             admissionNumber: string;
             firstName: string;
             lastName?: string | null;
-            className: string;
-            sectionName: string;
+            classId: string;
+            sectionId: string;
             fullName: string;
             campusId: string;
             campusName: string;
@@ -824,15 +894,15 @@ export interface components {
         };
         CurrentStudentEnrollmentBodyDto: {
             academicYearId: string;
-            className: string;
-            sectionName: string;
+            classId: string;
+            sectionId: string;
         };
         CreateStudentBodyDto: {
             admissionNumber: string;
             firstName: string;
             lastName?: string | null;
-            className: string;
-            sectionName: string;
+            classId: string;
+            sectionId: string;
             campusId: string;
             guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
             currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
@@ -841,8 +911,8 @@ export interface components {
             admissionNumber: string;
             firstName: string;
             lastName?: string | null;
-            className: string;
-            sectionName: string;
+            classId: string;
+            sectionId: string;
             campusId: string;
             guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
             currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
@@ -851,6 +921,21 @@ export interface components {
             id: string;
             name: string;
             slug: string;
+        };
+        StaffDto: {
+            id: string;
+            userId: string;
+            institutionId: string;
+            name: string;
+            mobile: string;
+            email?: string | null;
+            /** @enum {string} */
+            memberType: "staff" | "student" | "guardian";
+            campusId: string;
+            campusName: string;
+            /** @enum {string} */
+            status: "active" | "inactive" | "suspended";
+            role?: components["schemas"]["StaffRoleDto"] | null;
         };
         CreateStaffBodyDto: {
             name: string;
@@ -861,21 +946,55 @@ export interface components {
             /** @enum {string} */
             status: "active" | "inactive" | "suspended";
         };
-        UpdateStaffBodyDto: components["schemas"]["CreateStaffBodyDto"];
-        StaffDto: {
+        UpdateStaffBodyDto: {
+            name: string;
+            mobile: string;
+            email?: string | null;
+            campusId: string;
+            roleId?: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive" | "suspended";
+        };
+        GuardianLinkedStudentDto: {
+            studentId: string;
+            membershipId: string;
+            fullName: string;
+            admissionNumber: string;
+            campusId: string;
+            campusName: string;
+            /** @enum {string} */
+            relationship: "father" | "mother" | "guardian";
+            isPrimary: boolean;
+        };
+        GuardianDto: {
             id: string;
-            userId: string;
+            userId?: string | null;
             institutionId: string;
             name: string;
             mobile: string;
-            email: string | null;
-            /** @enum {string} */
-            memberType: "staff" | "student" | "guardian";
+            email?: string | null;
             campusId: string;
             campusName: string;
             /** @enum {string} */
             status: "active" | "inactive" | "suspended";
-            role: components["schemas"]["StaffRoleDto"] | null;
+            linkedStudents: components["schemas"]["GuardianLinkedStudentDto"][];
+        };
+        UpdateGuardianBodyDto: {
+            name: string;
+            mobile: string;
+            email?: string | null;
+            campusId: string;
+        };
+        LinkGuardianStudentBodyDto: {
+            studentId: string;
+            /** @enum {string} */
+            relationship: "father" | "mother" | "guardian";
+            isPrimary: boolean;
+        };
+        UpdateGuardianStudentLinkBodyDto: {
+            /** @enum {string} */
+            relationship: "father" | "mother" | "guardian";
+            isPrimary: boolean;
         };
         AcademicYearDto: {
             id: string;
@@ -901,8 +1020,8 @@ export interface components {
             isCurrent: boolean;
         };
         AttendanceClassSectionDto: {
-            className: string;
-            sectionName: string;
+            classId: string;
+            sectionId: string;
             studentCount: number;
         };
         AttendanceStudentEntryDto: {
@@ -916,8 +1035,8 @@ export interface components {
             attendanceDate: string;
             campusId: string;
             campusName: string;
-            className: string;
-            sectionName: string;
+            classId: string;
+            sectionId: string;
             totalStudents: number;
             entries: components["schemas"]["AttendanceStudentEntryDto"][];
         };
@@ -929,8 +1048,8 @@ export interface components {
         UpsertAttendanceDayBodyDto: {
             attendanceDate: string;
             campusId: string;
-            className: string;
-            sectionName: string;
+            classId: string;
+            sectionId: string;
             entries: components["schemas"]["AttendanceDayEntryBodyDto"][];
         };
         AttendanceSummaryCountsDto: {
@@ -943,8 +1062,8 @@ export interface components {
             attendanceDate: string;
             campusId: string;
             campusName: string;
-            className: string;
-            sectionName: string;
+            classId: string;
+            sectionId: string;
             totalStudents: number;
             counts: components["schemas"]["AttendanceSummaryCountsDto"];
         };
@@ -1640,27 +1759,6 @@ export interface operations {
             };
         };
     };
-    StaffController_listRoles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                institutionId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StaffRoleDto"][];
-                };
-            };
-        };
-    };
     StaffController_createStaff: {
         parameters: {
             query?: never;
@@ -1682,6 +1780,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StaffDto"];
+                };
+            };
+        };
+    };
+    StaffController_listRoles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffRoleDto"][];
                 };
             };
         };
@@ -1730,6 +1849,151 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StaffDto"];
+                };
+            };
+        };
+    };
+    GuardiansController_listGuardians: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"][];
+                };
+            };
+        };
+    };
+    GuardiansController_getGuardian: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                guardianId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"];
+                };
+            };
+        };
+    };
+    GuardiansController_updateGuardian: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                guardianId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGuardianBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"];
+                };
+            };
+        };
+    };
+    GuardiansController_linkStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                guardianId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LinkGuardianStudentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"];
+                };
+            };
+        };
+    };
+    GuardiansController_unlinkStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                guardianId: string;
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"];
+                };
+            };
+        };
+    };
+    GuardiansController_updateStudentLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                guardianId: string;
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGuardianStudentLinkBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuardianDto"];
                 };
             };
         };
@@ -1860,8 +2124,8 @@ export interface operations {
             query: {
                 attendanceDate: string;
                 campusId: string;
-                className: string;
-                sectionName: string;
+                classId: string;
+                sectionId: string;
             };
             header?: never;
             path: {

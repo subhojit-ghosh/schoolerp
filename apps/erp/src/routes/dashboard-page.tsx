@@ -4,6 +4,7 @@ import {
   IconBook2,
   IconCalendarStats,
   IconCertificate,
+  IconCurrencyRupee,
   IconMoodKid,
   IconUsers,
 } from "@tabler/icons-react";

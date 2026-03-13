@@ -49,8 +49,8 @@ type StudentGuardianSummary = {
 type StudentCurrentEnrollmentSummary = {
   academicYearId: string;
   academicYearName: string;
-  className: string;
-  sectionName: string;
+  classId: string;
+  sectionId: string;
 };
 
 type StudentsWriter = Pick<AppDatabase, "insert" | "select" | "update">;
@@ -141,8 +141,8 @@ export class StudentsService {
           admissionNumber: payload.admissionNumber.trim(),
           firstName: payload.firstName.trim(),
           lastName: payload.lastName?.trim() || null,
-          className: payload.className.trim(),
-          sectionName: payload.sectionName.trim(),
+          classId: payload.classId.trim(),
+          sectionId: payload.sectionId.trim(),
         })
         .where(eq(students.id, studentId));
 
@@ -237,8 +237,8 @@ export class StudentsService {
         admissionNumber: students.admissionNumber,
         firstName: students.firstName,
         lastName: students.lastName,
-        className: students.className,
-        sectionName: students.sectionName,
+        classId: students.classId,
+        sectionId: students.sectionId,
         campusId: campus.id,
         campusName: campus.name,
         status: member.status,
@@ -324,8 +324,8 @@ export class StudentsService {
         admissionNumber: payload.admissionNumber.trim(),
         firstName: payload.firstName.trim(),
         lastName: payload.lastName?.trim() || null,
-        className: payload.className.trim(),
-        sectionName: payload.sectionName.trim(),
+        classId: payload.classId.trim(),
+        sectionId: payload.sectionId.trim(),
       });
 
       for (const guardianPayload of payload.guardians) {
@@ -471,8 +471,8 @@ export class StudentsService {
         studentMembershipId: studentCurrentEnrollments.studentMembershipId,
         academicYearId: academicYears.id,
         academicYearName: academicYears.name,
-        className: studentCurrentEnrollments.className,
-        sectionName: studentCurrentEnrollments.sectionName,
+        classId: studentCurrentEnrollments.classId,
+        sectionId: studentCurrentEnrollments.sectionId,
       })
       .from(studentCurrentEnrollments)
       .innerJoin(
@@ -497,8 +497,8 @@ export class StudentsService {
         {
           academicYearId: row.academicYearId,
           academicYearName: row.academicYearName,
-          className: row.className,
-          sectionName: row.sectionName,
+          classId: row.classId,
+          sectionId: row.sectionId,
         },
       ]),
     );
@@ -703,8 +703,8 @@ export class StudentsService {
 
     const nextValues = {
       academicYearId: currentEnrollment.academicYearId,
-      className: currentEnrollment.className.trim(),
-      sectionName: currentEnrollment.sectionName.trim(),
+      classId: currentEnrollment.classId.trim(),
+      sectionId: currentEnrollment.sectionId.trim(),
       deletedAt: null,
     } as const;
 

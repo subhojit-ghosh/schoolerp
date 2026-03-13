@@ -44,8 +44,8 @@ export function useAttendanceDayQuery(
         query: {
           attendanceDate: filters?.attendanceDate ?? "",
           campusId: filters?.campusId ?? "",
-          className: filters?.className ?? "",
-          sectionName: filters?.sectionName ?? "",
+          classId: filters?.classId ?? "",
+          sectionId: filters?.sectionId ?? "",
         },
       },
     },
@@ -54,8 +54,8 @@ export function useAttendanceDayQuery(
         institutionId &&
           filters?.attendanceDate &&
           filters?.campusId &&
-          filters?.className &&
-          filters?.sectionName,
+          filters?.classId &&
+          filters?.sectionId,
       ),
     },
   );
@@ -110,8 +110,8 @@ export function useUpsertAttendanceDayMutation(
                 query: {
                   attendanceDate: activeFilters.attendanceDate,
                   campusId: activeFilters.campusId,
-                  className: activeFilters.className,
-                  sectionName: activeFilters.sectionName,
+                  classId: activeFilters.classId,
+                  sectionId: activeFilters.sectionId,
                 },
               },
             },

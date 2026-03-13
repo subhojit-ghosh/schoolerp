@@ -30,10 +30,10 @@ export class CurrentStudentEnrollmentBodyDto {
   academicYearId!: string;
 
   @ApiProperty()
-  className!: string;
+  classId!: string;
 
   @ApiProperty()
-  sectionName!: string;
+  sectionId!: string;
 }
 
 export class CreateStudentBodyDto {
@@ -47,10 +47,10 @@ export class CreateStudentBodyDto {
   lastName?: string | null;
 
   @ApiProperty()
-  className!: string;
+  classId!: string;
 
   @ApiProperty()
-  sectionName!: string;
+  sectionId!: string;
 
   @ApiProperty()
   campusId!: string;
@@ -79,10 +79,10 @@ export class UpdateStudentBodyDto {
   lastName?: string | null;
 
   @ApiProperty()
-  className!: string;
+  classId!: string;
 
   @ApiProperty()
-  sectionName!: string;
+  sectionId!: string;
 
   @ApiProperty()
   campusId!: string;
@@ -133,10 +133,10 @@ export class CurrentStudentEnrollmentDto {
   academicYearName!: string;
 
   @ApiProperty()
-  className!: string;
+  classId!: string;
 
   @ApiProperty()
-  sectionName!: string;
+  sectionId!: string;
 }
 
 export class StudentDto {
@@ -159,10 +159,10 @@ export class StudentDto {
   lastName!: string | null;
 
   @ApiProperty()
-  className!: string;
+  classId!: string;
 
   @ApiProperty()
-  sectionName!: string;
+  sectionId!: string;
 
   @ApiProperty()
   fullName!: string;

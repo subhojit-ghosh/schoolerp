@@ -16,15 +16,15 @@ export const attendanceDateSchema = z
 
 export const attendanceScopeSchema = z.object({
   campusId: z.uuid(),
-  className: z.string().trim().min(NAME_MIN_LENGTH, "Class is required"),
-  sectionName: z.string().trim().min(NAME_MIN_LENGTH, "Section is required"),
+  classId: z.string().trim().min(NAME_MIN_LENGTH, "Class is required"),
+  sectionId: z.string().trim().min(NAME_MIN_LENGTH, "Section is required"),
 });
 
 export const attendanceDayQuerySchema = z.object({
   attendanceDate: attendanceDateSchema,
   campusId: z.uuid(),
-  className: z.string().trim().min(NAME_MIN_LENGTH, "Class is required"),
-  sectionName: z.string().trim().min(NAME_MIN_LENGTH, "Section is required"),
+  classId: z.string().trim().min(NAME_MIN_LENGTH, "Class is required"),
+  sectionId: z.string().trim().min(NAME_MIN_LENGTH, "Section is required"),
 });
 
 export const attendanceClassSectionQuerySchema = z.object({
@@ -44,8 +44,8 @@ export const upsertAttendanceDaySchema = z
   .object({
     attendanceDate: attendanceDateSchema,
     campusId: z.uuid(),
-    className: z.string().trim().min(NAME_MIN_LENGTH, "Class is required"),
-    sectionName: z.string().trim().min(NAME_MIN_LENGTH, "Section is required"),
+    classId: z.string().trim().min(NAME_MIN_LENGTH, "Class is required"),
+    sectionId: z.string().trim().min(NAME_MIN_LENGTH, "Section is required"),
     entries: z
       .array(attendanceEntrySchema)
       .min(1, ERROR_MESSAGES.ATTENDANCE.NO_STUDENTS_FOUND),

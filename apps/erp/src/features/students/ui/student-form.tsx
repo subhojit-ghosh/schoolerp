@@ -151,7 +151,7 @@ export function StudentForm({
           />
           <Controller
             control={control}
-            name="className"
+            name="classId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel htmlFor="class-name">Class</FieldLabel>
@@ -169,7 +169,7 @@ export function StudentForm({
           />
           <Controller
             control={control}
-            name="sectionName"
+            name="sectionId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel htmlFor="section-name">Section</FieldLabel>
@@ -245,7 +245,7 @@ export function StudentForm({
           />
           <Controller
             control={control}
-            name="currentEnrollment.className"
+            name="currentEnrollment.classId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Class</FieldLabel>
@@ -262,7 +262,7 @@ export function StudentForm({
           />
           <Controller
             control={control}
-            name="currentEnrollment.sectionName"
+            name="currentEnrollment.sectionId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Section</FieldLabel>

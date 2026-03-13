@@ -134,8 +134,8 @@ export function AttendancePage() {
     entryForm.reset({
       attendanceDate: day.attendanceDate,
       campusId: day.campusId,
-      className: day.className,
-      sectionName: day.sectionName,
+      classId: day.classId,
+      sectionId: day.sectionId,
       entries: day.entries.map((entry) => ({
         studentId: entry.studentId,
         status: entry.status ?? DEFAULT_ATTENDANCE_STATUS,
@@ -167,8 +167,8 @@ export function AttendancePage() {
   function handleLoadFromDayView(record: {
     attendanceDate: string;
     campusId: string;
-    className: string;
-    sectionName: string;
+    classId: string;
+    sectionId: string;
   }) {
     selectionForm.reset(record);
     setActiveFilters(record);
@@ -251,8 +251,8 @@ export function AttendancePage() {
                         <Select
                           onValueChange={(value) => {
                             field.onChange(value);
-                            selectionForm.setValue("className", "");
-                            selectionForm.setValue("sectionName", "");
+                            selectionForm.setValue("classId", "");
+                            selectionForm.setValue("sectionId", "");
                           }}
                           value={field.value || undefined}
                         >
@@ -274,7 +274,7 @@ export function AttendancePage() {
                 />
                 <Controller
                   control={selectionForm.control}
-                  name="className"
+                  name="classId"
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid || undefined}>
                       <FieldLabel>Class</FieldLabel>
@@ -282,7 +282,7 @@ export function AttendancePage() {
                         <Select
                           onValueChange={(value) => {
                             field.onChange(value);
-                            selectionForm.setValue("sectionName", "");
+                            selectionForm.setValue("sectionId", "");
                           }}
                           value={field.value || undefined}
                         >
@@ -291,10 +291,10 @@ export function AttendancePage() {
                           </SelectTrigger>
                           <SelectContent>
                             {Array.from(
-                              new Set(classSections.map((item) => item.className)),
-                            ).map((className) => (
-                              <SelectItem key={className} value={className}>
-                                {className}
+                              new Set(classSections.map((item) => item.classId)),
+                            ).map((classId) => (
+                              <SelectItem key={classId} value={classId}>
+                                {classId}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -306,7 +306,7 @@ export function AttendancePage() {
                 />
                 <Controller
                   control={selectionForm.control}
-                  name="sectionName"
+                  name="sectionId"
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid || undefined}>
                       <FieldLabel>Section</FieldLabel>
@@ -319,14 +319,14 @@ export function AttendancePage() {
                             {classSections
                               .filter(
                                 (item) =>
-                                  item.className === selectionForm.watch("className"),
+                                  item.classId === selectionForm.watch("classId"),
                               )
                               .map((item) => (
                                 <SelectItem
-                                  key={`${item.className}-${item.sectionName}`}
-                                  value={item.sectionName}
+                                  key={`${item.classId}-${item.sectionId}`}
+                                  value={item.sectionId}
                                 >
-                                  {item.sectionName} ({item.studentCount})
+                                  {item.sectionId} ({item.studentCount})
                                 </SelectItem>
                               ))}
                           </SelectContent>
@@ -360,8 +360,8 @@ export function AttendancePage() {
               <form onSubmit={entryForm.handleSubmit(handleSaveAttendance)}>
                 <FieldGroup className="gap-4">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge>{currentDay.className}</Badge>
-                    <Badge variant="outline">{currentDay.sectionName}</Badge>
+                    <Badge>{currentDay.classId}</Badge>
+                    <Badge variant="outline">{currentDay.sectionId}</Badge>
                     <Badge variant="secondary">{currentDay.campusName}</Badge>
                     <Badge variant="outline">{currentDay.totalStudents} students</Badge>
                   </div>
@@ -467,14 +467,14 @@ export function AttendancePage() {
             <div className="grid gap-3">
               {dayViewRows.map((row) => (
                 <button
-                  key={`${row.campusId}-${row.className}-${row.sectionName}`}
+                  key={`${row.campusId}-${row.classId}-${row.sectionId}`}
                   className="rounded-xl border bg-card p-4 text-left transition-colors hover:bg-muted/30"
                   onClick={() => handleLoadFromDayView(row)}
                   type="button"
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge>{row.className}</Badge>
-                    <Badge variant="outline">{row.sectionName}</Badge>
+                    <Badge>{row.classId}</Badge>
+                    <Badge variant="outline">{row.sectionId}</Badge>
                     <Badge variant="secondary">{row.campusName}</Badge>
                   </div>
                   <p className="mt-3 text-sm text-muted-foreground">

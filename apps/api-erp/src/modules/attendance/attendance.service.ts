@@ -35,8 +35,8 @@ type AttendanceRosterStudent = {
   fullName: string;
   campusId: string;
   campusName: string;
-  className: string;
-  sectionName: string;
+  classId: string;
+  sectionId: string;
 };
 
 type AttendanceCounts = Record<AttendanceStatus, number>;
@@ -65,8 +65,8 @@ export class AttendanceService {
 
     const rows = await this.db
       .select({
-        className: students.className,
-        sectionName: students.sectionName,
+        classId: students.classId,
+        sectionId: students.sectionId,
       })
       .from(students)
       .innerJoin(member, eq(students.membershipId, member.id))
@@ -78,12 +78,12 @@ export class AttendanceService {
           isNull(member.deletedAt),
         ),
       )
-      .orderBy(asc(students.className), asc(students.sectionName));
+      .orderBy(asc(students.classId), asc(students.sectionId));
 
-    const grouped = new Map<string, { className: string; sectionName: string; studentCount: number }>();
+    const grouped = new Map<string, { classId: string; sectionId: string; studentCount: number }>();
 
     for (const row of rows) {
-      const key = `${row.className}::${row.sectionName}`;
+      const key = `${row.classId}::${row.sectionId}`;
       const current = grouped.get(key);
 
       if (current) {
@@ -92,8 +92,8 @@ export class AttendanceService {
       }
 
       grouped.set(key, {
-        className: row.className,
-        sectionName: row.sectionName,
+        classId: row.classId,
+        sectionId: row.sectionId,
         studentCount: 1,
       });
     }
@@ -124,8 +124,8 @@ export class AttendanceService {
       attendanceDate: query.attendanceDate,
       campusId: selectedCampus.id,
       campusName: selectedCampus.name,
-      className: query.className,
-      sectionName: query.sectionName,
+      classId: query.classId,
+      sectionId: query.sectionId,
       totalStudents: roster.length,
       entries: roster.map((student) => ({
         studentId: student.studentId,
@@ -180,8 +180,8 @@ export class AttendanceService {
             campusId: rosterStudent.campusId,
             studentId: rosterStudent.studentId,
             attendanceDate: payload.attendanceDate,
-            className: rosterStudent.className,
-            sectionName: rosterStudent.sectionName,
+            classId: rosterStudent.classId,
+            sectionId: rosterStudent.sectionId,
             status: entry.status,
             markedByMembershipId: markingMembershipId,
             createdAt: now,
@@ -195,8 +195,8 @@ export class AttendanceService {
             ],
             set: {
               campusId: rosterStudent.campusId,
-              className: rosterStudent.className,
-              sectionName: rosterStudent.sectionName,
+              classId: rosterStudent.classId,
+              sectionId: rosterStudent.sectionId,
               status: entry.status,
               markedByMembershipId: markingMembershipId,
               updatedAt: now,
@@ -219,8 +219,8 @@ export class AttendanceService {
       .select({
         campusId: attendanceRecords.campusId,
         campusName: campus.name,
-        className: attendanceRecords.className,
-        sectionName: attendanceRecords.sectionName,
+        classId: attendanceRecords.classId,
+        sectionId: attendanceRecords.sectionId,
         status: attendanceRecords.status,
       })
       .from(attendanceRecords)
@@ -233,8 +233,8 @@ export class AttendanceService {
       )
       .orderBy(
         asc(campus.name),
-        asc(attendanceRecords.className),
-        asc(attendanceRecords.sectionName),
+        asc(attendanceRecords.classId),
+        asc(attendanceRecords.sectionId),
       );
 
     const summaries = new Map<
@@ -243,8 +243,8 @@ export class AttendanceService {
         attendanceDate: string;
         campusId: string;
         campusName: string;
-        className: string;
-        sectionName: string;
+        classId: string;
+        sectionId: string;
         totalStudents: number;
         counts: AttendanceCounts;
       }
@@ -253,15 +253,15 @@ export class AttendanceService {
     for (const row of rows) {
       const key = [
         row.campusId,
-        row.className,
-        row.sectionName,
+        row.classId,
+        row.sectionId,
       ].join("::");
       const current = summaries.get(key) ?? {
         attendanceDate: query.attendanceDate,
         campusId: row.campusId,
         campusName: row.campusName,
-        className: row.className,
-        sectionName: row.sectionName,
+        classId: row.classId,
+        sectionId: row.sectionId,
         totalStudents: 0,
         counts: { ...EMPTY_ATTENDANCE_COUNTS },
       };
@@ -312,10 +312,10 @@ export class AttendanceService {
     institutionId: string,
     scope: AttendanceDayQueryDto | UpsertAttendanceDayDto,
   ) {
-    const className = scope.className.trim();
-    const sectionName = scope.sectionName.trim();
+    const classId = scope.classId.trim();
+    const sectionId = scope.sectionId.trim();
 
-    if (!className || !sectionName) {
+    if (!classId || !sectionId) {
       throw new BadRequestException(
         ERROR_MESSAGES.ATTENDANCE.CLASS_SECTION_REQUIRED,
       );
@@ -329,8 +329,8 @@ export class AttendanceService {
         lastName: students.lastName,
         campusId: campus.id,
         campusName: campus.name,
-        className: students.className,
-        sectionName: students.sectionName,
+        classId: students.classId,
+        sectionId: students.sectionId,
       })
       .from(students)
       .innerJoin(member, eq(students.membershipId, member.id))
@@ -339,8 +339,8 @@ export class AttendanceService {
         and(
           eq(students.institutionId, institutionId),
           eq(member.primaryCampusId, scope.campusId),
-          eq(students.className, className),
-          eq(students.sectionName, sectionName),
+          eq(students.classId, classId),
+          eq(students.sectionId, sectionId),
           isNull(students.deletedAt),
           isNull(member.deletedAt),
           isNull(campus.deletedAt),
@@ -354,8 +354,8 @@ export class AttendanceService {
           fullName: [row.firstName, row.lastName].filter(Boolean).join(" "),
           campusId: row.campusId,
           campusName: row.campusName,
-          className: row.className,
-          sectionName: row.sectionName,
+          classId: row.classId,
+          sectionId: row.sectionId,
         })),
       );
   }

@@ -16,8 +16,8 @@ export const GUARDIAN_RELATIONSHIP_OPTIONS = [
 
 export const EMPTY_CURRENT_ENROLLMENT = {
   academicYearId: "",
-  className: "",
-  sectionName: "",
+  classId: "",
+  sectionId: "",
 } as const;
 
 const enrollmentIdentifierSchema = z.uuid("Select an academic year");
@@ -33,11 +33,11 @@ export const guardianFormSchema = z.object({
 export const currentEnrollmentFormSchema = z
   .object({
     academicYearId: z.string().trim(),
-    className: z.string().trim(),
-    sectionName: z.string().trim(),
+    classId: z.string().trim(),
+    sectionId: z.string().trim(),
   })
   .superRefine((value, ctx) => {
-    const fields = [value.academicYearId, value.className, value.sectionName];
+    const fields = [value.academicYearId, value.classId, value.sectionId];
     const hasAnyValue = fields.some(Boolean);
 
     if (!hasAnyValue) {
@@ -58,18 +58,18 @@ export const currentEnrollmentFormSchema = z
       });
     }
 
-    if (!value.className) {
+    if (!value.classId) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["className"],
+        path: ["classId"],
         message: "Class is required",
       });
     }
 
-    if (!value.sectionName) {
+    if (!value.sectionId) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ["sectionName"],
+        path: ["sectionId"],
         message: "Section is required",
       });
     }
@@ -86,6 +86,8 @@ export const studentFormSchema = z
       .trim()
       .min(REQUIRED_TEXT_MIN_LENGTH, "First name is required"),
     lastName: z.string().trim().optional(),
+    classId: z.string().trim().min(REQUIRED_TEXT_MIN_LENGTH, "Class is required"),
+    sectionId: z.string().trim().min(REQUIRED_TEXT_MIN_LENGTH, "Section is required"),
     campusId: z.uuid("Select a campus"),
     guardians: z.array(guardianFormSchema).min(1, "Add at least one guardian"),
     currentEnrollment: currentEnrollmentFormSchema,
@@ -107,8 +109,8 @@ export function toStudentMutationBody(
 ): StudentMutationBody {
   const hasEnrollment = [
     values.currentEnrollment.academicYearId,
-    values.currentEnrollment.className,
-    values.currentEnrollment.sectionName,
+    values.currentEnrollment.classId,
+    values.currentEnrollment.sectionId,
   ].some(Boolean);
 
   return {
@@ -116,8 +118,8 @@ export function toStudentMutationBody(
     currentEnrollment: hasEnrollment
       ? {
           academicYearId: values.currentEnrollment.academicYearId,
-          className: values.currentEnrollment.className,
-          sectionName: values.currentEnrollment.sectionName,
+          classId: values.currentEnrollment.classId,
+          sectionId: values.currentEnrollment.sectionId,
         }
       : null,
   };

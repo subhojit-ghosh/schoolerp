@@ -260,8 +260,8 @@ export function StudentsPage() {
                 admissionNumber: "",
                 firstName: "",
                 lastName: "",
-                className: "",
-                sectionName: "",
+                classId: "",
+                sectionId: "",
                 campusId: authSession?.activeCampus?.id ?? "",
                 guardians: [DEFAULT_GUARDIAN],
                 currentEnrollment: EMPTY_CURRENT_ENROLLMENT,
@@ -352,7 +352,7 @@ export function StudentsPage() {
                         <p className="truncate text-sm text-muted-foreground">
                           Admission {student.admissionNumber}
                           {student.currentEnrollment
-                            ? ` • ${student.currentEnrollment.className}-${student.currentEnrollment.sectionName}`
+                            ? ` • ${student.currentEnrollment.classId}-${student.currentEnrollment.sectionId}`
                             : ""}
                         </p>
                       </div>

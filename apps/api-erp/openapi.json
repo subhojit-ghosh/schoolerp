@@ -779,6 +779,525 @@
         ]
       }
     },
+    "/institutions/{institutionId}/staff": {
+      "get": {
+        "operationId": "StaffController_listStaff",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StaffDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List staff for an institution",
+        "tags": [
+          "staff"
+        ]
+      },
+      "post": {
+        "operationId": "StaffController_createStaff",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStaffBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a staff membership for an institution",
+        "tags": [
+          "staff"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/staff/roles": {
+      "get": {
+        "operationId": "StaffController_listRoles",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StaffRoleDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List available staff roles for an institution",
+        "tags": [
+          "staff"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/staff/{staffId}": {
+      "get": {
+        "operationId": "StaffController_getStaff",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a single staff record for an institution",
+        "tags": [
+          "staff"
+        ]
+      },
+      "patch": {
+        "operationId": "StaffController_updateStaff",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStaffBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a staff membership for an institution",
+        "tags": [
+          "staff"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/guardians": {
+      "get": {
+        "operationId": "GuardiansController_listGuardians",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GuardianDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List guardians for an institution",
+        "tags": [
+          "guardians"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/guardians/{guardianId}": {
+      "get": {
+        "operationId": "GuardiansController_getGuardian",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guardianId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a single guardian for an institution",
+        "tags": [
+          "guardians"
+        ]
+      },
+      "patch": {
+        "operationId": "GuardiansController_updateGuardian",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guardianId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGuardianBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update guardian details",
+        "tags": [
+          "guardians"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/guardians/{guardianId}/students": {
+      "post": {
+        "operationId": "GuardiansController_linkStudent",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guardianId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkGuardianStudentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Link a guardian to a student",
+        "tags": [
+          "guardians"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/guardians/{guardianId}/students/{studentId}": {
+      "patch": {
+        "operationId": "GuardiansController_updateStudentLink",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guardianId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGuardianStudentLinkBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a guardian-student relationship",
+        "tags": [
+          "guardians"
+        ]
+      },
+      "delete": {
+        "operationId": "GuardiansController_unlinkStudent",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "guardianId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GuardianDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Unlink a guardian from a student",
+        "tags": [
+          "guardians"
+        ]
+      }
+    },
     "/institutions/{institutionId}/academic-years": {
       "get": {
         "operationId": "AcademicYearsController_listAcademicYears",
@@ -1034,7 +1553,7 @@
             }
           },
           {
-            "name": "className",
+            "name": "classId",
             "required": true,
             "in": "query",
             "schema": {
@@ -1042,7 +1561,7 @@
             }
           },
           {
-            "name": "sectionName",
+            "name": "sectionId",
             "required": true,
             "in": "query",
             "schema": {
@@ -1161,6 +1680,191 @@
         "summary": "List simple attendance summaries for a day",
         "tags": [
           "attendance"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/exams/terms": {
+      "get": {
+        "operationId": "ExamsController_listExamTerms",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamTermDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List exam terms for an institution",
+        "tags": [
+          "exams"
+        ]
+      },
+      "post": {
+        "operationId": "ExamsController_createExamTerm",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExamTermBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamTermDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an exam term for an institution",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/exams/terms/{examTermId}/marks": {
+      "get": {
+        "operationId": "ExamsController_listExamMarks",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamMarkDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List marks for an exam term",
+        "tags": [
+          "exams"
+        ]
+      },
+      "put": {
+        "operationId": "ExamsController_replaceExamMarks",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertExamMarksBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamMarkDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Replace the marks list for an exam term",
+        "tags": [
+          "exams"
         ]
       }
     },
@@ -1655,7 +2359,23 @@
       "description": ""
     },
     {
+      "name": "students",
+      "description": ""
+    },
+    {
+      "name": "staff",
+      "description": ""
+    },
+    {
       "name": "academic-years",
+      "description": ""
+    },
+    {
+      "name": "attendance",
+      "description": ""
+    },
+    {
+      "name": "exams",
       "description": ""
     },
     {
@@ -2386,6 +3106,29 @@
           "isPrimary"
         ]
       },
+      "CurrentStudentEnrollmentDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "academicYearName",
+          "classId",
+          "sectionId"
+        ]
+      },
       "StudentDto": {
         "type": "object",
         "properties": {
@@ -2408,10 +3151,10 @@
             "type": "string",
             "nullable": true
           },
-          "className": {
+          "classId": {
             "type": "string"
           },
-          "sectionName": {
+          "sectionId": {
             "type": "string"
           },
           "fullName": {
@@ -2436,6 +3179,14 @@
             "items": {
               "$ref": "#/components/schemas/StudentGuardianDto"
             }
+          },
+          "currentEnrollment": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CurrentStudentEnrollmentDto"
+              }
+            ]
           }
         },
         "required": [
@@ -2444,8 +3195,8 @@
           "institutionId",
           "admissionNumber",
           "firstName",
-          "className",
-          "sectionName",
+          "classId",
+          "sectionId",
           "fullName",
           "campusId",
           "campusName",
@@ -2485,6 +3236,25 @@
           "isPrimary"
         ]
       },
+      "CurrentStudentEnrollmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "classId",
+          "sectionId"
+        ]
+      },
       "CreateStudentBodyDto": {
         "type": "object",
         "properties": {
@@ -2498,10 +3268,10 @@
             "type": "string",
             "nullable": true
           },
-          "className": {
+          "classId": {
             "type": "string"
           },
-          "sectionName": {
+          "sectionId": {
             "type": "string"
           },
           "campusId": {
@@ -2512,13 +3282,21 @@
             "items": {
               "$ref": "#/components/schemas/CreateGuardianLinkBodyDto"
             }
+          },
+          "currentEnrollment": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CurrentStudentEnrollmentBodyDto"
+              }
+            ]
           }
         },
         "required": [
           "admissionNumber",
           "firstName",
-          "className",
-          "sectionName",
+          "classId",
+          "sectionId",
           "campusId",
           "guardians"
         ]
@@ -2536,10 +3314,10 @@
             "type": "string",
             "nullable": true
           },
-          "className": {
+          "classId": {
             "type": "string"
           },
-          "sectionName": {
+          "sectionId": {
             "type": "string"
           },
           "campusId": {
@@ -2550,15 +3328,345 @@
             "items": {
               "$ref": "#/components/schemas/CreateGuardianLinkBodyDto"
             }
+          },
+          "currentEnrollment": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CurrentStudentEnrollmentBodyDto"
+              }
+            ]
           }
         },
         "required": [
           "admissionNumber",
           "firstName",
-          "className",
-          "sectionName",
+          "classId",
+          "sectionId",
           "campusId",
           "guardians"
+        ]
+      },
+      "StaffRoleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
+      "StaffDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "memberType": {
+            "type": "string",
+            "enum": [
+              "staff",
+              "student",
+              "guardian"
+            ]
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "suspended"
+            ]
+          },
+          "role": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StaffRoleDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "institutionId",
+          "name",
+          "mobile",
+          "memberType",
+          "campusId",
+          "campusName",
+          "status"
+        ]
+      },
+      "CreateStaffBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "roleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "suspended"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "mobile",
+          "campusId",
+          "status"
+        ]
+      },
+      "UpdateStaffBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "roleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "suspended"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "mobile",
+          "campusId",
+          "status"
+        ]
+      },
+      "GuardianLinkedStudentDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "membershipId": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "father",
+              "mother",
+              "guardian"
+            ]
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "studentId",
+          "membershipId",
+          "fullName",
+          "admissionNumber",
+          "campusId",
+          "campusName",
+          "relationship",
+          "isPrimary"
+        ]
+      },
+      "GuardianDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "suspended"
+            ]
+          },
+          "linkedStudents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GuardianLinkedStudentDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "institutionId",
+          "name",
+          "mobile",
+          "campusId",
+          "campusName",
+          "status",
+          "linkedStudents"
+        ]
+      },
+      "UpdateGuardianBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "mobile",
+          "campusId"
+        ]
+      },
+      "LinkGuardianStudentBodyDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "father",
+              "mother",
+              "guardian"
+            ]
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "studentId",
+          "relationship",
+          "isPrimary"
+        ]
+      },
+      "UpdateGuardianStudentLinkBodyDto": {
+        "type": "object",
+        "properties": {
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "father",
+              "mother",
+              "guardian"
+            ]
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "relationship",
+          "isPrimary"
         ]
       },
       "AcademicYearDto": {
@@ -2650,10 +3758,10 @@
       "AttendanceClassSectionDto": {
         "type": "object",
         "properties": {
-          "className": {
+          "classId": {
             "type": "string"
           },
-          "sectionName": {
+          "sectionId": {
             "type": "string"
           },
           "studentCount": {
@@ -2661,8 +3769,8 @@
           }
         },
         "required": [
-          "className",
-          "sectionName",
+          "classId",
+          "sectionId",
           "studentCount"
         ]
       },
@@ -2708,10 +3816,10 @@
           "campusName": {
             "type": "string"
           },
-          "className": {
+          "classId": {
             "type": "string"
           },
-          "sectionName": {
+          "sectionId": {
             "type": "string"
           },
           "totalStudents": {
@@ -2728,8 +3836,8 @@
           "attendanceDate",
           "campusId",
           "campusName",
-          "className",
-          "sectionName",
+          "classId",
+          "sectionId",
           "totalStudents",
           "entries"
         ]
@@ -2764,10 +3872,10 @@
           "campusId": {
             "type": "string"
           },
-          "className": {
+          "classId": {
             "type": "string"
           },
-          "sectionName": {
+          "sectionId": {
             "type": "string"
           },
           "entries": {
@@ -2780,8 +3888,8 @@
         "required": [
           "attendanceDate",
           "campusId",
-          "className",
-          "sectionName",
+          "classId",
+          "sectionId",
           "entries"
         ]
       },
@@ -2820,10 +3928,10 @@
           "campusName": {
             "type": "string"
           },
-          "className": {
+          "classId": {
             "type": "string"
           },
-          "sectionName": {
+          "sectionId": {
             "type": "string"
           },
           "totalStudents": {
@@ -2837,10 +3945,162 @@
           "attendanceDate",
           "campusId",
           "campusName",
-          "className",
-          "sectionName",
+          "classId",
+          "sectionId",
           "totalStudents",
           "counts"
+        ]
+      },
+      "ExamTermDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "institutionId",
+          "academicYearId",
+          "academicYearName",
+          "name",
+          "startDate",
+          "endDate",
+          "createdAt"
+        ]
+      },
+      "CreateExamTermBodyDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "name",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "ExamMarkDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "examTermId": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentFullName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "examTermId",
+          "studentId",
+          "studentFullName",
+          "admissionNumber",
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks",
+          "createdAt"
+        ]
+      },
+      "UpsertExamMarkEntryBodyDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "studentId",
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks"
+        ]
+      },
+      "UpsertExamMarksBodyDto": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertExamMarkEntryBodyDto"
+            }
+          }
+        },
+        "required": [
+          "entries"
         ]
       },
       "FeeStructureDto": {

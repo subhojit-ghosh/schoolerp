@@ -6,10 +6,10 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class AttendanceClassSectionDto {
   @ApiProperty()
-  className!: string;
+  classId!: string;
 
   @ApiProperty()
-  sectionName!: string;
+  sectionId!: string;
 
   @ApiProperty()
   studentCount!: number;
@@ -28,10 +28,10 @@ export class AttendanceDayQueryParamsDto {
   campusId!: string;
 
   @ApiProperty()
-  className!: string;
+  classId!: string;
 
   @ApiProperty()
-  sectionName!: string;
+  sectionId!: string;
 }
 
 export class AttendanceDayViewQueryParamsDto {
@@ -57,10 +57,10 @@ export class UpsertAttendanceDayBodyDto {
   campusId!: string;
 
   @ApiProperty()
-  className!: string;
+  classId!: string;
 
   @ApiProperty()
-  sectionName!: string;
+  sectionId!: string;
 
   @ApiProperty({
     type: () => AttendanceDayEntryBodyDto,
@@ -97,10 +97,10 @@ export class AttendanceDayDto {
   campusName!: string;
 
   @ApiProperty()
-  className!: string;
+  classId!: string;
 
   @ApiProperty()
-  sectionName!: string;
+  sectionId!: string;
 
   @ApiProperty()
   totalStudents!: number;
@@ -137,10 +137,10 @@ export class AttendanceDayViewItemDto {
   campusName!: string;
 
   @ApiProperty()
-  className!: string;
+  classId!: string;
 
   @ApiProperty()
-  sectionName!: string;
+  sectionId!: string;
 
   @ApiProperty()
   totalStudents!: number;

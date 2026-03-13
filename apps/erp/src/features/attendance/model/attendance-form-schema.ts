@@ -10,8 +10,8 @@ const DEFAULT_DATE = new Date().toISOString().slice(0, 10);
 export const attendanceSelectionSchema = z.object({
   attendanceDate: z.string().min(1, "Date is required"),
   campusId: z.uuid("Campus is required"),
-  className: z.string().trim().min(1, "Class is required"),
-  sectionName: z.string().trim().min(1, "Section is required"),
+  classId: z.string().trim().min(1, "Class is required"),
+  sectionId: z.string().trim().min(1, "Section is required"),
 });
 
 export const attendanceDayViewSchema = z.object({
@@ -30,8 +30,8 @@ export const attendanceEntryFormSchema = attendanceSelectionSchema.extend({
 export const DEFAULT_ATTENDANCE_SELECTION_VALUES: AttendanceSelectionValues = {
   attendanceDate: DEFAULT_DATE,
   campusId: "",
-  className: "",
-  sectionName: "",
+  classId: "",
+  sectionId: "",
 };
 
 export const DEFAULT_ATTENDANCE_DAY_VIEW_VALUES: AttendanceDayViewValues = {
