@@ -12,14 +12,6 @@ import {
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui/components/ui/select";
-import {
   classFormSchema,
   type ClassFormValues,
 } from "@/features/classes/model/class-form-schema";
@@ -28,13 +20,7 @@ const EMPTY_SECTION: ClassFormValues["sections"][number] = {
   name: "",
 };
 
-type CampusOption = {
-  id: string;
-  name: string;
-};
-
 type ClassFormProps = {
-  campuses: CampusOption[];
   defaultValues: ClassFormValues;
   errorMessage?: string;
   isPending?: boolean;
@@ -44,7 +30,6 @@ type ClassFormProps = {
 };
 
 export function ClassForm({
-  campuses,
   defaultValues,
   errorMessage,
   isPending = false,
@@ -52,7 +37,7 @@ export function ClassForm({
   onSubmit,
   submitLabel,
 }: ClassFormProps) {
-  const { control, handleSubmit, reset } = useForm<ClassFormValues>({
+  const { control, handleSubmit, reset, formState } = useForm<ClassFormValues>({
     resolver: zodResolver(classFormSchema),
     defaultValues,
   });
@@ -69,7 +54,7 @@ export function ClassForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <FieldGroup className="gap-6">
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4">
           <Controller
             control={control}
             name="name"
@@ -83,53 +68,6 @@ export function ClassForm({
                     id="class-name"
                     placeholder="Grade 8"
                   />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
-          <Controller
-            control={control}
-            name="code"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="class-code">Class code</FieldLabel>
-                <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    id="class-code"
-                    placeholder="G8"
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
-          <Controller
-            control={control}
-            name="campusId"
-            render={({ field, fieldState }) => (
-              <Field
-                className="sm:col-span-2"
-                data-invalid={fieldState.invalid || undefined}
-              >
-                <FieldLabel>Campus</FieldLabel>
-                <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select campus" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {campuses.map((campus) => (
-                          <SelectItem key={campus.id} value={campus.id}>
-                            {campus.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
               </Field>
@@ -157,11 +95,11 @@ export function ClassForm({
             </Button>
           </div>
 
-          <div className="grid gap-3">
+          <div className="rounded-lg border divide-y">
             {sectionsFieldArray.fields.map((section, index) => (
               <div
                 key={section.id}
-                className="flex items-start gap-3 rounded-xl border bg-muted/20 p-3"
+                className="flex items-center gap-2 px-3 py-2.5"
               >
                 <Controller
                   control={control}
@@ -171,15 +109,13 @@ export function ClassForm({
                       className="flex-1"
                       data-invalid={fieldState.invalid || undefined}
                     >
-                      <FieldLabel htmlFor={`section-name-${index}`}>
-                        Section name
-                      </FieldLabel>
                       <FieldContent>
                         <Input
                           {...field}
                           aria-invalid={fieldState.invalid}
                           id={`section-name-${index}`}
                           placeholder={`Section ${String.fromCharCode(65 + index)}`}
+                          className="h-8 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
                         />
                         <FieldError>{fieldState.error?.message}</FieldError>
                       </FieldContent>
@@ -187,19 +123,28 @@ export function ClassForm({
                   )}
                 />
                 <Button
-                  className="mt-6 shrink-0"
+                  className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
                   disabled={sectionsFieldArray.fields.length === 1}
                   onClick={() => sectionsFieldArray.remove(index)}
                   size="icon"
                   type="button"
                   variant="ghost"
                 >
-                  <IconTrash />
+                  <IconTrash className="size-3.5" />
                   <span className="sr-only">Remove section</span>
                 </Button>
               </div>
             ))}
           </div>
+          {formState.errors.sections?.message ? (
+            <p className="text-sm text-destructive">
+              {formState.errors.sections.message}
+            </p>
+          ) : formState.errors.sections?.root?.message ? (
+            <p className="text-sm text-destructive">
+              {formState.errors.sections.root.message}
+            </p>
+          ) : null}
         </div>
 
         {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}

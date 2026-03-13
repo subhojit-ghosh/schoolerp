@@ -11,12 +11,10 @@ import {
   IconUserHeart,
   IconUserStar,
 } from "@tabler/icons-react";
-import { useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
-import { Separator } from "@repo/ui/components/ui/separator";
 import { SidebarTrigger } from "@repo/ui/components/ui/sidebar";
 import {
   Select,
@@ -33,7 +31,6 @@ import {
 } from "@repo/ui/components/ui/dropdown-menu";
 import { cn } from "@repo/ui/lib/utils";
 import { ThemeDrawer } from "@/components/theme-drawer";
-import { ModeToggle } from "@/components/mode-toggle";
 import {
   useSelectCampusMutation,
   useSelectContextMutation,
@@ -44,14 +41,6 @@ import {
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 
-const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/students": "Students",
-  "/guardians": "Guardians",
-  "/academic-years": "Academic Years",
-  "/exams": "Exams",
-  "/settings/branding": "Branding",
-};
 
 const FULLSCREEN_CHANGE_EVENT = "fullscreenchange";
 const WEBKIT_FULLSCREEN_CHANGE_EVENT = "webkitfullscreenchange";
@@ -107,7 +96,6 @@ function isFullscreenSupported(doc: FullscreenDocument) {
 }
 
 export function SiteHeader() {
-  const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const selectCampusMutation = useSelectCampusMutation();
   const selectContextMutation = useSelectContextMutation();
@@ -117,11 +105,6 @@ export function SiteHeader() {
   const [isScrolled, setIsScrolled] = useState(() =>
     typeof window !== "undefined" ? window.scrollY > 8 : false,
   );
-  const title = location.pathname.startsWith("/students/")
-    ? "Student"
-    : location.pathname.startsWith("/guardians/")
-      ? "Guardian"
-      : PAGE_TITLES[location.pathname] ?? "ERP";
   const activeContext = getActiveContext(session);
   const campusName = session?.activeCampus?.name ?? "Campus";
   const campuses = session?.campuses ?? [];
@@ -229,13 +212,6 @@ export function SiteHeader() {
       <div className="flex w-full items-center gap-3 px-4 py-4 lg:px-6">
         <div className="flex min-w-0 items-center gap-1">
           <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mx-2 data-[orientation=vertical]:h-4"
-          />
-          <h1 className="truncate text-lg font-semibold tracking-tight text-foreground">
-            {title}
-          </h1>
         </div>
 
         <div className="relative ml-4 hidden min-w-[260px] flex-1 md:block lg:max-w-md">
@@ -406,7 +382,6 @@ export function SiteHeader() {
               <IconMaximize className="size-4" />
             )}
           </Button>
-          <ModeToggle />
           <ThemeDrawer />
         </div>
       </div>

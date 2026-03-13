@@ -18,8 +18,6 @@ function hasUniqueSectionNames(
 export const classFormSchema = z
   .object({
     name: z.string().trim().min(CLASS_NAME_MIN_LENGTH, "Class name is required"),
-    code: z.string().trim().optional(),
-    campusId: z.uuid("Select a campus"),
     sections: z.array(classSectionFormSchema).min(1, "Add at least one section"),
   })
   .refine((value) => hasUniqueSectionNames(value.sections), {

@@ -1,22 +1,50 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
-  IconArrowRight,
-  IconBuildingEstate,
-  IconLayersIntersect2,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronsLeft,
+  IconChevronsRight,
+  IconChevronUp,
+  IconChevronDown,
+  IconDotsVertical,
+  IconPencil,
   IconPlus,
+  IconPower,
+  IconSearch,
+  IconTrash,
 } from "@tabler/icons-react";
+import {
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/ui/card";
-import { cn } from "@repo/ui/lib/utils";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@repo/ui/components/ui/dropdown-menu";
+import { Input } from "@repo/ui/components/ui/input";
+import { Skeleton } from "@repo/ui/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@repo/ui/components/ui/table";
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { EntitySheet } from "@/components/entity-sheet";
 import {
   getActiveContext,
   isStaffContext,
@@ -25,262 +53,476 @@ import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
   useClassesQuery,
   useCreateClassMutation,
+  useDeleteClassMutation,
+  useSetClassStatusMutation,
+  useUpdateClassMutation,
 } from "@/features/classes/api/use-classes";
 import { ClassForm } from "@/features/classes/ui/class-form";
-import { ERP_ROUTES } from "@/constants/routes";
 import type { ClassFormValues } from "@/features/classes/model/class-form-schema";
+
+type ClassRow = {
+  id: string;
+  name: string;
+  isActive: boolean;
+  sections: Array<{ id: string; name: string; displayOrder: number }>;
+};
+
+const PAGE_SIZE = 20;
+const columnHelper = createColumnHelper<ClassRow>();
 
 const DEFAULT_VALUES: ClassFormValues = {
   name: "",
-  code: "",
-  campusId: "",
   sections: [{ name: "" }],
 };
 
+function SortIcon({
+  direction,
+}: {
+  direction: false | "asc" | "desc";
+}) {
+  if (direction === "asc") return <IconChevronUp className="ml-1 inline size-3.5" />;
+  if (direction === "desc") return <IconChevronDown className="ml-1 inline size-3.5" />;
+  return null;
+}
+
 export function ClassesPage() {
-  const [showForm, setShowForm] = useState(false);
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
+  const activeCampusId = session?.activeCampus?.id;
   const canManageClasses = isStaffContext(session);
-  const managedInstitutionId = canManageClasses ? institutionId : undefined;
-  const campuses = session?.campuses ?? [];
-  const classesQuery = useClassesQuery(managedInstitutionId);
-  const createClassMutation = useCreateClassMutation(managedInstitutionId);
-  const createError = createClassMutation.error as Error | null | undefined;
+  const canQueryClasses = canManageClasses && Boolean(institutionId);
 
-  const classes = classesQuery.data ?? [];
-  const totalSections = classes.reduce(
-    (count, schoolClass) => count + schoolClass.sections.length,
-    0,
-  );
+  const classesQuery = useClassesQuery(canQueryClasses);
+  const createMutation = useCreateClassMutation();
+  const updateMutation = useUpdateClassMutation();
+  const setStatusMutation = useSetClassStatusMutation();
+  const deleteMutation = useDeleteClassMutation();
 
-  async function onSubmit(values: ClassFormValues) {
-    if (!institutionId) {
-      return;
-    }
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const [editingClass, setEditingClass] = useState<ClassRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ClassRow | null>(null);
+  const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState<SortingState>([]);
 
-    await createClassMutation.mutateAsync({
-      params: { path: { institutionId } },
-      body: values,
+  const classes = (classesQuery.data ?? []) as ClassRow[];
+
+  const columns = [
+    columnHelper.accessor("name", {
+      header: ({ column }) => (
+        <button
+          className="flex items-center font-medium hover:text-foreground"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Class
+          <SortIcon direction={column.getIsSorted()} />
+        </button>
+      ),
+      cell: ({ row }) => (
+        <button
+          className="flex items-center gap-2 text-left"
+          onClick={() => {
+            setEditingClass(row.original);
+            setSheetOpen(true);
+          }}
+        >
+          <span className="font-medium hover:underline">
+            {row.original.name}
+          </span>
+        </button>
+      ),
+    }),
+    columnHelper.accessor("isActive", {
+      header: "Status",
+      cell: ({ getValue }) =>
+        getValue() ? (
+          <Badge variant="secondary" className="text-green-700 dark:text-green-400">
+            Active
+          </Badge>
+        ) : (
+          <Badge variant="outline" className="text-muted-foreground">
+            Disabled
+          </Badge>
+        ),
+    }),
+    columnHelper.accessor("sections", {
+      header: "Sections",
+      enableSorting: false,
+      cell: ({ getValue }) => {
+        const sections = getValue();
+        if (sections.length === 0) {
+          return <span className="text-sm text-muted-foreground">—</span>;
+        }
+        return (
+          <div className="flex flex-wrap gap-1">
+            {sections.map((s) => (
+              <Badge key={s.id} variant="outline">
+                {s.name}
+              </Badge>
+            ))}
+          </div>
+        );
+      },
+    }),
+    columnHelper.display({
+      id: "actions",
+      cell: ({ row }) => {
+        const cls = row.original;
+        return (
+          <div className="flex items-center justify-end gap-1">
+            <Button
+              className="h-7 px-2.5 text-xs"
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setEditingClass(cls);
+                setSheetOpen(true);
+              }}
+            >
+              <IconPencil className="size-3" />
+              Edit
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  className="size-8 text-muted-foreground data-[state=open]:bg-muted"
+                  size="icon"
+                  variant="ghost"
+                >
+                  <IconDotsVertical className="size-4" />
+                  <span className="sr-only">Row actions</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuItem
+                  onSelect={() => handleToggleStatus(cls)}
+                >
+                  <IconPower className="mr-2 size-4" />
+                  {cls.isActive ? "Disable" : "Enable"}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={() => setDeleteTarget(cls)}
+                >
+                  <IconTrash className="mr-2 size-4" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+    }),
+  ];
+
+  const table = useReactTable({
+    data: classes,
+    columns,
+    state: { sorting, globalFilter },
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: { pagination: { pageSize: PAGE_SIZE } },
+  });
+
+  async function handleCreate(values: ClassFormValues) {
+    if (!institutionId || !activeCampusId) return;
+    await createMutation.mutateAsync({
+      body: { ...values, campusId: activeCampusId },
     });
-
     toast.success("Class created.");
-    setShowForm(false);
+    setSheetOpen(false);
   }
+
+  async function handleUpdate(values: ClassFormValues) {
+    if (!institutionId || !editingClass || !activeCampusId) return;
+    await updateMutation.mutateAsync({
+      params: { path: { classId: editingClass.id } },
+      body: { ...values, campusId: activeCampusId },
+    });
+    toast.success("Class updated.");
+    setSheetOpen(false);
+    setEditingClass(null);
+  }
+
+  async function handleToggleStatus(cls: ClassRow) {
+    if (!institutionId) return;
+    await setStatusMutation.mutateAsync({
+      params: { path: { classId: cls.id } },
+      body: { isActive: !cls.isActive },
+    });
+    toast.success(cls.isActive ? "Class disabled." : "Class enabled.");
+  }
+
+  async function handleDelete() {
+    if (!institutionId || !deleteTarget) return;
+    await deleteMutation.mutateAsync({
+      params: { path: { classId: deleteTarget.id } },
+    });
+    toast.success("Class deleted.");
+    setDeleteTarget(null);
+  }
+
+  function openAddSheet() {
+    setEditingClass(null);
+    setSheetOpen(true);
+  }
+
+  const createError = createMutation.error as Error | null | undefined;
+  const updateError = updateMutation.error as Error | null | undefined;
 
   if (!institutionId) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Classes</CardTitle>
-          <CardDescription>
-            Sign in with an institution-backed session to manage class records.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="rounded-lg border p-6">
+        <p className="font-medium">Classes</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Sign in with an institution-backed session to manage class records.
+        </p>
+      </div>
     );
   }
 
   if (!canManageClasses) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Classes</CardTitle>
-          <CardDescription>
-            Class administration is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="rounded-lg border p-6">
+        <p className="font-medium">Classes</p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Class administration is available in Staff view. You are currently in{" "}
+          {activeContext?.label ?? "another"} view.
+        </p>
+      </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <section className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_360px]">
-        <Card className="border-border/70 shadow-sm">
-          <CardContent className="flex flex-col gap-6 p-6">
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className="space-y-2">
-                <Badge className="rounded-full px-3 py-1" variant="secondary">
-                  <IconLayersIntersect2 className="mr-1.5 size-3.5" />
-                  Class structure
-                </Badge>
-                <div className="space-y-2">
-                  <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-                    Classes and sections
-                  </h2>
-                  <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                    Keep the structure intentionally shallow: assign each class to a campus,
-                    define the active sections, and leave allocations and timetables for later.
-                  </p>
-                </div>
-              </div>
-              <Button
-                className="h-11 rounded-xl px-5 text-base shadow-sm"
-                onClick={() => setShowForm((value) => !value)}
-                variant={showForm ? "outline" : "default"}
-              >
-                <IconPlus className="size-4" />
-                {showForm ? "Close form" : "Add class"}
-              </Button>
-            </div>
-
-            <div className="grid gap-3 md:grid-cols-3">
-              <div className="rounded-2xl border border-border/70 bg-background/85 p-4 shadow-xs">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/75">
-                  Active classes
-                </p>
-                <div className="mt-3 text-3xl font-semibold tracking-tight">
-                  {classesQuery.isLoading ? "—" : classes.length}
-                </div>
-              </div>
-              <div className="rounded-2xl border border-border/70 bg-background/85 p-4 shadow-xs">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/75">
-                  Active sections
-                </p>
-                <div className="mt-3 text-3xl font-semibold tracking-tight">
-                  {classesQuery.isLoading ? "—" : totalSections}
-                </div>
-              </div>
-              <div className="rounded-2xl border border-border/70 bg-background/85 p-4 shadow-xs">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/75">
-                  Default campus
-                </p>
-                <div className="mt-3 flex items-center gap-2 text-lg font-semibold tracking-tight">
-                  <IconBuildingEstate className="size-4 text-[var(--primary)]" />
-                  {session?.activeCampus?.name ?? "No campus"}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/70 bg-card shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Module scope</CardTitle>
-            <CardDescription>
-              This slice stops at roster structure so the backend boundary stays clean.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <div className="rounded-2xl border border-dashed border-border/70 bg-muted/25 p-4">
-              Create and edit class records with a campus and a small section list.
-            </div>
-            <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-              No timetable, teacher allocation, seat planning, or promotion workflow yet.
-            </div>
-          </CardContent>
-        </Card>
-      </section>
-
-      {showForm ? (
-        <Card className="border-border/70 shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg">Create class</CardTitle>
-            <CardDescription>
-              Add a class and define the sections available for admissions and roster views.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ClassForm
-              campuses={campuses}
-              defaultValues={{
-                ...DEFAULT_VALUES,
-                campusId: session?.activeCampus?.id ?? "",
-              }}
-              errorMessage={createError?.message}
-              isPending={createClassMutation.isPending}
-              onCancel={() => setShowForm(false)}
-              onSubmit={onSubmit}
-              submitLabel="Create class"
-            />
-          </CardContent>
-        </Card>
-      ) : null}
-
-      <Card className="overflow-hidden border-border/70 shadow-sm">
-        <CardHeader className="border-b border-border/70 bg-muted/20 pb-4">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <CardTitle className="text-lg">Class list</CardTitle>
-              <CardDescription>
-                Open any record to edit campus assignment or reconcile sections.
-              </CardDescription>
-            </div>
-            <Badge className="rounded-full px-3 py-1.5" variant="outline">
-              {classesQuery.isLoading
-                ? "Loading…"
-                : `${classes.length} active ${classes.length === 1 ? "class" : "classes"}`}
-            </Badge>
+    <>
+      <div className="flex flex-col gap-6">
+        {/* Page header */}
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight">Classes</h1>
+            <p className="text-sm text-muted-foreground">
+              Assign each class to a campus and define its sections.
+            </p>
           </div>
-        </CardHeader>
-        <CardContent className="p-4">
-          {classesQuery.isLoading ? (
-            <div className="flex min-h-56 items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 text-sm text-muted-foreground">
-              Loading classes…
+          <Button onClick={openAddSheet}>
+            <IconPlus className="size-4" />
+            Add class
+          </Button>
+        </div>
+
+
+        {/* Table */}
+        <div className="overflow-hidden rounded-lg border">
+          <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
+            <div className="relative flex-1">
+              <IconSearch className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="h-9 w-full max-w-xs pl-8"
+                placeholder="Search classes…"
+                value={globalFilter}
+                onChange={(e) => setGlobalFilter(e.target.value)}
+              />
             </div>
-          ) : classes.length === 0 ? (
-            <div className="flex min-h-64 flex-col items-center justify-center gap-4 rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 text-center">
-              <div className="space-y-1">
-                <p className="text-base font-semibold text-foreground">No classes yet</p>
-                <p className="max-w-md text-sm leading-6 text-muted-foreground">
-                  Start with the first class and a couple of sections so student and attendance flows have a stable structure later.
+          </div>
+
+          <div>
+            {classesQuery.isError ? (
+              <div className="flex min-h-56 flex-col items-center justify-center gap-2 text-center">
+                <p className="text-sm font-medium">Failed to load classes</p>
+                <p className="text-sm text-muted-foreground">
+                  {(classesQuery.error as Error)?.message ?? "Something went wrong. Try refreshing the page."}
                 </p>
               </div>
-              <Button className="rounded-xl px-4" onClick={() => setShowForm(true)}>
-                <IconPlus className="size-4" />
-                Add first class
-              </Button>
-            </div>
-          ) : (
-            <div className="grid gap-3">
-              {classes.map((schoolClass, index) => (
-                <Link
-                  key={schoolClass.id}
-                  className={cn(
-                    "group relative flex flex-wrap items-center gap-4 overflow-hidden rounded-2xl border border-border/70 bg-card px-5 py-4 shadow-sm transition-all hover:border-primary/35 hover:shadow-md",
-                    index === 0 ? "border-primary/20" : undefined,
-                  )}
-                  to={ERP_ROUTES.CLASS_DETAIL.replace(":classId", schoolClass.id)}
-                >
-                  <div className="min-w-[220px] flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-base font-semibold tracking-tight text-foreground">
-                        {schoolClass.name}
-                      </p>
-                      {schoolClass.code ? (
-                        <Badge className="rounded-full px-3 py-1 font-mono" variant="outline">
-                          {schoolClass.code}
-                        </Badge>
-                      ) : null}
-                      <Badge className="rounded-full px-3 py-1" variant="secondary">
-                        {schoolClass.campusName}
-                      </Badge>
-                    </div>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {schoolClass.sections.length}{" "}
-                      {schoolClass.sections.length === 1 ? "section" : "sections"}
+            ) : classesQuery.isLoading ? (
+              <div className="divide-y">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-4 px-4 py-3">
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-5 w-16" />
+                    <Skeleton className="h-5 w-20" />
+                    <Skeleton className="h-5 w-24" />
+                  </div>
+                ))}
+              </div>
+            ) : table.getRowModel().rows.length === 0 ? (
+              <div className="flex min-h-56 flex-col items-center justify-center gap-3 text-center">
+                <p className="text-sm font-medium">
+                  {classes.length === 0
+                    ? "No classes yet"
+                    : "No classes match your search"}
+                </p>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  {classes.length === 0
+                    ? "Add your first class to get started."
+                    : "Try adjusting your search or campus filter."}
+                </p>
+                {classes.length === 0 ? (
+                  <Button size="sm" onClick={openAddSheet}>
+                    <IconPlus className="size-4" />
+                    Add first class
+                  </Button>
+                ) : null}
+              </div>
+            ) : (
+              <>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader className="bg-muted/30">
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                          {headerGroup.headers.map((header) => (
+                            <TableHead key={header.id} className="text-xs font-medium text-muted-foreground">
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
+                                  )}
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows.map((row) => (
+                        <TableRow
+                          key={row.id}
+                          className="group"
+                          data-state={row.original.isActive ? undefined : "muted"}
+                        >
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell
+                              key={cell.id}
+                              className={
+                                row.original.isActive
+                                  ? undefined
+                                  : "opacity-60"
+                              }
+                            >
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {/* Pagination */}
+                {table.getPageCount() > 1 ? (
+                  <div className="flex items-center justify-between border-t px-4 py-3">
+                    <p className="text-sm text-muted-foreground">
+                      Page {table.getState().pagination.pageIndex + 1} of{" "}
+                      {table.getPageCount()} &middot;{" "}
+                      {table.getFilteredRowModel().rows.length} results
                     </p>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="size-8"
+                        onClick={() => table.setPageIndex(0)}
+                        disabled={!table.getCanPreviousPage()}
+                      >
+                        <IconChevronsLeft className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="size-8"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                      >
+                        <IconChevronLeft className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="size-8"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                      >
+                        <IconChevronRight className="size-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="size-8"
+                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                        disabled={!table.getCanNextPage()}
+                      >
+                        <IconChevronsRight className="size-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex min-w-[220px] flex-1 flex-wrap gap-2">
-                    {schoolClass.sections.map((section) => (
-                      <Badge key={section.id} className="rounded-full px-3 py-1" variant="outline">
-                        {section.name}
-                      </Badge>
-                    ))}
-                  </div>
-                  <div className="ml-auto flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                    Edit
-                    <IconArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+                ) : null}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Add / Edit sheet */}
+      <EntitySheet
+        open={sheetOpen}
+        onOpenChange={(open) => {
+          setSheetOpen(open);
+          if (!open) setEditingClass(null);
+        }}
+        title={editingClass ? "Edit class" : "Add class"}
+        description={
+          editingClass
+            ? "Update the name or sections."
+            : "Add a class and define the sections available for admissions and roster views."
+        }
+      >
+        <ClassForm
+          defaultValues={
+            editingClass
+              ? {
+                  name: editingClass.name,
+                  sections: editingClass.sections.map((s) => ({
+                    id: s.id,
+                    name: s.name,
+                  })),
+                }
+              : DEFAULT_VALUES
+          }
+          errorMessage={
+            editingClass ? updateError?.message : createError?.message
+          }
+          isPending={
+            editingClass ? updateMutation.isPending : createMutation.isPending
+          }
+          onCancel={() => {
+            setSheetOpen(false);
+            setEditingClass(null);
+          }}
+          onSubmit={editingClass ? handleUpdate : handleCreate}
+          submitLabel={editingClass ? "Save changes" : "Create class"}
+        />
+      </EntitySheet>
+
+      {/* Delete confirmation */}
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title={`Delete "${deleteTarget?.name ?? "class"}"`}
+        description="This will permanently remove the class and all its sections. This cannot be undone."
+        confirmLabel="Delete class"
+        isPending={deleteMutation.isPending}
+        onConfirm={handleDelete}
+      />
+    </>
   );
 }

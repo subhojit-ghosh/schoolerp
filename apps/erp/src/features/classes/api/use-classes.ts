@@ -2,91 +2,77 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CLASSES_API_PATHS } from "@/features/auth/api/auth.constants";
 import { apiQueryClient } from "@/lib/api/client";
 
-export function useClassesQuery(institutionId: string | undefined) {
+export function useClassesQuery(enabled: boolean) {
   return apiQueryClient.useQuery(
     "get",
     CLASSES_API_PATHS.LIST,
+    undefined,
     {
-      params: {
-        path: {
-          institutionId: institutionId ?? "",
-        },
-      },
-    },
-    {
-      enabled: Boolean(institutionId),
+      enabled,
     },
   );
 }
 
-export function useCreateClassMutation(institutionId: string | undefined) {
+export function useCreateClassMutation() {
   const queryClient = useQueryClient();
 
   return apiQueryClient.useMutation("post", CLASSES_API_PATHS.CREATE, {
     onSuccess: () => {
-      if (!institutionId) {
-        return;
-      }
-
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          CLASSES_API_PATHS.LIST,
-          {
-            params: {
-              path: {
-                institutionId,
-              },
-            },
-          },
-        ).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST).queryKey,
       });
     },
   });
 }
 
-export function useClassQuery(
-  institutionId: string | undefined,
-  classId: string | undefined,
-) {
+export function useClassQuery(enabled: boolean, classId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
     CLASSES_API_PATHS.DETAIL,
     {
       params: {
         path: {
-          institutionId: institutionId ?? "",
           classId: classId ?? "",
         },
       },
     },
     {
-      enabled: Boolean(institutionId && classId),
+      enabled: enabled && Boolean(classId),
     },
   );
 }
 
-export function useUpdateClassMutation(institutionId: string | undefined) {
+export function useSetClassStatusMutation() {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("patch", CLASSES_API_PATHS.SET_STATUS, {
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST).queryKey,
+      });
+    },
+  });
+}
+
+export function useDeleteClassMutation() {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("delete", CLASSES_API_PATHS.DELETE, {
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST).queryKey,
+      });
+    },
+  });
+}
+
+export function useUpdateClassMutation() {
   const queryClient = useQueryClient();
 
   return apiQueryClient.useMutation("patch", CLASSES_API_PATHS.UPDATE, {
     onSuccess: (_, variables) => {
-      if (!institutionId) {
-        return;
-      }
-
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          CLASSES_API_PATHS.LIST,
-          {
-            params: {
-              path: {
-                institutionId,
-              },
-            },
-          },
-        ).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST).queryKey,
       });
 
       void queryClient.invalidateQueries({
@@ -96,7 +82,6 @@ export function useUpdateClassMutation(institutionId: string | undefined) {
           {
             params: {
               path: {
-                institutionId,
                 classId: variables.params.path.classId,
               },
             },

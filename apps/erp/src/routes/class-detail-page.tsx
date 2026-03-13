@@ -32,34 +32,27 @@ export function ClassDetailPage() {
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
   const canManageClasses = isStaffContext(session);
-  const managedInstitutionId = canManageClasses ? institutionId : undefined;
-  const campuses = session?.campuses ?? [];
-  const classQuery = useClassQuery(managedInstitutionId, classId);
-  const updateClassMutation = useUpdateClassMutation(managedInstitutionId);
+  const activeCampusId = session?.activeCampus?.id;
+  const canQueryClass = canManageClasses && Boolean(institutionId);
+  const classQuery = useClassQuery(canQueryClass, classId);
+  const updateClassMutation = useUpdateClassMutation();
   const updateError = updateClassMutation.error as Error | null | undefined;
 
   const defaultValues = useMemo<ClassFormValues>(() => {
     const schoolClass = classQuery.data;
 
     if (!schoolClass) {
-      return {
-        name: "",
-        code: "",
-        campusId: session?.activeCampus?.id ?? "",
-        sections: [{ name: "" }],
-      };
+      return { name: "", sections: [{ name: "" }] };
     }
 
     return {
       name: schoolClass.name,
-      code: schoolClass.code ?? "",
-      campusId: schoolClass.campusId,
       sections: schoolClass.sections.map((section) => ({
         id: section.id,
         name: section.name,
       })),
     };
-  }, [classQuery.data, session?.activeCampus?.id]);
+  }, [classQuery.data]);
 
   async function onSubmit(values: ClassFormValues) {
     if (!institutionId || !classId) {
@@ -67,13 +60,8 @@ export function ClassDetailPage() {
     }
 
     await updateClassMutation.mutateAsync({
-      params: {
-        path: {
-          institutionId,
-          classId,
-        },
-      },
-      body: values,
+      params: { path: { classId } },
+      body: { ...values, campusId: activeCampusId ?? "" },
     });
 
     toast.success("Class updated.");
@@ -156,7 +144,6 @@ export function ClassDetailPage() {
           </Button>
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-xl font-semibold text-foreground">{schoolClass.name}</h2>
-            {schoolClass.code ? <Badge variant="outline">{schoolClass.code}</Badge> : null}
             <Badge>{schoolClass.campusName}</Badge>
           </div>
           <p className="text-sm text-muted-foreground">
@@ -178,7 +165,6 @@ export function ClassDetailPage() {
           </CardHeader>
           <CardContent>
             <ClassForm
-              campuses={campuses}
               defaultValues={defaultValues}
               errorMessage={updateError?.message}
               isPending={updateClassMutation.isPending}
