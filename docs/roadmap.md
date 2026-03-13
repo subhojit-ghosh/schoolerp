@@ -29,6 +29,7 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 - Lock the next backend boundary on top of the new auth foundation:
   - extend authorization primitives and capability-driven APIs
   - turn the first student domain slice into institution-admin workflows
+  - add shallow academics workflows such as exam terms and marks entry without expanding into report cards or analytics
   - keep the temporary ERP frontend thin over backend-owned rules
 - Keep delivery integrations pragmatic:
   - replace recovery preview delivery with real SMS/email adapters when infra is ready
@@ -37,8 +38,8 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 
 1. Add explicit authorization/capability primitives for institution admin workflows.
 2. Expand the student slice from create/list into detail, edit, and safer guardian management flows.
-3. Replace placeholder recovery delivery with production SMS/email providers.
-4. Add broader tenant-aware integration coverage around auth, onboarding, and new ERP modules.
+3. Add broader tenant-aware coverage around new academics slices such as exam terms and marks entry.
+4. Replace placeholder recovery delivery with production SMS/email providers.
 
 ## Later
 
@@ -46,7 +47,6 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
   - staff
   - academics
   - attendance
-  - exams
   - fees
 - Move more shared UI and shared backend primitives into packages as patterns settle.
 - Replace temporary frontend presentation with the intended ERP design system.

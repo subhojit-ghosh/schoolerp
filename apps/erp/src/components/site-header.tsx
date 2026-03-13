@@ -48,6 +48,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/students": "Students",
   "/academic-years": "Academic Years",
+  "/exams": "Exams",
   "/settings/branding": "Branding",
 };
 

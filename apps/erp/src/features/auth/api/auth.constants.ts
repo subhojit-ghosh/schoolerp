@@ -32,6 +32,14 @@ export const ACADEMIC_YEARS_API_PATHS = {
     "/institutions/{institutionId}/academic-years/{academicYearId}/restore",
 } as const;
 
+export const EXAMS_API_PATHS = {
+  LIST_TERMS: "/institutions/{institutionId}/exams/terms",
+  CREATE_TERM: "/institutions/{institutionId}/exams/terms",
+  LIST_MARKS: "/institutions/{institutionId}/exams/terms/{examTermId}/marks",
+  REPLACE_MARKS:
+    "/institutions/{institutionId}/exams/terms/{examTermId}/marks",
+} as const;
+
 export const INSTITUTIONS_API_PATHS = {
   UPDATE_BRANDING: "/institutions/{id}/branding",
 } as const;

@@ -7,6 +7,7 @@ import { AcademicYearsModule } from "./modules/academic-years/academic-years.mod
 import { AuthModule } from "./modules/auth/auth.module";
 import { CampusesModule } from "./modules/campuses/campuses.module";
 import { validateEnvironment } from "./config/env.validation";
+import { ExamsModule } from "./modules/exams/exams.module";
 import { InstitutionsModule } from "./modules/institutions/institutions.module";
 import { OnboardingModule } from "./modules/onboarding/onboarding.module";
 import { PublicModule } from "./modules/public/public.module";
@@ -29,6 +30,7 @@ import { StudentsModule } from "./modules/students/students.module";
     CampusesModule,
     StudentsModule,
     AcademicYearsModule,
+    ExamsModule,
     InstitutionsModule,
     PublicModule,
   ],

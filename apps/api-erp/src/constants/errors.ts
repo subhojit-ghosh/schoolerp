@@ -34,4 +34,16 @@ export const ERROR_MESSAGES = {
       "Select another academic year as current before archiving this one.",
     YEAR_NOT_FOUND: "The selected academic year was not found.",
   },
+  EXAMS: {
+    TERM_NOT_FOUND: "The selected exam term was not found.",
+    ACADEMIC_YEAR_REQUIRED:
+      "The selected academic year was not found for this institution.",
+    INVALID_TERM_DATE_RANGE: "Exam term end date must be after the start date.",
+    INVALID_MARK_RANGE:
+      "Obtained marks must be between zero and the maximum marks.",
+    DUPLICATE_MARK_ENTRY:
+      "Each student can only have one mark entry per subject in the same exam term.",
+    STUDENT_REQUIRED:
+      "Every marks entry must belong to a student in the selected institution.",
+  },
 } as const;

@@ -19,4 +19,7 @@ async function exportOpenApi() {
   await app.close();
 }
 
-void exportOpenApi();
+void exportOpenApi().catch((error: unknown) => {
+  console.error(error);
+  process.exit(1);
+});

@@ -787,6 +787,191 @@
         ]
       }
     },
+    "/institutions/{institutionId}/exams/terms": {
+      "get": {
+        "operationId": "ExamsController_listExamTerms",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamTermDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List exam terms for an institution",
+        "tags": [
+          "exams"
+        ]
+      },
+      "post": {
+        "operationId": "ExamsController_createExamTerm",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExamTermBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamTermDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an exam term for an institution",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/institutions/{institutionId}/exams/terms/{examTermId}/marks": {
+      "get": {
+        "operationId": "ExamsController_listExamMarks",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamMarkDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List marks for an exam term",
+        "tags": [
+          "exams"
+        ]
+      },
+      "put": {
+        "operationId": "ExamsController_replaceExamMarks",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertExamMarksBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamMarkDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Replace the marks list for an exam term",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/institutions": {
       "get": {
         "operationId": "InstitutionsController_listInstitutions",
@@ -1024,6 +1209,10 @@
     },
     {
       "name": "academic-years",
+      "description": ""
+    },
+    {
+      "name": "exams",
       "description": ""
     },
     {
@@ -1834,6 +2023,158 @@
           "startDate",
           "endDate",
           "makeCurrent"
+        ]
+      },
+      "ExamTermDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "institutionId",
+          "academicYearId",
+          "academicYearName",
+          "name",
+          "startDate",
+          "endDate",
+          "createdAt"
+        ]
+      },
+      "CreateExamTermBodyDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "name",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "ExamMarkDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "examTermId": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentFullName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "examTermId",
+          "studentId",
+          "studentFullName",
+          "admissionNumber",
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks",
+          "createdAt"
+        ]
+      },
+      "UpsertExamMarkEntryBodyDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "studentId",
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks"
+        ]
+      },
+      "UpsertExamMarksBodyDto": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertExamMarkEntryBodyDto"
+            }
+          }
+        },
+        "required": [
+          "entries"
         ]
       },
       "InstitutionDto": {

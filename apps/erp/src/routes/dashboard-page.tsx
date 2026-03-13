@@ -3,6 +3,7 @@ import {
   IconArrowRight,
   IconBook2,
   IconCalendarStats,
+  IconCertificate,
   IconMoodKid,
   IconCurrencyRupee,
   IconUsers,
@@ -29,6 +30,13 @@ const QUICK_ACTIONS = [
     description: "Manage current and archived sessions",
     href: ERP_ROUTES.ACADEMIC_YEARS,
     Icon: IconBook2,
+    disabled: false,
+  },
+  {
+    label: "Exams",
+    description: "Create exam terms and capture marks for active students",
+    href: ERP_ROUTES.EXAMS,
+    Icon: IconCertificate,
     disabled: false,
   },
   {

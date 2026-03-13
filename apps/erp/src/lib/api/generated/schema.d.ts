@@ -314,6 +314,42 @@ export interface paths {
         patch: operations["AcademicYearsController_restoreAcademicYear"];
         trace?: never;
     };
+    "/institutions/{institutionId}/exams/terms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List exam terms for an institution */
+        get: operations["ExamsController_listExamTerms"];
+        put?: never;
+        /** Create an exam term for an institution */
+        post: operations["ExamsController_createExamTerm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/institutions/{institutionId}/exams/terms/{examTermId}/marks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List marks for an exam term */
+        get: operations["ExamsController_listExamMarks"];
+        /** Replace the marks list for an exam term */
+        put: operations["ExamsController_replaceExamMarks"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/institutions": {
         parameters: {
             query?: never;
@@ -598,6 +634,46 @@ export interface components {
             startDate: string;
             endDate: string;
             makeCurrent: boolean;
+        };
+        ExamTermDto: {
+            id: string;
+            institutionId: string;
+            academicYearId: string;
+            academicYearName: string;
+            name: string;
+            startDate: string;
+            endDate: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        CreateExamTermBodyDto: {
+            academicYearId: string;
+            name: string;
+            startDate: string;
+            endDate: string;
+        };
+        ExamMarkDto: {
+            id: string;
+            examTermId: string;
+            studentId: string;
+            studentFullName: string;
+            admissionNumber: string;
+            subjectName: string;
+            maxMarks: number;
+            obtainedMarks: number;
+            remarks?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        UpsertExamMarkEntryBodyDto: {
+            studentId: string;
+            subjectName: string;
+            maxMarks: number;
+            obtainedMarks: number;
+            remarks?: string | null;
+        };
+        UpsertExamMarksBodyDto: {
+            entries: components["schemas"]["UpsertExamMarkEntryBodyDto"][];
         };
         InstitutionDto: {
             id: string;
@@ -1167,6 +1243,100 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    ExamsController_listExamTerms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamTermDto"][];
+                };
+            };
+        };
+    };
+    ExamsController_createExamTerm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateExamTermBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamTermDto"];
+                };
+            };
+        };
+    };
+    ExamsController_listExamMarks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamMarkDto"][];
+                };
+            };
+        };
+    };
+    ExamsController_replaceExamMarks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                institutionId: string;
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertExamMarksBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamMarkDto"][];
+                };
             };
         };
     };
