@@ -2,6 +2,20 @@ import { useQueryClient } from "@tanstack/react-query";
 import { apiQueryClient } from "@/lib/api/client";
 import { ACADEMIC_YEARS_API_PATHS } from "@/features/auth/api/auth.constants";
 
+function getAcademicYearsListQueryKey(institutionId: string) {
+  return apiQueryClient.queryOptions(
+    "get",
+    ACADEMIC_YEARS_API_PATHS.LIST,
+    {
+      params: {
+        path: {
+          institutionId,
+        },
+      },
+    },
+  ).queryKey;
+}
+
 export function useAcademicYearsQuery(institutionId: string | undefined) {
   return apiQueryClient.useQuery(
     "get",
@@ -19,6 +33,27 @@ export function useAcademicYearsQuery(institutionId: string | undefined) {
   );
 }
 
+export function useAcademicYearQuery(
+  institutionId: string | undefined,
+  academicYearId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    ACADEMIC_YEARS_API_PATHS.DETAIL,
+    {
+      params: {
+        path: {
+          institutionId: institutionId ?? "",
+          academicYearId: academicYearId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && academicYearId),
+    },
+  );
+}
+
 export function useCreateAcademicYearMutation(institutionId: string | undefined) {
   const queryClient = useQueryClient();
 
@@ -29,46 +64,34 @@ export function useCreateAcademicYearMutation(institutionId: string | undefined)
       }
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          ACADEMIC_YEARS_API_PATHS.LIST,
-          {
-            params: {
-              path: {
-                institutionId,
-              },
-            },
-          },
-        ).queryKey,
+        queryKey: getAcademicYearsListQueryKey(institutionId),
       });
     },
   });
 }
 
-function createAcademicYearActionMutation(
-  method: "patch",
-  path:
-    | typeof ACADEMIC_YEARS_API_PATHS.SET_CURRENT
-    | typeof ACADEMIC_YEARS_API_PATHS.ARCHIVE
-    | typeof ACADEMIC_YEARS_API_PATHS.RESTORE,
-  institutionId: string | undefined,
-) {
+export function useUpdateAcademicYearMutation(institutionId: string | undefined) {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation(method, path, {
-    onSuccess: () => {
+  return apiQueryClient.useMutation("patch", ACADEMIC_YEARS_API_PATHS.UPDATE, {
+    onSuccess: (_, variables) => {
       if (!institutionId) {
         return;
       }
 
       void queryClient.invalidateQueries({
+        queryKey: getAcademicYearsListQueryKey(institutionId),
+      });
+
+      void queryClient.invalidateQueries({
         queryKey: apiQueryClient.queryOptions(
           "get",
-          ACADEMIC_YEARS_API_PATHS.LIST,
+          ACADEMIC_YEARS_API_PATHS.DETAIL,
           {
             params: {
               path: {
                 institutionId,
+                academicYearId: variables.params.path.academicYearId,
               },
             },
           },
@@ -76,34 +99,4 @@ function createAcademicYearActionMutation(
       });
     },
   });
-}
-
-export function useSetCurrentAcademicYearMutation(
-  institutionId: string | undefined,
-) {
-  return createAcademicYearActionMutation(
-    "patch",
-    ACADEMIC_YEARS_API_PATHS.SET_CURRENT,
-    institutionId,
-  );
-}
-
-export function useArchiveAcademicYearMutation(
-  institutionId: string | undefined,
-) {
-  return createAcademicYearActionMutation(
-    "patch",
-    ACADEMIC_YEARS_API_PATHS.ARCHIVE,
-    institutionId,
-  );
-}
-
-export function useRestoreAcademicYearMutation(
-  institutionId: string | undefined,
-) {
-  return createAcademicYearActionMutation(
-    "patch",
-    ACADEMIC_YEARS_API_PATHS.RESTORE,
-    institutionId,
-  );
 }

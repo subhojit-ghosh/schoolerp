@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { STATUS } from "../../constants";
 
-export class CreateAcademicYearBodyDto {
+export class AcademicYearWriteBodyDto {
   @ApiProperty()
   name!: string;
 
@@ -12,8 +12,12 @@ export class CreateAcademicYearBodyDto {
   endDate!: string;
 
   @ApiProperty()
-  makeCurrent!: boolean;
+  isCurrent!: boolean;
 }
+
+export class CreateAcademicYearBodyDto extends AcademicYearWriteBodyDto {}
+
+export class UpdateAcademicYearBodyDto extends AcademicYearWriteBodyDto {}
 
 export class AcademicYearDto {
   @ApiProperty()

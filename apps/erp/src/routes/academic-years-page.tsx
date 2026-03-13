@@ -1,7 +1,5 @@
-import { Controller, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { IconArchive, IconCalendarStats, IconReload } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -11,64 +9,64 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
-import { Checkbox } from "@repo/ui/components/ui/checkbox";
-import {
-  Field,
-  FieldContent,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@repo/ui/components/ui/field";
-import { Input } from "@repo/ui/components/ui/input";
-import { Label } from "@repo/ui/components/ui/label";
 import {
   getActiveContext,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
+  useAcademicYearQuery,
   useAcademicYearsQuery,
-  useArchiveAcademicYearMutation,
   useCreateAcademicYearMutation,
-  useRestoreAcademicYearMutation,
-  useSetCurrentAcademicYearMutation,
+  useUpdateAcademicYearMutation,
 } from "@/features/academic-years/api/use-academic-years";
 import {
-  academicYearFormSchema,
+  ACADEMIC_YEAR_FORM_DEFAULT_VALUES,
   type AcademicYearFormValues,
 } from "@/features/academic-years/model/academic-year-form-schema";
-
-const DEFAULT_VALUES: AcademicYearFormValues = {
-  name: "",
-  startDate: "",
-  endDate: "",
-  makeCurrent: false,
-};
+import { AcademicYearForm } from "@/features/academic-years/ui/academic-year-form";
 
 export function AcademicYearsPage() {
+  const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<
+    string | null
+  >(null);
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
   const canManageAcademicYears = isStaffContext(session);
   const managedInstitutionId = canManageAcademicYears ? institutionId : undefined;
   const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
-  const createMutation = useCreateAcademicYearMutation(managedInstitutionId);
-  const setCurrentMutation = useSetCurrentAcademicYearMutation(managedInstitutionId);
-  const archiveMutation = useArchiveAcademicYearMutation(managedInstitutionId);
-  const restoreMutation = useRestoreAcademicYearMutation(managedInstitutionId);
-  const createError = createMutation.error as Error | null | undefined;
+  const academicYearQuery = useAcademicYearQuery(
+    managedInstitutionId,
+    selectedAcademicYearId ?? undefined,
+  );
+  const createAcademicYearMutation =
+    useCreateAcademicYearMutation(managedInstitutionId);
+  const updateAcademicYearMutation =
+    useUpdateAcademicYearMutation(managedInstitutionId);
+  const createError = createAcademicYearMutation.error as Error | null | undefined;
+  const updateError = updateAcademicYearMutation.error as Error | null | undefined;
 
-  const { control, handleSubmit, reset } = useForm<AcademicYearFormValues>({
-    resolver: zodResolver(academicYearFormSchema),
-    defaultValues: DEFAULT_VALUES,
-  });
+  useEffect(() => {
+    if (!selectedAcademicYearId) {
+      return;
+    }
 
-  async function onSubmit(values: AcademicYearFormValues) {
+    const hasSelectedYear = (academicYearsQuery.data ?? []).some(
+      (academicYear) => academicYear.id === selectedAcademicYearId,
+    );
+
+    if (!hasSelectedYear) {
+      setSelectedAcademicYearId(null);
+    }
+  }, [academicYearsQuery.data, selectedAcademicYearId]);
+
+  async function handleCreateAcademicYear(values: AcademicYearFormValues) {
     if (!institutionId) {
       return;
     }
 
-    await createMutation.mutateAsync({
+    const createdAcademicYear = await createAcademicYearMutation.mutateAsync({
       params: {
         path: {
           institutionId,
@@ -77,59 +75,26 @@ export function AcademicYearsPage() {
       body: values,
     });
 
-    reset(DEFAULT_VALUES);
+    setSelectedAcademicYearId(createdAcademicYear.id);
     toast.success("Academic year created.");
   }
 
-  async function handleSetCurrent(academicYearId: string) {
-    if (!institutionId) {
+  async function handleUpdateAcademicYear(values: AcademicYearFormValues) {
+    if (!institutionId || !selectedAcademicYearId) {
       return;
     }
 
-    await setCurrentMutation.mutateAsync({
+    await updateAcademicYearMutation.mutateAsync({
       params: {
         path: {
           institutionId,
-          academicYearId,
+          academicYearId: selectedAcademicYearId,
         },
       },
+      body: values,
     });
 
-    toast.success("Current academic year updated.");
-  }
-
-  async function handleArchive(academicYearId: string) {
-    if (!institutionId) {
-      return;
-    }
-
-    await archiveMutation.mutateAsync({
-      params: {
-        path: {
-          institutionId,
-          academicYearId,
-        },
-      },
-    });
-
-    toast.success("Academic year archived.");
-  }
-
-  async function handleRestore(academicYearId: string) {
-    if (!institutionId) {
-      return;
-    }
-
-    await restoreMutation.mutateAsync({
-      params: {
-        path: {
-          institutionId,
-          academicYearId,
-        },
-      },
-    });
-
-    toast.success("Academic year restored.");
+    toast.success("Academic year updated.");
   }
 
   if (!institutionId) {
@@ -151,86 +116,82 @@ export function AcademicYearsPage() {
         <CardHeader>
           <CardTitle>Academic years</CardTitle>
           <CardDescription>
-            Academic-year administration is available in Staff view. You are currently in {activeContext?.label ?? "another"} view.
+            Academic-year administration is available in Staff view. You are
+            currently in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
+  const selectedAcademicYear = academicYearQuery.data;
+  const isEditing = Boolean(selectedAcademicYearId);
+  const formDefaultValues = selectedAcademicYear
+    ? {
+        name: selectedAcademicYear.name,
+        startDate: selectedAcademicYear.startDate,
+        endDate: selectedAcademicYear.endDate,
+        isCurrent: selectedAcademicYear.isCurrent,
+      }
+    : ACADEMIC_YEAR_FORM_DEFAULT_VALUES;
+
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(320px,420px)]">
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
       <Card>
         <CardHeader>
-          <CardTitle>Academic years</CardTitle>
-          <CardDescription>
-            Control the active year and keep older records available without deleting them.
-          </CardDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <CardTitle>Academic years</CardTitle>
+              <CardDescription>
+                List existing academic years and keep one current year configured
+                from a single edit flow.
+              </CardDescription>
+            </div>
+            <Button
+              onClick={() => setSelectedAcademicYearId(null)}
+              type="button"
+              variant={isEditing ? "outline" : "default"}
+            >
+              New academic year
+            </Button>
+          </div>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+        <CardContent className="space-y-3">
           {academicYearsQuery.isLoading ? (
-            <div className="py-16 text-center text-sm text-muted-foreground">
+            <div className="rounded-md border border-dashed px-4 py-8 text-sm text-muted-foreground">
               Loading academic years...
             </div>
           ) : academicYearsQuery.data?.length ? (
-            academicYearsQuery.data.map((academicYear) => (
-              <div
-                key={academicYear.id}
-                className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4"
-              >
-                <div className="space-y-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium text-foreground">{academicYear.name}</p>
-                    {academicYear.isCurrent ? <Badge>Current</Badge> : null}
-                    <Badge variant="outline">{academicYear.status}</Badge>
+            academicYearsQuery.data.map((academicYear) => {
+              const isSelected = academicYear.id === selectedAcademicYearId;
+
+              return (
+                <button
+                  className="flex w-full items-center justify-between rounded-md border px-4 py-3 text-left"
+                  key={academicYear.id}
+                  onClick={() => setSelectedAcademicYearId(academicYear.id)}
+                  type="button"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{academicYear.name}</span>
+                      {academicYear.isCurrent ? <Badge>Current</Badge> : null}
+                      <Badge variant="outline">{academicYear.status}</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {academicYear.startDate} to {academicYear.endDate}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground">
-                    {academicYear.startDate} to {academicYear.endDate}
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {!academicYear.isCurrent ? (
-                    <Button
-                      disabled={setCurrentMutation.isPending}
-                      onClick={() => void handleSetCurrent(academicYear.id)}
-                      size="sm"
-                      variant="outline"
-                    >
-                      <IconCalendarStats data-icon="inline-start" />
-                      Make current
-                    </Button>
-                  ) : null}
-                  {academicYear.status === "active" && !academicYear.isCurrent ? (
-                    <Button
-                      disabled={archiveMutation.isPending}
-                      onClick={() => void handleArchive(academicYear.id)}
-                      size="sm"
-                      variant="outline"
-                    >
-                      <IconArchive data-icon="inline-start" />
-                      Archive
-                    </Button>
-                  ) : null}
-                  {academicYear.status === "archived" ? (
-                    <Button
-                      disabled={restoreMutation.isPending}
-                      onClick={() => void handleRestore(academicYear.id)}
-                      size="sm"
-                      variant="outline"
-                    >
-                      <IconReload data-icon="inline-start" />
-                      Restore
-                    </Button>
-                  ) : null}
-                </div>
-              </div>
-            ))
+                  <Badge variant={isSelected ? "default" : "secondary"}>
+                    {isSelected ? "Editing" : "Edit"}
+                  </Badge>
+                </button>
+              );
+            })
           ) : (
-            <div className="rounded-xl border border-dashed bg-muted/30 px-6 py-14 text-center">
-              <p className="text-sm font-medium">No academic years yet</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Create the first year to anchor timetable, attendance, and exam workflows.
-              </p>
+            <div className="rounded-md border border-dashed px-4 py-8 text-sm text-muted-foreground">
+              No academic years yet. Create the first one to establish the
+              institution timeline.
             </div>
           )}
         </CardContent>
@@ -238,79 +199,38 @@ export function AcademicYearsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Create academic year</CardTitle>
+          <CardTitle>
+            {isEditing ? "Edit academic year" : "Create academic year"}
+          </CardTitle>
           <CardDescription>
-            Add a new year and optionally make it the active year immediately.
+            {isEditing
+              ? "Update the selected academic year. The backend keeps the current-year rule authoritative."
+              : "Create a new academic year for this institution."}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <FieldGroup className="gap-5">
-              <Controller
-                control={control}
-                name="name"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>Name</FieldLabel>
-                    <FieldContent>
-                      <Input
-                        {...field}
-                        aria-invalid={fieldState.invalid}
-                        placeholder="2026-2027"
-                      />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </FieldContent>
-                  </Field>
-                )}
-              />
-              <Controller
-                control={control}
-                name="startDate"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>Start date</FieldLabel>
-                    <FieldContent>
-                      <Input {...field} aria-invalid={fieldState.invalid} type="date" />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </FieldContent>
-                  </Field>
-                )}
-              />
-              <Controller
-                control={control}
-                name="endDate"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>End date</FieldLabel>
-                    <FieldContent>
-                      <Input {...field} aria-invalid={fieldState.invalid} type="date" />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </FieldContent>
-                  </Field>
-                )}
-              />
-              <Controller
-                control={control}
-                name="makeCurrent"
-                render={({ field }) => (
-                  <Field>
-                    <div className="flex items-center gap-2 rounded-lg border bg-muted/30 px-3 py-2">
-                      <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                      <Label className="text-sm font-normal">
-                        Make this the active academic year now
-                      </Label>
-                    </div>
-                  </Field>
-                )}
-              />
-
-              {createError ? <FieldError>{createError.message}</FieldError> : null}
-
-              <Button disabled={createMutation.isPending} type="submit">
-                {createMutation.isPending ? "Creating..." : "Create academic year"}
-              </Button>
-            </FieldGroup>
-          </form>
+          {isEditing && academicYearQuery.isLoading ? (
+            <div className="rounded-md border border-dashed px-4 py-8 text-sm text-muted-foreground">
+              Loading academic year details...
+            </div>
+          ) : (
+            <AcademicYearForm
+              defaultValues={formDefaultValues}
+              errorMessage={isEditing ? updateError?.message : createError?.message}
+              isPending={
+                isEditing
+                  ? updateAcademicYearMutation.isPending
+                  : createAcademicYearMutation.isPending
+              }
+              onCancel={
+                isEditing ? () => setSelectedAcademicYearId(null) : undefined
+              }
+              onSubmit={
+                isEditing ? handleUpdateAcademicYear : handleCreateAcademicYear
+              }
+              submitLabel={isEditing ? "Save changes" : "Create academic year"}
+            />
+          )}
         </CardContent>
       </Card>
     </div>

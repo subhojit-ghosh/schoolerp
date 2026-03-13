@@ -662,7 +662,14 @@
         },
         "responses": {
           "201": {
-            "description": "Academic year created"
+            "description": "Academic year created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcademicYearDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -676,9 +683,9 @@
         ]
       }
     },
-    "/institutions/{institutionId}/academic-years/{academicYearId}/current": {
-      "patch": {
-        "operationId": "AcademicYearsController_setCurrentAcademicYear",
+    "/institutions/{institutionId}/academic-years/{academicYearId}": {
+      "get": {
+        "operationId": "AcademicYearsController_getAcademicYear",
         "parameters": [
           {
             "name": "institutionId",
@@ -699,7 +706,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Academic year set as current"
+            "description": "Academic year detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcademicYearDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -707,15 +721,13 @@
             "cookie": []
           }
         ],
-        "summary": "Set current academic year",
+        "summary": "Get a single academic year",
         "tags": [
           "academic-years"
         ]
-      }
-    },
-    "/institutions/{institutionId}/academic-years/{academicYearId}/archive": {
+      },
       "patch": {
-        "operationId": "AcademicYearsController_archiveAcademicYear",
+        "operationId": "AcademicYearsController_updateAcademicYear",
         "parameters": [
           {
             "name": "institutionId",
@@ -734,9 +746,26 @@
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAcademicYearBodyDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "Academic year archived"
+            "description": "Academic year updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcademicYearDto"
+                }
+              }
+            }
           }
         },
         "security": [
@@ -744,44 +773,7 @@
             "cookie": []
           }
         ],
-        "summary": "Archive an academic year",
-        "tags": [
-          "academic-years"
-        ]
-      }
-    },
-    "/institutions/{institutionId}/academic-years/{academicYearId}/restore": {
-      "patch": {
-        "operationId": "AcademicYearsController_restoreAcademicYear",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "academicYearId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Academic year restored"
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Restore an academic year",
+        "summary": "Update an academic year",
         "tags": [
           "academic-years"
         ]
@@ -1825,7 +1817,7 @@
           "endDate": {
             "type": "string"
           },
-          "makeCurrent": {
+          "isCurrent": {
             "type": "boolean"
           }
         },
@@ -1833,7 +1825,30 @@
           "name",
           "startDate",
           "endDate",
-          "makeCurrent"
+          "isCurrent"
+        ]
+      },
+      "UpdateAcademicYearBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "startDate",
+          "endDate",
+          "isCurrent"
         ]
       },
       "InstitutionDto": {

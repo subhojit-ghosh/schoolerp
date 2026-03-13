@@ -18,13 +18,26 @@ export const AUTH_CONTEXT_LABELS = {
   [AUTH_CONTEXT_KEYS.STUDENT]: "Student",
 } as const;
 
+export const ACADEMIC_YEAR_STATUS = {
+  ACTIVE: "active",
+  ARCHIVED: "archived",
+} as const;
+
+export const ACADEMIC_YEAR_NAME_MAX_LENGTH = 100;
+
 export const authContextKeySchema = z.enum([
   AUTH_CONTEXT_KEYS.STAFF,
   AUTH_CONTEXT_KEYS.PARENT,
   AUTH_CONTEXT_KEYS.STUDENT,
 ]);
 
+export const academicYearStatusSchema = z.enum([
+  ACADEMIC_YEAR_STATUS.ACTIVE,
+  ACADEMIC_YEAR_STATUS.ARCHIVED,
+]);
+
 export type AuthContextKey = z.infer<typeof authContextKeySchema>;
+export type AcademicYearStatus = z.infer<typeof academicYearStatusSchema>;
 
 export const healthResponseSchema = z.object({
   status: z.string(),

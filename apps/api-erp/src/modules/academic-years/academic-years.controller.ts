@@ -15,8 +15,12 @@ import { SessionAuthGuard } from "../auth/session-auth.guard";
 import {
   AcademicYearDto,
   CreateAcademicYearBodyDto,
+  UpdateAcademicYearBodyDto,
 } from "./academic-years.dto";
-import { parseCreateAcademicYear } from "./academic-years.schemas";
+import {
+  parseCreateAcademicYear,
+  parseUpdateAcademicYear,
+} from "./academic-years.schemas";
 import { AcademicYearsService } from "./academic-years.service";
 
 @ApiTags(API_DOCS.TAGS.ACADEMIC_YEARS)
@@ -48,7 +52,10 @@ export class AcademicYearsController {
   @ApiOperation({ summary: "Create an academic year for an institution" })
   @ApiParam({ name: "institutionId", type: String })
   @ApiBody({ type: CreateAcademicYearBodyDto })
-  @ApiCreatedResponse({ description: "Academic year created" })
+  @ApiCreatedResponse({
+    description: "Academic year created",
+    type: AcademicYearDto,
+  })
   createAcademicYear(
     @Param("institutionId") institutionId: string,
     @CurrentSession() authSession: AuthenticatedSession,
@@ -62,18 +69,18 @@ export class AcademicYearsController {
   }
 
   @UseGuards(SessionAuthGuard)
-  @Patch(`:academicYearId/${API_ROUTES.CURRENT}`)
+  @Get(":academicYearId")
   @ApiCookieAuth()
-  @ApiOperation({ summary: "Set current academic year" })
+  @ApiOperation({ summary: "Get a single academic year" })
   @ApiParam({ name: "institutionId", type: String })
   @ApiParam({ name: "academicYearId", type: String })
-  @ApiOkResponse({ description: "Academic year set as current" })
-  setCurrentAcademicYear(
+  @ApiOkResponse({ description: "Academic year detail", type: AcademicYearDto })
+  getAcademicYear(
     @Param("institutionId") institutionId: string,
     @Param("academicYearId") academicYearId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.academicYearsService.setCurrentAcademicYear(
+    return this.academicYearsService.getAcademicYear(
       institutionId,
       academicYearId,
       authSession,
@@ -81,40 +88,24 @@ export class AcademicYearsController {
   }
 
   @UseGuards(SessionAuthGuard)
-  @Patch(`:academicYearId/${API_ROUTES.ARCHIVE}`)
+  @Patch(":academicYearId")
   @ApiCookieAuth()
-  @ApiOperation({ summary: "Archive an academic year" })
+  @ApiOperation({ summary: "Update an academic year" })
   @ApiParam({ name: "institutionId", type: String })
   @ApiParam({ name: "academicYearId", type: String })
-  @ApiOkResponse({ description: "Academic year archived" })
-  archiveAcademicYear(
+  @ApiBody({ type: UpdateAcademicYearBodyDto })
+  @ApiOkResponse({ description: "Academic year updated", type: AcademicYearDto })
+  updateAcademicYear(
     @Param("institutionId") institutionId: string,
     @Param("academicYearId") academicYearId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @Body() body: UpdateAcademicYearBodyDto,
   ) {
-    return this.academicYearsService.archiveAcademicYear(
+    return this.academicYearsService.updateAcademicYear(
       institutionId,
       academicYearId,
       authSession,
-    );
-  }
-
-  @UseGuards(SessionAuthGuard)
-  @Patch(`:academicYearId/${API_ROUTES.RESTORE}`)
-  @ApiCookieAuth()
-  @ApiOperation({ summary: "Restore an academic year" })
-  @ApiParam({ name: "institutionId", type: String })
-  @ApiParam({ name: "academicYearId", type: String })
-  @ApiOkResponse({ description: "Academic year restored" })
-  restoreAcademicYear(
-    @Param("institutionId") institutionId: string,
-    @Param("academicYearId") academicYearId: string,
-    @CurrentSession() authSession: AuthenticatedSession,
-  ) {
-    return this.academicYearsService.restoreAcademicYear(
-      institutionId,
-      academicYearId,
-      authSession,
+      parseUpdateAcademicYear(body),
     );
   }
 }
