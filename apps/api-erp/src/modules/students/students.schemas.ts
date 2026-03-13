@@ -4,6 +4,7 @@ import { GUARDIAN_RELATIONSHIPS } from "../../constants";
 const NAME_MIN_LENGTH = 1;
 const ADMISSION_NUMBER_MIN_LENGTH = 1;
 const MOBILE_MIN_LENGTH = 10;
+const ENROLLMENT_NAME_MIN_LENGTH = 1;
 
 function hasExactlyOnePrimaryGuardian(
   guardians: { isPrimary: boolean }[],
@@ -30,6 +31,18 @@ export const createGuardianLinkSchema = z.object({
   isPrimary: z.boolean().default(false),
 });
 
+export const currentEnrollmentSchema = z.object({
+  academicYearId: z.uuid(),
+  className: z
+    .string()
+    .trim()
+    .min(ENROLLMENT_NAME_MIN_LENGTH, "Class is required"),
+  sectionName: z
+    .string()
+    .trim()
+    .min(ENROLLMENT_NAME_MIN_LENGTH, "Section is required"),
+});
+
 export const createStudentSchema = z.object({
   admissionNumber: z
     .string()
@@ -41,6 +54,9 @@ export const createStudentSchema = z.object({
   guardians: z
     .array(createGuardianLinkSchema)
     .min(1, "At least one guardian is required"),
+  currentEnrollment: currentEnrollmentSchema
+    .nullish()
+    .transform((value) => value ?? null),
 }).refine((value) => hasExactlyOnePrimaryGuardian(value.guardians), {
   path: ["guardians"],
   message: "Select exactly one primary guardian.",
@@ -53,6 +69,7 @@ export const studentIdSchema = z.object({
 });
 
 export type CreateGuardianLinkDto = z.infer<typeof createGuardianLinkSchema>;
+export type CurrentEnrollmentDto = z.infer<typeof currentEnrollmentSchema>;
 export type CreateStudentDto = z.infer<typeof createStudentSchema>;
 export type UpdateStudentDto = z.infer<typeof updateStudentSchema>;
 

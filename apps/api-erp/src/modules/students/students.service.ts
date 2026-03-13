@@ -8,9 +8,11 @@ import {
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
+  academicYears,
   campus,
   campusMemberships,
   member,
+  studentCurrentEnrollments,
   studentGuardianLinks,
   students,
   user,
@@ -29,6 +31,7 @@ import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import type {
   CreateGuardianLinkDto,
+  CurrentEnrollmentDto,
   CreateStudentDto,
   UpdateStudentDto,
 } from "./students.schemas";
@@ -41,6 +44,13 @@ type StudentGuardianSummary = {
   email: string | null;
   relationship: (typeof GUARDIAN_RELATIONSHIPS)[keyof typeof GUARDIAN_RELATIONSHIPS];
   isPrimary: boolean;
+};
+
+type StudentCurrentEnrollmentSummary = {
+  academicYearId: string;
+  academicYearName: string;
+  className: string;
+  sectionName: string;
 };
 
 type StudentsWriter = Pick<AppDatabase, "insert" | "select" | "update">;
@@ -96,6 +106,14 @@ export class StudentsService {
       institutionId,
       payload.campusId,
     );
+    const nextCurrentEnrollment = payload.currentEnrollment ?? null;
+
+    if (nextCurrentEnrollment) {
+      await this.getAcademicYear(
+        institutionId,
+        nextCurrentEnrollment.academicYearId,
+      );
+    }
 
     await this.assertAdmissionNumberAvailable(
       institutionId,
@@ -193,6 +211,13 @@ export class StudentsService {
           })
           .where(inArray(studentGuardianLinks.id, removedLinkIds));
       }
+
+      await this.syncCurrentEnrollment(
+        tx,
+        institutionId,
+        existingStudent.membershipId,
+        nextCurrentEnrollment,
+      );
     });
 
     return this.getStudent(institutionId, studentId, authSession);
@@ -230,11 +255,17 @@ export class StudentsService {
     const guardiansByStudent = await this.listGuardiansForStudentMemberships(
       studentRows.map((row) => row.membershipId),
     );
+    const currentEnrollmentByStudent =
+      await this.listCurrentEnrollmentForStudentMemberships(
+        institutionId,
+        studentRows.map((row) => row.membershipId),
+      );
 
     return studentRows.map((row) => ({
       ...row,
       fullName: [row.firstName, row.lastName].filter(Boolean).join(" "),
       guardians: guardiansByStudent.get(row.membershipId) ?? [],
+      currentEnrollment: currentEnrollmentByStudent.get(row.membershipId) ?? null,
     }));
   }
 
@@ -249,6 +280,15 @@ export class StudentsService {
       institutionId,
       payload.campusId,
     );
+    const nextCurrentEnrollment = payload.currentEnrollment ?? null;
+
+    if (nextCurrentEnrollment) {
+      await this.getAcademicYear(
+        institutionId,
+        nextCurrentEnrollment.academicYearId,
+      );
+    }
+
     await this.assertAdmissionNumberAvailable(
       institutionId,
       payload.admissionNumber.trim(),
@@ -300,6 +340,13 @@ export class StudentsService {
           deletedAt: null,
         });
       }
+
+      await this.syncCurrentEnrollment(
+        tx,
+        institutionId,
+        studentMembershipId,
+        nextCurrentEnrollment,
+      );
 
       return {
         id: studentId,
@@ -403,6 +450,52 @@ export class StudentsService {
     }
 
     return grouped;
+  }
+
+  private async listCurrentEnrollmentForStudentMemberships(
+    institutionId: string,
+    studentMembershipIds: string[],
+  ) {
+    if (studentMembershipIds.length === 0) {
+      return new Map<string, StudentCurrentEnrollmentSummary>();
+    }
+
+    const enrollmentRows = await this.db
+      .select({
+        studentMembershipId: studentCurrentEnrollments.studentMembershipId,
+        academicYearId: academicYears.id,
+        academicYearName: academicYears.name,
+        className: studentCurrentEnrollments.className,
+        sectionName: studentCurrentEnrollments.sectionName,
+      })
+      .from(studentCurrentEnrollments)
+      .innerJoin(
+        academicYears,
+        eq(studentCurrentEnrollments.academicYearId, academicYears.id),
+      )
+      .where(
+        and(
+          eq(studentCurrentEnrollments.institutionId, institutionId),
+          inArray(
+            studentCurrentEnrollments.studentMembershipId,
+            studentMembershipIds,
+          ),
+          isNull(studentCurrentEnrollments.deletedAt),
+          isNull(academicYears.deletedAt),
+        ),
+      );
+
+    return new Map(
+      enrollmentRows.map((row) => [
+        row.studentMembershipId,
+        {
+          academicYearId: row.academicYearId,
+          academicYearName: row.academicYearName,
+          className: row.className,
+          sectionName: row.sectionName,
+        },
+      ]),
+    );
   }
 
   private async assertAdmissionNumberAvailable(
@@ -542,6 +635,88 @@ export class StudentsService {
     }
 
     return matchedStudent;
+  }
+
+  private async getAcademicYear(
+    institutionId: string,
+    academicYearId: string,
+  ) {
+    const [matchedAcademicYear] = await this.db
+      .select({
+        id: academicYears.id,
+      })
+      .from(academicYears)
+      .where(
+        and(
+          eq(academicYears.id, academicYearId),
+          eq(academicYears.institutionId, institutionId),
+          isNull(academicYears.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!matchedAcademicYear) {
+      throw new NotFoundException(ERROR_MESSAGES.ACADEMIC_YEARS.YEAR_NOT_FOUND);
+    }
+
+    return matchedAcademicYear;
+  }
+
+  private async syncCurrentEnrollment(
+    tx: StudentsWriter,
+    institutionId: string,
+    studentMembershipId: string,
+    currentEnrollment: CurrentEnrollmentDto | null,
+  ) {
+    const [existingEnrollment] = await tx
+      .select({
+        id: studentCurrentEnrollments.id,
+      })
+      .from(studentCurrentEnrollments)
+      .where(
+        and(
+          eq(studentCurrentEnrollments.institutionId, institutionId),
+          eq(studentCurrentEnrollments.studentMembershipId, studentMembershipId),
+          isNull(studentCurrentEnrollments.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!currentEnrollment) {
+      if (existingEnrollment) {
+        await tx
+          .update(studentCurrentEnrollments)
+          .set({
+            deletedAt: new Date(),
+          })
+          .where(eq(studentCurrentEnrollments.id, existingEnrollment.id));
+      }
+
+      return;
+    }
+
+    const nextValues = {
+      academicYearId: currentEnrollment.academicYearId,
+      className: currentEnrollment.className.trim(),
+      sectionName: currentEnrollment.sectionName.trim(),
+      deletedAt: null,
+    } as const;
+
+    if (existingEnrollment) {
+      await tx
+        .update(studentCurrentEnrollments)
+        .set(nextValues)
+        .where(eq(studentCurrentEnrollments.id, existingEnrollment.id));
+
+      return;
+    }
+
+    await tx.insert(studentCurrentEnrollments).values({
+      id: randomUUID(),
+      institutionId,
+      studentMembershipId,
+      ...nextValues,
+    });
   }
 
   private async findUserByIdentity(

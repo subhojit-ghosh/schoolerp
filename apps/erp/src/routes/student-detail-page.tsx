@@ -21,9 +21,14 @@ import {
   useStudentQuery,
   useUpdateStudentMutation,
 } from "@/features/students/api/use-students";
+import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { StudentForm } from "@/features/students/ui/student-form";
 import { ERP_ROUTES } from "@/constants/routes";
-import type { StudentFormValues } from "@/features/students/model/student-form-schema";
+import {
+  EMPTY_CURRENT_ENROLLMENT,
+  toStudentMutationBody,
+  type StudentFormValues,
+} from "@/features/students/model/student-form-schema";
 
 function toInitials(name: string) {
   return name
@@ -43,6 +48,7 @@ export function StudentDetailPage() {
   const canManageStudents = isStaffContext(session);
   const managedInstitutionId = canManageStudents ? institutionId : undefined;
   const campuses = session?.campuses ?? [];
+  const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
   const studentQuery = useStudentQuery(managedInstitutionId, studentId);
   const updateStudentMutation = useUpdateStudentMutation(managedInstitutionId);
   const updateError = updateStudentMutation.error as Error | null | undefined;
@@ -57,6 +63,7 @@ export function StudentDetailPage() {
         lastName: "",
         campusId: session?.activeCampus?.id ?? "",
         guardians: [],
+        currentEnrollment: EMPTY_CURRENT_ENROLLMENT,
       };
     }
 
@@ -72,6 +79,13 @@ export function StudentDetailPage() {
         relationship: guardian.relationship,
         isPrimary: guardian.isPrimary,
       })),
+      currentEnrollment: student.currentEnrollment
+        ? {
+            academicYearId: student.currentEnrollment.academicYearId,
+            className: student.currentEnrollment.className,
+            sectionName: student.currentEnrollment.sectionName,
+          }
+        : EMPTY_CURRENT_ENROLLMENT,
     };
   }, [session?.activeCampus?.id, studentQuery.data]);
 
@@ -87,7 +101,7 @@ export function StudentDetailPage() {
           studentId,
         },
       },
-      body: values,
+      body: toStudentMutationBody(values),
     });
 
     toast.success("Student updated.");
@@ -197,6 +211,7 @@ export function StudentDetailPage() {
           </CardHeader>
           <CardContent>
             <StudentForm
+              academicYears={academicYearsQuery.data ?? []}
               campuses={campuses}
               defaultValues={defaultValues}
               errorMessage={updateError?.message}
@@ -207,33 +222,70 @@ export function StudentDetailPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Linked guardians</CardTitle>
-            <CardDescription>
-              Current guardian contacts available to the student record.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            {student.guardians.map((guardian, index) => (
-              <div key={guardian.membershipId} className="space-y-2">
-                <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Current enrollment</CardTitle>
+              <CardDescription>
+                Backend-owned placement for the active academic year, class, and section.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              {student.currentEnrollment ? (
+                <>
                   <div>
-                    <p className="text-sm font-medium">{guardian.name}</p>
+                    <p className="text-sm font-medium">{student.currentEnrollment.academicYearName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {guardian.mobile}
-                      {guardian.email ? ` • ${guardian.email}` : ""}
+                      Academic year
                     </p>
                   </div>
-                  <Badge variant={guardian.isPrimary ? "default" : "outline"}>
-                    {guardian.isPrimary ? "Primary" : guardian.relationship}
-                  </Badge>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium">{student.currentEnrollment.className}</p>
+                    <p className="text-xs text-muted-foreground">Class</p>
+                  </div>
+                  <Separator />
+                  <div>
+                    <p className="text-sm font-medium">{student.currentEnrollment.sectionName}</p>
+                    <p className="text-xs text-muted-foreground">Section</p>
+                  </div>
+                </>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No current enrollment assigned yet.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Linked guardians</CardTitle>
+              <CardDescription>
+                Current guardian contacts available to the student record.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              {student.guardians.map((guardian, index) => (
+                <div key={guardian.membershipId} className="space-y-2">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium">{guardian.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {guardian.mobile}
+                        {guardian.email ? ` • ${guardian.email}` : ""}
+                      </p>
+                    </div>
+                    <Badge variant={guardian.isPrimary ? "default" : "outline"}>
+                      {guardian.isPrimary ? "Primary" : guardian.relationship}
+                    </Badge>
+                  </div>
+                  {index < student.guardians.length - 1 ? <Separator /> : null}
                 </div>
-                {index < student.guardians.length - 1 ? <Separator /> : null}
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

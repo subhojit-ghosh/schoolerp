@@ -1023,6 +1023,10 @@
       "description": ""
     },
     {
+      "name": "students",
+      "description": ""
+    },
+    {
       "name": "academic-years",
       "description": ""
     },
@@ -1622,6 +1626,29 @@
           "isPrimary"
         ]
       },
+      "CurrentStudentEnrollmentDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "academicYearName",
+          "className",
+          "sectionName"
+        ]
+      },
       "StudentDto": {
         "type": "object",
         "properties": {
@@ -1666,6 +1693,14 @@
             "items": {
               "$ref": "#/components/schemas/StudentGuardianDto"
             }
+          },
+          "currentEnrollment": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CurrentStudentEnrollmentDto"
+              }
+            ]
           }
         },
         "required": [
@@ -1713,6 +1748,25 @@
           "isPrimary"
         ]
       },
+      "CurrentStudentEnrollmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "className",
+          "sectionName"
+        ]
+      },
       "CreateStudentBodyDto": {
         "type": "object",
         "properties": {
@@ -1734,6 +1788,14 @@
             "items": {
               "$ref": "#/components/schemas/CreateGuardianLinkBodyDto"
             }
+          },
+          "currentEnrollment": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CurrentStudentEnrollmentBodyDto"
+              }
+            ]
           }
         },
         "required": [
@@ -1764,6 +1826,14 @@
             "items": {
               "$ref": "#/components/schemas/CreateGuardianLinkBodyDto"
             }
+          },
+          "currentEnrollment": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CurrentStudentEnrollmentBodyDto"
+              }
+            ]
           }
         },
         "required": [

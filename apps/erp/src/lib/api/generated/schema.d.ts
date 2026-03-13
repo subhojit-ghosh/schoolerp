@@ -546,6 +546,12 @@ export interface components {
             relationship: "father" | "mother" | "guardian";
             isPrimary: boolean;
         };
+        CurrentStudentEnrollmentDto: {
+            academicYearId: string;
+            academicYearName: string;
+            className: string;
+            sectionName: string;
+        };
         StudentDto: {
             id: string;
             membershipId: string;
@@ -559,6 +565,7 @@ export interface components {
             /** @enum {string} */
             status: "active" | "inactive" | "suspended";
             guardians: components["schemas"]["StudentGuardianDto"][];
+            currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentDto"] | null;
         };
         CreateGuardianLinkBodyDto: {
             name: string;
@@ -568,12 +575,18 @@ export interface components {
             relationship: "father" | "mother" | "guardian";
             isPrimary: boolean;
         };
+        CurrentStudentEnrollmentBodyDto: {
+            academicYearId: string;
+            className: string;
+            sectionName: string;
+        };
         CreateStudentBodyDto: {
             admissionNumber: string;
             firstName: string;
             lastName?: string | null;
             campusId: string;
             guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
+            currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
         };
         UpdateStudentBodyDto: {
             admissionNumber: string;
@@ -581,6 +594,7 @@ export interface components {
             lastName?: string | null;
             campusId: string;
             guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
+            currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
         };
         AcademicYearDto: {
             id: string;

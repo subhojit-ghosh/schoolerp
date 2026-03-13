@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@repo/ui/components/ui/select";
 import {
+  EMPTY_CURRENT_ENROLLMENT,
   GUARDIAN_RELATIONSHIP_OPTIONS,
   studentFormSchema,
   type StudentFormValues,
@@ -40,7 +41,14 @@ type CampusOption = {
   name: string;
 };
 
+type AcademicYearOption = {
+  id: string;
+  name: string;
+  isCurrent: boolean;
+};
+
 type StudentFormProps = {
+  academicYears: AcademicYearOption[];
   campuses: CampusOption[];
   defaultValues: StudentFormValues;
   errorMessage?: string;
@@ -51,6 +59,7 @@ type StudentFormProps = {
 };
 
 export function StudentForm({
+  academicYears,
   campuses,
   defaultValues,
   errorMessage,
@@ -59,7 +68,7 @@ export function StudentForm({
   onSubmit,
   submitLabel,
 }: StudentFormProps) {
-  const { control, handleSubmit, reset } = useForm<StudentFormValues>({
+  const { control, handleSubmit, reset, setValue } = useForm<StudentFormValues>({
     resolver: zodResolver(studentFormSchema),
     defaultValues,
   });
@@ -157,6 +166,105 @@ export function StudentForm({
               </Field>
             )}
           />
+        </div>
+
+        <div className="grid gap-4 rounded-lg border bg-muted/20 p-4 sm:grid-cols-3">
+          <div className="sm:col-span-3">
+            <p className="text-sm font-medium">Current enrollment</p>
+            <p className="text-xs text-muted-foreground">
+              Leave all three fields blank if the student is not assigned yet.
+            </p>
+          </div>
+
+          <Controller
+            control={control}
+            name="currentEnrollment.academicYearId"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel>Academic year</FieldLabel>
+                <FieldContent>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
+                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Select academic year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {academicYears.map((academicYear) => (
+                          <SelectItem key={academicYear.id} value={academicYear.id}>
+                            {academicYear.name}
+                            {academicYear.isCurrent ? " (Current)" : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+          <Controller
+            control={control}
+            name="currentEnrollment.className"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel>Class</FieldLabel>
+                <FieldContent>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="Class 8"
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+          <Controller
+            control={control}
+            name="currentEnrollment.sectionName"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel>Section</FieldLabel>
+                <FieldContent>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    placeholder="A"
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+          {academicYears.length === 0 ? (
+            <p className="sm:col-span-3 text-xs text-muted-foreground">
+              Create an academic year before assigning current enrollment.
+            </p>
+          ) : null}
+          <div className="sm:col-span-3">
+            <Button
+              onClick={() => {
+                setValue(
+                  "currentEnrollment",
+                  EMPTY_CURRENT_ENROLLMENT,
+                  {
+                    shouldDirty: true,
+                    shouldTouch: true,
+                    shouldValidate: true,
+                  },
+                );
+              }}
+              size="sm"
+              type="button"
+              variant="ghost"
+            >
+              Clear enrollment
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3">
