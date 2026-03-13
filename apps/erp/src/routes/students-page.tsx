@@ -27,9 +27,14 @@ import {
   useCreateStudentMutation,
   useStudentsQuery,
 } from "@/features/students/api/use-students";
+import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { StudentForm } from "@/features/students/ui/student-form";
 import { ERP_ROUTES } from "@/constants/routes";
-import type { StudentFormValues } from "@/features/students/model/student-form-schema";
+import {
+  EMPTY_CURRENT_ENROLLMENT,
+  toStudentMutationBody,
+  type StudentFormValues,
+} from "@/features/students/model/student-form-schema";
 
 const DEFAULT_GUARDIAN = {
   name: "",
@@ -61,6 +66,7 @@ export function StudentsPage() {
   const canManageStudents = isStaffContext(authSession);
   const managedInstitutionId = canManageStudents ? institutionId : undefined;
   const campuses = authSession?.campuses ?? [];
+  const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
   const studentsQuery = useStudentsQuery(managedInstitutionId);
   const createStudentMutation = useCreateStudentMutation(managedInstitutionId);
   const createStudentError = createStudentMutation.error as
@@ -95,7 +101,7 @@ export function StudentsPage() {
 
     await createStudentMutation.mutateAsync({
       params: { path: { institutionId } },
-      body: values,
+      body: toStudentMutationBody(values),
     });
     setShowForm(false);
   }
@@ -255,7 +261,9 @@ export function StudentsPage() {
                 lastName: "",
                 campusId: authSession?.activeCampus?.id ?? "",
                 guardians: [DEFAULT_GUARDIAN],
+                currentEnrollment: EMPTY_CURRENT_ENROLLMENT,
               }}
+              academicYears={academicYearsQuery.data ?? []}
               errorMessage={createStudentError?.message}
               isPending={createStudentMutation.isPending}
               onCancel={() => setShowForm(false)}
@@ -340,6 +348,9 @@ export function StudentsPage() {
                         </p>
                         <p className="truncate text-sm text-muted-foreground">
                           Admission {student.admissionNumber}
+                          {student.currentEnrollment
+                            ? ` • ${student.currentEnrollment.className}-${student.currentEnrollment.sectionName}`
+                            : ""}
                         </p>
                       </div>
                     </div>
@@ -366,6 +377,11 @@ export function StudentsPage() {
                           {guardian.name}
                         </Badge>
                       ))}
+                      {student.currentEnrollment ? (
+                        <Badge className="rounded-full px-3 py-1" variant="outline">
+                          {student.currentEnrollment.academicYearName}
+                        </Badge>
+                      ) : null}
                     </div>
 
                     <div className="ml-auto flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">

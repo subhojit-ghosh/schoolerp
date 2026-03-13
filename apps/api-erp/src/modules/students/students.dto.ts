@@ -25,6 +25,17 @@ export class CreateGuardianLinkBodyDto {
   isPrimary!: boolean;
 }
 
+export class CurrentStudentEnrollmentBodyDto {
+  @ApiProperty()
+  academicYearId!: string;
+
+  @ApiProperty()
+  className!: string;
+
+  @ApiProperty()
+  sectionName!: string;
+}
+
 export class CreateStudentBodyDto {
   @ApiProperty()
   admissionNumber!: string;
@@ -43,6 +54,12 @@ export class CreateStudentBodyDto {
     isArray: true,
   })
   guardians!: CreateGuardianLinkBodyDto[];
+
+  @ApiPropertyOptional({
+    type: () => CurrentStudentEnrollmentBodyDto,
+    nullable: true,
+  })
+  currentEnrollment?: CurrentStudentEnrollmentBodyDto | null;
 }
 
 export class UpdateStudentBodyDto {
@@ -63,6 +80,12 @@ export class UpdateStudentBodyDto {
     isArray: true,
   })
   guardians!: CreateGuardianLinkBodyDto[];
+
+  @ApiPropertyOptional({
+    type: () => CurrentStudentEnrollmentBodyDto,
+    nullable: true,
+  })
+  currentEnrollment?: CurrentStudentEnrollmentBodyDto | null;
 }
 
 export class StudentGuardianDto {
@@ -88,6 +111,20 @@ export class StudentGuardianDto {
 
   @ApiProperty()
   isPrimary!: boolean;
+}
+
+export class CurrentStudentEnrollmentDto {
+  @ApiProperty()
+  academicYearId!: string;
+
+  @ApiProperty()
+  academicYearName!: string;
+
+  @ApiProperty()
+  className!: string;
+
+  @ApiProperty()
+  sectionName!: string;
 }
 
 export class StudentDto {
@@ -128,4 +165,10 @@ export class StudentDto {
     isArray: true,
   })
   guardians!: StudentGuardianDto[];
+
+  @ApiPropertyOptional({
+    type: () => CurrentStudentEnrollmentDto,
+    nullable: true,
+  })
+  currentEnrollment!: CurrentStudentEnrollmentDto | null;
 }

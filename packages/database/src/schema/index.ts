@@ -172,6 +172,40 @@ export const students = pgTable(
   ],
 );
 
+export const studentCurrentEnrollments = pgTable(
+  "student_current_enrollments",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    studentMembershipId: text("student_membership_id")
+      .notNull()
+      .references(() => member.id, { onDelete: "cascade" }),
+    academicYearId: text("academic_year_id")
+      .notNull()
+      .references(() => academicYears.id, { onDelete: "restrict" }),
+    className: text("class_name").notNull(),
+    sectionName: text("section_name").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("student_current_enrollments_institution_idx").on(
+      table.institutionId,
+    ),
+    index("student_current_enrollments_student_membership_idx").on(
+      table.studentMembershipId,
+    ),
+    index("student_current_enrollments_academic_year_idx").on(
+      table.academicYearId,
+    ),
+    uniqueIndex("student_current_enrollments_active_unique_idx")
+      .on(table.studentMembershipId)
+      .where(sql`${table.deletedAt} IS NULL`),
+  ],
+);
+
 export const studentGuardianLinks = pgTable(
   "student_guardian_links",
   {

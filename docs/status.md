@@ -64,6 +64,8 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - institution-scoped academic year list/create/detail/update APIs
   - backend-owned current-year enforcement during create and edit
   - ERP frontend route and feature module for academic year create/edit flows
+  - backend-owned current student enrollment tied to academic year plus class/section
+  - ERP frontend route and feature module for student creation/detail/listing
 - The ERP shell now changes navigation and dashboard behavior from backend-provided active context instead of separate role-specific login screens.
 - Memberships now allow one user to hold multiple member types inside the same institution.
 
@@ -88,5 +90,6 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Broader integration coverage for tenant host routing and cookie auth in browser flows.
 - Student detail/edit workflows and richer guardian lifecycle management.
 - Automated coverage for academic-year create/edit flows.
+- Broader student workflow test coverage.
 - Capability-oriented authorization APIs for institution admin flows.
 - Class allocation, timetable, and broader academic workflows beyond structure management.
