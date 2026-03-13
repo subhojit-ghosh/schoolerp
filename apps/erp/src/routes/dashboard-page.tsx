@@ -3,6 +3,7 @@ import {
   IconArrowRight,
   IconBook2,
   IconCalendarStats,
+  IconCertificate,
   IconMoodKid,
   IconUsers,
 } from "@tabler/icons-react";
@@ -31,10 +32,10 @@ const QUICK_ACTIONS = [
     disabled: false,
   },
   {
-    label: "Classes",
-    description: "Maintain class and section structure by campus.",
-    href: ERP_ROUTES.CLASSES,
-    Icon: IconBook2,
+    label: "Exams",
+    description: "Create exam terms and capture marks for active students",
+    href: ERP_ROUTES.EXAMS,
+    Icon: IconCertificate,
     disabled: false,
   },
   {

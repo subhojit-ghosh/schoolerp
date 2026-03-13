@@ -18,6 +18,7 @@ import {
   isRootHostname,
 } from "@/lib/tenant-context";
 import { DashboardPage } from "@/routes/dashboard-page";
+import { ExamsPage } from "@/routes/exams-page";
 import { ForgotPasswordPage } from "@/routes/forgot-password-page";
 import { ResetPasswordPage } from "@/routes/reset-password-page";
 import { SignInPage } from "@/routes/sign-in-page";
@@ -69,6 +70,10 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.STAFF, element: <StaffPage /> },
       { path: ERP_ROUTES.STAFF_DETAIL, element: <StaffDetailPage /> },
       { path: ERP_ROUTES.ACADEMIC_YEARS, element: <AcademicYearsPage /> },
+      { path: ERP_ROUTES.CLASSES, element: <ClassesPage /> },
+      { path: ERP_ROUTES.CLASS_DETAIL, element: <ClassDetailPage /> },
+      { path: ERP_ROUTES.ATTENDANCE, element: <AttendancePage /> },
+      { path: ERP_ROUTES.EXAMS, element: <ExamsPage /> },
       { path: ERP_ROUTES.CLASSES, element: <ClassesPage /> },
       { path: ERP_ROUTES.CLASS_DETAIL, element: <ClassDetailPage /> },
       { path: ERP_ROUTES.ATTENDANCE, element: <AttendancePage /> },

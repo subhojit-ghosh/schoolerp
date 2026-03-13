@@ -30,6 +30,7 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
   - extend authorization primitives and capability-driven APIs
   - turn the student and staff slices into fuller institution-admin workflows
   - add the first attendance workflow around daily class-section entry and day views
+  - add shallow academics workflows such as exam terms and marks entry without expanding into report cards or analytics
   - turn the student and staff slices into fuller institution-admin workflows
   - keep the temporary ERP frontend thin over backend-owned rules
 - Keep delivery integrations pragmatic:
@@ -47,6 +48,7 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 
 - Expand ERP domains after the identity and tenant core is stable:
   - academics
+  - attendance
   - exams
   - fees
 - Move more shared UI and shared backend primitives into packages as patterns settle.

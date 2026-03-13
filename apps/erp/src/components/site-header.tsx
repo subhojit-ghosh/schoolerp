@@ -49,6 +49,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/students": "Students",
   "/guardians": "Guardians",
   "/academic-years": "Academic Years",
+  "/exams": "Exams",
   "/settings/branding": "Branding",
 };
 

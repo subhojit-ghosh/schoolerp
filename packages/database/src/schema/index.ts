@@ -342,3 +342,58 @@ export const classSections = pgTable(
       .where(sql`${table.deletedAt} IS NULL`),
   ],
 );
+
+export const examTerms = pgTable(
+  "exam_terms",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    academicYearId: text("academic_year_id")
+      .notNull()
+      .references(() => academicYears.id, { onDelete: "restrict" }),
+    name: text("name").notNull(),
+    startDate: date("start_date").notNull(),
+    endDate: date("end_date").notNull(),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    deletedAt: timestamp("deleted_at"),
+  },
+  (table) => [
+    index("exam_terms_institution_idx").on(table.institutionId),
+    index("exam_terms_academic_year_idx").on(table.academicYearId),
+    uniqueIndex("exam_terms_name_unique_idx")
+      .on(table.institutionId, table.academicYearId, table.name)
+      .where(sql`${table.deletedAt} IS NULL`),
+  ],
+);
+
+export const examMarks = pgTable(
+  "exam_marks",
+  {
+    id: text("id").primaryKey(),
+    institutionId: text("institution_id")
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    examTermId: text("exam_term_id")
+      .notNull()
+      .references(() => examTerms.id, { onDelete: "cascade" }),
+    studentId: text("student_id")
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    subjectName: text("subject_name").notNull(),
+    maxMarks: integer("max_marks").notNull(),
+    obtainedMarks: integer("obtained_marks").notNull(),
+    remarks: text("remarks"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("exam_marks_term_idx").on(table.examTermId),
+    index("exam_marks_student_idx").on(table.studentId),
+    uniqueIndex("exam_marks_subject_unique_idx").on(
+      table.examTermId,
+      table.studentId,
+      table.subjectName,
+    ),
+  ],
+);
