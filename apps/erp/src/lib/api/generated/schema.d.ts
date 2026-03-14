@@ -650,7 +650,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/institutions/{id}/branding": {
+    "/institutions/current/branding": {
         parameters: {
             query?: never;
             header?: never;
@@ -663,7 +663,7 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update branding colors for an institution */
+        /** Update branding colors for the current tenant institution */
         patch: operations["InstitutionsController_updateBranding"];
         trace?: never;
     };
@@ -884,7 +884,9 @@ export interface components {
             academicYearId: string;
             academicYearName: string;
             classId: string;
+            className: string;
             sectionId: string;
+            sectionName: string;
         };
         StudentDto: {
             id: string;
@@ -894,7 +896,9 @@ export interface components {
             firstName: string;
             lastName?: string | null;
             classId: string;
+            className: string;
             sectionId: string;
+            sectionName: string;
             fullName: string;
             campusId: string;
             campusName: string;
@@ -1567,7 +1571,9 @@ export interface operations {
     };
     ClassesController_listClasses: {
         parameters: {
-            query?: never;
+            query?: {
+                campusId?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2475,9 +2481,7 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                id: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {

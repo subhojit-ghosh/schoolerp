@@ -351,7 +351,7 @@ export function StudentsPage() {
                         <p className="truncate text-sm text-muted-foreground">
                           Admission {student.admissionNumber}
                           {student.currentEnrollment
-                            ? ` • ${student.currentEnrollment.classId}-${student.currentEnrollment.sectionId}`
+                            ? ` • ${student.currentEnrollment.className}-${student.currentEnrollment.sectionName}`
                             : ""}
                         </p>
                       </div>

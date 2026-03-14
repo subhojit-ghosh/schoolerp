@@ -1,6 +1,6 @@
 import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
-import { useEffect } from "react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { useEffect, useMemo } from "react";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconTrash, IconUserPlus } from "@tabler/icons-react";
 import { Button } from "@repo/ui/components/ui/button";
@@ -28,6 +28,7 @@ import {
   studentFormSchema,
   type StudentFormValues,
 } from "@/features/students/model/student-form-schema";
+import { useClassesQuery } from "@/features/classes/api/use-classes";
 
 const DEFAULT_GUARDIAN: StudentFormValues["guardians"][number] = {
   name: "",
@@ -46,6 +47,16 @@ type AcademicYearOption = {
   id: string;
   name: string;
   isCurrent: boolean;
+};
+
+type ClassOption = {
+  id: string;
+  name: string;
+  isActive?: boolean;
+  sections: Array<{
+    id: string;
+    name: string;
+  }>;
 };
 
 type StudentFormProps = {
@@ -74,14 +85,135 @@ export function StudentForm({
     defaultValues,
   });
 
+  const selectedCampusId = useWatch({
+    control,
+    name: "campusId",
+  });
+  const selectedClassId = useWatch({
+    control,
+    name: "classId",
+  });
+  const selectedSectionId = useWatch({
+    control,
+    name: "sectionId",
+  });
+  const selectedEnrollmentClassId = useWatch({
+    control,
+    name: "currentEnrollment.classId",
+  });
+  const selectedEnrollmentSectionId = useWatch({
+    control,
+    name: "currentEnrollment.sectionId",
+  });
+
   const guardiansFieldArray = useFieldArray({
     control,
     name: "guardians",
   });
 
+  const classesQuery = useClassesQuery(Boolean(selectedCampusId), selectedCampusId);
+  const classOptions = useMemo(
+    () => ((classesQuery.data ?? []) as ClassOption[]).filter((item) => item.isActive !== false),
+    [classesQuery.data],
+  );
+  const selectedClass = useMemo(
+    () => classOptions.find((item) => item.id === selectedClassId) ?? null,
+    [classOptions, selectedClassId],
+  );
+  const sectionOptions = selectedClass?.sections ?? [];
+  const selectedEnrollmentClass = useMemo(
+    () => classOptions.find((item) => item.id === selectedEnrollmentClassId) ?? null,
+    [classOptions, selectedEnrollmentClassId],
+  );
+  const enrollmentSectionOptions = selectedEnrollmentClass?.sections ?? [];
+
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (classesQuery.isLoading) {
+      return;
+    }
+
+    if (!selectedClassId) {
+      if (selectedSectionId) {
+        setValue("sectionId", "", { shouldDirty: true, shouldValidate: true });
+      }
+      return;
+    }
+
+    if (!selectedClass) {
+      setValue("classId", "", { shouldDirty: true, shouldValidate: true });
+      if (selectedSectionId) {
+        setValue("sectionId", "", { shouldDirty: true, shouldValidate: true });
+      }
+      return;
+    }
+
+    if (
+      selectedSectionId &&
+      !sectionOptions.some((section) => section.id === selectedSectionId)
+    ) {
+      setValue("sectionId", "", { shouldDirty: true, shouldValidate: true });
+    }
+  }, [
+    classesQuery.isLoading,
+    sectionOptions,
+    selectedClass,
+    selectedClassId,
+    selectedSectionId,
+    setValue,
+  ]);
+
+  useEffect(() => {
+    if (classesQuery.isLoading) {
+      return;
+    }
+
+    if (!selectedEnrollmentClassId) {
+      if (selectedEnrollmentSectionId) {
+        setValue("currentEnrollment.sectionId", "", {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+      return;
+    }
+
+    if (!selectedEnrollmentClass) {
+      setValue("currentEnrollment.classId", "", {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      if (selectedEnrollmentSectionId) {
+        setValue("currentEnrollment.sectionId", "", {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+      return;
+    }
+
+    if (
+      selectedEnrollmentSectionId &&
+      !enrollmentSectionOptions.some(
+        (section) => section.id === selectedEnrollmentSectionId,
+      )
+    ) {
+      setValue("currentEnrollment.sectionId", "", {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [
+    classesQuery.isLoading,
+    enrollmentSectionOptions,
+    selectedEnrollmentClass,
+    selectedEnrollmentClassId,
+    selectedEnrollmentSectionId,
+    setValue,
+  ]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -154,14 +286,26 @@ export function StudentForm({
             name="classId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="class-name">Class</FieldLabel>
+                <FieldLabel>Class</FieldLabel>
                 <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    id="class-name"
-                    placeholder="Grade 7"
-                  />
+                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectValue
+                        placeholder={
+                          classesQuery.isLoading ? "Loading classes..." : "Select class"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {classOptions.map((schoolClass) => (
+                          <SelectItem key={schoolClass.id} value={schoolClass.id}>
+                            {schoolClass.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
               </Field>
@@ -172,14 +316,26 @@ export function StudentForm({
             name="sectionId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="section-name">Section</FieldLabel>
+                <FieldLabel>Section</FieldLabel>
                 <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    id="section-name"
-                    placeholder="A"
-                  />
+                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectValue
+                        placeholder={
+                          selectedClassId ? "Select section" : "Select class first"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {sectionOptions.map((section) => (
+                          <SelectItem key={section.id} value={section.id}>
+                            {section.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
               </Field>
@@ -250,11 +406,24 @@ export function StudentForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Class</FieldLabel>
                 <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Class 8"
-                  />
+                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectValue
+                        placeholder={
+                          classesQuery.isLoading ? "Loading classes..." : "Select class"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {classOptions.map((schoolClass) => (
+                          <SelectItem key={schoolClass.id} value={schoolClass.id}>
+                            {schoolClass.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
               </Field>
@@ -267,11 +436,26 @@ export function StudentForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Section</FieldLabel>
                 <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="A"
-                  />
+                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectValue
+                        placeholder={
+                          selectedEnrollmentClassId
+                            ? "Select section"
+                            : "Select class first"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {enrollmentSectionOptions.map((section) => (
+                          <SelectItem key={section.id} value={section.id}>
+                            {section.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
               </Field>

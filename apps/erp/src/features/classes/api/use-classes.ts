@@ -2,13 +2,21 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CLASSES_API_PATHS } from "@/features/auth/api/auth.constants";
 import { apiQueryClient } from "@/lib/api/client";
 
-export function useClassesQuery(enabled: boolean) {
+export function useClassesQuery(enabled: boolean, campusId?: string) {
   return apiQueryClient.useQuery(
     "get",
     CLASSES_API_PATHS.LIST,
-    undefined,
+    campusId
+      ? {
+          params: {
+            query: {
+              campusId,
+            },
+          },
+        }
+      : undefined,
     {
-      enabled,
+      enabled: enabled && Boolean(campusId),
     },
   );
 }

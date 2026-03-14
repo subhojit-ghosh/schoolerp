@@ -4,7 +4,6 @@ import { z } from "zod";
 const NAME_MIN_LENGTH = 1;
 const ADMISSION_NUMBER_MIN_LENGTH = 1;
 const MOBILE_MIN_LENGTH = 10;
-const ENROLLMENT_NAME_MIN_LENGTH = 1;
 
 function hasExactlyOnePrimaryGuardian(guardians: { isPrimary: boolean }[]) {
   return guardians.filter((guardian) => guardian.isPrimary).length === 1;
@@ -27,14 +26,8 @@ export const createGuardianLinkSchema = z.object({
 
 export const currentEnrollmentSchema = z.object({
   academicYearId: z.uuid(),
-  classId: z
-    .string()
-    .trim()
-    .min(ENROLLMENT_NAME_MIN_LENGTH, "Class is required"),
-  sectionId: z
-    .string()
-    .trim()
-    .min(ENROLLMENT_NAME_MIN_LENGTH, "Section is required"),
+  classId: z.uuid(),
+  sectionId: z.uuid(),
 });
 
 export const createStudentSchema = z
@@ -45,8 +38,8 @@ export const createStudentSchema = z
       .min(ADMISSION_NUMBER_MIN_LENGTH, "Admission number is required"),
     firstName: z.string().trim().min(NAME_MIN_LENGTH, "First name is required"),
     lastName: z.string().trim().optional(),
-    classId: z.string().trim().min(NAME_MIN_LENGTH, "Class is required"),
-    sectionId: z.string().trim().min(NAME_MIN_LENGTH, "Section is required"),
+    classId: z.uuid(),
+    sectionId: z.uuid(),
     campusId: z.uuid(),
     guardians: z
       .array(createGuardianLinkSchema)

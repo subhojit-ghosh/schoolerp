@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -16,6 +17,7 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES } from "../../constants";
@@ -28,11 +30,13 @@ import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   ClassDto,
   CreateClassBodyDto,
+  ListClassesQueryDto,
   SetClassStatusBodyDto,
   UpdateClassBodyDto,
 } from "./classes.dto";
 import {
   parseCreateClass,
+  parseListClassesQuery,
   parseSetClassStatus,
   parseUpdateClass,
 } from "./classes.schemas";
@@ -47,12 +51,18 @@ export class ClassesController {
 
   @Get()
   @ApiOperation({ summary: "List classes for the current tenant institution" })
+  @ApiQuery({ name: "campusId", required: false, type: String })
   @ApiOkResponse({ type: ClassDto, isArray: true })
   listClasses(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @Query() query: ListClassesQueryDto,
   ) {
-    return this.classesService.listClasses(institution.id, authSession);
+    return this.classesService.listClasses(
+      institution.id,
+      authSession,
+      parseListClassesQuery(query).campusId,
+    );
   }
 
   @Post()

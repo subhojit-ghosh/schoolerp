@@ -94,7 +94,7 @@ export function ClassesPage() {
   const canManageClasses = isStaffContext(session);
   const canQueryClasses = canManageClasses && Boolean(institutionId);
 
-  const classesQuery = useClassesQuery(canQueryClasses);
+  const classesQuery = useClassesQuery(canQueryClasses, activeCampusId);
   const createMutation = useCreateClassMutation();
   const updateMutation = useUpdateClassMutation();
   const setStatusMutation = useSetClassStatusMutation();

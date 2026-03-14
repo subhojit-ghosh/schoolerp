@@ -32,6 +32,8 @@ export const ERROR_MESSAGES = {
       "That admission number is already in use for this institution.",
     GUARDIAN_MEMBERSHIP_REQUIRED:
       "Each guardian must belong to the selected institution.",
+    CLASS_CAMPUS_MISMATCH:
+      "The selected class does not belong to the selected campus.",
   },
   STAFF: {
     STAFF_NOT_FOUND: "The selected staff record was not found.",
@@ -55,6 +57,7 @@ export const ERROR_MESSAGES = {
   },
   CLASSES: {
     CLASS_NOT_FOUND: "The selected class was not found.",
+    SECTION_NOT_FOUND: "The selected section was not found for this class.",
     CLASS_NAME_EXISTS:
       "That class name is already in use for the selected campus.",
     SECTION_NAME_EXISTS: "Section names must be unique within a class.",

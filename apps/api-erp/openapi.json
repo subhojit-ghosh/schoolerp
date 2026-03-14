@@ -338,19 +338,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/campuses": {
+    "/campuses": {
       "get": {
         "operationId": "CampusesController_listCampuses",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -371,23 +362,14 @@
             "cookie": []
           }
         ],
-        "summary": "List campuses for an institution",
+        "summary": "List campuses for the current tenant institution",
         "tags": [
           "campuses"
         ]
       },
       "post": {
         "operationId": "CampusesController_createCampus",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -415,7 +397,7 @@
             "cookie": []
           }
         ],
-        "summary": "Create a campus for an institution",
+        "summary": "Create a campus for the current tenant institution",
         "tags": [
           "campuses"
         ]
@@ -424,6 +406,17 @@
     "/classes": {
       "get": {
         "operationId": "ClassesController_listClasses",
+        "parameters": [
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -451,6 +444,7 @@
       },
       "post": {
         "operationId": "ClassesController_createClass",
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -637,19 +631,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/students": {
+    "/students": {
       "get": {
         "operationId": "StudentsController_listStudents",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -670,23 +655,14 @@
             "cookie": []
           }
         ],
-        "summary": "List students for an institution",
+        "summary": "List students for the current tenant institution",
         "tags": [
           "students"
         ]
       },
       "post": {
         "operationId": "StudentsController_createStudent",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -714,24 +690,16 @@
             "cookie": []
           }
         ],
-        "summary": "Create a student and link guardians",
+        "summary": "Create a student and link guardians for the current tenant",
         "tags": [
           "students"
         ]
       }
     },
-    "/institutions/{institutionId}/students/{studentId}": {
+    "/students/{studentId}": {
       "get": {
         "operationId": "StudentsController_getStudent",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "studentId",
             "required": true,
@@ -758,7 +726,7 @@
             "cookie": []
           }
         ],
-        "summary": "Get a single student for an institution",
+        "summary": "Get a single student for the current tenant institution",
         "tags": [
           "students"
         ]
@@ -766,14 +734,6 @@
       "patch": {
         "operationId": "StudentsController_updateStudent",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "studentId",
             "required": true,
@@ -810,25 +770,16 @@
             "cookie": []
           }
         ],
-        "summary": "Update a student and reconcile guardians",
+        "summary": "Update a student and reconcile guardians for the current tenant",
         "tags": [
           "students"
         ]
       }
     },
-    "/institutions/{institutionId}/staff": {
+    "/staff": {
       "get": {
         "operationId": "StaffController_listStaff",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -849,23 +800,14 @@
             "cookie": []
           }
         ],
-        "summary": "List staff for an institution",
+        "summary": "List staff for the current tenant institution",
         "tags": [
           "staff"
         ]
       },
       "post": {
         "operationId": "StaffController_createStaff",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -893,25 +835,16 @@
             "cookie": []
           }
         ],
-        "summary": "Create a staff membership for an institution",
+        "summary": "Create a staff membership for the current tenant",
         "tags": [
           "staff"
         ]
       }
     },
-    "/institutions/{institutionId}/staff/roles": {
+    "/staff/roles": {
       "get": {
         "operationId": "StaffController_listRoles",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -932,24 +865,16 @@
             "cookie": []
           }
         ],
-        "summary": "List available staff roles for an institution",
+        "summary": "List available staff roles for the current tenant",
         "tags": [
           "staff"
         ]
       }
     },
-    "/institutions/{institutionId}/staff/{staffId}": {
+    "/staff/{staffId}": {
       "get": {
         "operationId": "StaffController_getStaff",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "staffId",
             "required": true,
@@ -976,7 +901,7 @@
             "cookie": []
           }
         ],
-        "summary": "Get a single staff record for an institution",
+        "summary": "Get a single staff record for the current tenant",
         "tags": [
           "staff"
         ]
@@ -984,14 +909,6 @@
       "patch": {
         "operationId": "StaffController_updateStaff",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "staffId",
             "required": true,
@@ -1028,25 +945,16 @@
             "cookie": []
           }
         ],
-        "summary": "Update a staff membership for an institution",
+        "summary": "Update a staff membership for the current tenant",
         "tags": [
           "staff"
         ]
       }
     },
-    "/institutions/{institutionId}/guardians": {
+    "/guardians": {
       "get": {
         "operationId": "GuardiansController_listGuardians",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -1067,24 +975,16 @@
             "cookie": []
           }
         ],
-        "summary": "List guardians for an institution",
+        "summary": "List guardians for the current tenant institution",
         "tags": [
           "guardians"
         ]
       }
     },
-    "/institutions/{institutionId}/guardians/{guardianId}": {
+    "/guardians/{guardianId}": {
       "get": {
         "operationId": "GuardiansController_getGuardian",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "guardianId",
             "required": true,
@@ -1111,7 +1011,7 @@
             "cookie": []
           }
         ],
-        "summary": "Get a single guardian for an institution",
+        "summary": "Get a single guardian for the current tenant",
         "tags": [
           "guardians"
         ]
@@ -1119,14 +1019,6 @@
       "patch": {
         "operationId": "GuardiansController_updateGuardian",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "guardianId",
             "required": true,
@@ -1169,18 +1061,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/guardians/{guardianId}/students": {
+    "/guardians/{guardianId}/students": {
       "post": {
         "operationId": "GuardiansController_linkStudent",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "guardianId",
             "required": true,
@@ -1223,18 +1107,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/guardians/{guardianId}/students/{studentId}": {
+    "/guardians/{guardianId}/students/{studentId}": {
       "patch": {
         "operationId": "GuardiansController_updateStudentLink",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "guardianId",
             "required": true,
@@ -1288,14 +1164,6 @@
         "operationId": "GuardiansController_unlinkStudent",
         "parameters": [
           {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "guardianId",
             "required": true,
             "in": "path",
@@ -1335,19 +1203,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/academic-years": {
+    "/academic-years": {
       "get": {
         "operationId": "AcademicYearsController_listAcademicYears",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Academic years list",
@@ -1368,23 +1227,14 @@
             "cookie": []
           }
         ],
-        "summary": "List academic years for an institution",
+        "summary": "List academic years for the current tenant institution",
         "tags": [
           "academic-years"
         ]
       },
       "post": {
         "operationId": "AcademicYearsController_createAcademicYear",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1412,24 +1262,16 @@
             "cookie": []
           }
         ],
-        "summary": "Create an academic year for an institution",
+        "summary": "Create an academic year for the current tenant",
         "tags": [
           "academic-years"
         ]
       }
     },
-    "/institutions/{institutionId}/academic-years/{academicYearId}": {
+    "/academic-years/{academicYearId}": {
       "get": {
         "operationId": "AcademicYearsController_getAcademicYear",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "academicYearId",
             "required": true,
@@ -1464,14 +1306,6 @@
       "patch": {
         "operationId": "AcademicYearsController_updateAcademicYear",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "academicYearId",
             "required": true,
@@ -1514,18 +1348,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/attendance/class-sections": {
+    "/attendance/class-sections": {
       "get": {
         "operationId": "AttendanceController_listClassSections",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "campusId",
             "required": true,
@@ -1561,18 +1387,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/attendance/day": {
+    "/attendance/day": {
       "get": {
         "operationId": "AttendanceController_listAttendanceDay",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "attendanceDate",
             "required": true,
@@ -1630,16 +1448,7 @@
       },
       "post": {
         "operationId": "AttendanceController_upsertAttendanceDay",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1673,18 +1482,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/attendance/day-view": {
+    "/attendance/day-view": {
       "get": {
         "operationId": "AttendanceController_listAttendanceDayView",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "attendanceDate",
             "required": true,
@@ -1720,19 +1521,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/exams/terms": {
+    "/exams/terms": {
       "get": {
         "operationId": "ExamsController_listExamTerms",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -1753,23 +1545,14 @@
             "cookie": []
           }
         ],
-        "summary": "List exam terms for an institution",
+        "summary": "List exam terms for the current tenant institution",
         "tags": [
           "exams"
         ]
       },
       "post": {
         "operationId": "ExamsController_createExamTerm",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1797,24 +1580,16 @@
             "cookie": []
           }
         ],
-        "summary": "Create an exam term for an institution",
+        "summary": "Create an exam term for the current tenant",
         "tags": [
           "exams"
         ]
       }
     },
-    "/institutions/{institutionId}/exams/terms/{examTermId}/marks": {
+    "/exams/terms/{examTermId}/marks": {
       "get": {
         "operationId": "ExamsController_listExamMarks",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "examTermId",
             "required": true,
@@ -1852,14 +1627,6 @@
       "put": {
         "operationId": "ExamsController_replaceExamMarks",
         "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "examTermId",
             "required": true,
@@ -1905,19 +1672,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/fees/structures": {
+    "/fees/structures": {
       "get": {
         "operationId": "FeesController_listFeeStructures",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -1938,23 +1696,14 @@
             "cookie": []
           }
         ],
-        "summary": "List fee structures for an institution",
+        "summary": "List fee structures for the current tenant institution",
         "tags": [
           "fees"
         ]
       },
       "post": {
         "operationId": "FeesController_createFeeStructure",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -1982,25 +1731,16 @@
             "cookie": []
           }
         ],
-        "summary": "Create a fee structure for an institution",
+        "summary": "Create a fee structure for the current tenant",
         "tags": [
           "fees"
         ]
       }
     },
-    "/institutions/{institutionId}/fees/assignments": {
+    "/fees/assignments": {
       "get": {
         "operationId": "FeesController_listFeeAssignments",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -2021,23 +1761,14 @@
             "cookie": []
           }
         ],
-        "summary": "List fee assignments for an institution",
+        "summary": "List fee assignments for the current tenant institution",
         "tags": [
           "fees"
         ]
       },
       "post": {
         "operationId": "FeesController_createFeeAssignment",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -2071,19 +1802,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/fees/payments": {
+    "/fees/payments": {
       "post": {
         "operationId": "FeesController_createFeePayment",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -2117,19 +1839,10 @@
         ]
       }
     },
-    "/institutions/{institutionId}/fees/dues": {
+    "/fees/dues": {
       "get": {
         "operationId": "FeesController_listFeeDues",
-        "parameters": [
-          {
-            "name": "institutionId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -2150,7 +1863,7 @@
             "cookie": []
           }
         ],
-        "summary": "List outstanding fee dues for an institution",
+        "summary": "List outstanding fee dues for the current tenant",
         "tags": [
           "fees"
         ]
@@ -2251,19 +1964,10 @@
         ]
       }
     },
-    "/institutions/{id}/branding": {
+    "/institutions/current/branding": {
       "patch": {
         "operationId": "InstitutionsController_updateBranding",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
@@ -2291,7 +1995,7 @@
             "cookie": []
           }
         ],
-        "summary": "Update branding colors for an institution",
+        "summary": "Update branding colors for the current tenant institution",
         "tags": [
           "institutions"
         ]
@@ -3012,10 +2716,6 @@
           "name": {
             "type": "string"
           },
-          "code": {
-            "type": "string",
-            "nullable": true
-          },
           "isActive": {
             "type": "boolean"
           },
@@ -3061,10 +2761,6 @@
           "name": {
             "type": "string"
           },
-          "code": {
-            "type": "string",
-            "nullable": true
-          },
           "campusId": {
             "type": "string"
           },
@@ -3086,10 +2782,6 @@
         "properties": {
           "name": {
             "type": "string"
-          },
-          "code": {
-            "type": "string",
-            "nullable": true
           },
           "campusId": {
             "type": "string"
@@ -3170,7 +2862,13 @@
           "classId": {
             "type": "string"
           },
+          "className": {
+            "type": "string"
+          },
           "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
             "type": "string"
           }
         },
@@ -3178,7 +2876,9 @@
           "academicYearId",
           "academicYearName",
           "classId",
-          "sectionId"
+          "className",
+          "sectionId",
+          "sectionName"
         ]
       },
       "StudentDto": {
@@ -3206,7 +2906,13 @@
           "classId": {
             "type": "string"
           },
+          "className": {
+            "type": "string"
+          },
           "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
             "type": "string"
           },
           "fullName": {
@@ -3248,7 +2954,9 @@
           "admissionNumber",
           "firstName",
           "classId",
+          "className",
           "sectionId",
+          "sectionName",
           "fullName",
           "campusId",
           "campusName",

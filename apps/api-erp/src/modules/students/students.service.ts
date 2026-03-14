@@ -1,6 +1,7 @@
 import { DATABASE } from "@repo/backend-core";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -10,8 +11,10 @@ import type { AppDatabase } from "@repo/database";
 import {
   academicYears,
   campus,
+  classSections,
   campusMemberships,
   member,
+  schoolClasses,
   studentCurrentEnrollments,
   studentGuardianLinks,
   students,
@@ -50,7 +53,17 @@ type StudentCurrentEnrollmentSummary = {
   academicYearId: string;
   academicYearName: string;
   classId: string;
+  className: string;
   sectionId: string;
+  sectionName: string;
+};
+
+type ResolvedClassSection = {
+  classId: string;
+  className: string;
+  classCampusId: string;
+  sectionId: string;
+  sectionName: string;
 };
 
 type StudentsWriter = Pick<AppDatabase, "insert" | "select" | "update">;
@@ -112,6 +125,28 @@ export class StudentsService {
       );
     }
 
+    const studentPlacement = await this.getResolvedClassSection(
+      institutionId,
+      payload.classId,
+      payload.sectionId,
+    );
+    this.assertClassMatchesCampus(studentPlacement, selectedCampus.id);
+
+    const resolvedCurrentEnrollment = nextCurrentEnrollment
+      ? await this.getResolvedClassSection(
+          institutionId,
+          nextCurrentEnrollment.classId,
+          nextCurrentEnrollment.sectionId,
+        )
+      : null;
+
+    if (resolvedCurrentEnrollment) {
+      this.assertClassMatchesCampus(
+        resolvedCurrentEnrollment,
+        selectedCampus.id,
+      );
+    }
+
     await this.assertAdmissionNumberAvailable(
       institutionId,
       payload.admissionNumber.trim(),
@@ -138,8 +173,8 @@ export class StudentsService {
           admissionNumber: payload.admissionNumber.trim(),
           firstName: payload.firstName.trim(),
           lastName: payload.lastName?.trim() || null,
-          classId: payload.classId.trim(),
-          sectionId: payload.sectionId.trim(),
+          classId: studentPlacement.classId,
+          sectionId: studentPlacement.sectionId,
         })
         .where(eq(students.id, studentId));
 
@@ -218,6 +253,7 @@ export class StudentsService {
         institutionId,
         existingStudent.membershipId,
         nextCurrentEnrollment,
+        resolvedCurrentEnrollment,
       );
     });
 
@@ -237,7 +273,9 @@ export class StudentsService {
         firstName: students.firstName,
         lastName: students.lastName,
         classId: students.classId,
+        className: schoolClasses.name,
         sectionId: students.sectionId,
+        sectionName: classSections.name,
         campusId: campus.id,
         campusName: campus.name,
         status: member.status,
@@ -245,6 +283,8 @@ export class StudentsService {
       .from(students)
       .innerJoin(member, eq(students.membershipId, member.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
       .where(
         and(
           eq(students.institutionId, institutionId),
@@ -252,6 +292,8 @@ export class StudentsService {
           isNull(students.deletedAt),
           isNull(member.deletedAt),
           isNull(campus.deletedAt),
+          isNull(schoolClasses.deletedAt),
+          isNull(classSections.deletedAt),
         ),
       );
 
@@ -293,6 +335,28 @@ export class StudentsService {
       );
     }
 
+    const studentPlacement = await this.getResolvedClassSection(
+      institutionId,
+      payload.classId,
+      payload.sectionId,
+    );
+    this.assertClassMatchesCampus(studentPlacement, selectedCampus.id);
+
+    const resolvedCurrentEnrollment = nextCurrentEnrollment
+      ? await this.getResolvedClassSection(
+          institutionId,
+          nextCurrentEnrollment.classId,
+          nextCurrentEnrollment.sectionId,
+        )
+      : null;
+
+    if (resolvedCurrentEnrollment) {
+      this.assertClassMatchesCampus(
+        resolvedCurrentEnrollment,
+        selectedCampus.id,
+      );
+    }
+
     await this.assertAdmissionNumberAvailable(
       institutionId,
       payload.admissionNumber.trim(),
@@ -324,8 +388,8 @@ export class StudentsService {
         admissionNumber: payload.admissionNumber.trim(),
         firstName: payload.firstName.trim(),
         lastName: payload.lastName?.trim() || null,
-        classId: payload.classId.trim(),
-        sectionId: payload.sectionId.trim(),
+        classId: studentPlacement.classId,
+        sectionId: studentPlacement.sectionId,
       });
 
       for (const guardianPayload of payload.guardians) {
@@ -352,6 +416,7 @@ export class StudentsService {
         institutionId,
         studentMembershipId,
         nextCurrentEnrollment,
+        resolvedCurrentEnrollment,
       );
 
       return {
@@ -472,12 +537,22 @@ export class StudentsService {
         academicYearId: academicYears.id,
         academicYearName: academicYears.name,
         classId: studentCurrentEnrollments.classId,
+        className: schoolClasses.name,
         sectionId: studentCurrentEnrollments.sectionId,
+        sectionName: classSections.name,
       })
       .from(studentCurrentEnrollments)
       .innerJoin(
         academicYears,
         eq(studentCurrentEnrollments.academicYearId, academicYears.id),
+      )
+      .innerJoin(
+        schoolClasses,
+        eq(studentCurrentEnrollments.classId, schoolClasses.id),
+      )
+      .innerJoin(
+        classSections,
+        eq(studentCurrentEnrollments.sectionId, classSections.id),
       )
       .where(
         and(
@@ -488,6 +563,8 @@ export class StudentsService {
           ),
           isNull(studentCurrentEnrollments.deletedAt),
           isNull(academicYears.deletedAt),
+          isNull(schoolClasses.deletedAt),
+          isNull(classSections.deletedAt),
         ),
       );
 
@@ -498,7 +575,9 @@ export class StudentsService {
           academicYearId: row.academicYearId,
           academicYearName: row.academicYearName,
           classId: row.classId,
+          className: row.className,
           sectionId: row.sectionId,
+          sectionName: row.sectionName,
         },
       ]),
     );
@@ -667,6 +746,7 @@ export class StudentsService {
     institutionId: string,
     studentMembershipId: string,
     currentEnrollment: CurrentEnrollmentDto | null,
+    resolvedCurrentEnrollment: ResolvedClassSection | null,
   ) {
     const [existingEnrollment] = await tx
       .select({
@@ -700,8 +780,9 @@ export class StudentsService {
 
     const nextValues = {
       academicYearId: currentEnrollment.academicYearId,
-      classId: currentEnrollment.classId.trim(),
-      sectionId: currentEnrollment.sectionId.trim(),
+      classId: resolvedCurrentEnrollment?.classId ?? currentEnrollment.classId,
+      sectionId:
+        resolvedCurrentEnrollment?.sectionId ?? currentEnrollment.sectionId,
       deletedAt: null,
     } as const;
 
@@ -780,5 +861,50 @@ export class StudentsService {
     }
 
     return null;
+  }
+
+  private async getResolvedClassSection(
+    institutionId: string,
+    classId: string,
+    sectionId: string,
+  ) {
+    const [resolvedClassSection] = await this.db
+      .select({
+        classId: schoolClasses.id,
+        className: schoolClasses.name,
+        classCampusId: schoolClasses.campusId,
+        sectionId: classSections.id,
+        sectionName: classSections.name,
+      })
+      .from(classSections)
+      .innerJoin(schoolClasses, eq(classSections.classId, schoolClasses.id))
+      .where(
+        and(
+          eq(schoolClasses.institutionId, institutionId),
+          eq(classSections.institutionId, institutionId),
+          eq(schoolClasses.id, classId),
+          eq(classSections.id, sectionId),
+          isNull(schoolClasses.deletedAt),
+          isNull(classSections.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!resolvedClassSection) {
+      throw new NotFoundException(ERROR_MESSAGES.CLASSES.SECTION_NOT_FOUND);
+    }
+
+    return resolvedClassSection;
+  }
+
+  private assertClassMatchesCampus(
+    resolvedClassSection: ResolvedClassSection,
+    campusId: string,
+  ) {
+    if (resolvedClassSection.classCampusId !== campusId) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.STUDENTS.CLASS_CAMPUS_MISMATCH,
+      );
+    }
   }
 }

@@ -38,6 +38,10 @@ export const setClassStatusSchema = z.object({
   isActive: z.boolean(),
 });
 
+export const listClassesQuerySchema = z.object({
+  campusId: z.uuid().optional(),
+});
+
 export const classIdSchema = z.object({
   classId: z.uuid(),
 });
@@ -45,6 +49,7 @@ export const classIdSchema = z.object({
 export type CreateClassDto = z.infer<typeof createClassSchema>;
 export type UpdateClassDto = z.infer<typeof updateClassSchema>;
 export type SetClassStatusDto = z.infer<typeof setClassStatusSchema>;
+export type ListClassesQueryDto = z.infer<typeof listClassesQuerySchema>;
 
 function parseSchema<T>(schema: z.ZodType<T>, input: unknown): T {
   const result = schema.safeParse(input);
@@ -66,4 +71,8 @@ export function parseUpdateClass(body: unknown): UpdateClassDto {
 
 export function parseSetClassStatus(body: unknown): SetClassStatusDto {
   return parseSchema(setClassStatusSchema, body);
+}
+
+export function parseListClassesQuery(query: unknown): ListClassesQueryDto {
+  return parseSchema(listClassesQuerySchema, query);
 }

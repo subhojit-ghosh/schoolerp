@@ -20,7 +20,9 @@ export const EMPTY_CURRENT_ENROLLMENT = {
   sectionId: "",
 } as const;
 
-const enrollmentIdentifierSchema = z.uuid("Select an academic year");
+const academicYearIdentifierSchema = z.uuid("Select an academic year");
+const classIdentifierSchema = z.uuid("Select a class");
+const sectionIdentifierSchema = z.uuid("Select a section");
 
 export const guardianFormSchema = z.object({
   name: z.string().trim().min(REQUIRED_TEXT_MIN_LENGTH, "Guardian name is required"),
@@ -50,7 +52,7 @@ export const currentEnrollmentFormSchema = z
         path: ["academicYearId"],
         message: "Academic year is required",
       });
-    } else if (!enrollmentIdentifierSchema.safeParse(value.academicYearId).success) {
+    } else if (!academicYearIdentifierSchema.safeParse(value.academicYearId).success) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["academicYearId"],
@@ -64,6 +66,12 @@ export const currentEnrollmentFormSchema = z
         path: ["classId"],
         message: "Class is required",
       });
+    } else if (!classIdentifierSchema.safeParse(value.classId).success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["classId"],
+        message: "Select a class",
+      });
     }
 
     if (!value.sectionId) {
@@ -71,6 +79,12 @@ export const currentEnrollmentFormSchema = z
         code: z.ZodIssueCode.custom,
         path: ["sectionId"],
         message: "Section is required",
+      });
+    } else if (!sectionIdentifierSchema.safeParse(value.sectionId).success) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["sectionId"],
+        message: "Select a section",
       });
     }
   });
@@ -86,8 +100,8 @@ export const studentFormSchema = z
       .trim()
       .min(REQUIRED_TEXT_MIN_LENGTH, "First name is required"),
     lastName: z.string().trim().optional(),
-    classId: z.string().trim().min(REQUIRED_TEXT_MIN_LENGTH, "Class is required"),
-    sectionId: z.string().trim().min(REQUIRED_TEXT_MIN_LENGTH, "Section is required"),
+    classId: z.uuid("Select a class"),
+    sectionId: z.uuid("Select a section"),
     campusId: z.uuid("Select a campus"),
     guardians: z.array(guardianFormSchema).min(1, "Add at least one guardian"),
     currentEnrollment: currentEnrollmentFormSchema,

@@ -8,6 +8,11 @@ export class ClassSectionBodyDto {
   name!: string;
 }
 
+export class ListClassesQueryDto {
+  @ApiPropertyOptional({ nullable: true })
+  campusId?: string;
+}
+
 export class CreateClassBodyDto {
   @ApiProperty()
   name!: string;

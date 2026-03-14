@@ -26,12 +26,23 @@ export class ClassesService {
     private readonly authService: AuthService,
   ) {}
 
-  async listClasses(institutionId: string, authSession: AuthenticatedSession) {
+  async listClasses(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    campusId?: string,
+  ) {
     await this.requireInstitutionAccess(authSession, institutionId);
+
+    const scopedCampusId = campusId ?? authSession.activeCampusId ?? undefined;
+
+    if (scopedCampusId) {
+      await this.getCampus(institutionId, scopedCampusId);
+    }
+
     return this.listClassesForInstitution(
       institutionId,
       undefined,
-      authSession.activeCampusId ?? undefined,
+      scopedCampusId,
     );
   }
 

@@ -57,6 +57,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - ERP frontend routes and feature modules for student create/list/detail/edit
 - A shallow academics structure slice exists with:
   - tenant-scoped class create/list/detail/update APIs resolved from the subdomain
+  - optional campus-filtered class lookup for campus-safe downstream forms
   - nested section create/edit reconciliation owned by NestJS
   - campus assignment stored on the backend
   - ERP frontend routes and feature modules for class create/list/detail/edit
@@ -65,6 +66,8 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - backend-owned current-year enforcement during create and edit
   - ERP frontend route and feature module for academic year create/edit flows
   - backend-owned current student enrollment tied to academic year plus class/section
+  - backend-enforced campus/class/section consistency for student placement and enrollment writes
+  - ERP student forms now use campus-scoped class and section selections instead of free-text IDs
   - ERP frontend route and feature module for student creation/detail/listing
 - A minimal staff slice now exists with:
   - tenant-scoped staff list/detail/create/update APIs resolved from the subdomain

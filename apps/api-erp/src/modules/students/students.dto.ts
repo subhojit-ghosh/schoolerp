@@ -136,7 +136,13 @@ export class CurrentStudentEnrollmentDto {
   classId!: string;
 
   @ApiProperty()
+  className!: string;
+
+  @ApiProperty()
   sectionId!: string;
+
+  @ApiProperty()
+  sectionName!: string;
 }
 
 export class StudentDto {
@@ -162,7 +168,13 @@ export class StudentDto {
   classId!: string;
 
   @ApiProperty()
+  className!: string;
+
+  @ApiProperty()
   sectionId!: string;
+
+  @ApiProperty()
+  sectionName!: string;
 
   @ApiProperty()
   fullName!: string;

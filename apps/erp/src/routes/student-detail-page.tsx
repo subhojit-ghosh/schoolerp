@@ -196,7 +196,7 @@ export function StudentDetailPage() {
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              Admission {student.admissionNumber} • {student.classId} {student.sectionId} • {student.campusName}
+              Admission {student.admissionNumber} • {student.className} {student.sectionName} • {student.campusName}
             </p>
           </div>
         </div>
@@ -245,12 +245,12 @@ export function StudentDetailPage() {
                   </div>
                   <Separator />
                   <div>
-                    <p className="text-sm font-medium">{student.currentEnrollment.classId}</p>
+                    <p className="text-sm font-medium">{student.currentEnrollment.className}</p>
                     <p className="text-xs text-muted-foreground">Class</p>
                   </div>
                   <Separator />
                   <div>
-                    <p className="text-sm font-medium">{student.currentEnrollment.sectionId}</p>
+                    <p className="text-sm font-medium">{student.currentEnrollment.sectionName}</p>
                     <p className="text-xs text-muted-foreground">Section</p>
                   </div>
                 </>
