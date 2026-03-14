@@ -27,7 +27,7 @@ import {
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
-} from "@/components/entity-actions";
+} from "@/components/entities/entity-actions";
 
 type CampusOption = {
   id: string;

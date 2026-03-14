@@ -32,7 +32,7 @@ import { useClassesQuery } from "@/features/classes/api/use-classes";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
-} from "@/components/entity-actions";
+} from "@/components/entities/entity-actions";
 
 const DEFAULT_GUARDIAN: StudentFormValues["guardians"][number] = {
   name: "",

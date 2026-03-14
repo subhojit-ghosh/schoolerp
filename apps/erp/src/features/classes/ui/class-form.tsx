@@ -7,7 +7,7 @@ import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
   EntityToolbarSecondaryAction,
-} from "@/components/entity-actions";
+} from "@/components/entities/entity-actions";
 import {
   Field,
   FieldContent,

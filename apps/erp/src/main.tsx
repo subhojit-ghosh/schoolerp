@@ -10,7 +10,7 @@ import {
   applyTenantBranding,
   readCachedTenantBranding,
 } from "@/lib/tenant-branding";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const cachedBranding = readCachedTenantBranding();
 

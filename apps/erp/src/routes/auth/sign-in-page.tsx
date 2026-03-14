@@ -1,6 +1,4 @@
 import { Navigate, useNavigate } from "react-router";
-import { AuthLayout } from "@/components/auth-layout";
-import { LoginForm } from "@/components/login-form";
 import { ERP_ROUTES } from "@/constants/routes";
 import {
   useAuthErrorMessage,
@@ -8,6 +6,8 @@ import {
 } from "@/features/auth/api/use-auth";
 import type { SignInFormValues } from "@/features/auth/model/auth-form-schema";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { AuthLayout } from "@/features/auth/ui/auth-layout";
+import { LoginForm } from "@/features/auth/ui/login-form";
 import { buildTenantAppUrl } from "@/lib/tenant-context";
 
 export function SignInPage() {

@@ -14,12 +14,12 @@ import {
 import { FieldError } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import { Label } from "@repo/ui/components/ui/label";
+import { ERP_ROUTES } from "@/constants/routes";
 import { createInstitution } from "@/features/onboarding/api/create-institution";
 import {
   onboardingFormSchema,
   type OnboardingFormValues,
 } from "@/features/onboarding/model/onboarding-form-schema";
-import { ERP_ROUTES } from "@/constants/routes";
 import { buildTenantAppUrl } from "@/lib/tenant-context";
 
 export function SignupForm() {

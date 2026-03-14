@@ -1,6 +1,6 @@
 import { useMemo } from "react";
-import { Link, useLocation } from "react-router";
-import { IconArrowRight, IconPlus, IconSearch } from "@tabler/icons-react";
+import { Link, Outlet, useLocation } from "react-router";
+import { IconPencil, IconPlus, IconSearch } from "@tabler/icons-react";
 import {
   createColumnHelper,
   functionalUpdate,
@@ -22,53 +22,54 @@ import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
   EntityRowAction,
-} from "@/components/entity-actions";
-import { EntityListPage } from "@/components/entity-list-page";
-import { ServerDataTable, SortIcon } from "@/components/server-data-table";
+} from "@/components/entities/entity-actions";
+import { EntityListPage } from "@/components/entities/entity-list-page";
+import { ServerDataTable, SortIcon } from "@/components/data-display/server-data-table";
+import { buildAcademicYearEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
-import { buildStaffDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {
   getActiveContext,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { useStaffQuery } from "@/features/staff/api/use-staff";
+import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import {
-  STAFF_LIST_SORT_FIELDS,
-  STAFF_PAGE_COPY,
-} from "@/features/staff/model/staff-list.constants";
+  ACADEMIC_YEAR_LIST_SORT_FIELDS,
+  ACADEMIC_YEARS_PAGE_COPY,
+} from "@/features/academic-years/model/academic-year-list.constants";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { appendSearch } from "@/lib/routes";
 
-type StaffRow = {
+type AcademicYearRow = {
   id: string;
-  campusName: string;
-  email: string | null;
-  memberType: string;
-  mobile: string;
   name: string;
-  role: {
-    id: string;
-    name: string;
-    slug: string;
-  } | null;
-  status: "active" | "inactive" | "suspended";
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  status: string;
 };
 
-const columnHelper = createColumnHelper<StaffRow>();
+const columnHelper = createColumnHelper<AcademicYearRow>();
 const VALID_SORT_FIELDS = [
-  STAFF_LIST_SORT_FIELDS.CAMPUS,
-  STAFF_LIST_SORT_FIELDS.NAME,
-  STAFF_LIST_SORT_FIELDS.STATUS,
+  ACADEMIC_YEAR_LIST_SORT_FIELDS.CURRENT,
+  ACADEMIC_YEAR_LIST_SORT_FIELDS.END_DATE,
+  ACADEMIC_YEAR_LIST_SORT_FIELDS.NAME,
+  ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE,
 ] as const;
 
-export function StaffPage() {
+function formatDateRange(startDate: string, endDate: string) {
+  return `${startDate} to ${endDate}`;
+}
+
+export function AcademicYearsPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageStaff = isStaffContext(session);
-  const managedInstitutionId = canManageStaff ? institutionId : undefined;
+  const canManageAcademicYears = isStaffContext(session);
+  const managedInstitutionId = canManageAcademicYears
+    ? institutionId
+    : undefined;
   const {
     queryState,
     searchInput,
@@ -77,12 +78,12 @@ export function StaffPage() {
     setSearchInput,
     setSorting,
   } = useEntityListQueryState({
-    defaultSortBy: STAFF_LIST_SORT_FIELDS.NAME,
-    defaultSortOrder: SORT_ORDERS.ASC,
+    defaultSortBy: ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE,
+    defaultSortOrder: SORT_ORDERS.DESC,
     validSorts: VALID_SORT_FIELDS,
   });
 
-  const staffQuery = useStaffQuery(managedInstitutionId, {
+  const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId, {
     limit: queryState.pageSize,
     order: queryState.sortOrder,
     page: queryState.page,
@@ -91,10 +92,10 @@ export function StaffPage() {
   });
 
   const rows = useMemo(
-    () => (staffQuery.data?.rows ?? []) as StaffRow[],
-    [staffQuery.data?.rows],
+    () => (academicYearsQuery.data?.rows ?? []) as AcademicYearRow[],
+    [academicYearsQuery.data?.rows],
   );
-  const error = staffQuery.error as Error | null | undefined;
+  const error = academicYearsQuery.error as Error | null | undefined;
 
   const sortingState = useMemo<SortingState>(() => {
     return [
@@ -111,13 +112,13 @@ export function StaffPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(STAFF_LIST_SORT_FIELDS.NAME)}
+            onClick={() => setSorting(ACADEMIC_YEAR_LIST_SORT_FIELDS.NAME)}
             type="button"
           >
-            Staff
+            Academic year
             <SortIcon
               direction={
-                queryState.sortBy === STAFF_LIST_SORT_FIELDS.NAME
+                queryState.sortBy === ACADEMIC_YEAR_LIST_SORT_FIELDS.NAME
                   ? queryState.sortOrder
                   : false
               }
@@ -129,7 +130,7 @@ export function StaffPage() {
             <Button asChild className="h-auto px-0 text-left" variant="link">
               <Link
                 to={appendSearch(
-                  buildStaffDetailRoute(row.original.id),
+                  buildAcademicYearEditRoute(row.original.id),
                   location.search,
                 )}
               >
@@ -137,23 +138,24 @@ export function StaffPage() {
               </Link>
             </Button>
             <p className="text-sm text-muted-foreground">
-              {row.original.mobile}
-              {row.original.email ? ` • ${row.original.email}` : ""}
+              {formatDateRange(row.original.startDate, row.original.endDate)}
             </p>
           </div>
         ),
       }),
-      columnHelper.accessor("campusName", {
+      columnHelper.accessor("startDate", {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(STAFF_LIST_SORT_FIELDS.CAMPUS)}
+            onClick={() =>
+              setSorting(ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE)
+            }
             type="button"
           >
-            Campus
+            Start
             <SortIcon
               direction={
-                queryState.sortBy === STAFF_LIST_SORT_FIELDS.CAMPUS
+                queryState.sortBy === ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE
                   ? queryState.sortOrder
                   : false
               }
@@ -161,44 +163,55 @@ export function StaffPage() {
           </button>
         ),
       }),
-      columnHelper.accessor("role", {
-        header: "Role",
-        cell: ({ getValue, row }) => (
-          <div className="flex flex-wrap gap-1">
-            {getValue() ? (
-              <Badge variant="outline">{getValue()?.name}</Badge>
-            ) : (
-              <span className="text-sm text-muted-foreground">No role</span>
-            )}
-            <Badge variant="outline" className="capitalize">
-              {row.original.memberType}
-            </Badge>
-          </div>
+      columnHelper.accessor("endDate", {
+        header: () => (
+          <button
+            className="flex items-center font-medium hover:text-foreground"
+            onClick={() => setSorting(ACADEMIC_YEAR_LIST_SORT_FIELDS.END_DATE)}
+            type="button"
+          >
+            End
+            <SortIcon
+              direction={
+                queryState.sortBy === ACADEMIC_YEAR_LIST_SORT_FIELDS.END_DATE
+                  ? queryState.sortOrder
+                  : false
+              }
+            />
+          </button>
         ),
+      }),
+      columnHelper.accessor("isCurrent", {
+        header: () => (
+          <button
+            className="flex items-center font-medium hover:text-foreground"
+            onClick={() => setSorting(ACADEMIC_YEAR_LIST_SORT_FIELDS.CURRENT)}
+            type="button"
+          >
+            Current
+            <SortIcon
+              direction={
+                queryState.sortBy === ACADEMIC_YEAR_LIST_SORT_FIELDS.CURRENT
+                  ? queryState.sortOrder
+                  : false
+              }
+            />
+          </button>
+        ),
+        cell: ({ row }) =>
+          row.original.isCurrent ? (
+            <Badge>Current</Badge>
+          ) : (
+            <Badge variant="outline" className="text-muted-foreground">
+              Archived
+            </Badge>
+          ),
       }),
       columnHelper.accessor("status", {
-        header: () => (
-          <button
-            className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(STAFF_LIST_SORT_FIELDS.STATUS)}
-            type="button"
-          >
-            Status
-            <SortIcon
-              direction={
-                queryState.sortBy === STAFF_LIST_SORT_FIELDS.STATUS
-                  ? queryState.sortOrder
-                  : false
-              }
-            />
-          </button>
-        ),
+        header: "Status",
         cell: ({ getValue }) => (
-          <Badge
-            variant={getValue() === "active" ? "secondary" : "outline"}
-            className="capitalize"
-          >
-            {getValue()}
+          <Badge variant="outline" className="capitalize text-muted-foreground">
+            {getValue().toLowerCase()}
           </Badge>
         ),
       }),
@@ -209,12 +222,12 @@ export function StaffPage() {
             <EntityRowAction asChild>
               <Link
                 to={appendSearch(
-                  buildStaffDetailRoute(row.original.id),
+                  buildAcademicYearEditRoute(row.original.id),
                   location.search,
                 )}
               >
-                Open record
-                <IconArrowRight className="size-3" />
+                <IconPencil className="size-3" />
+                Edit
               </Link>
             </EntityRowAction>
           </div>
@@ -225,8 +238,8 @@ export function StaffPage() {
   );
 
   const table = useReactTable({
-    columns,
     data: rows,
+    columns,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     manualSorting: true,
@@ -243,8 +256,8 @@ export function StaffPage() {
 
       setPage(nextPagination.pageIndex + 1);
     },
-    pageCount: staffQuery.data?.pageCount ?? 1,
-    rowCount: staffQuery.data?.total ?? 0,
+    pageCount: academicYearsQuery.data?.pageCount ?? 1,
+    rowCount: academicYearsQuery.data?.total ?? 0,
     state: {
       pagination: {
         pageIndex: queryState.page - 1,
@@ -258,24 +271,23 @@ export function StaffPage() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{STAFF_PAGE_COPY.TITLE}</CardTitle>
+          <CardTitle>{ACADEMIC_YEARS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session before managing staff
-            records.
+            Sign in with an institution-backed session to manage academic years.
           </CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
-  if (!canManageStaff) {
+  if (!canManageAcademicYears) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{STAFF_PAGE_COPY.TITLE}</CardTitle>
+          <CardTitle>{ACADEMIC_YEARS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Staff management is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            Academic-year administration is available in Staff view. You are
+            currently in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -288,14 +300,16 @@ export function StaffPage() {
     <EntityListPage
       actions={
         <EntityPagePrimaryAction asChild>
-          <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
+          <Link
+            to={appendSearch(ERP_ROUTES.ACADEMIC_YEAR_CREATE, location.search)}
+          >
             <IconPlus className="size-4" />
-            Add staff
+            New academic year
           </Link>
         </EntityPagePrimaryAction>
       }
-      description={STAFF_PAGE_COPY.DESCRIPTION}
-      title={STAFF_PAGE_COPY.TITLE}
+      description={ACADEMIC_YEARS_PAGE_COPY.DESCRIPTION}
+      title={ACADEMIC_YEARS_PAGE_COPY.TITLE}
       toolbar={
         <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
           <div className="flex flex-wrap items-center gap-3">
@@ -303,7 +317,7 @@ export function StaffPage() {
               <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 className="h-11 w-full max-w-md rounded-lg border-border/70 bg-background pl-10 shadow-none"
-                placeholder={STAFF_PAGE_COPY.SEARCH_PLACEHOLDER}
+                placeholder={ACADEMIC_YEARS_PAGE_COPY.SEARCH_PLACEHOLDER}
                 value={searchInput}
                 onChange={(event) => setSearchInput(event.target.value)}
               />
@@ -316,34 +330,40 @@ export function StaffPage() {
         emptyAction={
           !isFiltered ? (
             <EntityEmptyStateAction asChild>
-              <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
+              <Link
+                to={appendSearch(
+                  ERP_ROUTES.ACADEMIC_YEAR_CREATE,
+                  location.search,
+                )}
+              >
                 <IconPlus className="size-4" />
-                Add first staff
+                Create first academic year
               </Link>
             </EntityEmptyStateAction>
-          ) : undefined
+          ) : null
         }
         emptyDescription={
           isFiltered
-            ? STAFF_PAGE_COPY.EMPTY_FILTERED_DESCRIPTION
-            : STAFF_PAGE_COPY.EMPTY_DESCRIPTION
+            ? ACADEMIC_YEARS_PAGE_COPY.EMPTY_FILTERED_DESCRIPTION
+            : ACADEMIC_YEARS_PAGE_COPY.EMPTY_DESCRIPTION
         }
         emptyTitle={
           isFiltered
-            ? STAFF_PAGE_COPY.EMPTY_FILTERED_TITLE
-            : STAFF_PAGE_COPY.EMPTY_TITLE
+            ? ACADEMIC_YEARS_PAGE_COPY.EMPTY_FILTERED_TITLE
+            : ACADEMIC_YEARS_PAGE_COPY.EMPTY_TITLE
         }
         errorDescription={error?.message}
-        errorTitle={STAFF_PAGE_COPY.ERROR_TITLE}
-        isError={staffQuery.isError}
-        isLoading={staffQuery.isLoading}
+        errorTitle={ACADEMIC_YEARS_PAGE_COPY.ERROR_TITLE}
+        isError={academicYearsQuery.isError}
+        isLoading={academicYearsQuery.isLoading}
         onSearchChange={setSearchInput}
-        searchPlaceholder={STAFF_PAGE_COPY.SEARCH_PLACEHOLDER}
+        searchPlaceholder={ACADEMIC_YEARS_PAGE_COPY.SEARCH_PLACEHOLDER}
         searchValue={searchInput}
         showSearch={false}
         table={table}
-        totalRows={staffQuery.data?.total ?? 0}
+        totalRows={academicYearsQuery.data?.total ?? 0}
       />
+      <Outlet />
     </EntityListPage>
   );
 }

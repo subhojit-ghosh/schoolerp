@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { RouteEntitySheet } from "@/components/route-entity-sheet";
+import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useCreateCampusMutation } from "@/features/campuses/api/use-campuses";
 import {

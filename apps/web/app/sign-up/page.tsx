@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@repo/ui/components/ui/button";
 import { WEB_ROUTES } from "@/constants/routes";
-import { SignupForm } from "@/components/signup-form";
+import { SignupForm } from "@/features/onboarding/ui/signup-form";
 
 export default function SignUpPage() {
   return (

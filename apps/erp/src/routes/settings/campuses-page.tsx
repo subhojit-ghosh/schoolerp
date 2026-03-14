@@ -20,9 +20,9 @@ import {
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
-} from "@/components/entity-actions";
-import { EntityListPage } from "@/components/entity-list-page";
-import { ServerDataTable, SortIcon } from "@/components/server-data-table";
+} from "@/components/entities/entity-actions";
+import { EntityListPage } from "@/components/entities/entity-list-page";
+import { ServerDataTable, SortIcon } from "@/components/data-display/server-data-table";
 import { SORT_ORDERS } from "@/constants/query";
 import { ERP_ROUTES } from "@/constants/routes";
 import {

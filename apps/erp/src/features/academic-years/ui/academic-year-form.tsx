@@ -5,7 +5,7 @@ import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
-} from "@/components/entity-actions";
+} from "@/components/entities/entity-actions";
 import {
   Field,
   FieldContent,

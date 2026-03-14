@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { EntitySheet } from "@/components/entity-sheet";
+import { EntitySheet } from "@/components/entities/entity-sheet";
 import { appendSearch } from "@/lib/routes";
 
 type RouteEntitySheetProps = {

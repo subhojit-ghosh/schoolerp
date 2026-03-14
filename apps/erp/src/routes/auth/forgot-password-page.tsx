@@ -14,7 +14,7 @@ import {
   type ForgotPasswordFormValues,
 } from "@/features/auth/model/auth-form-schema";
 import { ERP_ROUTES } from "@/constants/routes";
-import { AuthLayout } from "@/components/auth-layout";
+import { AuthLayout } from "@/features/auth/ui/auth-layout";
 
 export function ForgotPasswordPage() {
   const forgotPasswordMutation = useForgotPasswordMutation();

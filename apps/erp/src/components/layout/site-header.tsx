@@ -30,7 +30,6 @@ import {
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
 import { cn } from "@repo/ui/lib/utils";
-import { ThemeDrawer } from "@/components/theme-drawer";
 import {
   useSelectCampusMutation,
   useSelectContextMutation,
@@ -40,6 +39,7 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { ThemeDrawer } from "@/features/settings/ui/theme-drawer";
 import { ERP_TOAST_MESSAGES } from "@/lib/toast-messages";
 
 const FULLSCREEN_CHANGE_EVENT = "fullscreenchange";

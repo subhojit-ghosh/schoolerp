@@ -18,12 +18,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
-import { EntityListPage } from "@/components/entity-list-page";
+import { EntityListPage } from "@/components/entities/entity-list-page";
 import {
   EntityRowAction,
   EntityToolbarSecondaryAction,
-} from "@/components/entity-actions";
-import { ServerDataTable, SortIcon } from "@/components/server-data-table";
+} from "@/components/entities/entity-actions";
+import { ServerDataTable, SortIcon } from "@/components/data-display/server-data-table";
 import { SORT_ORDERS } from "@/constants/query";
 import { buildGuardianDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {

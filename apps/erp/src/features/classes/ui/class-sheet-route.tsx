@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
-import { RouteEntitySheet } from "@/components/route-entity-sheet";
+import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import {
   useClassQuery,

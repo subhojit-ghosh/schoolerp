@@ -16,7 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
-import { SectionCards } from "@/components/section-cards";
+import { SectionCards } from "@/components/data-display/section-cards";
 import { getActiveContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { ERP_ROUTES } from "@/constants/routes";

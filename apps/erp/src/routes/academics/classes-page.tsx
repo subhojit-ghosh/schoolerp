@@ -33,14 +33,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
-import { ConfirmDialog } from "@/components/confirm-dialog";
+import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
   EntityRowAction,
-} from "@/components/entity-actions";
-import { EntityListPage } from "@/components/entity-list-page";
-import { ServerDataTable, SortIcon } from "@/components/server-data-table";
+} from "@/components/entities/entity-actions";
+import { EntityListPage } from "@/components/entities/entity-list-page";
+import { ServerDataTable, SortIcon } from "@/components/data-display/server-data-table";
 import { buildClassEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
