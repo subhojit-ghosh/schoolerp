@@ -1,5 +1,5 @@
 import type { Icon } from "@tabler/icons-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router";
 import { cn } from "@repo/ui/lib/utils";
 import {
   SidebarGroup,

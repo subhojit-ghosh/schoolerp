@@ -10,7 +10,7 @@ import { Input } from "@repo/ui/components/ui/input";
 import { Label } from "@repo/ui/components/ui/label";
 import { cn } from "@repo/ui/lib/utils";
 import { Controller, useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 type LoginFormProps = React.ComponentProps<"div"> & {
   errorMessage?: string;

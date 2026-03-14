@@ -8,7 +8,7 @@ import {
   IconMoodKid,
   IconUsers,
 } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
 import { SectionCards } from "@/components/section-cards";

@@ -1,7 +1,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button } from "@repo/ui/components/ui/button";
 import { FieldError } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";

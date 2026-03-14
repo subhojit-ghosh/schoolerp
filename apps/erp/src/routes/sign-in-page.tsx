@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router";
 import { AuthLayout } from "@/components/auth-layout";
 import { LoginForm } from "@/components/login-form";
 import { ERP_ROUTES } from "@/constants/routes";

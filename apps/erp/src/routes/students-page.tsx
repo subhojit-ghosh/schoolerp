@@ -1,6 +1,6 @@
 import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
 import { useMemo, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router";
 import {
   IconArrowRight,
   IconBuildingEstate,

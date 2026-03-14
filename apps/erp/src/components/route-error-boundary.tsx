@@ -8,7 +8,7 @@ import {
   isRouteErrorResponse,
   useNavigate,
   useRouteError,
-} from "react-router-dom";
+} from "react-router";
 import { Button } from "@repo/ui/components/ui/button";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";

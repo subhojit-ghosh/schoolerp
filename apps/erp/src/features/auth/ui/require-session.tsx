@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate } from "react-router";
 import { readCachedTenantBranding } from "@/lib/tenant-branding";
 import { useSessionQuery } from "../api/use-auth";
 import { useAuthStore } from "../model/auth-store";

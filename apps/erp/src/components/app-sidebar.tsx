@@ -11,7 +11,7 @@ import {
   IconUsers,
   IconUsersGroup,
 } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { getActiveContext, isStaffContext } from "@/features/auth/model/auth-context";

@@ -229,6 +229,11 @@ export function ExampleForm() {
 
 > **For AI agents:** When you discover something non-obvious about the framework, library version behavior, or a gotcha that bit us, add it here immediately so future agents do not repeat it.
 
+### React Router v7
+- In `apps/erp`, prefer `react-router` imports for route APIs, hooks, and components such as `Link`, `Navigate`, `Outlet`, `createBrowserRouter`, `useNavigate`, `useLocation`, `useParams`, and `useSearchParams`.
+- For DOM-specific providers in browser apps, import `RouterProvider` from `react-router/dom`.
+- Do not add new `react-router-dom` imports for React Router v7 work unless a migration step explicitly requires the compatibility package.
+
 ### Vite + Tenant branding
 - For the ERP app, tenant branding should be fetched at bootstrap and applied via CSS variables before or during initial render.
 - A short loading shell is acceptable. This app is an authenticated ERP, not an SEO-first public site.

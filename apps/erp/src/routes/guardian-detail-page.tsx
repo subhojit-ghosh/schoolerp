@@ -1,6 +1,6 @@
 import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
 import { useMemo } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams } from "react-router";
 import { toast } from "sonner";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";

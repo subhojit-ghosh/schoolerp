@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { TenantBranding } from "@repo/contracts";
-import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router";
+import { RouterProvider } from "react-router/dom";
 import { DashboardLayout } from "@/components/dashboard-layout";
 import { RouteErrorBoundary } from "@/components/route-error-boundary";
 import { RequireSession } from "@/features/auth/ui/require-session";

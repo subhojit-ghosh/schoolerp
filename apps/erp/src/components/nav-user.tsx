@@ -1,5 +1,5 @@
 import { IconDotsVertical, IconLogout } from "@tabler/icons-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Avatar,
