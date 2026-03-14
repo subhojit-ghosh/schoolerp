@@ -14,8 +14,6 @@ export class ListStaffQueryDto {
 
   @ApiPropertyOptional({ type: Number })
   limit?: number;
-
-  @ApiPropertyOptional()
   q?: string;
 
   @ApiPropertyOptional({
@@ -30,27 +28,17 @@ export class ListStaffQueryDto {
 }
 
 export class StaffRoleDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   slug!: string;
 }
 
 export class CreateStaffBodyDto {
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   mobile!: string;
 
   @ApiPropertyOptional({ nullable: true })
   email?: string | null;
-
-  @ApiProperty()
   campusId!: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -65,19 +53,10 @@ export class CreateStaffBodyDto {
 export class UpdateStaffBodyDto extends CreateStaffBodyDto {}
 
 export class StaffDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   userId!: string;
-
-  @ApiProperty()
   institutionId!: string;
-
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   mobile!: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -87,11 +66,7 @@ export class StaffDto {
     enum: Object.values(MEMBER_TYPES),
   })
   memberType!: MemberType;
-
-  @ApiProperty()
   campusId!: string;
-
-  @ApiProperty()
   campusName!: string;
 
   @ApiProperty({
@@ -109,16 +84,8 @@ export class ListStaffResultDto {
     isArray: true,
   })
   rows!: StaffDto[];
-
-  @ApiProperty()
   total!: number;
-
-  @ApiProperty()
   page!: number;
-
-  @ApiProperty()
   pageSize!: number;
-
-  @ApiProperty()
   pageCount!: number;
 }

@@ -16,40 +16,26 @@ import {
 } from "../../constants";
 
 export class SignUpBodyDto {
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   mobile!: string;
 
   @ApiPropertyOptional({ nullable: true })
   email?: string | null;
-
-  @ApiProperty()
   password!: string;
-
-  @ApiPropertyOptional()
   tenantSlug?: string;
 }
 
 export class SignInBodyDto {
-  @ApiProperty()
   identifier!: string;
-
-  @ApiProperty()
   password!: string;
-
-  @ApiPropertyOptional()
   tenantSlug?: string;
 }
 
 export class ForgotPasswordBodyDto {
-  @ApiProperty()
   identifier!: string;
 }
 
 export class ForgotPasswordResponseDto {
-  @ApiProperty()
   success!: boolean;
 
   @ApiPropertyOptional({ nullable: true })
@@ -57,20 +43,15 @@ export class ForgotPasswordResponseDto {
 }
 
 export class ResetPasswordBodyDto {
-  @ApiProperty()
   token!: string;
-
-  @ApiProperty()
   password!: string;
 }
 
 export class ResetPasswordResponseDto {
-  @ApiProperty()
   success!: boolean;
 }
 
 export class SwitchCampusBodyDto {
-  @ApiProperty()
   campusId!: string;
 }
 
@@ -82,13 +63,8 @@ export class SwitchContextBodyDto {
 }
 
 export class AuthUserDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   mobile!: string;
 
   @ApiProperty({ nullable: true })
@@ -96,16 +72,9 @@ export class AuthUserDto {
 }
 
 export class AuthOrganizationDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   shortName!: string;
-
-  @ApiProperty()
   slug!: string;
 
   @ApiProperty({ nullable: true })
@@ -116,14 +85,8 @@ export class AuthOrganizationDto {
 
   @ApiProperty({ nullable: true })
   faviconUrl!: string | null;
-
-  @ApiProperty()
   primaryColor!: string;
-
-  @ApiProperty()
   accentColor!: string;
-
-  @ApiProperty()
   sidebarColor!: string;
 
   @ApiProperty({
@@ -133,22 +96,13 @@ export class AuthOrganizationDto {
 }
 
 export class AuthCampusDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   organizationId!: string;
-
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   slug!: string;
 
   @ApiProperty({ nullable: true })
   code!: string | null;
-
-  @ApiProperty()
   isDefault!: boolean;
 
   @ApiProperty({
@@ -158,16 +112,9 @@ export class AuthCampusDto {
 }
 
 export class AuthMembershipDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   organizationId!: string;
-
-  @ApiProperty()
   organizationName!: string;
-
-  @ApiProperty()
   organizationSlug!: string;
 
   @ApiProperty({
@@ -203,22 +150,11 @@ export class AuthAccessContextDto {
 }
 
 export class AuthLinkedStudentDto {
-  @ApiProperty()
   studentId!: string;
-
-  @ApiProperty()
   membershipId!: string;
-
-  @ApiProperty()
   fullName!: string;
-
-  @ApiProperty()
   admissionNumber!: string;
-
-  @ApiProperty()
   campusId!: string;
-
-  @ApiProperty()
   campusName!: string;
 
   @ApiProperty({

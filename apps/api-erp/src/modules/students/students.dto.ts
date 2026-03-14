@@ -14,8 +14,6 @@ export class ListStudentsQueryDto {
 
   @ApiPropertyOptional({ type: Number })
   limit?: number;
-
-  @ApiPropertyOptional()
   q?: string;
 
   @ApiPropertyOptional({
@@ -30,10 +28,7 @@ export class ListStudentsQueryDto {
 }
 
 export class CreateGuardianLinkBodyDto {
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   mobile!: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -43,39 +38,23 @@ export class CreateGuardianLinkBodyDto {
     enum: Object.values(GUARDIAN_RELATIONSHIPS),
   })
   relationship!: GuardianRelationship;
-
-  @ApiProperty()
   isPrimary!: boolean;
 }
 
 export class CurrentStudentEnrollmentBodyDto {
-  @ApiProperty()
   academicYearId!: string;
-
-  @ApiProperty()
   classId!: string;
-
-  @ApiProperty()
   sectionId!: string;
 }
 
 export class CreateStudentBodyDto {
-  @ApiProperty()
   admissionNumber!: string;
-
-  @ApiProperty()
   firstName!: string;
 
   @ApiPropertyOptional({ nullable: true })
   lastName?: string | null;
-
-  @ApiProperty()
   classId!: string;
-
-  @ApiProperty()
   sectionId!: string;
-
-  @ApiProperty()
   campusId!: string;
 
   @ApiProperty({
@@ -92,22 +71,13 @@ export class CreateStudentBodyDto {
 }
 
 export class UpdateStudentBodyDto {
-  @ApiProperty()
   admissionNumber!: string;
-
-  @ApiProperty()
   firstName!: string;
 
   @ApiPropertyOptional({ nullable: true })
   lastName?: string | null;
-
-  @ApiProperty()
   classId!: string;
-
-  @ApiProperty()
   sectionId!: string;
-
-  @ApiProperty()
   campusId!: string;
 
   @ApiProperty({
@@ -124,16 +94,11 @@ export class UpdateStudentBodyDto {
 }
 
 export class StudentGuardianDto {
-  @ApiProperty()
   membershipId!: string;
 
   @ApiPropertyOptional({ nullable: true })
   userId!: string | null;
-
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   mobile!: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -143,69 +108,33 @@ export class StudentGuardianDto {
     enum: Object.values(GUARDIAN_RELATIONSHIPS),
   })
   relationship!: GuardianRelationship;
-
-  @ApiProperty()
   isPrimary!: boolean;
 }
 
 export class CurrentStudentEnrollmentDto {
-  @ApiProperty()
   academicYearId!: string;
-
-  @ApiProperty()
   academicYearName!: string;
-
-  @ApiProperty()
   classId!: string;
-
-  @ApiProperty()
   className!: string;
-
-  @ApiProperty()
   sectionId!: string;
-
-  @ApiProperty()
   sectionName!: string;
 }
 
 export class StudentDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   membershipId!: string;
-
-  @ApiProperty()
   institutionId!: string;
-
-  @ApiProperty()
   admissionNumber!: string;
-
-  @ApiProperty()
   firstName!: string;
 
   @ApiPropertyOptional({ nullable: true })
   lastName!: string | null;
-
-  @ApiProperty()
   classId!: string;
-
-  @ApiProperty()
   className!: string;
-
-  @ApiProperty()
   sectionId!: string;
-
-  @ApiProperty()
   sectionName!: string;
-
-  @ApiProperty()
   fullName!: string;
-
-  @ApiProperty()
   campusId!: string;
-
-  @ApiProperty()
   campusName!: string;
 
   @ApiProperty({
@@ -227,16 +156,9 @@ export class StudentDto {
 }
 
 export class StudentOptionDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   admissionNumber!: string;
-
-  @ApiProperty()
   fullName!: string;
-
-  @ApiProperty()
   campusName!: string;
 }
 
@@ -246,16 +168,8 @@ export class ListStudentsResultDto {
     isArray: true,
   })
   rows!: StudentDto[];
-
-  @ApiProperty()
   total!: number;
-
-  @ApiProperty()
   page!: number;
-
-  @ApiProperty()
   pageSize!: number;
-
-  @ApiProperty()
   pageCount!: number;
 }

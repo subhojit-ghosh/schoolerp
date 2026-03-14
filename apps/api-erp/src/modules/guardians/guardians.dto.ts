@@ -14,8 +14,6 @@ export class ListGuardiansQueryDto {
 
   @ApiPropertyOptional({ type: Number })
   limit?: number;
-
-  @ApiPropertyOptional()
   q?: string;
 
   @ApiPropertyOptional({
@@ -30,29 +28,21 @@ export class ListGuardiansQueryDto {
 }
 
 export class UpdateGuardianBodyDto {
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   mobile!: string;
 
   @ApiPropertyOptional({ nullable: true })
   email?: string | null;
-
-  @ApiProperty()
   campusId!: string;
 }
 
 export class LinkGuardianStudentBodyDto {
-  @ApiProperty()
   studentId!: string;
 
   @ApiProperty({
     enum: Object.values(GUARDIAN_RELATIONSHIPS),
   })
   relationship!: GuardianRelationship;
-
-  @ApiProperty()
   isPrimary!: boolean;
 }
 
@@ -61,62 +51,36 @@ export class UpdateGuardianStudentLinkBodyDto {
     enum: Object.values(GUARDIAN_RELATIONSHIPS),
   })
   relationship!: GuardianRelationship;
-
-  @ApiProperty()
   isPrimary!: boolean;
 }
 
 export class GuardianLinkedStudentDto {
-  @ApiProperty()
   studentId!: string;
-
-  @ApiProperty()
   membershipId!: string;
-
-  @ApiProperty()
   fullName!: string;
-
-  @ApiProperty()
   admissionNumber!: string;
-
-  @ApiProperty()
   campusId!: string;
-
-  @ApiProperty()
   campusName!: string;
 
   @ApiProperty({
     enum: Object.values(GUARDIAN_RELATIONSHIPS),
   })
   relationship!: GuardianRelationship;
-
-  @ApiProperty()
   isPrimary!: boolean;
 }
 
 export class GuardianDto {
-  @ApiProperty()
   id!: string;
 
   @ApiPropertyOptional({ nullable: true })
   userId!: string | null;
-
-  @ApiProperty()
   institutionId!: string;
-
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   mobile!: string;
 
   @ApiPropertyOptional({ nullable: true })
   email!: string | null;
-
-  @ApiProperty()
   campusId!: string;
-
-  @ApiProperty()
   campusName!: string;
 
   @ApiProperty({
@@ -137,16 +101,8 @@ export class ListGuardiansResultDto {
     isArray: true,
   })
   rows!: GuardianDto[];
-
-  @ApiProperty()
   total!: number;
-
-  @ApiProperty()
   page!: number;
-
-  @ApiProperty()
   pageSize!: number;
-
-  @ApiProperty()
   pageCount!: number;
 }

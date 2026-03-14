@@ -749,14 +749,6 @@
             }
           },
           {
-            "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "sort",
             "required": false,
             "in": "query",
@@ -779,6 +771,14 @@
                 "asc",
                 "desc"
               ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -972,14 +972,6 @@
             }
           },
           {
-            "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "sort",
             "required": false,
             "in": "query",
@@ -1002,6 +994,14 @@
                 "asc",
                 "desc"
               ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -1195,14 +1195,6 @@
             }
           },
           {
-            "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "sort",
             "required": false,
             "in": "query",
@@ -1225,6 +1217,14 @@
                 "asc",
                 "desc"
               ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -1495,14 +1495,6 @@
             }
           },
           {
-            "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "sort",
             "required": false,
             "in": "query",
@@ -1526,6 +1518,14 @@
                 "asc",
                 "desc"
               ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -2464,15 +2464,15 @@
       "SignUpBodyDto": {
         "type": "object",
         "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },
           "mobile": {
             "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
           },
           "password": {
             "type": "string"
@@ -2490,6 +2490,10 @@
       "AuthUserDto": {
         "type": "object",
         "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
           "id": {
             "type": "string"
           },
@@ -2498,34 +2502,18 @@
           },
           "mobile": {
             "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
           }
         },
         "required": [
+          "email",
           "id",
           "name",
-          "mobile",
-          "email"
+          "mobile"
         ]
       },
       "AuthMembershipDto": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "organizationId": {
-            "type": "string"
-          },
-          "organizationName": {
-            "type": "string"
-          },
-          "organizationSlug": {
-            "type": "string"
-          },
           "memberType": {
             "type": "string",
             "enum": [
@@ -2545,33 +2533,33 @@
           "primaryCampusId": {
             "type": "string",
             "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "organizationName": {
+            "type": "string"
+          },
+          "organizationSlug": {
+            "type": "string"
           }
         },
         "required": [
+          "memberType",
+          "status",
+          "primaryCampusId",
           "id",
           "organizationId",
           "organizationName",
-          "organizationSlug",
-          "memberType",
-          "status",
-          "primaryCampusId"
+          "organizationSlug"
         ]
       },
       "AuthOrganizationDto": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "shortName": {
-            "type": "string"
-          },
-          "slug": {
-            "type": "string"
-          },
           "institutionType": {
             "type": "string",
             "nullable": true
@@ -2584,6 +2572,25 @@
             "type": "string",
             "nullable": true
           },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "suspended"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "shortName": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
           "primaryColor": {
             "type": "string"
           },
@@ -2592,27 +2599,20 @@
           },
           "sidebarColor": {
             "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "active",
-              "suspended"
-            ]
           }
         },
         "required": [
+          "institutionType",
+          "logoUrl",
+          "faviconUrl",
+          "status",
           "id",
           "name",
           "shortName",
           "slug",
-          "institutionType",
-          "logoUrl",
-          "faviconUrl",
           "primaryColor",
           "accentColor",
-          "sidebarColor",
-          "status"
+          "sidebarColor"
         ]
       },
       "AuthAccessContextDto": {
@@ -2650,6 +2650,17 @@
       "AuthCampusDto": {
         "type": "object",
         "properties": {
+          "code": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
           "id": {
             "type": "string"
           },
@@ -2662,34 +2673,32 @@
           "slug": {
             "type": "string"
           },
-          "code": {
-            "type": "string",
-            "nullable": true
-          },
           "isDefault": {
             "type": "boolean"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "active",
-              "inactive"
-            ]
           }
         },
         "required": [
+          "code",
+          "status",
           "id",
           "organizationId",
           "name",
           "slug",
-          "code",
-          "isDefault",
-          "status"
+          "isDefault"
         ]
       },
       "AuthLinkedStudentDto": {
         "type": "object",
         "properties": {
+          "relationship": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "father",
+              "mother",
+              "guardian"
+            ]
+          },
           "studentId": {
             "type": "string"
           },
@@ -2707,25 +2716,16 @@
           },
           "campusName": {
             "type": "string"
-          },
-          "relationship": {
-            "type": "string",
-            "nullable": true,
-            "enum": [
-              "father",
-              "mother",
-              "guardian"
-            ]
           }
         },
         "required": [
+          "relationship",
           "studentId",
           "membershipId",
           "fullName",
           "admissionNumber",
           "campusId",
-          "campusName",
-          "relationship"
+          "campusName"
         ]
       },
       "AuthContextDto": {
@@ -2831,12 +2831,12 @@
       "ForgotPasswordResponseDto": {
         "type": "object",
         "properties": {
-          "success": {
-            "type": "boolean"
-          },
           "resetTokenPreview": {
             "type": "string",
             "nullable": true
+          },
+          "success": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -3192,18 +3192,9 @@
       "StudentGuardianDto": {
         "type": "object",
         "properties": {
-          "membershipId": {
-            "type": "string"
-          },
           "userId": {
             "type": "string",
             "nullable": true
-          },
-          "name": {
-            "type": "string"
-          },
-          "mobile": {
-            "type": "string"
           },
           "email": {
             "type": "string",
@@ -3217,15 +3208,24 @@
               "guardian"
             ]
           },
+          "membershipId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
           "isPrimary": {
             "type": "boolean"
           }
         },
         "required": [
+          "relationship",
           "membershipId",
           "name",
           "mobile",
-          "relationship",
           "isPrimary"
         ]
       },
@@ -3263,45 +3263,9 @@
       "StudentDto": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "membershipId": {
-            "type": "string"
-          },
-          "institutionId": {
-            "type": "string"
-          },
-          "admissionNumber": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
           "lastName": {
             "type": "string",
             "nullable": true
-          },
-          "classId": {
-            "type": "string"
-          },
-          "className": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          },
-          "sectionName": {
-            "type": "string"
-          },
-          "fullName": {
-            "type": "string"
-          },
-          "campusId": {
-            "type": "string"
-          },
-          "campusName": {
-            "type": "string"
           },
           "status": {
             "type": "string",
@@ -3324,9 +3288,47 @@
                 "$ref": "#/components/schemas/CurrentStudentEnrollmentDto"
               }
             ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "membershipId": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
           }
         },
         "required": [
+          "status",
+          "guardians",
           "id",
           "membershipId",
           "institutionId",
@@ -3338,9 +3340,7 @@
           "sectionName",
           "fullName",
           "campusId",
-          "campusName",
-          "status",
-          "guardians"
+          "campusName"
         ]
       },
       "ListStudentsResultDto": {
@@ -3399,12 +3399,6 @@
       "CreateGuardianLinkBodyDto": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string"
-          },
-          "mobile": {
-            "type": "string"
-          },
           "email": {
             "type": "string",
             "nullable": true
@@ -3417,14 +3411,20 @@
               "guardian"
             ]
           },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
           "isPrimary": {
             "type": "boolean"
           }
         },
         "required": [
+          "relationship",
           "name",
           "mobile",
-          "relationship",
           "isPrimary"
         ]
       },
@@ -3450,24 +3450,9 @@
       "CreateStudentBodyDto": {
         "type": "object",
         "properties": {
-          "admissionNumber": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
           "lastName": {
             "type": "string",
             "nullable": true
-          },
-          "classId": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          },
-          "campusId": {
-            "type": "string"
           },
           "guardians": {
             "type": "array",
@@ -3482,38 +3467,38 @@
                 "$ref": "#/components/schemas/CurrentStudentEnrollmentBodyDto"
               }
             ]
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
           }
         },
         "required": [
+          "guardians",
           "admissionNumber",
           "firstName",
           "classId",
           "sectionId",
-          "campusId",
-          "guardians"
+          "campusId"
         ]
       },
       "UpdateStudentBodyDto": {
         "type": "object",
         "properties": {
-          "admissionNumber": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
           "lastName": {
             "type": "string",
             "nullable": true
-          },
-          "classId": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          },
-          "campusId": {
-            "type": "string"
           },
           "guardians": {
             "type": "array",
@@ -3528,15 +3513,30 @@
                 "$ref": "#/components/schemas/CurrentStudentEnrollmentBodyDto"
               }
             ]
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
           }
         },
         "required": [
+          "guardians",
           "admissionNumber",
           "firstName",
           "classId",
           "sectionId",
-          "campusId",
-          "guardians"
+          "campusId"
         ]
       },
       "StaffRoleDto": {
@@ -3561,21 +3561,6 @@
       "StaffDto": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
-          "userId": {
-            "type": "string"
-          },
-          "institutionId": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "mobile": {
-            "type": "string"
-          },
           "email": {
             "type": "string",
             "nullable": true
@@ -3587,12 +3572,6 @@
               "student",
               "guardian"
             ]
-          },
-          "campusId": {
-            "type": "string"
-          },
-          "campusName": {
-            "type": "string"
           },
           "status": {
             "type": "string",
@@ -3609,18 +3588,39 @@
                 "$ref": "#/components/schemas/StaffRoleDto"
               }
             ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
           }
         },
         "required": [
+          "memberType",
+          "status",
           "id",
           "userId",
           "institutionId",
           "name",
           "mobile",
-          "memberType",
           "campusId",
-          "campusName",
-          "status"
+          "campusName"
         ]
       },
       "ListStaffResultDto": {
@@ -3656,18 +3656,9 @@
       "CreateStaffBodyDto": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string"
-          },
-          "mobile": {
-            "type": "string"
-          },
           "email": {
             "type": "string",
             "nullable": true
-          },
-          "campusId": {
-            "type": "string"
           },
           "roleId": {
             "type": "string",
@@ -3680,30 +3671,30 @@
               "inactive",
               "suspended"
             ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
           }
         },
         "required": [
+          "status",
           "name",
           "mobile",
-          "campusId",
-          "status"
+          "campusId"
         ]
       },
       "UpdateStaffBodyDto": {
         "type": "object",
         "properties": {
-          "name": {
-            "type": "string"
-          },
-          "mobile": {
-            "type": "string"
-          },
           "email": {
             "type": "string",
             "nullable": true
-          },
-          "campusId": {
-            "type": "string"
           },
           "roleId": {
             "type": "string",
@@ -3716,18 +3707,35 @@
               "inactive",
               "suspended"
             ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
           }
         },
         "required": [
+          "status",
           "name",
           "mobile",
-          "campusId",
-          "status"
+          "campusId"
         ]
       },
       "GuardianLinkedStudentDto": {
         "type": "object",
         "properties": {
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "father",
+              "mother",
+              "guardian"
+            ]
+          },
           "studentId": {
             "type": "string"
           },
@@ -3746,57 +3754,31 @@
           "campusName": {
             "type": "string"
           },
-          "relationship": {
-            "type": "string",
-            "enum": [
-              "father",
-              "mother",
-              "guardian"
-            ]
-          },
           "isPrimary": {
             "type": "boolean"
           }
         },
         "required": [
+          "relationship",
           "studentId",
           "membershipId",
           "fullName",
           "admissionNumber",
           "campusId",
           "campusName",
-          "relationship",
           "isPrimary"
         ]
       },
       "GuardianDto": {
         "type": "object",
         "properties": {
-          "id": {
-            "type": "string"
-          },
           "userId": {
             "type": "string",
             "nullable": true
           },
-          "institutionId": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "mobile": {
-            "type": "string"
-          },
           "email": {
             "type": "string",
             "nullable": true
-          },
-          "campusId": {
-            "type": "string"
-          },
-          "campusName": {
-            "type": "string"
           },
           "status": {
             "type": "string",
@@ -3811,17 +3793,35 @@
             "items": {
               "$ref": "#/components/schemas/GuardianLinkedStudentDto"
             }
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
           }
         },
         "required": [
+          "status",
+          "linkedStudents",
           "id",
           "institutionId",
           "name",
           "mobile",
           "campusId",
-          "campusName",
-          "status",
-          "linkedStudents"
+          "campusName"
         ]
       },
       "ListGuardiansResultDto": {
@@ -3857,15 +3857,15 @@
       "UpdateGuardianBodyDto": {
         "type": "object",
         "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },
           "mobile": {
             "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "nullable": true
           },
           "campusId": {
             "type": "string"
@@ -3880,9 +3880,6 @@
       "LinkGuardianStudentBodyDto": {
         "type": "object",
         "properties": {
-          "studentId": {
-            "type": "string"
-          },
           "relationship": {
             "type": "string",
             "enum": [
@@ -3891,13 +3888,16 @@
               "guardian"
             ]
           },
+          "studentId": {
+            "type": "string"
+          },
           "isPrimary": {
             "type": "boolean"
           }
         },
         "required": [
-          "studentId",
           "relationship",
+          "studentId",
           "isPrimary"
         ]
       },
@@ -3924,6 +3924,17 @@
       "AcademicYearDto": {
         "type": "object",
         "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "id": {
             "type": "string"
           },
@@ -3938,27 +3949,16 @@
           },
           "isCurrent": {
             "type": "boolean"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "active",
-              "archived"
-            ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
+          "status",
+          "createdAt",
           "id",
           "name",
           "startDate",
           "endDate",
-          "isCurrent",
-          "status",
-          "createdAt"
+          "isCurrent"
         ]
       },
       "ListAcademicYearsResultDto": {
@@ -4059,15 +4059,6 @@
       "AttendanceStudentEntryDto": {
         "type": "object",
         "properties": {
-          "studentId": {
-            "type": "string"
-          },
-          "admissionNumber": {
-            "type": "string"
-          },
-          "fullName": {
-            "type": "string"
-          },
           "status": {
             "type": "string",
             "nullable": true,
@@ -4077,18 +4068,33 @@
               "late",
               "excused"
             ]
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
           }
         },
         "required": [
+          "status",
           "studentId",
           "admissionNumber",
-          "fullName",
-          "status"
+          "fullName"
         ]
       },
       "AttendanceDayDto": {
         "type": "object",
         "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceStudentEntryDto"
+            }
+          },
           "attendanceDate": {
             "type": "string"
           },
@@ -4106,30 +4112,21 @@
           },
           "totalStudents": {
             "type": "number"
-          },
-          "entries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AttendanceStudentEntryDto"
-            }
           }
         },
         "required": [
+          "entries",
           "attendanceDate",
           "campusId",
           "campusName",
           "classId",
           "sectionId",
-          "totalStudents",
-          "entries"
+          "totalStudents"
         ]
       },
       "AttendanceDayEntryBodyDto": {
         "type": "object",
         "properties": {
-          "studentId": {
-            "type": "string"
-          },
           "status": {
             "type": "string",
             "enum": [
@@ -4138,16 +4135,25 @@
               "late",
               "excused"
             ]
+          },
+          "studentId": {
+            "type": "string"
           }
         },
         "required": [
-          "studentId",
-          "status"
+          "status",
+          "studentId"
         ]
       },
       "UpsertAttendanceDayBodyDto": {
         "type": "object",
         "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceDayEntryBodyDto"
+            }
+          },
           "attendanceDate": {
             "type": "string"
           },
@@ -4159,20 +4165,14 @@
           },
           "sectionId": {
             "type": "string"
-          },
-          "entries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AttendanceDayEntryBodyDto"
-            }
           }
         },
         "required": [
+          "entries",
           "attendanceDate",
           "campusId",
           "classId",
-          "sectionId",
-          "entries"
+          "sectionId"
         ]
       },
       "AttendanceSummaryCountsDto": {
@@ -4201,6 +4201,9 @@
       "AttendanceDayViewItemDto": {
         "type": "object",
         "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/AttendanceSummaryCountsDto"
+          },
           "attendanceDate": {
             "type": "string"
           },
@@ -4218,24 +4221,25 @@
           },
           "totalStudents": {
             "type": "number"
-          },
-          "counts": {
-            "$ref": "#/components/schemas/AttendanceSummaryCountsDto"
           }
         },
         "required": [
+          "counts",
           "attendanceDate",
           "campusId",
           "campusName",
           "classId",
           "sectionId",
-          "totalStudents",
-          "counts"
+          "totalStudents"
         ]
       },
       "ExamTermDto": {
         "type": "object",
         "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "id": {
             "type": "string"
           },
@@ -4256,21 +4260,17 @@
           },
           "endDate": {
             "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
+          "createdAt",
           "id",
           "institutionId",
           "academicYearId",
           "academicYearName",
           "name",
           "startDate",
-          "endDate",
-          "createdAt"
+          "endDate"
         ]
       },
       "CreateExamTermBodyDto": {
@@ -4299,6 +4299,14 @@
       "ExamMarkDto": {
         "type": "object",
         "properties": {
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "id": {
             "type": "string"
           },
@@ -4322,17 +4330,10 @@
           },
           "obtainedMarks": {
             "type": "number"
-          },
-          "remarks": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
+          "createdAt",
           "id",
           "examTermId",
           "studentId",
@@ -4340,13 +4341,16 @@
           "admissionNumber",
           "subjectName",
           "maxMarks",
-          "obtainedMarks",
-          "createdAt"
+          "obtainedMarks"
         ]
       },
       "UpsertExamMarkEntryBodyDto": {
         "type": "object",
         "properties": {
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
           "studentId": {
             "type": "string"
           },
@@ -4358,10 +4362,6 @@
           },
           "obtainedMarks": {
             "type": "number"
-          },
-          "remarks": {
-            "type": "string",
-            "nullable": true
           }
         },
         "required": [
@@ -4388,6 +4388,29 @@
       "FeeStructureDto": {
         "type": "object",
         "properties": {
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "institution",
+              "campus"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "id": {
             "type": "string"
           },
@@ -4400,63 +4423,34 @@
           "academicYearName": {
             "type": "string"
           },
-          "campusId": {
-            "type": "string",
-            "nullable": true
-          },
-          "campusName": {
-            "type": "string",
-            "nullable": true
-          },
           "name": {
             "type": "string"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "scope": {
-            "type": "string",
-            "enum": [
-              "institution",
-              "campus"
-            ]
           },
           "amountInPaise": {
             "type": "number"
           },
           "dueDate": {
             "type": "string"
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
+          "scope",
+          "createdAt",
           "id",
           "institutionId",
           "academicYearId",
           "academicYearName",
           "name",
-          "scope",
           "amountInPaise",
-          "dueDate",
-          "createdAt"
+          "dueDate"
         ]
       },
       "CreateFeeStructureBodyDto": {
         "type": "object",
         "properties": {
-          "academicYearId": {
-            "type": "string"
-          },
           "campusId": {
             "type": "string",
             "nullable": true
-          },
-          "name": {
-            "type": "string"
           },
           "description": {
             "type": "string",
@@ -4468,6 +4462,12 @@
               "institution",
               "campus"
             ]
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
           },
           "amount": {
             "type": "number"
@@ -4477,9 +4477,9 @@
           }
         },
         "required": [
+          "scope",
           "academicYearId",
           "name",
-          "scope",
           "amount",
           "dueDate"
         ]
@@ -4487,6 +4487,26 @@
       "FeeAssignmentDto": {
         "type": "object",
         "properties": {
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "partial",
+              "paid"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "id": {
             "type": "string"
           },
@@ -4508,10 +4528,6 @@
           "studentFullName": {
             "type": "string"
           },
-          "campusName": {
-            "type": "string",
-            "nullable": true
-          },
           "assignedAmountInPaise": {
             "type": "number"
           },
@@ -4526,25 +4542,11 @@
           },
           "dueDate": {
             "type": "string"
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "pending",
-              "partial",
-              "paid"
-            ]
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
+          "status",
+          "createdAt",
           "id",
           "institutionId",
           "feeStructureId",
@@ -4556,14 +4558,16 @@
           "paidAmountInPaise",
           "outstandingAmountInPaise",
           "paymentCount",
-          "dueDate",
-          "status",
-          "createdAt"
+          "dueDate"
         ]
       },
       "CreateFeeAssignmentBodyDto": {
         "type": "object",
         "properties": {
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
           "feeStructureId": {
             "type": "string"
           },
@@ -4575,10 +4579,6 @@
           },
           "dueDate": {
             "type": "string"
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
           }
         },
         "required": [
@@ -4591,15 +4591,6 @@
       "CreateFeePaymentBodyDto": {
         "type": "object",
         "properties": {
-          "feeAssignmentId": {
-            "type": "string"
-          },
-          "amount": {
-            "type": "number"
-          },
-          "paymentDate": {
-            "type": "string"
-          },
           "paymentMethod": {
             "type": "string",
             "enum": [
@@ -4616,18 +4607,48 @@
           "notes": {
             "type": "string",
             "nullable": true
+          },
+          "feeAssignmentId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "paymentDate": {
+            "type": "string"
           }
         },
         "required": [
+          "paymentMethod",
           "feeAssignmentId",
           "amount",
-          "paymentDate",
-          "paymentMethod"
+          "paymentDate"
         ]
       },
       "FeePaymentDto": {
         "type": "object",
         "properties": {
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "cash",
+              "upi",
+              "bank_transfer",
+              "card"
+            ]
+          },
+          "referenceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
           "id": {
             "type": "string"
           },
@@ -4642,37 +4663,16 @@
           },
           "paymentDate": {
             "type": "string"
-          },
-          "paymentMethod": {
-            "type": "string",
-            "enum": [
-              "cash",
-              "upi",
-              "bank_transfer",
-              "card"
-            ]
-          },
-          "referenceNumber": {
-            "type": "string",
-            "nullable": true
-          },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
           }
         },
         "required": [
+          "paymentMethod",
+          "createdAt",
           "id",
           "institutionId",
           "feeAssignmentId",
           "amountInPaise",
-          "paymentDate",
-          "paymentMethod",
-          "createdAt"
+          "paymentDate"
         ]
       },
       "InstitutionDto": {
@@ -4909,6 +4909,14 @@
       "TenantBrandingDto": {
         "type": "object",
         "properties": {
+          "logoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "faviconUrl": {
+            "type": "string",
+            "nullable": true
+          },
           "institutionName": {
             "type": "string"
           },
@@ -4917,14 +4925,6 @@
           },
           "tenantSlug": {
             "type": "string"
-          },
-          "logoUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "faviconUrl": {
-            "type": "string",
-            "nullable": true
           },
           "primaryColor": {
             "type": "string"
@@ -4937,11 +4937,11 @@
           }
         },
         "required": [
+          "logoUrl",
+          "faviconUrl",
           "institutionName",
           "shortName",
           "tenantSlug",
-          "logoUrl",
-          "faviconUrl",
           "primaryColor",
           "accentColor",
           "sidebarColor"

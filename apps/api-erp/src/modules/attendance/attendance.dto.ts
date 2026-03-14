@@ -2,42 +2,27 @@ import { ATTENDANCE_STATUSES, ATTENDANCE_STATUS_LABELS } from "@repo/contracts";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class AttendanceClassSectionDto {
-  @ApiProperty()
   classId!: string;
-
-  @ApiProperty()
   sectionId!: string;
-
-  @ApiProperty()
   studentCount!: number;
 }
 
 export class AttendanceClassSectionQueryParamsDto {
-  @ApiProperty()
   campusId!: string;
 }
 
 export class AttendanceDayQueryParamsDto {
-  @ApiProperty()
   attendanceDate!: string;
-
-  @ApiProperty()
   campusId!: string;
-
-  @ApiProperty()
   classId!: string;
-
-  @ApiProperty()
   sectionId!: string;
 }
 
 export class AttendanceDayViewQueryParamsDto {
-  @ApiProperty()
   attendanceDate!: string;
 }
 
 export class AttendanceDayEntryBodyDto {
-  @ApiProperty()
   studentId!: string;
 
   @ApiProperty({
@@ -47,16 +32,9 @@ export class AttendanceDayEntryBodyDto {
 }
 
 export class UpsertAttendanceDayBodyDto {
-  @ApiProperty()
   attendanceDate!: string;
-
-  @ApiProperty()
   campusId!: string;
-
-  @ApiProperty()
   classId!: string;
-
-  @ApiProperty()
   sectionId!: string;
 
   @ApiProperty({
@@ -67,13 +45,8 @@ export class UpsertAttendanceDayBodyDto {
 }
 
 export class AttendanceStudentEntryDto {
-  @ApiProperty()
   studentId!: string;
-
-  @ApiProperty()
   admissionNumber!: string;
-
-  @ApiProperty()
   fullName!: string;
 
   @ApiProperty({
@@ -84,22 +57,11 @@ export class AttendanceStudentEntryDto {
 }
 
 export class AttendanceDayDto {
-  @ApiProperty()
   attendanceDate!: string;
-
-  @ApiProperty()
   campusId!: string;
-
-  @ApiProperty()
   campusName!: string;
-
-  @ApiProperty()
   classId!: string;
-
-  @ApiProperty()
   sectionId!: string;
-
-  @ApiProperty()
   totalStudents!: number;
 
   @ApiProperty({
@@ -110,36 +72,18 @@ export class AttendanceDayDto {
 }
 
 export class AttendanceSummaryCountsDto {
-  @ApiProperty()
   present!: number;
-
-  @ApiProperty()
   absent!: number;
-
-  @ApiProperty()
   late!: number;
-
-  @ApiProperty()
   excused!: number;
 }
 
 export class AttendanceDayViewItemDto {
-  @ApiProperty()
   attendanceDate!: string;
-
-  @ApiProperty()
   campusId!: string;
-
-  @ApiProperty()
   campusName!: string;
-
-  @ApiProperty()
   classId!: string;
-
-  @ApiProperty()
   sectionId!: string;
-
-  @ApiProperty()
   totalStudents!: number;
 
   @ApiProperty({

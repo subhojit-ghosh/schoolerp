@@ -337,6 +337,10 @@ export function ExampleForm() {
 - Serve Scalar from Nest using `@scalar/nestjs-api-reference` and a generated OpenAPI document from `@nestjs/swagger`.
 - Prefer exposing `/reference` for docs and `/openapi.json` for machine-readable OpenAPI.
 - `apps/api-erp` OpenAPI export boots the real Nest app and therefore requires `DATABASE_URL` to be set even for schema generation. If Turbo wrappers fail on `api-erp:openapi` with little output, retry with `DATABASE_URL=...` in the environment and, if needed, run `bun run openapi:export` inside `apps/api-erp` for the direct error.
+- `apps/api-erp` uses Swagger CLI plugin metadata generation via `src/generate-metadata.ts` plus `SwaggerModule.loadPluginMetadata()`.
+- In `*.dto.ts` files, do not add `@ApiProperty()` or `@ApiPropertyOptional()` when they only repeat a simple inferred TypeScript shape. The plugin already infers plain property docs, optionality, arrays, enums, and defaults for OpenAPI generation.
+- Keep Swagger property decorators only when they carry real OpenAPI metadata the plugin cannot express clearly on its own, such as `nullable: true`, explicit nested/lazy `type`, `isArray` for nested DTO refs, schema composition, examples/descriptions, formats, or other schema overrides.
+- After DTO refactors, regenerate OpenAPI and confirm the generated document is semantically unchanged before treating the cleanup as safe.
 
 ### Zod v4
 - This project uses `Zod v4`.

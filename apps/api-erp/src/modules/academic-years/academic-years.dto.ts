@@ -8,8 +8,6 @@ export class ListAcademicYearsQueryDto {
 
   @ApiPropertyOptional({ type: Number })
   limit?: number;
-
-  @ApiPropertyOptional()
   q?: string;
 
   @ApiPropertyOptional({
@@ -24,16 +22,9 @@ export class ListAcademicYearsQueryDto {
 }
 
 export class AcademicYearWriteBodyDto {
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   startDate!: string;
-
-  @ApiProperty()
   endDate!: string;
-
-  @ApiProperty()
   isCurrent!: boolean;
 }
 
@@ -42,19 +33,10 @@ export class CreateAcademicYearBodyDto extends AcademicYearWriteBodyDto {}
 export class UpdateAcademicYearBodyDto extends AcademicYearWriteBodyDto {}
 
 export class AcademicYearDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   name!: string;
-
-  @ApiProperty()
   startDate!: string;
-
-  @ApiProperty()
   endDate!: string;
-
-  @ApiProperty()
   isCurrent!: boolean;
 
   @ApiProperty({
@@ -75,16 +57,8 @@ export class ListAcademicYearsResultDto {
     isArray: true,
   })
   rows!: AcademicYearDto[];
-
-  @ApiProperty()
   total!: number;
-
-  @ApiProperty()
   page!: number;
-
-  @ApiProperty()
   pageSize!: number;
-
-  @ApiProperty()
   pageCount!: number;
 }

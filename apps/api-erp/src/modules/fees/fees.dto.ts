@@ -9,13 +9,10 @@ import {
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class CreateFeeStructureBodyDto {
-  @ApiProperty()
   academicYearId!: string;
 
   @ApiPropertyOptional({ nullable: true })
   campusId?: string | null;
-
-  @ApiProperty()
   name!: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -25,25 +22,14 @@ export class CreateFeeStructureBodyDto {
     enum: Object.values(FEE_STRUCTURE_SCOPES),
   })
   scope!: FeeStructureScope;
-
-  @ApiProperty()
   amount!: number;
-
-  @ApiProperty()
   dueDate!: string;
 }
 
 export class CreateFeeAssignmentBodyDto {
-  @ApiProperty()
   feeStructureId!: string;
-
-  @ApiProperty()
   studentId!: string;
-
-  @ApiProperty()
   amount!: number;
-
-  @ApiProperty()
   dueDate!: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -51,13 +37,8 @@ export class CreateFeeAssignmentBodyDto {
 }
 
 export class CreateFeePaymentBodyDto {
-  @ApiProperty()
   feeAssignmentId!: string;
-
-  @ApiProperty()
   amount!: number;
-
-  @ApiProperty()
   paymentDate!: string;
 
   @ApiProperty({
@@ -73,16 +54,9 @@ export class CreateFeePaymentBodyDto {
 }
 
 export class FeeStructureDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   institutionId!: string;
-
-  @ApiProperty()
   academicYearId!: string;
-
-  @ApiProperty()
   academicYearName!: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -90,8 +64,6 @@ export class FeeStructureDto {
 
   @ApiPropertyOptional({ nullable: true })
   campusName!: string | null;
-
-  @ApiProperty()
   name!: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -101,11 +73,7 @@ export class FeeStructureDto {
     enum: Object.values(FEE_STRUCTURE_SCOPES),
   })
   scope!: FeeStructureScope;
-
-  @ApiProperty()
   amountInPaise!: number;
-
-  @ApiProperty()
   dueDate!: string;
 
   @ApiProperty({
@@ -116,43 +84,20 @@ export class FeeStructureDto {
 }
 
 export class FeeAssignmentDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   institutionId!: string;
-
-  @ApiProperty()
   feeStructureId!: string;
-
-  @ApiProperty()
   feeStructureName!: string;
-
-  @ApiProperty()
   studentId!: string;
-
-  @ApiProperty()
   studentAdmissionNumber!: string;
-
-  @ApiProperty()
   studentFullName!: string;
 
   @ApiPropertyOptional({ nullable: true })
   campusName!: string | null;
-
-  @ApiProperty()
   assignedAmountInPaise!: number;
-
-  @ApiProperty()
   paidAmountInPaise!: number;
-
-  @ApiProperty()
   outstandingAmountInPaise!: number;
-
-  @ApiProperty()
   paymentCount!: number;
-
-  @ApiProperty()
   dueDate!: string;
 
   @ApiProperty({
@@ -171,19 +116,10 @@ export class FeeAssignmentDto {
 }
 
 export class FeePaymentDto {
-  @ApiProperty()
   id!: string;
-
-  @ApiProperty()
   institutionId!: string;
-
-  @ApiProperty()
   feeAssignmentId!: string;
-
-  @ApiProperty()
   amountInPaise!: number;
-
-  @ApiProperty()
   paymentDate!: string;
 
   @ApiProperty({
