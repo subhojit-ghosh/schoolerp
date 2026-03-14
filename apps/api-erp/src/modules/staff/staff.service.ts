@@ -15,14 +15,36 @@ import {
   roles,
   user,
 } from "@repo/database";
-import { and, eq, inArray, isNull, or } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  or,
+  type SQL,
+} from "drizzle-orm";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
-import { ERROR_MESSAGES, MEMBER_TYPES } from "../../constants";
+import { ERROR_MESSAGES, MEMBER_TYPES, SORT_ORDERS } from "../../constants";
+import {
+  resolvePagination,
+  resolveTablePageSize,
+  type PaginatedResult,
+} from "../../lib/list-query";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
-import type { CreateStaffDto, UpdateStaffDto } from "./staff.schemas";
+import type { StaffDto } from "./staff.dto";
+import type {
+  CreateStaffDto,
+  ListStaffQueryDto,
+  UpdateStaffDto,
+} from "./staff.schemas";
+import { sortableStaffColumns } from "./staff.schemas";
 
 type StaffRoleSummary = {
   id: string;
@@ -30,7 +52,15 @@ type StaffRoleSummary = {
   slug: string;
 };
 
+type StaffRecord = Omit<StaffDto, "role">;
+
 type StaffWriter = Pick<AppDatabase, "insert" | "select" | "update">;
+
+const sortableColumns = {
+  campus: campus.name,
+  name: user.name,
+  status: member.status,
+} as const;
 
 @Injectable()
 export class StaffService {
@@ -39,9 +69,69 @@ export class StaffService {
     private readonly authService: AuthService,
   ) {}
 
-  async listStaff(institutionId: string, authSession: AuthenticatedSession) {
+  async listStaff(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    query: ListStaffQueryDto = {},
+  ): Promise<PaginatedResult<StaffDto>> {
     await this.requireInstitutionAccess(authSession, institutionId);
-    return this.listStaffForInstitution(institutionId);
+
+    const pageSize = resolveTablePageSize(query.limit);
+    const sortKey = query.sort ?? sortableStaffColumns.name;
+    const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
+    const conditions: SQL[] = [
+      eq(member.organizationId, institutionId),
+      eq(member.memberType, MEMBER_TYPES.STAFF),
+      isNull(member.deletedAt),
+      isNull(campus.deletedAt),
+    ];
+
+    if (query.search) {
+      conditions.push(
+        or(
+          ilike(user.name, `%${query.search}%`),
+          ilike(user.mobile, `%${query.search}%`),
+          ilike(user.email, `%${query.search}%`),
+        )!,
+      );
+    }
+
+    const where = and(...conditions)!;
+    const [totalRow] = await this.db
+      .select({ count: count() })
+      .from(member)
+      .innerJoin(user, eq(member.userId, user.id))
+      .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .where(where);
+
+    const total = totalRow?.count ?? 0;
+    const pagination = resolvePagination(total, query.page, pageSize);
+
+    const staffRows = await this.db
+      .select(this.staffSelect)
+      .from(member)
+      .innerJoin(user, eq(member.userId, user.id))
+      .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .where(where)
+      .orderBy(
+        sortDirection(sortableColumns[sortKey]),
+        asc(user.name),
+      )
+      .limit(pageSize)
+      .offset(pagination.offset);
+
+    const roleByMembershipId = await this.listRoleMap(staffRows.map((row) => row.id));
+
+    return {
+      rows: staffRows.map((row) => ({
+        ...row,
+        role: roleByMembershipId.get(row.id) ?? null,
+      })),
+      total,
+      page: pagination.page,
+      pageSize,
+      pageCount: pagination.pageCount,
+    };
   }
 
   async listRoles(institutionId: string, authSession: AuthenticatedSession) {
@@ -205,18 +295,7 @@ export class StaffService {
     staffId?: string,
   ) {
     const staffRows = await this.db
-      .select({
-        id: member.id,
-        userId: user.id,
-        institutionId: member.organizationId,
-        name: user.name,
-        mobile: user.mobile,
-        email: user.email,
-        memberType: member.memberType,
-        campusId: campus.id,
-        campusName: campus.name,
-        status: member.status,
-      })
+      .select(this.staffSelect)
       .from(member)
       .innerJoin(user, eq(member.userId, user.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))
@@ -305,6 +384,19 @@ export class StaffService {
       AUTH_CONTEXT_KEYS.STAFF,
     );
   }
+
+  private readonly staffSelect = {
+    id: member.id,
+    userId: user.id,
+    institutionId: member.organizationId,
+    name: user.name,
+    mobile: user.mobile,
+    email: user.email,
+    memberType: member.memberType,
+    campusId: campus.id,
+    campusName: campus.name,
+    status: member.status,
+  };
 
   private async getCampus(institutionId: string, campusId: string) {
     const [matchedCampus] = await this.db

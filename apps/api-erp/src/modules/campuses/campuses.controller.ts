@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
 import {
   ApiBody,
   ApiCookieAuth,
@@ -13,8 +13,13 @@ import { SessionAuthGuard } from "../auth/session-auth.guard";
 import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
-import { CampusDto, CreateCampusBodyDto } from "./campuses.dto";
-import { parseCreateCampus } from "./campuses.schemas";
+import {
+  CampusDto,
+  CreateCampusBodyDto,
+  ListCampusesQueryDto,
+  ListCampusesResultDto,
+} from "./campuses.dto";
+import { parseCreateCampus, parseListCampusesQuery } from "./campuses.schemas";
 import { CampusesService } from "./campuses.service";
 
 @ApiTags(API_DOCS.TAGS.CAMPUSES)
@@ -26,12 +31,17 @@ export class CampusesController {
 
   @Get()
   @ApiOperation({ summary: "List campuses for the current tenant institution" })
-  @ApiOkResponse({ type: CampusDto, isArray: true })
+  @ApiOkResponse({ type: ListCampusesResultDto })
   listCampuses(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @Query() query: ListCampusesQueryDto,
   ) {
-    return this.campusesService.listCampuses(institution.id, authSession);
+    return this.campusesService.listCampuses(
+      institution.id,
+      authSession,
+      parseListCampusesQuery(query),
+    );
   }
 
   @Post()

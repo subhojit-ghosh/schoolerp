@@ -1,10 +1,33 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   GUARDIAN_RELATIONSHIPS,
+  SORT_ORDERS,
   STATUS,
   type GuardianRelationship,
   type MemberStatus,
 } from "../../constants";
+import { sortableGuardianColumns } from "./guardians.schemas";
+
+export class ListGuardiansQueryDto {
+  @ApiPropertyOptional({ minimum: 1, type: Number })
+  page?: number;
+
+  @ApiPropertyOptional({ type: Number })
+  limit?: number;
+
+  @ApiPropertyOptional()
+  q?: string;
+
+  @ApiPropertyOptional({
+    enum: Object.values(sortableGuardianColumns),
+  })
+  sort?: keyof typeof sortableGuardianColumns;
+
+  @ApiPropertyOptional({
+    enum: Object.values(SORT_ORDERS),
+  })
+  order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
+}
 
 export class UpdateGuardianBodyDto {
   @ApiProperty()
@@ -106,4 +129,24 @@ export class GuardianDto {
     isArray: true,
   })
   linkedStudents!: GuardianLinkedStudentDto[];
+}
+
+export class ListGuardiansResultDto {
+  @ApiProperty({
+    type: () => GuardianDto,
+    isArray: true,
+  })
+  rows!: GuardianDto[];
+
+  @ApiProperty()
+  total!: number;
+
+  @ApiProperty()
+  page!: number;
+
+  @ApiProperty()
+  pageSize!: number;
+
+  @ApiProperty()
+  pageCount!: number;
 }

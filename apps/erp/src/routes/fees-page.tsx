@@ -33,7 +33,7 @@ import type {
   FeePaymentFormValues,
   FeeStructureFormValues,
 } from "@/features/fees/model/fee-form-schema";
-import { useStudentsQuery } from "@/features/students/api/use-students";
+import { useStudentOptionsQuery } from "@/features/students/api/use-students";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const EMPTY_VALUE = "";
@@ -71,7 +71,7 @@ export function FeesPage() {
   const campuses = session?.campuses ?? [];
 
   const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
-  const studentsQuery = useStudentsQuery(managedInstitutionId);
+  const studentOptionsQuery = useStudentOptionsQuery(managedInstitutionId);
   const structuresQuery = useFeeStructuresQuery(managedInstitutionId);
   const assignmentsQuery = useFeeAssignmentsQuery(managedInstitutionId);
   const duesQuery = useFeeDuesQuery(managedInstitutionId);
@@ -89,7 +89,7 @@ export function FeesPage() {
     id: campus.id,
     name: campus.name,
   }));
-  const studentOptions = (studentsQuery.data ?? []).map((student) => ({
+  const studentOptions = (studentOptionsQuery.data ?? []).map((student) => ({
     id: student.id,
     label: `${student.admissionNumber} · ${student.fullName}`,
   }));

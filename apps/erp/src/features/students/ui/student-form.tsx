@@ -29,6 +29,10 @@ import {
   type StudentFormValues,
 } from "@/features/students/model/student-form-schema";
 import { useClassesQuery } from "@/features/classes/api/use-classes";
+import {
+  EntityFormPrimaryAction,
+  EntityFormSecondaryAction,
+} from "@/components/entity-actions";
 
 const DEFAULT_GUARDIAN: StudentFormValues["guardians"][number] = {
   name: "",
@@ -634,13 +638,13 @@ export function StudentForm({
         <FieldError>{errorMessage}</FieldError>
 
         <div className="flex gap-2">
-          <Button disabled={isPending} type="submit">
+          <EntityFormPrimaryAction disabled={isPending} type="submit">
             {isPending ? "Saving..." : submitLabel}
-          </Button>
+          </EntityFormPrimaryAction>
           {onCancel ? (
-            <Button onClick={onCancel} type="button" variant="ghost">
+            <EntityFormSecondaryAction onClick={onCancel} type="button">
               Cancel
-            </Button>
+            </EntityFormSecondaryAction>
           ) : null}
         </div>
       </FieldGroup>

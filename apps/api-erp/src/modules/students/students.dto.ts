@@ -1,10 +1,33 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   GUARDIAN_RELATIONSHIPS,
+  SORT_ORDERS,
   STATUS,
   type GuardianRelationship,
   type MemberStatus,
 } from "../../constants";
+import { sortableStudentColumns } from "./students.schemas";
+
+export class ListStudentsQueryDto {
+  @ApiPropertyOptional({ minimum: 1, type: Number })
+  page?: number;
+
+  @ApiPropertyOptional({ type: Number })
+  limit?: number;
+
+  @ApiPropertyOptional()
+  q?: string;
+
+  @ApiPropertyOptional({
+    enum: Object.values(sortableStudentColumns),
+  })
+  sort?: keyof typeof sortableStudentColumns;
+
+  @ApiPropertyOptional({
+    enum: Object.values(SORT_ORDERS),
+  })
+  order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
+}
 
 export class CreateGuardianLinkBodyDto {
   @ApiProperty()
@@ -201,4 +224,38 @@ export class StudentDto {
     nullable: true,
   })
   currentEnrollment!: CurrentStudentEnrollmentDto | null;
+}
+
+export class StudentOptionDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  admissionNumber!: string;
+
+  @ApiProperty()
+  fullName!: string;
+
+  @ApiProperty()
+  campusName!: string;
+}
+
+export class ListStudentsResultDto {
+  @ApiProperty({
+    type: () => StudentDto,
+    isArray: true,
+  })
+  rows!: StudentDto[];
+
+  @ApiProperty()
+  total!: number;
+
+  @ApiProperty()
+  page!: number;
+
+  @ApiProperty()
+  pageSize!: number;
+
+  @ApiProperty()
+  pageCount!: number;
 }

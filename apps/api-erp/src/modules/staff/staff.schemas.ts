@@ -1,6 +1,7 @@
 import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
 import { STATUS } from "../../constants";
+import { baseListQuerySchema, parseListQuerySchema } from "../../lib/list-query";
 
 const NAME_MIN_LENGTH = 1;
 const MOBILE_MIN_LENGTH = 10;
@@ -28,8 +29,28 @@ export const createStaffSchema = z.object({
 
 export const updateStaffSchema = createStaffSchema;
 
+export const sortableStaffColumns = {
+  campus: "campus",
+  name: "name",
+  status: "status",
+} as const;
+
+export const listStaffQuerySchema = baseListQuerySchema.extend({
+  sort: z
+    .enum([
+      sortableStaffColumns.campus,
+      sortableStaffColumns.name,
+      sortableStaffColumns.status,
+    ])
+    .optional(),
+});
+
 export type CreateStaffDto = z.infer<typeof createStaffSchema>;
 export type UpdateStaffDto = z.infer<typeof updateStaffSchema>;
+type ListStaffQueryInput = z.infer<typeof listStaffQuerySchema>;
+export type ListStaffQueryDto = Omit<ListStaffQueryInput, "q"> & {
+  search?: string;
+};
 
 function parseSchema<T>(schema: z.ZodSchema<T>, input: unknown) {
   const result = schema.safeParse(input);
@@ -47,4 +68,16 @@ export function parseCreateStaff(body: unknown) {
 
 export function parseUpdateStaff(body: unknown) {
   return parseSchema(updateStaffSchema, body);
+}
+
+export function parseListStaffQuery(query: unknown): ListStaffQueryDto {
+  const result = parseListQuerySchema(listStaffQuerySchema, query);
+
+  return {
+    limit: result.limit,
+    order: result.order,
+    page: result.page,
+    search: result.q,
+    sort: result.sort,
+  };
 }

@@ -27,7 +27,7 @@ import {
 } from "@/features/exams/model/exam-form-schema";
 import { ExamMarksForm } from "@/features/exams/ui/exam-marks-form";
 import { ExamTermForm } from "@/features/exams/ui/exam-term-form";
-import { useStudentsQuery } from "@/features/students/api/use-students";
+import { useStudentOptionsQuery } from "@/features/students/api/use-students";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const EMPTY_MARKS_ENTRY: ExamMarksFormValues["entries"][number] = {
@@ -45,7 +45,7 @@ export function ExamsPage() {
   const canManageExams = isStaffContext(session);
   const managedInstitutionId = canManageExams ? institutionId : undefined;
   const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
-  const studentsQuery = useStudentsQuery(managedInstitutionId);
+  const studentOptionsQuery = useStudentOptionsQuery(managedInstitutionId);
   const examTermsQuery = useExamTermsQuery(managedInstitutionId);
   const createExamTermMutation = useCreateExamTermMutation(managedInstitutionId);
   const replaceMarksMutation = useReplaceExamMarksMutation(managedInstitutionId);
@@ -248,13 +248,13 @@ export function ExamsPage() {
               <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
                 Select an exam term to enter marks.
               </div>
-            ) : studentsQuery.data?.length ? (
+            ) : studentOptionsQuery.data?.length ? (
               <ExamMarksForm
                 defaultValues={marksDefaultValues}
                 errorMessage={(replaceMarksMutation.error as Error | null | undefined)?.message}
                 isPending={replaceMarksMutation.isPending}
                 onSubmit={handleSaveMarks}
-                students={(studentsQuery.data ?? []).map((student) => ({
+                students={(studentOptionsQuery.data ?? []).map((student) => ({
                   id: student.id,
                   fullName: student.fullName,
                   admissionNumber: student.admissionNumber,

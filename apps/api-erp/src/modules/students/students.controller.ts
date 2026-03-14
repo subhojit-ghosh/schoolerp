@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -23,10 +24,17 @@ import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.gua
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   CreateStudentBodyDto,
+  ListStudentsQueryDto,
+  ListStudentsResultDto,
+  StudentOptionDto,
   StudentDto,
   UpdateStudentBodyDto,
 } from "./students.dto";
-import { parseCreateStudent, parseUpdateStudent } from "./students.schemas";
+import {
+  parseCreateStudent,
+  parseListStudentsQuery,
+  parseUpdateStudent,
+} from "./students.schemas";
 import { StudentsService } from "./students.service";
 
 @ApiTags(API_DOCS.TAGS.STUDENTS)
@@ -38,12 +46,29 @@ export class StudentsController {
 
   @Get()
   @ApiOperation({ summary: "List students for the current tenant institution" })
-  @ApiOkResponse({ type: StudentDto, isArray: true })
+  @ApiOkResponse({ type: ListStudentsResultDto })
   listStudents(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @Query() query: ListStudentsQueryDto,
   ) {
-    return this.studentsService.listStudents(institution.id, authSession);
+    return this.studentsService.listStudents(
+      institution.id,
+      authSession,
+      parseListStudentsQuery(query),
+    );
+  }
+
+  @Get(API_ROUTES.OPTIONS)
+  @ApiOperation({
+    summary: "List student options for select controls in the current tenant institution",
+  })
+  @ApiOkResponse({ type: StudentOptionDto, isArray: true })
+  listStudentOptions(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+  ) {
+    return this.studentsService.listStudentOptions(institution.id, authSession);
   }
 
   @Post()

@@ -1,6 +1,6 @@
 import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
 import { useMemo } from "react";
-import { Link, useParams } from "react-router";
+import { Link, useLocation, useParams } from "react-router";
 import { toast } from "sonner";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
@@ -18,7 +18,7 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { useStudentsQuery } from "@/features/students/api/use-students";
+import { useStudentOptionsQuery } from "@/features/students/api/use-students";
 import {
   useGuardianQuery,
   useLinkGuardianStudentMutation,
@@ -37,6 +37,7 @@ import {
   type GuardianStudentLinkFormValues,
 } from "@/features/guardians/model/guardian-form-schema";
 import { ERP_ROUTES } from "@/constants/routes";
+import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 function toInitials(name: string) {
@@ -49,6 +50,7 @@ function toInitials(name: string) {
 }
 
 export function GuardianDetailPage() {
+  const location = useLocation();
   const { guardianId } = useParams();
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
@@ -57,7 +59,7 @@ export function GuardianDetailPage() {
   const managedInstitutionId = canManageGuardians ? institutionId : undefined;
   const campuses = session?.campuses ?? [];
   const guardianQuery = useGuardianQuery(managedInstitutionId, guardianId);
-  const studentsQuery = useStudentsQuery(managedInstitutionId);
+  const studentOptionsQuery = useStudentOptionsQuery(managedInstitutionId);
   const updateGuardianMutation = useUpdateGuardianMutation(
     managedInstitutionId,
     guardianId,
@@ -97,13 +99,13 @@ export function GuardianDetailPage() {
 
   const studentOptions = useMemo(
     () =>
-      (studentsQuery.data ?? []).map((student) => ({
+      (studentOptionsQuery.data ?? []).map((student) => ({
         id: student.id,
         fullName: student.fullName,
         admissionNumber: student.admissionNumber,
         campusName: student.campusName,
       })),
-    [studentsQuery.data],
+    [studentOptionsQuery.data],
   );
 
   const availableStudents = useMemo(() => {
@@ -210,7 +212,7 @@ export function GuardianDetailPage() {
         </CardHeader>
         <CardContent>
           <Button asChild variant="outline">
-            <Link to={ERP_ROUTES.GUARDIANS}>
+            <Link to={appendSearch(ERP_ROUTES.GUARDIANS, location.search)}>
               <IconChevronLeft data-icon="inline-start" />
               Back to guardians
             </Link>
@@ -233,7 +235,7 @@ export function GuardianDetailPage() {
           </div>
           <div className="space-y-1">
             <Button asChild className="-ml-3" size="sm" variant="ghost">
-              <Link to={ERP_ROUTES.GUARDIANS}>
+              <Link to={appendSearch(ERP_ROUTES.GUARDIANS, location.search)}>
                 <IconChevronLeft data-icon="inline-start" />
                 Back to guardians
               </Link>

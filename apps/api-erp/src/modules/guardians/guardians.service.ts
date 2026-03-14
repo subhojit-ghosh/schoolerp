@@ -15,7 +15,19 @@ import {
   students,
   user,
 } from "@repo/database";
-import { and, eq, inArray, isNotNull, isNull } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNotNull,
+  isNull,
+  or,
+  type SQL,
+} from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
@@ -23,13 +35,21 @@ import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import {
   ERROR_MESSAGES,
   MEMBER_TYPES,
+  SORT_ORDERS,
   type MemberStatus,
 } from "../../constants";
+import {
+  resolvePagination,
+  resolveTablePageSize,
+  type PaginatedResult,
+} from "../../lib/list-query";
 import type {
   LinkGuardianStudentDto,
+  ListGuardiansQueryDto,
   UpdateGuardianDto,
   UpdateGuardianStudentLinkDto,
 } from "./guardians.schemas";
+import { sortableGuardianColumns } from "./guardians.schemas";
 
 type GuardiansWriter = Pick<AppDatabase, "insert" | "select" | "update">;
 
@@ -63,6 +83,12 @@ type GuardianSummary = {
   linkedStudents: GuardianLinkedStudentSummary[];
 };
 
+const sortableColumns = {
+  campus: campus.name,
+  name: user.name,
+  status: member.status,
+} as const;
+
 @Injectable()
 export class GuardiansService {
   constructor(
@@ -73,10 +99,65 @@ export class GuardiansService {
   async listGuardians(
     institutionId: string,
     authSession: AuthenticatedSession,
-  ) {
+    query: ListGuardiansQueryDto = {},
+  ): Promise<PaginatedResult<GuardianSummary>> {
     await this.requireInstitutionAccess(authSession, institutionId);
 
-    return this.listGuardiansForInstitution(institutionId);
+    const pageSize = resolveTablePageSize(query.limit);
+    const sortKey = query.sort ?? sortableGuardianColumns.name;
+    const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
+    const conditions: SQL[] = [
+      eq(member.organizationId, institutionId),
+      eq(member.memberType, MEMBER_TYPES.GUARDIAN),
+      isNull(member.deletedAt),
+      isNull(campus.deletedAt),
+    ];
+
+    if (query.search) {
+      conditions.push(
+        or(
+          ilike(user.name, `%${query.search}%`),
+          ilike(user.mobile, `%${query.search}%`),
+          ilike(user.email, `%${query.search}%`),
+        )!,
+      );
+    }
+
+    const where = and(...conditions)!;
+    const [totalRow] = await this.db
+      .select({ count: count() })
+      .from(member)
+      .innerJoin(user, eq(member.userId, user.id))
+      .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .where(where);
+
+    const total = totalRow?.count ?? 0;
+    const pagination = resolvePagination(total, query.page, pageSize);
+
+    const guardianRows = await this.db
+      .select(this.guardianSelect)
+      .from(member)
+      .innerJoin(user, eq(member.userId, user.id))
+      .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .where(where)
+      .orderBy(sortDirection(sortableColumns[sortKey]), asc(user.name))
+      .limit(pageSize)
+      .offset(pagination.offset);
+
+    const linkedStudentsByGuardianId = await this.listLinkedStudentsForGuardians(
+      guardianRows.map((row) => row.id),
+    );
+
+    return {
+      rows: guardianRows.map((row) => ({
+        ...row,
+        linkedStudents: linkedStudentsByGuardianId.get(row.id) ?? [],
+      })),
+      total,
+      page: pagination.page,
+      pageSize,
+      pageCount: pagination.pageCount,
+    };
   }
 
   async getGuardian(
@@ -355,17 +436,7 @@ export class GuardiansService {
     guardianId?: string,
   ) {
     const guardianRows = await this.db
-      .select({
-        id: member.id,
-        userId: user.id,
-        institutionId: member.organizationId,
-        name: user.name,
-        mobile: user.mobile,
-        email: user.email,
-        campusId: campus.id,
-        campusName: campus.name,
-        status: member.status,
-      })
+      .select(this.guardianSelect)
       .from(member)
       .innerJoin(user, eq(member.userId, user.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))
@@ -662,4 +733,16 @@ export class GuardiansService {
       AUTH_CONTEXT_KEYS.STAFF,
     );
   }
+
+  private readonly guardianSelect = {
+    id: member.id,
+    userId: user.id,
+    institutionId: member.organizationId,
+    name: user.name,
+    mobile: user.mobile,
+    email: user.email,
+    campusId: campus.id,
+    campusName: campus.name,
+    status: member.status,
+  };
 }

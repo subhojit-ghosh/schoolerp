@@ -1,11 +1,62 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { SORT_ORDERS } from "@/constants/query";
 import { apiQueryClient } from "@/lib/api/client";
 import { STUDENTS_API_PATHS } from "@/features/auth/api/auth.constants";
+import { STUDENT_LIST_SORT_FIELDS } from "@/features/students/model/student-list.constants";
 
-export function useStudentsQuery(institutionId: string | undefined) {
+type StudentsListSort =
+  (typeof STUDENT_LIST_SORT_FIELDS)[keyof typeof STUDENT_LIST_SORT_FIELDS];
+
+type StudentsListQuery = {
+  limit?: number;
+  order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
+  page?: number;
+  q?: string;
+  sort?: StudentsListSort;
+};
+
+function getStudentsListQueryKey(_institutionId: string, query?: StudentsListQuery) {
+  return apiQueryClient.queryOptions(
+    "get",
+    STUDENTS_API_PATHS.LIST,
+    query
+      ? {
+          params: {
+            query,
+          },
+        }
+      : undefined,
+  ).queryKey;
+}
+
+function getStudentOptionsQueryKey() {
+  return apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.OPTIONS).queryKey;
+}
+
+export function useStudentsQuery(
+  institutionId: string | undefined,
+  query?: StudentsListQuery,
+) {
   return apiQueryClient.useQuery(
     "get",
     STUDENTS_API_PATHS.LIST,
+    query
+      ? {
+          params: {
+            query,
+          },
+        }
+      : undefined,
+    {
+      enabled: Boolean(institutionId),
+    },
+  );
+}
+
+export function useStudentOptionsQuery(institutionId: string | undefined) {
+  return apiQueryClient.useQuery(
+    "get",
+    STUDENTS_API_PATHS.OPTIONS,
     undefined,
     {
       enabled: Boolean(institutionId),
@@ -23,7 +74,11 @@ export function useCreateStudentMutation(institutionId: string | undefined) {
       }
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.LIST).queryKey,
+        queryKey: getStudentsListQueryKey(institutionId),
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: getStudentOptionsQueryKey(),
       });
     },
   });
@@ -59,7 +114,11 @@ export function useUpdateStudentMutation(institutionId: string | undefined) {
       }
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.LIST).queryKey,
+        queryKey: getStudentsListQueryKey(institutionId),
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: getStudentOptionsQueryKey(),
       });
 
       void queryClient.invalidateQueries({

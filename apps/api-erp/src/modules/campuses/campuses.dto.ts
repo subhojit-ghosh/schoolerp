@@ -1,5 +1,27 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { STATUS, type CampusStatus } from "../../constants";
+import { SORT_ORDERS, STATUS, type CampusStatus } from "../../constants";
+import { sortableCampusColumns } from "./campuses.schemas";
+
+export class ListCampusesQueryDto {
+  @ApiPropertyOptional({ minimum: 1, type: Number })
+  page?: number;
+
+  @ApiPropertyOptional({ type: Number })
+  limit?: number;
+
+  @ApiPropertyOptional()
+  q?: string;
+
+  @ApiPropertyOptional({
+    enum: Object.values(sortableCampusColumns),
+  })
+  sort?: keyof typeof sortableCampusColumns;
+
+  @ApiPropertyOptional({
+    enum: Object.values(SORT_ORDERS),
+  })
+  order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
+}
 
 export class CreateCampusBodyDto {
   @ApiProperty()
@@ -38,4 +60,24 @@ export class CampusDto {
     enum: Object.values(STATUS.CAMPUS),
   })
   status!: CampusStatus;
+}
+
+export class ListCampusesResultDto {
+  @ApiProperty({
+    type: () => CampusDto,
+    isArray: true,
+  })
+  rows!: CampusDto[];
+
+  @ApiProperty()
+  total!: number;
+
+  @ApiProperty()
+  page!: number;
+
+  @ApiProperty()
+  pageSize!: number;
+
+  @ApiProperty()
+  pageCount!: number;
 }

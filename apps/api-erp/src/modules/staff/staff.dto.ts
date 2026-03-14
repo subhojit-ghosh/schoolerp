@@ -1,10 +1,33 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   MEMBER_TYPES,
+  SORT_ORDERS,
   STATUS,
   type MemberStatus,
   type MemberType,
 } from "../../constants";
+import { sortableStaffColumns } from "./staff.schemas";
+
+export class ListStaffQueryDto {
+  @ApiPropertyOptional({ minimum: 1, type: Number })
+  page?: number;
+
+  @ApiPropertyOptional({ type: Number })
+  limit?: number;
+
+  @ApiPropertyOptional()
+  q?: string;
+
+  @ApiPropertyOptional({
+    enum: Object.values(sortableStaffColumns),
+  })
+  sort?: keyof typeof sortableStaffColumns;
+
+  @ApiPropertyOptional({
+    enum: Object.values(SORT_ORDERS),
+  })
+  order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
+}
 
 export class StaffRoleDto {
   @ApiProperty()
@@ -78,4 +101,24 @@ export class StaffDto {
 
   @ApiPropertyOptional({ type: () => StaffRoleDto, nullable: true })
   role!: StaffRoleDto | null;
+}
+
+export class ListStaffResultDto {
+  @ApiProperty({
+    type: () => StaffDto,
+    isArray: true,
+  })
+  rows!: StaffDto[];
+
+  @ApiProperty()
+  total!: number;
+
+  @ApiProperty()
+  page!: number;
+
+  @ApiProperty()
+  pageSize!: number;
+
+  @ApiProperty()
+  pageCount!: number;
 }

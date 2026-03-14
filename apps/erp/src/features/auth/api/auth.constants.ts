@@ -16,6 +16,7 @@ export const ONBOARDING_API_PATHS = {
 
 export const STUDENTS_API_PATHS = {
   LIST: "/students",
+  OPTIONS: "/students/options",
   CREATE: "/students",
   DETAIL: "/students/{studentId}",
   UPDATE: "/students/{studentId}",

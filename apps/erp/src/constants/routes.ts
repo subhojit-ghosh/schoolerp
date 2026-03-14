@@ -8,10 +8,12 @@ export const ERP_ROUTES = {
   DASHBOARD: "/dashboard",
   // People
   STUDENTS: "/students",
+  STUDENT_CREATE: `/students/${ERP_ROUTE_SEGMENTS.NEW}`,
   STUDENT_DETAIL: "/students/:studentId",
   GUARDIANS: "/guardians",
   GUARDIAN_DETAIL: "/guardians/:guardianId",
   STAFF: "/staff",
+  STAFF_CREATE: `/staff/${ERP_ROUTE_SEGMENTS.NEW}`,
   STAFF_DETAIL: "/staff/:staffId",
   // Academics
   ACADEMIC_YEARS: "/academic-years",
@@ -26,6 +28,7 @@ export const ERP_ROUTES = {
   FEES: "/fees",
   // Settings
   SETTINGS_CAMPUSES: "/settings/campuses",
+  SETTINGS_CAMPUSES_CREATE: `/settings/campuses/${ERP_ROUTE_SEGMENTS.NEW}`,
   SETTINGS_BRANDING: "/settings/branding",
   // Auth
   SIGN_IN: "/sign-in",
@@ -44,4 +47,16 @@ export function buildClassEditRoute(classId: string) {
 
 export function buildAcademicYearEditRoute(academicYearId: string) {
   return `${ERP_ROUTES.ACADEMIC_YEARS}/${academicYearId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildStudentDetailRoute(studentId: string) {
+  return `${ERP_ROUTES.STUDENTS}/${studentId}`;
+}
+
+export function buildGuardianDetailRoute(guardianId: string) {
+  return `${ERP_ROUTES.GUARDIANS}/${guardianId}`;
+}
+
+export function buildStaffDetailRoute(staffId: string) {
+  return `${ERP_ROUTES.STAFF}/${staffId}`;
 }

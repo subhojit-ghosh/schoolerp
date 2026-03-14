@@ -30,11 +30,14 @@ import { CampusesPage } from "@/routes/settings/campuses-page";
 import { ClassesPage } from "@/routes/classes-page";
 import { GuardianDetailPage } from "@/routes/guardian-detail-page";
 import { GuardiansPage } from "@/routes/guardians-page";
+import { StaffCreatePage } from "@/routes/staff-create-page";
 import { StaffDetailPage } from "@/routes/staff-detail-page";
 import { StaffPage } from "@/routes/staff-page";
+import { StudentCreatePage } from "@/routes/student-create-page";
 import { StudentDetailPage } from "@/routes/student-detail-page";
 import { StudentsPage } from "@/routes/students-page";
 import { AcademicYearSheetRoute } from "@/features/academic-years/ui/academic-year-sheet-route";
+import { CampusSheetRoute } from "@/features/campuses/ui/campus-sheet-route";
 import { ClassSheetRoute } from "@/features/classes/ui/class-sheet-route";
 
 import { Button } from "@repo/ui/components/ui/button";
@@ -70,10 +73,12 @@ const router = createBrowserRouter([
     children: [
       { path: ERP_ROUTES.DASHBOARD, element: <DashboardPage /> },
       { path: ERP_ROUTES.STUDENTS, element: <StudentsPage /> },
+      { path: ERP_ROUTES.STUDENT_CREATE, element: <StudentCreatePage /> },
       { path: ERP_ROUTES.STUDENT_DETAIL, element: <StudentDetailPage /> },
       { path: ERP_ROUTES.GUARDIANS, element: <GuardiansPage /> },
       { path: ERP_ROUTES.GUARDIAN_DETAIL, element: <GuardianDetailPage /> },
       { path: ERP_ROUTES.STAFF, element: <StaffPage /> },
+      { path: ERP_ROUTES.STAFF_CREATE, element: <StaffCreatePage /> },
       { path: ERP_ROUTES.STAFF_DETAIL, element: <StaffDetailPage /> },
       {
         path: ERP_ROUTES.ACADEMIC_YEARS,
@@ -103,7 +108,16 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.ATTENDANCE, element: <AttendancePage /> },
       { path: ERP_ROUTES.EXAMS, element: <ExamsPage /> },
       { path: ERP_ROUTES.FEES, element: <FeesPage /> },
-      { path: ERP_ROUTES.SETTINGS_CAMPUSES, element: <CampusesPage /> },
+      {
+        path: ERP_ROUTES.SETTINGS_CAMPUSES,
+        element: <CampusesPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <CampusSheetRoute />,
+          },
+        ],
+      },
       { path: ERP_ROUTES.SETTINGS_BRANDING, element: <BrandingPage /> },
     ],
   },

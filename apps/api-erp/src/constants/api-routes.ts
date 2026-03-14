@@ -17,6 +17,7 @@ export const API_ROUTES = {
   COUNTS: "counts",
   CAMPUSES: "campuses",
   STUDENTS: "students",
+  OPTIONS: "options",
   STAFF: "staff",
   ROLES: "roles",
   GUARDIANS: "guardians",

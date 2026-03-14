@@ -281,6 +281,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/students/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List student options for select controls in the current tenant institution */
+        get: operations["StudentsController_listStudentOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/students/{studentId}": {
         parameters: {
             query?: never;
@@ -832,6 +849,13 @@ export interface components {
             /** @enum {string} */
             status: "active" | "inactive";
         };
+        ListCampusesResultDto: {
+            rows: components["schemas"]["CampusDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
         CreateCampusBodyDto: {
             name: string;
             slug?: string;
@@ -914,6 +938,19 @@ export interface components {
             guardians: components["schemas"]["StudentGuardianDto"][];
             currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentDto"] | null;
         };
+        ListStudentsResultDto: {
+            rows: components["schemas"]["StudentDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        StudentOptionDto: {
+            id: string;
+            admissionNumber: string;
+            fullName: string;
+            campusName: string;
+        };
         CreateGuardianLinkBodyDto: {
             name: string;
             mobile: string;
@@ -967,6 +1004,13 @@ export interface components {
             status: "active" | "inactive" | "suspended";
             role?: components["schemas"]["StaffRoleDto"] | null;
         };
+        ListStaffResultDto: {
+            rows: components["schemas"]["StaffDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
         CreateStaffBodyDto: {
             name: string;
             mobile: string;
@@ -1008,6 +1052,13 @@ export interface components {
             /** @enum {string} */
             status: "active" | "inactive" | "suspended";
             linkedStudents: components["schemas"]["GuardianLinkedStudentDto"][];
+        };
+        ListGuardiansResultDto: {
+            rows: components["schemas"]["GuardianDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
         };
         UpdateGuardianBodyDto: {
             name: string;
@@ -1543,7 +1594,13 @@ export interface operations {
     };
     CampusesController_listCampuses: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number;
+                limit?: number;
+                q?: string;
+                sort?: "default" | "name" | "slug" | "status";
+                order?: "asc" | "desc";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1555,7 +1612,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CampusDto"][];
+                    "application/json": components["schemas"]["ListCampusesResultDto"];
                 };
             };
         };
@@ -1724,7 +1781,13 @@ export interface operations {
     };
     StudentsController_listStudents: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number;
+                limit?: number;
+                q?: string;
+                sort?: "admissionNumber" | "campus" | "name";
+                order?: "asc" | "desc";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1736,7 +1799,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StudentDto"][];
+                    "application/json": components["schemas"]["ListStudentsResultDto"];
                 };
             };
         };
@@ -1760,6 +1823,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudentDto"];
+                };
+            };
+        };
+    };
+    StudentsController_listStudentOptions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentOptionDto"][];
                 };
             };
         };
@@ -1812,7 +1894,13 @@ export interface operations {
     };
     StaffController_listStaff: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number;
+                limit?: number;
+                q?: string;
+                sort?: "campus" | "name" | "status";
+                order?: "asc" | "desc";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1824,7 +1912,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StaffDto"][];
+                    "application/json": components["schemas"]["ListStaffResultDto"];
                 };
             };
         };
@@ -1919,7 +2007,13 @@ export interface operations {
     };
     GuardiansController_listGuardians: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number;
+                limit?: number;
+                q?: string;
+                sort?: "campus" | "name" | "status";
+                order?: "asc" | "desc";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -1931,7 +2025,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GuardianDto"][];
+                    "application/json": components["schemas"]["ListGuardiansResultDto"];
                 };
             };
         };

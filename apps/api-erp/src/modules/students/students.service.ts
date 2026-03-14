@@ -20,15 +20,32 @@ import {
   students,
   user,
 } from "@repo/database";
-import { and, eq, inArray, isNull } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  or,
+  type SQL,
+} from "drizzle-orm";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import {
   ERROR_MESSAGES,
   GUARDIAN_RELATIONSHIPS,
   MEMBER_TYPES,
+  SORT_ORDERS,
   STATUS,
 } from "../../constants";
+import {
+  resolvePagination,
+  resolveTablePageSize,
+  type PaginatedResult,
+} from "../../lib/list-query";
 import { AuthService } from "../auth/auth.service";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import type { AuthenticatedSession } from "../auth/auth.types";
@@ -36,8 +53,10 @@ import type {
   CreateGuardianLinkDto,
   CurrentEnrollmentDto,
   CreateStudentDto,
+  ListStudentsQueryDto,
   UpdateStudentDto,
 } from "./students.schemas";
+import { sortableStudentColumns } from "./students.schemas";
 
 type StudentGuardianSummary = {
   membershipId: string;
@@ -68,17 +87,115 @@ type ResolvedClassSection = {
 
 type StudentsWriter = Pick<AppDatabase, "insert" | "select" | "update">;
 
+const sortableColumns = {
+  admissionNumber: students.admissionNumber,
+  campus: campus.name,
+  name: students.firstName,
+} as const;
+
 @Injectable()
 export class StudentsService {
+  private readonly studentSelect = {
+    id: students.id,
+    membershipId: students.membershipId,
+    institutionId: students.institutionId,
+    admissionNumber: students.admissionNumber,
+    firstName: students.firstName,
+    lastName: students.lastName,
+    classId: students.classId,
+    className: schoolClasses.name,
+    sectionId: students.sectionId,
+    sectionName: classSections.name,
+    campusId: campus.id,
+    campusName: campus.name,
+    status: member.status,
+  };
+
   constructor(
     @Inject(DATABASE) private readonly db: AppDatabase,
     private readonly authService: AuthService,
   ) {}
 
-  async listStudents(institutionId: string, authSession: AuthenticatedSession) {
+  async listStudents(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    query: ListStudentsQueryDto = {},
+  ): Promise<PaginatedResult<Awaited<ReturnType<typeof this.getStudent>>>> {
     await this.requireInstitutionAccess(authSession, institutionId);
 
-    return this.listStudentsForInstitution(institutionId);
+    const pageSize = resolveTablePageSize(query.limit);
+    const sortKey = query.sort ?? sortableStudentColumns.name;
+    const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
+    const conditions: SQL[] = [
+      eq(students.institutionId, institutionId),
+      isNull(students.deletedAt),
+      isNull(member.deletedAt),
+      isNull(campus.deletedAt),
+      isNull(schoolClasses.deletedAt),
+      isNull(classSections.deletedAt),
+    ];
+
+    if (query.search) {
+      conditions.push(
+        or(
+          ilike(students.admissionNumber, `%${query.search}%`),
+          ilike(students.firstName, `%${query.search}%`),
+          ilike(students.lastName, `%${query.search}%`),
+        )!,
+      );
+    }
+
+    const where = and(...conditions)!;
+    const [totalRow] = await this.db
+      .select({ count: count() })
+      .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
+      .where(where);
+
+    const total = totalRow?.count ?? 0;
+    const pagination = resolvePagination(total, query.page, pageSize);
+
+    const studentRows = await this.db
+      .select(this.studentSelect)
+      .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
+      .where(where)
+      .orderBy(
+        sortDirection(sortableColumns[sortKey]),
+        asc(students.firstName),
+        asc(students.lastName),
+      )
+      .limit(pageSize)
+      .offset(pagination.offset);
+
+    const guardiansByStudent = await this.listGuardiansForStudentMemberships(
+      studentRows.map((row) => row.membershipId),
+    );
+    const currentEnrollmentByStudent =
+      await this.listCurrentEnrollmentForStudentMemberships(
+        institutionId,
+        studentRows.map((row) => row.membershipId),
+      );
+
+    return {
+      rows: studentRows.map((row) => ({
+        ...row,
+        fullName: [row.firstName, row.lastName].filter(Boolean).join(" "),
+        guardians: guardiansByStudent.get(row.membershipId) ?? [],
+        currentEnrollment:
+          currentEnrollmentByStudent.get(row.membershipId) ?? null,
+      })),
+      total,
+      page: pagination.page,
+      pageSize,
+      pageCount: pagination.pageCount,
+    };
   }
 
   async getStudent(
@@ -98,6 +215,22 @@ export class StudentsService {
     }
 
     return studentRecord;
+  }
+
+  async listStudentOptions(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+  ) {
+    await this.requireInstitutionAccess(authSession, institutionId);
+
+    const studentRows = await this.listStudentsForInstitution(institutionId);
+
+    return studentRows.map((student) => ({
+      id: student.id,
+      admissionNumber: student.admissionNumber,
+      fullName: student.fullName,
+      campusName: student.campusName,
+    }));
   }
 
   async updateStudent(
@@ -265,21 +398,7 @@ export class StudentsService {
     studentId?: string,
   ) {
     const studentRows = await this.db
-      .select({
-        id: students.id,
-        membershipId: students.membershipId,
-        institutionId: students.institutionId,
-        admissionNumber: students.admissionNumber,
-        firstName: students.firstName,
-        lastName: students.lastName,
-        classId: students.classId,
-        className: schoolClasses.name,
-        sectionId: students.sectionId,
-        sectionName: classSections.name,
-        campusId: campus.id,
-        campusName: campus.name,
-        status: member.status,
-      })
+      .select(this.studentSelect)
       .from(students)
       .innerJoin(member, eq(students.membershipId, member.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))

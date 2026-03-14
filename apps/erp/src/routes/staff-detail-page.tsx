@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
@@ -27,6 +27,7 @@ import {
 } from "@/features/staff/model/staff-form-schema";
 import { StaffForm } from "@/features/staff/ui/staff-form";
 import { ERP_ROUTES } from "@/constants/routes";
+import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 function toInitials(name: string) {
@@ -39,6 +40,7 @@ function toInitials(name: string) {
 }
 
 export function StaffDetailPage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { staffId } = useParams();
   const session = useAuthStore((store) => store.session);
@@ -146,7 +148,7 @@ export function StaffDetailPage() {
         </CardHeader>
         <CardContent>
           <Button asChild variant="outline">
-            <Link to={ERP_ROUTES.STAFF}>
+            <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
               <IconChevronLeft data-icon="inline-start" />
               Back to staff
             </Link>
@@ -167,7 +169,7 @@ export function StaffDetailPage() {
           </div>
           <div className="space-y-1">
             <Button asChild className="-ml-3" size="sm" variant="ghost">
-              <Link to={ERP_ROUTES.STAFF}>
+              <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
                 <IconChevronLeft data-icon="inline-start" />
                 Back to staff
               </Link>
@@ -185,7 +187,10 @@ export function StaffDetailPage() {
             </p>
           </div>
         </div>
-        <Button onClick={() => void navigate(ERP_ROUTES.STAFF)} variant="outline">
+        <Button
+          onClick={() => void navigate(appendSearch(ERP_ROUTES.STAFF, location.search))}
+          variant="outline"
+        >
           Done
         </Button>
       </div>

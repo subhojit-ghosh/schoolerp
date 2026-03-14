@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Link, useNavigate, useParams } from "react-router";
+import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
@@ -29,6 +29,7 @@ import {
   toStudentMutationBody,
   type StudentFormValues,
 } from "@/features/students/model/student-form-schema";
+import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 function toInitials(name: string) {
@@ -41,6 +42,7 @@ function toInitials(name: string) {
 }
 
 export function StudentDetailPage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { studentId } = useParams();
   const session = useAuthStore((store) => store.session);
@@ -163,7 +165,7 @@ export function StudentDetailPage() {
         </CardHeader>
         <CardContent>
           <Button asChild variant="outline">
-            <Link to={ERP_ROUTES.STUDENTS}>
+            <Link to={appendSearch(ERP_ROUTES.STUDENTS, location.search)}>
               <IconChevronLeft data-icon="inline-start" />
               Back to students
             </Link>
@@ -184,7 +186,7 @@ export function StudentDetailPage() {
           </div>
           <div className="space-y-1">
             <Button asChild className="-ml-3" size="sm" variant="ghost">
-              <Link to={ERP_ROUTES.STUDENTS}>
+              <Link to={appendSearch(ERP_ROUTES.STUDENTS, location.search)}>
                 <IconChevronLeft data-icon="inline-start" />
                 Back to students
               </Link>
@@ -200,7 +202,10 @@ export function StudentDetailPage() {
             </p>
           </div>
         </div>
-        <Button onClick={() => void navigate(ERP_ROUTES.STUDENTS)} variant="outline">
+        <Button
+          onClick={() => void navigate(appendSearch(ERP_ROUTES.STUDENTS, location.search))}
+          variant="outline"
+        >
           Done
         </Button>
       </div>

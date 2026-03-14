@@ -1,6 +1,19 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { SORT_ORDERS } from "@/constants/query";
 import { GUARDIANS_API_PATHS, STUDENTS_API_PATHS } from "@/features/auth/api/auth.constants";
+import { GUARDIAN_LIST_SORT_FIELDS } from "@/features/guardians/model/guardian-list.constants";
 import { apiQueryClient } from "@/lib/api/client";
+
+type GuardiansListSort =
+  (typeof GUARDIAN_LIST_SORT_FIELDS)[keyof typeof GUARDIAN_LIST_SORT_FIELDS];
+
+type GuardiansListQuery = {
+  limit?: number;
+  order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
+  page?: number;
+  q?: string;
+  sort?: GuardiansListSort;
+};
 
 function invalidateGuardianList(queryClient: ReturnType<typeof useQueryClient>, _institutionId: string) {
   return queryClient.invalidateQueries({
@@ -46,11 +59,20 @@ function invalidateStudentDetail(
   });
 }
 
-export function useGuardiansQuery(institutionId: string | undefined) {
+export function useGuardiansQuery(
+  institutionId: string | undefined,
+  query?: GuardiansListQuery,
+) {
   return apiQueryClient.useQuery(
     "get",
     GUARDIANS_API_PATHS.LIST,
-    undefined,
+    query
+      ? {
+          params: {
+            query,
+          },
+        }
+      : undefined,
     {
       enabled: Boolean(institutionId),
     },

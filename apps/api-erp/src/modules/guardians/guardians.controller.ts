@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -24,12 +25,15 @@ import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.gua
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   GuardianDto,
+  ListGuardiansQueryDto,
+  ListGuardiansResultDto,
   LinkGuardianStudentBodyDto,
   UpdateGuardianBodyDto,
   UpdateGuardianStudentLinkBodyDto,
 } from "./guardians.dto";
 import {
   parseLinkGuardianStudent,
+  parseListGuardiansQuery,
   parseUpdateGuardian,
   parseUpdateGuardianStudentLink,
 } from "./guardians.schemas";
@@ -46,12 +50,17 @@ export class GuardiansController {
   @ApiOperation({
     summary: "List guardians for the current tenant institution",
   })
-  @ApiOkResponse({ type: GuardianDto, isArray: true })
+  @ApiOkResponse({ type: ListGuardiansResultDto })
   listGuardians(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @Query() query: ListGuardiansQueryDto,
   ) {
-    return this.guardiansService.listGuardians(institution.id, authSession);
+    return this.guardiansService.listGuardians(
+      institution.id,
+      authSession,
+      parseListGuardiansQuery(query),
+    );
   }
 
   @Get(":guardianId")

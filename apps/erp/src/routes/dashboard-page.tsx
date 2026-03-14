@@ -73,7 +73,7 @@ export function DashboardPage() {
   const institutionId = session?.activeOrganization?.id;
   const linkedStudents = session?.linkedStudents ?? [];
   const studentsQuery = useStudentsQuery(institutionId);
-  const studentCount = studentsQuery.data?.length ?? 0;
+  const studentCount = studentsQuery.data?.total ?? 0;
 
   if (activeContext?.key === AUTH_CONTEXT_KEYS.PARENT) {
     return (
