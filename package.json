@@ -22,6 +22,9 @@
     "db:studio": "bun run --cwd packages/database db:studio"
   },
   "devDependencies": {
-    "turbo": "^2.8.16"
+    "turbo": "^2.8.17"
+  },
+  "dependencies": {
+    "@scalar/nestjs-api-reference": "^1.1.3"
   }
 }
