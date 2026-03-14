@@ -250,7 +250,7 @@ export function CampusesPage() {
               )}
             >
               <IconPlus className="size-4" />
-              Add campus
+              New campus
             </Link>
           </EntityPagePrimaryAction>
         }
@@ -283,7 +283,7 @@ export function CampusesPage() {
                   )}
                 >
                   <IconPlus className="size-4" />
-                  Create first campus
+                  New campus
                 </Link>
               </EntityEmptyStateAction>
             ) : undefined

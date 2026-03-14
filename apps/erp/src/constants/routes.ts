@@ -6,6 +6,9 @@ export const ERP_ROUTE_SEGMENTS = {
 export const ERP_ROUTES = {
   ROOT: "/",
   DASHBOARD: "/dashboard",
+  // Admissions
+  ADMISSIONS_ENQUIRIES: "/admissions/enquiries",
+  ADMISSIONS_APPLICATIONS: "/admissions/applications",
   // People
   STUDENTS: "/students",
   STUDENT_CREATE: `/students/${ERP_ROUTE_SEGMENTS.NEW}`,
@@ -22,14 +25,24 @@ export const ERP_ROUTES = {
   CLASSES: "/classes",
   CLASS_CREATE: `/classes/${ERP_ROUTE_SEGMENTS.NEW}`,
   CLASS_EDIT: `/classes/:classId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  SUBJECTS: "/subjects",
+  TIMETABLE: "/timetable",
+  CALENDAR: "/calendar",
   ATTENDANCE: "/attendance",
   EXAMS: "/exams",
   // Finance
   FEES: "/fees",
+  // Communication
+  ANNOUNCEMENTS: "/announcements",
+  // Reports
+  REPORTS_ATTENDANCE: "/reports/attendance",
+  REPORTS_EXAMS: "/reports/exams",
+  REPORTS_FEES: "/reports/fees",
   // Settings
   SETTINGS_CAMPUSES: "/settings/campuses",
   SETTINGS_CAMPUSES_CREATE: `/settings/campuses/${ERP_ROUTE_SEGMENTS.NEW}`,
   SETTINGS_BRANDING: "/settings/branding",
+  SETTINGS_ROLES: "/settings/roles",
   // Auth
   SIGN_IN: "/sign-in",
   FORGOT_PASSWORD: "/forgot-password",

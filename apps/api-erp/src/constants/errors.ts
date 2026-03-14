@@ -63,6 +63,12 @@ export const ERROR_MESSAGES = {
     SECTION_NAME_EXISTS: "Section names must be unique within a class.",
     CLASS_HAS_STUDENTS:
       "Cannot delete a class that has enrolled students. Remove or reassign the students first.",
+    CLASS_HAS_CURRENT_ENROLLMENTS:
+      "Cannot delete a class that is still used by current enrollments. Update those enrollments first.",
+    SECTION_HAS_STUDENTS:
+      "Cannot remove a section that has enrolled students. Reassign the students first.",
+    SECTION_HAS_CURRENT_ENROLLMENTS:
+      "Cannot remove a section that is still used by current enrollments. Update those enrollments first.",
   },
   ATTENDANCE: {
     CLASS_SECTION_REQUIRED: "Class and section are required for attendance.",

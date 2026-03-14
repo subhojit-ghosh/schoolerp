@@ -102,7 +102,6 @@ export function ClassesPage() {
   });
 
   const classesQuery = useClassesQuery(canQueryClasses, {
-    campusId: activeCampusId,
     limit: queryState.pageSize,
     order: queryState.sortOrder,
     page: queryState.page,
@@ -346,7 +345,7 @@ export function ClassesPage() {
       params: { path: { classId: deleteTarget.id } },
     });
 
-    toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.CLASS));
+    toast.success(ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.CLASS));
     setDeleteTarget(null);
   }
 
@@ -386,7 +385,7 @@ export function ClassesPage() {
           <EntityPagePrimaryAction asChild>
             <Link to={appendSearch(ERP_ROUTES.CLASS_CREATE, location.search)}>
               <IconPlus className="size-4" />
-              Add class
+              New class
             </Link>
           </EntityPagePrimaryAction>
         }
@@ -416,7 +415,7 @@ export function ClassesPage() {
                   to={appendSearch(ERP_ROUTES.CLASS_CREATE, location.search)}
                 >
                   <IconPlus className="size-4" />
-                  Add first class
+                  New class
                 </Link>
               </EntityEmptyStateAction>
             ) : null
@@ -453,9 +452,9 @@ export function ClassesPage() {
             setDeleteTarget(null);
           }
         }}
-        title={`Delete "${deleteTarget?.name ?? "class"}"`}
-        description="This will permanently remove the class and all its sections. This cannot be undone."
-        confirmLabel="Delete class"
+        title={`Archive "${deleteTarget?.name ?? "class"}"`}
+        description="This archives the class record after confirming no active students or current enrollments still depend on it."
+        confirmLabel="Archive class"
         isPending={deleteMutation.isPending}
         onConfirm={handleDelete}
       />

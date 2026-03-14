@@ -348,6 +348,7 @@ export const classSections = pgTable(
       .notNull()
       .references(() => schoolClasses.id, { onDelete: "cascade" }),
     name: text().notNull(),
+    isActive: boolean().notNull().default(true),
     displayOrder: integer().notNull().default(0),
     createdAt: timestamp().notNull().defaultNow(),
     deletedAt: timestamp(),
@@ -355,9 +356,10 @@ export const classSections = pgTable(
   (table) => [
     index("sections_institution_idx").on(table.institutionId),
     index("sections_class_idx").on(table.classId),
+    index("sections_class_active_idx").on(table.classId, table.isActive),
     uniqueIndex("sections_name_per_class_unique_idx")
       .on(table.classId, table.name)
-      .where(sql`${table.deletedAt} IS NULL`),
+      .where(sql`${table.isActive} IS TRUE AND ${table.deletedAt} IS NULL`),
   ],
 );
 

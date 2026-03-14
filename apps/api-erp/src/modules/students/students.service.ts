@@ -132,6 +132,7 @@ export class StudentsService {
       isNull(member.deletedAt),
       isNull(campus.deletedAt),
       isNull(schoolClasses.deletedAt),
+      eq(classSections.isActive, true),
       isNull(classSections.deletedAt),
     ];
 
@@ -412,6 +413,7 @@ export class StudentsService {
           isNull(member.deletedAt),
           isNull(campus.deletedAt),
           isNull(schoolClasses.deletedAt),
+          eq(classSections.isActive, true),
           isNull(classSections.deletedAt),
         ),
       );
@@ -683,6 +685,7 @@ export class StudentsService {
           isNull(studentCurrentEnrollments.deletedAt),
           isNull(academicYears.deletedAt),
           isNull(schoolClasses.deletedAt),
+          eq(classSections.isActive, true),
           isNull(classSections.deletedAt),
         ),
       );
@@ -1004,6 +1007,7 @@ export class StudentsService {
           eq(schoolClasses.id, classId),
           eq(classSections.id, sectionId),
           isNull(schoolClasses.deletedAt),
+          eq(classSections.isActive, true),
           isNull(classSections.deletedAt),
         ),
       )

@@ -726,42 +726,42 @@ export interface components {
             status: string;
         };
         SignUpBodyDto: {
+            email?: string | null;
             name: string;
             mobile: string;
-            email?: string | null;
             password: string;
             tenantSlug?: string;
         };
         AuthUserDto: {
+            email: string | null;
             id: string;
             name: string;
             mobile: string;
-            email: string | null;
         };
         AuthMembershipDto: {
-            id: string;
-            organizationId: string;
-            organizationName: string;
-            organizationSlug: string;
             /** @enum {string} */
             memberType: "staff" | "student" | "guardian";
             /** @enum {string} */
             status: "active" | "inactive" | "suspended";
             primaryCampusId: string | null;
+            id: string;
+            organizationId: string;
+            organizationName: string;
+            organizationSlug: string;
         };
         AuthOrganizationDto: {
+            institutionType: string | null;
+            logoUrl: string | null;
+            faviconUrl: string | null;
+            /** @enum {string} */
+            status: "active" | "suspended";
             id: string;
             name: string;
             shortName: string;
             slug: string;
-            institutionType: string | null;
-            logoUrl: string | null;
-            faviconUrl: string | null;
             primaryColor: string;
             accentColor: string;
             sidebarColor: string;
-            /** @enum {string} */
-            status: "active" | "suspended";
         };
         AuthAccessContextDto: {
             /** @enum {string} */
@@ -771,24 +771,24 @@ export interface components {
             membershipIds: string[];
         };
         AuthCampusDto: {
+            code: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
             id: string;
             organizationId: string;
             name: string;
             slug: string;
-            code: string | null;
             isDefault: boolean;
-            /** @enum {string} */
-            status: "active" | "inactive";
         };
         AuthLinkedStudentDto: {
+            /** @enum {string|null} */
+            relationship: "father" | "mother" | "guardian" | null;
             studentId: string;
             membershipId: string;
             fullName: string;
             admissionNumber: string;
             campusId: string;
             campusName: string;
-            /** @enum {string|null} */
-            relationship: "father" | "mother" | "guardian" | null;
         };
         AuthContextDto: {
             user: components["schemas"]["AuthUserDto"];
@@ -811,8 +811,8 @@ export interface components {
             identifier: string;
         };
         ForgotPasswordResponseDto: {
-            success: boolean;
             resetTokenPreview?: string | null;
+            success: boolean;
         };
         ResetPasswordBodyDto: {
             token: string;
@@ -867,6 +867,10 @@ export interface components {
             name: string;
             displayOrder: number;
         };
+        ArchivedClassSectionDto: {
+            id: string;
+            name: string;
+        };
         ClassDto: {
             id: string;
             institutionId: string;
@@ -876,6 +880,7 @@ export interface components {
             isActive: boolean;
             displayOrder: number;
             sections: components["schemas"]["ClassSectionDto"][];
+            archivedSections: components["schemas"]["ArchivedClassSectionDto"][];
         };
         ListClassesResultDto: {
             rows: components["schemas"]["ClassDto"][];
@@ -902,13 +907,13 @@ export interface components {
             isActive: boolean;
         };
         StudentGuardianDto: {
-            membershipId: string;
             userId?: string | null;
-            name: string;
-            mobile: string;
             email?: string | null;
             /** @enum {string} */
             relationship: "father" | "mother" | "guardian";
+            membershipId: string;
+            name: string;
+            mobile: string;
             isPrimary: boolean;
         };
         CurrentStudentEnrollmentDto: {
@@ -920,12 +925,16 @@ export interface components {
             sectionName: string;
         };
         StudentDto: {
+            lastName?: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive" | "suspended";
+            guardians: components["schemas"]["StudentGuardianDto"][];
+            currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentDto"] | null;
             id: string;
             membershipId: string;
             institutionId: string;
             admissionNumber: string;
             firstName: string;
-            lastName?: string | null;
             classId: string;
             className: string;
             sectionId: string;
@@ -933,10 +942,6 @@ export interface components {
             fullName: string;
             campusId: string;
             campusName: string;
-            /** @enum {string} */
-            status: "active" | "inactive" | "suspended";
-            guardians: components["schemas"]["StudentGuardianDto"][];
-            currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentDto"] | null;
         };
         ListStudentsResultDto: {
             rows: components["schemas"]["StudentDto"][];
@@ -952,11 +957,11 @@ export interface components {
             campusName: string;
         };
         CreateGuardianLinkBodyDto: {
-            name: string;
-            mobile: string;
             email?: string | null;
             /** @enum {string} */
             relationship: "father" | "mother" | "guardian";
+            name: string;
+            mobile: string;
             isPrimary: boolean;
         };
         CurrentStudentEnrollmentBodyDto: {
@@ -965,24 +970,24 @@ export interface components {
             sectionId: string;
         };
         CreateStudentBodyDto: {
+            lastName?: string | null;
+            guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
+            currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
             admissionNumber: string;
             firstName: string;
-            lastName?: string | null;
             classId: string;
             sectionId: string;
             campusId: string;
-            guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
-            currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
         };
         UpdateStudentBodyDto: {
+            lastName?: string | null;
+            guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
+            currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
             admissionNumber: string;
             firstName: string;
-            lastName?: string | null;
             classId: string;
             sectionId: string;
             campusId: string;
-            guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
-            currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
         };
         StaffRoleDto: {
             id: string;
@@ -990,19 +995,19 @@ export interface components {
             slug: string;
         };
         StaffDto: {
+            email?: string | null;
+            /** @enum {string} */
+            memberType: "staff" | "student" | "guardian";
+            /** @enum {string} */
+            status: "active" | "inactive" | "suspended";
+            role?: components["schemas"]["StaffRoleDto"] | null;
             id: string;
             userId: string;
             institutionId: string;
             name: string;
             mobile: string;
-            email?: string | null;
-            /** @enum {string} */
-            memberType: "staff" | "student" | "guardian";
             campusId: string;
             campusName: string;
-            /** @enum {string} */
-            status: "active" | "inactive" | "suspended";
-            role?: components["schemas"]["StaffRoleDto"] | null;
         };
         ListStaffResultDto: {
             rows: components["schemas"]["StaffDto"][];
@@ -1012,46 +1017,46 @@ export interface components {
             pageCount: number;
         };
         CreateStaffBodyDto: {
-            name: string;
-            mobile: string;
             email?: string | null;
-            campusId: string;
             roleId?: string | null;
             /** @enum {string} */
             status: "active" | "inactive" | "suspended";
+            name: string;
+            mobile: string;
+            campusId: string;
         };
         UpdateStaffBodyDto: {
-            name: string;
-            mobile: string;
             email?: string | null;
-            campusId: string;
             roleId?: string | null;
             /** @enum {string} */
             status: "active" | "inactive" | "suspended";
+            name: string;
+            mobile: string;
+            campusId: string;
         };
         GuardianLinkedStudentDto: {
+            /** @enum {string} */
+            relationship: "father" | "mother" | "guardian";
             studentId: string;
             membershipId: string;
             fullName: string;
             admissionNumber: string;
             campusId: string;
             campusName: string;
-            /** @enum {string} */
-            relationship: "father" | "mother" | "guardian";
             isPrimary: boolean;
         };
         GuardianDto: {
-            id: string;
             userId?: string | null;
-            institutionId: string;
-            name: string;
-            mobile: string;
             email?: string | null;
-            campusId: string;
-            campusName: string;
             /** @enum {string} */
             status: "active" | "inactive" | "suspended";
             linkedStudents: components["schemas"]["GuardianLinkedStudentDto"][];
+            id: string;
+            institutionId: string;
+            name: string;
+            mobile: string;
+            campusId: string;
+            campusName: string;
         };
         ListGuardiansResultDto: {
             rows: components["schemas"]["GuardianDto"][];
@@ -1061,15 +1066,15 @@ export interface components {
             pageCount: number;
         };
         UpdateGuardianBodyDto: {
+            email?: string | null;
             name: string;
             mobile: string;
-            email?: string | null;
             campusId: string;
         };
         LinkGuardianStudentBodyDto: {
-            studentId: string;
             /** @enum {string} */
             relationship: "father" | "mother" | "guardian";
+            studentId: string;
             isPrimary: boolean;
         };
         UpdateGuardianStudentLinkBodyDto: {
@@ -1078,15 +1083,15 @@ export interface components {
             isPrimary: boolean;
         };
         AcademicYearDto: {
+            /** @enum {string} */
+            status: "active" | "archived";
+            /** Format: date-time */
+            createdAt: string;
             id: string;
             name: string;
             startDate: string;
             endDate: string;
             isCurrent: boolean;
-            /** @enum {string} */
-            status: "active" | "archived";
-            /** Format: date-time */
-            createdAt: string;
         };
         ListAcademicYearsResultDto: {
             rows: components["schemas"]["AcademicYearDto"][];
@@ -1113,32 +1118,32 @@ export interface components {
             studentCount: number;
         };
         AttendanceStudentEntryDto: {
+            /** @enum {string|null} */
+            status: "present" | "absent" | "late" | "excused" | null;
             studentId: string;
             admissionNumber: string;
             fullName: string;
-            /** @enum {string|null} */
-            status: "present" | "absent" | "late" | "excused" | null;
         };
         AttendanceDayDto: {
+            entries: components["schemas"]["AttendanceStudentEntryDto"][];
             attendanceDate: string;
             campusId: string;
             campusName: string;
             classId: string;
             sectionId: string;
             totalStudents: number;
-            entries: components["schemas"]["AttendanceStudentEntryDto"][];
         };
         AttendanceDayEntryBodyDto: {
-            studentId: string;
             /** @enum {string} */
             status: "present" | "absent" | "late" | "excused";
+            studentId: string;
         };
         UpsertAttendanceDayBodyDto: {
+            entries: components["schemas"]["AttendanceDayEntryBodyDto"][];
             attendanceDate: string;
             campusId: string;
             classId: string;
             sectionId: string;
-            entries: components["schemas"]["AttendanceDayEntryBodyDto"][];
         };
         AttendanceSummaryCountsDto: {
             present: number;
@@ -1147,15 +1152,17 @@ export interface components {
             excused: number;
         };
         AttendanceDayViewItemDto: {
+            counts: components["schemas"]["AttendanceSummaryCountsDto"];
             attendanceDate: string;
             campusId: string;
             campusName: string;
             classId: string;
             sectionId: string;
             totalStudents: number;
-            counts: components["schemas"]["AttendanceSummaryCountsDto"];
         };
         ExamTermDto: {
+            /** Format: date-time */
+            createdAt: string;
             id: string;
             institutionId: string;
             academicYearId: string;
@@ -1163,8 +1170,6 @@ export interface components {
             name: string;
             startDate: string;
             endDate: string;
-            /** Format: date-time */
-            createdAt: string;
         };
         CreateExamTermBodyDto: {
             academicYearId: string;
@@ -1173,6 +1178,9 @@ export interface components {
             endDate: string;
         };
         ExamMarkDto: {
+            remarks?: string | null;
+            /** Format: date-time */
+            createdAt: string;
             id: string;
             examTermId: string;
             studentId: string;
@@ -1181,47 +1189,50 @@ export interface components {
             subjectName: string;
             maxMarks: number;
             obtainedMarks: number;
-            remarks?: string | null;
-            /** Format: date-time */
-            createdAt: string;
         };
         UpsertExamMarkEntryBodyDto: {
+            remarks?: string | null;
             studentId: string;
             subjectName: string;
             maxMarks: number;
             obtainedMarks: number;
-            remarks?: string | null;
         };
         UpsertExamMarksBodyDto: {
             entries: components["schemas"]["UpsertExamMarkEntryBodyDto"][];
         };
         FeeStructureDto: {
+            campusId?: string | null;
+            campusName?: string | null;
+            description?: string | null;
+            /** @enum {string} */
+            scope: "institution" | "campus";
+            /** Format: date-time */
+            createdAt: string;
             id: string;
             institutionId: string;
             academicYearId: string;
             academicYearName: string;
-            campusId?: string | null;
-            campusName?: string | null;
             name: string;
-            description?: string | null;
-            /** @enum {string} */
-            scope: "institution" | "campus";
             amountInPaise: number;
             dueDate: string;
-            /** Format: date-time */
-            createdAt: string;
         };
         CreateFeeStructureBodyDto: {
-            academicYearId: string;
             campusId?: string | null;
-            name: string;
             description?: string | null;
             /** @enum {string} */
             scope: "institution" | "campus";
+            academicYearId: string;
+            name: string;
             amount: number;
             dueDate: string;
         };
         FeeAssignmentDto: {
+            campusName?: string | null;
+            /** @enum {string} */
+            status: "pending" | "partial" | "paid";
+            notes?: string | null;
+            /** Format: date-time */
+            createdAt: string;
             id: string;
             institutionId: string;
             feeStructureId: string;
@@ -1229,46 +1240,40 @@ export interface components {
             studentId: string;
             studentAdmissionNumber: string;
             studentFullName: string;
-            campusName?: string | null;
             assignedAmountInPaise: number;
             paidAmountInPaise: number;
             outstandingAmountInPaise: number;
             paymentCount: number;
             dueDate: string;
-            /** @enum {string} */
-            status: "pending" | "partial" | "paid";
-            notes?: string | null;
-            /** Format: date-time */
-            createdAt: string;
         };
         CreateFeeAssignmentBodyDto: {
+            notes?: string | null;
             feeStructureId: string;
             studentId: string;
             amount: number;
             dueDate: string;
-            notes?: string | null;
         };
         CreateFeePaymentBodyDto: {
-            feeAssignmentId: string;
-            amount: number;
-            paymentDate: string;
             /** @enum {string} */
             paymentMethod: "cash" | "upi" | "bank_transfer" | "card";
             referenceNumber?: string | null;
             notes?: string | null;
+            feeAssignmentId: string;
+            amount: number;
+            paymentDate: string;
         };
         FeePaymentDto: {
+            /** @enum {string} */
+            paymentMethod: "cash" | "upi" | "bank_transfer" | "card";
+            referenceNumber?: string | null;
+            notes?: string | null;
+            /** Format: date-time */
+            createdAt: string;
             id: string;
             institutionId: string;
             feeAssignmentId: string;
             amountInPaise: number;
             paymentDate: string;
-            /** @enum {string} */
-            paymentMethod: "cash" | "upi" | "bank_transfer" | "card";
-            referenceNumber?: string | null;
-            notes?: string | null;
-            /** Format: date-time */
-            createdAt: string;
         };
         InstitutionDto: {
             id: string;
@@ -1335,11 +1340,11 @@ export interface components {
             uiDensity: "compact" | "default" | "comfortable" | null;
         };
         TenantBrandingDto: {
+            logoUrl: string | null;
+            faviconUrl: string | null;
             institutionName: string;
             shortName: string;
             tenantSlug: string;
-            logoUrl: string | null;
-            faviconUrl: string | null;
             primaryColor: string;
             accentColor: string;
             sidebarColor: string;
@@ -1784,9 +1789,9 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
-                q?: string;
                 sort?: "admissionNumber" | "campus" | "name";
                 order?: "asc" | "desc";
+                q?: string;
             };
             header?: never;
             path?: never;
@@ -1897,9 +1902,9 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
-                q?: string;
                 sort?: "campus" | "name" | "status";
                 order?: "asc" | "desc";
+                q?: string;
             };
             header?: never;
             path?: never;
@@ -2010,9 +2015,9 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
-                q?: string;
                 sort?: "campus" | "name" | "status";
                 order?: "asc" | "desc";
+                q?: string;
             };
             header?: never;
             path?: never;
@@ -2154,9 +2159,9 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
-                q?: string;
                 sort?: "current" | "endDate" | "name" | "startDate";
                 order?: "asc" | "desc";
+                q?: string;
             };
             header?: never;
             path?: never;

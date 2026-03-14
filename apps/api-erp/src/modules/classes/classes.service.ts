@@ -7,7 +7,13 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
-import { campus, classSections, schoolClasses, students } from "@repo/database";
+import {
+  campus,
+  classSections,
+  schoolClasses,
+  studentCurrentEnrollments,
+  students,
+} from "@repo/database";
 import {
   and,
   asc,
@@ -38,6 +44,12 @@ const sortableColumns = {
   name: schoolClasses.name,
   status: schoolClasses.isActive,
 } as const;
+
+type ClassesSelectExecutor = Pick<AppDatabase, "select">;
+
+function normalizeSectionName(name: string) {
+  return name.trim().toLowerCase();
+}
 
 @Injectable()
 export class ClassesService {
@@ -134,6 +146,8 @@ export class ClassesService {
     const [classRecord] = await this.listClassesForInstitution(
       institutionId,
       classId,
+      undefined,
+      true,
     );
 
     if (!classRecord) {
@@ -214,26 +228,33 @@ export class ClassesService {
         })
         .where(eq(schoolClasses.id, classId));
 
-      const activeSections = await tx
+      const existingSections = await tx
         .select({
           id: classSections.id,
+          name: classSections.name,
+          isActive: classSections.isActive,
+          deletedAt: classSections.deletedAt,
         })
         .from(classSections)
-        .where(
-          and(
-            eq(classSections.classId, classId),
-            isNull(classSections.deletedAt),
-          ),
-        );
+        .where(eq(classSections.classId, classId));
 
       const activeSectionIds = new Set(
-        activeSections.map((section) => section.id),
+        existingSections
+          .filter((section) => section.isActive && section.deletedAt === null)
+          .map((section) => section.id),
+      );
+      const existingSectionsById = new Map(
+        existingSections.map((section) => [section.id, section]),
       );
       const nextSectionIds = new Set<string>();
 
       for (const [index, section] of payload.sections.entries()) {
+        const normalizedSectionName = normalizeSectionName(section.name);
+
         if (section.id) {
-          if (!activeSectionIds.has(section.id)) {
+          const existingSection = existingSectionsById.get(section.id);
+
+          if (!existingSection) {
             throw new NotFoundException(ERROR_MESSAGES.CLASSES.CLASS_NOT_FOUND);
           }
 
@@ -243,17 +264,39 @@ export class ClassesService {
             .update(classSections)
             .set({
               name: section.name.trim(),
+              isActive: true,
               displayOrder: index,
-              deletedAt: null,
             })
             .where(eq(classSections.id, section.id));
 
           continue;
         }
 
+        const matchingDeletedSection = existingSections.find(
+          (existingSection) =>
+            (!existingSection.isActive || existingSection.deletedAt !== null) &&
+            !nextSectionIds.has(existingSection.id) &&
+            normalizeSectionName(existingSection.name) === normalizedSectionName,
+        );
+
+        if (matchingDeletedSection) {
+          nextSectionIds.add(matchingDeletedSection.id);
+
+          await tx
+            .update(classSections)
+            .set({
+              name: section.name.trim(),
+              isActive: true,
+              displayOrder: index,
+              deletedAt: null,
+            })
+            .where(eq(classSections.id, matchingDeletedSection.id));
+
+          continue;
+        }
+
         const nextSectionId = randomUUID();
         nextSectionIds.add(nextSectionId);
-
         await tx.insert(classSections).values({
           id: nextSectionId,
           institutionId,
@@ -263,15 +306,18 @@ export class ClassesService {
         });
       }
 
-      const removedSectionIds = activeSections
+      const removedSectionIds = existingSections
+        .filter((section) => section.isActive && section.deletedAt === null)
         .map((section) => section.id)
         .filter((sectionId) => !nextSectionIds.has(sectionId));
 
       if (removedSectionIds.length > 0) {
+        await this.assertSectionsRemovable(tx, institutionId, removedSectionIds);
+
         await tx
           .update(classSections)
           .set({
-            deletedAt: new Date(),
+            isActive: false,
           })
           .where(inArray(classSections.id, removedSectionIds));
       }
@@ -310,21 +356,7 @@ export class ClassesService {
     await this.requireInstitutionAccess(authSession, institutionId);
     await this.getClassOrThrow(institutionId, classId);
 
-    const [enrolledStudent] = await this.db
-      .select({ id: students.id })
-      .from(students)
-      .where(
-        and(
-          eq(students.classId, classId),
-          eq(students.institutionId, institutionId),
-          isNull(students.deletedAt),
-        ),
-      )
-      .limit(1);
-
-    if (enrolledStudent) {
-      throw new ConflictException(ERROR_MESSAGES.CLASSES.CLASS_HAS_STUDENTS);
-    }
+    await this.assertClassRemovable(institutionId, classId);
 
     await this.db
       .update(schoolClasses)
@@ -341,6 +373,7 @@ export class ClassesService {
     institutionId: string,
     classId?: string,
     campusId?: string,
+    includeArchivedSections = false,
   ) {
     const classRows = await this.db
       .select({
@@ -367,23 +400,34 @@ export class ClassesService {
 
     const sectionsByClassId = await this.listSectionsForClassIds(
       classRows.map((row) => row.id),
+      includeArchivedSections,
     );
 
     return classRows.map((row) => ({
       ...row,
-      sections: sectionsByClassId.get(row.id) ?? [],
+      sections: sectionsByClassId.get(row.id)?.active ?? [],
+      archivedSections: sectionsByClassId.get(row.id)?.archived ?? [],
     }));
   }
 
-  private async listSectionsForClassIds(classIds: string[]) {
+  private async listSectionsForClassIds(
+    classIds: string[],
+    includeArchivedSections = false,
+  ) {
     const sectionsByClassId = new Map<
       string,
-      Array<{
-        id: string;
-        classId: string;
-        name: string;
-        displayOrder: number;
-      }>
+      {
+        active: Array<{
+          id: string;
+          classId: string;
+          name: string;
+          displayOrder: number;
+        }>;
+        archived: Array<{
+          id: string;
+          name: string;
+        }>;
+      }
     >();
 
     if (classIds.length === 0) {
@@ -395,20 +439,36 @@ export class ClassesService {
         id: classSections.id,
         classId: classSections.classId,
         name: classSections.name,
+        isActive: classSections.isActive,
         displayOrder: classSections.displayOrder,
+        deletedAt: classSections.deletedAt,
       })
       .from(classSections)
       .where(
-        and(
-          inArray(classSections.classId, classIds),
-          isNull(classSections.deletedAt),
-        ),
+        and(inArray(classSections.classId, classIds)),
       )
       .orderBy(asc(classSections.displayOrder), asc(classSections.name));
 
     for (const section of sectionRows) {
-      const currentSections = sectionsByClassId.get(section.classId) ?? [];
-      currentSections.push(section);
+      const currentSections = sectionsByClassId.get(section.classId) ?? {
+        active: [],
+        archived: [],
+      };
+
+      if (section.isActive && section.deletedAt === null) {
+        currentSections.active.push({
+          id: section.id,
+          classId: section.classId,
+          name: section.name,
+          displayOrder: section.displayOrder,
+        });
+      } else if (includeArchivedSections) {
+        currentSections.archived.push({
+          id: section.id,
+          name: section.name,
+        });
+      }
+
       sectionsByClassId.set(section.classId, currentSections);
     }
 
@@ -435,6 +495,82 @@ export class ClassesService {
     }
 
     return classRecord;
+  }
+
+  private async assertClassRemovable(institutionId: string, classId: string) {
+    const [enrolledStudent] = await this.db
+      .select({ id: students.id })
+      .from(students)
+      .where(
+        and(
+          eq(students.classId, classId),
+          eq(students.institutionId, institutionId),
+          isNull(students.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (enrolledStudent) {
+      throw new ConflictException(ERROR_MESSAGES.CLASSES.CLASS_HAS_STUDENTS);
+    }
+
+    const [currentEnrollment] = await this.db
+      .select({ id: studentCurrentEnrollments.id })
+      .from(studentCurrentEnrollments)
+      .where(
+        and(
+          eq(studentCurrentEnrollments.classId, classId),
+          eq(studentCurrentEnrollments.institutionId, institutionId),
+          isNull(studentCurrentEnrollments.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (currentEnrollment) {
+      throw new ConflictException(
+        ERROR_MESSAGES.CLASSES.CLASS_HAS_CURRENT_ENROLLMENTS,
+      );
+    }
+  }
+
+  private async assertSectionsRemovable(
+    db: ClassesSelectExecutor,
+    institutionId: string,
+    sectionIds: string[],
+  ) {
+    const [enrolledStudent] = await db
+      .select({ id: students.id })
+      .from(students)
+      .where(
+        and(
+          eq(students.institutionId, institutionId),
+          inArray(students.sectionId, sectionIds),
+          isNull(students.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (enrolledStudent) {
+      throw new ConflictException(ERROR_MESSAGES.CLASSES.SECTION_HAS_STUDENTS);
+    }
+
+    const [currentEnrollment] = await db
+      .select({ id: studentCurrentEnrollments.id })
+      .from(studentCurrentEnrollments)
+      .where(
+        and(
+          eq(studentCurrentEnrollments.institutionId, institutionId),
+          inArray(studentCurrentEnrollments.sectionId, sectionIds),
+          isNull(studentCurrentEnrollments.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (currentEnrollment) {
+      throw new ConflictException(
+        ERROR_MESSAGES.CLASSES.SECTION_HAS_CURRENT_ENROLLMENTS,
+      );
+    }
   }
 
   private async getCampus(institutionId: string, campusId: string) {

@@ -3047,6 +3047,21 @@
           "displayOrder"
         ]
       },
+      "ArchivedClassSectionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
       "ClassDto": {
         "type": "object",
         "properties": {
@@ -3076,6 +3091,12 @@
             "items": {
               "$ref": "#/components/schemas/ClassSectionDto"
             }
+          },
+          "archivedSections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ArchivedClassSectionDto"
+            }
           }
         },
         "required": [
@@ -3086,7 +3107,8 @@
           "name",
           "isActive",
           "displayOrder",
-          "sections"
+          "sections",
+          "archivedSections"
         ]
       },
       "ListClassesResultDto": {

@@ -139,7 +139,7 @@ export function AcademicYearSheetRoute({ mode }: AcademicYearSheetRouteProps) {
           ? "Create a new academic year for this institution."
           : "Update the selected academic year. The backend keeps the current-year rule authoritative."
       }
-      title={mode === "create" ? "Create academic year" : "Edit academic year"}
+      title={mode === "create" ? "New academic year" : "Edit academic year"}
     >
       <AcademicYearForm
         defaultValues={defaultValues}

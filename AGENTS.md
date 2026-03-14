@@ -112,6 +112,13 @@ Exceptions:
 - Shared Nest infrastructure belongs in `packages/backend-core`.
 - Keep package boundaries clean. Do not import app-local code into another app just because it exists already.
 
+### Destructive operations must fail closed
+- Destructive tenant ERP operations must never hard-delete business records from normal product workflows.
+- Soft-delete is not sufficient when live records still reference the target. If a delete or reconciliation would orphan, hide, or silently detach active data, block the operation and return a clear backend error instead.
+- For parent-child structures such as campus, class, section, academic year, fee structure, and similar entities, the backend must check for active dependents before delete or removal.
+- Reference data with ongoing business usage, such as sections and similar lookup-like entities, should prefer stable identity plus active/inactive lifecycle over delete/recreate semantics.
+- Every destructive rule must be enforced in NestJS and covered by targeted tests. Do not rely on frontend confirmations as the protection layer.
+
 ## Tool Commands
 
 ### Drizzle
@@ -223,6 +230,16 @@ export function ExampleForm() {
   - toolbar secondary action: `EntityToolbarSecondaryAction`
   - row action: `EntityRowAction`
 - Use the shared action wrappers instead of ad hoc `Button` sizing/radius classes so button height and corner radius stay intentional across pages.
+- **CTA label conventions** — follow these exactly to stay consistent across all pages:
+  - Page CTA (create): `"New [entity]"` — e.g. `"New class"`, `"New academic year"`. Never use "Add" or "Create".
+  - Empty-state CTA: same label as the page CTA — `"New [entity]"`. Do not use "Create first…" or "Add first…".
+  - Sheet/dialog title (create): `"New [entity]"` — matches the page CTA.
+  - Sheet/dialog title (edit): `"Edit [entity]"`.
+  - Form submit (create): `"Create [entity]"` — e.g. `"Create class"`.
+  - Form submit (edit): `"Save changes"`.
+  - Form cancel: `"Cancel"`.
+  - Destructive confirm: `"Delete [entity]"`.
+  - Page titles: title case — e.g. `"Academic Years"`, not `"Academic years"`.
 - Current action sizing defaults:
   - page CTA: `h-11`, `rounded-lg`
   - empty-state CTA: `h-10`, `rounded-lg`

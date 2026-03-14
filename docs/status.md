@@ -69,6 +69,8 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - shared backend list-query parsing and paginated class list responses for server-side search, sort, and pagination
   - optional campus-filtered class lookup for campus-safe downstream forms
   - nested section create/edit reconciliation owned by NestJS
+  - section lifecycle now uses active/inactive records instead of delete/recreate semantics
+  - backend guardrails that block class deletion or section archival when active students or current enrollments still depend on them
   - campus assignment stored on the backend
   - ERP frontend list route now uses URL-backed server table state and route-addressable sheet flows for `/classes/new` and `/classes/:classId/edit`
 - A minimal academics slice exists with:
@@ -125,7 +127,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Recovery flow is covered at the service level, but this repo does not currently contain a stored browser verification artifact for the full flow.
 - The student slice is covered by typecheck and targeted backend tests, but not yet by end-to-end browser automation.
 - The academic-year slice is covered by typecheck and manual browser automation, but not yet by targeted backend tests.
-- The classes and sections slice is covered by schema generation, OpenAPI export, typecheck, and manual browser automation, but not by targeted backend tests.
+- The classes and sections slice is covered by targeted backend tests for destructive dependency guardrails, plus schema generation, OpenAPI export, typecheck, and manual browser automation.
 - The staff slice is covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
 - The guardian slice is covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
 - The campus slice is covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.

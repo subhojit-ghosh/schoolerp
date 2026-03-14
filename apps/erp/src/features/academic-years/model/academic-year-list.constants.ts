@@ -15,5 +15,5 @@ export const ACADEMIC_YEARS_PAGE_COPY = {
   EMPTY_TITLE: "No academic years yet",
   ERROR_TITLE: "Failed to load academic years",
   SEARCH_PLACEHOLDER: "Search academic years…",
-  TITLE: "Academic years",
+  TITLE: "Academic Years",
 } as const;

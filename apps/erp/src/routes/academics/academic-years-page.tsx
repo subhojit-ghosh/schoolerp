@@ -337,7 +337,7 @@ export function AcademicYearsPage() {
                 )}
               >
                 <IconPlus className="size-4" />
-                Create first academic year
+                New academic year
               </Link>
             </EntityEmptyStateAction>
           ) : null

@@ -14,6 +14,9 @@ export const user = pgTable("user", {
   mobile: text().notNull().unique(),
   email: text().unique(),
   passwordHash: text().notNull(),
+  preferredContextKey: text({
+    enum: ["staff", "parent", "student"],
+  }),
   mobileVerifiedAt: timestamp(),
   emailVerifiedAt: timestamp(),
   createdAt: timestamp().defaultNow().notNull(),

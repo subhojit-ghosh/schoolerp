@@ -312,7 +312,7 @@ export function StudentsPage() {
         <EntityPagePrimaryAction asChild>
           <Link to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}>
             <IconPlus className="size-4" />
-            Add student
+            New student
           </Link>
         </EntityPagePrimaryAction>
       }
@@ -342,7 +342,7 @@ export function StudentsPage() {
                 to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}
               >
                 <IconPlus className="size-4" />
-                Add first student
+                New student
               </Link>
             </EntityEmptyStateAction>
           ) : undefined

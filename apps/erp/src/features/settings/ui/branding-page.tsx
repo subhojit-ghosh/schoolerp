@@ -162,8 +162,7 @@ export function BrandingPage() {
 
   return (
     <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
-      <Tabs defaultValue={BRANDING_TABS.IDENTITY} className="gap-6">
-        <EntityListPage
+      <EntityListPage
           actions={
             <EntityPagePrimaryAction
               disabled={updateBranding.isPending}
@@ -259,8 +258,7 @@ export function BrandingPage() {
               </div>
             </Tabs>
           </div>
-        </EntityListPage>
-      </Tabs>
+      </EntityListPage>
     </form>
   );
 }

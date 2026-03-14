@@ -57,6 +57,11 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
     };
   }, [classQuery.data, mode]);
 
+  const archivedSections = useMemo(
+    () => (mode === "edit" ? classQuery.data?.archivedSections ?? [] : []),
+    [classQuery.data?.archivedSections, mode],
+  );
+
   async function handleSubmit(values: ClassFormValues) {
     if (!institutionId || !activeCampusId) {
       return;
@@ -141,11 +146,12 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
       description={
         mode === "create"
           ? "Add a class and define the sections available for admissions and roster views."
-          : "Update the class name or reconcile its sections."
+          : "Update the class name, archive sections you no longer use, or restore archived sections."
       }
-      title={mode === "create" ? "Add class" : "Edit class"}
+      title={mode === "create" ? "New class" : "Edit class"}
     >
       <ClassForm
+        archivedSections={archivedSections}
         defaultValues={defaultValues}
         errorMessage={errorMessage}
         isPending={isPending}

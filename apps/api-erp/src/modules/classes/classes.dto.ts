@@ -73,6 +73,14 @@ export class ClassSectionDto {
   displayOrder!: number;
 }
 
+export class ArchivedClassSectionDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  name!: string;
+}
+
 export class SetClassStatusBodyDto {
   @ApiProperty()
   isActive!: boolean;
@@ -105,6 +113,12 @@ export class ClassDto {
     isArray: true,
   })
   sections!: ClassSectionDto[];
+
+  @ApiProperty({
+    type: () => ArchivedClassSectionDto,
+    isArray: true,
+  })
+  archivedSections!: ArchivedClassSectionDto[];
 }
 
 export class ListClassesResultDto {

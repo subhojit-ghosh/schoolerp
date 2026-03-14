@@ -1,15 +1,10 @@
 import { useEffect, useState } from "react";
-import { AUTH_CONTEXT_KEYS, type AuthContextKey } from "@repo/contracts";
 import {
   IconBuildingEstate,
   IconBell,
-  IconChevronDown,
   IconMaximize,
   IconMinimize,
-  IconSchool,
   IconSearch,
-  IconUserHeart,
-  IconUserStar,
 } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { Badge } from "@repo/ui/components/ui/badge";
@@ -24,51 +19,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@repo/ui/components/ui/dropdown-menu";
 import { cn } from "@repo/ui/lib/utils";
-import {
-  useSelectCampusMutation,
-  useSelectContextMutation,
-} from "@/features/auth/api/use-auth";
-import {
-  getActiveContext,
-  isStaffContext,
-} from "@/features/auth/model/auth-context";
+import { useSelectCampusMutation } from "@/features/auth/api/use-auth";
+import { isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { ThemeDrawer } from "@/features/settings/ui/theme-drawer";
 import { ERP_TOAST_MESSAGES } from "@/lib/toast-messages";
 
 const FULLSCREEN_CHANGE_EVENT = "fullscreenchange";
 const WEBKIT_FULLSCREEN_CHANGE_EVENT = "webkitfullscreenchange";
-
-const CONTEXT_META: Record<
-  AuthContextKey,
-  {
-    eyebrow: string;
-    detail: string;
-    Icon: typeof IconSchool;
-  }
-> = {
-  [AUTH_CONTEXT_KEYS.STAFF]: {
-    eyebrow: "Operations",
-    detail: "Manage records, academics, and administration",
-    Icon: IconSchool,
-  },
-  [AUTH_CONTEXT_KEYS.PARENT]: {
-    eyebrow: "Family",
-    detail: "Track children, notices, and school touchpoints",
-    Icon: IconUserHeart,
-  },
-  [AUTH_CONTEXT_KEYS.STUDENT]: {
-    eyebrow: "Learner",
-    detail: "Follow classes, attendance, and outcomes",
-    Icon: IconUserStar,
-  },
-};
 
 type FullscreenDocument = Document & {
   webkitExitFullscreen?: () => Promise<void> | void;
@@ -98,21 +57,15 @@ function isFullscreenSupported(doc: FullscreenDocument) {
 export function SiteHeader() {
   const session = useAuthStore((store) => store.session);
   const selectCampusMutation = useSelectCampusMutation();
-  const selectContextMutation = useSelectContextMutation();
   const [isFullscreen, setIsFullscreen] = useState(() =>
     Boolean(getFullscreenElement(document as FullscreenDocument)),
   );
   const [isScrolled, setIsScrolled] = useState(() =>
     typeof window !== "undefined" ? window.scrollY > 8 : false,
   );
-  const activeContext = getActiveContext(session);
   const campusName = session?.activeCampus?.name ?? "Campus";
   const campuses = session?.campuses ?? [];
-  const availableContexts = session?.availableContexts ?? [];
   const showCampusSelector = isStaffContext(session);
-  const activeContextMeta = activeContext
-    ? CONTEXT_META[activeContext.key]
-    : null;
   const fullscreenSupported = isFullscreenSupported(
     document as FullscreenDocument,
   );
@@ -158,12 +111,6 @@ export function SiteHeader() {
   async function handleCampusChange(campusId: string) {
     await selectCampusMutation.mutateAsync({
       body: { campusId },
-    });
-  }
-
-  async function handleContextChange(contextKey: AuthContextKey) {
-    await selectContextMutation.mutateAsync({
-      body: { contextKey },
     });
   }
 
@@ -223,115 +170,6 @@ export function SiteHeader() {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          {availableContexts.length > 1 &&
-          activeContext &&
-          activeContextMeta ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  className="h-10 rounded-full border border-border/70 bg-card/80 px-4 text-sm shadow-xs hover:bg-card"
-                  disabled={selectContextMutation.isPending}
-                  variant="ghost"
-                >
-                  <activeContextMeta.Icon className="size-4 text-[var(--primary)]" />
-                  <span>{activeContext.label}</span>
-                  <IconChevronDown className="size-4 text-muted-foreground" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="start"
-                className="w-[380px] rounded-2xl border-border/70 p-2"
-                sideOffset={10}
-              >
-                <div className="space-y-2">
-                  {availableContexts.map((contextOption) => {
-                    const meta = CONTEXT_META[contextOption.key];
-                    const isActive = activeContext.key === contextOption.key;
-
-                    return (
-                      <button
-                        key={contextOption.key}
-                        className={cn(
-                          "group relative w-full overflow-hidden rounded-2xl border px-4 py-3 text-left transition-all",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                          isActive
-                            ? "border-transparent text-white shadow-lg"
-                            : "border-border/70 bg-card text-foreground hover:border-primary/30 hover:bg-muted/20",
-                        )}
-                        disabled={selectContextMutation.isPending || isActive}
-                        onClick={() =>
-                          void handleContextChange(contextOption.key)
-                        }
-                        type="button"
-                      >
-                        <div
-                          className={cn(
-                            "absolute inset-0 transition-opacity",
-                            isActive
-                              ? "opacity-100"
-                              : "opacity-0 group-hover:opacity-100",
-                          )}
-                          style={{
-                            background:
-                              "linear-gradient(135deg, color-mix(in srgb, var(--primary) 92%, black 8%), color-mix(in srgb, var(--sidebar-primary, var(--primary)) 76%, black 24%))",
-                          }}
-                        />
-                        <div className="relative flex items-start justify-between gap-3">
-                          <div className="space-y-1">
-                            <p
-                              className={cn(
-                                "text-[11px] font-semibold uppercase tracking-[0.22em]",
-                                isActive
-                                  ? "text-white/70"
-                                  : "text-muted-foreground/80",
-                              )}
-                            >
-                              {meta.eyebrow}
-                            </p>
-                            <div className="flex items-center gap-2">
-                              <meta.Icon
-                                className={cn(
-                                  "size-4",
-                                  isActive
-                                    ? "text-white"
-                                    : "text-[var(--primary)]",
-                                )}
-                              />
-                              <p className="text-base font-semibold tracking-tight">
-                                {contextOption.label}
-                              </p>
-                            </div>
-                            <p
-                              className={cn(
-                                "text-xs leading-relaxed",
-                                isActive
-                                  ? "text-white/80"
-                                  : "text-muted-foreground",
-                              )}
-                            >
-                              {meta.detail}
-                            </p>
-                          </div>
-                          <Badge
-                            className={cn(
-                              "rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.18em]",
-                              isActive
-                                ? "border-white/20 bg-white/12 text-white"
-                                : "border-border/70 bg-background/80 text-muted-foreground",
-                            )}
-                            variant="outline"
-                          >
-                            {isActive ? "Current" : "Switch"}
-                          </Badge>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : null}
-
           {showCampusSelector && campuses.length > 1 ? (
             <Select
               disabled={selectCampusMutation.isPending}

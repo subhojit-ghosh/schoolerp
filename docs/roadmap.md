@@ -60,6 +60,7 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 - Password recovery still needs real SMS/email delivery providers before it is production-ready.
 - Authorization work should not spread across the frontend; backend guards and tenant checks must stay authoritative.
 - The new student slice relies on the updated membership model that allows one user to hold multiple member types inside a tenant.
+- Destructive ERP operations must fail closed when live records still depend on the target entity; soft-delete alone is not a safe guard.
 - Legacy migration residue may still exist in the repo and should not become the basis for new work.
 
 ## Locked Product Decisions
@@ -81,6 +82,7 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 - Business rules belong in NestJS, not React.
 - Frontend should keep business-facing client logic inside feature modules, not route pages.
 - Shared constants must be used for domain values and route strings.
+- Tenant-scoped destructive operations must block when the action would orphan, hide, or silently detach active business data.
 - New browser testing in local dev should use:
   - `https://erp.test`
   - `https://<tenant>.erp.test`

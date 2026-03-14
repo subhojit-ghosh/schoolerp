@@ -17,6 +17,7 @@ export const ERP_TOAST_SUBJECTS = {
 } as const;
 
 export const ERP_TOAST_MESSAGES = {
+  archived: (subject: string) => `${subject} archived`,
   assignedTo: (subject: string, target: string) =>
     `${subject} assigned to ${target}`,
   created: (subject: string) => `${subject} created`,

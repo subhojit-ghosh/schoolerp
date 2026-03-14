@@ -381,10 +381,13 @@ export class AuthService {
 
     await this.database
       .update(session)
-      .set({
-        activeContextKey: nextContext.key,
-      })
+      .set({ activeContextKey: nextContext.key })
       .where(eq(session.token, token));
+
+    await this.database
+      .update(user)
+      .set({ preferredContextKey: nextContext.key })
+      .where(eq(user.id, authSession.user.id));
 
     return this.requireSession(await this.getAuthContext(token));
   }
@@ -398,7 +401,16 @@ export class AuthService {
   }
 
   async resolveSessionAccessContext(userId: string, tenantSlug?: string) {
-    const memberships = await this.listMemberships(userId);
+    const [memberships, userRecord] = await Promise.all([
+      this.listMemberships(userId),
+      this.database
+        .select({ preferredContextKey: user.preferredContextKey })
+        .from(user)
+        .where(eq(user.id, userId))
+        .then((rows) => rows[0] ?? null),
+    ]);
+
+    const preferredContextKey = userRecord?.preferredContextKey ?? null;
 
     if (memberships.length === 0) {
       return {
@@ -430,6 +442,7 @@ export class AuthService {
           memberships.filter(
             (item) => item.organizationId === matchedMembership.organizationId,
           ),
+          preferredContextKey,
         ),
         activeCampusId,
       };
@@ -440,7 +453,10 @@ export class AuthService {
 
       return {
         activeOrganizationId: singleMembership.organizationId,
-        activeContextKey: this.resolveDefaultContextKey([singleMembership]),
+        activeContextKey: this.resolveDefaultContextKey(
+          [singleMembership],
+          preferredContextKey,
+        ),
         activeCampusId: await this.resolveDefaultCampusId(
           singleMembership.organizationId,
           singleMembership.primaryCampusId,
@@ -896,10 +912,18 @@ export class AuthService {
 
   private resolveDefaultContextKey(
     memberships: AuthenticatedMembership[],
+    preferredContextKey?: AuthContextKey | null,
   ): AuthContextKey | null {
-    const [defaultContext] = this.buildAvailableContexts(memberships);
+    const availableContexts = this.buildAvailableContexts(memberships);
 
-    return defaultContext?.key ?? null;
+    if (preferredContextKey) {
+      const preferred = availableContexts.find(
+        (c) => c.key === preferredContextKey,
+      );
+      if (preferred) return preferred.key;
+    }
+
+    return availableContexts[0]?.key ?? null;
   }
 
   private resolveActiveContext(

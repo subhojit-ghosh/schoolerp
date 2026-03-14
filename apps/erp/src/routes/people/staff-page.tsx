@@ -290,7 +290,7 @@ export function StaffPage() {
         <EntityPagePrimaryAction asChild>
           <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
             <IconPlus className="size-4" />
-            Add staff
+            New staff member
           </Link>
         </EntityPagePrimaryAction>
       }
@@ -318,7 +318,7 @@ export function StaffPage() {
             <EntityEmptyStateAction asChild>
               <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
                 <IconPlus className="size-4" />
-                Add first staff
+                New staff member
               </Link>
             </EntityEmptyStateAction>
           ) : undefined
