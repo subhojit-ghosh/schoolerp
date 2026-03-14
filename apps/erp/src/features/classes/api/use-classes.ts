@@ -1,22 +1,40 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { SORT_ORDERS } from "@/constants/query";
 import { CLASSES_API_PATHS } from "@/features/auth/api/auth.constants";
+import { CLASS_LIST_SORT_FIELDS } from "@/features/classes/model/class-list.constants";
 import { apiQueryClient } from "@/lib/api/client";
 
-export function useClassesQuery(enabled: boolean, campusId?: string) {
+type ClassesListSort =
+  (typeof CLASS_LIST_SORT_FIELDS)[keyof typeof CLASS_LIST_SORT_FIELDS];
+
+type ClassesListQuery = {
+  campusId?: string;
+  limit?: number;
+  order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
+  page?: number;
+  q?: string;
+  sort?: ClassesListSort;
+};
+
+export function useClassesQuery(
+  enabled: boolean,
+  queryOrCampusId?: ClassesListQuery | string,
+) {
+  const query =
+    typeof queryOrCampusId === "string"
+      ? { campusId: queryOrCampusId }
+      : (queryOrCampusId ?? {});
+
   return apiQueryClient.useQuery(
     "get",
     CLASSES_API_PATHS.LIST,
-    campusId
-      ? {
-          params: {
-            query: {
-              campusId,
-            },
-          },
-        }
-      : undefined,
     {
-      enabled: enabled && Boolean(campusId),
+      params: {
+        query,
+      },
+    },
+    {
+      enabled,
     },
   );
 }

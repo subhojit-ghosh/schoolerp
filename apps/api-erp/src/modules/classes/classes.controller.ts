@@ -30,6 +30,7 @@ import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   ClassDto,
   CreateClassBodyDto,
+  ListClassesResultDto,
   ListClassesQueryDto,
   SetClassStatusBodyDto,
   UpdateClassBodyDto,
@@ -52,16 +53,23 @@ export class ClassesController {
   @Get()
   @ApiOperation({ summary: "List classes for the current tenant institution" })
   @ApiQuery({ name: "campusId", required: false, type: String })
-  @ApiOkResponse({ type: ClassDto, isArray: true })
+  @ApiQuery({ name: "page", required: false, type: Number })
+  @ApiQuery({ name: "limit", required: false, type: Number })
+  @ApiQuery({ name: "q", required: false, type: String })
+  @ApiQuery({ name: "sort", required: false, type: String })
+  @ApiQuery({ name: "order", required: false, type: String })
+  @ApiOkResponse({ type: ListClassesResultDto })
   listClasses(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
     @Query() query: ListClassesQueryDto,
   ) {
+    const parsedQuery = parseListClassesQuery(query);
+
     return this.classesService.listClasses(
       institution.id,
       authSession,
-      parseListClassesQuery(query).campusId,
+      parsedQuery,
     );
   }
 

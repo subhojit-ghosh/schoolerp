@@ -1,8 +1,11 @@
 import { useEffect, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@repo/ui/components/ui/button";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
+import {
+  EntityFormPrimaryAction,
+  EntityFormSecondaryAction,
+} from "@/components/entity-actions";
 import {
   Field,
   FieldContent,
@@ -169,13 +172,13 @@ export function AcademicYearForm({
         <FieldError>{errorMessage}</FieldError>
 
         <div className="flex gap-2">
-          <Button disabled={isPending} type="submit">
+          <EntityFormPrimaryAction disabled={isPending} type="submit">
             {isPending ? "Saving..." : submitLabel}
-          </Button>
+          </EntityFormPrimaryAction>
           {onCancel ? (
-            <Button onClick={onCancel} type="button" variant="ghost">
+            <EntityFormSecondaryAction onClick={onCancel} type="button">
               Cancel
-            </Button>
+            </EntityFormSecondaryAction>
           ) : null}
         </div>
       </FieldGroup>

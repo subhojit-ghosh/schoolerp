@@ -79,8 +79,9 @@ export function FeesPage() {
   const createStructureMutation = useCreateFeeStructureMutation(managedInstitutionId);
   const createAssignmentMutation = useCreateFeeAssignmentMutation(managedInstitutionId);
   const createPaymentMutation = useCreateFeePaymentMutation(managedInstitutionId);
+  const academicYears = academicYearsQuery.data?.rows ?? [];
 
-  const academicYearOptions = (academicYearsQuery.data ?? []).map((academicYear) => ({
+  const academicYearOptions = academicYears.map((academicYear) => ({
     id: academicYear.id,
     name: academicYear.name,
   }));

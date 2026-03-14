@@ -4,6 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { Button } from "@repo/ui/components/ui/button";
 import {
+  EntityFormPrimaryAction,
+  EntityFormSecondaryAction,
+  EntityToolbarSecondaryAction,
+} from "@/components/entity-actions";
+import {
   Field,
   FieldContent,
   FieldError,
@@ -83,16 +88,14 @@ export function ClassForm({
                 Keep section setup light for now. Add only the groups needed for admission and roster flows.
               </p>
             </div>
-            <Button
+            <EntityToolbarSecondaryAction
               className="gap-1.5"
               onClick={() => sectionsFieldArray.append({ ...EMPTY_SECTION })}
-              size="sm"
               type="button"
-              variant="outline"
             >
               <IconPlus data-icon="inline-start" />
               Add section
-            </Button>
+            </EntityToolbarSecondaryAction>
           </div>
 
           <div className="rounded-lg border divide-y">
@@ -150,13 +153,17 @@ export function ClassForm({
         {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
 
         <div className="flex flex-wrap items-center gap-3">
-          <Button disabled={isPending} type="submit">
+          <EntityFormPrimaryAction disabled={isPending} type="submit">
             {isPending ? "Saving..." : submitLabel}
-          </Button>
+          </EntityFormPrimaryAction>
           {onCancel ? (
-            <Button disabled={isPending} onClick={onCancel} type="button" variant="outline">
+            <EntityFormSecondaryAction
+              disabled={isPending}
+              onClick={onCancel}
+              type="button"
+            >
               Cancel
-            </Button>
+            </EntityFormSecondaryAction>
           ) : null}
         </div>
       </FieldGroup>

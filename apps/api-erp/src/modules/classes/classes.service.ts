@@ -8,16 +8,29 @@ import {
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import { campus, classSections, schoolClasses, students } from "@repo/database";
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, isNull, type SQL } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES } from "../../constants";
+import { SORT_ORDERS } from "../../constants";
+import {
+  resolvePagination,
+  resolveTablePageSize,
+} from "../../lib/list-query";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import type {
   CreateClassDto,
+  ListClassesQueryDto,
   SetClassStatusDto,
   UpdateClassDto,
 } from "./classes.schemas";
+import { sortableClassColumns } from "./classes.schemas";
+
+const sortableColumns = {
+  campus: campus.name,
+  name: schoolClasses.name,
+  status: schoolClasses.isActive,
+} as const;
 
 @Injectable()
 export class ClassesService {
@@ -29,21 +42,78 @@ export class ClassesService {
   async listClasses(
     institutionId: string,
     authSession: AuthenticatedSession,
-    campusId?: string,
+    query: ListClassesQueryDto = {},
   ) {
     await this.requireInstitutionAccess(authSession, institutionId);
 
-    const scopedCampusId = campusId ?? authSession.activeCampusId ?? undefined;
+    const scopedCampusId = query.campusId ?? authSession.activeCampusId ?? undefined;
 
     if (scopedCampusId) {
       await this.getCampus(institutionId, scopedCampusId);
     }
 
-    return this.listClassesForInstitution(
-      institutionId,
-      undefined,
-      scopedCampusId,
+    const pageSize = resolveTablePageSize(query.limit);
+    const sortKey = query.sort ?? sortableClassColumns.name;
+    const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
+    const conditions: SQL[] = [
+      eq(schoolClasses.institutionId, institutionId),
+      isNull(schoolClasses.deletedAt),
+      isNull(campus.deletedAt),
+    ];
+
+    if (scopedCampusId) {
+      conditions.push(eq(schoolClasses.campusId, scopedCampusId));
+    }
+
+    if (query.search) {
+      conditions.push(ilike(schoolClasses.name, `%${query.search}%`));
+    }
+
+    const where = and(...conditions)!;
+    const [totalRow] = await this.db
+      .select({ count: count() })
+      .from(schoolClasses)
+      .innerJoin(campus, eq(schoolClasses.campusId, campus.id))
+      .where(where);
+
+    const total = totalRow?.count ?? 0;
+    const pagination = resolvePagination(total, query.page, pageSize);
+
+    const classRows = await this.db
+      .select({
+        id: schoolClasses.id,
+        institutionId: schoolClasses.institutionId,
+        campusId: schoolClasses.campusId,
+        campusName: campus.name,
+        name: schoolClasses.name,
+        isActive: schoolClasses.isActive,
+        displayOrder: schoolClasses.displayOrder,
+      })
+      .from(schoolClasses)
+      .innerJoin(campus, eq(schoolClasses.campusId, campus.id))
+      .where(where)
+      .orderBy(
+        sortDirection(sortableColumns[sortKey]),
+        asc(schoolClasses.displayOrder),
+        asc(schoolClasses.name),
+      )
+      .limit(pageSize)
+      .offset(pagination.offset);
+
+    const sectionsByClassId = await this.listSectionsForClassIds(
+      classRows.map((row) => row.id),
     );
+
+    return {
+      rows: classRows.map((row) => ({
+        ...row,
+        sections: sectionsByClassId.get(row.id) ?? [],
+      })),
+      total,
+      page: pagination.page,
+      pageSize,
+      pageCount: pagination.pageCount,
+    };
   }
 
   async getClass(

@@ -6,16 +6,19 @@ import {
 import { DATABASE } from "@repo/backend-core";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import { academicYears } from "@repo/database";
-import { and, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, isNull, type SQL } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
-import { ERROR_MESSAGES, STATUS } from "../../constants";
+import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
+import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import type { AppDatabase } from "@repo/database";
 import { Inject } from "@nestjs/common";
-import { AcademicYearDto } from "./academic-years.dto";
+import { AcademicYearDto, ListAcademicYearsResultDto } from "./academic-years.dto";
 import type {
   CreateAcademicYearDto,
+  ListAcademicYearsQueryDto,
   UpdateAcademicYearDto,
 } from "./academic-years.schemas";
+import { sortableAcademicYearColumns } from "./academic-years.schemas";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
 
@@ -29,6 +32,13 @@ type AcademicYearRecord = {
   createdAt: Date;
 };
 
+const sortableColumns = {
+  current: academicYears.isCurrent,
+  endDate: academicYears.endDate,
+  name: academicYears.name,
+  startDate: academicYears.startDate,
+} as const;
+
 @Injectable()
 export class AcademicYearsService {
   constructor(
@@ -39,21 +49,50 @@ export class AcademicYearsService {
   async listAcademicYears(
     institutionId: string,
     authSession: AuthenticatedSession,
-  ): Promise<AcademicYearDto[]> {
+    query: ListAcademicYearsQueryDto = {},
+  ): Promise<ListAcademicYearsResultDto> {
     await this.requireInstitutionAccess(authSession, institutionId);
+
+    const pageSize = resolveTablePageSize(query.limit);
+    const sortKey = query.sort ?? sortableAcademicYearColumns.startDate;
+    const sortDirection = query.order === SORT_ORDERS.ASC ? asc : desc;
+    const conditions: SQL[] = [
+      eq(academicYears.institutionId, institutionId),
+      isNull(academicYears.deletedAt),
+    ];
+
+    if (query.search) {
+      conditions.push(ilike(academicYears.name, `%${query.search}%`));
+    }
+
+    const where = and(...conditions)!;
+    const [totalRow] = await this.database
+      .select({ count: count() })
+      .from(academicYears)
+      .where(where);
+
+    const total = totalRow?.count ?? 0;
+    const pagination = resolvePagination(total, query.page, pageSize);
 
     const rows = await this.database
       .select(this.academicYearSelect)
       .from(academicYears)
-      .where(
-        and(
-          eq(academicYears.institutionId, institutionId),
-          isNull(academicYears.deletedAt),
-        ),
+      .where(where)
+      .orderBy(
+        sortDirection(sortableColumns[sortKey]),
+        desc(academicYears.isCurrent),
+        desc(academicYears.startDate),
       )
-      .orderBy(desc(academicYears.isCurrent), desc(academicYears.startDate));
+      .limit(pageSize)
+      .offset(pagination.offset);
 
-    return rows.map((row) => this.toAcademicYearDto(row));
+    return {
+      rows: rows.map((row) => this.toAcademicYearDto(row)),
+      total,
+      page: pagination.page,
+      pageSize,
+      pageCount: pagination.pageCount,
+    };
   }
 
   async getAcademicYear(

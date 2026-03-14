@@ -189,6 +189,65 @@ export function ExampleForm() {
 - Favicon and document title should be updated dynamically after branding loads.
 - Prefer semantic tokens such as `--primary`, `--accent`, `--sidebar-primary`, not random per-component overrides.
 
+### ERP CRUD and list pages
+- New ERP CRUD/list pages should follow the shared list-page pattern already used by `Classes` and `Academic Years`.
+- Prefer these shared frontend primitives instead of building one-off page/table shells:
+  - `apps/erp/src/components/entity-list-page.tsx`
+  - `apps/erp/src/components/server-data-table.tsx`
+  - `apps/erp/src/components/route-entity-sheet.tsx`
+  - `apps/erp/src/components/entity-actions.tsx`
+  - `apps/erp/src/hooks/use-entity-list-query-state.ts`
+- Use URL-backed list state for:
+  - search
+  - page
+  - page size
+  - sort field
+  - sort order
+- Preserve query params when navigating from a list page into a routed sheet and back again.
+- For small entities, prefer route-addressable sheet flows:
+  - `/entity/new`
+  - `/entity/:id/edit`
+- For larger or likely-to-grow entities, prefer dedicated create/detail/edit pages instead of sheets.
+- Do not mix interaction models for the same entity. Pick one default per entity:
+  - sheet/dialog flow
+  - dedicated page flow
+- Standard page structure for simple CRUD screens:
+  - page header with title, description, primary action
+  - separate bordered toolbar surface for search and future filters
+  - separate bordered table card below
+- Standard action hierarchy for ERP CRUD pages:
+  - page CTA: `EntityPagePrimaryAction`
+  - empty-state CTA: `EntityEmptyStateAction`
+  - form submit: `EntityFormPrimaryAction`
+  - form cancel/secondary: `EntityFormSecondaryAction`
+  - toolbar secondary action: `EntityToolbarSecondaryAction`
+  - row action: `EntityRowAction`
+- Use the shared action wrappers instead of ad hoc `Button` sizing/radius classes so button height and corner radius stay intentional across pages.
+- Current action sizing defaults:
+  - page CTA: `h-11`, `rounded-lg`
+  - empty-state CTA: `h-10`, `rounded-lg`
+  - form actions: `h-10`, `rounded-lg`
+  - toolbar secondary action: `h-8`, `rounded-lg`
+  - row action: `h-8`, `rounded-md`
+- If a list API is still array-based and the page is being converted to the shared pattern, upgrade the backend endpoint to the shared paginated list contract with server-side search/sort/pagination.
+- After changing a list endpoint from array response to paginated response, update every downstream frontend consumer of that endpoint before finishing.
+- Preferred paginated list response shape:
+  - `rows`
+  - `total`
+  - `page`
+  - `pageSize`
+  - `pageCount`
+- Preferred list query params:
+  - `q`
+  - `page`
+  - `limit`
+  - `sort`
+  - `order`
+- When list contracts change:
+  - regenerate OpenAPI from `apps/api-erp`
+  - regenerate ERP API types
+  - run repo typecheck
+
 ## Backend Rules
 
 ### Auth

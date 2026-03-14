@@ -14,6 +14,7 @@ import {
 } from "drizzle-orm";
 import { organization } from "@repo/database";
 import { STATUS, SORT_ORDERS } from "../../constants";
+import { resolvePagination } from "../../lib/list-query";
 import {
   resolveInstitutionPageSize,
   sortableInstitutionColumns,
@@ -61,8 +62,7 @@ export class InstitutionsService {
       .where(where);
 
     const total = totalRow?.count ?? 0;
-    const pageCount = Math.max(1, Math.ceil(total / pageSize));
-    const safePage = Math.min(page, pageCount);
+    const pagination = resolvePagination(total, page, pageSize);
 
     const rows = await this.db
       .select({
@@ -77,7 +77,7 @@ export class InstitutionsService {
       .where(where)
       .orderBy(sortOrder(sortableColumns[sortKey]))
       .limit(pageSize)
-      .offset((safePage - 1) * pageSize);
+      .offset(pagination.offset);
 
     return {
       rows: rows.map((row) => ({
@@ -85,9 +85,9 @@ export class InstitutionsService {
         createdAt: row.createdAt.toISOString(),
       })),
       total,
-      page: safePage,
+      page: pagination.page,
       pageSize,
-      pageCount,
+      pageCount: pagination.pageCount,
     };
   }
 

@@ -265,7 +265,7 @@ export function StudentsPage() {
                 guardians: [DEFAULT_GUARDIAN],
                 currentEnrollment: EMPTY_CURRENT_ENROLLMENT,
               }}
-              academicYears={academicYearsQuery.data ?? []}
+              academicYears={academicYearsQuery.data?.rows ?? []}
               errorMessage={createStudentError?.message}
               isPending={createStudentMutation.isPending}
               onCancel={() => setShowForm(false)}

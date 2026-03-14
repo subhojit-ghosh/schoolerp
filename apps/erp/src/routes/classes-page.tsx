@@ -1,12 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronsLeft,
-  IconChevronsRight,
-  IconChevronUp,
-  IconChevronDown,
   IconDotsVertical,
   IconPencil,
   IconPlus,
@@ -16,16 +11,21 @@ import {
 } from "@tabler/icons-react";
 import {
   createColumnHelper,
-  flexRender,
+  functionalUpdate,
   getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  type PaginationState,
   type SortingState,
+  useReactTable,
 } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
+import { Input } from "@repo/ui/components/ui/input";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,18 +33,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
-import { Input } from "@repo/ui/components/ui/input";
-import { Skeleton } from "@repo/ui/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@repo/ui/components/ui/table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { EntitySheet } from "@/components/entity-sheet";
+import {
+  EntityEmptyStateAction,
+  EntityPagePrimaryAction,
+  EntityRowAction,
+} from "@/components/entity-actions";
+import { EntityListPage } from "@/components/entity-list-page";
+import {
+  ServerDataTable,
+  SortIcon,
+} from "@/components/server-data-table";
+import { buildClassEditRoute, ERP_ROUTES } from "@/constants/routes";
+import { SORT_ORDERS } from "@/constants/query";
 import {
   getActiveContext,
   isStaffContext,
@@ -52,475 +53,393 @@ import {
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
   useClassesQuery,
-  useCreateClassMutation,
   useDeleteClassMutation,
   useSetClassStatusMutation,
-  useUpdateClassMutation,
 } from "@/features/classes/api/use-classes";
-import { ClassForm } from "@/features/classes/ui/class-form";
-import type { ClassFormValues } from "@/features/classes/model/class-form-schema";
+import {
+  CLASS_LIST_SORT_FIELDS,
+  CLASSES_PAGE_COPY,
+} from "@/features/classes/model/class-list.constants";
+import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
+import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 type ClassRow = {
   id: string;
   name: string;
   isActive: boolean;
+  campusName: string;
   sections: Array<{ id: string; name: string; displayOrder: number }>;
 };
 
-const PAGE_SIZE = 20;
 const columnHelper = createColumnHelper<ClassRow>();
-
-const DEFAULT_VALUES: ClassFormValues = {
-  name: "",
-  sections: [{ name: "" }],
-};
-
-function SortIcon({
-  direction,
-}: {
-  direction: false | "asc" | "desc";
-}) {
-  if (direction === "asc") return <IconChevronUp className="ml-1 inline size-3.5" />;
-  if (direction === "desc") return <IconChevronDown className="ml-1 inline size-3.5" />;
-  return null;
-}
+const VALID_CLASS_SORT_FIELDS = [
+  CLASS_LIST_SORT_FIELDS.NAME,
+  CLASS_LIST_SORT_FIELDS.STATUS,
+  CLASS_LIST_SORT_FIELDS.CAMPUS,
+] as const;
 
 export function ClassesPage() {
+  const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
   const activeCampusId = session?.activeCampus?.id;
   const canManageClasses = isStaffContext(session);
-  const canQueryClasses = canManageClasses && Boolean(institutionId);
-
-  const classesQuery = useClassesQuery(canQueryClasses, activeCampusId);
-  const createMutation = useCreateClassMutation();
-  const updateMutation = useUpdateClassMutation();
+  const canQueryClasses = canManageClasses && Boolean(institutionId && activeCampusId);
   const setStatusMutation = useSetClassStatusMutation();
   const deleteMutation = useDeleteClassMutation();
-
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const [editingClass, setEditingClass] = useState<ClassRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ClassRow | null>(null);
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const {
+    queryState,
+    searchInput,
+    setPage,
+    setPageSize,
+    setSearchInput,
+    setSorting,
+  } = useEntityListQueryState({
+    defaultSortBy: CLASS_LIST_SORT_FIELDS.NAME,
+    defaultSortOrder: SORT_ORDERS.ASC,
+    validSorts: VALID_CLASS_SORT_FIELDS,
+  });
 
-  const classes = (classesQuery.data ?? []) as ClassRow[];
+  const classesQuery = useClassesQuery(canQueryClasses, {
+    campusId: activeCampusId,
+    limit: queryState.pageSize,
+    order: queryState.sortOrder,
+    page: queryState.page,
+    q: queryState.search || undefined,
+    sort: queryState.sortBy,
+  });
 
-  const columns = [
-    columnHelper.accessor("name", {
-      header: ({ column }) => (
-        <button
-          className="flex items-center font-medium hover:text-foreground"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Class
-          <SortIcon direction={column.getIsSorted()} />
-        </button>
-      ),
-      cell: ({ row }) => (
-        <button
-          className="flex items-center gap-2 text-left"
-          onClick={() => {
-            setEditingClass(row.original);
-            setSheetOpen(true);
-          }}
-        >
-          <span className="font-medium hover:underline">
-            {row.original.name}
-          </span>
-        </button>
-      ),
-    }),
-    columnHelper.accessor("isActive", {
-      header: "Status",
-      cell: ({ getValue }) =>
-        getValue() ? (
-          <Badge variant="secondary" className="text-green-700 dark:text-green-400">
-            Active
-          </Badge>
-        ) : (
-          <Badge variant="outline" className="text-muted-foreground">
-            Disabled
-          </Badge>
+  const classes = useMemo(
+    () => (classesQuery.data?.rows ?? []) as ClassRow[],
+    [classesQuery.data?.rows],
+  );
+  const classesError = classesQuery.error as Error | null | undefined;
+  const classesErrorMessage = classesError?.message;
+
+  const sortingState = useMemo<SortingState>(() => {
+    return [
+      {
+        id: queryState.sortBy,
+        desc: queryState.sortOrder === SORT_ORDERS.DESC,
+      },
+    ];
+  }, [queryState.sortBy, queryState.sortOrder]);
+
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("name", {
+        header: () => (
+          <button
+            className="flex items-center font-medium hover:text-foreground"
+            onClick={() => setSorting(CLASS_LIST_SORT_FIELDS.NAME)}
+            type="button"
+          >
+            Class
+            <SortIcon
+              direction={
+                queryState.sortBy === CLASS_LIST_SORT_FIELDS.NAME
+                  ? queryState.sortOrder
+                  : false
+              }
+            />
+          </button>
         ),
-    }),
-    columnHelper.accessor("sections", {
-      header: "Sections",
-      enableSorting: false,
-      cell: ({ getValue }) => {
-        const sections = getValue();
-        if (sections.length === 0) {
-          return <span className="text-sm text-muted-foreground">—</span>;
-        }
-        return (
-          <div className="flex flex-wrap gap-1">
-            {sections.map((s) => (
-              <Badge key={s.id} variant="outline">
-                {s.name}
-              </Badge>
-            ))}
-          </div>
-        );
-      },
-    }),
-    columnHelper.display({
-      id: "actions",
-      cell: ({ row }) => {
-        const cls = row.original;
-        return (
-          <div className="flex items-center justify-end gap-1">
-            <Button
-              className="h-7 px-2.5 text-xs"
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setEditingClass(cls);
-                setSheetOpen(true);
-              }}
+        cell: ({ row }) => (
+          <Button asChild className="h-auto px-0 text-left" variant="link">
+            <Link
+              to={appendSearch(buildClassEditRoute(row.original.id), location.search)}
             >
-              <IconPencil className="size-3" />
-              Edit
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  className="size-8 text-muted-foreground data-[state=open]:bg-muted"
-                  size="icon"
-                  variant="ghost"
+              {row.original.name}
+            </Link>
+          </Button>
+        ),
+      }),
+      columnHelper.accessor("campusName", {
+        header: () => (
+          <button
+            className="flex items-center font-medium hover:text-foreground"
+            onClick={() => setSorting(CLASS_LIST_SORT_FIELDS.CAMPUS)}
+            type="button"
+          >
+            Campus
+            <SortIcon
+              direction={
+                queryState.sortBy === CLASS_LIST_SORT_FIELDS.CAMPUS
+                  ? queryState.sortOrder
+                  : false
+              }
+            />
+          </button>
+        ),
+      }),
+      columnHelper.accessor("isActive", {
+        header: () => (
+          <button
+            className="flex items-center font-medium hover:text-foreground"
+            onClick={() => setSorting(CLASS_LIST_SORT_FIELDS.STATUS)}
+            type="button"
+          >
+            Status
+            <SortIcon
+              direction={
+                queryState.sortBy === CLASS_LIST_SORT_FIELDS.STATUS
+                  ? queryState.sortOrder
+                  : false
+              }
+            />
+          </button>
+        ),
+        cell: ({ getValue }) =>
+          getValue() ? (
+            <Badge variant="secondary" className="text-green-700 dark:text-green-400">
+              Active
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-muted-foreground">
+              Disabled
+            </Badge>
+          ),
+      }),
+      columnHelper.accessor("sections", {
+        header: "Sections",
+        cell: ({ getValue }) => {
+          const sections = getValue();
+
+          if (sections.length === 0) {
+            return <span className="text-sm text-muted-foreground">—</span>;
+          }
+
+          return (
+            <div className="flex flex-wrap gap-1">
+              {sections.map((section) => (
+                <Badge key={section.id} variant="outline">
+                  {section.name}
+                </Badge>
+              ))}
+            </div>
+          );
+        },
+      }),
+      columnHelper.display({
+        id: "actions",
+        cell: ({ row }) => {
+          const schoolClass = row.original;
+
+          return (
+            <div className="flex items-center justify-end gap-1">
+              <EntityRowAction asChild>
+                <Link
+                  to={appendSearch(buildClassEditRoute(schoolClass.id), location.search)}
                 >
-                  <IconDotsVertical className="size-4" />
-                  <span className="sr-only">Row actions</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-40">
-                <DropdownMenuItem
-                  onSelect={() => handleToggleStatus(cls)}
-                >
-                  <IconPower className="mr-2 size-4" />
-                  {cls.isActive ? "Disable" : "Enable"}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={() => setDeleteTarget(cls)}
-                >
-                  <IconTrash className="mr-2 size-4" />
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        );
-      },
-    }),
-  ];
+                  <IconPencil className="size-3" />
+                  Edit
+                </Link>
+              </EntityRowAction>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="size-8 text-muted-foreground data-[state=open]:bg-muted"
+                    size="icon"
+                    variant="ghost"
+                  >
+                    <IconDotsVertical className="size-4" />
+                    <span className="sr-only">Row actions</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem
+                    onSelect={() => void handleToggleStatus(schoolClass)}
+                  >
+                    <IconPower className="mr-2 size-4" />
+                    {schoolClass.isActive ? "Disable" : "Enable"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={() => setDeleteTarget(schoolClass)}
+                  >
+                    <IconTrash className="mr-2 size-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      }),
+    ],
+    [location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+  );
 
   const table = useReactTable({
     data: classes,
     columns,
-    state: { sorting, globalFilter },
-    onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize: PAGE_SIZE } },
+    manualPagination: true,
+    manualSorting: true,
+    onPaginationChange: (updater) => {
+      const nextPagination = functionalUpdate<PaginationState>(updater, {
+        pageIndex: queryState.page - 1,
+        pageSize: queryState.pageSize,
+      });
+
+      if (nextPagination.pageSize !== queryState.pageSize) {
+        setPageSize(nextPagination.pageSize);
+        return;
+      }
+
+      setPage(nextPagination.pageIndex + 1);
+    },
+    pageCount: classesQuery.data?.pageCount ?? 1,
+    rowCount: classesQuery.data?.total ?? 0,
+    state: {
+      pagination: {
+        pageIndex: queryState.page - 1,
+        pageSize: queryState.pageSize,
+      },
+      sorting: sortingState,
+    },
   });
 
-  async function handleCreate(values: ClassFormValues) {
-    if (!institutionId || !activeCampusId) return;
-    await createMutation.mutateAsync({
-      body: { ...values, campusId: activeCampusId },
-    });
-    toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CLASS));
-    setSheetOpen(false);
-  }
+  async function handleToggleStatus(schoolClass: ClassRow) {
+    if (!institutionId) {
+      return;
+    }
 
-  async function handleUpdate(values: ClassFormValues) {
-    if (!institutionId || !editingClass || !activeCampusId) return;
-    await updateMutation.mutateAsync({
-      params: { path: { classId: editingClass.id } },
-      body: { ...values, campusId: activeCampusId },
-    });
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CLASS));
-    setSheetOpen(false);
-    setEditingClass(null);
-  }
-
-  async function handleToggleStatus(cls: ClassRow) {
-    if (!institutionId) return;
     await setStatusMutation.mutateAsync({
-      params: { path: { classId: cls.id } },
-      body: { isActive: !cls.isActive },
+      params: { path: { classId: schoolClass.id } },
+      body: { isActive: !schoolClass.isActive },
     });
+
     toast.success(
-      cls.isActive
+      schoolClass.isActive
         ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.CLASS)
         : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CLASS),
     );
   }
 
   async function handleDelete() {
-    if (!institutionId || !deleteTarget) return;
+    if (!institutionId || !deleteTarget) {
+      return;
+    }
+
     await deleteMutation.mutateAsync({
       params: { path: { classId: deleteTarget.id } },
     });
+
     toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.CLASS));
     setDeleteTarget(null);
   }
 
-  function openAddSheet() {
-    setEditingClass(null);
-    setSheetOpen(true);
-  }
-
-  const createError = createMutation.error as Error | null | undefined;
-  const updateError = updateMutation.error as Error | null | undefined;
-
   if (!institutionId) {
     return (
-      <div className="rounded-lg border p-6">
-        <p className="font-medium">Classes</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Sign in with an institution-backed session to manage class records.
-        </p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>{CLASSES_PAGE_COPY.TITLE}</CardTitle>
+          <CardDescription>
+            Sign in with an institution-backed session to manage class records.
+          </CardDescription>
+        </CardHeader>
+      </Card>
     );
   }
 
   if (!canManageClasses) {
     return (
-      <div className="rounded-lg border p-6">
-        <p className="font-medium">Classes</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Class administration is available in Staff view. You are currently in{" "}
-          {activeContext?.label ?? "another"} view.
-        </p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>{CLASSES_PAGE_COPY.TITLE}</CardTitle>
+          <CardDescription>
+            Class administration is available in Staff view. You are currently in{" "}
+            {activeContext?.label ?? "another"} view.
+          </CardDescription>
+        </CardHeader>
+      </Card>
     );
   }
 
+  const isFiltered = Boolean(queryState.search);
+
   return (
     <>
-      <div className="flex flex-col gap-6">
-        {/* Page header */}
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight">Classes</h1>
-            <p className="text-sm text-muted-foreground">
-              Assign each class to a campus and define its sections.
-            </p>
-          </div>
-          <Button onClick={openAddSheet}>
-            <IconPlus className="size-4" />
-            Add class
-          </Button>
-        </div>
-
-
-        {/* Table */}
-        <div className="overflow-hidden rounded-lg border">
-          <div className="flex flex-wrap items-center gap-2 border-b px-4 py-3">
-            <div className="relative flex-1">
-              <IconSearch className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="h-9 w-full max-w-xs pl-8"
-                placeholder="Search classes…"
-                value={globalFilter}
-                onChange={(e) => setGlobalFilter(e.target.value)}
-              />
+      <EntityListPage
+        actions={
+          <EntityPagePrimaryAction
+            asChild
+          >
+            <Link
+              to={appendSearch(ERP_ROUTES.CLASS_CREATE, location.search)}
+            >
+              <IconPlus className="size-4" />
+              Add class
+            </Link>
+          </EntityPagePrimaryAction>
+        }
+        description={CLASSES_PAGE_COPY.DESCRIPTION}
+        title={CLASSES_PAGE_COPY.TITLE}
+        toolbar={
+          <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[280px] flex-1">
+                <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="h-11 w-full max-w-md rounded-lg border-border/70 bg-background pl-10 shadow-none"
+                  placeholder={CLASSES_PAGE_COPY.SEARCH_PLACEHOLDER}
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                />
+              </div>
             </div>
           </div>
-
-          <div>
-            {classesQuery.isError ? (
-              <div className="flex min-h-56 flex-col items-center justify-center gap-2 text-center">
-                <p className="text-sm font-medium">Failed to load classes</p>
-                <p className="text-sm text-muted-foreground">
-                  {(classesQuery.error as Error)?.message ?? "Something went wrong. Try refreshing the page."}
-                </p>
-              </div>
-            ) : classesQuery.isLoading ? (
-              <div className="divide-y">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex items-center gap-4 px-4 py-3">
-                    <Skeleton className="h-5 w-32" />
-                    <Skeleton className="h-5 w-16" />
-                    <Skeleton className="h-5 w-20" />
-                    <Skeleton className="h-5 w-24" />
-                  </div>
-                ))}
-              </div>
-            ) : table.getRowModel().rows.length === 0 ? (
-              <div className="flex min-h-56 flex-col items-center justify-center gap-3 text-center">
-                <p className="text-sm font-medium">
-                  {classes.length === 0
-                    ? "No classes yet"
-                    : "No classes match your search"}
-                </p>
-                <p className="max-w-sm text-sm text-muted-foreground">
-                  {classes.length === 0
-                    ? "Add your first class to get started."
-                    : "Try adjusting your search or campus filter."}
-                </p>
-                {classes.length === 0 ? (
-                  <Button size="sm" onClick={openAddSheet}>
-                    <IconPlus className="size-4" />
-                    Add first class
-                  </Button>
-                ) : null}
-              </div>
-            ) : (
-              <>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader className="bg-muted/30">
-                      {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                          {headerGroup.headers.map((header) => (
-                            <TableHead key={header.id} className="text-xs font-medium text-muted-foreground">
-                              {header.isPlaceholder
-                                ? null
-                                : flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext(),
-                                  )}
-                            </TableHead>
-                          ))}
-                        </TableRow>
-                      ))}
-                    </TableHeader>
-                    <TableBody>
-                      {table.getRowModel().rows.map((row) => (
-                        <TableRow
-                          key={row.id}
-                          className="group"
-                          data-state={row.original.isActive ? undefined : "muted"}
-                        >
-                          {row.getVisibleCells().map((cell) => (
-                            <TableCell
-                              key={cell.id}
-                              className={
-                                row.original.isActive
-                                  ? undefined
-                                  : "opacity-60"
-                              }
-                            >
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext(),
-                              )}
-                            </TableCell>
-                          ))}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {/* Pagination */}
-                {table.getPageCount() > 1 ? (
-                  <div className="flex items-center justify-between border-t px-4 py-3">
-                    <p className="text-sm text-muted-foreground">
-                      Page {table.getState().pagination.pageIndex + 1} of{" "}
-                      {table.getPageCount()} &middot;{" "}
-                      {table.getFilteredRowModel().rows.length} results
-                    </p>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="size-8"
-                        onClick={() => table.setPageIndex(0)}
-                        disabled={!table.getCanPreviousPage()}
-                      >
-                        <IconChevronsLeft className="size-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="size-8"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                      >
-                        <IconChevronLeft className="size-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="size-8"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                      >
-                        <IconChevronRight className="size-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="outline"
-                        className="size-8"
-                        onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                        disabled={!table.getCanNextPage()}
-                      >
-                        <IconChevronsRight className="size-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ) : null}
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Add / Edit sheet */}
-      <EntitySheet
-        open={sheetOpen}
-        onOpenChange={(open) => {
-          setSheetOpen(open);
-          if (!open) setEditingClass(null);
-        }}
-        title={editingClass ? "Edit class" : "Add class"}
-        description={
-          editingClass
-            ? "Update the name or sections."
-            : "Add a class and define the sections available for admissions and roster views."
         }
       >
-        <ClassForm
-          defaultValues={
-            editingClass
-              ? {
-                  name: editingClass.name,
-                  sections: editingClass.sections.map((s) => ({
-                    id: s.id,
-                    name: s.name,
-                  })),
-                }
-              : DEFAULT_VALUES
+        <ServerDataTable
+          emptyAction={
+            !isFiltered ? (
+              <EntityEmptyStateAction asChild>
+                <Link
+                  to={appendSearch(ERP_ROUTES.CLASS_CREATE, location.search)}
+                >
+                  <IconPlus className="size-4" />
+                  Add first class
+                </Link>
+              </EntityEmptyStateAction>
+            ) : null
           }
-          errorMessage={
-            editingClass ? updateError?.message : createError?.message
+          emptyDescription={
+            isFiltered
+              ? CLASSES_PAGE_COPY.EMPTY_FILTERED_DESCRIPTION
+              : CLASSES_PAGE_COPY.EMPTY_DESCRIPTION
           }
-          isPending={
-            editingClass ? updateMutation.isPending : createMutation.isPending
+          emptyTitle={
+            isFiltered
+              ? CLASSES_PAGE_COPY.EMPTY_FILTERED_TITLE
+              : CLASSES_PAGE_COPY.EMPTY_TITLE
           }
-          onCancel={() => {
-            setSheetOpen(false);
-            setEditingClass(null);
-          }}
-          onSubmit={editingClass ? handleUpdate : handleCreate}
-          submitLabel={editingClass ? "Save changes" : "Create class"}
+          errorDescription={classesErrorMessage}
+          errorTitle={CLASSES_PAGE_COPY.ERROR_TITLE}
+          isError={classesQuery.isError}
+          isLoading={classesQuery.isLoading}
+          onSearchChange={setSearchInput}
+          rowCellClassName={(row) => (row.isActive ? undefined : "opacity-60")}
+          searchPlaceholder={CLASSES_PAGE_COPY.SEARCH_PLACEHOLDER}
+          searchValue={searchInput}
+          showSearch={false}
+          table={table}
+          totalRows={classesQuery.data?.total ?? 0}
         />
-      </EntitySheet>
+        <Outlet />
+      </EntityListPage>
 
-      {/* Delete confirmation */}
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null);
+          if (!open) {
+            setDeleteTarget(null);
+          }
         }}
         title={`Delete "${deleteTarget?.name ?? "class"}"`}
         description="This will permanently remove the class and all its sections. This cannot be undone."

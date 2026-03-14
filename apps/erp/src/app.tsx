@@ -6,7 +6,7 @@ import { DashboardLayout } from "@/components/dashboard-layout";
 import { RouteErrorBoundary } from "@/components/route-error-boundary";
 import { RequireSession } from "@/features/auth/ui/require-session";
 import { AttendancePage } from "@/routes/attendance-page";
-import { ERP_ROUTES } from "@/constants/routes";
+import { ERP_ROUTES, ERP_ROUTE_SEGMENTS } from "@/constants/routes";
 import { fetchTenantBranding } from "@/lib/api";
 import {
   applyTenantBranding,
@@ -27,7 +27,6 @@ import { AcademicYearsPage } from "@/routes/academic-years-page";
 import { FeesPage } from "@/routes/fees-page";
 import { BrandingPage } from "@/routes/settings/branding-page";
 import { CampusesPage } from "@/routes/settings/campuses-page";
-import { ClassDetailPage } from "@/routes/class-detail-page";
 import { ClassesPage } from "@/routes/classes-page";
 import { GuardianDetailPage } from "@/routes/guardian-detail-page";
 import { GuardiansPage } from "@/routes/guardians-page";
@@ -35,6 +34,8 @@ import { StaffDetailPage } from "@/routes/staff-detail-page";
 import { StaffPage } from "@/routes/staff-page";
 import { StudentDetailPage } from "@/routes/student-detail-page";
 import { StudentsPage } from "@/routes/students-page";
+import { AcademicYearSheetRoute } from "@/features/academic-years/ui/academic-year-sheet-route";
+import { ClassSheetRoute } from "@/features/classes/ui/class-sheet-route";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -74,9 +75,31 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.GUARDIAN_DETAIL, element: <GuardianDetailPage /> },
       { path: ERP_ROUTES.STAFF, element: <StaffPage /> },
       { path: ERP_ROUTES.STAFF_DETAIL, element: <StaffDetailPage /> },
-      { path: ERP_ROUTES.ACADEMIC_YEARS, element: <AcademicYearsPage /> },
-      { path: ERP_ROUTES.CLASSES, element: <ClassesPage /> },
-      { path: ERP_ROUTES.CLASS_DETAIL, element: <ClassDetailPage /> },
+      {
+        path: ERP_ROUTES.ACADEMIC_YEARS,
+        element: <AcademicYearsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <AcademicYearSheetRoute mode="create" />,
+          },
+          {
+            path: `:academicYearId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <AcademicYearSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.CLASSES,
+        element: <ClassesPage />,
+        children: [
+          { path: ERP_ROUTE_SEGMENTS.NEW, element: <ClassSheetRoute mode="create" /> },
+          {
+            path: `:classId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <ClassSheetRoute mode="edit" />,
+          },
+        ],
+      },
       { path: ERP_ROUTES.ATTENDANCE, element: <AttendancePage /> },
       { path: ERP_ROUTES.EXAMS, element: <ExamsPage /> },
       { path: ERP_ROUTES.FEES, element: <FeesPage /> },

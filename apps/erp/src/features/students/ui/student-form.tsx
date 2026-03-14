@@ -113,8 +113,11 @@ export function StudentForm({
 
   const classesQuery = useClassesQuery(Boolean(selectedCampusId), selectedCampusId);
   const classOptions = useMemo(
-    () => ((classesQuery.data ?? []) as ClassOption[]).filter((item) => item.isActive !== false),
-    [classesQuery.data],
+    () =>
+      ((classesQuery.data?.rows ?? []) as ClassOption[]).filter(
+        (item) => item.isActive !== false,
+      ),
+    [classesQuery.data?.rows],
   );
   const selectedClass = useMemo(
     () => classOptions.find((item) => item.id === selectedClassId) ?? null,

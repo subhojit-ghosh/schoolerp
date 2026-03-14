@@ -1,3 +1,5 @@
+import { SORT_ORDERS } from "../../constants";
+import { sortableClassColumns } from "./classes.schemas";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ClassSectionBodyDto {
@@ -11,6 +13,25 @@ export class ClassSectionBodyDto {
 export class ListClassesQueryDto {
   @ApiPropertyOptional({ nullable: true })
   campusId?: string;
+
+  @ApiPropertyOptional({ minimum: 1, type: Number })
+  page?: number;
+
+  @ApiPropertyOptional({ type: Number })
+  limit?: number;
+
+  @ApiPropertyOptional()
+  q?: string;
+
+  @ApiPropertyOptional({
+    enum: Object.values(sortableClassColumns),
+  })
+  sort?: keyof typeof sortableClassColumns;
+
+  @ApiPropertyOptional({
+    enum: Object.values(SORT_ORDERS),
+  })
+  order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
 }
 
 export class CreateClassBodyDto {
@@ -84,4 +105,24 @@ export class ClassDto {
     isArray: true,
   })
   sections!: ClassSectionDto[];
+}
+
+export class ListClassesResultDto {
+  @ApiProperty({
+    type: () => ClassDto,
+    isArray: true,
+  })
+  rows!: ClassDto[];
+
+  @ApiProperty()
+  total!: number;
+
+  @ApiProperty()
+  page!: number;
+
+  @ApiProperty()
+  pageSize!: number;
+
+  @ApiProperty()
+  pageCount!: number;
 }

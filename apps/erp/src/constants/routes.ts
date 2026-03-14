@@ -1,3 +1,8 @@
+export const ERP_ROUTE_SEGMENTS = {
+  NEW: "new",
+  EDIT: "edit",
+} as const;
+
 export const ERP_ROUTES = {
   ROOT: "/",
   DASHBOARD: "/dashboard",
@@ -10,8 +15,11 @@ export const ERP_ROUTES = {
   STAFF_DETAIL: "/staff/:staffId",
   // Academics
   ACADEMIC_YEARS: "/academic-years",
+  ACADEMIC_YEAR_CREATE: `/academic-years/${ERP_ROUTE_SEGMENTS.NEW}`,
+  ACADEMIC_YEAR_EDIT: `/academic-years/:academicYearId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   CLASSES: "/classes",
-  CLASS_DETAIL: "/classes/:classId",
+  CLASS_CREATE: `/classes/${ERP_ROUTE_SEGMENTS.NEW}`,
+  CLASS_EDIT: `/classes/:classId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   ATTENDANCE: "/attendance",
   EXAMS: "/exams",
   // Finance
@@ -29,3 +37,11 @@ export const WEB_ROUTES = {
   HOME: "/",
   SIGN_UP: "/sign-up",
 } as const;
+
+export function buildClassEditRoute(classId: string) {
+  return `${ERP_ROUTES.CLASSES}/${classId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildAcademicYearEditRoute(academicYearId: string) {
+  return `${ERP_ROUTES.ACADEMIC_YEARS}/${academicYearId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}

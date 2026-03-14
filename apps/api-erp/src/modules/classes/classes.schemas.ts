@@ -1,9 +1,17 @@
-import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
 import { ERROR_MESSAGES } from "../../constants";
+import {
+  baseListQuerySchema,
+  parseListQuerySchema,
+} from "../../lib/list-query";
 
 const CLASS_NAME_MIN_LENGTH = 1;
 const SECTION_NAME_MIN_LENGTH = 1;
+export const sortableClassColumns = {
+  name: "name",
+  status: "status",
+  campus: "campus",
+} as const;
 
 const sectionSchema = z.object({
   id: z.uuid().optional(),
@@ -38,8 +46,15 @@ export const setClassStatusSchema = z.object({
   isActive: z.boolean(),
 });
 
-export const listClassesQuerySchema = z.object({
+export const listClassesQuerySchema = baseListQuerySchema.extend({
   campusId: z.uuid().optional(),
+  sort: z
+    .enum([
+      sortableClassColumns.name,
+      sortableClassColumns.status,
+      sortableClassColumns.campus,
+    ])
+    .optional(),
 });
 
 export const classIdSchema = z.object({
@@ -49,16 +64,13 @@ export const classIdSchema = z.object({
 export type CreateClassDto = z.infer<typeof createClassSchema>;
 export type UpdateClassDto = z.infer<typeof updateClassSchema>;
 export type SetClassStatusDto = z.infer<typeof setClassStatusSchema>;
-export type ListClassesQueryDto = z.infer<typeof listClassesQuerySchema>;
+type ListClassesQueryInput = z.infer<typeof listClassesQuerySchema>;
+export type ListClassesQueryDto = Omit<ListClassesQueryInput, "q"> & {
+  search?: string;
+};
 
 function parseSchema<T>(schema: z.ZodType<T>, input: unknown): T {
-  const result = schema.safeParse(input);
-
-  if (!result.success) {
-    throw new BadRequestException(result.error.flatten());
-  }
-
-  return result.data;
+  return parseListQuerySchema(schema, input);
 }
 
 export function parseCreateClass(body: unknown): CreateClassDto {
@@ -74,5 +86,14 @@ export function parseSetClassStatus(body: unknown): SetClassStatusDto {
 }
 
 export function parseListClassesQuery(query: unknown): ListClassesQueryDto {
-  return parseSchema(listClassesQuerySchema, query);
+  const result = parseSchema(listClassesQuerySchema, query);
+
+  return {
+    campusId: result.campusId,
+    limit: result.limit,
+    order: result.order,
+    page: result.page,
+    search: result.q,
+    sort: result.sort,
+  };
 }

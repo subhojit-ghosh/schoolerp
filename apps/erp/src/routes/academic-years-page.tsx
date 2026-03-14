@@ -1,102 +1,276 @@
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { useMemo } from "react";
+import { Link, Outlet, useLocation } from "react-router";
+import { IconPencil, IconPlus, IconSearch } from "@tabler/icons-react";
+import {
+  createColumnHelper,
+  functionalUpdate,
+  getCoreRowModel,
+  type PaginationState,
+  type SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
+import { Input } from "@repo/ui/components/ui/input";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
 import {
+  EntityEmptyStateAction,
+  EntityPagePrimaryAction,
+  EntityRowAction,
+} from "@/components/entity-actions";
+import { EntityListPage } from "@/components/entity-list-page";
+import { ServerDataTable, SortIcon } from "@/components/server-data-table";
+import {
+  buildAcademicYearEditRoute,
+  ERP_ROUTES,
+} from "@/constants/routes";
+import { SORT_ORDERS } from "@/constants/query";
+import {
   getActiveContext,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import {
-  useAcademicYearQuery,
-  useAcademicYearsQuery,
-  useCreateAcademicYearMutation,
-  useUpdateAcademicYearMutation,
-} from "@/features/academic-years/api/use-academic-years";
-import {
-  ACADEMIC_YEAR_FORM_DEFAULT_VALUES,
-  type AcademicYearFormValues,
-} from "@/features/academic-years/model/academic-year-form-schema";
-import { AcademicYearForm } from "@/features/academic-years/ui/academic-year-form";
-import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
+  ACADEMIC_YEAR_LIST_SORT_FIELDS,
+  ACADEMIC_YEARS_PAGE_COPY,
+} from "@/features/academic-years/model/academic-year-list.constants";
+import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
+import { appendSearch } from "@/lib/routes";
+
+type AcademicYearRow = {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+  isCurrent: boolean;
+  status: string;
+};
+
+const columnHelper = createColumnHelper<AcademicYearRow>();
+const VALID_SORT_FIELDS = [
+  ACADEMIC_YEAR_LIST_SORT_FIELDS.CURRENT,
+  ACADEMIC_YEAR_LIST_SORT_FIELDS.END_DATE,
+  ACADEMIC_YEAR_LIST_SORT_FIELDS.NAME,
+  ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE,
+] as const;
+
+function formatDateRange(startDate: string, endDate: string) {
+  return `${startDate} to ${endDate}`;
+}
 
 export function AcademicYearsPage() {
-  const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<
-    string | null
-  >(null);
+  const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
   const canManageAcademicYears = isStaffContext(session);
   const managedInstitutionId = canManageAcademicYears ? institutionId : undefined;
-  const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
-  const academicYearQuery = useAcademicYearQuery(
-    managedInstitutionId,
-    selectedAcademicYearId ?? undefined,
+  const {
+    queryState,
+    searchInput,
+    setPage,
+    setPageSize,
+    setSearchInput,
+    setSorting,
+  } = useEntityListQueryState({
+    defaultSortBy: ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE,
+    defaultSortOrder: SORT_ORDERS.DESC,
+    validSorts: VALID_SORT_FIELDS,
+  });
+
+  const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId, {
+    limit: queryState.pageSize,
+    order: queryState.sortOrder,
+    page: queryState.page,
+    q: queryState.search || undefined,
+    sort: queryState.sortBy,
+  });
+
+  const rows = useMemo(
+    () => (academicYearsQuery.data?.rows ?? []) as AcademicYearRow[],
+    [academicYearsQuery.data?.rows],
   );
-  const createAcademicYearMutation =
-    useCreateAcademicYearMutation(managedInstitutionId);
-  const updateAcademicYearMutation =
-    useUpdateAcademicYearMutation(managedInstitutionId);
-  const createError = createAcademicYearMutation.error as Error | null | undefined;
-  const updateError = updateAcademicYearMutation.error as Error | null | undefined;
+  const error = academicYearsQuery.error as Error | null | undefined;
 
-  useEffect(() => {
-    if (!selectedAcademicYearId) {
-      return;
-    }
-
-    const hasSelectedYear = (academicYearsQuery.data ?? []).some(
-      (academicYear) => academicYear.id === selectedAcademicYearId,
-    );
-
-    if (!hasSelectedYear) {
-      setSelectedAcademicYearId(null);
-    }
-  }, [academicYearsQuery.data, selectedAcademicYearId]);
-
-  async function handleCreateAcademicYear(values: AcademicYearFormValues) {
-    if (!institutionId) {
-      return;
-    }
-
-    const createdAcademicYear = await createAcademicYearMutation.mutateAsync({
-      body: values,
-    });
-
-    setSelectedAcademicYearId(createdAcademicYear.id);
-    toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR));
-  }
-
-  async function handleUpdateAcademicYear(values: AcademicYearFormValues) {
-    if (!institutionId || !selectedAcademicYearId) {
-      return;
-    }
-
-    await updateAcademicYearMutation.mutateAsync({
-      params: {
-        path: {
-          academicYearId: selectedAcademicYearId,
-        },
+  const sortingState = useMemo<SortingState>(() => {
+    return [
+      {
+        id: queryState.sortBy,
+        desc: queryState.sortOrder === SORT_ORDERS.DESC,
       },
-      body: values,
-    });
+    ];
+  }, [queryState.sortBy, queryState.sortOrder]);
 
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR));
-  }
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("name", {
+        header: () => (
+          <button
+            className="flex items-center font-medium hover:text-foreground"
+            onClick={() => setSorting(ACADEMIC_YEAR_LIST_SORT_FIELDS.NAME)}
+            type="button"
+          >
+            Academic year
+            <SortIcon
+              direction={
+                queryState.sortBy === ACADEMIC_YEAR_LIST_SORT_FIELDS.NAME
+                  ? queryState.sortOrder
+                  : false
+              }
+            />
+          </button>
+        ),
+        cell: ({ row }) => (
+          <div className="space-y-1">
+            <Button asChild className="h-auto px-0 text-left" variant="link">
+              <Link
+                to={appendSearch(
+                  buildAcademicYearEditRoute(row.original.id),
+                  location.search,
+                )}
+              >
+                {row.original.name}
+              </Link>
+            </Button>
+            <p className="text-sm text-muted-foreground">
+              {formatDateRange(row.original.startDate, row.original.endDate)}
+            </p>
+          </div>
+        ),
+      }),
+      columnHelper.accessor("startDate", {
+        header: () => (
+          <button
+            className="flex items-center font-medium hover:text-foreground"
+            onClick={() => setSorting(ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE)}
+            type="button"
+          >
+            Start
+            <SortIcon
+              direction={
+                queryState.sortBy === ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE
+                  ? queryState.sortOrder
+                  : false
+              }
+            />
+          </button>
+        ),
+      }),
+      columnHelper.accessor("endDate", {
+        header: () => (
+          <button
+            className="flex items-center font-medium hover:text-foreground"
+            onClick={() => setSorting(ACADEMIC_YEAR_LIST_SORT_FIELDS.END_DATE)}
+            type="button"
+          >
+            End
+            <SortIcon
+              direction={
+                queryState.sortBy === ACADEMIC_YEAR_LIST_SORT_FIELDS.END_DATE
+                  ? queryState.sortOrder
+                  : false
+              }
+            />
+          </button>
+        ),
+      }),
+      columnHelper.accessor("isCurrent", {
+        header: () => (
+          <button
+            className="flex items-center font-medium hover:text-foreground"
+            onClick={() => setSorting(ACADEMIC_YEAR_LIST_SORT_FIELDS.CURRENT)}
+            type="button"
+          >
+            Current
+            <SortIcon
+              direction={
+                queryState.sortBy === ACADEMIC_YEAR_LIST_SORT_FIELDS.CURRENT
+                  ? queryState.sortOrder
+                  : false
+              }
+            />
+          </button>
+        ),
+        cell: ({ row }) =>
+          row.original.isCurrent ? (
+            <Badge>Current</Badge>
+          ) : (
+            <Badge variant="outline" className="text-muted-foreground">
+              Archived
+            </Badge>
+          ),
+      }),
+      columnHelper.accessor("status", {
+        header: "Status",
+        cell: ({ getValue }) => (
+          <Badge variant="outline" className="capitalize text-muted-foreground">
+            {getValue().toLowerCase()}
+          </Badge>
+        ),
+      }),
+      columnHelper.display({
+        id: "actions",
+        cell: ({ row }) => (
+          <div className="flex justify-end">
+            <EntityRowAction asChild>
+              <Link
+                to={appendSearch(
+                  buildAcademicYearEditRoute(row.original.id),
+                  location.search,
+                )}
+              >
+                <IconPencil className="size-3" />
+                Edit
+              </Link>
+            </EntityRowAction>
+          </div>
+        ),
+      }),
+    ],
+    [location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+  );
+
+  const table = useReactTable({
+    data: rows,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    manualPagination: true,
+    manualSorting: true,
+    onPaginationChange: (updater) => {
+      const nextPagination = functionalUpdate<PaginationState>(updater, {
+        pageIndex: queryState.page - 1,
+        pageSize: queryState.pageSize,
+      });
+
+      if (nextPagination.pageSize !== queryState.pageSize) {
+        setPageSize(nextPagination.pageSize);
+        return;
+      }
+
+      setPage(nextPagination.pageIndex + 1);
+    },
+    pageCount: academicYearsQuery.data?.pageCount ?? 1,
+    rowCount: academicYearsQuery.data?.total ?? 0,
+    state: {
+      pagination: {
+        pageIndex: queryState.page - 1,
+        pageSize: queryState.pageSize,
+      },
+      sorting: sortingState,
+    },
+  });
 
   if (!institutionId) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Academic years</CardTitle>
+          <CardTitle>{ACADEMIC_YEARS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
             Sign in with an institution-backed session to manage academic years.
           </CardDescription>
@@ -109,125 +283,83 @@ export function AcademicYearsPage() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Academic years</CardTitle>
+          <CardTitle>{ACADEMIC_YEARS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Academic-year administration is available in Staff view. You are
-            currently in {activeContext?.label ?? "another"} view.
+            Academic-year administration is available in Staff view. You are currently in{" "}
+            {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
     );
   }
 
-  const selectedAcademicYear = academicYearQuery.data;
-  const isEditing = Boolean(selectedAcademicYearId);
-  const formDefaultValues = selectedAcademicYear
-    ? {
-        name: selectedAcademicYear.name,
-        startDate: selectedAcademicYear.startDate,
-        endDate: selectedAcademicYear.endDate,
-        isCurrent: selectedAcademicYear.isCurrent,
-      }
-    : ACADEMIC_YEAR_FORM_DEFAULT_VALUES;
+  const isFiltered = Boolean(queryState.search);
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px]">
-      <Card>
-        <CardHeader>
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <CardTitle>Academic years</CardTitle>
-              <CardDescription>
-                List existing academic years and keep one current year configured
-                from a single edit flow.
-              </CardDescription>
+    <EntityListPage
+      actions={
+        <EntityPagePrimaryAction
+          asChild
+        >
+          <Link to={appendSearch(ERP_ROUTES.ACADEMIC_YEAR_CREATE, location.search)}>
+            <IconPlus className="size-4" />
+            New academic year
+          </Link>
+        </EntityPagePrimaryAction>
+      }
+      description={ACADEMIC_YEARS_PAGE_COPY.DESCRIPTION}
+      title={ACADEMIC_YEARS_PAGE_COPY.TITLE}
+      toolbar={
+        <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative min-w-[280px] flex-1">
+              <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="h-11 w-full max-w-md rounded-lg border-border/70 bg-background pl-10 shadow-none"
+                placeholder={ACADEMIC_YEARS_PAGE_COPY.SEARCH_PLACEHOLDER}
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+              />
             </div>
-            <Button
-              onClick={() => setSelectedAcademicYearId(null)}
-              type="button"
-              variant={isEditing ? "outline" : "default"}
-            >
-              New academic year
-            </Button>
           </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {academicYearsQuery.isLoading ? (
-            <div className="rounded-md border border-dashed px-4 py-8 text-sm text-muted-foreground">
-              Loading academic years...
-            </div>
-          ) : academicYearsQuery.data?.length ? (
-            academicYearsQuery.data.map((academicYear) => {
-              const isSelected = academicYear.id === selectedAcademicYearId;
-
-              return (
-                <button
-                  className="flex w-full items-center justify-between rounded-md border px-4 py-3 text-left"
-                  key={academicYear.id}
-                  onClick={() => setSelectedAcademicYearId(academicYear.id)}
-                  type="button"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{academicYear.name}</span>
-                      {academicYear.isCurrent ? <Badge>Current</Badge> : null}
-                      <Badge variant="outline">{academicYear.status}</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {academicYear.startDate} to {academicYear.endDate}
-                    </p>
-                  </div>
-                  <Badge variant={isSelected ? "default" : "secondary"}>
-                    {isSelected ? "Editing" : "Edit"}
-                  </Badge>
-                </button>
-              );
-            })
-          ) : (
-            <div className="rounded-md border border-dashed px-4 py-8 text-sm text-muted-foreground">
-              No academic years yet. Create the first one to establish the
-              institution timeline.
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            {isEditing ? "Edit academic year" : "Create academic year"}
-          </CardTitle>
-          <CardDescription>
-            {isEditing
-              ? "Update the selected academic year. The backend keeps the current-year rule authoritative."
-              : "Create a new academic year for this institution."}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {isEditing && academicYearQuery.isLoading ? (
-            <div className="rounded-md border border-dashed px-4 py-8 text-sm text-muted-foreground">
-              Loading academic year details...
-            </div>
-          ) : (
-            <AcademicYearForm
-              defaultValues={formDefaultValues}
-              errorMessage={isEditing ? updateError?.message : createError?.message}
-              isPending={
-                isEditing
-                  ? updateAcademicYearMutation.isPending
-                  : createAcademicYearMutation.isPending
-              }
-              onCancel={
-                isEditing ? () => setSelectedAcademicYearId(null) : undefined
-              }
-              onSubmit={
-                isEditing ? handleUpdateAcademicYear : handleCreateAcademicYear
-              }
-              submitLabel={isEditing ? "Save changes" : "Create academic year"}
-            />
-          )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      }
+    >
+      <ServerDataTable
+        emptyAction={
+          !isFiltered ? (
+            <EntityEmptyStateAction
+              asChild
+            >
+              <Link to={appendSearch(ERP_ROUTES.ACADEMIC_YEAR_CREATE, location.search)}>
+                <IconPlus className="size-4" />
+                Create first academic year
+              </Link>
+            </EntityEmptyStateAction>
+          ) : null
+        }
+        emptyDescription={
+          isFiltered
+            ? ACADEMIC_YEARS_PAGE_COPY.EMPTY_FILTERED_DESCRIPTION
+            : ACADEMIC_YEARS_PAGE_COPY.EMPTY_DESCRIPTION
+        }
+        emptyTitle={
+          isFiltered
+            ? ACADEMIC_YEARS_PAGE_COPY.EMPTY_FILTERED_TITLE
+            : ACADEMIC_YEARS_PAGE_COPY.EMPTY_TITLE
+        }
+        errorDescription={error?.message}
+        errorTitle={ACADEMIC_YEARS_PAGE_COPY.ERROR_TITLE}
+        isError={academicYearsQuery.isError}
+        isLoading={academicYearsQuery.isLoading}
+        onSearchChange={setSearchInput}
+        searchPlaceholder={ACADEMIC_YEARS_PAGE_COPY.SEARCH_PLACEHOLDER}
+        searchValue={searchInput}
+        showSearch={false}
+        table={table}
+        totalRows={academicYearsQuery.data?.total ?? 0}
+      />
+      <Outlet />
+    </EntityListPage>
   );
 }

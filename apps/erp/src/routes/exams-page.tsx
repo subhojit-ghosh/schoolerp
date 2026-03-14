@@ -50,6 +50,10 @@ export function ExamsPage() {
   const createExamTermMutation = useCreateExamTermMutation(managedInstitutionId);
   const replaceMarksMutation = useReplaceExamMarksMutation(managedInstitutionId);
   const [selectedExamTermId, setSelectedExamTermId] = useState<string>();
+  const academicYears = useMemo(
+    () => academicYearsQuery.data?.rows ?? [],
+    [academicYearsQuery.data?.rows],
+  );
 
   const examTerms = useMemo(() => examTermsQuery.data ?? [], [examTermsQuery.data]);
   const examMarksQuery = useExamMarksQuery(managedInstitutionId, selectedExamTermId);
@@ -70,14 +74,14 @@ export function ExamsPage() {
   const termDefaultValues: ExamTermFormValues = useMemo(
     () => ({
       academicYearId:
-        academicYearsQuery.data?.find((academicYear) => academicYear.isCurrent)?.id ??
-        academicYearsQuery.data?.[0]?.id ??
+        academicYears.find((academicYear) => academicYear.isCurrent)?.id ??
+        academicYears[0]?.id ??
         "",
       name: "",
       startDate: "",
       endDate: "",
     }),
-    [academicYearsQuery.data],
+    [academicYears],
   );
 
   const marksDefaultValues: ExamMarksFormValues = useMemo(() => {
@@ -165,7 +169,7 @@ export function ExamsPage() {
           </CardHeader>
           <CardContent>
             <ExamTermForm
-              academicYears={(academicYearsQuery.data ?? []).map((academicYear) => ({
+              academicYears={academicYears.map((academicYear) => ({
                 id: academicYear.id,
                 name: academicYear.name,
               }))}

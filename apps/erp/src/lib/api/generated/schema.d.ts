@@ -853,6 +853,13 @@ export interface components {
             displayOrder: number;
             sections: components["schemas"]["ClassSectionDto"][];
         };
+        ListClassesResultDto: {
+            rows: components["schemas"]["ClassDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
         ClassSectionBodyDto: {
             id?: string | null;
             name: string;
@@ -1029,6 +1036,13 @@ export interface components {
             status: "active" | "archived";
             /** Format: date-time */
             createdAt: string;
+        };
+        ListAcademicYearsResultDto: {
+            rows: components["schemas"]["AcademicYearDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
         };
         CreateAcademicYearBodyDto: {
             name: string;
@@ -1573,6 +1587,11 @@ export interface operations {
         parameters: {
             query?: {
                 campusId?: string | null;
+                page?: number;
+                limit?: number;
+                q?: string;
+                sort?: "name" | "status" | "campus";
+                order?: "asc" | "desc";
             };
             header?: never;
             path?: never;
@@ -1585,7 +1604,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ClassDto"][];
+                    "application/json": components["schemas"]["ListClassesResultDto"];
                 };
             };
         };
@@ -2038,7 +2057,13 @@ export interface operations {
     };
     AcademicYearsController_listAcademicYears: {
         parameters: {
-            query?: never;
+            query?: {
+                page?: number;
+                limit?: number;
+                q?: string;
+                sort?: "current" | "endDate" | "name" | "startDate";
+                order?: "asc" | "desc";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2051,7 +2076,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AcademicYearDto"][];
+                    "application/json": components["schemas"]["ListAcademicYearsResultDto"];
                 };
             };
         };

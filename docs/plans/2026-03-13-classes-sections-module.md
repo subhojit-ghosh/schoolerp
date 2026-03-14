@@ -44,13 +44,37 @@ Add a shallow tenant-scoped classes and sections module that validates the curre
 
 The payload includes nested sections so the React layer stays thin and the backend remains the source of truth for reconciliation.
 
+The list contract now uses the shared ERP list-query shape:
+
+- `page`
+- `limit`
+- `q`
+- `sort`
+- `order`
+- optional `campusId`
+
+The list response is now paginated:
+
+- `rows`
+- `total`
+- `page`
+- `pageSize`
+- `pageCount`
+
 ## Frontend Shape
 
 - `apps/erp/src/features/classes/api`
 - `apps/erp/src/features/classes/model`
 - `apps/erp/src/features/classes/ui`
 - `apps/erp/src/routes/classes-page.tsx`
-- `apps/erp/src/routes/class-detail-page.tsx`
+- route-driven sheet flows on:
+  - `/classes/new`
+  - `/classes/:classId/edit`
+- shared ERP list primitives in:
+  - `apps/erp/src/components/entity-list-page.tsx`
+  - `apps/erp/src/components/server-data-table.tsx`
+  - `apps/erp/src/components/route-entity-sheet.tsx`
+  - `apps/erp/src/hooks/use-entity-list-query-state.ts`
 
 ## Verification
 

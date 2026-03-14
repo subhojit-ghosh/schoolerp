@@ -215,7 +215,7 @@ export function StudentDetailPage() {
           </CardHeader>
           <CardContent>
             <StudentForm
-              academicYears={academicYearsQuery.data ?? []}
+              academicYears={academicYearsQuery.data?.rows ?? []}
               campuses={campuses}
               defaultValues={defaultValues}
               errorMessage={updateError?.message}

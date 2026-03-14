@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -13,6 +14,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES } from "../../constants";
@@ -25,10 +27,13 @@ import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   AcademicYearDto,
   CreateAcademicYearBodyDto,
+  ListAcademicYearsQueryDto,
+  ListAcademicYearsResultDto,
   UpdateAcademicYearBodyDto,
 } from "./academic-years.dto";
 import {
   parseCreateAcademicYear,
+  parseListAcademicYearsQuery,
   parseUpdateAcademicYear,
 } from "./academic-years.schemas";
 import { AcademicYearsService } from "./academic-years.service";
@@ -44,17 +49,26 @@ export class AcademicYearsController {
   @ApiOperation({
     summary: "List academic years for the current tenant institution",
   })
+  @ApiQuery({ name: "page", required: false, type: Number })
+  @ApiQuery({ name: "limit", required: false, type: Number })
+  @ApiQuery({ name: "q", required: false, type: String })
+  @ApiQuery({ name: "sort", required: false, type: String })
+  @ApiQuery({ name: "order", required: false, type: String })
   @ApiOkResponse({
     description: "Academic years list",
-    type: [AcademicYearDto],
+    type: ListAcademicYearsResultDto,
   })
   listAcademicYears(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @Query() query: ListAcademicYearsQueryDto,
   ) {
+    const parsedQuery = parseListAcademicYearsQuery(query);
+
     return this.academicYearsService.listAcademicYears(
       institution.id,
       authSession,
+      parsedQuery,
     );
   }
 
