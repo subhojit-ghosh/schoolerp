@@ -67,7 +67,9 @@ export class InstitutionsController {
   @UseGuards(SessionAuthGuard, TenantInstitutionGuard)
   @Patch(`${API_ROUTES.CURRENT}/${API_ROUTES.BRANDING}`)
   @ApiCookieAuth()
-  @ApiOperation({ summary: "Update branding colors for the current tenant institution" })
+  @ApiOperation({
+    summary: "Update branding colors for the current tenant institution",
+  })
   @ApiBody({ type: UpdateBrandingBodyDto })
   @ApiOkResponse({ type: UpdateBrandingResponseDto })
   async updateBranding(

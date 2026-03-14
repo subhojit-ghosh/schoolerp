@@ -31,19 +31,19 @@ const ATTENDANCE_STATUS_ENUM = [
 export const academicYears = pgTable(
   "academic_years",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "restrict" }),
-    name: text("name").notNull(),
-    startDate: date("start_date").notNull(),
-    endDate: date("end_date").notNull(),
-    isCurrent: boolean("is_current").notNull().default(false),
-    status: text("status", { enum: ["active", "archived"] })
+    name: text().notNull(),
+    startDate: date().notNull(),
+    endDate: date().notNull(),
+    isCurrent: boolean().notNull().default(false),
+    status: text({ enum: ["active", "archived"] })
       .notNull()
       .default("active"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (t) => [
     index("academic_years_institution_idx").on(t.institutionId),
@@ -60,19 +60,19 @@ export const academicYears = pgTable(
 export const roles = pgTable(
   "roles",
   {
-    id: text("id").primaryKey(),
-    name: text("name").notNull(),
-    slug: text("slug").notNull(),
-    roleType: text("role_type", {
+    id: text().primaryKey(),
+    name: text().notNull(),
+    slug: text().notNull(),
+    roleType: text({
       enum: ["platform", "system", "institution"],
     }).notNull(),
-    institutionId: text("institution_id").references(() => organization.id, {
+    institutionId: text().references(() => organization.id, {
       onDelete: "restrict",
     }),
-    isSystem: boolean("is_system").notNull().default(false),
-    isConfigurable: boolean("is_configurable").notNull().default(false),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    isSystem: boolean().notNull().default(false),
+    isConfigurable: boolean().notNull().default(false),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (t) => [
     unique("roles_slug_institution_unique").on(t.slug, t.institutionId),
@@ -83,18 +83,18 @@ export const roles = pgTable(
 );
 
 export const permissions = pgTable("permissions", {
-  id: text("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  description: text("description"),
+  id: text().primaryKey(),
+  slug: text().notNull().unique(),
+  description: text(),
 });
 
 export const rolePermissions = pgTable(
   "role_permissions",
   {
-    roleId: text("role_id")
+    roleId: text()
       .notNull()
       .references(() => roles.id, { onDelete: "restrict" }),
-    permissionId: text("permission_id")
+    permissionId: text()
       .notNull()
       .references(() => permissions.id, { onDelete: "restrict" }),
   },
@@ -104,20 +104,20 @@ export const rolePermissions = pgTable(
 export const membershipRoles = pgTable(
   "membership_roles",
   {
-    id: text("id").primaryKey(),
-    membershipId: text("membership_id")
+    id: text().primaryKey(),
+    membershipId: text()
       .notNull()
       .references(() => member.id, { onDelete: "restrict" }),
-    roleId: text("role_id")
+    roleId: text()
       .notNull()
       .references(() => roles.id, { onDelete: "restrict" }),
-    validFrom: date("valid_from").notNull(),
-    validTo: date("valid_to"),
-    academicYearId: text("academic_year_id").references(() => academicYears.id, {
+    validFrom: date().notNull(),
+    validTo: date(),
+    academicYearId: text().references(() => academicYears.id, {
       onDelete: "restrict",
     }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (t) => [
     index("membership_roles_membership_idx").on(t.membershipId),
@@ -127,28 +127,28 @@ export const membershipRoles = pgTable(
 );
 
 export const membershipRoleScopes = pgTable("membership_role_scopes", {
-  id: text("id").primaryKey(),
-  membershipRoleId: text("membership_role_id")
+  id: text().primaryKey(),
+  membershipRoleId: text()
     .notNull()
     .references(() => membershipRoles.id, { onDelete: "restrict" }),
-  scopeType: text("scope_type", {
+  scopeType: text({
     enum: ["institution", "campus", "department", "class", "section"],
   }).notNull(),
-  scopeId: text("scope_id").notNull(),
+  scopeId: text().notNull(),
 });
 
 export const campusMemberships = pgTable(
   "campus_memberships",
   {
-    id: text("id").primaryKey(),
-    membershipId: text("membership_id")
+    id: text().primaryKey(),
+    membershipId: text()
       .notNull()
       .references(() => member.id, { onDelete: "cascade" }),
-    campusId: text("campus_id")
+    campusId: text()
       .notNull()
       .references(() => campus.id, { onDelete: "cascade" }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("campus_membership_membership_idx").on(table.membershipId),
@@ -162,24 +162,24 @@ export const campusMemberships = pgTable(
 export const students = pgTable(
   "students",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    membershipId: text("membership_id")
+    membershipId: text()
       .notNull()
       .references(() => member.id, { onDelete: "cascade" }),
-    admissionNumber: text("admission_number").notNull(),
-    firstName: text("first_name").notNull(),
-    lastName: text("last_name"),
-    classId: text("class_id")
+    admissionNumber: text().notNull(),
+    firstName: text().notNull(),
+    lastName: text(),
+    classId: text()
       .notNull()
       .references(() => schoolClasses.id, { onDelete: "restrict" }),
-    sectionId: text("section_id")
+    sectionId: text()
       .notNull()
       .references(() => classSections.id, { onDelete: "restrict" }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("students_institution_idx").on(table.institutionId),
@@ -201,31 +201,31 @@ export const students = pgTable(
 export const attendanceRecords = pgTable(
   "attendance_records",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    campusId: text("campus_id")
+    campusId: text()
       .notNull()
       .references(() => campus.id, { onDelete: "restrict" }),
-    studentId: text("student_id")
+    studentId: text()
       .notNull()
       .references(() => students.id, { onDelete: "cascade" }),
-    attendanceDate: date("attendance_date").notNull(),
-    classId: text("class_id")
+    attendanceDate: date().notNull(),
+    classId: text()
       .notNull()
       .references(() => schoolClasses.id, { onDelete: "restrict" }),
-    sectionId: text("section_id")
+    sectionId: text()
       .notNull()
       .references(() => classSections.id, { onDelete: "restrict" }),
-    status: text("status", {
+    status: text({
       enum: ATTENDANCE_STATUS_ENUM,
     }).notNull(),
-    markedByMembershipId: text("marked_by_membership_id")
+    markedByMembershipId: text()
       .notNull()
       .references(() => member.id, { onDelete: "restrict" }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at")
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
       .notNull()
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date()),
@@ -253,24 +253,24 @@ export const attendanceRecords = pgTable(
 export const studentCurrentEnrollments = pgTable(
   "student_current_enrollments",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    studentMembershipId: text("student_membership_id")
+    studentMembershipId: text()
       .notNull()
       .references(() => member.id, { onDelete: "cascade" }),
-    academicYearId: text("academic_year_id")
+    academicYearId: text()
       .notNull()
       .references(() => academicYears.id, { onDelete: "restrict" }),
-    classId: text("class_id")
+    classId: text()
       .notNull()
       .references(() => schoolClasses.id, { onDelete: "restrict" }),
-    sectionId: text("section_id")
+    sectionId: text()
       .notNull()
       .references(() => classSections.id, { onDelete: "restrict" }),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("student_current_enrollments_institution_idx").on(
@@ -291,20 +291,20 @@ export const studentCurrentEnrollments = pgTable(
 export const studentGuardianLinks = pgTable(
   "student_guardian_links",
   {
-    id: text("id").primaryKey(),
-    studentMembershipId: text("student_membership_id")
+    id: text().primaryKey(),
+    studentMembershipId: text()
       .notNull()
       .references(() => member.id, { onDelete: "restrict" }),
-    parentMembershipId: text("parent_membership_id")
+    parentMembershipId: text()
       .notNull()
       .references(() => member.id, { onDelete: "restrict" }),
-    relationship: text("relationship", {
+    relationship: text({
       enum: ["father", "mother", "guardian"],
     }).notNull(),
-    isPrimary: boolean("is_primary").notNull().default(false),
-    invitedAt: timestamp("invited_at").notNull().defaultNow(),
-    acceptedAt: timestamp("accepted_at"),
-    deletedAt: timestamp("deleted_at"),
+    isPrimary: boolean().notNull().default(false),
+    invitedAt: timestamp().notNull().defaultNow(),
+    acceptedAt: timestamp(),
+    deletedAt: timestamp(),
   },
   (t) => [
     index("sgl_student_idx").on(t.studentMembershipId),
@@ -315,19 +315,18 @@ export const studentGuardianLinks = pgTable(
 export const schoolClasses = pgTable(
   "classes",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    campusId: text("campus_id")
+    campusId: text()
       .notNull()
       .references(() => campus.id, { onDelete: "restrict" }),
-    name: text("name").notNull(),
-    code: text("code"),
-    isActive: boolean("is_active").notNull().default(true),
-    displayOrder: integer("display_order").notNull().default(0),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    name: text().notNull(),
+    isActive: boolean().notNull().default(true),
+    displayOrder: integer().notNull().default(0),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("classes_institution_idx").on(table.institutionId),
@@ -335,26 +334,23 @@ export const schoolClasses = pgTable(
     uniqueIndex("classes_name_per_campus_unique_idx")
       .on(table.campusId, table.name)
       .where(sql`${table.deletedAt} IS NULL`),
-    uniqueIndex("classes_code_per_institution_unique_idx")
-      .on(table.institutionId, table.code)
-      .where(sql`${table.deletedAt} IS NULL AND ${table.code} IS NOT NULL`),
   ],
 );
 
 export const classSections = pgTable(
   "sections",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    classId: text("class_id")
+    classId: text()
       .notNull()
       .references(() => schoolClasses.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    displayOrder: integer("display_order").notNull().default(0),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    name: text().notNull(),
+    displayOrder: integer().notNull().default(0),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("sections_institution_idx").on(table.institutionId),
@@ -368,25 +364,25 @@ export const classSections = pgTable(
 export const feeStructures = pgTable(
   "fee_structures",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    academicYearId: text("academic_year_id")
+    academicYearId: text()
       .notNull()
       .references(() => academicYears.id, { onDelete: "restrict" }),
-    campusId: text("campus_id").references(() => campus.id, {
+    campusId: text().references(() => campus.id, {
       onDelete: "restrict",
     }),
-    name: text("name").notNull(),
-    description: text("description"),
-    scope: text("scope", {
+    name: text().notNull(),
+    description: text(),
+    scope: text({
       enum: FEE_STRUCTURE_SCOPE_ENUM,
     }).notNull(),
-    amountInPaise: integer("amount_in_paise").notNull(),
-    dueDate: date("due_date").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    amountInPaise: integer().notNull(),
+    dueDate: date().notNull(),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("fee_structures_institution_idx").on(table.institutionId),
@@ -406,18 +402,18 @@ export const feeStructures = pgTable(
 export const examTerms = pgTable(
   "exam_terms",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    academicYearId: text("academic_year_id")
+    academicYearId: text()
       .notNull()
       .references(() => academicYears.id, { onDelete: "restrict" }),
-    name: text("name").notNull(),
-    startDate: date("start_date").notNull(),
-    endDate: date("end_date").notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    name: text().notNull(),
+    startDate: date().notNull(),
+    endDate: date().notNull(),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("exam_terms_institution_idx").on(table.institutionId),
@@ -431,21 +427,21 @@ export const examTerms = pgTable(
 export const examMarks = pgTable(
   "exam_marks",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    examTermId: text("exam_term_id")
+    examTermId: text()
       .notNull()
       .references(() => examTerms.id, { onDelete: "cascade" }),
-    studentId: text("student_id")
+    studentId: text()
       .notNull()
       .references(() => students.id, { onDelete: "cascade" }),
-    subjectName: text("subject_name").notNull(),
-    maxMarks: integer("max_marks").notNull(),
-    obtainedMarks: integer("obtained_marks").notNull(),
-    remarks: text("remarks"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
+    subjectName: text().notNull(),
+    maxMarks: integer().notNull(),
+    obtainedMarks: integer().notNull(),
+    remarks: text(),
+    createdAt: timestamp().notNull().defaultNow(),
   },
   (table) => [
     index("exam_marks_term_idx").on(table.examTermId),
@@ -461,24 +457,24 @@ export const examMarks = pgTable(
 export const feeAssignments = pgTable(
   "fee_assignments",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    feeStructureId: text("fee_structure_id")
+    feeStructureId: text()
       .notNull()
       .references(() => feeStructures.id, { onDelete: "restrict" }),
-    studentId: text("student_id")
+    studentId: text()
       .notNull()
       .references(() => students.id, { onDelete: "restrict" }),
-    assignedAmountInPaise: integer("assigned_amount_in_paise").notNull(),
-    dueDate: date("due_date").notNull(),
-    status: text("status", {
+    assignedAmountInPaise: integer().notNull(),
+    dueDate: date().notNull(),
+    status: text({
       enum: FEE_ASSIGNMENT_STATUS_ENUM,
     }).notNull(),
-    notes: text("notes"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    notes: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("fee_assignments_institution_idx").on(table.institutionId),
@@ -494,22 +490,22 @@ export const feeAssignments = pgTable(
 export const feePayments = pgTable(
   "fee_payments",
   {
-    id: text("id").primaryKey(),
-    institutionId: text("institution_id")
+    id: text().primaryKey(),
+    institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    feeAssignmentId: text("fee_assignment_id")
+    feeAssignmentId: text()
       .notNull()
       .references(() => feeAssignments.id, { onDelete: "restrict" }),
-    amountInPaise: integer("amount_in_paise").notNull(),
-    paymentDate: date("payment_date").notNull(),
-    paymentMethod: text("payment_method", {
+    amountInPaise: integer().notNull(),
+    paymentDate: date().notNull(),
+    paymentMethod: text({
       enum: FEE_PAYMENT_METHOD_ENUM,
     }).notNull(),
-    referenceNumber: text("reference_number"),
-    notes: text("notes"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    deletedAt: timestamp("deleted_at"),
+    referenceNumber: text(),
+    notes: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("fee_payments_institution_idx").on(table.institutionId),

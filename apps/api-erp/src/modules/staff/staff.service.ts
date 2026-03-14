@@ -56,7 +56,10 @@ export class StaffService {
   ) {
     await this.requireInstitutionAccess(authSession, institutionId);
 
-    const [staffRecord] = await this.listStaffForInstitution(institutionId, staffId);
+    const [staffRecord] = await this.listStaffForInstitution(
+      institutionId,
+      staffId,
+    );
 
     if (!staffRecord) {
       throw new NotFoundException(ERROR_MESSAGES.STAFF.STAFF_NOT_FOUND);
@@ -72,7 +75,10 @@ export class StaffService {
   ) {
     await this.requireInstitutionAccess(authSession, institutionId);
 
-    const selectedCampus = await this.getCampus(institutionId, payload.campusId);
+    const selectedCampus = await this.getCampus(
+      institutionId,
+      payload.campusId,
+    );
     const selectedRole = payload.roleId
       ? await this.getRole(institutionId, payload.roleId)
       : null;
@@ -94,7 +100,9 @@ export class StaffService {
         .limit(1);
 
       if (existingStaffMembership) {
-        throw new ConflictException(ERROR_MESSAGES.STAFF.STAFF_MEMBERSHIP_EXISTS);
+        throw new ConflictException(
+          ERROR_MESSAGES.STAFF.STAFF_MEMBERSHIP_EXISTS,
+        );
       }
 
       const nextMembershipId = randomUUID();
@@ -108,7 +116,11 @@ export class StaffService {
         status: payload.status,
       });
 
-      await this.ensureCampusMembership(tx, nextMembershipId, selectedCampus.id);
+      await this.ensureCampusMembership(
+        tx,
+        nextMembershipId,
+        selectedCampus.id,
+      );
 
       if (selectedRole) {
         await tx.insert(membershipRoles).values({
@@ -136,7 +148,10 @@ export class StaffService {
     await this.requireInstitutionAccess(authSession, institutionId);
 
     const existingStaff = await this.getStaffMembership(institutionId, staffId);
-    const selectedCampus = await this.getCampus(institutionId, payload.campusId);
+    const selectedCampus = await this.getCampus(
+      institutionId,
+      payload.campusId,
+    );
     const selectedRole = payload.roleId
       ? await this.getRole(institutionId, payload.roleId)
       : null;
@@ -185,7 +200,10 @@ export class StaffService {
     return this.getStaff(institutionId, staffId, authSession);
   }
 
-  private async listStaffForInstitution(institutionId: string, staffId?: string) {
+  private async listStaffForInstitution(
+    institutionId: string,
+    staffId?: string,
+  ) {
     const staffRows = await this.db
       .select({
         id: member.id,
@@ -261,7 +279,9 @@ export class StaffService {
     const staffRoleMap = new Map<string, StaffRoleSummary>();
 
     roleRows
-      .sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime())
+      .sort(
+        (left, right) => right.createdAt.getTime() - left.createdAt.getTime(),
+      )
       .forEach((row) => {
         if (!staffRoleMap.has(row.membershipId)) {
           staffRoleMap.set(row.membershipId, {
@@ -355,10 +375,7 @@ export class StaffService {
     return matchedStaff;
   }
 
-  private async findOrCreateUser(
-    tx: StaffWriter,
-    payload: CreateStaffDto | UpdateStaffDto,
-  ) {
+  private async findOrCreateUser(tx: StaffWriter, payload: CreateStaffDto) {
     const normalizedMobile = normalizeMobile(payload.mobile);
     const normalizedEmail = normalizeOptionalEmail(payload.email);
     const matchedUser = await this.findUserByIdentity(
@@ -452,10 +469,14 @@ export class StaffService {
     const matchedByMobile =
       matchedUsers.find((candidate) => candidate.mobile === mobile) ?? null;
     const matchedByEmail = email
-      ? matchedUsers.find((candidate) => candidate.email === email) ?? null
+      ? (matchedUsers.find((candidate) => candidate.email === email) ?? null)
       : null;
 
-    if (matchedByMobile && matchedByEmail && matchedByMobile.id !== matchedByEmail.id) {
+    if (
+      matchedByMobile &&
+      matchedByEmail &&
+      matchedByMobile.id !== matchedByEmail.id
+    ) {
       throw new ConflictException(ERROR_MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
 

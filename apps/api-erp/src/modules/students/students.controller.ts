@@ -47,7 +47,9 @@ export class StudentsController {
   }
 
   @Post()
-  @ApiOperation({ summary: "Create a student and link guardians for the current tenant" })
+  @ApiOperation({
+    summary: "Create a student and link guardians for the current tenant",
+  })
   @ApiBody({ type: CreateStudentBodyDto })
   @ApiOkResponse({ type: StudentDto })
   createStudent(
@@ -63,14 +65,20 @@ export class StudentsController {
   }
 
   @Get(":studentId")
-  @ApiOperation({ summary: "Get a single student for the current tenant institution" })
+  @ApiOperation({
+    summary: "Get a single student for the current tenant institution",
+  })
   @ApiOkResponse({ type: StudentDto })
   getStudent(
     @CurrentInstitution() institution: TenantInstitution,
     @Param("studentId") studentId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.studentsService.getStudent(institution.id, studentId, authSession);
+    return this.studentsService.getStudent(
+      institution.id,
+      studentId,
+      authSession,
+    );
   }
 
   @Patch(":studentId")

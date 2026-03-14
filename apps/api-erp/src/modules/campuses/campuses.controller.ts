@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import {
   ApiBody,
   ApiCookieAuth,
@@ -32,7 +32,9 @@ export class CampusesController {
   }
 
   @Post()
-  @ApiOperation({ summary: "Create a campus for the current tenant institution" })
+  @ApiOperation({
+    summary: "Create a campus for the current tenant institution",
+  })
   @ApiBody({ type: CreateCampusBodyDto })
   @ApiOkResponse({ type: CampusDto })
   createCampus(

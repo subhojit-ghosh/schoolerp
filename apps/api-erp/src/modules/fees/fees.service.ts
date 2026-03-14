@@ -66,7 +66,10 @@ export class FeesService {
         createdAt: feeStructures.createdAt,
       })
       .from(feeStructures)
-      .innerJoin(academicYears, eq(feeStructures.academicYearId, academicYears.id))
+      .innerJoin(
+        academicYears,
+        eq(feeStructures.academicYearId, academicYears.id),
+      )
       .leftJoin(campus, eq(feeStructures.campusId, campus.id))
       .where(
         and(
@@ -152,7 +155,10 @@ export class FeesService {
       institutionId,
       payload.feeStructureId,
     );
-    const student = await this.getStudentOrThrow(institutionId, payload.studentId);
+    const student = await this.getStudentOrThrow(
+      institutionId,
+      payload.studentId,
+    );
 
     if (
       feeStructure.scope === FEE_STRUCTURE_SCOPES.CAMPUS &&
@@ -205,7 +211,9 @@ export class FeesService {
     );
 
     if (paymentAmountInPaise > assignment.outstandingAmountInPaise) {
-      throw new BadRequestException(ERROR_MESSAGES.FEES.FEE_PAYMENT_EXCEEDS_DUE);
+      throw new BadRequestException(
+        ERROR_MESSAGES.FEES.FEE_PAYMENT_EXCEEDS_DUE,
+      );
     }
 
     const paymentId = randomUUID();
@@ -240,13 +248,11 @@ export class FeesService {
     return this.getFeePaymentById(paymentId, institutionId);
   }
 
-  async listFeeDues(
-    institutionId: string,
-    authSession: AuthenticatedSession,
-  ) {
+  async listFeeDues(institutionId: string, authSession: AuthenticatedSession) {
     await this.requireInstitutionAccess(authSession, institutionId);
 
-    const assignments = await this.listFeeAssignmentsForInstitution(institutionId);
+    const assignments =
+      await this.listFeeAssignmentsForInstitution(institutionId);
 
     return assignments.filter(
       (assignment) => assignment.outstandingAmountInPaise > 0,
@@ -272,7 +278,10 @@ export class FeesService {
         createdAt: feeAssignments.createdAt,
       })
       .from(feeAssignments)
-      .innerJoin(feeStructures, eq(feeAssignments.feeStructureId, feeStructures.id))
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
       .innerJoin(students, eq(feeAssignments.studentId, students.id))
       .innerJoin(member, eq(students.membershipId, member.id))
       .leftJoin(campus, eq(member.primaryCampusId, campus.id))
@@ -287,9 +296,8 @@ export class FeesService {
       )
       .orderBy(asc(feeAssignments.dueDate), asc(students.admissionNumber));
 
-    const paymentSummaryByAssignment = await this.getPaymentSummaryByAssignmentIds(
-      rows.map((row) => row.id),
-    );
+    const paymentSummaryByAssignment =
+      await this.getPaymentSummaryByAssignmentIds(rows.map((row) => row.id));
 
     return rows.map((row) => {
       const paymentSummary = paymentSummaryByAssignment.get(row.id) ?? {
@@ -330,8 +338,7 @@ export class FeesService {
     const rows = await this.database
       .select({
         feeAssignmentId: feePayments.feeAssignmentId,
-        totalPaidAmountInPaise:
-          sql<number>`coalesce(sum(${feePayments.amountInPaise}), 0)`,
+        totalPaidAmountInPaise: sql<number>`coalesce(sum(${feePayments.amountInPaise}), 0)`,
         paymentCount: sql<number>`count(${feePayments.id})`,
       })
       .from(feePayments)
@@ -371,7 +378,10 @@ export class FeesService {
         createdAt: feeStructures.createdAt,
       })
       .from(feeStructures)
-      .innerJoin(academicYears, eq(feeStructures.academicYearId, academicYears.id))
+      .innerJoin(
+        academicYears,
+        eq(feeStructures.academicYearId, academicYears.id),
+      )
       .leftJoin(campus, eq(feeStructures.campusId, campus.id))
       .where(
         and(
@@ -395,7 +405,8 @@ export class FeesService {
   }
 
   private async getFeeAssignmentById(id: string, institutionId: string) {
-    const assignments = await this.listFeeAssignmentsForInstitution(institutionId);
+    const assignments =
+      await this.listFeeAssignmentsForInstitution(institutionId);
     const matched = assignments.find((assignment) => assignment.id === id);
 
     if (!matched) {
@@ -470,7 +481,9 @@ export class FeesService {
     campusId: string | undefined,
   ) {
     if (!campusId) {
-      throw new BadRequestException(ERROR_MESSAGES.FEES.FEE_STRUCTURE_SCOPE_INVALID);
+      throw new BadRequestException(
+        ERROR_MESSAGES.FEES.FEE_STRUCTURE_SCOPE_INVALID,
+      );
     }
 
     const [matchedCampus] = await this.database
@@ -551,8 +564,11 @@ export class FeesService {
     institutionId: string,
     feeAssignmentId: string,
   ) {
-    const assignments = await this.listFeeAssignmentsForInstitution(institutionId);
-    const matched = assignments.find((assignment) => assignment.id === feeAssignmentId);
+    const assignments =
+      await this.listFeeAssignmentsForInstitution(institutionId);
+    const matched = assignments.find(
+      (assignment) => assignment.id === feeAssignmentId,
+    );
 
     if (!matched) {
       throw new NotFoundException(ERROR_MESSAGES.FEES.FEE_ASSIGNMENT_NOT_FOUND);
@@ -584,7 +600,9 @@ export class FeesService {
       .limit(1);
 
     if (existingStructure) {
-      throw new ConflictException(ERROR_MESSAGES.FEES.FEE_STRUCTURE_NAME_EXISTS);
+      throw new ConflictException(
+        ERROR_MESSAGES.FEES.FEE_STRUCTURE_NAME_EXISTS,
+      );
     }
   }
 

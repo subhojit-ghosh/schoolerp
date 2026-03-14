@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "openapi:types": "openapi-typescript ../api-erp/openapi.json -o src/lib/api/generated/schema.d.ts",
     "preview": "vite preview",
     "typecheck": "tsc -b"

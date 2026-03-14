@@ -85,10 +85,14 @@ export class UpdateBrandingBodyDto {
   @ApiPropertyOptional({ description: "Heading font family, e.g. Outfit" })
   fontHeading?: string;
 
-  @ApiPropertyOptional({ description: "Body font family, e.g. Libre Baskerville" })
+  @ApiPropertyOptional({
+    description: "Body font family, e.g. Libre Baskerville",
+  })
   fontBody?: string;
 
-  @ApiPropertyOptional({ description: "Monospace font family, e.g. IBM Plex Mono" })
+  @ApiPropertyOptional({
+    description: "Monospace font family, e.g. IBM Plex Mono",
+  })
   fontMono?: string;
 
   @ApiPropertyOptional({ enum: ["sharp", "default", "rounded", "pill"] })
@@ -129,7 +133,10 @@ export class UpdateBrandingResponseDto {
   @ApiProperty({ nullable: true })
   fontMono!: string | null;
 
-  @ApiProperty({ nullable: true, enum: ["sharp", "default", "rounded", "pill"] })
+  @ApiProperty({
+    nullable: true,
+    enum: ["sharp", "default", "rounded", "pill"],
+  })
   borderRadius!: string | null;
 
   @ApiProperty({ nullable: true, enum: ["compact", "default", "comfortable"] })

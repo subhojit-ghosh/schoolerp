@@ -7,10 +7,7 @@ const MOBILE_MIN_LENGTH = 10;
 
 export const createStaffSchema = z.object({
   name: z.string().trim().min(NAME_MIN_LENGTH, "Staff name is required"),
-  mobile: z
-    .string()
-    .trim()
-    .min(MOBILE_MIN_LENGTH, "Staff mobile is required"),
+  mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Staff mobile is required"),
   email: z
     .email()
     .optional()

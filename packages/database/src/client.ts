@@ -9,7 +9,7 @@ export function createPostgresClient(databaseUrl: string): DatabaseClient {
 }
 
 export function createDatabase(client: DatabaseClient): AppDatabase {
-  return drizzle(client);
+  return drizzle(client, { casing: "snake_case" });
 }
 
 export function createCachedDatabase(databaseUrl: string): AppDatabase {

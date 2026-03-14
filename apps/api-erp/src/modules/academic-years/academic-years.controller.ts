@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBody,
   ApiCookieAuth,
@@ -33,7 +41,9 @@ export class AcademicYearsController {
   constructor(private readonly academicYearsService: AcademicYearsService) {}
 
   @Get()
-  @ApiOperation({ summary: "List academic years for the current tenant institution" })
+  @ApiOperation({
+    summary: "List academic years for the current tenant institution",
+  })
   @ApiOkResponse({
     description: "Academic years list",
     type: [AcademicYearDto],
@@ -42,7 +52,10 @@ export class AcademicYearsController {
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.academicYearsService.listAcademicYears(institution.id, authSession);
+    return this.academicYearsService.listAcademicYears(
+      institution.id,
+      authSession,
+    );
   }
 
   @Post()
@@ -82,7 +95,10 @@ export class AcademicYearsController {
   @Patch(":academicYearId")
   @ApiOperation({ summary: "Update an academic year" })
   @ApiBody({ type: UpdateAcademicYearBodyDto })
-  @ApiOkResponse({ description: "Academic year updated", type: AcademicYearDto })
+  @ApiOkResponse({
+    description: "Academic year updated",
+    type: AcademicYearDto,
+  })
   updateAcademicYear(
     @CurrentInstitution() institution: TenantInstitution,
     @Param("academicYearId") academicYearId: string,

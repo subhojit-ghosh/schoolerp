@@ -1,7 +1,4 @@
-import {
-  ATTENDANCE_STATUSES,
-  ATTENDANCE_STATUS_LABELS,
-} from "@repo/contracts";
+import { ATTENDANCE_STATUSES, ATTENDANCE_STATUS_LABELS } from "@repo/contracts";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class AttendanceClassSectionDto {

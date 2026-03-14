@@ -62,10 +62,7 @@ export class StudentsService {
     private readonly authService: AuthService,
   ) {}
 
-  async listStudents(
-    institutionId: string,
-    authSession: AuthenticatedSession,
-  ) {
+  async listStudents(institutionId: string, authSession: AuthenticatedSession) {
     await this.requireInstitutionAccess(authSession, institutionId);
 
     return this.listStudentsForInstitution(institutionId);
@@ -202,7 +199,9 @@ export class StudentsService {
       }
 
       const removedLinkIds = activeGuardianLinks
-        .filter((link) => !nextGuardianMembershipIds.has(link.parentMembershipId))
+        .filter(
+          (link) => !nextGuardianMembershipIds.has(link.parentMembershipId),
+        )
         .map((link) => link.linkId);
 
       if (removedLinkIds.length > 0) {
@@ -269,7 +268,8 @@ export class StudentsService {
       ...row,
       fullName: [row.firstName, row.lastName].filter(Boolean).join(" "),
       guardians: guardiansByStudent.get(row.membershipId) ?? [],
-      currentEnrollment: currentEnrollmentByStudent.get(row.membershipId) ?? null,
+      currentEnrollment:
+        currentEnrollmentByStudent.get(row.membershipId) ?? null,
     }));
   }
 
@@ -617,10 +617,7 @@ export class StudentsService {
     }
   }
 
-  private async getStudentMembership(
-    institutionId: string,
-    studentId: string,
-  ) {
+  private async getStudentMembership(institutionId: string, studentId: string) {
     const [matchedStudent] = await this.db
       .select({
         id: students.id,
@@ -643,10 +640,7 @@ export class StudentsService {
     return matchedStudent;
   }
 
-  private async getAcademicYear(
-    institutionId: string,
-    academicYearId: string,
-  ) {
+  private async getAcademicYear(institutionId: string, academicYearId: string) {
     const [matchedAcademicYear] = await this.db
       .select({
         id: academicYears.id,
@@ -682,7 +676,10 @@ export class StudentsService {
       .where(
         and(
           eq(studentCurrentEnrollments.institutionId, institutionId),
-          eq(studentCurrentEnrollments.studentMembershipId, studentMembershipId),
+          eq(
+            studentCurrentEnrollments.studentMembershipId,
+            studentMembershipId,
+          ),
           isNull(studentCurrentEnrollments.deletedAt),
         ),
       )

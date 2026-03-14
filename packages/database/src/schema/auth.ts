@@ -9,63 +9,63 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  mobile: text("mobile").notNull().unique(),
-  email: text("email").unique(),
-  passwordHash: text("password_hash").notNull(),
-  mobileVerifiedAt: timestamp("mobile_verified_at"),
-  emailVerifiedAt: timestamp("email_verified_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
+  id: text().primaryKey(),
+  name: text().notNull(),
+  mobile: text().notNull().unique(),
+  email: text().unique(),
+  passwordHash: text().notNull(),
+  mobileVerifiedAt: timestamp(),
+  emailVerifiedAt: timestamp(),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp()
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
 
 export const organization = pgTable("organization", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  shortName: text("short_name").notNull(),
-  slug: text("slug").notNull().unique(),
-  institutionType: text("institution_type"),
-  logoUrl: text("logo_url"),
-  faviconUrl: text("favicon_url"),
-  primaryColor: text("primary_color").notNull(),
-  accentColor: text("accent_color").notNull(),
-  sidebarColor: text("sidebar_color").notNull(),
-  fontHeading: text("font_heading"),
-  fontBody: text("font_body"),
-  fontMono: text("font_mono"),
-  borderRadius: text("border_radius", {
+  id: text().primaryKey(),
+  name: text().notNull(),
+  shortName: text().notNull(),
+  slug: text().notNull().unique(),
+  institutionType: text(),
+  logoUrl: text(),
+  faviconUrl: text(),
+  primaryColor: text().notNull(),
+  accentColor: text().notNull(),
+  sidebarColor: text().notNull(),
+  fontHeading: text(),
+  fontBody: text(),
+  fontMono: text(),
+  borderRadius: text({
     enum: ["sharp", "default", "rounded", "pill"],
   }),
-  uiDensity: text("ui_density", {
+  uiDensity: text({
     enum: ["compact", "default", "comfortable"],
   }),
-  status: text("status", { enum: ["active", "suspended"] })
+  status: text({ enum: ["active", "suspended"] })
     .notNull()
     .default("active"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  deletedAt: timestamp("deleted_at"),
+  createdAt: timestamp().defaultNow().notNull(),
+  deletedAt: timestamp(),
 });
 
 export const campus = pgTable(
   "campus",
   {
-    id: text("id").primaryKey(),
-    organizationId: text("organization_id")
+    id: text().primaryKey(),
+    organizationId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    name: text("name").notNull(),
-    slug: text("slug").notNull(),
-    code: text("code"),
-    isDefault: boolean("is_default").notNull().default(false),
-    status: text("status", { enum: ["active", "inactive"] })
+    name: text().notNull(),
+    slug: text().notNull(),
+    code: text(),
+    isDefault: boolean().notNull().default(false),
+    status: text({ enum: ["active", "inactive"] })
       .notNull()
       .default("active"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    deletedAt: timestamp("deleted_at"),
+    createdAt: timestamp().defaultNow().notNull(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("campus_organization_idx").on(table.organizationId),
@@ -81,26 +81,25 @@ export const campus = pgTable(
 export const session = pgTable(
   "session",
   {
-    id: text("id").primaryKey(),
-    userId: text("user_id")
+    id: text().primaryKey(),
+    userId: text()
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    token: text("token").notNull().unique(),
-    expiresAt: timestamp("expires_at").notNull(),
-    ipAddress: text("ip_address"),
-    userAgent: text("user_agent"),
-    activeOrganizationId: text("active_organization_id").references(
-      () => organization.id,
-      { onDelete: "set null" },
-    ),
-    activeContextKey: text("active_context_key", {
-      enum: ["staff", "parent", "student"],
-    }),
-    activeCampusId: text("active_campus_id").references(() => campus.id, {
+    token: text().notNull().unique(),
+    expiresAt: timestamp().notNull(),
+    ipAddress: text(),
+    userAgent: text(),
+    activeOrganizationId: text().references(() => organization.id, {
       onDelete: "set null",
     }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
+    activeContextKey: text({
+      enum: ["staff", "parent", "student"],
+    }),
+    activeCampusId: text().references(() => campus.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp().defaultNow().notNull(),
+    updatedAt: timestamp()
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
@@ -116,14 +115,14 @@ export const session = pgTable(
 export const passwordResetToken = pgTable(
   "password_reset_token",
   {
-    id: text("id").primaryKey(),
-    userId: text("user_id")
+    id: text().primaryKey(),
+    userId: text()
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    tokenHash: text("token_hash").notNull().unique(),
-    expiresAt: timestamp("expires_at").notNull(),
-    consumedAt: timestamp("consumed_at"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    tokenHash: text().notNull().unique("password_reset_token_token_hash_unique"),
+    expiresAt: timestamp().notNull(),
+    consumedAt: timestamp(),
+    createdAt: timestamp().defaultNow().notNull(),
   },
   (table) => [
     index("password_reset_token_user_idx").on(table.userId),
@@ -137,10 +136,10 @@ export const passwordResetToken = pgTable(
 export const authRateLimitEvent = pgTable(
   "auth_rate_limit_event",
   {
-    id: text("id").primaryKey(),
-    action: text("action").notNull(),
-    key: text("key").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
+    id: text().primaryKey(),
+    action: text().notNull(),
+    key: text().notNull(),
+    createdAt: timestamp().defaultNow().notNull(),
   },
   (table) => [
     index("auth_rate_limit_action_key_idx").on(table.action, table.key),
@@ -151,22 +150,22 @@ export const authRateLimitEvent = pgTable(
 export const member = pgTable(
   "member",
   {
-    id: text("id").primaryKey(),
-    organizationId: text("organization_id")
+    id: text().primaryKey(),
+    organizationId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
-    userId: text("user_id").references(() => user.id, { onDelete: "cascade" }),
-    primaryCampusId: text("primary_campus_id").references(() => campus.id, {
+    userId: text().references(() => user.id, { onDelete: "cascade" }),
+    primaryCampusId: text().references(() => campus.id, {
       onDelete: "set null",
     }),
-    memberType: text("member_type", {
+    memberType: text({
       enum: ["staff", "student", "guardian"],
     }).notNull(),
-    status: text("status", { enum: ["active", "inactive", "suspended"] })
+    status: text({ enum: ["active", "inactive", "suspended"] })
       .notNull()
       .default("active"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    deletedAt: timestamp("deleted_at"),
+    createdAt: timestamp().defaultNow().notNull(),
+    deletedAt: timestamp(),
   },
   (table) => [
     index("member_organization_idx").on(table.organizationId),

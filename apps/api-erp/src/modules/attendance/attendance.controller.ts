@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, UseGuards } from "@nestjs/common";
 import {
   ApiBody,
   ApiCookieAuth,
@@ -47,7 +39,9 @@ export class AttendanceController {
   constructor(private readonly attendanceService: AttendanceService) {}
 
   @Get(API_ROUTES.CLASS_SECTIONS)
-  @ApiOperation({ summary: "List available class-section combinations for attendance" })
+  @ApiOperation({
+    summary: "List available class-section combinations for attendance",
+  })
   @ApiQuery({ name: "campusId", type: String })
   @ApiOkResponse({ type: AttendanceClassSectionDto, isArray: true })
   listClassSections(
@@ -63,7 +57,9 @@ export class AttendanceController {
   }
 
   @Get(API_ROUTES.DAY)
-  @ApiOperation({ summary: "Get the attendance roster for a class-section and day" })
+  @ApiOperation({
+    summary: "Get the attendance roster for a class-section and day",
+  })
   @ApiOkResponse({ type: AttendanceDayDto })
   listAttendanceDay(
     @CurrentInstitution() institution: TenantInstitution,
@@ -78,7 +74,9 @@ export class AttendanceController {
   }
 
   @Post(API_ROUTES.DAY)
-  @ApiOperation({ summary: "Create or update daily attendance for a class-section" })
+  @ApiOperation({
+    summary: "Create or update daily attendance for a class-section",
+  })
   @ApiBody({ type: UpsertAttendanceDayBodyDto })
   @ApiOkResponse({ type: AttendanceDayDto })
   upsertAttendanceDay(

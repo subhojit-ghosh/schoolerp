@@ -22,6 +22,14 @@ export default defineConfig([
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+      // setState inside an effect is valid when guarding against stale derived state
+      'react-hooks/set-state-in-effect': 'off',
+    },
   },
   {
     files: ['src/components/ui/**/*.tsx'],
@@ -31,9 +39,10 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/components/data-table.tsx'],
+    files: ['src/components/data-table.tsx', 'src/components/theme-provider.tsx'],
     rules: {
       'react-hooks/incompatible-library': 'off',
+      'react-refresh/only-export-components': 'off',
     },
   },
 ])

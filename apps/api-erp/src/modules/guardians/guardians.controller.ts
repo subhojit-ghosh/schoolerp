@@ -43,7 +43,9 @@ export class GuardiansController {
   constructor(private readonly guardiansService: GuardiansService) {}
 
   @Get()
-  @ApiOperation({ summary: "List guardians for the current tenant institution" })
+  @ApiOperation({
+    summary: "List guardians for the current tenant institution",
+  })
   @ApiOkResponse({ type: GuardianDto, isArray: true })
   listGuardians(
     @CurrentInstitution() institution: TenantInstitution,

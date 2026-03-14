@@ -13,7 +13,11 @@ function normalizeSubjectKey(studentId: string, subjectName: string) {
 export const createExamTermSchema = z
   .object({
     academicYearId: z.uuid(),
-    name: z.string().trim().min(1, "Name is required").max(TERM_NAME_MAX_LENGTH),
+    name: z
+      .string()
+      .trim()
+      .min(1, "Name is required")
+      .max(TERM_NAME_MAX_LENGTH),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
   })

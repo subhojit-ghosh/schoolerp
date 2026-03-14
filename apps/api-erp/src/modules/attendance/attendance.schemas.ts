@@ -7,7 +7,9 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const NAME_MIN_LENGTH = 1;
 
 function hasUniqueStudentIds(entries: { studentId: string }[]) {
-  return new Set(entries.map((entry) => entry.studentId)).size === entries.length;
+  return (
+    new Set(entries.map((entry) => entry.studentId)).size === entries.length
+  );
 }
 
 export const attendanceDateSchema = z
@@ -52,7 +54,8 @@ export const upsertAttendanceDaySchema = z
   })
   .refine((value) => hasUniqueStudentIds(value.entries), {
     path: ["entries"],
-    message: "Each student can appear only once in the daily attendance submission.",
+    message:
+      "Each student can appear only once in the daily attendance submission.",
   });
 
 export type AttendanceClassSectionQueryDto = z.infer<

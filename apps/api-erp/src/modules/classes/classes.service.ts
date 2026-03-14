@@ -1,14 +1,23 @@
 import { DATABASE } from "@repo/backend-core";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
-import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
-import { campus, classSections, schoolClasses } from "@repo/database";
+import { campus, classSections, schoolClasses, students } from "@repo/database";
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES } from "../../constants";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
-import type { CreateClassDto, SetClassStatusDto, UpdateClassDto } from "./classes.schemas";
+import type {
+  CreateClassDto,
+  SetClassStatusDto,
+  UpdateClassDto,
+} from "./classes.schemas";
 
 @Injectable()
 export class ClassesService {
@@ -17,12 +26,13 @@ export class ClassesService {
     private readonly authService: AuthService,
   ) {}
 
-  async listClasses(
-    institutionId: string,
-    authSession: AuthenticatedSession,
-  ) {
+  async listClasses(institutionId: string, authSession: AuthenticatedSession) {
     await this.requireInstitutionAccess(authSession, institutionId);
-    return this.listClassesForInstitution(institutionId);
+    return this.listClassesForInstitution(
+      institutionId,
+      undefined,
+      authSession.activeCampusId ?? undefined,
+    );
   }
 
   async getClass(
@@ -32,7 +42,10 @@ export class ClassesService {
   ) {
     await this.requireInstitutionAccess(authSession, institutionId);
 
-    const [classRecord] = await this.listClassesForInstitution(institutionId, classId);
+    const [classRecord] = await this.listClassesForInstitution(
+      institutionId,
+      classId,
+    );
 
     if (!classRecord) {
       throw new NotFoundException(ERROR_MESSAGES.CLASSES.CLASS_NOT_FOUND);
@@ -48,8 +61,15 @@ export class ClassesService {
   ) {
     await this.requireInstitutionAccess(authSession, institutionId);
 
-    const selectedCampus = await this.getCampus(institutionId, payload.campusId);
-    await this.assertClassNameAvailable(institutionId, selectedCampus.id, payload.name);
+    const selectedCampus = await this.getCampus(
+      institutionId,
+      payload.campusId,
+    );
+    await this.assertClassNameAvailable(
+      institutionId,
+      selectedCampus.id,
+      payload.name,
+    );
 
     const createdClassId = randomUUID();
 
@@ -85,7 +105,10 @@ export class ClassesService {
     await this.requireInstitutionAccess(authSession, institutionId);
 
     await this.getClassOrThrow(institutionId, classId);
-    const selectedCampus = await this.getCampus(institutionId, payload.campusId);
+    const selectedCampus = await this.getCampus(
+      institutionId,
+      payload.campusId,
+    );
     await this.assertClassNameAvailable(
       institutionId,
       selectedCampus.id,
@@ -114,7 +137,9 @@ export class ClassesService {
           ),
         );
 
-      const activeSectionIds = new Set(activeSections.map((section) => section.id));
+      const activeSectionIds = new Set(
+        activeSections.map((section) => section.id),
+      );
       const nextSectionIds = new Set<string>();
 
       for (const [index, section] of payload.sections.entries()) {
@@ -196,6 +221,22 @@ export class ClassesService {
     await this.requireInstitutionAccess(authSession, institutionId);
     await this.getClassOrThrow(institutionId, classId);
 
+    const [enrolledStudent] = await this.db
+      .select({ id: students.id })
+      .from(students)
+      .where(
+        and(
+          eq(students.classId, classId),
+          eq(students.institutionId, institutionId),
+          isNull(students.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (enrolledStudent) {
+      throw new ConflictException(ERROR_MESSAGES.CLASSES.CLASS_HAS_STUDENTS);
+    }
+
     await this.db
       .update(schoolClasses)
       .set({ deletedAt: new Date() })
@@ -210,6 +251,7 @@ export class ClassesService {
   private async listClassesForInstitution(
     institutionId: string,
     classId?: string,
+    campusId?: string,
   ) {
     const classRows = await this.db
       .select({
@@ -227,6 +269,7 @@ export class ClassesService {
         and(
           eq(schoolClasses.institutionId, institutionId),
           classId ? eq(schoolClasses.id, classId) : undefined,
+          campusId ? eq(schoolClasses.campusId, campusId) : undefined,
           isNull(schoolClasses.deletedAt),
           isNull(campus.deletedAt),
         ),

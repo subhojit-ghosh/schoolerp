@@ -11,9 +11,7 @@ import type { TenantRequest } from "./tenant-context.types";
 
 @Injectable()
 export class TenantInstitutionGuard implements CanActivate {
-  constructor(
-    private readonly tenantContextService: TenantContextService,
-  ) {}
+  constructor(private readonly tenantContextService: TenantContextService) {}
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<TenantRequest>();

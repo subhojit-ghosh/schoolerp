@@ -11,16 +11,11 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
-import {
-  attendanceRecords,
-  campus,
-  member,
-  students,
-} from "@repo/database";
+import { attendanceRecords, campus, member, students } from "@repo/database";
 import { and, asc, eq, isNull } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES } from "../../constants";
-import type { AuthContext, AuthenticatedSession } from "../auth/auth.types";
+import type { AuthenticatedSession } from "../auth/auth.types";
 import { AuthService } from "../auth/auth.service";
 import type {
   AttendanceClassSectionQueryDto,
@@ -80,7 +75,10 @@ export class AttendanceService {
       )
       .orderBy(asc(students.classId), asc(students.sectionId));
 
-    const grouped = new Map<string, { classId: string; sectionId: string; studentCount: number }>();
+    const grouped = new Map<
+      string,
+      { classId: string; sectionId: string; studentCount: number }
+    >();
 
     for (const row of rows) {
       const key = `${row.classId}::${row.sectionId}`;
@@ -251,11 +249,7 @@ export class AttendanceService {
     >();
 
     for (const row of rows) {
-      const key = [
-        row.campusId,
-        row.classId,
-        row.sectionId,
-      ].join("::");
+      const key = [row.campusId, row.classId, row.sectionId].join("::");
       const current = summaries.get(key) ?? {
         attendanceDate: query.attendanceDate,
         campusId: row.campusId,

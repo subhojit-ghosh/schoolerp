@@ -1,8 +1,5 @@
 import { BadRequestException } from "@nestjs/common";
-import {
-  FEE_PAYMENT_METHODS,
-  FEE_STRUCTURE_SCOPES,
-} from "@repo/contracts";
+import { FEE_PAYMENT_METHODS, FEE_STRUCTURE_SCOPES } from "@repo/contracts";
 import { z } from "zod";
 import { ERROR_MESSAGES } from "../../constants";
 
@@ -33,10 +30,7 @@ export const createFeeStructureSchema = z
     dueDate: z.string().min(1, "Due date is required"),
   })
   .superRefine((value, ctx) => {
-    if (
-      value.scope === FEE_STRUCTURE_SCOPES.CAMPUS &&
-      !value.campusId
-    ) {
+    if (value.scope === FEE_STRUCTURE_SCOPES.CAMPUS && !value.campusId) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["campusId"],

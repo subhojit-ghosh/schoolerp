@@ -7,19 +7,23 @@ const SECTION_NAME_MIN_LENGTH = 1;
 
 const sectionSchema = z.object({
   id: z.uuid().optional(),
-  name: z.string().trim().min(SECTION_NAME_MIN_LENGTH, "Section name is required"),
+  name: z
+    .string()
+    .trim()
+    .min(SECTION_NAME_MIN_LENGTH, "Section name is required"),
 });
 
-function hasUniqueSectionNames(
-  sections: Array<z.infer<typeof sectionSchema>>,
-) {
+function hasUniqueSectionNames(sections: Array<z.infer<typeof sectionSchema>>) {
   const names = sections.map((section) => section.name.trim().toLowerCase());
   return new Set(names).size === names.length;
 }
 
 export const createClassSchema = z
   .object({
-    name: z.string().trim().min(CLASS_NAME_MIN_LENGTH, "Class name is required"),
+    name: z
+      .string()
+      .trim()
+      .min(CLASS_NAME_MIN_LENGTH, "Class name is required"),
     campusId: z.uuid(),
     sections: z.array(sectionSchema).min(1, "Add at least one section"),
   })

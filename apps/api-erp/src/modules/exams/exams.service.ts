@@ -14,10 +14,7 @@ import { ERROR_MESSAGES } from "../../constants";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { ExamMarkDto, ExamTermDto } from "./exams.dto";
-import type {
-  CreateExamTermDto,
-  UpsertExamMarksDto,
-} from "./exams.schemas";
+import type { CreateExamTermDto, UpsertExamMarksDto } from "./exams.schemas";
 
 @Injectable()
 export class ExamsService {

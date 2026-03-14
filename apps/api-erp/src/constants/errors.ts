@@ -45,8 +45,7 @@ export const ERROR_MESSAGES = {
     GUARDIAN_NOT_FOUND: "The selected guardian was not found.",
     STUDENT_LINK_NOT_FOUND:
       "The selected guardian-student relationship was not found.",
-    LAST_GUARDIAN_LINK:
-      "A student must keep at least one linked guardian.",
+    LAST_GUARDIAN_LINK: "A student must keep at least one linked guardian.",
   },
   ACADEMIC_YEARS: {
     INVALID_DATE_RANGE: "End date must be after the start date.",
@@ -58,8 +57,9 @@ export const ERROR_MESSAGES = {
     CLASS_NOT_FOUND: "The selected class was not found.",
     CLASS_NAME_EXISTS:
       "That class name is already in use for the selected campus.",
-    CLASS_CODE_EXISTS: "That class code is already in use for this institution.",
     SECTION_NAME_EXISTS: "Section names must be unique within a class.",
+    CLASS_HAS_STUDENTS:
+      "Cannot delete a class that has enrolled students. Remove or reassign the students first.",
   },
   ATTENDANCE: {
     CLASS_SECTION_REQUIRED: "Class and section are required for attendance.",

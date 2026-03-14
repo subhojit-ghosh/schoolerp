@@ -1,5 +1,8 @@
 import type { Request } from "express";
-import type { AuthenticatedSession, AuthenticatedUser } from "../auth/auth.types";
+import type {
+  AuthenticatedSession,
+  AuthenticatedUser,
+} from "../auth/auth.types";
 import type { OrgStatus } from "../../constants";
 
 export type TenantInstitution = {

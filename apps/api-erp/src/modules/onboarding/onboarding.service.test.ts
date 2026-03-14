@@ -110,12 +110,10 @@ describe("OnboardingService", () => {
     }
   });
 
-  test(
-    "creates an institution session with the new tenant context",
-    async () => {
-      const { service } = createOnboardingService();
+  test("creates an institution session with the new tenant context", async () => {
+    const { service } = createOnboardingService();
 
-      const result = await service.createInstitution(
+    const result = await service.createInstitution(
       {
         institutionName: "Springfield High",
         institutionSlug: "springfield",
@@ -133,9 +131,7 @@ describe("OnboardingService", () => {
       },
     );
 
-      expect(result.authSession.activeOrganizationId).toBe("org-1");
-      expect(result.authSession.activeCampusId).toBe("campus-1");
-    },
-    15_000,
-  );
+    expect(result.authSession.activeOrganizationId).toBe("org-1");
+    expect(result.authSession.activeCampusId).toBe("campus-1");
+  }, 15_000);
 });

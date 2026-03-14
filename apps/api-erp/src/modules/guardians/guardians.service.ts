@@ -1,6 +1,11 @@
 import { AUTH_CONTEXT_KEYS, type GuardianRelationship } from "@repo/contracts";
 import { DATABASE } from "@repo/backend-core";
-import { ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
   campus,
@@ -18,7 +23,6 @@ import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import {
   ERROR_MESSAGES,
   MEMBER_TYPES,
-  STATUS,
   type MemberStatus,
 } from "../../constants";
 import type {
@@ -106,7 +110,10 @@ export class GuardiansService {
       institutionId,
       guardianId,
     );
-    const selectedCampus = await this.getCampus(institutionId, payload.campusId);
+    const selectedCampus = await this.getCampus(
+      institutionId,
+      payload.campusId,
+    );
     const guardianUserId = guardianMembership.userId;
     const normalizedMobile = normalizeMobile(payload.mobile);
     const normalizedEmail = normalizeOptionalEmail(payload.email);
@@ -134,7 +141,11 @@ export class GuardiansService {
         })
         .where(eq(member.id, guardianMembership.id));
 
-      await this.ensureCampusMembership(tx, guardianMembership.id, selectedCampus.id);
+      await this.ensureCampusMembership(
+        tx,
+        guardianMembership.id,
+        selectedCampus.id,
+      );
     });
 
     return this.getGuardian(institutionId, guardianId, authSession);
@@ -163,7 +174,10 @@ export class GuardiansService {
         .from(studentGuardianLinks)
         .where(
           and(
-            eq(studentGuardianLinks.studentMembershipId, studentMembership.membershipId),
+            eq(
+              studentGuardianLinks.studentMembershipId,
+              studentMembership.membershipId,
+            ),
             eq(studentGuardianLinks.parentMembershipId, guardianMembership.id),
             isNull(studentGuardianLinks.deletedAt),
           ),
@@ -184,8 +198,14 @@ export class GuardiansService {
           .from(studentGuardianLinks)
           .where(
             and(
-              eq(studentGuardianLinks.studentMembershipId, studentMembership.membershipId),
-              eq(studentGuardianLinks.parentMembershipId, guardianMembership.id),
+              eq(
+                studentGuardianLinks.studentMembershipId,
+                studentMembership.membershipId,
+              ),
+              eq(
+                studentGuardianLinks.parentMembershipId,
+                guardianMembership.id,
+              ),
               isNotNull(studentGuardianLinks.deletedAt),
             ),
           )
@@ -233,7 +253,10 @@ export class GuardiansService {
     await this.requireInstitutionAccess(authSession, institutionId);
 
     await this.getGuardianMembership(institutionId, guardianId);
-    const studentMembership = await this.getStudentMembership(institutionId, studentId);
+    const studentMembership = await this.getStudentMembership(
+      institutionId,
+      studentId,
+    );
 
     await this.db.transaction(async (tx) => {
       const [activeLink] = await tx
@@ -241,7 +264,10 @@ export class GuardiansService {
         .from(studentGuardianLinks)
         .where(
           and(
-            eq(studentGuardianLinks.studentMembershipId, studentMembership.membershipId),
+            eq(
+              studentGuardianLinks.studentMembershipId,
+              studentMembership.membershipId,
+            ),
             eq(studentGuardianLinks.parentMembershipId, guardianId),
             isNull(studentGuardianLinks.deletedAt),
           ),
@@ -281,7 +307,10 @@ export class GuardiansService {
     await this.requireInstitutionAccess(authSession, institutionId);
 
     await this.getGuardianMembership(institutionId, guardianId);
-    const studentMembership = await this.getStudentMembership(institutionId, studentId);
+    const studentMembership = await this.getStudentMembership(
+      institutionId,
+      studentId,
+    );
 
     await this.db.transaction(async (tx) => {
       const activeLinks = await this.listActiveGuardianLinksForStudent(
@@ -299,7 +328,9 @@ export class GuardiansService {
       }
 
       if (activeLinks.length === 1) {
-        throw new ConflictException(ERROR_MESSAGES.GUARDIANS.LAST_GUARDIAN_LINK);
+        throw new ConflictException(
+          ERROR_MESSAGES.GUARDIANS.LAST_GUARDIAN_LINK,
+        );
       }
 
       await tx
@@ -310,7 +341,10 @@ export class GuardiansService {
         })
         .where(eq(studentGuardianLinks.id, currentLink.id));
 
-      await this.normalizeStudentPrimaryGuardian(tx, studentMembership.membershipId);
+      await this.normalizeStudentPrimaryGuardian(
+        tx,
+        studentMembership.membershipId,
+      );
     });
 
     return this.getGuardian(institutionId, guardianId, authSession);
@@ -355,7 +389,9 @@ export class GuardiansService {
     })) satisfies GuardianSummary[];
   }
 
-  private async listLinkedStudentsForGuardians(guardianMembershipIds: string[]) {
+  private async listLinkedStudentsForGuardians(
+    guardianMembershipIds: string[],
+  ) {
     if (guardianMembershipIds.length === 0) {
       return new Map<string, GuardianLinkedStudentSummary[]>();
     }
@@ -374,12 +410,18 @@ export class GuardiansService {
         isPrimary: studentGuardianLinks.isPrimary,
       })
       .from(studentGuardianLinks)
-      .innerJoin(students, eq(studentGuardianLinks.studentMembershipId, students.membershipId))
+      .innerJoin(
+        students,
+        eq(studentGuardianLinks.studentMembershipId, students.membershipId),
+      )
       .innerJoin(member, eq(students.membershipId, member.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))
       .where(
         and(
-          inArray(studentGuardianLinks.parentMembershipId, guardianMembershipIds),
+          inArray(
+            studentGuardianLinks.parentMembershipId,
+            guardianMembershipIds,
+          ),
           isNull(studentGuardianLinks.deletedAt),
           isNull(students.deletedAt),
           isNull(member.deletedAt),
@@ -439,10 +481,7 @@ export class GuardiansService {
     };
   }
 
-  private async getStudentMembership(
-    institutionId: string,
-    studentId: string,
-  ) {
+  private async getStudentMembership(institutionId: string, studentId: string) {
     const [matchedStudent] = await this.db
       .select({
         id: students.id,

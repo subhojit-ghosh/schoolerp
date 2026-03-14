@@ -31,7 +31,11 @@ import {
   SetClassStatusBodyDto,
   UpdateClassBodyDto,
 } from "./classes.dto";
-import { parseCreateClass, parseSetClassStatus, parseUpdateClass } from "./classes.schemas";
+import {
+  parseCreateClass,
+  parseSetClassStatus,
+  parseUpdateClass,
+} from "./classes.schemas";
 import { ClassesService } from "./classes.service";
 
 @ApiTags(API_DOCS.TAGS.CLASSES)
@@ -52,7 +56,9 @@ export class ClassesController {
   }
 
   @Post()
-  @ApiOperation({ summary: "Create a class with sections for the current tenant" })
+  @ApiOperation({
+    summary: "Create a class with sections for the current tenant",
+  })
   @ApiBody({ type: CreateClassBodyDto })
   @ApiOkResponse({ type: ClassDto })
   createClass(
@@ -125,6 +131,10 @@ export class ClassesController {
     @Param("classId") classId: string,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.classesService.deleteClass(institution.id, classId, authSession);
+    return this.classesService.deleteClass(
+      institution.id,
+      classId,
+      authSession,
+    );
   }
 }

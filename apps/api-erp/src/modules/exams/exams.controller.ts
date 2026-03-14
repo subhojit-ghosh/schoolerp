@@ -40,7 +40,9 @@ export class ExamsController {
   constructor(private readonly examsService: ExamsService) {}
 
   @Get()
-  @ApiOperation({ summary: "List exam terms for the current tenant institution" })
+  @ApiOperation({
+    summary: "List exam terms for the current tenant institution",
+  })
   @ApiOkResponse({ type: ExamTermDto, isArray: true })
   listExamTerms(
     @CurrentInstitution() institution: TenantInstitution,

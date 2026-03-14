@@ -14,6 +14,7 @@
     "start:prod": "node dist/main.js",
     "dev": "bun run start:dev",
     "lint": "eslint \"{src,test}/**/*.ts\"",
+    "lint:fix": "eslint \"{src,test}/**/*.ts\" --fix",
     "test": "bun test ./src",
     "typecheck": "tsc --noEmit",
     "openapi:metadata": "ts-node --project tsconfig.json src/generate-metadata.ts",

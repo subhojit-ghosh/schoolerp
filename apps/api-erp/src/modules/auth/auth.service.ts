@@ -639,10 +639,7 @@ export class AuthService {
         relationship: studentGuardianLinks.relationship,
       })
       .from(studentGuardianLinks)
-      .innerJoin(
-        member,
-        eq(studentGuardianLinks.parentMembershipId, member.id),
-      )
+      .innerJoin(member, eq(studentGuardianLinks.parentMembershipId, member.id))
       .innerJoin(
         students,
         eq(studentGuardianLinks.studentMembershipId, students.membershipId),

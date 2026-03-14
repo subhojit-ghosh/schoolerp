@@ -1,9 +1,28 @@
-import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useAuthStore } from "@/features/auth/model/auth-store";
+import { useUpdateBrandingMutation } from "@/features/settings/api/use-settings";
+import { COLOR_PRESETS, findPresetByColors } from "@/lib/color-presets";
+import {
+  FONT_PAIRINGS,
+  buildPreviewFontsUrl,
+  findPairingByFonts,
+  type FontPairing,
+} from "@/lib/font-pairings";
+import {
+  applyTenantBranding,
+  cacheTenantBranding,
+  contrastForeground,
+  deriveSidebarTokens,
+  readCachedTenantBranding,
+} from "@/lib/tenant-branding";
+import {
+  DENSITY_OPTIONS,
+  RADIUS_OPTIONS,
+  getRadiusValue,
+  getSpacingValue,
+  type DensityPreset,
+  type RadiusPreset,
+} from "@/lib/theme-presets";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { IconPalette, IconCheck } from "@tabler/icons-react";
-import { toast } from "sonner";
 import { Button } from "@repo/ui/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@repo/ui/components/ui/field";
 import {
@@ -14,33 +33,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@repo/ui/components/ui/sheet";
-import { useAuthStore } from "@/features/auth/model/auth-store";
-import { useUpdateBrandingMutation } from "@/features/settings/api/use-settings";
-import {
-  applyTenantBranding,
-  cacheTenantBranding,
-  readCachedTenantBranding,
-  deriveSidebarTokens,
-  contrastForeground,
-} from "@/lib/tenant-branding";
-import {
-  FONT_PAIRINGS,
-  buildPreviewFontsUrl,
-  findPairingByFonts,
-  type FontPairing,
-} from "@/lib/font-pairings";
-import {
-  RADIUS_OPTIONS,
-  DENSITY_OPTIONS,
-  getRadiusValue,
-  getSpacingValue,
-  type RadiusPreset,
-  type DensityPreset,
-} from "@/lib/theme-presets";
-import {
-  COLOR_PRESETS,
-  findPresetByColors,
-} from "@/lib/color-presets";
+import { IconPalette } from "@tabler/icons-react";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 const HEX_COLOR_MESSAGE = "Must be a valid hex color";
@@ -89,9 +86,14 @@ export function ThemeDrawer() {
   });
 
   const {
-    primaryColor, accentColor, sidebarColor,
-    fontHeading, fontBody, fontMono,
-    borderRadius, uiDensity,
+    primaryColor,
+    accentColor,
+    sidebarColor,
+    fontHeading,
+    fontBody,
+    fontMono,
+    borderRadius,
+    uiDensity,
   } = watch();
 
   useEffect(() => {
@@ -99,19 +101,28 @@ export function ThemeDrawer() {
     if (!root) return;
     if (HEX_COLOR_REGEX.test(primaryColor)) {
       root.style.setProperty("--primary", primaryColor);
-      root.style.setProperty("--primary-foreground", contrastForeground(primaryColor));
+      root.style.setProperty(
+        "--primary-foreground",
+        contrastForeground(primaryColor),
+      );
       root.style.setProperty("--ring", primaryColor);
     }
     if (HEX_COLOR_REGEX.test(accentColor)) {
       root.style.setProperty("--accent", accentColor);
-      root.style.setProperty("--accent-foreground", contrastForeground(accentColor));
+      root.style.setProperty(
+        "--accent-foreground",
+        contrastForeground(accentColor),
+      );
     }
     if (HEX_COLOR_REGEX.test(sidebarColor)) {
       const tokens = deriveSidebarTokens(sidebarColor);
       root.style.setProperty("--sidebar", tokens.background);
       root.style.setProperty("--sidebar-foreground", tokens.foreground);
       root.style.setProperty("--sidebar-accent", tokens.accent);
-      root.style.setProperty("--sidebar-accent-foreground", tokens.accentForeground);
+      root.style.setProperty(
+        "--sidebar-accent-foreground",
+        tokens.accentForeground,
+      );
       root.style.setProperty("--sidebar-border", tokens.border);
     }
   }, [primaryColor, accentColor, sidebarColor]);
@@ -119,9 +130,21 @@ export function ThemeDrawer() {
   useEffect(() => {
     const root = document.querySelector(":root") as HTMLElement | null;
     if (!root) return;
-    if (fontHeading) root.style.setProperty("--font-heading", `'${fontHeading}', 'Noto Sans', system-ui, sans-serif`);
-    if (fontBody) root.style.setProperty("--font-body", `'${fontBody}', 'Noto Sans', system-ui, sans-serif`);
-    if (fontMono) root.style.setProperty("--font-mono", `'${fontMono}', 'Noto Sans', ui-monospace, monospace`);
+    if (fontHeading)
+      root.style.setProperty(
+        "--font-heading",
+        `'${fontHeading}', 'Noto Sans', system-ui, sans-serif`,
+      );
+    if (fontBody)
+      root.style.setProperty(
+        "--font-body",
+        `'${fontBody}', 'Noto Sans', system-ui, sans-serif`,
+      );
+    if (fontMono)
+      root.style.setProperty(
+        "--font-mono",
+        `'${fontMono}', 'Noto Sans', ui-monospace, monospace`,
+      );
   }, [fontHeading, fontBody, fontMono]);
 
   useEffect(() => {
@@ -130,61 +153,78 @@ export function ThemeDrawer() {
   }, [borderRadius]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--spacing", getSpacingValue(uiDensity));
+    document.documentElement.style.setProperty(
+      "--spacing",
+      getSpacingValue(uiDensity),
+    );
   }, [uiDensity]);
 
   function onSubmit(values: ThemeFormValues) {
     const cached = readCachedTenantBranding();
 
-    updateBranding.mutate({
-      name: cached?.institutionName ?? session?.activeOrganization?.name ?? "",
-      shortName: cached?.shortName ?? session?.activeOrganization?.shortName ?? "",
-      logoUrl: cached?.logoUrl ?? undefined,
-      faviconUrl: cached?.faviconUrl ?? undefined,
-      primaryColor: values.primaryColor,
-      accentColor: values.accentColor,
-      sidebarColor: values.sidebarColor,
-      fontHeading: values.fontHeading,
-      fontBody: values.fontBody,
-      fontMono: values.fontMono,
-      borderRadius: values.borderRadius,
-      uiDensity: values.uiDensity,
-    }, {
-      onSuccess: () => {
-        const updated = {
-          ...(cached ?? {
-            tenantSlug: session?.activeOrganization?.slug ?? "",
-            fontHeading: null,
-            fontBody: null,
-            fontMono: null,
-          }),
-          institutionName:
-            cached?.institutionName ?? session?.activeOrganization?.name ?? "",
-          shortName:
-            cached?.shortName ?? session?.activeOrganization?.shortName ?? "",
-          logoUrl: cached?.logoUrl ?? null,
-          faviconUrl: cached?.faviconUrl ?? null,
-          primaryColor: values.primaryColor,
-          accentColor: values.accentColor,
-          sidebarColor: values.sidebarColor,
-          fontHeading: values.fontHeading ?? null,
-          fontBody: values.fontBody ?? null,
-          fontMono: values.fontMono ?? null,
-          borderRadius: values.borderRadius ?? null,
-          uiDensity: values.uiDensity ?? null,
-        };
-        cacheTenantBranding(updated);
-        applyTenantBranding(updated);
-        toast.success("Theme saved.");
+    updateBranding.mutate(
+      {
+        name:
+          cached?.institutionName ?? session?.activeOrganization?.name ?? "",
+        shortName:
+          cached?.shortName ?? session?.activeOrganization?.shortName ?? "",
+        logoUrl: cached?.logoUrl ?? undefined,
+        faviconUrl: cached?.faviconUrl ?? undefined,
+        primaryColor: values.primaryColor,
+        accentColor: values.accentColor,
+        sidebarColor: values.sidebarColor,
+        fontHeading: values.fontHeading,
+        fontBody: values.fontBody,
+        fontMono: values.fontMono,
+        borderRadius: values.borderRadius,
+        uiDensity: values.uiDensity,
       },
-      onError: () => {
-        toast.error("Failed to save. Please try again.");
+      {
+        onSuccess: () => {
+          const updated = {
+            ...(cached ?? {
+              tenantSlug: session?.activeOrganization?.slug ?? "",
+              fontHeading: null,
+              fontBody: null,
+              fontMono: null,
+            }),
+            institutionName:
+              cached?.institutionName ??
+              session?.activeOrganization?.name ??
+              "",
+            shortName:
+              cached?.shortName ?? session?.activeOrganization?.shortName ?? "",
+            logoUrl: cached?.logoUrl ?? null,
+            faviconUrl: cached?.faviconUrl ?? null,
+            primaryColor: values.primaryColor,
+            accentColor: values.accentColor,
+            sidebarColor: values.sidebarColor,
+            fontHeading: values.fontHeading ?? null,
+            fontBody: values.fontBody ?? null,
+            fontMono: values.fontMono ?? null,
+            borderRadius: values.borderRadius ?? null,
+            uiDensity: values.uiDensity ?? null,
+          };
+          cacheTenantBranding(updated);
+          applyTenantBranding(updated);
+          toast.success("Theme saved.");
+        },
+        onError: () => {
+          toast.error("Failed to save. Please try again.");
+        },
       },
-    });
+    );
   }
 
-  const selectedPairing = findPairingByFonts(fontHeading ?? null, fontBody ?? null);
-  const selectedPreset = findPresetByColors(primaryColor, accentColor, sidebarColor);
+  const selectedPairing = findPairingByFonts(
+    fontHeading ?? null,
+    fontBody ?? null,
+  );
+  const selectedPreset = findPresetByColors(
+    primaryColor,
+    accentColor,
+    sidebarColor,
+  );
 
   return (
     <Sheet>
@@ -194,7 +234,10 @@ export function ThemeDrawer() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="right" className="w-80 sm:max-w-80 flex flex-col p-0 gap-0">
+      <SheetContent
+        side="right"
+        className="w-80 sm:max-w-80 flex flex-col p-0 gap-0"
+      >
         <SheetHeader className="px-5 py-4 border-b">
           <SheetTitle>Customize Theme</SheetTitle>
           <SheetDescription>
@@ -234,11 +277,22 @@ export function ThemeDrawer() {
                       ].join(" ")}
                     >
                       <span className="flex gap-0.5 shrink-0">
-                        <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.primaryColor }} />
-                        <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.accentColor }} />
-                        <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.sidebarColor }} />
+                        <span
+                          className="h-3.5 w-3.5 rounded-full"
+                          style={{ background: preset.primaryColor }}
+                        />
+                        <span
+                          className="h-3.5 w-3.5 rounded-full"
+                          style={{ background: preset.accentColor }}
+                        />
+                        <span
+                          className="h-3.5 w-3.5 rounded-full"
+                          style={{ background: preset.sidebarColor }}
+                        />
                       </span>
-                      <span className="text-xs leading-none">{preset.name}</span>
+                      <span className="text-xs leading-none">
+                        {preset.name}
+                      </span>
                     </button>
                   );
                 })}
@@ -352,7 +406,9 @@ export function ThemeDrawer() {
                               : "border-border hover:border-primary/40 hover:bg-muted/50",
                           ].join(" ")}
                         >
-                          <span className="text-xs font-medium">{option.label}</span>
+                          <span className="text-xs font-medium">
+                            {option.label}
+                          </span>
                           <span className="text-xs text-muted-foreground leading-tight">
                             {option.description}
                           </span>
@@ -366,7 +422,11 @@ export function ThemeDrawer() {
           </div>
 
           <div className="px-5 py-4 border-t">
-            <Button type="submit" className="w-full" disabled={updateBranding.isPending}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={updateBranding.isPending}
+            >
               {updateBranding.isPending ? "Saving…" : "Save Theme"}
             </Button>
           </div>
@@ -432,11 +492,19 @@ function CompactFontPairingPicker({
               className="mt-1 text-xs text-muted-foreground truncate"
               title={`${pairing.fontHeading} · ${pairing.fontBody} · ${pairing.fontMono}`}
             >
-              <span style={{ fontFamily: `'${pairing.fontHeading}', sans-serif` }}>{pairing.fontHeading}</span>
+              <span
+                style={{ fontFamily: `'${pairing.fontHeading}', sans-serif` }}
+              >
+                {pairing.fontHeading}
+              </span>
               {" · "}
-              <span style={{ fontFamily: `'${pairing.fontBody}', serif` }}>{pairing.fontBody}</span>
+              <span style={{ fontFamily: `'${pairing.fontBody}', serif` }}>
+                {pairing.fontBody}
+              </span>
               {" · "}
-              <span style={{ fontFamily: `'${pairing.fontMono}', monospace` }}>{pairing.fontMono}</span>
+              <span style={{ fontFamily: `'${pairing.fontMono}', monospace` }}>
+                {pairing.fontMono}
+              </span>
             </p>
           </button>
         );

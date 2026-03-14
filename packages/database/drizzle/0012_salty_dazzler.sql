@@ -1,0 +1,2 @@
+ALTER TABLE "classes" ADD COLUMN "code" text;--> statement-breakpoint
+CREATE UNIQUE INDEX "classes_code_per_institution_unique_idx" ON "classes" USING btree ("institution_id","code") WHERE "classes"."deleted_at" IS NULL AND "classes"."code" IS NOT NULL;

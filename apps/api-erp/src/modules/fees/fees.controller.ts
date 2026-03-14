@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import {
   ApiBody,
   ApiCookieAuth,
@@ -37,7 +37,9 @@ export class FeesController {
   constructor(private readonly feesService: FeesService) {}
 
   @Get(API_ROUTES.STRUCTURES)
-  @ApiOperation({ summary: "List fee structures for the current tenant institution" })
+  @ApiOperation({
+    summary: "List fee structures for the current tenant institution",
+  })
   @ApiOkResponse({ type: FeeStructureDto, isArray: true })
   listFeeStructures(
     @CurrentInstitution() institution: TenantInstitution,
@@ -63,7 +65,9 @@ export class FeesController {
   }
 
   @Get(API_ROUTES.ASSIGNMENTS)
-  @ApiOperation({ summary: "List fee assignments for the current tenant institution" })
+  @ApiOperation({
+    summary: "List fee assignments for the current tenant institution",
+  })
   @ApiOkResponse({ type: FeeAssignmentDto, isArray: true })
   listFeeAssignments(
     @CurrentInstitution() institution: TenantInstitution,

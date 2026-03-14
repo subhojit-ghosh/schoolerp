@@ -48,7 +48,9 @@ export class StaffController {
   }
 
   @Get(API_ROUTES.ROLES)
-  @ApiOperation({ summary: "List available staff roles for the current tenant" })
+  @ApiOperation({
+    summary: "List available staff roles for the current tenant",
+  })
   @ApiOkResponse({ type: StaffRoleDto, isArray: true })
   listRoles(
     @CurrentInstitution() institution: TenantInstitution,
