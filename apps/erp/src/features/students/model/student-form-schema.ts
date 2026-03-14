@@ -25,8 +25,14 @@ const classIdentifierSchema = z.uuid("Select a class");
 const sectionIdentifierSchema = z.uuid("Select a section");
 
 export const guardianFormSchema = z.object({
-  name: z.string().trim().min(REQUIRED_TEXT_MIN_LENGTH, "Guardian name is required"),
-  mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
+  name: z
+    .string()
+    .trim()
+    .min(REQUIRED_TEXT_MIN_LENGTH, "Guardian name is required"),
+  mobile: z
+    .string()
+    .trim()
+    .min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
   email: z.email().optional().or(z.literal("")),
   relationship: guardianRelationshipSchema,
   isPrimary: z.boolean(),
@@ -52,7 +58,9 @@ export const currentEnrollmentFormSchema = z
         path: ["academicYearId"],
         message: "Academic year is required",
       });
-    } else if (!academicYearIdentifierSchema.safeParse(value.academicYearId).success) {
+    } else if (
+      !academicYearIdentifierSchema.safeParse(value.academicYearId).success
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["academicYearId"],
@@ -107,7 +115,8 @@ export const studentFormSchema = z
     currentEnrollment: currentEnrollmentFormSchema,
   })
   .refine(
-    (value) => value.guardians.filter((guardian) => guardian.isPrimary).length === 1,
+    (value) =>
+      value.guardians.filter((guardian) => guardian.isPrimary).length === 1,
     {
       path: ["guardians"],
       message: "Select exactly one primary guardian",

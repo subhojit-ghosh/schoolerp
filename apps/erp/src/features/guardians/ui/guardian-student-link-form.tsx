@@ -78,7 +78,10 @@ export function GuardianStudentLinkForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Student</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select student" />
                     </SelectTrigger>
@@ -139,7 +142,11 @@ export function GuardianStudentLinkForm({
             name="isPrimary"
             render={({ field }) => (
               <div className="flex items-center gap-2 pt-8">
-                <Checkbox checked={field.value} id={`primary-${defaultValues.studentId}`} onCheckedChange={field.onChange} />
+                <Checkbox
+                  checked={field.value}
+                  id={`primary-${defaultValues.studentId}`}
+                  onCheckedChange={field.onChange}
+                />
                 <Label
                   className="text-sm font-normal"
                   htmlFor={`primary-${defaultValues.studentId}`}

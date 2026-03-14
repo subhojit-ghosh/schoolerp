@@ -78,7 +78,8 @@ export function ExamMarksForm({
           <div>
             <p className="text-sm font-medium">Marks rows</p>
             <p className="text-xs text-muted-foreground">
-              One subject row per student. Save replaces the full list for this term.
+              One subject row per student. Save replaces the full list for this
+              term.
             </p>
           </div>
           <Button
@@ -105,7 +106,10 @@ export function ExamMarksForm({
                 <Field data-invalid={fieldState.invalid || undefined}>
                   <FieldLabel>Student</FieldLabel>
                   <FieldContent>
-                    <Select onValueChange={field.onChange} value={field.value || undefined}>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value || undefined}
+                    >
                       <SelectTrigger aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select student" />
                       </SelectTrigger>
@@ -132,7 +136,11 @@ export function ExamMarksForm({
                 <Field data-invalid={fieldState.invalid || undefined}>
                   <FieldLabel>Subject</FieldLabel>
                   <FieldContent>
-                    <Input {...field} aria-invalid={fieldState.invalid} placeholder="Mathematics" />
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Mathematics"
+                    />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </FieldContent>
                 </Field>
@@ -152,7 +160,9 @@ export function ExamMarksForm({
                       type="number"
                       value={field.value}
                       onChange={(event) =>
-                        field.onChange(toNumber(event.currentTarget.valueAsNumber))
+                        field.onChange(
+                          toNumber(event.currentTarget.valueAsNumber),
+                        )
                       }
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
@@ -174,7 +184,9 @@ export function ExamMarksForm({
                       type="number"
                       value={field.value}
                       onChange={(event) =>
-                        field.onChange(toNumber(event.currentTarget.valueAsNumber))
+                        field.onChange(
+                          toNumber(event.currentTarget.valueAsNumber),
+                        )
                       }
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
@@ -190,7 +202,11 @@ export function ExamMarksForm({
                 <Field data-invalid={fieldState.invalid || undefined}>
                   <FieldLabel>Remarks</FieldLabel>
                   <FieldContent>
-                    <Input {...field} aria-invalid={fieldState.invalid} placeholder="Optional" />
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      placeholder="Optional"
+                    />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </FieldContent>
                 </Field>

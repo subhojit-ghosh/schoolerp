@@ -7,13 +7,18 @@ function invalidateFeesQueries(
   _institutionId: string,
 ) {
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_STRUCTURES).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_STRUCTURES)
+      .queryKey,
   });
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_ASSIGNMENTS).queryKey,
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      FEES_API_PATHS.LIST_ASSIGNMENTS,
+    ).queryKey,
   });
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_DUES).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_DUES)
+      .queryKey,
   });
 }
 
@@ -28,7 +33,9 @@ export function useFeeStructuresQuery(institutionId: string | undefined) {
   );
 }
 
-export function useCreateFeeStructureMutation(institutionId: string | undefined) {
+export function useCreateFeeStructureMutation(
+  institutionId: string | undefined,
+) {
   const queryClient = useQueryClient();
 
   return apiQueryClient.useMutation("post", FEES_API_PATHS.CREATE_STRUCTURE, {
@@ -84,12 +91,7 @@ export function useCreateFeePaymentMutation(institutionId: string | undefined) {
 }
 
 export function useFeeDuesQuery(institutionId: string | undefined) {
-  return apiQueryClient.useQuery(
-    "get",
-    FEES_API_PATHS.LIST_DUES,
-    undefined,
-    {
-      enabled: Boolean(institutionId),
-    },
-  );
+  return apiQueryClient.useQuery("get", FEES_API_PATHS.LIST_DUES, undefined, {
+    enabled: Boolean(institutionId),
+  });
 }

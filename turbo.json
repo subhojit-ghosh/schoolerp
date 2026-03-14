@@ -26,6 +26,9 @@
       ],
       "outputs": []
     },
+    "format": {
+      "outputs": []
+    },
     "lint:fix": {
       "dependsOn": [
         "transit"

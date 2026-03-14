@@ -1,6 +1,9 @@
 import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
-import { baseListQuerySchema, parseListQuerySchema } from "../../lib/list-query";
+import {
+  baseListQuerySchema,
+  parseListQuerySchema,
+} from "../../lib/list-query";
 
 export const createCampusSchema = z.object({
   name: z.string().trim().min(1, "Campus name is required"),

@@ -144,9 +144,10 @@ export class GuardiansService {
       .limit(pageSize)
       .offset(pagination.offset);
 
-    const linkedStudentsByGuardianId = await this.listLinkedStudentsForGuardians(
-      guardianRows.map((row) => row.id),
-    );
+    const linkedStudentsByGuardianId =
+      await this.listLinkedStudentsForGuardians(
+        guardianRows.map((row) => row.id),
+      );
 
     return {
       rows: guardianRows.map((row) => ({

@@ -17,26 +17,40 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       <div
         className="hidden lg:flex lg:w-[52%] relative overflow-hidden flex-col justify-between p-14"
         style={{
-          background: "linear-gradient(155deg, var(--sidebar) 0%, color-mix(in srgb, var(--sidebar) 80%, black) 100%)",
+          background:
+            "linear-gradient(155deg, var(--sidebar) 0%, color-mix(in srgb, var(--sidebar) 80%, black) 100%)",
         }}
       >
         {/* Dot grid */}
         <div
           className="absolute inset-0 opacity-[0.05]"
           style={{
-            backgroundImage: "radial-gradient(circle, #ffffff 1px, transparent 1px)",
+            backgroundImage:
+              "radial-gradient(circle, #ffffff 1px, transparent 1px)",
             backgroundSize: "28px 28px",
           }}
         />
 
         {/* Decorative rings */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <svg className="absolute -bottom-24 -left-24 opacity-[0.08]" width="520" height="520" viewBox="0 0 520 520" fill="none">
+          <svg
+            className="absolute -bottom-24 -left-24 opacity-[0.08]"
+            width="520"
+            height="520"
+            viewBox="0 0 520 520"
+            fill="none"
+          >
             <circle cx="260" cy="260" r="250" stroke="white" strokeWidth="1" />
             <circle cx="260" cy="260" r="190" stroke="white" strokeWidth="1" />
             <circle cx="260" cy="260" r="130" stroke="white" strokeWidth="1" />
           </svg>
-          <svg className="absolute -top-36 -right-36 opacity-[0.06]" width="620" height="620" viewBox="0 0 620 620" fill="none">
+          <svg
+            className="absolute -top-36 -right-36 opacity-[0.06]"
+            width="620"
+            height="620"
+            viewBox="0 0 620 620"
+            fill="none"
+          >
             <circle cx="310" cy="310" r="300" stroke="white" strokeWidth="1" />
             <circle cx="310" cy="310" r="230" stroke="white" strokeWidth="1" />
             <circle cx="310" cy="310" r="160" stroke="white" strokeWidth="1" />
@@ -45,11 +59,23 @@ export function AuthLayout({ children }: AuthLayoutProps) {
 
         {/* Top: "School ERP" product mark (small, subtle) */}
         <div className="relative z-10 flex items-center gap-2">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-30">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="opacity-30"
+          >
             <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
             <path d="M6 12v5c3 3 9 3 12 0v-5" />
           </svg>
-          <span className="text-white/25 text-xs tracking-widest uppercase font-light">School ERP</span>
+          <span className="text-white/25 text-xs tracking-widest uppercase font-light">
+            School ERP
+          </span>
         </div>
 
         {/* Center: school identity */}
@@ -90,7 +116,8 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         {/* Bottom: warm tagline */}
         <div className="relative z-10">
           <p className="text-white/35 text-sm leading-relaxed font-light max-w-xs">
-            Manage admissions, academics, attendance, and fees — all in one place built for your institution.
+            Manage admissions, academics, attendance, and fees — all in one
+            place built for your institution.
           </p>
         </div>
       </div>
@@ -105,7 +132,11 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         {/* Mobile-only school name header */}
         <div className="lg:hidden flex items-center gap-2.5 mb-10 self-start">
           {logoUrl ? (
-            <img alt={institutionName} className="h-7 w-auto object-contain" src={logoUrl} />
+            <img
+              alt={institutionName}
+              className="h-7 w-auto object-contain"
+              src={logoUrl}
+            />
           ) : (
             <div
               className="w-7 h-7 rounded-md flex items-center justify-center text-xs font-semibold text-white shrink-0"
@@ -114,7 +145,9 @@ export function AuthLayout({ children }: AuthLayoutProps) {
               {initial}
             </div>
           )}
-          <span className="text-sm font-medium text-foreground/70 truncate max-w-[180px]">{institutionName}</span>
+          <span className="text-sm font-medium text-foreground/70 truncate max-w-[180px]">
+            {institutionName}
+          </span>
         </div>
 
         {children}

@@ -31,16 +31,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
-import {
-  DEFAULT_TABLE_PAGE_SIZE,
-  TABLE_PAGE_SIZES,
-} from "@/constants/query";
+import { DEFAULT_TABLE_PAGE_SIZE, TABLE_PAGE_SIZES } from "@/constants/query";
 
-function SortIcon({
-  direction,
-}: {
-  direction: false | "asc" | "desc";
-}) {
+function SortIcon({ direction }: { direction: false | "asc" | "desc" }) {
   if (direction === "asc") {
     return <IconChevronUp className="ml-1 inline size-3.5" />;
   }
@@ -92,7 +85,8 @@ export function ServerDataTable<TData extends RowData>({
   showSearch = true,
 }: ServerDataTableProps<TData>) {
   const pageIndex = table.getState().pagination.pageIndex;
-  const pageSize = table.getState().pagination.pageSize || DEFAULT_TABLE_PAGE_SIZE;
+  const pageSize =
+    table.getState().pagination.pageSize || DEFAULT_TABLE_PAGE_SIZE;
   const resultCount = table.getRowCount();
   const pageCount = table.getPageCount();
   const hasRows = resultCount > 0;
@@ -111,9 +105,7 @@ export function ServerDataTable<TData extends RowData>({
                 onChange={(event) => onSearchChange(event.target.value)}
               />
             </div>
-            <p className="text-sm text-muted-foreground">
-              {totalRows} results
-            </p>
+            <p className="text-sm text-muted-foreground">{totalRows} results</p>
           </div>
         </div>
       ) : null}
@@ -132,7 +124,8 @@ export function ServerDataTable<TData extends RowData>({
           <div className="flex min-h-56 flex-col items-center justify-center gap-2 px-6 text-center">
             <p className="text-sm font-medium">{errorTitle}</p>
             <p className="max-w-md text-sm text-muted-foreground">
-              {errorDescription ?? "Something went wrong. Try refreshing the page."}
+              {errorDescription ??
+                "Something went wrong. Try refreshing the page."}
             </p>
           </div>
         ) : isLoading ? (
@@ -160,7 +153,10 @@ export function ServerDataTable<TData extends RowData>({
               <Table>
                 <TableHeader className="bg-muted/30">
                   {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                    <TableRow
+                      key={headerGroup.id}
+                      className="hover:bg-transparent"
+                    >
                       {headerGroup.headers.map((header) => (
                         <TableHead
                           key={header.id}
@@ -188,7 +184,10 @@ export function ServerDataTable<TData extends RowData>({
                           key={cell.id}
                           className={rowCellClassName?.(row.original)}
                         >
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
                         </TableCell>
                       ))}
                     </TableRow>

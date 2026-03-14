@@ -15,7 +15,10 @@ type StudentsListQuery = {
   sort?: StudentsListSort;
 };
 
-function getStudentsListQueryKey(_institutionId: string, query?: StudentsListQuery) {
+function getStudentsListQueryKey(
+  _institutionId: string,
+  query?: StudentsListQuery,
+) {
   return apiQueryClient.queryOptions(
     "get",
     STUDENTS_API_PATHS.LIST,
@@ -30,7 +33,8 @@ function getStudentsListQueryKey(_institutionId: string, query?: StudentsListQue
 }
 
 function getStudentOptionsQueryKey() {
-  return apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.OPTIONS).queryKey;
+  return apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.OPTIONS)
+    .queryKey;
 }
 
 export function useStudentsQuery(
@@ -54,14 +58,9 @@ export function useStudentsQuery(
 }
 
 export function useStudentOptionsQuery(institutionId: string | undefined) {
-  return apiQueryClient.useQuery(
-    "get",
-    STUDENTS_API_PATHS.OPTIONS,
-    undefined,
-    {
-      enabled: Boolean(institutionId),
-    },
-  );
+  return apiQueryClient.useQuery("get", STUDENTS_API_PATHS.OPTIONS, undefined, {
+    enabled: Boolean(institutionId),
+  });
 }
 
 export function useCreateStudentMutation(institutionId: string | undefined) {

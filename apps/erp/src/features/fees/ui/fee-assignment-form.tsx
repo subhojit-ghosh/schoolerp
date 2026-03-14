@@ -64,7 +64,10 @@ export function FeeAssignmentForm({
             <Field data-invalid={fieldState.invalid || undefined}>
               <FieldLabel>Fee structure</FieldLabel>
               <FieldContent>
-                <Select onValueChange={field.onChange} value={field.value || undefined}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || undefined}
+                >
                   <SelectTrigger aria-invalid={fieldState.invalid}>
                     <SelectValue placeholder="Select structure" />
                   </SelectTrigger>
@@ -91,7 +94,10 @@ export function FeeAssignmentForm({
             <Field data-invalid={fieldState.invalid || undefined}>
               <FieldLabel>Student</FieldLabel>
               <FieldContent>
-                <Select onValueChange={field.onChange} value={field.value || undefined}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || undefined}
+                >
                   <SelectTrigger aria-invalid={fieldState.invalid}>
                     <SelectValue placeholder="Select student" />
                   </SelectTrigger>

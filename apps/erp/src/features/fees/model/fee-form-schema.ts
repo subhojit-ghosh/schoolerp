@@ -1,7 +1,4 @@
-import {
-  FEE_PAYMENT_METHODS,
-  FEE_STRUCTURE_SCOPES,
-} from "@repo/contracts";
+import { FEE_PAYMENT_METHODS, FEE_STRUCTURE_SCOPES } from "@repo/contracts";
 import { z } from "zod";
 import type { components } from "@/lib/api/generated/schema";
 

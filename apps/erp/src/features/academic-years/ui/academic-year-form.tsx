@@ -51,9 +51,9 @@ export function AcademicYearForm({
   const manualNameOverrideRef = useRef(false);
   const { control, handleSubmit, reset, setValue } =
     useForm<AcademicYearFormValues>({
-    resolver: zodResolver(academicYearFormSchema),
-    defaultValues,
-  });
+      resolver: zodResolver(academicYearFormSchema),
+      defaultValues,
+    });
   const startDate = useWatch({
     control,
     name: "startDate",
@@ -90,7 +90,9 @@ export function AcademicYearForm({
             name="startDate"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="academic-year-start-date">Start date</FieldLabel>
+                <FieldLabel htmlFor="academic-year-start-date">
+                  Start date
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -109,7 +111,9 @@ export function AcademicYearForm({
             name="endDate"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="academic-year-end-date">End date</FieldLabel>
+                <FieldLabel htmlFor="academic-year-end-date">
+                  End date
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}

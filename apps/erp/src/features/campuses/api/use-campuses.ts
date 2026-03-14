@@ -55,7 +55,8 @@ export function useCreateCampusMutation() {
       ]);
 
       await queryClient.refetchQueries({
-        queryKey: apiQueryClient.queryOptions("get", AUTH_API_PATHS.ME).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", AUTH_API_PATHS.ME)
+          .queryKey,
         type: "active",
       });
     },

@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { IconCertificate, IconClipboardList, IconPlus } from "@tabler/icons-react";
+import {
+  IconCertificate,
+  IconClipboardList,
+  IconPlus,
+} from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Card,
@@ -47,16 +51,24 @@ export function ExamsPage() {
   const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
   const studentOptionsQuery = useStudentOptionsQuery(managedInstitutionId);
   const examTermsQuery = useExamTermsQuery(managedInstitutionId);
-  const createExamTermMutation = useCreateExamTermMutation(managedInstitutionId);
-  const replaceMarksMutation = useReplaceExamMarksMutation(managedInstitutionId);
+  const createExamTermMutation =
+    useCreateExamTermMutation(managedInstitutionId);
+  const replaceMarksMutation =
+    useReplaceExamMarksMutation(managedInstitutionId);
   const [selectedExamTermId, setSelectedExamTermId] = useState<string>();
   const academicYears = useMemo(
     () => academicYearsQuery.data?.rows ?? [],
     [academicYearsQuery.data?.rows],
   );
 
-  const examTerms = useMemo(() => examTermsQuery.data ?? [], [examTermsQuery.data]);
-  const examMarksQuery = useExamMarksQuery(managedInstitutionId, selectedExamTermId);
+  const examTerms = useMemo(
+    () => examTermsQuery.data ?? [],
+    [examTermsQuery.data],
+  );
+  const examMarksQuery = useExamMarksQuery(
+    managedInstitutionId,
+    selectedExamTermId,
+  );
 
   useEffect(() => {
     if (examTerms.length === 0) {
@@ -134,7 +146,8 @@ export function ExamsPage() {
         <CardHeader>
           <CardTitle>Exams</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage exam terms and marks.
+            Sign in with an institution-backed session to manage exam terms and
+            marks.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -147,7 +160,8 @@ export function ExamsPage() {
         <CardHeader>
           <CardTitle>Exams</CardTitle>
           <CardDescription>
-            Exams administration is available in Staff view. You are currently in {activeContext?.label ?? "another"} view.
+            Exams administration is available in Staff view. You are currently
+            in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -164,7 +178,8 @@ export function ExamsPage() {
               Create exam term
             </CardTitle>
             <CardDescription>
-              Keep exam planning shallow for now: one term linked to one academic year.
+              Keep exam planning shallow for now: one term linked to one
+              academic year.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -174,7 +189,10 @@ export function ExamsPage() {
                 name: academicYear.name,
               }))}
               defaultValues={termDefaultValues}
-              errorMessage={(createExamTermMutation.error as Error | null | undefined)?.message}
+              errorMessage={
+                (createExamTermMutation.error as Error | null | undefined)
+                  ?.message
+              }
               isPending={createExamTermMutation.isPending}
               onSubmit={handleCreateTerm}
             />
@@ -210,7 +228,9 @@ export function ExamsPage() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="font-medium text-foreground">{term.name}</p>
+                        <p className="font-medium text-foreground">
+                          {term.name}
+                        </p>
                         <p className="text-sm text-muted-foreground">
                           {term.academicYearName}
                         </p>
@@ -240,7 +260,8 @@ export function ExamsPage() {
               Marks entry
             </CardTitle>
             <CardDescription>
-              Batch-save subject scores for the selected term. Business rules stay in the API.
+              Batch-save subject scores for the selected term. Business rules
+              stay in the API.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -251,7 +272,10 @@ export function ExamsPage() {
             ) : studentOptionsQuery.data?.length ? (
               <ExamMarksForm
                 defaultValues={marksDefaultValues}
-                errorMessage={(replaceMarksMutation.error as Error | null | undefined)?.message}
+                errorMessage={
+                  (replaceMarksMutation.error as Error | null | undefined)
+                    ?.message
+                }
                 isPending={replaceMarksMutation.isPending}
                 onSubmit={handleSaveMarks}
                 students={(studentOptionsQuery.data ?? []).map((student) => ({
@@ -272,7 +296,8 @@ export function ExamsPage() {
           <CardHeader>
             <CardTitle>Saved marks</CardTitle>
             <CardDescription>
-              The saved list reflects the latest batch persisted for the selected term.
+              The saved list reflects the latest batch persisted for the
+              selected term.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">

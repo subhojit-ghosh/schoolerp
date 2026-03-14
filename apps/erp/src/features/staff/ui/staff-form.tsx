@@ -135,7 +135,10 @@ export function StaffForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Primary campus</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select campus" />
                     </SelectTrigger>

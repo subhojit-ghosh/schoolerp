@@ -55,7 +55,9 @@ export function NavUser() {
   const campusName = session?.activeCampus?.name ?? "Campus";
   const activeContext = getActiveContext(session);
   const memberTypes = Array.from(
-    new Set(session?.memberships.map((membership) => membership.memberType) ?? []),
+    new Set(
+      session?.memberships.map((membership) => membership.memberType) ?? [],
+    ),
   );
 
   return (
@@ -69,7 +71,9 @@ export function NavUser() {
             >
               <Avatar className="size-8 rounded-lg">
                 <AvatarImage alt={user.name} src="" />
-                <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  {initials}
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
@@ -90,7 +94,9 @@ export function NavUser() {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="size-8 rounded-lg">
                   <AvatarImage alt={user.name} src="" />
-                  <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
@@ -103,7 +109,9 @@ export function NavUser() {
             <DropdownMenuSeparator />
             <div className="flex flex-col gap-2 px-2 py-2">
               <div>
-                <p className="text-xs font-medium text-foreground">{institutionName}</p>
+                <p className="text-xs font-medium text-foreground">
+                  {institutionName}
+                </p>
                 <p className="text-xs text-muted-foreground">
                   {activeContext ? `${activeContext.label} view` : campusName}
                 </p>
@@ -113,7 +121,11 @@ export function NavUser() {
                   <Badge variant="secondary">{activeContext.label}</Badge>
                 ) : null}
                 {memberTypes.map((memberType) => (
-                  <Badge key={memberType} className="capitalize" variant="outline">
+                  <Badge
+                    key={memberType}
+                    className="capitalize"
+                    variant="outline"
+                  >
                     {memberType}
                   </Badge>
                 ))}

@@ -175,11 +175,19 @@ export function StaffDetailPage() {
               </Link>
             </Button>
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-semibold text-foreground">{staffRecord.name}</h2>
-              <Badge variant={staffRecord.status === "active" ? "default" : "secondary"}>
+              <h2 className="text-xl font-semibold text-foreground">
+                {staffRecord.name}
+              </h2>
+              <Badge
+                variant={
+                  staffRecord.status === "active" ? "default" : "secondary"
+                }
+              >
                 {staffRecord.status}
               </Badge>
-              {staffRecord.role ? <Badge variant="outline">{staffRecord.role.name}</Badge> : null}
+              {staffRecord.role ? (
+                <Badge variant="outline">{staffRecord.role.name}</Badge>
+              ) : null}
             </div>
             <p className="text-sm text-muted-foreground">
               {staffRecord.mobile}
@@ -188,7 +196,9 @@ export function StaffDetailPage() {
           </div>
         </div>
         <Button
-          onClick={() => void navigate(appendSearch(ERP_ROUTES.STAFF, location.search))}
+          onClick={() =>
+            void navigate(appendSearch(ERP_ROUTES.STAFF, location.search))
+          }
           variant="outline"
         >
           Done
@@ -200,7 +210,8 @@ export function StaffDetailPage() {
           <CardHeader>
             <CardTitle>Edit staff</CardTitle>
             <CardDescription>
-              Update the staff identity details, campus assignment, and current role.
+              Update the staff identity details, campus assignment, and current
+              role.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -228,13 +239,17 @@ export function StaffDetailPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
                 Member type
               </p>
-              <p className="mt-2 text-sm font-medium">{staffRecord.memberType}</p>
+              <p className="mt-2 text-sm font-medium">
+                {staffRecord.memberType}
+              </p>
             </div>
             <div className="rounded-xl border border-border/70 bg-background/80 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
                 Primary campus
               </p>
-              <p className="mt-2 text-sm font-medium">{staffRecord.campusName}</p>
+              <p className="mt-2 text-sm font-medium">
+                {staffRecord.campusName}
+              </p>
             </div>
             <div className="rounded-xl border border-border/70 bg-background/80 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">

@@ -1,7 +1,4 @@
-import {
-  healthResponseSchema,
-  tenantBrandingSchema,
-} from "@repo/contracts";
+import { healthResponseSchema, tenantBrandingSchema } from "@repo/contracts";
 import { apiFetchClient } from "@/lib/api/client";
 
 export async function fetchHealth() {
@@ -15,7 +12,9 @@ export async function fetchHealth() {
 }
 
 export async function fetchTenantBranding() {
-  const { data, error, response } = await apiFetchClient.GET("/public/tenant-branding");
+  const { data, error, response } = await apiFetchClient.GET(
+    "/public/tenant-branding",
+  );
 
   if (error || !response.ok) {
     if (response.status === 404) {

@@ -15,7 +15,10 @@ export const GUARDIAN_RELATIONSHIP_OPTIONS = [
 
 export const guardianFormSchema = z.object({
   name: z.string().trim().min(1, "Guardian name is required"),
-  mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
+  mobile: z
+    .string()
+    .trim()
+    .min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
   email: z.email().optional().or(z.literal("")),
   campusId: z.uuid("Select a campus"),
 });

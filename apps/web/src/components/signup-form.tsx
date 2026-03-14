@@ -47,7 +47,9 @@ export function SignupForm() {
         const activeTenantSlug = session.activeOrganization?.slug;
 
         if (!activeTenantSlug) {
-          throw new Error("The tenant was created, but no active tenant slug was returned.");
+          throw new Error(
+            "The tenant was created, but no active tenant slug was returned.",
+          );
         }
 
         window.location.assign(

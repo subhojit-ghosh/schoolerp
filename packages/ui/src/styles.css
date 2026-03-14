@@ -43,9 +43,9 @@
 }
 
 :root {
-  --font-heading: 'Outfit', 'Noto Sans', system-ui, sans-serif;
-  --font-body: 'DM Sans', 'Noto Sans', system-ui, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Noto Sans', ui-monospace, monospace;
+  --font-heading: "Outfit", "Noto Sans", system-ui, sans-serif;
+  --font-body: "DM Sans", "Noto Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "Noto Sans", ui-monospace, monospace;
   --primary-hover: color-mix(in srgb, var(--primary) 85%, white);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -119,11 +119,19 @@
     font-family: var(--font-body);
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-heading);
   }
 
-  code, kbd, pre, samp {
+  code,
+  kbd,
+  pre,
+  samp {
     font-family: var(--font-mono);
   }
 }

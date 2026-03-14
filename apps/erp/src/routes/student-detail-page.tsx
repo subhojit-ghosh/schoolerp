@@ -119,7 +119,8 @@ export function StudentDetailPage() {
         <CardHeader>
           <CardTitle>Student</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage student records.
+            Sign in with an institution-backed session to manage student
+            records.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -132,7 +133,8 @@ export function StudentDetailPage() {
         <CardHeader>
           <CardTitle>Student</CardTitle>
           <CardDescription>
-            Student editing is available in Staff view. You are currently in {activeContext?.label ?? "another"} view.
+            Student editing is available in Staff view. You are currently in{" "}
+            {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -192,18 +194,25 @@ export function StudentDetailPage() {
               </Link>
             </Button>
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-semibold text-foreground">{student.fullName}</h2>
-              <Badge variant={student.status === "active" ? "default" : "secondary"}>
+              <h2 className="text-xl font-semibold text-foreground">
+                {student.fullName}
+              </h2>
+              <Badge
+                variant={student.status === "active" ? "default" : "secondary"}
+              >
                 {student.status}
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              Admission {student.admissionNumber} • {student.className} {student.sectionName} • {student.campusName}
+              Admission {student.admissionNumber} • {student.className}{" "}
+              {student.sectionName} • {student.campusName}
             </p>
           </div>
         </div>
         <Button
-          onClick={() => void navigate(appendSearch(ERP_ROUTES.STUDENTS, location.search))}
+          onClick={() =>
+            void navigate(appendSearch(ERP_ROUTES.STUDENTS, location.search))
+          }
           variant="outline"
         >
           Done
@@ -215,7 +224,8 @@ export function StudentDetailPage() {
           <CardHeader>
             <CardTitle>Edit student</CardTitle>
             <CardDescription>
-              Update the student profile, campus assignment, and linked guardians.
+              Update the student profile, campus assignment, and linked
+              guardians.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -236,26 +246,33 @@ export function StudentDetailPage() {
             <CardHeader>
               <CardTitle>Current enrollment</CardTitle>
               <CardDescription>
-                Backend-owned placement for the active academic year, class, and section.
+                Backend-owned placement for the active academic year, class, and
+                section.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               {student.currentEnrollment ? (
                 <>
                   <div>
-                    <p className="text-sm font-medium">{student.currentEnrollment.academicYearName}</p>
+                    <p className="text-sm font-medium">
+                      {student.currentEnrollment.academicYearName}
+                    </p>
                     <p className="text-xs text-muted-foreground">
                       Academic year
                     </p>
                   </div>
                   <Separator />
                   <div>
-                    <p className="text-sm font-medium">{student.currentEnrollment.className}</p>
+                    <p className="text-sm font-medium">
+                      {student.currentEnrollment.className}
+                    </p>
                     <p className="text-xs text-muted-foreground">Class</p>
                   </div>
                   <Separator />
                   <div>
-                    <p className="text-sm font-medium">{student.currentEnrollment.sectionName}</p>
+                    <p className="text-sm font-medium">
+                      {student.currentEnrollment.sectionName}
+                    </p>
                     <p className="text-xs text-muted-foreground">Section</p>
                   </div>
                 </>

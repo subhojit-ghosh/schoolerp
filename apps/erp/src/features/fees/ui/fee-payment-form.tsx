@@ -70,7 +70,10 @@ export function FeePaymentForm({
             <Field data-invalid={fieldState.invalid || undefined}>
               <FieldLabel>Assignment</FieldLabel>
               <FieldContent>
-                <Select onValueChange={field.onChange} value={field.value || undefined}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || undefined}
+                >
                   <SelectTrigger aria-invalid={fieldState.invalid}>
                     <SelectValue placeholder="Select assignment" />
                   </SelectTrigger>

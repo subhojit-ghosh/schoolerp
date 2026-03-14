@@ -119,7 +119,9 @@ export const passwordResetToken = pgTable(
     userId: text()
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
-    tokenHash: text().notNull().unique("password_reset_token_token_hash_unique"),
+    tokenHash: text()
+      .notNull()
+      .unique("password_reset_token_token_hash_unique"),
     expiresAt: timestamp().notNull(),
     consumedAt: timestamp(),
     createdAt: timestamp().defaultNow().notNull(),

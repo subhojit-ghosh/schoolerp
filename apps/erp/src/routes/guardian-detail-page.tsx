@@ -26,12 +26,8 @@ import {
   useUpdateGuardianMutation,
   useUpdateGuardianStudentLinkMutation,
 } from "@/features/guardians/api/use-guardians";
-import {
-  GuardianForm,
-} from "@/features/guardians/ui/guardian-form";
-import {
-  GuardianStudentLinkForm,
-} from "@/features/guardians/ui/guardian-student-link-form";
+import { GuardianForm } from "@/features/guardians/ui/guardian-form";
+import { GuardianStudentLinkForm } from "@/features/guardians/ui/guardian-student-link-form";
 import {
   type GuardianFormValues,
   type GuardianStudentLinkFormValues,
@@ -110,10 +106,13 @@ export function GuardianDetailPage() {
 
   const availableStudents = useMemo(() => {
     const linkedStudentIds = new Set(
-      guardianQuery.data?.linkedStudents.map((student) => student.studentId) ?? [],
+      guardianQuery.data?.linkedStudents.map((student) => student.studentId) ??
+        [],
     );
 
-    return studentOptions.filter((student) => !linkedStudentIds.has(student.id));
+    return studentOptions.filter(
+      (student) => !linkedStudentIds.has(student.id),
+    );
   }, [guardianQuery.data?.linkedStudents, studentOptions]);
 
   const addLinkDefaultValues = useMemo<GuardianStudentLinkFormValues>(
@@ -142,7 +141,9 @@ export function GuardianDetailPage() {
     toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.GUARDIAN));
   }
 
-  async function handleStudentLinkSubmit(values: GuardianStudentLinkFormValues) {
+  async function handleStudentLinkSubmit(
+    values: GuardianStudentLinkFormValues,
+  ) {
     if (!institutionId || !guardianId) {
       return;
     }
@@ -165,7 +166,8 @@ export function GuardianDetailPage() {
         <CardHeader>
           <CardTitle>Guardian</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage guardian records.
+            Sign in with an institution-backed session to manage guardian
+            records.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -207,7 +209,8 @@ export function GuardianDetailPage() {
         <CardHeader>
           <CardTitle>Guardian not found</CardTitle>
           <CardDescription>
-            The requested guardian record could not be loaded for this institution.
+            The requested guardian record could not be loaded for this
+            institution.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -223,8 +226,14 @@ export function GuardianDetailPage() {
   }
 
   const guardian = guardianQuery.data;
-  const updateGuardianError = updateGuardianMutation.error as Error | null | undefined;
-  const linkStudentError = linkStudentMutation.error as Error | null | undefined;
+  const updateGuardianError = updateGuardianMutation.error as
+    | Error
+    | null
+    | undefined;
+  const linkStudentError = linkStudentMutation.error as
+    | Error
+    | null
+    | undefined;
 
   return (
     <div className="flex flex-col gap-6">
@@ -241,7 +250,9 @@ export function GuardianDetailPage() {
               </Link>
             </Button>
             <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-semibold text-foreground">{guardian.name}</h2>
+              <h2 className="text-xl font-semibold text-foreground">
+                {guardian.name}
+              </h2>
               <Badge variant="outline">{guardian.status}</Badge>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -282,7 +293,8 @@ export function GuardianDetailPage() {
           <CardContent>
             {availableStudents.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                All current students in this institution are already linked to this guardian.
+                All current students in this institution are already linked to
+                this guardian.
               </p>
             ) : (
               <GuardianStudentLinkForm
@@ -302,7 +314,8 @@ export function GuardianDetailPage() {
         <CardHeader>
           <CardTitle>Linked students</CardTitle>
           <CardDescription>
-            Manage relationship labels, switch the primary guardian, or unlink students.
+            Manage relationship labels, switch the primary guardian, or unlink
+            students.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -314,11 +327,15 @@ export function GuardianDetailPage() {
             guardian.linkedStudents.map((linkedStudent, index) => {
               const linkError =
                 updateStudentLinkMutation.variables?.params.path.studentId ===
-                  linkedStudent.studentId
-                  ? (updateStudentLinkMutation.error as Error | null | undefined)
-                      ?.message
+                linkedStudent.studentId
+                  ? (
+                      updateStudentLinkMutation.error as
+                        | Error
+                        | null
+                        | undefined
+                    )?.message
                   : unlinkStudentMutation.variables?.params.path.studentId ===
-                        linkedStudent.studentId
+                      linkedStudent.studentId
                     ? (unlinkStudentMutation.error as Error | null | undefined)
                         ?.message
                     : undefined;
@@ -377,14 +394,18 @@ export function GuardianDetailPage() {
                       });
 
                       toast.success(
-                        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.RELATIONSHIP),
+                        ERP_TOAST_MESSAGES.updated(
+                          ERP_TOAST_SUBJECTS.RELATIONSHIP,
+                        ),
                       );
                     }}
                     showStudentSelect={false}
                     students={studentOptions}
                     submitLabel="Save link"
                   />
-                  {index < guardian.linkedStudents.length - 1 ? <Separator /> : null}
+                  {index < guardian.linkedStudents.length - 1 ? (
+                    <Separator />
+                  ) : null}
                 </div>
               );
             })

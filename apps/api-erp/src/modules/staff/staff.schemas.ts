@@ -1,7 +1,10 @@
 import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
 import { STATUS } from "../../constants";
-import { baseListQuerySchema, parseListQuerySchema } from "../../lib/list-query";
+import {
+  baseListQuerySchema,
+  parseListQuerySchema,
+} from "../../lib/list-query";
 
 const NAME_MIN_LENGTH = 1;
 const MOBILE_MIN_LENGTH = 10;

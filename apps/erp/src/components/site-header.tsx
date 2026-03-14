@@ -42,7 +42,6 @@ import {
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { ERP_TOAST_MESSAGES } from "@/lib/toast-messages";
 
-
 const FULLSCREEN_CHANGE_EVENT = "fullscreenchange";
 const WEBKIT_FULLSCREEN_CHANGE_EVENT = "webkitfullscreenchange";
 
@@ -90,9 +89,9 @@ function isFullscreenSupported(doc: FullscreenDocument) {
 
   return Boolean(
     doc.fullscreenEnabled ??
-      doc.webkitFullscreenEnabled ??
-      root.requestFullscreen ??
-      root.webkitRequestFullscreen,
+    doc.webkitFullscreenEnabled ??
+    root.requestFullscreen ??
+    root.webkitRequestFullscreen,
   );
 }
 
@@ -224,7 +223,9 @@ export function SiteHeader() {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          {availableContexts.length > 1 && activeContext && activeContextMeta ? (
+          {availableContexts.length > 1 &&
+          activeContext &&
+          activeContextMeta ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -258,7 +259,9 @@ export function SiteHeader() {
                             : "border-border/70 bg-card text-foreground hover:border-primary/30 hover:bg-muted/20",
                         )}
                         disabled={selectContextMutation.isPending || isActive}
-                        onClick={() => void handleContextChange(contextOption.key)}
+                        onClick={() =>
+                          void handleContextChange(contextOption.key)
+                        }
                         type="button"
                       >
                         <div

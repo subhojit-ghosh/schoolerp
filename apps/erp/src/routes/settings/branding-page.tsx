@@ -82,7 +82,6 @@ function getInitialValues(
   };
 }
 
-
 function applyColorPreview(primary: string, accent: string, sidebar: string) {
   const root = document.querySelector(":root") as HTMLElement | null;
   if (!root) return;
@@ -100,7 +99,10 @@ function applyColorPreview(primary: string, accent: string, sidebar: string) {
     root.style.setProperty("--border", surface.border);
     root.style.setProperty("--input", surface.input);
     root.style.setProperty("--secondary", surface.secondary);
-    root.style.setProperty("--secondary-foreground", surface.secondaryForeground);
+    root.style.setProperty(
+      "--secondary-foreground",
+      surface.secondaryForeground,
+    );
     root.style.setProperty("--popover", surface.card);
     root.style.setProperty("--popover-foreground", surface.foreground);
   }
@@ -113,12 +115,18 @@ function applyColorPreview(primary: string, accent: string, sidebar: string) {
     root.style.setProperty("--sidebar", tokens.background);
     root.style.setProperty("--sidebar-foreground", tokens.foreground);
     root.style.setProperty("--sidebar-accent", tokens.accent);
-    root.style.setProperty("--sidebar-accent-foreground", tokens.accentForeground);
+    root.style.setProperty(
+      "--sidebar-accent-foreground",
+      tokens.accentForeground,
+    );
     root.style.setProperty("--sidebar-border", tokens.border);
   }
   if (HEX_COLOR_REGEX.test(primary)) {
     root.style.setProperty("--sidebar-primary", primary);
-    root.style.setProperty("--sidebar-primary-foreground", contrastForeground(primary));
+    root.style.setProperty(
+      "--sidebar-primary-foreground",
+      contrastForeground(primary),
+    );
     root.style.setProperty("--sidebar-ring", primary);
   }
 }
@@ -130,9 +138,21 @@ function applyFontPreview(
 ) {
   const root = document.querySelector(":root") as HTMLElement | null;
   if (!root) return;
-  if (fontHeading) root.style.setProperty("--font-heading", `'${fontHeading}', 'Noto Sans', system-ui, sans-serif`);
-  if (fontBody) root.style.setProperty("--font-body", `'${fontBody}', 'Noto Sans', system-ui, sans-serif`);
-  if (fontMono) root.style.setProperty("--font-mono", `'${fontMono}', 'Noto Sans', ui-monospace, monospace`);
+  if (fontHeading)
+    root.style.setProperty(
+      "--font-heading",
+      `'${fontHeading}', 'Noto Sans', system-ui, sans-serif`,
+    );
+  if (fontBody)
+    root.style.setProperty(
+      "--font-body",
+      `'${fontBody}', 'Noto Sans', system-ui, sans-serif`,
+    );
+  if (fontMono)
+    root.style.setProperty(
+      "--font-mono",
+      `'${fontMono}', 'Noto Sans', ui-monospace, monospace`,
+    );
 }
 
 export function BrandingPage() {
@@ -150,9 +170,14 @@ export function BrandingPage() {
   });
 
   const {
-    primaryColor, accentColor, sidebarColor,
-    fontHeading, fontBody, fontMono,
-    borderRadius, uiDensity,
+    primaryColor,
+    accentColor,
+    sidebarColor,
+    fontHeading,
+    fontBody,
+    fontMono,
+    borderRadius,
+    uiDensity,
   } = useWatch({ control });
   const previewPrimaryColor = primaryColor ?? DEFAULT_COLORS.primaryColor;
   const previewAccentColor = accentColor ?? DEFAULT_COLORS.accentColor;
@@ -218,7 +243,10 @@ export function BrandingPage() {
     });
   }
 
-  const selectedPairing = findPairingByFonts(fontHeading ?? null, fontBody ?? null);
+  const selectedPairing = findPairingByFonts(
+    fontHeading ?? null,
+    fontBody ?? null,
+  );
   const selectedPreset = findPresetByColors(
     previewPrimaryColor,
     previewAccentColor,
@@ -234,7 +262,6 @@ export function BrandingPage() {
   return (
     <div className="p-6 max-w-2xl">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-
         {/* Identity */}
         <section className="space-y-4">
           <div>
@@ -244,62 +271,61 @@ export function BrandingPage() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">
+            <Controller
+              control={control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Display Name</FieldLabel>
+                  <Input {...field} placeholder="Springfield Academy" />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Display Name</FieldLabel>
-                <Input {...field} placeholder="Springfield Academy" />
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </Field>
-            )}
-          />
+            <Controller
+              control={control}
+              name="shortName"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Short Name</FieldLabel>
+                  <Input {...field} placeholder="SA" />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="shortName"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Short Name</FieldLabel>
-                <Input {...field} placeholder="SA" />
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </Field>
-            )}
-          />
+            <Controller
+              control={control}
+              name="logoUrl"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Logo URL</FieldLabel>
+                  <Input
+                    {...field}
+                    type="url"
+                    placeholder="https://example.com/logo.png"
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="logoUrl"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Logo URL</FieldLabel>
-                <Input
-                  {...field}
-                  type="url"
-                  placeholder="https://example.com/logo.png"
-                />
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="faviconUrl"
-            render={({ field, fieldState }) => (
-              <Field>
-                <FieldLabel>Favicon URL</FieldLabel>
-                <Input
-                  {...field}
-                  type="url"
-                  placeholder="https://example.com/favicon.ico"
-                />
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </Field>
-            )}
-          />
+            <Controller
+              control={control}
+              name="faviconUrl"
+              render={({ field, fieldState }) => (
+                <Field>
+                  <FieldLabel>Favicon URL</FieldLabel>
+                  <Input
+                    {...field}
+                    type="url"
+                    placeholder="https://example.com/favicon.ico"
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </Field>
+              )}
+            />
           </div>
         </section>
 
@@ -336,9 +362,18 @@ export function BrandingPage() {
                   ].join(" ")}
                 >
                   <span className="flex gap-0.5">
-                    <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.primaryColor }} />
-                    <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.accentColor }} />
-                    <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.sidebarColor }} />
+                    <span
+                      className="h-3.5 w-3.5 rounded-full"
+                      style={{ background: preset.primaryColor }}
+                    />
+                    <span
+                      className="h-3.5 w-3.5 rounded-full"
+                      style={{ background: preset.accentColor }}
+                    />
+                    <span
+                      className="h-3.5 w-3.5 rounded-full"
+                      style={{ background: preset.sidebarColor }}
+                    />
                   </span>
                   {preset.name}
                 </button>
@@ -347,41 +382,41 @@ export function BrandingPage() {
           </div>
 
           <div className="space-y-3">
-          <Controller
-            control={control}
-            name="primaryColor"
-            render={({ field, fieldState }) => (
-              <div className="flex items-center gap-3">
-                <p className="text-sm font-medium w-16 shrink-0">Primary</p>
-                <ColorInput value={field.value} onChange={field.onChange} />
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </div>
-            )}
-          />
+            <Controller
+              control={control}
+              name="primaryColor"
+              render={({ field, fieldState }) => (
+                <div className="flex items-center gap-3">
+                  <p className="text-sm font-medium w-16 shrink-0">Primary</p>
+                  <ColorInput value={field.value} onChange={field.onChange} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </div>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="accentColor"
-            render={({ field, fieldState }) => (
-              <div className="flex items-center gap-3">
-                <p className="text-sm font-medium w-16 shrink-0">Accent</p>
-                <ColorInput value={field.value} onChange={field.onChange} />
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </div>
-            )}
-          />
+            <Controller
+              control={control}
+              name="accentColor"
+              render={({ field, fieldState }) => (
+                <div className="flex items-center gap-3">
+                  <p className="text-sm font-medium w-16 shrink-0">Accent</p>
+                  <ColorInput value={field.value} onChange={field.onChange} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </div>
+              )}
+            />
 
-          <Controller
-            control={control}
-            name="sidebarColor"
-            render={({ field, fieldState }) => (
-              <div className="flex items-center gap-3">
-                <p className="text-sm font-medium w-16 shrink-0">Sidebar</p>
-                <ColorInput value={field.value} onChange={field.onChange} />
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </div>
-            )}
-          />
+            <Controller
+              control={control}
+              name="sidebarColor"
+              render={({ field, fieldState }) => (
+                <div className="flex items-center gap-3">
+                  <p className="text-sm font-medium w-16 shrink-0">Sidebar</p>
+                  <ColorInput value={field.value} onChange={field.onChange} />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </div>
+              )}
+            />
           </div>
         </section>
 
@@ -464,7 +499,9 @@ export function BrandingPage() {
                           : "border-border hover:border-primary/40 hover:bg-muted/50",
                       ].join(" ")}
                     >
-                      <span className="text-sm font-medium">{option.label}</span>
+                      <span className="text-sm font-medium">
+                        {option.label}
+                      </span>
                       <span className="text-xs text-muted-foreground leading-snug">
                         {option.description}
                       </span>
@@ -539,7 +576,9 @@ function FontPairingPicker({
   }, []);
 
   return (
-    <div className={`grid gap-3 ${columns === 2 ? "grid-cols-2" : "grid-cols-1"}`}>
+    <div
+      className={`grid gap-3 ${columns === 2 ? "grid-cols-2" : "grid-cols-1"}`}
+    >
       {FONT_PAIRINGS.map((pairing) => {
         const isSelected = selected?.id === pairing.id;
         return (
@@ -568,23 +607,38 @@ function FontPairingPicker({
 
             <div className="grid grid-cols-3 gap-2 text-xs text-muted-foreground mb-2">
               <span className="min-w-0">
-                <span className="uppercase tracking-wider text-[10px]">Heading</span>
+                <span className="uppercase tracking-wider text-[10px]">
+                  Heading
+                </span>
                 <br />
-                <span className="block truncate" style={{ fontFamily: `'${pairing.fontHeading}', sans-serif` }}>
+                <span
+                  className="block truncate"
+                  style={{ fontFamily: `'${pairing.fontHeading}', sans-serif` }}
+                >
                   {pairing.fontHeading}
                 </span>
               </span>
               <span className="min-w-0">
-                <span className="uppercase tracking-wider text-[10px]">Body</span>
+                <span className="uppercase tracking-wider text-[10px]">
+                  Body
+                </span>
                 <br />
-                <span className="block truncate" style={{ fontFamily: `'${pairing.fontBody}', serif` }}>
+                <span
+                  className="block truncate"
+                  style={{ fontFamily: `'${pairing.fontBody}', serif` }}
+                >
                   {pairing.fontBody}
                 </span>
               </span>
               <span className="min-w-0">
-                <span className="uppercase tracking-wider text-[10px]">Mono</span>
+                <span className="uppercase tracking-wider text-[10px]">
+                  Mono
+                </span>
                 <br />
-                <span className="block truncate" style={{ fontFamily: `'${pairing.fontMono}', monospace` }}>
+                <span
+                  className="block truncate"
+                  style={{ fontFamily: `'${pairing.fontMono}', monospace` }}
+                >
                   {pairing.fontMono}
                 </span>
               </span>

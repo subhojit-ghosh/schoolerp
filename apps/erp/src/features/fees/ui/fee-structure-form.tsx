@@ -90,14 +90,20 @@ export function FeeStructureForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Academic year</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select academic year" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         {academicYears.map((academicYear) => (
-                          <SelectItem key={academicYear.id} value={academicYear.id}>
+                          <SelectItem
+                            key={academicYear.id}
+                            value={academicYear.id}
+                          >
                             {academicYear.name}
                           </SelectItem>
                         ))}
@@ -186,7 +192,10 @@ export function FeeStructureForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Campus</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select campus" />
                     </SelectTrigger>

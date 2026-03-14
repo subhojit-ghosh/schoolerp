@@ -26,10 +26,7 @@ import {
 import { EntityListPage } from "@/components/entity-list-page";
 import { ServerDataTable, SortIcon } from "@/components/server-data-table";
 import { SORT_ORDERS } from "@/constants/query";
-import {
-  buildStudentDetailRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
+import { buildStudentDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {
   getActiveContext,
   isStaffContext,
@@ -177,7 +174,9 @@ export function StudentsPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(STUDENT_LIST_SORT_FIELDS.ADMISSION_NUMBER)}
+            onClick={() =>
+              setSorting(STUDENT_LIST_SORT_FIELDS.ADMISSION_NUMBER)
+            }
             type="button"
           >
             Admission
@@ -210,7 +209,10 @@ export function StudentsPage() {
       columnHelper.accessor("status", {
         header: "Status",
         cell: ({ getValue }) => (
-          <Badge variant={getValue() === "active" ? "secondary" : "outline"} className="capitalize">
+          <Badge
+            variant={getValue() === "active" ? "secondary" : "outline"}
+            className="capitalize"
+          >
             {getValue()}
           </Badge>
         ),
@@ -280,7 +282,8 @@ export function StudentsPage() {
         <CardHeader>
           <CardTitle>{STUDENTS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session before managing student records.
+            Sign in with an institution-backed session before managing student
+            records.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -335,7 +338,9 @@ export function StudentsPage() {
         emptyAction={
           !isFiltered ? (
             <EntityEmptyStateAction asChild>
-              <Link to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}>
+              <Link
+                to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}
+              >
                 <IconPlus className="size-4" />
                 Add first student
               </Link>

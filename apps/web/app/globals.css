@@ -30,7 +30,19 @@
 
 body {
   background:
-    radial-gradient(circle at top left, oklch(0.97 0.04 140 / 0.9), transparent 32%),
-    radial-gradient(circle at right center, oklch(0.92 0.06 82 / 0.7), transparent 26%),
-    linear-gradient(180deg, oklch(0.985 0.012 96) 0%, oklch(0.955 0.018 88) 100%);
+    radial-gradient(
+      circle at top left,
+      oklch(0.97 0.04 140 / 0.9),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at right center,
+      oklch(0.92 0.06 82 / 0.7),
+      transparent 26%
+    ),
+    linear-gradient(
+      180deg,
+      oklch(0.985 0.012 96) 0%,
+      oklch(0.955 0.018 88) 100%
+    );
 }

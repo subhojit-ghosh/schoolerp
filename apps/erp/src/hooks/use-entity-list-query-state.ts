@@ -54,9 +54,8 @@ export function useEntityListQueryState<TSort extends string>({
       : defaultSortBy;
   }, [defaultSortBy, params.sort, validSorts]);
 
-  const sortOrder = params.order === SORT_ORDERS.DESC
-    ? SORT_ORDERS.DESC
-    : SORT_ORDERS.ASC;
+  const sortOrder =
+    params.order === SORT_ORDERS.DESC ? SORT_ORDERS.DESC : SORT_ORDERS.ASC;
 
   const page = Math.max(1, params.page);
   const pageSize = params.limit;

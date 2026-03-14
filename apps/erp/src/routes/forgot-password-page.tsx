@@ -46,7 +46,16 @@ export function ForgotPasswordPage() {
           className="inline-flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors mb-8"
           to={ERP_ROUTES.SIGN_IN}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M19 12H5M12 5l-7 7 7 7" />
           </svg>
           Back to sign in
@@ -61,7 +70,8 @@ export function ForgotPasswordPage() {
             Recover access
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Enter the mobile number or email linked to your account and we'll send a reset link.
+            Enter the mobile number or email linked to your account and we'll
+            send a reset link.
           </p>
         </div>
 
@@ -77,14 +87,26 @@ export function ForgotPasswordPage() {
                   className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"
                   style={{ background: "#22c55e1a" }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#16a34a"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M20 6L9 17l-5-5" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Recovery requested</p>
+                  <p className="text-sm font-medium text-foreground">
+                    Recovery requested
+                  </p>
                   <p className="text-[13px] text-muted-foreground mt-0.5 leading-relaxed">
-                    If an account exists for that identifier, recovery instructions will arrive via the backend delivery channel.
+                    If an account exists for that identifier, recovery
+                    instructions will arrive via the backend delivery channel.
                   </p>
                 </div>
               </div>
@@ -92,12 +114,16 @@ export function ForgotPasswordPage() {
 
             {tokenPreview ? (
               <div className="flex flex-col gap-3">
-                <p className="text-[12px] text-muted-foreground uppercase tracking-wider font-medium">Dev preview token</p>
+                <p className="text-[12px] text-muted-foreground uppercase tracking-wider font-medium">
+                  Dev preview token
+                </p>
                 <code className="block rounded-lg border bg-muted px-3 py-2.5 text-xs font-mono break-all leading-relaxed">
                   {tokenPreview}
                 </code>
                 <Button asChild className="w-full h-11" variant="outline">
-                  <Link to={`${ERP_ROUTES.RESET_PASSWORD}?token=${encodeURIComponent(tokenPreview)}`}>
+                  <Link
+                    to={`${ERP_ROUTES.RESET_PASSWORD}?token=${encodeURIComponent(tokenPreview)}`}
+                  >
                     Continue with preview token
                   </Link>
                 </Button>
@@ -113,7 +139,10 @@ export function ForgotPasswordPage() {
           </div>
         ) : (
           /* Form state */
-          <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
+          <form
+            className="flex flex-col gap-5"
+            onSubmit={handleSubmit(onSubmit)}
+          >
             <Controller
               control={control}
               name="identifier"

@@ -85,7 +85,8 @@ export function ClassForm({
             <div>
               <p className="text-sm font-medium">Sections</p>
               <p className="text-xs text-muted-foreground">
-                Keep section setup light for now. Add only the groups needed for admission and roster flows.
+                Keep section setup light for now. Add only the groups needed for
+                admission and roster flows.
               </p>
             </div>
             <EntityToolbarSecondaryAction
@@ -150,7 +151,9 @@ export function ClassForm({
           ) : null}
         </div>
 
-        {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
+        {errorMessage ? (
+          <p className="text-sm text-destructive">{errorMessage}</p>
+        ) : null}
 
         <div className="flex flex-wrap items-center gap-3">
           <EntityFormPrimaryAction disabled={isPending} type="submit">

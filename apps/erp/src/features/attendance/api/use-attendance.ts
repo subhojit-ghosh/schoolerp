@@ -46,10 +46,10 @@ export function useAttendanceDayQuery(
     {
       enabled: Boolean(
         institutionId &&
-          filters?.attendanceDate &&
-          filters?.campusId &&
-          filters?.classId &&
-          filters?.sectionId,
+        filters?.attendanceDate &&
+        filters?.campusId &&
+        filters?.classId &&
+        filters?.sectionId,
       ),
     },
   );

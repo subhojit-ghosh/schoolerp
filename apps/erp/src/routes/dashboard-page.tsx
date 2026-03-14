@@ -10,7 +10,12 @@ import {
 } from "@tabler/icons-react";
 import { Link } from "react-router";
 import { Badge } from "@repo/ui/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/ui/card";
 import { SectionCards } from "@/components/section-cards";
 import { getActiveContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -80,7 +85,10 @@ export function DashboardPage() {
       <div className="flex flex-col gap-6">
         <div className="px-0.5">
           <div className="mb-1.5 flex items-center gap-2">
-            <div className="h-0.5 w-5 rounded-full" style={{ background: "var(--primary)" }} />
+            <div
+              className="h-0.5 w-5 rounded-full"
+              style={{ background: "var(--primary)" }}
+            />
             <Badge variant="secondary">Parent view</Badge>
           </div>
           <h2
@@ -90,18 +98,26 @@ export function DashboardPage() {
             {getGreeting()}, {firstName(name)}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            This is the lighter family view. Switch back to Staff when you want to manage institution data.
+            This is the lighter family view. Switch back to Staff when you want
+            to manage institution data.
           </p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {linkedStudents.map((student) => (
-            <Card key={student.studentId} className="overflow-hidden border-primary/15 bg-card">
+            <Card
+              key={student.studentId}
+              className="overflow-hidden border-primary/15 bg-card"
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <CardTitle className="text-lg">{student.fullName}</CardTitle>
-                    <p className="mt-1 text-sm text-muted-foreground">{student.campusName}</p>
+                    <CardTitle className="text-lg">
+                      {student.fullName}
+                    </CardTitle>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {student.campusName}
+                    </p>
                   </div>
                   <div
                     className="flex size-11 items-center justify-center rounded-2xl"
@@ -110,7 +126,10 @@ export function DashboardPage() {
                         "color-mix(in srgb, var(--primary) 14%, transparent)",
                     }}
                   >
-                    <IconMoodKid className="size-5" style={{ color: "var(--primary)" }} />
+                    <IconMoodKid
+                      className="size-5"
+                      style={{ color: "var(--primary)" }}
+                    />
                   </div>
                 </div>
               </CardHeader>
@@ -126,7 +145,8 @@ export function DashboardPage() {
                   ) : null}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Minimal parent access is live. Attendance, reports, fees, and notices can layer onto this context later.
+                  Minimal parent access is live. Attendance, reports, fees, and
+                  notices can layer onto this context later.
                 </p>
               </CardContent>
             </Card>
@@ -153,7 +173,8 @@ export function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Student-mode shell support is ready. Student-specific academics and attendance can now be added without changing login.
+          Student-mode shell support is ready. Student-specific academics and
+          attendance can now be added without changing login.
         </CardContent>
       </Card>
     );
@@ -164,7 +185,10 @@ export function DashboardPage() {
       {/* Greeting */}
       <div className="px-0.5">
         <div className="mb-1.5 flex items-center gap-2">
-          <div className="h-0.5 w-5 rounded-full" style={{ background: "var(--primary)" }} />
+          <div
+            className="h-0.5 w-5 rounded-full"
+            style={{ background: "var(--primary)" }}
+          />
         </div>
         <h2
           className="text-3xl font-bold text-foreground"
@@ -202,10 +226,16 @@ export function DashboardPage() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-muted-foreground">{label}</p>
-                    <Badge variant="outline" className="text-[10px]">Coming soon</Badge>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {label}
+                    </p>
+                    <Badge variant="outline" className="text-[10px]">
+                      Coming soon
+                    </Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground/70">{description}</p>
+                  <p className="text-xs text-muted-foreground/70">
+                    {description}
+                  </p>
                 </div>
               </div>
             ) : (
@@ -217,19 +247,29 @@ export function DashboardPage() {
                 <div
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-all group-hover:scale-105"
                   style={{
-                    background: "color-mix(in srgb, var(--primary) 10%, transparent)",
-                    border: "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
+                    background:
+                      "color-mix(in srgb, var(--primary) 10%, transparent)",
+                    border:
+                      "1px solid color-mix(in srgb, var(--primary) 15%, transparent)",
                   }}
                 >
-                  <Icon className="size-5" style={{ color: "var(--primary)" }} />
+                  <Icon
+                    className="size-5"
+                    style={{ color: "var(--primary)" }}
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-foreground">{label}</p>
+                  <p className="text-sm font-semibold text-foreground">
+                    {label}
+                  </p>
                   <p className="text-xs text-muted-foreground">{description}</p>
                 </div>
                 <IconArrowRight
                   className="size-4 text-muted-foreground/40 transition-all group-hover:translate-x-1 shrink-0"
-                  style={{ color: "color-mix(in srgb, var(--primary) 60%, transparent)" }}
+                  style={{
+                    color:
+                      "color-mix(in srgb, var(--primary) 60%, transparent)",
+                  }}
                 />
               </Link>
             ),

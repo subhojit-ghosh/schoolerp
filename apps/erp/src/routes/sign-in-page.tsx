@@ -31,7 +31,10 @@ export function SignInPage() {
     const activeTenantSlug = session?.activeOrganization?.slug;
 
     if (activeTenantSlug) {
-      const dashboardUrl = buildTenantAppUrl(activeTenantSlug, ERP_ROUTES.DASHBOARD);
+      const dashboardUrl = buildTenantAppUrl(
+        activeTenantSlug,
+        ERP_ROUTES.DASHBOARD,
+      );
 
       if (dashboardUrl !== `${window.location.origin}${ERP_ROUTES.DASHBOARD}`) {
         window.location.assign(dashboardUrl);

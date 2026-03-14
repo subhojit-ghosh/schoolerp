@@ -47,11 +47,14 @@ export function CampusSheetRoute() {
       <CampusForm
         defaultValues={DEFAULT_CAMPUS_FORM_VALUES}
         errorMessage={
-          (createCampusMutation.error as Error | null | undefined)?.message ?? undefined
+          (createCampusMutation.error as Error | null | undefined)?.message ??
+          undefined
         }
         isPending={createCampusMutation.isPending}
         onCancel={() => {
-          void navigate(appendSearch(ERP_ROUTES.SETTINGS_CAMPUSES, location.search));
+          void navigate(
+            appendSearch(ERP_ROUTES.SETTINGS_CAMPUSES, location.search),
+          );
         }}
         onSubmit={handleSubmit}
         submitLabel="Create campus"

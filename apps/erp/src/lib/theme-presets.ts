@@ -29,10 +29,14 @@ export const DENSITY_OPTIONS = [
   },
 ] as const;
 
-export function getRadiusValue(preset: RadiusPreset | null | undefined): string {
+export function getRadiusValue(
+  preset: RadiusPreset | null | undefined,
+): string {
   return RADIUS_OPTIONS.find((r) => r.id === preset)?.value ?? "0.625rem";
 }
 
-export function getSpacingValue(preset: DensityPreset | null | undefined): string {
+export function getSpacingValue(
+  preset: DensityPreset | null | undefined,
+): string {
   return DENSITY_OPTIONS.find((d) => d.id === preset)?.spacing ?? "0.25rem";
 }

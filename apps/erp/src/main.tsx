@@ -6,7 +6,10 @@ import "@repo/ui/styles.css";
 import { Toaster } from "@repo/ui/components/ui/sonner";
 import { App } from "@/app";
 import { queryClient } from "@/lib/query-client";
-import { applyTenantBranding, readCachedTenantBranding } from "@/lib/tenant-branding";
+import {
+  applyTenantBranding,
+  readCachedTenantBranding,
+} from "@/lib/tenant-branding";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const cachedBranding = readCachedTenantBranding();

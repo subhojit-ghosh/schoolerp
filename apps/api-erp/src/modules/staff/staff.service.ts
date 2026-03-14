@@ -52,8 +52,6 @@ type StaffRoleSummary = {
   slug: string;
 };
 
-type StaffRecord = Omit<StaffDto, "role">;
-
 type StaffWriter = Pick<AppDatabase, "insert" | "select" | "update">;
 
 const sortableColumns = {
@@ -113,14 +111,13 @@ export class StaffService {
       .innerJoin(user, eq(member.userId, user.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))
       .where(where)
-      .orderBy(
-        sortDirection(sortableColumns[sortKey]),
-        asc(user.name),
-      )
+      .orderBy(sortDirection(sortableColumns[sortKey]), asc(user.name))
       .limit(pageSize)
       .offset(pagination.offset);
 
-    const roleByMembershipId = await this.listRoleMap(staffRows.map((row) => row.id));
+    const roleByMembershipId = await this.listRoleMap(
+      staffRows.map((row) => row.id),
+    );
 
     return {
       rows: staffRows.map((row) => ({

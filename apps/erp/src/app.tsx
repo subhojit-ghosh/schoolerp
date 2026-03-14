@@ -98,7 +98,10 @@ const router = createBrowserRouter([
         path: ERP_ROUTES.CLASSES,
         element: <ClassesPage />,
         children: [
-          { path: ERP_ROUTE_SEGMENTS.NEW, element: <ClassSheetRoute mode="create" /> },
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <ClassSheetRoute mode="create" />,
+          },
           {
             path: `:classId/${ERP_ROUTE_SEGMENTS.EDIT}`,
             element: <ClassSheetRoute mode="edit" />,
@@ -160,7 +163,11 @@ export function App() {
         cacheTenantBranding(brandingPayload);
         applyTenantBranding(brandingPayload);
       } catch (error) {
-        if (!isCancelled && error instanceof Error && error.message === "TENANT_NOT_FOUND") {
+        if (
+          !isCancelled &&
+          error instanceof Error &&
+          error.message === "TENANT_NOT_FOUND"
+        ) {
           setTenantNotFound(true);
         }
       }
@@ -196,7 +203,8 @@ export function App() {
             Organization Not Found
           </h1>
           <p className="mb-8 text-sm leading-relaxed text-muted-foreground">
-            We couldn't find an organization matching this URL. It might have been typed incorrectly or the organization has been removed.
+            We couldn't find an organization matching this URL. It might have
+            been typed incorrectly or the organization has been removed.
           </p>
           <Button
             asChild

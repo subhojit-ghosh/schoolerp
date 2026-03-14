@@ -4,11 +4,7 @@ import {
   IconBuildingEstate,
   IconRefresh,
 } from "@tabler/icons-react";
-import {
-  isRouteErrorResponse,
-  useNavigate,
-  useRouteError,
-} from "react-router";
+import { isRouteErrorResponse, useNavigate, useRouteError } from "react-router";
 import { Button } from "@repo/ui/components/ui/button";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -125,8 +121,8 @@ export function RouteErrorBoundary() {
                     Recovery path
                   </p>
                   <p className="leading-6">
-                    Retry the current page first. If the issue persists, move back
-                    to a stable route and continue from there.
+                    Retry the current page first. If the issue persists, move
+                    back to a stable route and continue from there.
                   </p>
                 </div>
               </div>

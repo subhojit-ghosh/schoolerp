@@ -2,7 +2,10 @@ import { BadRequestException } from "@nestjs/common";
 import { ACADEMIC_YEAR_NAME_MAX_LENGTH } from "@repo/contracts";
 import { z } from "zod";
 import { ERROR_MESSAGES } from "../../constants";
-import { baseListQuerySchema, parseListQuerySchema } from "../../lib/list-query";
+import {
+  baseListQuerySchema,
+  parseListQuerySchema,
+} from "../../lib/list-query";
 
 const academicYearWriteSchema = z
   .object({
@@ -51,7 +54,10 @@ export const institutionIdSchema = z.object({
 export type CreateAcademicYearDto = z.infer<typeof createAcademicYearSchema>;
 export type UpdateAcademicYearDto = z.infer<typeof updateAcademicYearSchema>;
 type ListAcademicYearsQueryInput = z.infer<typeof listAcademicYearsQuerySchema>;
-export type ListAcademicYearsQueryDto = Omit<ListAcademicYearsQueryInput, "q"> & {
+export type ListAcademicYearsQueryDto = Omit<
+  ListAcademicYearsQueryInput,
+  "q"
+> & {
   search?: string;
 };
 

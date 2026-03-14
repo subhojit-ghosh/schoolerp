@@ -6,9 +6,10 @@
   "scripts": {
     "dev": "next dev --port 3001",
     "build": "next build",
+    "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
     "start": "next start --port 3001",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint:fix": "bun run format && eslint . --fix",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

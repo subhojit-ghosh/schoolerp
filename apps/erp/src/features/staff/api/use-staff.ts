@@ -50,14 +50,9 @@ export function useStaffQuery(
 }
 
 export function useStaffRolesQuery(institutionId: string | undefined) {
-  return apiQueryClient.useQuery(
-    "get",
-    STAFF_API_PATHS.ROLES,
-    undefined,
-    {
-      enabled: Boolean(institutionId),
-    },
-  );
+  return apiQueryClient.useQuery("get", STAFF_API_PATHS.ROLES, undefined, {
+    enabled: Boolean(institutionId),
+  });
 }
 
 export function useCreateStaffMutation(institutionId: string | undefined) {
@@ -110,17 +105,13 @@ export function useUpdateStaffMutation(institutionId: string | undefined) {
       });
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          STAFF_API_PATHS.DETAIL,
-          {
-            params: {
-              path: {
-                staffId: variables.params.path.staffId,
-              },
+        queryKey: apiQueryClient.queryOptions("get", STAFF_API_PATHS.DETAIL, {
+          params: {
+            path: {
+              staffId: variables.params.path.staffId,
             },
           },
-        ).queryKey,
+        }).queryKey,
       });
     },
   });

@@ -99,7 +99,8 @@ export function StaffCreatePage() {
         </Button>
         <h1 className="text-2xl font-semibold tracking-tight">Create staff</h1>
         <p className="text-sm text-muted-foreground">
-          Add a staff membership, assign a primary campus, and optionally attach an institution role.
+          Add a staff membership, assign a primary campus, and optionally attach
+          an institution role.
         </p>
       </div>
 

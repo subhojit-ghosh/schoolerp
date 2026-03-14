@@ -10,7 +10,10 @@ type AcademicYearsListQuery = {
   sort?: "current" | "endDate" | "name" | "startDate";
 };
 
-function getAcademicYearsListQueryKey(_institutionId: string, query?: AcademicYearsListQuery) {
+function getAcademicYearsListQueryKey(
+  _institutionId: string,
+  query?: AcademicYearsListQuery,
+) {
   return apiQueryClient.queryOptions(
     "get",
     ACADEMIC_YEARS_API_PATHS.LIST,
@@ -64,7 +67,9 @@ export function useAcademicYearQuery(
   );
 }
 
-export function useCreateAcademicYearMutation(institutionId: string | undefined) {
+export function useCreateAcademicYearMutation(
+  institutionId: string | undefined,
+) {
   const queryClient = useQueryClient();
 
   return apiQueryClient.useMutation("post", ACADEMIC_YEARS_API_PATHS.CREATE, {
@@ -80,7 +85,9 @@ export function useCreateAcademicYearMutation(institutionId: string | undefined)
   });
 }
 
-export function useUpdateAcademicYearMutation(institutionId: string | undefined) {
+export function useUpdateAcademicYearMutation(
+  institutionId: string | undefined,
+) {
   const queryClient = useQueryClient();
 
   return apiQueryClient.useMutation("patch", ACADEMIC_YEARS_API_PATHS.UPDATE, {

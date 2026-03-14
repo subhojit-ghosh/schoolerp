@@ -1,7 +1,12 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/ui/card";
 import { RouteEntitySheet } from "@/components/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import {
@@ -22,9 +27,7 @@ type AcademicYearSheetRouteProps = {
   mode: "create" | "edit";
 };
 
-export function AcademicYearSheetRoute({
-  mode,
-}: AcademicYearSheetRouteProps) {
+export function AcademicYearSheetRoute({ mode }: AcademicYearSheetRouteProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { academicYearId } = useParams();
@@ -34,8 +37,10 @@ export function AcademicYearSheetRoute({
     institutionId,
     mode === "edit" ? academicYearId : undefined,
   );
-  const createAcademicYearMutation = useCreateAcademicYearMutation(institutionId);
-  const updateAcademicYearMutation = useUpdateAcademicYearMutation(institutionId);
+  const createAcademicYearMutation =
+    useCreateAcademicYearMutation(institutionId);
+  const updateAcademicYearMutation =
+    useUpdateAcademicYearMutation(institutionId);
 
   const defaultValues = useMemo<AcademicYearFormValues>(() => {
     if (mode === "create" || !academicYearQuery.data) {
@@ -59,7 +64,9 @@ export function AcademicYearSheetRoute({
       await createAcademicYearMutation.mutateAsync({
         body: values,
       });
-      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR));
+      toast.success(
+        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR),
+      );
     } else if (academicYearId) {
       await updateAcademicYearMutation.mutateAsync({
         params: {
@@ -69,7 +76,9 @@ export function AcademicYearSheetRoute({
         },
         body: values,
       });
-      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR));
+      toast.success(
+        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR),
+      );
     }
 
     void navigate(appendSearch(ERP_ROUTES.ACADEMIC_YEARS, location.search));
@@ -112,8 +121,10 @@ export function AcademicYearSheetRoute({
 
   const errorMessage =
     mode === "create"
-      ? ((createAcademicYearMutation.error as Error | null | undefined)?.message ?? undefined)
-      : ((updateAcademicYearMutation.error as Error | null | undefined)?.message ?? undefined);
+      ? ((createAcademicYearMutation.error as Error | null | undefined)
+          ?.message ?? undefined)
+      : ((updateAcademicYearMutation.error as Error | null | undefined)
+          ?.message ?? undefined);
 
   const isPending =
     mode === "create"
@@ -135,10 +146,14 @@ export function AcademicYearSheetRoute({
         errorMessage={errorMessage}
         isPending={isPending}
         onCancel={() => {
-          void navigate(appendSearch(ERP_ROUTES.ACADEMIC_YEARS, location.search));
+          void navigate(
+            appendSearch(ERP_ROUTES.ACADEMIC_YEARS, location.search),
+          );
         }}
         onSubmit={handleSubmit}
-        submitLabel={mode === "create" ? "Create academic year" : "Save changes"}
+        submitLabel={
+          mode === "create" ? "Create academic year" : "Save changes"
+        }
       />
     </RouteEntitySheet>
   );

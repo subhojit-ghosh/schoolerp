@@ -35,7 +35,9 @@ function contrastRatio(bgHex: string, fgHex: string): number {
 
 function mixToward(hex: string, target: number, t: number): string {
   const ch = (c: number) =>
-    Math.round(c + (target - c) * t).toString(16).padStart(2, "0");
+    Math.round(c + (target - c) * t)
+      .toString(16)
+      .padStart(2, "0");
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
@@ -52,7 +54,11 @@ function extractHue(hex: string): number {
   const d = max - min;
   if (d === 0) return 0;
   const h =
-    max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    max === r
+      ? ((g - b) / d + 6) % 6
+      : max === g
+        ? (b - r) / d + 2
+        : (r - g) / d + 4;
   return Math.round(h * 60);
 }
 
@@ -90,7 +96,9 @@ function getRootElement() {
 }
 
 function upsertLink(rel: string, href: string) {
-  let link = document.querySelector(`link[rel='${rel}']`) as HTMLLinkElement | null;
+  let link = document.querySelector(
+    `link[rel='${rel}']`,
+  ) as HTMLLinkElement | null;
 
   if (!link) {
     link = document.createElement("link");
@@ -102,7 +110,9 @@ function upsertLink(rel: string, href: string) {
 }
 
 function upsertMeta(name: string, content: string) {
-  let meta = document.querySelector(`meta[name='${name}']`) as HTMLMetaElement | null;
+  let meta = document.querySelector(
+    `meta[name='${name}']`,
+  ) as HTMLMetaElement | null;
 
   if (!meta) {
     meta = document.createElement("meta");
@@ -121,14 +131,19 @@ function injectTenantFonts(
   fontMono: string | null,
 ) {
   // Always include Noto Sans for Devanagari, Bengali, and other Indic script coverage.
-  const families = [fontHeading, fontBody, fontMono, INDIC_FALLBACK_FONT].filter(
-    (f): f is string => Boolean(f),
-  );
+  const families = [
+    fontHeading,
+    fontBody,
+    fontMono,
+    INDIC_FALLBACK_FONT,
+  ].filter((f): f is string => Boolean(f));
 
   const url = buildGoogleFontsUrl(families);
   if (!url) return;
 
-  let link = document.getElementById(TENANT_FONTS_LINK_ID) as HTMLLinkElement | null;
+  let link = document.getElementById(
+    TENANT_FONTS_LINK_ID,
+  ) as HTMLLinkElement | null;
 
   if (!link) {
     link = document.createElement("link");
@@ -154,10 +169,16 @@ export function applyTenantBranding(branding: TenantBranding) {
   }
 
   root.style.setProperty("--primary", branding.primaryColor);
-  root.style.setProperty("--primary-foreground", contrastForeground(branding.primaryColor));
+  root.style.setProperty(
+    "--primary-foreground",
+    contrastForeground(branding.primaryColor),
+  );
   root.style.setProperty("--ring", branding.primaryColor);
   root.style.setProperty("--accent", branding.accentColor);
-  root.style.setProperty("--accent-foreground", contrastForeground(branding.accentColor));
+  root.style.setProperty(
+    "--accent-foreground",
+    contrastForeground(branding.accentColor),
+  );
 
   const surface = deriveSurfaceTokens(branding.primaryColor);
   root.style.setProperty("--background", surface.background);
@@ -177,9 +198,15 @@ export function applyTenantBranding(branding: TenantBranding) {
   root.style.setProperty("--sidebar", sidebar.background);
   root.style.setProperty("--sidebar-foreground", sidebar.foreground);
   root.style.setProperty("--sidebar-primary", branding.primaryColor);
-  root.style.setProperty("--sidebar-primary-foreground", contrastForeground(branding.primaryColor));
+  root.style.setProperty(
+    "--sidebar-primary-foreground",
+    contrastForeground(branding.primaryColor),
+  );
   root.style.setProperty("--sidebar-accent", sidebar.accent);
-  root.style.setProperty("--sidebar-accent-foreground", sidebar.accentForeground);
+  root.style.setProperty(
+    "--sidebar-accent-foreground",
+    sidebar.accentForeground,
+  );
   root.style.setProperty("--sidebar-border", sidebar.border);
   root.style.setProperty("--sidebar-ring", branding.primaryColor);
 

@@ -67,10 +67,7 @@ export function EntityToolbarSecondaryAction({
   );
 }
 
-export function EntityRowAction({
-  className,
-  ...props
-}: SharedButtonProps) {
+export function EntityRowAction({ className, ...props }: SharedButtonProps) {
   return (
     <Button
       className={`h-8 rounded-md px-3 text-xs font-medium ${className ?? ""}`.trim()}

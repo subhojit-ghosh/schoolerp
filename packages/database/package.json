@@ -20,7 +20,9 @@
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
     "lint": "tsc --noEmit -p tsconfig.json",
+    "lint:fix": "bun run format",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "dev": "tsc -w -p tsconfig.json",
     "db:generate": "bun --env-file=.env.local drizzle-kit generate --config=drizzle.config.ts",

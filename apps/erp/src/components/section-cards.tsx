@@ -44,7 +44,11 @@ export function SectionCards({
     {
       label: "Enrolled students",
       value: isLoadingStudents ? LOADING_VALUE : String(studentCount),
-      badge: isLoadingStudents ? "Syncing…" : studentCount === 1 ? "1 student" : `${studentCount} students`,
+      badge: isLoadingStudents
+        ? "Syncing…"
+        : studentCount === 1
+          ? "1 student"
+          : `${studentCount} students`,
       Icon: IconUsers,
     },
     {
@@ -56,7 +60,8 @@ export function SectionCards({
     {
       label: "Your roles",
       value: String(membershipCount || LOADING_VALUE),
-      badge: membershipCount === 1 ? "1 active role" : `${membershipCount} roles`,
+      badge:
+        membershipCount === 1 ? "1 active role" : `${membershipCount} roles`,
       Icon: IconUsersGroup,
     },
   ];
@@ -73,17 +78,23 @@ export function SectionCards({
           {/* Decorative circle — responds to primary color */}
           <div
             className="pointer-events-none absolute right-0 top-0 h-28 w-28 translate-x-10 -translate-y-10 rounded-full"
-            style={{ background: "color-mix(in srgb, var(--primary) 7%, transparent)" }}
+            style={{
+              background: "color-mix(in srgb, var(--primary) 7%, transparent)",
+            }}
           />
           <CardHeader>
             <CardDescription className="flex items-center gap-2">
               <span
                 className="flex h-6 w-6 shrink-0 items-center justify-center rounded"
                 style={{
-                  background: "color-mix(in srgb, var(--primary) 12%, transparent)",
+                  background:
+                    "color-mix(in srgb, var(--primary) 12%, transparent)",
                 }}
               >
-                <Icon className="size-3.5" style={{ color: "var(--primary)" }} />
+                <Icon
+                  className="size-3.5"
+                  style={{ color: "var(--primary)" }}
+                />
               </span>
               {label}
             </CardDescription>

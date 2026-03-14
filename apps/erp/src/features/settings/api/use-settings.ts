@@ -36,7 +36,9 @@ export type UpdateBrandingResponse = {
 
 export function useUpdateBrandingMutation(institutionId: string | undefined) {
   return useMutation({
-    mutationFn: async (body: UpdateBrandingBody): Promise<UpdateBrandingResponse> => {
+    mutationFn: async (
+      body: UpdateBrandingBody,
+    ): Promise<UpdateBrandingResponse> => {
       if (!institutionId) {
         throw new Error("No active institution.");
       }

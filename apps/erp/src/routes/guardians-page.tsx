@@ -19,13 +19,13 @@ import {
   CardTitle,
 } from "@repo/ui/components/ui/card";
 import { EntityListPage } from "@/components/entity-list-page";
-import { EntityRowAction, EntityToolbarSecondaryAction } from "@/components/entity-actions";
+import {
+  EntityRowAction,
+  EntityToolbarSecondaryAction,
+} from "@/components/entity-actions";
 import { ServerDataTable, SortIcon } from "@/components/server-data-table";
 import { SORT_ORDERS } from "@/constants/query";
-import {
-  buildGuardianDetailRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
+import { buildGuardianDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {
   getActiveContext,
   isStaffContext,
@@ -244,7 +244,8 @@ export function GuardiansPage() {
         <CardHeader>
           <CardTitle>{GUARDIANS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session before managing guardian records.
+            Sign in with an institution-backed session before managing guardian
+            records.
           </CardDescription>
         </CardHeader>
       </Card>

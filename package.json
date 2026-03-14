@@ -13,6 +13,7 @@
     "dev:erp": "turbo run dev --filter=erp",
     "dev:api-erp": "turbo run dev --filter=api-erp",
     "build": "turbo run build",
+    "format": "turbo run format",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
@@ -23,6 +24,7 @@
     "db:studio": "bun run --cwd packages/database db:studio"
   },
   "devDependencies": {
+    "prettier": "^3.6.2",
     "turbo": "^2.8.17"
   },
   "dependencies": {

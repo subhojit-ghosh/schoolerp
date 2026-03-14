@@ -8,14 +8,21 @@ import {
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import { campus, classSections, schoolClasses, students } from "@repo/database";
-import { and, asc, count, desc, eq, ilike, inArray, isNull, type SQL } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNull,
+  type SQL,
+} from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES } from "../../constants";
 import { SORT_ORDERS } from "../../constants";
-import {
-  resolvePagination,
-  resolveTablePageSize,
-} from "../../lib/list-query";
+import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import type {
@@ -46,7 +53,8 @@ export class ClassesService {
   ) {
     await this.requireInstitutionAccess(authSession, institutionId);
 
-    const scopedCampusId = query.campusId ?? authSession.activeCampusId ?? undefined;
+    const scopedCampusId =
+      query.campusId ?? authSession.activeCampusId ?? undefined;
 
     if (scopedCampusId) {
       await this.getCampus(institutionId, scopedCampusId);

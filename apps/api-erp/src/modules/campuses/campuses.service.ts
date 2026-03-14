@@ -1,11 +1,6 @@
 import { DATABASE } from "@repo/backend-core";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import { campus } from "@repo/database";
 import {
@@ -20,11 +15,7 @@ import {
   type SQL,
 } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
-import {
-  ERROR_MESSAGES,
-  SORT_ORDERS,
-  STATUS,
-} from "../../constants";
+import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import {
   resolvePagination,
   resolveTablePageSize,
@@ -34,10 +25,7 @@ import { AuthService } from "../auth/auth.service";
 import { slugifyValue } from "../auth/auth.utils";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import type { CampusDto } from "./campuses.dto";
-import type {
-  CreateCampusDto,
-  ListCampusesQueryDto,
-} from "./campuses.schemas";
+import type { CreateCampusDto, ListCampusesQueryDto } from "./campuses.schemas";
 import { sortableCampusColumns } from "./campuses.schemas";
 
 type CampusRecord = CampusDto;
@@ -122,7 +110,8 @@ export class CampusesService {
 
     await this.assertCampusSlugAvailable(organizationId, nextSlug);
 
-    const existingCampuses = await this.listCampusesForOrganization(organizationId);
+    const existingCampuses =
+      await this.listCampusesForOrganization(organizationId);
     const nextIsDefault = payload.isDefault ?? existingCampuses.length === 0;
 
     if (nextIsDefault) {
@@ -207,7 +196,10 @@ export class CampusesService {
       .select(this.campusSelect)
       .from(campus)
       .where(
-        and(eq(campus.organizationId, organizationId), isNull(campus.deletedAt)),
+        and(
+          eq(campus.organizationId, organizationId),
+          isNull(campus.deletedAt),
+        ),
       )
       .orderBy(desc(campus.isDefault), asc(campus.name));
   }

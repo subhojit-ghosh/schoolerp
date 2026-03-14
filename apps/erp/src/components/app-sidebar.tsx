@@ -14,7 +14,10 @@ import {
 import { Link } from "react-router";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import { getActiveContext, isStaffContext } from "@/features/auth/model/auth-context";
+import {
+  getActiveContext,
+  isStaffContext,
+} from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { readCachedTenantBranding } from "@/lib/tenant-branding";
 import { ERP_ROUTES } from "@/constants/routes";
@@ -36,10 +39,10 @@ const NAV_PEOPLE = [
 ] as const;
 
 const NAV_ACADEMICS = [
-  { icon: IconBook2,         title: "Academic Years", url: ERP_ROUTES.ACADEMIC_YEARS },
-  { icon: IconBook2,         title: "Classes",    url: ERP_ROUTES.CLASSES },
+  { icon: IconBook2, title: "Academic Years", url: ERP_ROUTES.ACADEMIC_YEARS },
+  { icon: IconBook2, title: "Classes", url: ERP_ROUTES.CLASSES },
   { icon: IconCalendarStats, title: "Attendance", url: ERP_ROUTES.ATTENDANCE },
-  { icon: IconCertificate,   title: "Exams",      url: ERP_ROUTES.EXAMS },
+  { icon: IconCertificate, title: "Exams", url: ERP_ROUTES.EXAMS },
 ] as const;
 
 const NAV_FINANCE = [
@@ -47,7 +50,11 @@ const NAV_FINANCE = [
 ] as const;
 
 const NAV_SETTINGS = [
-  { icon: IconBuildingEstate, title: "Campuses", url: ERP_ROUTES.SETTINGS_CAMPUSES },
+  {
+    icon: IconBuildingEstate,
+    title: "Campuses",
+    url: ERP_ROUTES.SETTINGS_CAMPUSES,
+  },
   { icon: IconPalette, title: "Branding", url: ERP_ROUTES.SETTINGS_BRANDING },
 ] as const;
 
@@ -65,9 +72,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const showStaffNavigation = isStaffContext(session);
   const branding = readCachedTenantBranding();
   const institutionName =
-    branding?.institutionName ?? session?.activeOrganization?.name ?? "School ERP";
+    branding?.institutionName ??
+    session?.activeOrganization?.name ??
+    "School ERP";
   const logoUrl = branding?.logoUrl ?? null;
-  const initial = (branding?.shortName ?? institutionName).charAt(0).toUpperCase();
+  const initial = (branding?.shortName ?? institutionName)
+    .charAt(0)
+    .toUpperCase();
 
   return (
     <Sidebar collapsible="icon" {...props}>

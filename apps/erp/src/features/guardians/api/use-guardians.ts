@@ -1,6 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { SORT_ORDERS } from "@/constants/query";
-import { GUARDIANS_API_PATHS, STUDENTS_API_PATHS } from "@/features/auth/api/auth.constants";
+import {
+  GUARDIANS_API_PATHS,
+  STUDENTS_API_PATHS,
+} from "@/features/auth/api/auth.constants";
 import { GUARDIAN_LIST_SORT_FIELDS } from "@/features/guardians/model/guardian-list.constants";
 import { apiQueryClient } from "@/lib/api/client";
 
@@ -15,9 +18,13 @@ type GuardiansListQuery = {
   sort?: GuardiansListSort;
 };
 
-function invalidateGuardianList(queryClient: ReturnType<typeof useQueryClient>, _institutionId: string) {
+function invalidateGuardianList(
+  queryClient: ReturnType<typeof useQueryClient>,
+  _institutionId: string,
+) {
   return queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", GUARDIANS_API_PATHS.LIST).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", GUARDIANS_API_PATHS.LIST)
+      .queryKey,
   });
 }
 
@@ -37,9 +44,13 @@ function invalidateGuardianDetail(
   });
 }
 
-function invalidateStudentsList(queryClient: ReturnType<typeof useQueryClient>, _institutionId: string) {
+function invalidateStudentsList(
+  queryClient: ReturnType<typeof useQueryClient>,
+  _institutionId: string,
+) {
   return queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.LIST).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.LIST)
+      .queryKey,
   });
 }
 

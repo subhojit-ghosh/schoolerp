@@ -1,6 +1,9 @@
 import { guardianRelationshipSchema } from "@repo/contracts";
 import { z } from "zod";
-import { baseListQuerySchema, parseListQuerySchema } from "../../lib/list-query";
+import {
+  baseListQuerySchema,
+  parseListQuerySchema,
+} from "../../lib/list-query";
 
 const NAME_MIN_LENGTH = 1;
 const ADMISSION_NUMBER_MIN_LENGTH = 1;

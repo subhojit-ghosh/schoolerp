@@ -144,14 +144,20 @@ export function ClassDetailPage() {
             </Link>
           </Button>
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold text-foreground">{schoolClass.name}</h2>
+            <h2 className="text-xl font-semibold text-foreground">
+              {schoolClass.name}
+            </h2>
             <Badge>{schoolClass.campusName}</Badge>
           </div>
           <p className="text-sm text-muted-foreground">
-            Update the class record and reconcile its section list for this campus.
+            Update the class record and reconcile its section list for this
+            campus.
           </p>
         </div>
-        <Button onClick={() => void navigate(ERP_ROUTES.CLASSES)} variant="outline">
+        <Button
+          onClick={() => void navigate(ERP_ROUTES.CLASSES)}
+          variant="outline"
+        >
           Done
         </Button>
       </div>
@@ -161,7 +167,8 @@ export function ClassDetailPage() {
           <CardHeader>
             <CardTitle>Edit class</CardTitle>
             <CardDescription>
-              Keep the structure simple: class identity, campus, and section names.
+              Keep the structure simple: class identity, campus, and section
+              names.
             </CardDescription>
           </CardHeader>
           <CardContent>

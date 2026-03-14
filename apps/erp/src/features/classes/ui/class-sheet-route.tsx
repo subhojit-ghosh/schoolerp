@@ -1,7 +1,12 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/ui/card";
 import { RouteEntitySheet } from "@/components/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import {
@@ -31,7 +36,10 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const activeCampusId = session?.activeCampus?.id;
-  const classQuery = useClassQuery(mode === "edit" && Boolean(institutionId), classId);
+  const classQuery = useClassQuery(
+    mode === "edit" && Boolean(institutionId),
+    classId,
+  );
   const createClassMutation = useCreateClassMutation();
   const updateClassMutation = useUpdateClassMutation();
 
@@ -117,11 +125,15 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
 
   const errorMessage =
     mode === "create"
-      ? ((createClassMutation.error as Error | null | undefined)?.message ?? undefined)
-      : ((updateClassMutation.error as Error | null | undefined)?.message ?? undefined);
+      ? ((createClassMutation.error as Error | null | undefined)?.message ??
+        undefined)
+      : ((updateClassMutation.error as Error | null | undefined)?.message ??
+        undefined);
 
   const isPending =
-    mode === "create" ? createClassMutation.isPending : updateClassMutation.isPending;
+    mode === "create"
+      ? createClassMutation.isPending
+      : updateClassMutation.isPending;
 
   return (
     <RouteEntitySheet

@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { ATTENDANCE_STATUS_LABELS, ATTENDANCE_STATUSES } from "@repo/contracts";
 import {
-  ATTENDANCE_STATUS_LABELS,
-  ATTENDANCE_STATUSES,
-} from "@repo/contracts";
-import { IconCalendarStats, IconCheck, IconListDetails } from "@tabler/icons-react";
+  IconCalendarStats,
+  IconCheck,
+  IconListDetails,
+} from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -94,8 +95,14 @@ export function AttendancePage() {
     },
   });
 
-  const selectedCampusId = useWatch({ control: selectionForm.control, name: "campusId" });
-  const selectedClassId = useWatch({ control: selectionForm.control, name: "classId" });
+  const selectedCampusId = useWatch({
+    control: selectionForm.control,
+    name: "campusId",
+  });
+  const selectedClassId = useWatch({
+    control: selectionForm.control,
+    name: "classId",
+  });
   const classSectionsQuery = useAttendanceClassSectionsQuery(
     managedInstitutionId,
     selectedCampusId || undefined,
@@ -181,7 +188,8 @@ export function AttendancePage() {
         <CardHeader>
           <CardTitle>Attendance</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage daily attendance.
+            Sign in with an institution-backed session to manage daily
+            attendance.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -219,7 +227,8 @@ export function AttendancePage() {
             </div>
             <CardTitle>Entry by class and section</CardTitle>
             <CardDescription>
-              Select the campus, class, section, and date, then submit the full roster for that day.
+              Select the campus, class, section, and date, then submit the full
+              roster for that day.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -232,7 +241,11 @@ export function AttendancePage() {
                     <Field data-invalid={fieldState.invalid || undefined}>
                       <FieldLabel>Date</FieldLabel>
                       <FieldContent>
-                        <Input {...field} aria-invalid={fieldState.invalid} type="date" />
+                        <Input
+                          {...field}
+                          aria-invalid={fieldState.invalid}
+                          type="date"
+                        />
                         <FieldError>{fieldState.error?.message}</FieldError>
                       </FieldContent>
                     </Field>
@@ -288,7 +301,9 @@ export function AttendancePage() {
                           </SelectTrigger>
                           <SelectContent>
                             {Array.from(
-                              new Set(classSections.map((item) => item.classId)),
+                              new Set(
+                                classSections.map((item) => item.classId),
+                              ),
                             ).map((classId) => (
                               <SelectItem key={classId} value={classId}>
                                 {classId}
@@ -308,15 +323,17 @@ export function AttendancePage() {
                     <Field data-invalid={fieldState.invalid || undefined}>
                       <FieldLabel>Section</FieldLabel>
                       <FieldContent>
-                        <Select onValueChange={field.onChange} value={field.value || undefined}>
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value || undefined}
+                        >
                           <SelectTrigger aria-invalid={fieldState.invalid}>
                             <SelectValue placeholder="Select section" />
                           </SelectTrigger>
                           <SelectContent>
                             {classSections
                               .filter(
-                                (item) =>
-                                  item.classId === selectedClassId,
+                                (item) => item.classId === selectedClassId,
                               )
                               .map((item) => (
                                 <SelectItem
@@ -345,7 +362,8 @@ export function AttendancePage() {
           <CardHeader>
             <CardTitle>Roster</CardTitle>
             <CardDescription>
-              Mark every student for the selected day. The backend validates the submitted roster against the institution scope.
+              Mark every student for the selected day. The backend validates the
+              submitted roster against the institution scope.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -360,7 +378,9 @@ export function AttendancePage() {
                     <Badge>{currentDay.classId}</Badge>
                     <Badge variant="outline">{currentDay.sectionId}</Badge>
                     <Badge variant="secondary">{currentDay.campusName}</Badge>
-                    <Badge variant="outline">{currentDay.totalStudents} students</Badge>
+                    <Badge variant="outline">
+                      {currentDay.totalStudents} students
+                    </Badge>
                   </div>
 
                   <div className="grid gap-3">
@@ -370,7 +390,9 @@ export function AttendancePage() {
                         className="grid gap-3 rounded-xl border bg-muted/20 p-4 md:grid-cols-[minmax(0,1fr)_180px]"
                       >
                         <div>
-                          <p className="font-medium text-foreground">{entry.fullName}</p>
+                          <p className="font-medium text-foreground">
+                            {entry.fullName}
+                          </p>
                           <p className="text-sm text-muted-foreground">
                             Admission {entry.admissionNumber}
                           </p>
@@ -379,10 +401,17 @@ export function AttendancePage() {
                           control={entryForm.control}
                           name={`entries.${index}.status`}
                           render={({ field, fieldState }) => (
-                            <Field data-invalid={fieldState.invalid || undefined}>
+                            <Field
+                              data-invalid={fieldState.invalid || undefined}
+                            >
                               <FieldContent>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <SelectTrigger aria-invalid={fieldState.invalid}>
+                                <Select
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                >
+                                  <SelectTrigger
+                                    aria-invalid={fieldState.invalid}
+                                  >
                                     <SelectValue />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -393,7 +422,9 @@ export function AttendancePage() {
                                     ))}
                                   </SelectContent>
                                 </Select>
-                                <FieldError>{fieldState.error?.message}</FieldError>
+                                <FieldError>
+                                  {fieldState.error?.message}
+                                </FieldError>
                               </FieldContent>
                             </Field>
                           )}
@@ -406,9 +437,14 @@ export function AttendancePage() {
                     <FieldError>{saveAttendanceError.message}</FieldError>
                   ) : null}
 
-                  <Button disabled={saveAttendanceMutation.isPending} type="submit">
+                  <Button
+                    disabled={saveAttendanceMutation.isPending}
+                    type="submit"
+                  >
                     <IconCheck className="mr-1.5 size-4" />
-                    {saveAttendanceMutation.isPending ? "Saving..." : "Save attendance"}
+                    {saveAttendanceMutation.isPending
+                      ? "Saving..."
+                      : "Save attendance"}
                   </Button>
                 </FieldGroup>
               </form>
@@ -444,7 +480,11 @@ export function AttendancePage() {
                   <Field data-invalid={fieldState.invalid || undefined}>
                     <FieldLabel>Date</FieldLabel>
                     <FieldContent>
-                      <Input {...field} aria-invalid={fieldState.invalid} type="date" />
+                      <Input
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        type="date"
+                      />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </FieldContent>
                   </Field>
@@ -475,9 +515,9 @@ export function AttendancePage() {
                     <Badge variant="secondary">{row.campusName}</Badge>
                   </div>
                   <p className="mt-3 text-sm text-muted-foreground">
-                    {row.totalStudents} marked • Present {row.counts.present} • Absent{" "}
-                    {row.counts.absent} • Late {row.counts.late} • Excused{" "}
-                    {row.counts.excused}
+                    {row.totalStudents} marked • Present {row.counts.present} •
+                    Absent {row.counts.absent} • Late {row.counts.late} •
+                    Excused {row.counts.excused}
                   </p>
                 </button>
               ))}

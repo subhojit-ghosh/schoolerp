@@ -17,7 +17,8 @@ export const ERP_TOAST_SUBJECTS = {
 } as const;
 
 export const ERP_TOAST_MESSAGES = {
-  assignedTo: (subject: string, target: string) => `${subject} assigned to ${target}`,
+  assignedTo: (subject: string, target: string) =>
+    `${subject} assigned to ${target}`,
   created: (subject: string) => `${subject} created`,
   deleted: (subject: string) => `${subject} deleted`,
   disabled: (subject: string) => `${subject} disabled`,

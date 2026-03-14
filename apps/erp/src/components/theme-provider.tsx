@@ -12,7 +12,6 @@ const ThemeProviderContext = createContext<ThemeProviderState>({
   setTheme: () => null,
 });
 
-
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const root = window.document.documentElement;

@@ -17,9 +17,7 @@ import {
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { ERP_ROUTES } from "@/constants/routes";
-import {
-  useCreateStudentMutation,
-} from "@/features/students/api/use-students";
+import { useCreateStudentMutation } from "@/features/students/api/use-students";
 import {
   EMPTY_CURRENT_ENROLLMENT,
   toStudentMutationBody,
@@ -71,7 +69,8 @@ export function StudentCreatePage() {
         <CardHeader>
           <CardTitle>Students</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session before managing student records.
+            Sign in with an institution-backed session before managing student
+            records.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -101,9 +100,12 @@ export function StudentCreatePage() {
             Back to students
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight">Create student</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Create student
+        </h1>
         <p className="text-sm text-muted-foreground">
-          Fill in the student details, assign a campus, and attach one or more guardians.
+          Fill in the student details, assign a campus, and attach one or more
+          guardians.
         </p>
       </div>
 

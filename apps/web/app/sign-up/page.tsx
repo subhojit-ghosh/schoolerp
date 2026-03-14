@@ -21,11 +21,13 @@ export default function SignUpPage() {
             School onboarding
           </p>
           <h1 className="text-4xl font-semibold tracking-tight text-balance md:text-5xl">
-            Create the tenant once. Run the ERP on the school subdomain after that.
+            Create the tenant once. Run the ERP on the school subdomain after
+            that.
           </h1>
           <p className="max-w-xl text-base leading-8 text-muted-foreground">
-            This flow provisions the institution record, default campus, first admin membership, and an authenticated session.
-            When it succeeds, the browser moves straight into the tenant workspace.
+            This flow provisions the institution record, default campus, first
+            admin membership, and an authenticated session. When it succeeds,
+            the browser moves straight into the tenant workspace.
           </p>
         </section>
         <SignupForm />

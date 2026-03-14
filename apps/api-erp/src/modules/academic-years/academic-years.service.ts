@@ -6,13 +6,25 @@ import {
 import { DATABASE } from "@repo/backend-core";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import { academicYears } from "@repo/database";
-import { and, asc, count, desc, eq, ilike, isNull, type SQL } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  isNull,
+  type SQL,
+} from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import type { AppDatabase } from "@repo/database";
 import { Inject } from "@nestjs/common";
-import { AcademicYearDto, ListAcademicYearsResultDto } from "./academic-years.dto";
+import {
+  AcademicYearDto,
+  ListAcademicYearsResultDto,
+} from "./academic-years.dto";
 import type {
   CreateAcademicYearDto,
   ListAcademicYearsQueryDto,

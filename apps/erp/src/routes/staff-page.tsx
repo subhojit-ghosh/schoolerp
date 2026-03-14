@@ -26,10 +26,7 @@ import {
 import { EntityListPage } from "@/components/entity-list-page";
 import { ServerDataTable, SortIcon } from "@/components/server-data-table";
 import { SORT_ORDERS } from "@/constants/query";
-import {
-  buildStaffDetailRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
+import { buildStaffDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {
   getActiveContext,
   isStaffContext,
@@ -263,7 +260,8 @@ export function StaffPage() {
         <CardHeader>
           <CardTitle>{STAFF_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session before managing staff records.
+            Sign in with an institution-backed session before managing staff
+            records.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -331,7 +329,9 @@ export function StaffPage() {
             : STAFF_PAGE_COPY.EMPTY_DESCRIPTION
         }
         emptyTitle={
-          isFiltered ? STAFF_PAGE_COPY.EMPTY_FILTERED_TITLE : STAFF_PAGE_COPY.EMPTY_TITLE
+          isFiltered
+            ? STAFF_PAGE_COPY.EMPTY_FILTERED_TITLE
+            : STAFF_PAGE_COPY.EMPTY_TITLE
         }
         errorDescription={error?.message}
         errorTitle={STAFF_PAGE_COPY.ERROR_TITLE}

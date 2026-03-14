@@ -389,12 +389,7 @@ export const feeStructures = pgTable(
     index("fee_structures_academic_year_idx").on(table.academicYearId),
     index("fee_structures_campus_idx").on(table.campusId),
     uniqueIndex("fee_structures_name_scope_unique_idx")
-      .on(
-        table.institutionId,
-        table.academicYearId,
-        table.campusId,
-        table.name,
-      )
+      .on(table.institutionId, table.academicYearId, table.campusId, table.name)
       .where(sql`${table.deletedAt} IS NULL`),
   ],
 );

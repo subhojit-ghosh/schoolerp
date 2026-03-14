@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint:fix": "bun run format && eslint . --fix",
     "openapi:types": "openapi-typescript ../api-erp/openapi.json -o src/lib/api/generated/schema.d.ts",
     "preview": "vite preview",
     "typecheck": "tsc -b"

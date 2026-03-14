@@ -1,7 +1,4 @@
-import {
-  ATTENDANCE_STATUSES,
-  attendanceStatusSchema,
-} from "@repo/contracts";
+import { ATTENDANCE_STATUSES, attendanceStatusSchema } from "@repo/contracts";
 import { z } from "zod";
 import type { components } from "@/lib/api/generated/schema";
 
@@ -41,9 +38,13 @@ export const DEFAULT_ATTENDANCE_DAY_VIEW_VALUES: AttendanceDayViewValues = {
 export const DEFAULT_ATTENDANCE_STATUS =
   ATTENDANCE_STATUSES.PRESENT satisfies AttendanceStatusOption;
 
-export type AttendanceSelectionValues = z.infer<typeof attendanceSelectionSchema>;
+export type AttendanceSelectionValues = z.infer<
+  typeof attendanceSelectionSchema
+>;
 export type AttendanceDayViewValues = z.infer<typeof attendanceDayViewSchema>;
-export type AttendanceEntryFormValues = z.infer<typeof attendanceEntryFormSchema>;
+export type AttendanceEntryFormValues = z.infer<
+  typeof attendanceEntryFormSchema
+>;
 export type AttendanceStatusOption = z.infer<typeof attendanceStatusSchema>;
 
 export type AttendanceClassSectionRecord =

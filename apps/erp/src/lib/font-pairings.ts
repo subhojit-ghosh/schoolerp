@@ -11,7 +11,8 @@ export const FONT_PAIRINGS: FontPairing[] = [
   {
     id: "clarity",
     name: "Clarity",
-    description: "Clean and data-focused. Geometric headings with a UI-optimised sans body — excellent in tables and forms.",
+    description:
+      "Clean and data-focused. Geometric headings with a UI-optimised sans body — excellent in tables and forms.",
     fontHeading: "Outfit",
     fontBody: "DM Sans",
     fontMono: "IBM Plex Mono",
@@ -19,7 +20,8 @@ export const FONT_PAIRINGS: FontPairing[] = [
   {
     id: "scholar",
     name: "Scholar",
-    description: "Academic authority. Sturdy serif headings with a clean, highly legible sans body.",
+    description:
+      "Academic authority. Sturdy serif headings with a clean, highly legible sans body.",
     fontHeading: "Merriweather",
     fontBody: "Source Sans 3",
     fontMono: "Source Code Pro",
@@ -27,7 +29,8 @@ export const FONT_PAIRINGS: FontPairing[] = [
   {
     id: "modern",
     name: "Modern",
-    description: "Pure interface font. One neutral typeface across everything — sharp, minimal, distraction-free.",
+    description:
+      "Pure interface font. One neutral typeface across everything — sharp, minimal, distraction-free.",
     fontHeading: "Inter",
     fontBody: "Inter",
     fontMono: "Fira Code",
@@ -35,7 +38,8 @@ export const FONT_PAIRINGS: FontPairing[] = [
   {
     id: "prestige",
     name: "Prestige",
-    description: "Premium institutional. High-contrast display headings with a neutral, highly legible body.",
+    description:
+      "Premium institutional. High-contrast display headings with a neutral, highly legible body.",
     fontHeading: "Playfair Display",
     fontBody: "Lato",
     fontMono: "JetBrains Mono",
@@ -43,7 +47,8 @@ export const FONT_PAIRINGS: FontPairing[] = [
   {
     id: "heritage",
     name: "Heritage",
-    description: "Warm and approachable. Elegant serif headings with a friendly, rounded sans body.",
+    description:
+      "Warm and approachable. Elegant serif headings with a friendly, rounded sans body.",
     fontHeading: "Lora",
     fontBody: "Nunito Sans",
     fontMono: "IBM Plex Mono",
@@ -71,7 +76,11 @@ export function buildGoogleFontsUrl(families: string[]): string {
 }
 
 export function buildPreviewFontsUrl(pairings: FontPairing[]): string {
-  const families = pairings.flatMap((p) => [p.fontHeading, p.fontBody, p.fontMono]);
+  const families = pairings.flatMap((p) => [
+    p.fontHeading,
+    p.fontBody,
+    p.fontMono,
+  ]);
   const unique = [...new Set(families)];
   const params = unique
     .map((f) => `family=${f.replace(/ /g, "+")}:wght@400;700`)

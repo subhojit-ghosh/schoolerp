@@ -45,7 +45,11 @@ export function resolveTablePageSize(limit?: number) {
     : DEFAULT_PAGE_SIZE;
 }
 
-export function resolvePagination(total: number, page: number | undefined, pageSize: number) {
+export function resolvePagination(
+  total: number,
+  page: number | undefined,
+  pageSize: number,
+) {
   const pageCount = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(Math.max(1, page ?? 1), pageCount);
 

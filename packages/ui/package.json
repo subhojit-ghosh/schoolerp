@@ -10,7 +10,9 @@
     "./styles.css": "./src/styles.css"
   },
   "scripts": {
+    "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
     "lint": "tsc --noEmit -p tsconfig.json",
+    "lint:fix": "bun run format",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "peerDependencies": {

@@ -61,7 +61,8 @@ export class StudentsController {
 
   @Get(API_ROUTES.OPTIONS)
   @ApiOperation({
-    summary: "List student options for select controls in the current tenant institution",
+    summary:
+      "List student options for select controls in the current tenant institution",
   })
   @ApiOkResponse({ type: StudentOptionDto, isArray: true })
   listStudentOptions(

@@ -8,7 +8,11 @@ const MARKS_MIN_VALUE = 0;
 export const examTermFormSchema = z
   .object({
     academicYearId: z.uuid("Select an academic year"),
-    name: z.string().trim().min(1, "Term name is required").max(TERM_NAME_MAX_LENGTH),
+    name: z
+      .string()
+      .trim()
+      .min(1, "Term name is required")
+      .max(TERM_NAME_MAX_LENGTH),
     startDate: z.string().min(1, "Start date is required"),
     endDate: z.string().min(1, "End date is required"),
   })
@@ -25,7 +29,10 @@ export const examMarkEntryFormSchema = z
       .trim()
       .min(1, "Subject name is required")
       .max(SUBJECT_NAME_MAX_LENGTH),
-    maxMarks: z.number().int().min(MARKS_MIN_VALUE, "Max marks must be zero or more"),
+    maxMarks: z
+      .number()
+      .int()
+      .min(MARKS_MIN_VALUE, "Max marks must be zero or more"),
     obtainedMarks: z
       .number()
       .int()
@@ -38,7 +45,9 @@ export const examMarkEntryFormSchema = z
   });
 
 export const examMarksFormSchema = z.object({
-  entries: z.array(examMarkEntryFormSchema).min(1, "Add at least one marks row"),
+  entries: z
+    .array(examMarkEntryFormSchema)
+    .min(1, "Add at least one marks row"),
 });
 
 export type ExamTermFormValues = z.infer<typeof examTermFormSchema>;

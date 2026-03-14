@@ -25,10 +25,7 @@ import {
 } from "@/components/entity-actions";
 import { EntityListPage } from "@/components/entity-list-page";
 import { ServerDataTable, SortIcon } from "@/components/server-data-table";
-import {
-  buildAcademicYearEditRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
+import { buildAcademicYearEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
   getActiveContext,
@@ -70,7 +67,9 @@ export function AcademicYearsPage() {
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
   const canManageAcademicYears = isStaffContext(session);
-  const managedInstitutionId = canManageAcademicYears ? institutionId : undefined;
+  const managedInstitutionId = canManageAcademicYears
+    ? institutionId
+    : undefined;
   const {
     queryState,
     searchInput,
@@ -148,7 +147,9 @@ export function AcademicYearsPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE)}
+            onClick={() =>
+              setSorting(ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE)
+            }
             type="button"
           >
             Start
@@ -285,8 +286,8 @@ export function AcademicYearsPage() {
         <CardHeader>
           <CardTitle>{ACADEMIC_YEARS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Academic-year administration is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            Academic-year administration is available in Staff view. You are
+            currently in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -298,10 +299,10 @@ export function AcademicYearsPage() {
   return (
     <EntityListPage
       actions={
-        <EntityPagePrimaryAction
-          asChild
-        >
-          <Link to={appendSearch(ERP_ROUTES.ACADEMIC_YEAR_CREATE, location.search)}>
+        <EntityPagePrimaryAction asChild>
+          <Link
+            to={appendSearch(ERP_ROUTES.ACADEMIC_YEAR_CREATE, location.search)}
+          >
             <IconPlus className="size-4" />
             New academic year
           </Link>
@@ -328,10 +329,13 @@ export function AcademicYearsPage() {
       <ServerDataTable
         emptyAction={
           !isFiltered ? (
-            <EntityEmptyStateAction
-              asChild
-            >
-              <Link to={appendSearch(ERP_ROUTES.ACADEMIC_YEAR_CREATE, location.search)}>
+            <EntityEmptyStateAction asChild>
+              <Link
+                to={appendSearch(
+                  ERP_ROUTES.ACADEMIC_YEAR_CREATE,
+                  location.search,
+                )}
+              >
                 <IconPlus className="size-4" />
                 Create first academic year
               </Link>

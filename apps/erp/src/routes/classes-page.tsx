@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
@@ -40,10 +40,7 @@ import {
   EntityRowAction,
 } from "@/components/entity-actions";
 import { EntityListPage } from "@/components/entity-list-page";
-import {
-  ServerDataTable,
-  SortIcon,
-} from "@/components/server-data-table";
+import { ServerDataTable, SortIcon } from "@/components/server-data-table";
 import { buildClassEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
@@ -86,7 +83,8 @@ export function ClassesPage() {
   const institutionId = session?.activeOrganization?.id;
   const activeCampusId = session?.activeCampus?.id;
   const canManageClasses = isStaffContext(session);
-  const canQueryClasses = canManageClasses && Boolean(institutionId && activeCampusId);
+  const canQueryClasses =
+    canManageClasses && Boolean(institutionId && activeCampusId);
   const setStatusMutation = useSetClassStatusMutation();
   const deleteMutation = useDeleteClassMutation();
   const [deleteTarget, setDeleteTarget] = useState<ClassRow | null>(null);
@@ -128,6 +126,26 @@ export function ClassesPage() {
     ];
   }, [queryState.sortBy, queryState.sortOrder]);
 
+  const handleToggleStatus = useCallback(
+    async (schoolClass: ClassRow) => {
+      if (!institutionId) {
+        return;
+      }
+
+      await setStatusMutation.mutateAsync({
+        params: { path: { classId: schoolClass.id } },
+        body: { isActive: !schoolClass.isActive },
+      });
+
+      toast.success(
+        schoolClass.isActive
+          ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.CLASS)
+          : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CLASS),
+      );
+    },
+    [institutionId, setStatusMutation],
+  );
+
   const columns = useMemo(
     () => [
       columnHelper.accessor("name", {
@@ -150,7 +168,10 @@ export function ClassesPage() {
         cell: ({ row }) => (
           <Button asChild className="h-auto px-0 text-left" variant="link">
             <Link
-              to={appendSearch(buildClassEditRoute(row.original.id), location.search)}
+              to={appendSearch(
+                buildClassEditRoute(row.original.id),
+                location.search,
+              )}
             >
               {row.original.name}
             </Link>
@@ -194,7 +215,10 @@ export function ClassesPage() {
         ),
         cell: ({ getValue }) =>
           getValue() ? (
-            <Badge variant="secondary" className="text-green-700 dark:text-green-400">
+            <Badge
+              variant="secondary"
+              className="text-green-700 dark:text-green-400"
+            >
               Active
             </Badge>
           ) : (
@@ -232,7 +256,10 @@ export function ClassesPage() {
             <div className="flex items-center justify-end gap-1">
               <EntityRowAction asChild>
                 <Link
-                  to={appendSearch(buildClassEditRoute(schoolClass.id), location.search)}
+                  to={appendSearch(
+                    buildClassEditRoute(schoolClass.id),
+                    location.search,
+                  )}
                 >
                   <IconPencil className="size-3" />
                   Edit
@@ -271,7 +298,13 @@ export function ClassesPage() {
         },
       }),
     ],
-    [location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      handleToggleStatus,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useReactTable({
@@ -303,23 +336,6 @@ export function ClassesPage() {
       sorting: sortingState,
     },
   });
-
-  async function handleToggleStatus(schoolClass: ClassRow) {
-    if (!institutionId) {
-      return;
-    }
-
-    await setStatusMutation.mutateAsync({
-      params: { path: { classId: schoolClass.id } },
-      body: { isActive: !schoolClass.isActive },
-    });
-
-    toast.success(
-      schoolClass.isActive
-        ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.CLASS)
-        : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CLASS),
-    );
-  }
 
   async function handleDelete() {
     if (!institutionId || !deleteTarget) {
@@ -353,8 +369,8 @@ export function ClassesPage() {
         <CardHeader>
           <CardTitle>{CLASSES_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Class administration is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            Class administration is available in Staff view. You are currently
+            in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -367,12 +383,8 @@ export function ClassesPage() {
     <>
       <EntityListPage
         actions={
-          <EntityPagePrimaryAction
-            asChild
-          >
-            <Link
-              to={appendSearch(ERP_ROUTES.CLASS_CREATE, location.search)}
-            >
+          <EntityPagePrimaryAction asChild>
+            <Link to={appendSearch(ERP_ROUTES.CLASS_CREATE, location.search)}>
               <IconPlus className="size-4" />
               Add class
             </Link>

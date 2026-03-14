@@ -128,7 +128,8 @@ export function CampusesPage() {
               ) : null}
             </div>
             <p className="text-sm text-muted-foreground">
-              Slug `{row.original.slug}`{row.original.code ? ` • Code ${row.original.code}` : ""}
+              Slug `{row.original.slug}`
+              {row.original.code ? ` • Code ${row.original.code}` : ""}
             </p>
           </div>
         ),
@@ -243,7 +244,10 @@ export function CampusesPage() {
         actions={
           <EntityPagePrimaryAction asChild>
             <Link
-              to={appendSearch(ERP_ROUTES.SETTINGS_CAMPUSES_CREATE, location.search)}
+              to={appendSearch(
+                ERP_ROUTES.SETTINGS_CAMPUSES_CREATE,
+                location.search,
+              )}
             >
               <IconPlus className="size-4" />
               Add campus
@@ -273,7 +277,10 @@ export function CampusesPage() {
             !isFiltered ? (
               <EntityEmptyStateAction asChild>
                 <Link
-                  to={appendSearch(ERP_ROUTES.SETTINGS_CAMPUSES_CREATE, location.search)}
+                  to={appendSearch(
+                    ERP_ROUTES.SETTINGS_CAMPUSES_CREATE,
+                    location.search,
+                  )}
                 >
                   <IconPlus className="size-4" />
                   Create first campus
@@ -287,7 +294,9 @@ export function CampusesPage() {
               : CAMPUSES_PAGE_COPY.EMPTY_DESCRIPTION
           }
           emptyTitle={
-            isFiltered ? CAMPUSES_PAGE_COPY.EMPTY_FILTERED_TITLE : CAMPUSES_PAGE_COPY.EMPTY_TITLE
+            isFiltered
+              ? CAMPUSES_PAGE_COPY.EMPTY_FILTERED_TITLE
+              : CAMPUSES_PAGE_COPY.EMPTY_TITLE
           }
           errorDescription={error?.message}
           errorTitle={CAMPUSES_PAGE_COPY.ERROR_TITLE}

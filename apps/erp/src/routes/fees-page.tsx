@@ -8,7 +8,13 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/ui/card";
 import {
   getActiveContext,
   isStaffContext,
@@ -23,9 +29,7 @@ import {
   useFeeDuesQuery,
   useFeeStructuresQuery,
 } from "@/features/fees/api/use-fees";
-import {
-  FeeAssignmentForm,
-} from "@/features/fees/ui/fee-assignment-form";
+import { FeeAssignmentForm } from "@/features/fees/ui/fee-assignment-form";
 import { FeePaymentForm } from "@/features/fees/ui/fee-payment-form";
 import { FeeStructureForm } from "@/features/fees/ui/fee-structure-form";
 import type {
@@ -76,9 +80,12 @@ export function FeesPage() {
   const assignmentsQuery = useFeeAssignmentsQuery(managedInstitutionId);
   const duesQuery = useFeeDuesQuery(managedInstitutionId);
 
-  const createStructureMutation = useCreateFeeStructureMutation(managedInstitutionId);
-  const createAssignmentMutation = useCreateFeeAssignmentMutation(managedInstitutionId);
-  const createPaymentMutation = useCreateFeePaymentMutation(managedInstitutionId);
+  const createStructureMutation =
+    useCreateFeeStructureMutation(managedInstitutionId);
+  const createAssignmentMutation =
+    useCreateFeeAssignmentMutation(managedInstitutionId);
+  const createPaymentMutation =
+    useCreateFeePaymentMutation(managedInstitutionId);
   const academicYears = academicYearsQuery.data?.rows ?? [];
 
   const academicYearOptions = academicYears.map((academicYear) => ({
@@ -226,7 +233,9 @@ export function FeesPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Structures
               </p>
-              <p className="text-2xl font-semibold">{structuresQuery.data?.length ?? 0}</p>
+              <p className="text-2xl font-semibold">
+                {structuresQuery.data?.length ?? 0}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -239,7 +248,9 @@ export function FeesPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Assignments
               </p>
-              <p className="text-2xl font-semibold">{assignmentsQuery.data?.length ?? 0}</p>
+              <p className="text-2xl font-semibold">
+                {assignmentsQuery.data?.length ?? 0}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -252,7 +263,9 @@ export function FeesPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 Open dues
               </p>
-              <p className="text-2xl font-semibold">{duesQuery.data?.length ?? 0}</p>
+              <p className="text-2xl font-semibold">
+                {duesQuery.data?.length ?? 0}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -278,7 +291,8 @@ export function FeesPage() {
           <CardHeader>
             <CardTitle>Create fee structure</CardTitle>
             <CardDescription>
-              Define a reusable structure for an academic year and optional campus.
+              Define a reusable structure for an academic year and optional
+              campus.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -286,7 +300,9 @@ export function FeesPage() {
               academicYears={academicYearOptions}
               campuses={campusOptions}
               defaultValues={feeStructureDefaults}
-              errorMessage={(createStructureMutation.error as Error | null)?.message}
+              errorMessage={
+                (createStructureMutation.error as Error | null)?.message
+              }
               isPending={createStructureMutation.isPending}
               onSubmit={handleCreateStructure}
             />
@@ -303,7 +319,9 @@ export function FeesPage() {
           <CardContent>
             <FeeAssignmentForm
               defaultValues={feeAssignmentDefaults}
-              errorMessage={(createAssignmentMutation.error as Error | null)?.message}
+              errorMessage={
+                (createAssignmentMutation.error as Error | null)?.message
+              }
               isPending={createAssignmentMutation.isPending}
               onSubmit={handleCreateAssignment}
               structures={structureOptions}
@@ -316,14 +334,17 @@ export function FeesPage() {
           <CardHeader>
             <CardTitle>Record payment</CardTitle>
             <CardDescription>
-              Apply a payment to any assignment that still has an outstanding balance.
+              Apply a payment to any assignment that still has an outstanding
+              balance.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <FeePaymentForm
               assignments={paymentAssignmentOptions}
               defaultValues={feePaymentDefaults}
-              errorMessage={(createPaymentMutation.error as Error | null)?.message}
+              errorMessage={
+                (createPaymentMutation.error as Error | null)?.message
+              }
               isPending={createPaymentMutation.isPending}
               onSubmit={handleCreatePayment}
             />
@@ -352,25 +373,35 @@ export function FeesPage() {
                 >
                   <div className="flex flex-col gap-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium">{assignment.studentFullName}</p>
+                      <p className="font-medium">
+                        {assignment.studentFullName}
+                      </p>
                       <Badge variant={statusVariant(assignment.status)}>
                         {assignment.status}
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {assignment.studentAdmissionNumber} · {assignment.feeStructureName}
-                      {assignment.campusName ? ` · ${assignment.campusName}` : ""}
+                      {assignment.studentAdmissionNumber} ·{" "}
+                      {assignment.feeStructureName}
+                      {assignment.campusName
+                        ? ` · ${assignment.campusName}`
+                        : ""}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      Due {assignment.dueDate} · {assignment.paymentCount} payment
+                      Due {assignment.dueDate} · {assignment.paymentCount}{" "}
+                      payment
                       {assignment.paymentCount === 1 ? "" : "s"}
                     </p>
                   </div>
                   <div className="flex min-w-[220px] flex-col items-start gap-1 text-sm sm:items-end">
-                    <p>Assigned: {formatCurrency(assignment.assignedAmountInPaise)}</p>
+                    <p>
+                      Assigned:{" "}
+                      {formatCurrency(assignment.assignedAmountInPaise)}
+                    </p>
                     <p>Paid: {formatCurrency(assignment.paidAmountInPaise)}</p>
                     <p className="font-medium text-foreground">
-                      Outstanding: {formatCurrency(assignment.outstandingAmountInPaise)}
+                      Outstanding:{" "}
+                      {formatCurrency(assignment.outstandingAmountInPaise)}
                     </p>
                   </div>
                 </div>
@@ -397,13 +428,12 @@ export function FeesPage() {
               </p>
             ) : duesQuery.data?.length ? (
               duesQuery.data.map((assignment) => (
-                <div
-                  key={assignment.id}
-                  className="rounded-xl border p-4"
-                >
+                <div key={assignment.id} className="rounded-xl border p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex flex-col gap-1">
-                      <p className="font-medium">{assignment.studentFullName}</p>
+                      <p className="font-medium">
+                        {assignment.studentFullName}
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         {assignment.feeStructureName}
                       </p>

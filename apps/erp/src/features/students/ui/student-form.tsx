@@ -84,10 +84,12 @@ export function StudentForm({
   onSubmit,
   submitLabel,
 }: StudentFormProps) {
-  const { control, handleSubmit, reset, setValue } = useForm<StudentFormValues>({
-    resolver: zodResolver(studentFormSchema),
-    defaultValues,
-  });
+  const { control, handleSubmit, reset, setValue } = useForm<StudentFormValues>(
+    {
+      resolver: zodResolver(studentFormSchema),
+      defaultValues,
+    },
+  );
 
   const selectedCampusId = useWatch({
     control,
@@ -115,7 +117,10 @@ export function StudentForm({
     name: "guardians",
   });
 
-  const classesQuery = useClassesQuery(Boolean(selectedCampusId), selectedCampusId);
+  const classesQuery = useClassesQuery(
+    Boolean(selectedCampusId),
+    selectedCampusId,
+  );
   const classOptions = useMemo(
     () =>
       ((classesQuery.data?.rows ?? []) as ClassOption[]).filter(
@@ -127,12 +132,20 @@ export function StudentForm({
     () => classOptions.find((item) => item.id === selectedClassId) ?? null,
     [classOptions, selectedClassId],
   );
-  const sectionOptions = selectedClass?.sections ?? [];
+  const sectionOptions = useMemo(
+    () => selectedClass?.sections ?? [],
+    [selectedClass],
+  );
   const selectedEnrollmentClass = useMemo(
-    () => classOptions.find((item) => item.id === selectedEnrollmentClassId) ?? null,
+    () =>
+      classOptions.find((item) => item.id === selectedEnrollmentClassId) ??
+      null,
     [classOptions, selectedEnrollmentClassId],
   );
-  const enrollmentSectionOptions = selectedEnrollmentClass?.sections ?? [];
+  const enrollmentSectionOptions = useMemo(
+    () => selectedEnrollmentClass?.sections ?? [],
+    [selectedEnrollmentClass],
+  );
 
   useEffect(() => {
     reset(defaultValues);
@@ -231,7 +244,9 @@ export function StudentForm({
             name="admissionNumber"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-number">Admission number</FieldLabel>
+                <FieldLabel htmlFor="admission-number">
+                  Admission number
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -251,7 +266,10 @@ export function StudentForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Campus</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select campus" />
                     </SelectTrigger>
@@ -295,18 +313,26 @@ export function StudentForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Class</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue
                         placeholder={
-                          classesQuery.isLoading ? "Loading classes..." : "Select class"
+                          classesQuery.isLoading
+                            ? "Loading classes..."
+                            : "Select class"
                         }
                       />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         {classOptions.map((schoolClass) => (
-                          <SelectItem key={schoolClass.id} value={schoolClass.id}>
+                          <SelectItem
+                            key={schoolClass.id}
+                            value={schoolClass.id}
+                          >
                             {schoolClass.name}
                           </SelectItem>
                         ))}
@@ -325,11 +351,16 @@ export function StudentForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Section</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue
                         placeholder={
-                          selectedClassId ? "Select section" : "Select class first"
+                          selectedClassId
+                            ? "Select section"
+                            : "Select class first"
                         }
                       />
                     </SelectTrigger>
@@ -393,7 +424,10 @@ export function StudentForm({
                     <SelectContent>
                       <SelectGroup>
                         {academicYears.map((academicYear) => (
-                          <SelectItem key={academicYear.id} value={academicYear.id}>
+                          <SelectItem
+                            key={academicYear.id}
+                            value={academicYear.id}
+                          >
                             {academicYear.name}
                             {academicYear.isCurrent ? " (Current)" : ""}
                           </SelectItem>
@@ -413,18 +447,26 @@ export function StudentForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Class</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue
                         placeholder={
-                          classesQuery.isLoading ? "Loading classes..." : "Select class"
+                          classesQuery.isLoading
+                            ? "Loading classes..."
+                            : "Select class"
                         }
                       />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         {classOptions.map((schoolClass) => (
-                          <SelectItem key={schoolClass.id} value={schoolClass.id}>
+                          <SelectItem
+                            key={schoolClass.id}
+                            value={schoolClass.id}
+                          >
                             {schoolClass.name}
                           </SelectItem>
                         ))}
@@ -443,7 +485,10 @@ export function StudentForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Section</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue
                         placeholder={
@@ -476,15 +521,11 @@ export function StudentForm({
           <div className="sm:col-span-3">
             <Button
               onClick={() => {
-                setValue(
-                  "currentEnrollment",
-                  EMPTY_CURRENT_ENROLLMENT,
-                  {
-                    shouldDirty: true,
-                    shouldTouch: true,
-                    shouldValidate: true,
-                  },
-                );
+                setValue("currentEnrollment", EMPTY_CURRENT_ENROLLMENT, {
+                  shouldDirty: true,
+                  shouldTouch: true,
+                  shouldValidate: true,
+                });
               }}
               size="sm"
               type="button"
@@ -500,7 +541,8 @@ export function StudentForm({
             <div>
               <p className="text-sm font-medium">Guardians</p>
               <p className="text-xs text-muted-foreground">
-                Keep one primary guardian and any additional contacts linked here.
+                Keep one primary guardian and any additional contacts linked
+                here.
               </p>
             </div>
             <Button
@@ -532,7 +574,11 @@ export function StudentForm({
                   <Field data-invalid={fieldState.invalid || undefined}>
                     <FieldLabel>Name</FieldLabel>
                     <FieldContent>
-                      <Input {...field} aria-invalid={fieldState.invalid} placeholder="Neha Sharma" />
+                      <Input
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Neha Sharma"
+                      />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </FieldContent>
                   </Field>
@@ -581,7 +627,10 @@ export function StudentForm({
                   <Field data-invalid={fieldState.invalid || undefined}>
                     <FieldLabel>Relationship</FieldLabel>
                     <FieldContent>
-                      <Select onValueChange={field.onChange} value={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
                         <SelectTrigger aria-invalid={fieldState.invalid}>
                           <SelectValue placeholder="Select relationship" />
                         </SelectTrigger>
@@ -612,7 +661,10 @@ export function StudentForm({
                         id={`primary-${index}`}
                         onCheckedChange={field.onChange}
                       />
-                      <Label className="text-sm font-normal" htmlFor={`primary-${index}`}>
+                      <Label
+                        className="text-sm font-normal"
+                        htmlFor={`primary-${index}`}
+                      >
                         Primary guardian
                       </Label>
                     </div>

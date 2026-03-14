@@ -45,7 +45,8 @@ export function useCreateClassMutation() {
   return apiQueryClient.useMutation("post", CLASSES_API_PATHS.CREATE, {
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST)
+          .queryKey,
       });
     },
   });
@@ -74,7 +75,8 @@ export function useSetClassStatusMutation() {
   return apiQueryClient.useMutation("patch", CLASSES_API_PATHS.SET_STATUS, {
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST)
+          .queryKey,
       });
     },
   });
@@ -86,7 +88,8 @@ export function useDeleteClassMutation() {
   return apiQueryClient.useMutation("delete", CLASSES_API_PATHS.DELETE, {
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST)
+          .queryKey,
       });
     },
   });
@@ -98,21 +101,18 @@ export function useUpdateClassMutation() {
   return apiQueryClient.useMutation("patch", CLASSES_API_PATHS.UPDATE, {
     onSuccess: (_, variables) => {
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST).queryKey,
+        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.LIST)
+          .queryKey,
       });
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          CLASSES_API_PATHS.DETAIL,
-          {
-            params: {
-              path: {
-                classId: variables.params.path.classId,
-              },
+        queryKey: apiQueryClient.queryOptions("get", CLASSES_API_PATHS.DETAIL, {
+          params: {
+            path: {
+              classId: variables.params.path.classId,
             },
           },
-        ).queryKey,
+        }).queryKey,
       });
     },
   });

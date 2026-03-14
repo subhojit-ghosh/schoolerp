@@ -58,7 +58,16 @@ export function ResetPasswordPage() {
           className="inline-flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors mb-8"
           to={ERP_ROUTES.FORGOT_PASSWORD}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M19 12H5M12 5l-7 7 7 7" />
           </svg>
           Back to recovery
@@ -73,7 +82,8 @@ export function ResetPasswordPage() {
             Set new password
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Paste the reset token from your delivery channel and choose a strong new password.
+            Paste the reset token from your delivery channel and choose a strong
+            new password.
           </p>
         </div>
 
