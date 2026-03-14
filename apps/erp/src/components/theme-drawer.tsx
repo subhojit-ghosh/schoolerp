@@ -214,38 +214,31 @@ export function ThemeDrawer() {
               </p>
 
               {/* Presets */}
-              <div className="grid grid-cols-6 gap-1.5">
+              <div className="grid grid-cols-2 gap-1.5">
                 {COLOR_PRESETS.map((preset) => {
                   const isSelected = selectedPreset?.id === preset.id;
                   return (
                     <button
                       key={preset.id}
                       type="button"
-                      title={preset.name}
                       onClick={() => {
                         setValue("primaryColor", preset.primaryColor);
                         setValue("accentColor", preset.accentColor);
                         setValue("sidebarColor", preset.sidebarColor);
                       }}
                       className={[
-                        "relative flex flex-col items-center gap-1 rounded-md border p-1.5 transition-colors",
+                        "flex items-center gap-2 rounded-md border px-2.5 py-1.5 transition-colors text-left",
                         isSelected
-                          ? "border-primary ring-1 ring-primary"
-                          : "border-border hover:border-primary/40",
+                          ? "border-primary ring-1 ring-primary bg-primary/5 font-medium"
+                          : "border-border hover:border-primary/40 hover:bg-muted/50",
                       ].join(" ")}
                     >
-                      <div className="flex gap-0.5">
-                        <span className="h-3 w-3 rounded-full" style={{ background: preset.primaryColor }} />
-                        <span className="h-3 w-3 rounded-full" style={{ background: preset.sidebarColor }} />
-                      </div>
-                      <span className="text-[10px] text-muted-foreground leading-none truncate w-full text-center">
-                        {preset.name}
+                      <span className="flex gap-0.5 shrink-0">
+                        <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.primaryColor }} />
+                        <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.accentColor }} />
+                        <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.sidebarColor }} />
                       </span>
-                      {isSelected && (
-                        <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-primary flex items-center justify-center">
-                          <IconCheck className="size-2 text-primary-foreground" strokeWidth={3} />
-                        </span>
-                      )}
+                      <span className="text-xs leading-none">{preset.name}</span>
                     </button>
                   );
                 })}

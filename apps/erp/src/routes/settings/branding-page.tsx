@@ -14,6 +14,7 @@ import {
   cacheTenantBranding,
   readCachedTenantBranding,
   deriveSidebarTokens,
+  deriveSurfaceTokens,
   contrastForeground,
 } from "@/lib/tenant-branding";
 import {
@@ -88,6 +89,19 @@ function applyColorPreview(primary: string, accent: string, sidebar: string) {
     root.style.setProperty("--primary", primary);
     root.style.setProperty("--primary-foreground", contrastForeground(primary));
     root.style.setProperty("--ring", primary);
+    const surface = deriveSurfaceTokens(primary);
+    root.style.setProperty("--background", surface.background);
+    root.style.setProperty("--foreground", surface.foreground);
+    root.style.setProperty("--card", surface.card);
+    root.style.setProperty("--card-foreground", surface.foreground);
+    root.style.setProperty("--muted", surface.muted);
+    root.style.setProperty("--muted-foreground", surface.mutedForeground);
+    root.style.setProperty("--border", surface.border);
+    root.style.setProperty("--input", surface.input);
+    root.style.setProperty("--secondary", surface.secondary);
+    root.style.setProperty("--secondary-foreground", surface.secondaryForeground);
+    root.style.setProperty("--popover", surface.card);
+    root.style.setProperty("--popover-foreground", surface.foreground);
   }
   if (HEX_COLOR_REGEX.test(accent)) {
     root.style.setProperty("--accent", accent);
@@ -100,6 +114,11 @@ function applyColorPreview(primary: string, accent: string, sidebar: string) {
     root.style.setProperty("--sidebar-accent", tokens.accent);
     root.style.setProperty("--sidebar-accent-foreground", tokens.accentForeground);
     root.style.setProperty("--sidebar-border", tokens.border);
+  }
+  if (HEX_COLOR_REGEX.test(primary)) {
+    root.style.setProperty("--sidebar-primary", primary);
+    root.style.setProperty("--sidebar-primary-foreground", contrastForeground(primary));
+    root.style.setProperty("--sidebar-ring", primary);
   }
 }
 
@@ -284,7 +303,6 @@ export function BrandingPage() {
                 <button
                   key={preset.id}
                   type="button"
-                  title={preset.name}
                   onClick={() => {
                     setValue("primaryColor", preset.primaryColor);
                     setValue("accentColor", preset.accentColor);
@@ -298,9 +316,9 @@ export function BrandingPage() {
                   ].join(" ")}
                 >
                   <span className="flex gap-0.5">
-                    <span className="h-3 w-3 rounded-full" style={{ background: preset.primaryColor }} />
-                    <span className="h-3 w-3 rounded-full" style={{ background: preset.accentColor }} />
-                    <span className="h-3 w-3 rounded-full" style={{ background: preset.sidebarColor }} />
+                    <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.primaryColor }} />
+                    <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.accentColor }} />
+                    <span className="h-3.5 w-3.5 rounded-full" style={{ background: preset.sidebarColor }} />
                   </span>
                   {preset.name}
                 </button>

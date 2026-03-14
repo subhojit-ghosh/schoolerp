@@ -42,6 +42,39 @@ function mixToward(hex: string, target: number, t: number): string {
   return `#${ch(r)}${ch(g)}${ch(b)}`;
 }
 
+// Extracts the hue (0–360) from a hex color for chromatic surface tinting.
+function extractHue(hex: string): number {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  if (d === 0) return 0;
+  let h = 0;
+  if (max === r) h = ((g - b) / d + 6) % 6;
+  else if (max === g) h = (b - r) / d + 2;
+  else h = (r - g) / d + 4;
+  return Math.round(h * 60);
+}
+
+// Derives surface tokens tinted with the primary hue at high lightness.
+// Cards stay pure white so they visually "pop" above the tinted page background.
+export function deriveSurfaceTokens(primaryHex: string) {
+  const h = extractHue(primaryHex);
+  return {
+    background: `hsl(${h} 22% 97%)`,
+    card: `hsl(${h} 0% 100%)`,
+    foreground: `hsl(${h} 8% 10%)`,
+    muted: `hsl(${h} 18% 94%)`,
+    mutedForeground: `hsl(${h} 10% 42%)`,
+    border: `hsl(${h} 16% 88%)`,
+    input: `hsl(${h} 16% 88%)`,
+    secondary: `hsl(${h} 14% 94%)`,
+    secondaryForeground: `hsl(${h} 20% 15%)`,
+  };
+}
+
 export function deriveSidebarTokens(hex: string) {
   const fg = contrastForeground(hex);
   const isDark = hexLuminance(hex) < 0.18;
@@ -128,12 +161,29 @@ export function applyTenantBranding(branding: TenantBranding) {
   root.style.setProperty("--accent", branding.accentColor);
   root.style.setProperty("--accent-foreground", contrastForeground(branding.accentColor));
 
+  const surface = deriveSurfaceTokens(branding.primaryColor);
+  root.style.setProperty("--background", surface.background);
+  root.style.setProperty("--foreground", surface.foreground);
+  root.style.setProperty("--card", surface.card);
+  root.style.setProperty("--card-foreground", surface.foreground);
+  root.style.setProperty("--muted", surface.muted);
+  root.style.setProperty("--muted-foreground", surface.mutedForeground);
+  root.style.setProperty("--border", surface.border);
+  root.style.setProperty("--input", surface.input);
+  root.style.setProperty("--secondary", surface.secondary);
+  root.style.setProperty("--secondary-foreground", surface.secondaryForeground);
+  root.style.setProperty("--popover", surface.card);
+  root.style.setProperty("--popover-foreground", surface.foreground);
+
   const sidebar = deriveSidebarTokens(branding.sidebarColor);
   root.style.setProperty("--sidebar", sidebar.background);
   root.style.setProperty("--sidebar-foreground", sidebar.foreground);
+  root.style.setProperty("--sidebar-primary", branding.primaryColor);
+  root.style.setProperty("--sidebar-primary-foreground", contrastForeground(branding.primaryColor));
   root.style.setProperty("--sidebar-accent", sidebar.accent);
   root.style.setProperty("--sidebar-accent-foreground", sidebar.accentForeground);
   root.style.setProperty("--sidebar-border", sidebar.border);
+  root.style.setProperty("--sidebar-ring", branding.primaryColor);
 
   // Always load fonts — even if no custom fonts are set, Noto Sans must be fetched
   // so Devanagari and Bengali characters render correctly as a baseline.

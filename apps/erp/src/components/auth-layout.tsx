@@ -17,7 +17,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       <div
         className="hidden lg:flex lg:w-[52%] relative overflow-hidden flex-col justify-between p-14"
         style={{
-          background: "linear-gradient(155deg, #0d1b2a 0%, #122038 55%, #0f2240 100%)",
+          background: "linear-gradient(155deg, var(--sidebar) 0%, color-mix(in srgb, var(--sidebar) 80%, black) 100%)",
         }}
       >
         {/* Dot grid */}
@@ -99,7 +99,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
       <div
         className="flex flex-1 flex-col items-center justify-center min-h-svh p-8 lg:p-16"
         style={{
-          background: "#faf9f7",
+          background: "var(--background)",
         }}
       >
         {/* Mobile-only school name header */}

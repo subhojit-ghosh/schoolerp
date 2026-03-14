@@ -55,6 +55,22 @@ export const COLOR_PRESETS: ColorPreset[] = [
     accentColor: "#6aad72",
     sidebarColor: "#32241c",
   },
+  {
+    // Near-black grape sidebar + deep violet primary + soft lilac — royal/creative
+    id: "violet",
+    name: "Violet",
+    primaryColor: "#581c87",
+    accentColor: "#c084fc",
+    sidebarColor: "#1a0a2e",
+  },
+  {
+    // Near-black teal sidebar + deep ocean primary + bright aqua — STEM/modern
+    id: "ocean",
+    name: "Ocean",
+    primaryColor: "#0e7490",
+    accentColor: "#22d3ee",
+    sidebarColor: "#042f3d",
+  },
 ];
 
 export function findPresetByColors(
