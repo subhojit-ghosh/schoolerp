@@ -12,9 +12,11 @@ export default defineConfig([
     extends: [
       js.configs.recommended,
       tseslint.configs.recommended,
-      reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
     ],
+    plugins: {
+      'react-hooks': reactHooks,
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -27,21 +29,20 @@ export default defineConfig([
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'warn',
       // setState inside an effect is valid when guarding against stale derived state
-      'react-hooks/set-state-in-effect': 'off',
     },
   },
   {
     files: ['src/components/ui/**/*.tsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
-      'react-hooks/purity': 'off',
     },
   },
   {
-    files: ['src/components/data-table.tsx', 'src/components/theme-provider.tsx'],
+    files: ['src/components/theme-provider.tsx'],
     rules: {
-      'react-hooks/incompatible-library': 'off',
       'react-refresh/only-export-components': 'off',
     },
   },

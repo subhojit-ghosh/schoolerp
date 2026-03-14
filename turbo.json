@@ -26,6 +26,12 @@
       ],
       "outputs": []
     },
+    "lint:fix": {
+      "dependsOn": [
+        "transit"
+      ],
+      "outputs": []
+    },
     "typecheck": {
       "dependsOn": [
         "transit"

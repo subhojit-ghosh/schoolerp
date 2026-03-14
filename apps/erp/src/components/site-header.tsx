@@ -40,6 +40,7 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { ERP_TOAST_MESSAGES } from "@/lib/toast-messages";
 
 
 const FULLSCREEN_CHANGE_EVENT = "fullscreenchange";
@@ -194,9 +195,9 @@ export function SiteHeader() {
         return;
       }
 
-      toast.error("Full screen is not supported in this browser.");
+      toast.error(ERP_TOAST_MESSAGES.fullscreenUnsupported);
     } catch {
-      toast.error("Unable to change full screen mode.");
+      toast.error(ERP_TOAST_MESSAGES.fullscreenToggleFailed);
     }
   }
 

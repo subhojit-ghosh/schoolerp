@@ -14,6 +14,7 @@
     "dev:api-erp": "turbo run dev --filter=api-erp",
     "build": "turbo run build",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
     "typecheck": "turbo run typecheck",
     "api-erp:openapi": "turbo run openapi:export --filter=api-erp",
     "erp:openapi-types": "turbo run openapi:types --filter=erp",

@@ -34,6 +34,7 @@ import type {
   FeeStructureFormValues,
 } from "@/features/fees/model/fee-form-schema";
 import { useStudentsQuery } from "@/features/students/api/use-students";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const EMPTY_VALUE = "";
 
@@ -150,7 +151,7 @@ export function FeesPage() {
       },
     });
 
-    toast.success("Fee structure created.");
+    toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_STRUCTURE));
   }
 
   async function handleCreateAssignment(values: FeeAssignmentFormValues) {
@@ -165,7 +166,9 @@ export function FeesPage() {
       },
     });
 
-    toast.success("Fee assigned to student.");
+    toast.success(
+      ERP_TOAST_MESSAGES.assignedTo(ERP_TOAST_SUBJECTS.FEE, "student"),
+    );
   }
 
   async function handleCreatePayment(values: FeePaymentFormValues) {
@@ -180,7 +183,7 @@ export function FeesPage() {
       },
     });
 
-    toast.success("Payment recorded.");
+    toast.success(ERP_TOAST_MESSAGES.recorded(ERP_TOAST_SUBJECTS.PAYMENT));
   }
 
   if (!institutionId) {

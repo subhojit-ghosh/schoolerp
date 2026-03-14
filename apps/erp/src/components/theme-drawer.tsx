@@ -22,6 +22,7 @@ import {
   type DensityPreset,
   type RadiusPreset,
 } from "@/lib/theme-presets";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@repo/ui/components/ui/field";
@@ -35,7 +36,7 @@ import {
 } from "@repo/ui/components/ui/sheet";
 import { IconPalette } from "@tabler/icons-react";
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -80,7 +81,7 @@ export function ThemeDrawer() {
   const institutionId = session?.activeOrganization?.id;
   const updateBranding = useUpdateBrandingMutation(institutionId);
 
-  const { control, handleSubmit, watch, setValue } = useForm<ThemeFormValues>({
+  const { control, handleSubmit, setValue } = useForm<ThemeFormValues>({
     resolver: zodResolver(themeSchema),
     defaultValues: getInitialValues(),
   });
@@ -94,28 +95,33 @@ export function ThemeDrawer() {
     fontMono,
     borderRadius,
     uiDensity,
-  } = watch();
+  } = useWatch({ control });
+  const previewPrimaryColor = primaryColor ?? DEFAULT_COLORS.primaryColor;
+  const previewAccentColor = accentColor ?? DEFAULT_COLORS.accentColor;
+  const previewSidebarColor = sidebarColor ?? DEFAULT_COLORS.sidebarColor;
+  const previewBorderRadius = borderRadius ?? "default";
+  const previewUiDensity = uiDensity ?? "default";
 
   useEffect(() => {
     const root = document.querySelector(":root") as HTMLElement | null;
     if (!root) return;
-    if (HEX_COLOR_REGEX.test(primaryColor)) {
-      root.style.setProperty("--primary", primaryColor);
+    if (HEX_COLOR_REGEX.test(previewPrimaryColor)) {
+      root.style.setProperty("--primary", previewPrimaryColor);
       root.style.setProperty(
         "--primary-foreground",
-        contrastForeground(primaryColor),
+        contrastForeground(previewPrimaryColor),
       );
-      root.style.setProperty("--ring", primaryColor);
+      root.style.setProperty("--ring", previewPrimaryColor);
     }
-    if (HEX_COLOR_REGEX.test(accentColor)) {
-      root.style.setProperty("--accent", accentColor);
+    if (HEX_COLOR_REGEX.test(previewAccentColor)) {
+      root.style.setProperty("--accent", previewAccentColor);
       root.style.setProperty(
         "--accent-foreground",
-        contrastForeground(accentColor),
+        contrastForeground(previewAccentColor),
       );
     }
-    if (HEX_COLOR_REGEX.test(sidebarColor)) {
-      const tokens = deriveSidebarTokens(sidebarColor);
+    if (HEX_COLOR_REGEX.test(previewSidebarColor)) {
+      const tokens = deriveSidebarTokens(previewSidebarColor);
       root.style.setProperty("--sidebar", tokens.background);
       root.style.setProperty("--sidebar-foreground", tokens.foreground);
       root.style.setProperty("--sidebar-accent", tokens.accent);
@@ -125,7 +131,7 @@ export function ThemeDrawer() {
       );
       root.style.setProperty("--sidebar-border", tokens.border);
     }
-  }, [primaryColor, accentColor, sidebarColor]);
+  }, [previewPrimaryColor, previewAccentColor, previewSidebarColor]);
 
   useEffect(() => {
     const root = document.querySelector(":root") as HTMLElement | null;
@@ -149,15 +155,16 @@ export function ThemeDrawer() {
 
   useEffect(() => {
     const root = document.querySelector(":root") as HTMLElement | null;
-    if (root) root.style.setProperty("--radius", getRadiusValue(borderRadius));
-  }, [borderRadius]);
+    if (root)
+      root.style.setProperty("--radius", getRadiusValue(previewBorderRadius));
+  }, [previewBorderRadius]);
 
   useEffect(() => {
     document.documentElement.style.setProperty(
       "--spacing",
-      getSpacingValue(uiDensity),
+      getSpacingValue(previewUiDensity),
     );
-  }, [uiDensity]);
+  }, [previewUiDensity]);
 
   function onSubmit(values: ThemeFormValues) {
     const cached = readCachedTenantBranding();
@@ -207,10 +214,10 @@ export function ThemeDrawer() {
           };
           cacheTenantBranding(updated);
           applyTenantBranding(updated);
-          toast.success("Theme saved.");
+          toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.THEME));
         },
         onError: () => {
-          toast.error("Failed to save. Please try again.");
+          toast.error(ERP_TOAST_MESSAGES.saveFailed);
         },
       },
     );
@@ -221,9 +228,9 @@ export function ThemeDrawer() {
     fontBody ?? null,
   );
   const selectedPreset = findPresetByColors(
-    primaryColor,
-    accentColor,
-    sidebarColor,
+    previewPrimaryColor,
+    previewAccentColor,
+    previewSidebarColor,
   );
 
   return (

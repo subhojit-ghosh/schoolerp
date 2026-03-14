@@ -25,6 +25,7 @@ import {
   type AcademicYearFormValues,
 } from "@/features/academic-years/model/academic-year-form-schema";
 import { AcademicYearForm } from "@/features/academic-years/ui/academic-year-form";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 export function AcademicYearsPage() {
   const [selectedAcademicYearId, setSelectedAcademicYearId] = useState<
@@ -71,7 +72,7 @@ export function AcademicYearsPage() {
     });
 
     setSelectedAcademicYearId(createdAcademicYear.id);
-    toast.success("Academic year created.");
+    toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR));
   }
 
   async function handleUpdateAcademicYear(values: AcademicYearFormValues) {
@@ -88,7 +89,7 @@ export function AcademicYearsPage() {
       body: values,
     });
 
-    toast.success("Academic year updated.");
+    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR));
   }
 
   if (!institutionId) {

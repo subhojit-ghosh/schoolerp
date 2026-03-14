@@ -24,6 +24,7 @@ import {
 import { ClassForm } from "@/features/classes/ui/class-form";
 import { ERP_ROUTES } from "@/constants/routes";
 import type { ClassFormValues } from "@/features/classes/model/class-form-schema";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 export function ClassDetailPage() {
   const navigate = useNavigate();
@@ -64,7 +65,7 @@ export function ClassDetailPage() {
       body: { ...values, campusId: activeCampusId ?? "" },
     });
 
-    toast.success("Class updated.");
+    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CLASS));
   }
 
   if (!institutionId) {

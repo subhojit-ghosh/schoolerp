@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -32,6 +32,7 @@ import {
   type RadiusPreset,
   type DensityPreset,
 } from "@/lib/theme-presets";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 const HEX_COLOR_MESSAGE = "Must be a valid hex color";
@@ -139,7 +140,7 @@ export function BrandingPage() {
   const institutionId = session?.activeOrganization?.id;
   const updateBranding = useUpdateBrandingMutation(institutionId);
 
-  const { control, handleSubmit, watch, setValue } = useForm<BrandingFormValues>({
+  const { control, handleSubmit, setValue } = useForm<BrandingFormValues>({
     resolver: zodResolver(brandingSchema),
     defaultValues: getInitialValues(
       readCachedTenantBranding(),
@@ -152,11 +153,20 @@ export function BrandingPage() {
     primaryColor, accentColor, sidebarColor,
     fontHeading, fontBody, fontMono,
     borderRadius, uiDensity,
-  } = watch();
+  } = useWatch({ control });
+  const previewPrimaryColor = primaryColor ?? DEFAULT_COLORS.primaryColor;
+  const previewAccentColor = accentColor ?? DEFAULT_COLORS.accentColor;
+  const previewSidebarColor = sidebarColor ?? DEFAULT_COLORS.sidebarColor;
+  const previewBorderRadius = borderRadius ?? "default";
+  const previewUiDensity = uiDensity ?? "default";
 
   useEffect(() => {
-    applyColorPreview(primaryColor, accentColor, sidebarColor);
-  }, [primaryColor, accentColor, sidebarColor]);
+    applyColorPreview(
+      previewPrimaryColor,
+      previewAccentColor,
+      previewSidebarColor,
+    );
+  }, [previewPrimaryColor, previewAccentColor, previewSidebarColor]);
 
   useEffect(() => {
     applyFontPreview(fontHeading, fontBody, fontMono);
@@ -164,12 +174,16 @@ export function BrandingPage() {
 
   useEffect(() => {
     const root = document.querySelector(":root") as HTMLElement | null;
-    if (root) root.style.setProperty("--radius", getRadiusValue(borderRadius));
-  }, [borderRadius]);
+    if (root)
+      root.style.setProperty("--radius", getRadiusValue(previewBorderRadius));
+  }, [previewBorderRadius]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty("--spacing", getSpacingValue(uiDensity));
-  }, [uiDensity]);
+    document.documentElement.style.setProperty(
+      "--spacing",
+      getSpacingValue(previewUiDensity),
+    );
+  }, [previewUiDensity]);
 
   function onSubmit(values: BrandingFormValues) {
     updateBranding.mutate(values, {
@@ -194,16 +208,22 @@ export function BrandingPage() {
         };
         cacheTenantBranding(updated);
         applyTenantBranding(updated);
-        toast.success("Settings saved. Reload to apply name and logo changes.");
+        toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.SETTINGS), {
+          description: ERP_TOAST_MESSAGES.reloadToApplyBranding,
+        });
       },
       onError: () => {
-        toast.error("Failed to save settings. Please try again.");
+        toast.error(ERP_TOAST_MESSAGES.saveFailed);
       },
     });
   }
 
   const selectedPairing = findPairingByFonts(fontHeading ?? null, fontBody ?? null);
-  const selectedPreset = findPresetByColors(primaryColor, accentColor, sidebarColor);
+  const selectedPreset = findPresetByColors(
+    previewPrimaryColor,
+    previewAccentColor,
+    previewSidebarColor,
+  );
 
   function handlePairingSelect(pairing: FontPairing) {
     setValue("fontHeading", pairing.fontHeading);

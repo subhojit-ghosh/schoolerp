@@ -1,0 +1,33 @@
+export const ERP_TOAST_SUBJECTS = {
+  ACADEMIC_YEAR: "Academic year",
+  ATTENDANCE: "Attendance",
+  CLASS: "Class",
+  EXAM_TERM: "Exam term",
+  FEE: "Fee",
+  FEE_STRUCTURE: "Fee structure",
+  GUARDIAN: "Guardian",
+  MARKS: "Marks",
+  PAYMENT: "Payment",
+  RELATIONSHIP: "Relationship",
+  SETTINGS: "Settings",
+  STAFF_RECORD: "Staff record",
+  STUDENT: "Student",
+  THEME: "Theme",
+} as const;
+
+export const ERP_TOAST_MESSAGES = {
+  assignedTo: (subject: string, target: string) => `${subject} assigned to ${target}`,
+  created: (subject: string) => `${subject} created`,
+  deleted: (subject: string) => `${subject} deleted`,
+  disabled: (subject: string) => `${subject} disabled`,
+  enabled: (subject: string) => `${subject} enabled`,
+  fullscreenToggleFailed: "Unable to change full screen mode",
+  fullscreenUnsupported: "Full screen is not supported in this browser",
+  linked: (subject: string) => `${subject} linked`,
+  recorded: (subject: string) => `${subject} recorded`,
+  reloadToApplyBranding: "Reload to apply name and logo changes",
+  saveFailed: "Couldn't save changes",
+  saving: (subject: string) => `Saving ${subject}`,
+  unlinked: (subject: string) => `${subject} unlinked`,
+  updated: (subject: string) => `${subject} updated`,
+} as const;

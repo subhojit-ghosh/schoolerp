@@ -59,6 +59,7 @@ import {
 } from "@/features/classes/api/use-classes";
 import { ClassForm } from "@/features/classes/ui/class-form";
 import type { ClassFormValues } from "@/features/classes/model/class-form-schema";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 type ClassRow = {
   id: string;
@@ -234,7 +235,7 @@ export function ClassesPage() {
     await createMutation.mutateAsync({
       body: { ...values, campusId: activeCampusId },
     });
-    toast.success("Class created.");
+    toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CLASS));
     setSheetOpen(false);
   }
 
@@ -244,7 +245,7 @@ export function ClassesPage() {
       params: { path: { classId: editingClass.id } },
       body: { ...values, campusId: activeCampusId },
     });
-    toast.success("Class updated.");
+    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CLASS));
     setSheetOpen(false);
     setEditingClass(null);
   }
@@ -255,7 +256,11 @@ export function ClassesPage() {
       params: { path: { classId: cls.id } },
       body: { isActive: !cls.isActive },
     });
-    toast.success(cls.isActive ? "Class disabled." : "Class enabled.");
+    toast.success(
+      cls.isActive
+        ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.CLASS)
+        : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CLASS),
+    );
   }
 
   async function handleDelete() {
@@ -263,7 +268,7 @@ export function ClassesPage() {
     await deleteMutation.mutateAsync({
       params: { path: { classId: deleteTarget.id } },
     });
-    toast.success("Class deleted.");
+    toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.CLASS));
     setDeleteTarget(null);
   }
 

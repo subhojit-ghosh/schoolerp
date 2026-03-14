@@ -29,6 +29,7 @@ import {
   toStudentMutationBody,
   type StudentFormValues,
 } from "@/features/students/model/student-form-schema";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 function toInitials(name: string) {
   return name
@@ -107,7 +108,7 @@ export function StudentDetailPage() {
       body: toStudentMutationBody(values),
     });
 
-    toast.success("Student updated.");
+    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STUDENT));
   }
 
   if (!institutionId) {

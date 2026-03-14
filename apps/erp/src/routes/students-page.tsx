@@ -75,7 +75,7 @@ export function StudentsPage() {
     | null
     | undefined;
 
-  const students = studentsQuery.data ?? [];
+  const students = useMemo(() => studentsQuery.data ?? [], [studentsQuery.data]);
   const studentCount = students.length;
   const primaryCampusName = authSession?.activeCampus?.name ?? "No campus";
   const guardianCount = useMemo(

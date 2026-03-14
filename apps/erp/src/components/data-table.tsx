@@ -18,6 +18,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { toast } from "sonner"
 import {
   IconChevronDown,
   IconChevronLeft,
@@ -48,9 +49,9 @@ import {
   type VisibilityState,
 } from "@tanstack/react-table"
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
-import { toast } from "@repo/ui/components/ui/sonner"
 
 import { useIsMobile } from "@/hooks/use-mobile"
+import { ERP_TOAST_MESSAGES } from "@/lib/toast-messages"
 import { Badge } from "@repo/ui/components/ui/badge"
 import { Button } from "@repo/ui/components/ui/button"
 import {
@@ -206,9 +207,9 @@ const columns: ColumnDef<DataTableRow>[] = [
         onSubmit={(e) => {
           e.preventDefault()
           toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
+            loading: ERP_TOAST_MESSAGES.saving(row.original.header),
+            success: ERP_TOAST_MESSAGES.updated(row.original.header),
+            error: ERP_TOAST_MESSAGES.saveFailed,
           })
         }}
       >
@@ -231,9 +232,9 @@ const columns: ColumnDef<DataTableRow>[] = [
         onSubmit={(e) => {
           e.preventDefault()
           toast.promise(new Promise((resolve) => setTimeout(resolve, 1000)), {
-            loading: `Saving ${row.original.header}`,
-            success: "Done",
-            error: "Error",
+            loading: ERP_TOAST_MESSAGES.saving(row.original.header),
+            success: ERP_TOAST_MESSAGES.updated(row.original.header),
+            error: ERP_TOAST_MESSAGES.saveFailed,
           })
         }}
       >

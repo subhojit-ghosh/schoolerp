@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FEE_STRUCTURE_SCOPES } from "@repo/contracts";
 import { Button } from "@repo/ui/components/ui/button";
@@ -51,11 +51,11 @@ export function FeeStructureForm({
   isPending = false,
   onSubmit,
 }: FeeStructureFormProps) {
-  const { control, handleSubmit, reset, watch } = useForm<FeeStructureFormValues>({
+  const { control, handleSubmit, reset } = useForm<FeeStructureFormValues>({
     resolver: zodResolver(feeStructureFormSchema),
     defaultValues,
   });
-  const selectedScope = watch("scope");
+  const selectedScope = useWatch({ control, name: "scope" });
 
   useEffect(() => {
     reset(defaultValues);

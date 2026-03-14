@@ -28,6 +28,7 @@ import {
 import { ExamMarksForm } from "@/features/exams/ui/exam-marks-form";
 import { ExamTermForm } from "@/features/exams/ui/exam-term-form";
 import { useStudentsQuery } from "@/features/students/api/use-students";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const EMPTY_MARKS_ENTRY: ExamMarksFormValues["entries"][number] = {
   studentId: "",
@@ -50,7 +51,7 @@ export function ExamsPage() {
   const replaceMarksMutation = useReplaceExamMarksMutation(managedInstitutionId);
   const [selectedExamTermId, setSelectedExamTermId] = useState<string>();
 
-  const examTerms = examTermsQuery.data ?? [];
+  const examTerms = useMemo(() => examTermsQuery.data ?? [], [examTermsQuery.data]);
   const examMarksQuery = useExamMarksQuery(managedInstitutionId, selectedExamTermId);
 
   useEffect(() => {
@@ -103,7 +104,7 @@ export function ExamsPage() {
     });
 
     setSelectedExamTermId(createdTerm.id);
-    toast.success("Exam term created.");
+    toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.EXAM_TERM));
   }
 
   async function handleSaveMarks(values: ExamMarksFormValues) {
@@ -120,7 +121,7 @@ export function ExamsPage() {
       body: values,
     });
 
-    toast.success("Marks updated.");
+    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.MARKS));
   }
 
   if (!institutionId) {

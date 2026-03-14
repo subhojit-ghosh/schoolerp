@@ -27,6 +27,7 @@ import {
 } from "@/features/staff/model/staff-form-schema";
 import { StaffForm } from "@/features/staff/ui/staff-form";
 import { ERP_ROUTES } from "@/constants/routes";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 function toInitials(name: string) {
   return name
@@ -89,7 +90,7 @@ export function StaffDetailPage() {
       body: values,
     });
 
-    toast.success("Staff record updated.");
+    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_RECORD));
   }
 
   if (!institutionId) {

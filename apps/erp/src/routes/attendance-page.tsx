@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import {
@@ -53,6 +53,7 @@ import {
   type AttendanceEntryFormValues,
   type AttendanceSelectionValues,
 } from "@/features/attendance/model/attendance-form-schema";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const ATTENDANCE_STATUS_OPTIONS = [
   ATTENDANCE_STATUSES.PRESENT,
@@ -93,7 +94,8 @@ export function AttendancePage() {
     },
   });
 
-  const selectedCampusId = selectionForm.watch("campusId");
+  const selectedCampusId = useWatch({ control: selectionForm.control, name: "campusId" });
+  const selectedClassId = useWatch({ control: selectionForm.control, name: "classId" });
   const classSectionsQuery = useAttendanceClassSectionsQuery(
     managedInstitutionId,
     selectedCampusId || undefined,
@@ -156,7 +158,7 @@ export function AttendancePage() {
       body: values,
     });
 
-    toast.success("Attendance saved.");
+    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ATTENDANCE));
   }
 
   function handleLoadFromDayView(record: {
@@ -314,7 +316,7 @@ export function AttendancePage() {
                             {classSections
                               .filter(
                                 (item) =>
-                                  item.classId === selectionForm.watch("classId"),
+                                  item.classId === selectedClassId,
                               )
                               .map((item) => (
                                 <SelectItem

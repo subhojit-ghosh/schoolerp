@@ -37,6 +37,7 @@ import {
   type GuardianStudentLinkFormValues,
 } from "@/features/guardians/model/guardian-form-schema";
 import { ERP_ROUTES } from "@/constants/routes";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 function toInitials(name: string) {
   return name
@@ -136,7 +137,7 @@ export function GuardianDetailPage() {
       body: values,
     });
 
-    toast.success("Guardian updated.");
+    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.GUARDIAN));
   }
 
   async function handleStudentLinkSubmit(values: GuardianStudentLinkFormValues) {
@@ -153,7 +154,7 @@ export function GuardianDetailPage() {
       body: values,
     });
 
-    toast.success("Student linked.");
+    toast.success(ERP_TOAST_MESSAGES.linked(ERP_TOAST_SUBJECTS.STUDENT));
   }
 
   if (!institutionId) {
@@ -351,7 +352,9 @@ export function GuardianDetailPage() {
                         },
                       });
 
-                      toast.success("Student unlinked.");
+                      toast.success(
+                        ERP_TOAST_MESSAGES.unlinked(ERP_TOAST_SUBJECTS.STUDENT),
+                      );
                     }}
                     onSubmit={async (values) => {
                       if (!institutionId || !guardianId) {
@@ -371,7 +374,9 @@ export function GuardianDetailPage() {
                         },
                       });
 
-                      toast.success("Relationship updated.");
+                      toast.success(
+                        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.RELATIONSHIP),
+                      );
                     }}
                     showStudentSelect={false}
                     students={studentOptions}
