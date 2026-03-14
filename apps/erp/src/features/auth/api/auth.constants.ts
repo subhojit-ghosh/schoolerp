@@ -54,6 +54,11 @@ export const CLASSES_API_PATHS = {
   DELETE: "/classes/{classId}",
 } as const;
 
+export const CAMPUSES_API_PATHS = {
+  LIST: "/campuses",
+  CREATE: "/campuses",
+} as const;
+
 export const ATTENDANCE_API_PATHS = {
   CLASS_SECTIONS: "/attendance/class-sections",
   DAY: "/attendance/day",

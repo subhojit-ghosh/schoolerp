@@ -1,6 +1,7 @@
 export const ERP_TOAST_SUBJECTS = {
   ACADEMIC_YEAR: "Academic year",
   ATTENDANCE: "Attendance",
+  CAMPUS: "Campus",
   CLASS: "Class",
   EXAM_TERM: "Exam term",
   FEE: "Fee",

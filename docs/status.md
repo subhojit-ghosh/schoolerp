@@ -32,6 +32,12 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - initial admin user
   - membership
   - initial session
+- A minimal campus management slice now exists with:
+  - tenant-scoped campus list/create APIs resolved from the subdomain
+  - backend-owned staff-context enforcement for campus management
+  - slug collision protection for campus creation
+  - ERP settings route for campus creation and registry review
+  - auth session refresh after campus creation so the campus switcher picks up new records
 - Password recovery backend exists with:
   - forgot-password endpoint
   - reset-password endpoint

@@ -27,8 +27,11 @@ export class CampusesController {
   @Get()
   @ApiOperation({ summary: "List campuses for the current tenant institution" })
   @ApiOkResponse({ type: CampusDto, isArray: true })
-  listCampuses(@CurrentInstitution() institution: TenantInstitution) {
-    return this.campusesService.listCampuses(institution.id);
+  listCampuses(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+  ) {
+    return this.campusesService.listCampuses(institution.id, authSession);
   }
 
   @Post()
@@ -44,7 +47,7 @@ export class CampusesController {
   ) {
     return this.campusesService.createCampus(
       institution.id,
-      authSession.user.id,
+      authSession,
       parseCreateCampus(body),
     );
   }

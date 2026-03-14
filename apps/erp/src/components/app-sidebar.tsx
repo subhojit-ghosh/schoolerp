@@ -2,6 +2,7 @@ import * as React from "react";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import {
   IconBook2,
+  IconBuildingEstate,
   IconCalendarStats,
   IconCertificate,
   IconCurrencyRupee,
@@ -46,6 +47,7 @@ const NAV_FINANCE = [
 ] as const;
 
 const NAV_SETTINGS = [
+  { icon: IconBuildingEstate, title: "Campuses", url: ERP_ROUTES.SETTINGS_CAMPUSES },
   { icon: IconPalette, title: "Branding", url: ERP_ROUTES.SETTINGS_BRANDING },
 ] as const;
 

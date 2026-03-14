@@ -17,6 +17,7 @@ export const ERP_ROUTES = {
   // Finance
   FEES: "/fees",
   // Settings
+  SETTINGS_CAMPUSES: "/settings/campuses",
   SETTINGS_BRANDING: "/settings/branding",
   // Auth
   SIGN_IN: "/sign-in",
