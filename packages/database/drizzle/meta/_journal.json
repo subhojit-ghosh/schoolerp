@@ -120,6 +120,13 @@
       "when": 1773520304595,
       "tag": "0016_fancy_elektra",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1773551100749,
+      "tag": "0017_fantastic_pretty_boy",
+      "breakpoints": true
     }
   ]
 }

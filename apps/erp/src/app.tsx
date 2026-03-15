@@ -27,6 +27,7 @@ import { AcademicYearsPage } from "@/routes/academics/academic-years-page";
 import { FeesPage } from "@/routes/operations/fees-page";
 import { BrandingPage } from "@/routes/settings/branding-page";
 import { CampusesPage } from "@/routes/settings/campuses-page";
+import { RolesPage } from "@/routes/settings/roles-page";
 import { ClassesPage } from "@/routes/academics/classes-page";
 import { GuardianDetailPage } from "@/routes/people/guardian-detail-page";
 import { GuardiansPage } from "@/routes/people/guardians-page";
@@ -39,6 +40,7 @@ import { StudentsPage } from "@/routes/people/students-page";
 import { AcademicYearSheetRoute } from "@/features/academic-years/ui/academic-year-sheet-route";
 import { CampusSheetRoute } from "@/features/campuses/ui/campus-sheet-route";
 import { ClassSheetRoute } from "@/features/classes/ui/class-sheet-route";
+import { RoleSheetRoute } from "@/features/roles/ui/role-sheet-route";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -118,6 +120,20 @@ const router = createBrowserRouter([
           {
             path: ERP_ROUTE_SEGMENTS.NEW,
             element: <CampusSheetRoute />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.SETTINGS_ROLES,
+        element: <RolesPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <RoleSheetRoute mode="create" />,
+          },
+          {
+            path: `:roleId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <RoleSheetRoute mode="edit" />,
           },
         ],
       },

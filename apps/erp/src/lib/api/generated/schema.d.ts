@@ -633,6 +633,60 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all roles for the current tenant */
+        get: operations["RolesController_listRoles"];
+        put?: never;
+        /** Create a custom role for the current tenant */
+        post: operations["RolesController_createRole"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/roles/{roleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single role for the current tenant */
+        get: operations["RolesController_getRole"];
+        put?: never;
+        post?: never;
+        /** Delete a custom role for the current tenant */
+        delete: operations["RolesController_deleteRole"];
+        options?: never;
+        head?: never;
+        /** Update a custom role for the current tenant */
+        patch: operations["RolesController_updateRole"];
+        trace?: never;
+    };
+    "/permissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all available permission slugs */
+        get: operations["PermissionsController_listPermissions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/institutions": {
         parameters: {
             query?: never;
@@ -742,7 +796,7 @@ export interface components {
             /** @enum {string} */
             memberType: "staff" | "student" | "guardian";
             /** @enum {string} */
-            status: "active" | "inactive" | "suspended";
+            status: "active" | "deleted" | "inactive" | "suspended";
             primaryCampusId: string | null;
             id: string;
             organizationId: string;
@@ -754,7 +808,7 @@ export interface components {
             logoUrl: string | null;
             faviconUrl: string | null;
             /** @enum {string} */
-            status: "active" | "suspended";
+            status: "active" | "deleted" | "suspended";
             id: string;
             name: string;
             shortName: string;
@@ -773,7 +827,7 @@ export interface components {
         AuthCampusDto: {
             code: string | null;
             /** @enum {string} */
-            status: "active" | "inactive";
+            status: "active" | "deleted" | "inactive";
             id: string;
             organizationId: string;
             name: string;
@@ -847,7 +901,7 @@ export interface components {
             code: string | null;
             isDefault: boolean;
             /** @enum {string} */
-            status: "active" | "inactive";
+            status: "active" | "deleted" | "inactive";
         };
         ListCampusesResultDto: {
             rows: components["schemas"]["CampusDto"][];
@@ -929,7 +983,7 @@ export interface components {
         StudentDto: {
             lastName?: string | null;
             /** @enum {string} */
-            status: "active" | "inactive" | "suspended";
+            status: "active" | "deleted" | "inactive" | "suspended";
             guardians: components["schemas"]["StudentGuardianDto"][];
             currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentDto"] | null;
             id: string;
@@ -1001,7 +1055,7 @@ export interface components {
             /** @enum {string} */
             memberType: "staff" | "student" | "guardian";
             /** @enum {string} */
-            status: "active" | "inactive" | "suspended";
+            status: "active" | "deleted" | "inactive" | "suspended";
             role?: components["schemas"]["StaffRoleDto"] | null;
             id: string;
             userId: string;
@@ -1022,7 +1076,7 @@ export interface components {
             email?: string | null;
             roleId?: string | null;
             /** @enum {string} */
-            status: "active" | "inactive" | "suspended";
+            status: "active" | "deleted" | "inactive" | "suspended";
             name: string;
             mobile: string;
             campusId: string;
@@ -1031,7 +1085,7 @@ export interface components {
             email?: string | null;
             roleId?: string | null;
             /** @enum {string} */
-            status: "active" | "inactive" | "suspended";
+            status: "active" | "deleted" | "inactive" | "suspended";
             name: string;
             mobile: string;
             campusId: string;
@@ -1051,7 +1105,7 @@ export interface components {
             userId?: string | null;
             email?: string | null;
             /** @enum {string} */
-            status: "active" | "inactive" | "suspended";
+            status: "active" | "deleted" | "inactive" | "suspended";
             linkedStudents: components["schemas"]["GuardianLinkedStudentDto"][];
             id: string;
             institutionId: string;
@@ -1278,13 +1332,39 @@ export interface components {
             amountInPaise: number;
             paymentDate: string;
         };
+        RolePermissionDto: {
+            id: string;
+            slug: string;
+        };
+        RoleDto: {
+            /** @enum {string} */
+            roleType: "platform" | "system" | "institution";
+            permissions: components["schemas"]["RolePermissionDto"][];
+            id: string;
+            name: string;
+            slug: string;
+            isSystem: boolean;
+            isConfigurable: boolean;
+        };
+        CreateRoleBodyDto: {
+            permissionIds: string[];
+            name: string;
+        };
+        UpdateRoleBodyDto: {
+            name?: string;
+            permissionIds?: string[];
+        };
+        PermissionDto: {
+            id: string;
+            slug: string;
+        };
         InstitutionDto: {
             id: string;
             name: string;
             slug: string;
             institutionType: string | null;
             /** @enum {string|null} */
-            status: "active" | "suspended" | null;
+            status: "active" | "deleted" | "suspended" | null;
             /** Format: date-time */
             createdAt: string;
         };
@@ -2554,6 +2634,132 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FeeAssignmentDto"][];
+                };
+            };
+        };
+    };
+    RolesController_listRoles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleDto"][];
+                };
+            };
+        };
+    };
+    RolesController_createRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRoleBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleDto"];
+                };
+            };
+        };
+    };
+    RolesController_getRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleDto"];
+                };
+            };
+        };
+    };
+    RolesController_deleteRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RolesController_updateRole: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoleBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleDto"];
+                };
+            };
+        };
+    };
+    PermissionsController_listPermissions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PermissionDto"][];
                 };
             };
         };

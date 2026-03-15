@@ -43,6 +43,8 @@ export const ERP_ROUTES = {
   SETTINGS_CAMPUSES_CREATE: `/settings/campuses/${ERP_ROUTE_SEGMENTS.NEW}`,
   SETTINGS_BRANDING: "/settings/branding",
   SETTINGS_ROLES: "/settings/roles",
+  SETTINGS_ROLES_CREATE: `/settings/roles/${ERP_ROUTE_SEGMENTS.NEW}`,
+  SETTINGS_ROLES_EDIT: `/settings/roles/:roleId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   // Auth
   SIGN_IN: "/sign-in",
   FORGOT_PASSWORD: "/forgot-password",
@@ -72,4 +74,8 @@ export function buildGuardianDetailRoute(guardianId: string) {
 
 export function buildStaffDetailRoute(staffId: string) {
   return `${ERP_ROUTES.STAFF}/${staffId}`;
+}
+
+export function buildRoleEditRoute(roleId: string) {
+  return `/settings/roles/${roleId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
 }

@@ -15,9 +15,13 @@ import {
   ApiOperation,
   ApiTags,
 } from "@nestjs/swagger";
-import { API_DOCS, API_ROUTES } from "../../constants";
+import { API_DOCS, API_ROUTES, PERMISSIONS } from "../../constants";
+import { PermissionGuard } from "../auth/permission.guard";
+import { ScopeGuard } from "../auth/scope.guard";
+import { RequirePermission } from "../auth/require-permission.decorator";
 import { CurrentSession } from "../auth/current-session.decorator";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import { CurrentScopes } from "../auth/current-scopes.decorator";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
 import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
@@ -39,27 +43,36 @@ import { StaffService } from "./staff.service";
 
 @ApiTags(API_DOCS.TAGS.STAFF)
 @ApiCookieAuth()
-@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@UseGuards(
+  SessionAuthGuard,
+  TenantInstitutionGuard,
+  PermissionGuard,
+  ScopeGuard,
+)
 @Controller(API_ROUTES.STAFF)
 export class StaffController {
   constructor(private readonly staffService: StaffService) {}
 
   @Get()
+  @RequirePermission(PERMISSIONS.STAFF_READ)
   @ApiOperation({ summary: "List staff for the current tenant institution" })
   @ApiOkResponse({ type: ListStaffResultDto })
   listStaff(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Query() query: ListStaffQueryDto,
   ) {
     return this.staffService.listStaff(
       institution.id,
       authSession,
+      scopes,
       parseListStaffQuery(query),
     );
   }
 
   @Get(API_ROUTES.ROLES)
+  @RequirePermission(PERMISSIONS.STAFF_READ)
   @ApiOperation({
     summary: "List available staff roles for the current tenant",
   })
@@ -72,6 +85,7 @@ export class StaffController {
   }
 
   @Post()
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
   @ApiOperation({ summary: "Create a staff membership for the current tenant" })
   @ApiBody({ type: CreateStaffBodyDto })
   @ApiOkResponse({ type: StaffDto })
@@ -88,6 +102,7 @@ export class StaffController {
   }
 
   @Get(":staffId")
+  @RequirePermission(PERMISSIONS.STAFF_READ)
   @ApiOperation({ summary: "Get a single staff record for the current tenant" })
   @ApiOkResponse({ type: StaffDto })
   getStaff(
@@ -99,6 +114,7 @@ export class StaffController {
   }
 
   @Patch(":staffId")
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
   @ApiOperation({ summary: "Update a staff membership for the current tenant" })
   @ApiBody({ type: UpdateStaffBodyDto })
   @ApiOkResponse({ type: StaffDto })

@@ -21,7 +21,8 @@
     "erp:openapi-types": "turbo run openapi:types --filter=erp",
     "db:generate": "bun run --cwd packages/database db:generate",
     "db:migrate": "bun run --cwd packages/database db:migrate",
-    "db:studio": "bun run --cwd packages/database db:studio"
+    "db:studio": "bun run --cwd packages/database db:studio",
+    "db:seed": "bun run --cwd packages/database db:seed"
   },
   "devDependencies": {
     "prettier": "^3.6.2",

@@ -1,9 +1,5 @@
 import { DATABASE } from "@repo/backend-core";
-import {
-  ATTENDANCE_STATUSES,
-  AUTH_CONTEXT_KEYS,
-  type AttendanceStatus,
-} from "@repo/contracts";
+import { ATTENDANCE_STATUSES, type AttendanceStatus } from "@repo/contracts";
 import {
   BadRequestException,
   Inject,
@@ -15,7 +11,8 @@ import { attendanceRecords, campus, member, students } from "@repo/database";
 import { and, asc, eq, isNull, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
+import { sectionScopeFilter } from "../auth/scope-filter";
 import { AuthService } from "../auth/auth.service";
 import type {
   AttendanceClassSectionQueryDto,
@@ -53,9 +50,9 @@ export class AttendanceService {
   async listClassSections(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: AttendanceClassSectionQueryDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
     await this.getCampus(institutionId, query.campusId);
 
     const rows = await this.db
@@ -71,6 +68,7 @@ export class AttendanceService {
           eq(member.primaryCampusId, query.campusId),
           isNull(students.deletedAt),
           ne(member.status, STATUS.MEMBER.DELETED),
+          sectionScopeFilter(students.sectionId, scopes),
         ),
       )
       .orderBy(asc(students.classId), asc(students.sectionId));
@@ -104,7 +102,6 @@ export class AttendanceService {
     authSession: AuthenticatedSession,
     query: AttendanceDayQueryDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
     const selectedCampus = await this.getCampus(institutionId, query.campusId);
     const roster = await this.listRosterForScope(institutionId, query);
 
@@ -139,10 +136,16 @@ export class AttendanceService {
     authSession: AuthenticatedSession,
     payload: UpsertAttendanceDayDto,
   ) {
-    const authContext = await this.requireInstitutionAccess(
-      authSession,
+    const membership = await this.authService.getMembershipForOrganization(
+      authSession.user.id,
       institutionId,
     );
+
+    if (!membership) {
+      throw new BadRequestException(ERROR_MESSAGES.AUTH.MEMBERSHIP_REQUIRED);
+    }
+
+    const markingMembershipId = membership.id;
     const roster = await this.listRosterForScope(institutionId, payload);
 
     if (roster.length === 0) {
@@ -150,12 +153,6 @@ export class AttendanceService {
     }
 
     this.assertRosterMatchesPayload(roster, payload.entries);
-
-    const markingMembershipId = authContext.activeContext?.membershipIds[0];
-
-    if (!markingMembershipId) {
-      throw new BadRequestException(ERROR_MESSAGES.AUTH.MEMBERSHIP_REQUIRED);
-    }
 
     const rosterByStudentId = new Map(
       roster.map((student) => [student.studentId, student] as const),
@@ -211,8 +208,6 @@ export class AttendanceService {
     authSession: AuthenticatedSession,
     query: AttendanceDayViewQueryDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const rows = await this.db
       .select({
         campusId: attendanceRecords.campusId,
@@ -266,17 +261,6 @@ export class AttendanceService {
     }
 
     return Array.from(summaries.values());
-  }
-
-  private async requireInstitutionAccess(
-    authSession: AuthenticatedSession,
-    institutionId: string,
-  ) {
-    return this.authService.requireOrganizationContext(
-      authSession,
-      institutionId,
-      AUTH_CONTEXT_KEYS.STAFF,
-    );
   }
 
   private async getCampus(institutionId: string, campusId: string) {

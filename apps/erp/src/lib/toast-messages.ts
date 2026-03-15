@@ -11,6 +11,7 @@ export const ERP_TOAST_SUBJECTS = {
   PAYMENT: "Payment",
   RELATIONSHIP: "Relationship",
   SETTINGS: "Settings",
+  ROLE: "Role",
   STAFF_RECORD: "Staff record",
   STUDENT: "Student",
   THEME: "Theme",

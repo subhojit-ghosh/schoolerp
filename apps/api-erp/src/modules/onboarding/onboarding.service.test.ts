@@ -3,6 +3,10 @@ import { AUTH_CONTEXT_KEYS, AUTH_CONTEXT_LABELS } from "@repo/contracts";
 import { ConflictException } from "@nestjs/common";
 import { OnboardingService } from "./onboarding.service";
 
+function setPrivateMethod(instance: object, name: string, value: unknown) {
+  Reflect.set(instance, name, value);
+}
+
 function createOnboardingService() {
   const db = {
     select: mock(() => ({
@@ -111,7 +115,19 @@ describe("OnboardingService", () => {
   });
 
   test("creates an institution session with the new tenant context", async () => {
-    const { service } = createOnboardingService();
+    const { db, service } = createOnboardingService();
+
+    setPrivateMethod(service, "assertInstitutionSlugAvailable", () =>
+      Promise.resolve(undefined),
+    );
+
+    db.select = mock(() => ({
+      from: mock(() => ({
+        where: mock(() => ({
+          limit: mock(() => [{ id: "role-1" }]),
+        })),
+      })),
+    }));
 
     const result = await service.createInstitution(
       {

@@ -85,3 +85,15 @@ export const FEES_API_PATHS = {
   CREATE_PAYMENT: "/fees/payments",
   LIST_DUES: "/fees/dues",
 } as const;
+
+export const ROLES_API_PATHS = {
+  LIST: "/roles",
+  CREATE: "/roles",
+  DETAIL: "/roles/{roleId}",
+  UPDATE: "/roles/{roleId}",
+  DELETE: "/roles/{roleId}",
+} as const;
+
+export const PERMISSIONS_API_PATHS = {
+  LIST: "/permissions",
+} as const;

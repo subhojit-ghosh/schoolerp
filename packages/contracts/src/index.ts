@@ -72,6 +72,65 @@ export function buildRootAppUrl(path = "/") {
   return `${protocol}//${normalizedRootHost}${portSuffix}${path}`;
 }
 
+export const PERMISSIONS = {
+  INSTITUTION_SETTINGS_READ: "institution:settings:read",
+  INSTITUTION_SETTINGS_MANAGE: "institution:settings:manage",
+  INSTITUTION_ROLES_MANAGE: "institution:roles:manage",
+  INSTITUTION_USERS_MANAGE: "institution:users:manage",
+  CAMPUS_READ: "campus:read",
+  CAMPUS_MANAGE: "campus:manage",
+  ACADEMICS_READ: "academics:read",
+  ACADEMICS_MANAGE: "academics:manage",
+  STUDENTS_READ: "students:read",
+  STUDENTS_MANAGE: "students:manage",
+  GUARDIANS_READ: "guardians:read",
+  GUARDIANS_MANAGE: "guardians:manage",
+  STAFF_READ: "staff:read",
+  STAFF_MANAGE: "staff:manage",
+  ATTENDANCE_READ: "attendance:read",
+  ATTENDANCE_WRITE: "attendance:write",
+  EXAMS_READ: "exams:read",
+  EXAMS_MANAGE: "exams:manage",
+  MARKS_WRITE: "marks:write",
+  FEES_READ: "fees:read",
+  FEES_MANAGE: "fees:manage",
+  FEES_COLLECT: "fees:collect",
+} as const;
+
+export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+
+export const ROLE_TYPES = {
+  PLATFORM: "platform",
+  SYSTEM: "system",
+  INSTITUTION: "institution",
+} as const;
+
+export const ROLE_SLUGS = {
+  INSTITUTION_ADMIN: "institution_admin",
+  SCHOOL_ADMIN: "school_admin",
+  ACADEMIC_COORDINATOR: "academic_coordinator",
+  FINANCE_MANAGER: "finance_manager",
+  CLASS_TEACHER: "class_teacher",
+  SUBJECT_TEACHER: "subject_teacher",
+} as const;
+
+export const ROLE_NAMES = {
+  INSTITUTION_ADMIN: "Institution Admin",
+  SCHOOL_ADMIN: "School Admin",
+  ACADEMIC_COORDINATOR: "Academic Coordinator",
+  FINANCE_MANAGER: "Finance Manager",
+  CLASS_TEACHER: "Class Teacher",
+  SUBJECT_TEACHER: "Subject Teacher",
+} as const;
+
+export const SCOPE_TYPES = {
+  INSTITUTION: "institution",
+  CAMPUS: "campus",
+  DEPARTMENT: "department",
+  CLASS: "class",
+  SECTION: "section",
+} as const;
+
 export const AUTH_CONTEXT_KEYS = {
   STAFF: "staff",
   PARENT: "parent",
@@ -221,3 +280,89 @@ export const tenantBrandingSchema = z.object({
 });
 
 export type TenantBranding = z.infer<typeof tenantBrandingSchema>;
+
+export type ColorPreset = {
+  id: string;
+  name: string;
+  primaryColor: string;
+  accentColor: string;
+  sidebarColor: string;
+};
+
+export const COLOR_PRESETS: ColorPreset[] = [
+  {
+    id: "prestige",
+    name: "Prestige",
+    primaryColor: "#1e3a5f",
+    accentColor: "#c8a84a",
+    sidebarColor: "#0c1a2e",
+  },
+  {
+    id: "crimson",
+    name: "Crimson",
+    primaryColor: "#7c1c2e",
+    accentColor: "#e07c5a",
+    sidebarColor: "#18060f",
+  },
+  {
+    id: "sage",
+    name: "Sage",
+    primaryColor: "#14573a",
+    accentColor: "#4daf9e",
+    sidebarColor: "#0a2214",
+  },
+  {
+    id: "sapphire",
+    name: "Sapphire",
+    primaryColor: "#1a3fa8",
+    accentColor: "#4db8e8",
+    sidebarColor: "#091525",
+  },
+  {
+    id: "indigo",
+    name: "Indigo",
+    primaryColor: "#3730a3",
+    accentColor: "#8b83f7",
+    sidebarColor: "#14123a",
+  },
+  {
+    id: "terracotta",
+    name: "Terracotta",
+    primaryColor: "#8a5a44",
+    accentColor: "#6aad72",
+    sidebarColor: "#32241c",
+  },
+  {
+    id: "violet",
+    name: "Violet",
+    primaryColor: "#581c87",
+    accentColor: "#c084fc",
+    sidebarColor: "#1a0a2e",
+  },
+  {
+    id: "ocean",
+    name: "Ocean",
+    primaryColor: "#0e7490",
+    accentColor: "#22d3ee",
+    sidebarColor: "#042f3d",
+  },
+];
+
+export const DEFAULT_COLOR_PRESET_ID = "indigo";
+
+export function findPresetById(id: string): ColorPreset | undefined {
+  return COLOR_PRESETS.find((p) => p.id === id);
+}
+
+export function findPresetByColors(
+  primaryColor: string,
+  accentColor: string,
+  sidebarColor: string,
+): ColorPreset | undefined {
+  return COLOR_PRESETS.find(
+    (p) =>
+      p.primaryColor === primaryColor &&
+      p.accentColor === accentColor &&
+      p.sidebarColor === sidebarColor,
+  );
+}

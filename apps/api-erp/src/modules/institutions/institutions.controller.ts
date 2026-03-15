@@ -17,7 +17,9 @@ import {
   ApiOperation,
   ApiTags,
 } from "@nestjs/swagger";
-import { API_DOCS, API_ROUTES } from "../../constants";
+import { API_DOCS, API_ROUTES, PERMISSIONS } from "../../constants";
+import { PermissionGuard } from "../auth/permission.guard";
+import { RequirePermission } from "../auth/require-permission.decorator";
 import { CurrentSession } from "../auth/current-session.decorator";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
 import type { AuthenticatedSession } from "../auth/auth.types";
@@ -64,7 +66,8 @@ export class InstitutionsController {
     return this.institutionsService.countInstitutionsByStatus();
   }
 
-  @UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+  @UseGuards(SessionAuthGuard, TenantInstitutionGuard, PermissionGuard)
+  @RequirePermission(PERMISSIONS.INSTITUTION_SETTINGS_MANAGE)
   @Patch(`${API_ROUTES.CURRENT}/${API_ROUTES.BRANDING}`)
   @ApiCookieAuth()
   @ApiOperation({

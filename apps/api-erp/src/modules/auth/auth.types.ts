@@ -85,6 +85,12 @@ export type AuthContext = {
   linkedStudents: AuthenticatedLinkedStudent[];
 };
 
+export type ResolvedScopes = {
+  campusIds: string[] | "all";
+  classIds: string[] | "all";
+  sectionIds: string[] | "all";
+};
+
 export type SessionRequestContext = {
   ipAddress?: string | null;
   userAgent?: string | null;

@@ -6,11 +6,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
-import {
-  AUTH_CONTEXT_KEYS,
-  FEE_ASSIGNMENT_STATUSES,
-  FEE_STRUCTURE_SCOPES,
-} from "@repo/contracts";
+import { FEE_ASSIGNMENT_STATUSES, FEE_STRUCTURE_SCOPES } from "@repo/contracts";
 import type { AppDatabase } from "@repo/database";
 import {
   academicYears,
@@ -24,8 +20,8 @@ import {
 import { and, asc, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
-import { AuthService } from "../auth/auth.service";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
+import { campusScopeFilter } from "../auth/scope-filter";
 import type {
   CreateFeeAssignmentDto,
   CreateFeePaymentDto,
@@ -39,16 +35,14 @@ type PaymentSummary = {
 
 @Injectable()
 export class FeesService {
-  constructor(
-    @Inject(DATABASE) private readonly database: AppDatabase,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(@Inject(DATABASE) private readonly database: AppDatabase) {}
 
   async listFeeStructures(
     institutionId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
+    const scopeFilter = campusScopeFilter(feeStructures.campusId, scopes);
 
     const rows = await this.database
       .select({
@@ -75,6 +69,7 @@ export class FeesService {
         and(
           eq(feeStructures.institutionId, institutionId),
           isNull(feeStructures.deletedAt),
+          scopeFilter,
         ),
       )
       .orderBy(asc(academicYears.startDate), asc(feeStructures.name));
@@ -92,8 +87,6 @@ export class FeesService {
     authSession: AuthenticatedSession,
     payload: CreateFeeStructureDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const academicYear = await this.getAcademicYearOrThrow(
       institutionId,
       payload.academicYearId,
@@ -137,10 +130,8 @@ export class FeesService {
 
   async listFeeAssignments(
     institutionId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     return this.listFeeAssignmentsForInstitution(institutionId);
   }
 
@@ -149,8 +140,6 @@ export class FeesService {
     authSession: AuthenticatedSession,
     payload: CreateFeeAssignmentDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const feeStructure = await this.getFeeStructureOrThrow(
       institutionId,
       payload.feeStructureId,
@@ -199,8 +188,6 @@ export class FeesService {
     authSession: AuthenticatedSession,
     payload: CreateFeePaymentDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const assignment = await this.getFeeAssignmentOrThrow(
       institutionId,
       payload.feeAssignmentId,
@@ -248,9 +235,7 @@ export class FeesService {
     return this.getFeePaymentById(paymentId, institutionId);
   }
 
-  async listFeeDues(institutionId: string, authSession: AuthenticatedSession) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
+  async listFeeDues(institutionId: string, _authSession: AuthenticatedSession) {
     const assignments =
       await this.listFeeAssignmentsForInstitution(institutionId);
 
@@ -652,16 +637,5 @@ export class FeesService {
     }
 
     return amountInPaise;
-  }
-
-  private async requireInstitutionAccess(
-    authSession: AuthenticatedSession,
-    institutionId: string,
-  ) {
-    await this.authService.requireOrganizationContext(
-      authSession,
-      institutionId,
-      AUTH_CONTEXT_KEYS.STAFF,
-    );
   }
 }

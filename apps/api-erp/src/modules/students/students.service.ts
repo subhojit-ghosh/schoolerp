@@ -1,5 +1,4 @@
 import { DATABASE } from "@repo/backend-core";
-import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import {
   BadRequestException,
   ConflictException,
@@ -47,9 +46,9 @@ import {
   resolveTablePageSize,
   type PaginatedResult,
 } from "../../lib/list-query";
-import { AuthService } from "../auth/auth.service";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
+import { campusScopeFilter, sectionScopeFilter } from "../auth/scope-filter";
 import type {
   CreateGuardianLinkDto,
   CurrentEnrollmentDto,
@@ -112,18 +111,14 @@ export class StudentsService {
     status: member.status,
   };
 
-  constructor(
-    @Inject(DATABASE) private readonly db: AppDatabase,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
 
   async listStudents(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: ListStudentsQueryDto = {},
   ): Promise<PaginatedResult<Awaited<ReturnType<typeof this.getStudent>>>> {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableStudentColumns.name;
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
@@ -135,6 +130,11 @@ export class StudentsService {
       ne(schoolClasses.status, STATUS.CLASS.DELETED),
       eq(classSections.status, STATUS.SECTION.ACTIVE),
     ];
+
+    const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+    if (campusFilter) conditions.push(campusFilter);
+    const sectionFilter = sectionScopeFilter(students.sectionId, scopes);
+    if (sectionFilter) conditions.push(sectionFilter);
 
     if (query.search) {
       conditions.push(
@@ -202,12 +202,16 @@ export class StudentsService {
   async getStudent(
     institutionId: string,
     studentId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
+    scopes: ResolvedScopes = {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    },
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const [studentRecord] = await this.listStudentsForInstitution(
       institutionId,
+      scopes,
       studentId,
     );
 
@@ -220,11 +224,17 @@ export class StudentsService {
 
   async listStudentOptions(
     institutionId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
+    scopes: ResolvedScopes = {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    },
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
-    const studentRows = await this.listStudentsForInstitution(institutionId);
+    const studentRows = await this.listStudentsForInstitution(
+      institutionId,
+      scopes,
+    );
 
     return studentRows.map((student) => ({
       id: student.id,
@@ -240,8 +250,6 @@ export class StudentsService {
     authSession: AuthenticatedSession,
     payload: UpdateStudentDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const existingStudent = await this.getStudentMembership(
       institutionId,
       studentId,
@@ -396,6 +404,7 @@ export class StudentsService {
 
   private async listStudentsForInstitution(
     institutionId: string,
+    scopes: ResolvedScopes,
     studentId?: string,
   ) {
     const studentRows = await this.db
@@ -414,6 +423,8 @@ export class StudentsService {
           ne(campus.status, STATUS.CAMPUS.DELETED),
           ne(schoolClasses.status, STATUS.CLASS.DELETED),
           eq(classSections.status, STATUS.SECTION.ACTIVE),
+          campusScopeFilter(member.primaryCampusId, scopes),
+          sectionScopeFilter(students.sectionId, scopes),
         ),
       );
 
@@ -440,8 +451,6 @@ export class StudentsService {
     authSession: AuthenticatedSession,
     payload: CreateStudentDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const selectedCampus = await this.getCampus(
       institutionId,
       payload.campusId,
@@ -546,7 +555,11 @@ export class StudentsService {
     });
 
     const [studentRecord] = (
-      await this.listStudentsForInstitution(institutionId)
+      await this.listStudentsForInstitution(institutionId, {
+        campusIds: "all",
+        classIds: "all",
+        sectionIds: "all",
+      })
     ).filter((row) => row.id === createdStudent.id);
 
     if (!studentRecord) {
@@ -554,17 +567,6 @@ export class StudentsService {
     }
 
     return studentRecord;
-  }
-
-  private async requireInstitutionAccess(
-    authSession: AuthenticatedSession,
-    institutionId: string,
-  ) {
-    await this.authService.requireOrganizationContext(
-      authSession,
-      institutionId,
-      AUTH_CONTEXT_KEYS.STAFF,
-    );
   }
 
   private async getCampus(institutionId: string, campusId: string) {

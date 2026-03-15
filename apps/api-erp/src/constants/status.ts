@@ -3,6 +3,10 @@ import {
   ATTENDANCE_STATUSES,
   CLASS_STATUS,
   GUARDIAN_RELATIONSHIPS,
+  ROLE_NAMES,
+  ROLE_SLUGS,
+  ROLE_TYPES,
+  SCOPE_TYPES,
   SECTION_STATUS,
   type AttendanceStatus,
   type ClassStatus,
@@ -10,7 +14,13 @@ import {
   type SectionStatus,
 } from "@repo/contracts";
 
-export { GUARDIAN_RELATIONSHIPS };
+export {
+  GUARDIAN_RELATIONSHIPS,
+  ROLE_NAMES,
+  ROLE_SLUGS,
+  ROLE_TYPES,
+  SCOPE_TYPES,
+};
 export const STATUS = {
   ORG: {
     ACTIVE: "active",
@@ -38,28 +48,6 @@ export const MEMBER_TYPES = {
   STAFF: "staff",
   STUDENT: "student",
   GUARDIAN: "guardian",
-} as const;
-
-export const ROLE_TYPES = {
-  PLATFORM: "platform",
-  SYSTEM: "system",
-  INSTITUTION: "institution",
-} as const;
-
-export const ROLE_SLUGS = {
-  INSTITUTION_ADMIN: "institution_admin",
-} as const;
-
-export const ROLE_NAMES = {
-  INSTITUTION_ADMIN: "Institution Admin",
-} as const;
-
-export const SCOPE_TYPES = {
-  INSTITUTION: "institution",
-  CAMPUS: "campus",
-  DEPARTMENT: "department",
-  CLASS: "class",
-  SECTION: "section",
 } as const;
 
 export type OrgStatus = (typeof STATUS.ORG)[keyof typeof STATUS.ORG];

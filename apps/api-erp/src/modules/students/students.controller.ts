@@ -15,9 +15,13 @@ import {
   ApiOperation,
   ApiTags,
 } from "@nestjs/swagger";
-import { API_DOCS, API_ROUTES } from "../../constants";
+import { API_DOCS, API_ROUTES, PERMISSIONS } from "../../constants";
+import { PermissionGuard } from "../auth/permission.guard";
+import { ScopeGuard } from "../auth/scope.guard";
+import { RequirePermission } from "../auth/require-permission.decorator";
 import { CurrentSession } from "../auth/current-session.decorator";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import { CurrentScopes } from "../auth/current-scopes.decorator";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
 import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
@@ -39,27 +43,36 @@ import { StudentsService } from "./students.service";
 
 @ApiTags(API_DOCS.TAGS.STUDENTS)
 @ApiCookieAuth()
-@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@UseGuards(
+  SessionAuthGuard,
+  TenantInstitutionGuard,
+  PermissionGuard,
+  ScopeGuard,
+)
 @Controller(API_ROUTES.STUDENTS)
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
   @Get()
+  @RequirePermission(PERMISSIONS.STUDENTS_READ)
   @ApiOperation({ summary: "List students for the current tenant institution" })
   @ApiOkResponse({ type: ListStudentsResultDto })
   listStudents(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Query() query: ListStudentsQueryDto,
   ) {
     return this.studentsService.listStudents(
       institution.id,
       authSession,
+      scopes,
       parseListStudentsQuery(query),
     );
   }
 
   @Get(API_ROUTES.OPTIONS)
+  @RequirePermission(PERMISSIONS.STUDENTS_READ)
   @ApiOperation({
     summary:
       "List student options for select controls in the current tenant institution",
@@ -68,11 +81,17 @@ export class StudentsController {
   listStudentOptions(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
   ) {
-    return this.studentsService.listStudentOptions(institution.id, authSession);
+    return this.studentsService.listStudentOptions(
+      institution.id,
+      authSession,
+      scopes,
+    );
   }
 
   @Post()
+  @RequirePermission(PERMISSIONS.STUDENTS_MANAGE)
   @ApiOperation({
     summary: "Create a student and link guardians for the current tenant",
   })
@@ -91,6 +110,7 @@ export class StudentsController {
   }
 
   @Get(":studentId")
+  @RequirePermission(PERMISSIONS.STUDENTS_READ)
   @ApiOperation({
     summary: "Get a single student for the current tenant institution",
   })
@@ -99,15 +119,18 @@ export class StudentsController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("studentId") studentId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
   ) {
     return this.studentsService.getStudent(
       institution.id,
       studentId,
       authSession,
+      scopes,
     );
   }
 
   @Patch(":studentId")
+  @RequirePermission(PERMISSIONS.STUDENTS_MANAGE)
   @ApiOperation({
     summary: "Update a student and reconcile guardians for the current tenant",
   })

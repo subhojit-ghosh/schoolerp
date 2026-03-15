@@ -1,4 +1,4 @@
-import { AUTH_CONTEXT_KEYS, type GuardianRelationship } from "@repo/contracts";
+import type { GuardianRelationship } from "@repo/contracts";
 import { DATABASE } from "@repo/backend-core";
 import {
   ConflictException,
@@ -30,8 +30,8 @@ import {
   type SQL,
 } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
-import { AuthService } from "../auth/auth.service";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
+import { campusScopeFilter } from "../auth/scope-filter";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import {
   ERROR_MESSAGES,
@@ -93,18 +93,14 @@ const sortableColumns = {
 
 @Injectable()
 export class GuardiansService {
-  constructor(
-    @Inject(DATABASE) private readonly db: AppDatabase,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
 
   async listGuardians(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: ListGuardiansQueryDto = {},
   ): Promise<PaginatedResult<GuardianSummary>> {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableGuardianColumns.name;
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
@@ -114,6 +110,9 @@ export class GuardiansService {
       ne(member.status, STATUS.MEMBER.DELETED),
       ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
+
+    const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+    if (campusFilter) conditions.push(campusFilter);
 
     if (query.search) {
       conditions.push(
@@ -166,10 +165,8 @@ export class GuardiansService {
   async getGuardian(
     institutionId: string,
     guardianId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const [guardianRecord] = await this.listGuardiansForInstitution(
       institutionId,
       guardianId,
@@ -188,8 +185,6 @@ export class GuardiansService {
     authSession: AuthenticatedSession,
     payload: UpdateGuardianDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const guardianMembership = await this.getGuardianMembership(
       institutionId,
       guardianId,
@@ -241,8 +236,6 @@ export class GuardiansService {
     authSession: AuthenticatedSession,
     payload: LinkGuardianStudentDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const guardianMembership = await this.getGuardianMembership(
       institutionId,
       guardianId,
@@ -334,8 +327,6 @@ export class GuardiansService {
     authSession: AuthenticatedSession,
     payload: UpdateGuardianStudentLinkDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     await this.getGuardianMembership(institutionId, guardianId);
     const studentMembership = await this.getStudentMembership(
       institutionId,
@@ -388,8 +379,6 @@ export class GuardiansService {
     studentId: string,
     authSession: AuthenticatedSession,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     await this.getGuardianMembership(institutionId, guardianId);
     const studentMembership = await this.getStudentMembership(
       institutionId,
@@ -724,17 +713,6 @@ export class GuardiansService {
         campusId,
       });
     }
-  }
-
-  private async requireInstitutionAccess(
-    authSession: AuthenticatedSession,
-    institutionId: string,
-  ) {
-    await this.authService.requireOrganizationContext(
-      authSession,
-      institutionId,
-      AUTH_CONTEXT_KEYS.STAFF,
-    );
   }
 
   private readonly guardianSelect = {

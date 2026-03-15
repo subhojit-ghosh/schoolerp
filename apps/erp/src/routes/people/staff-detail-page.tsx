@@ -74,7 +74,7 @@ export function StaffDetailPage() {
       email: staffRecord.email ?? "",
       campusId: staffRecord.campusId,
       roleId: staffRecord.role?.id ?? STAFF_UNASSIGNED_ROLE_VALUE,
-      status: staffRecord.status,
+      status: staffRecord.status as "active" | "inactive" | "suspended",
     };
   }, [session?.activeCampus?.id, staffQuery.data]);
 

@@ -14,14 +14,19 @@ import type { AppDatabase } from "@repo/database";
 import {
   campus,
   member,
+  membershipRoles,
+  membershipRoleScopes,
   organization,
   passwordResetToken,
+  permissions,
+  rolePermissions,
+  roles,
   session,
   studentGuardianLinks,
   students,
   user,
 } from "@repo/database";
-import { and, eq, gt, inArray, isNull, ne, or } from "drizzle-orm";
+import { and, eq, gt, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Response } from "express";
@@ -30,7 +35,9 @@ import {
   AUTH_PASSWORD_RESET,
   AUTH_RECOVERY_CHANNELS,
   ERROR_MESSAGES,
+  MEMBER_TYPES,
   STATUS,
+  type PermissionSlug,
 } from "../../constants";
 import { AUTH_COOKIE_OPTIONS } from "./auth.constants";
 import {
@@ -52,6 +59,7 @@ import type {
   AuthenticatedSession,
   AuthenticatedUser,
   PasswordResetRequestResult,
+  ResolvedScopes,
   SessionAccessContext,
   SessionRequestContext,
 } from "./auth.types";
@@ -497,6 +505,128 @@ export class AuthService {
       linkedStudents: authContext.linkedStudents.map((student) =>
         this.toLinkedStudentDto(student),
       ),
+    };
+  }
+
+  async resolvePermissions(
+    userId: string,
+    institutionId: string,
+  ): Promise<Set<PermissionSlug>> {
+    const today = new Date().toISOString().slice(0, 10);
+
+    const rows = await this.database
+      .selectDistinct({ slug: permissions.slug })
+      .from(member)
+      .innerJoin(membershipRoles, eq(membershipRoles.membershipId, member.id))
+      .innerJoin(roles, eq(roles.id, membershipRoles.roleId))
+      .innerJoin(rolePermissions, eq(rolePermissions.roleId, roles.id))
+      .innerJoin(permissions, eq(permissions.id, rolePermissions.permissionId))
+      .where(
+        and(
+          eq(member.userId, userId),
+          eq(member.organizationId, institutionId),
+          eq(member.memberType, MEMBER_TYPES.STAFF),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          lte(membershipRoles.validFrom, today),
+          or(
+            isNull(membershipRoles.validTo),
+            sql`${membershipRoles.validTo} >= ${today}`,
+          ),
+        ),
+      );
+
+    return new Set(rows.map((r: { slug: string }) => r.slug as PermissionSlug));
+  }
+
+  async resolveScopes(
+    userId: string,
+    institutionId: string,
+  ): Promise<ResolvedScopes> {
+    const today = new Date().toISOString().slice(0, 10);
+
+    const rows = await this.database
+      .select({
+        membershipRoleId: membershipRoles.id,
+        scopeType: membershipRoleScopes.scopeType,
+        scopeId: membershipRoleScopes.scopeId,
+      })
+      .from(member)
+      .innerJoin(membershipRoles, eq(membershipRoles.membershipId, member.id))
+      .leftJoin(
+        membershipRoleScopes,
+        eq(membershipRoleScopes.membershipRoleId, membershipRoles.id),
+      )
+      .where(
+        and(
+          eq(member.userId, userId),
+          eq(member.organizationId, institutionId),
+          eq(member.memberType, MEMBER_TYPES.STAFF),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          lte(membershipRoles.validFrom, today),
+          or(
+            isNull(membershipRoles.validTo),
+            sql`${membershipRoles.validTo} >= ${today}`,
+          ),
+          isNull(membershipRoles.deletedAt),
+        ),
+      );
+
+    // Group scope rows by membershipRoleId
+    const byRole = new Map<
+      string,
+      Array<{ scopeType: string; scopeId: string }>
+    >();
+    for (const row of rows) {
+      if (!byRole.has(row.membershipRoleId)) {
+        byRole.set(row.membershipRoleId, []);
+      }
+      if (row.scopeType && row.scopeId) {
+        byRole
+          .get(row.membershipRoleId)!
+          .push({ scopeType: row.scopeType, scopeId: row.scopeId });
+      }
+    }
+
+    // If the user has no active role assignments, return empty scopes
+    if (byRole.size === 0) {
+      return { campusIds: [], classIds: [], sectionIds: [] };
+    }
+
+    // If any role has no scope rows → institution-wide → return "all"
+    for (const scopeRows of byRole.values()) {
+      if (scopeRows.length === 0) {
+        return { campusIds: "all", classIds: "all", sectionIds: "all" };
+      }
+    }
+
+    // Aggregate scopes across all roles
+    let campusAll = false;
+    let classAll = false;
+    let sectionAll = false;
+    const campusIds = new Set<string>();
+    const classIds = new Set<string>();
+    const sectionIds = new Set<string>();
+
+    for (const scopeRows of byRole.values()) {
+      const hasCampus = scopeRows.some((r) => r.scopeType === "campus");
+      const hasClass = scopeRows.some((r) => r.scopeType === "class");
+      const hasSection = scopeRows.some((r) => r.scopeType === "section");
+
+      if (!hasCampus) campusAll = true;
+      if (!hasClass) classAll = true;
+      if (!hasSection) sectionAll = true;
+
+      for (const { scopeType, scopeId } of scopeRows) {
+        if (scopeType === "campus") campusIds.add(scopeId);
+        if (scopeType === "class") classIds.add(scopeId);
+        if (scopeType === "section") sectionIds.add(scopeId);
+      }
+    }
+
+    return {
+      campusIds: campusAll ? "all" : Array.from(campusIds),
+      classIds: classAll ? "all" : Array.from(classIds),
+      sectionIds: sectionAll ? "all" : Array.from(sectionIds),
     };
   }
 

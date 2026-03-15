@@ -5,30 +5,24 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
-import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import type { AppDatabase } from "@repo/database";
 import { academicYears, examMarks, examTerms, students } from "@repo/database";
 import { and, asc, eq, inArray, isNull, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
-import { AuthService } from "../auth/auth.service";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
+import { sectionScopeFilter } from "../auth/scope-filter";
 import { ExamMarkDto, ExamTermDto } from "./exams.dto";
 import type { CreateExamTermDto, UpsertExamMarksDto } from "./exams.schemas";
 
 @Injectable()
 export class ExamsService {
-  constructor(
-    @Inject(DATABASE) private readonly database: AppDatabase,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(@Inject(DATABASE) private readonly database: AppDatabase) {}
 
   async listExamTerms(
     institutionId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
   ): Promise<ExamTermDto[]> {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const rows = await this.database
       .select({
         id: examTerms.id,
@@ -62,8 +56,6 @@ export class ExamsService {
     authSession: AuthenticatedSession,
     payload: CreateExamTermDto,
   ): Promise<ExamTermDto> {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const academicYear = await this.getAcademicYearOrThrow(
       institutionId,
       payload.academicYearId,
@@ -93,9 +85,13 @@ export class ExamsService {
   async listExamMarks(
     institutionId: string,
     examTermId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
+    scopes: ResolvedScopes = {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    },
   ): Promise<ExamMarkDto[]> {
-    await this.requireInstitutionAccess(authSession, institutionId);
     await this.getExamTermOrThrow(institutionId, examTermId);
 
     const rows = await this.database
@@ -119,6 +115,7 @@ export class ExamsService {
           eq(examMarks.institutionId, institutionId),
           eq(examMarks.examTermId, examTermId),
           isNull(students.deletedAt),
+          sectionScopeFilter(students.sectionId, scopes),
         ),
       )
       .orderBy(
@@ -149,7 +146,6 @@ export class ExamsService {
     authSession: AuthenticatedSession,
     payload: UpsertExamMarksDto,
   ): Promise<ExamMarkDto[]> {
-    await this.requireInstitutionAccess(authSession, institutionId);
     await this.getExamTermOrThrow(institutionId, examTermId);
     await this.assertStudentsBelongToInstitution(
       institutionId,
@@ -250,16 +246,5 @@ export class ExamsService {
     if (rows.length !== distinctStudentIds.length) {
       throw new BadRequestException(ERROR_MESSAGES.EXAMS.STUDENT_REQUIRED);
     }
-  }
-
-  private async requireInstitutionAccess(
-    authSession: AuthenticatedSession,
-    institutionId: string,
-  ) {
-    await this.authService.requireOrganizationContext(
-      authSession,
-      institutionId,
-      AUTH_CONTEXT_KEYS.STAFF,
-    );
   }
 }

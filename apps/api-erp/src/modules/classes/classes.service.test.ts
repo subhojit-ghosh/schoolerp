@@ -56,15 +56,11 @@ function createClassesService() {
     ),
   };
 
-  const authService = {
-    requireOrganizationContext: mock(() => Promise.resolve(undefined)),
-  };
-
   return {
     db,
     tx,
     txInsertValues,
-    service: new ClassesService(db as never, authService as never),
+    service: new ClassesService(db as never),
   };
 }
 

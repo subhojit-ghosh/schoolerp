@@ -27,7 +27,9 @@
     "dev": "tsc -w -p tsconfig.json",
     "db:generate": "bun --env-file=.env.local drizzle-kit generate --config=drizzle.config.ts",
     "db:migrate": "bun --env-file=.env.local drizzle-kit migrate --config=drizzle.config.ts",
-    "db:studio": "bun --env-file=.env.local drizzle-kit studio --config=drizzle.config.ts"
+    "db:studio": "bun --env-file=.env.local drizzle-kit studio --config=drizzle.config.ts",
+    "db:seed": "bun --env-file=.env.local src/seed.ts",
+    "db:drop-institution": "bun --env-file=.env.local src/drop-institution.ts"
   },
   "dependencies": {
     "@repo/contracts": "workspace:*",

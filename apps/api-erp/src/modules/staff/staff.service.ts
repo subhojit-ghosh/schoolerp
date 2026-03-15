@@ -1,5 +1,4 @@
 import { DATABASE } from "@repo/backend-core";
-import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import {
   ConflictException,
   Inject,
@@ -41,8 +40,8 @@ import {
   resolveTablePageSize,
   type PaginatedResult,
 } from "../../lib/list-query";
-import { AuthService } from "../auth/auth.service";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
+import { campusScopeFilter } from "../auth/scope-filter";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import type { StaffDto } from "./staff.dto";
 import type {
@@ -68,18 +67,14 @@ const sortableColumns = {
 
 @Injectable()
 export class StaffService {
-  constructor(
-    @Inject(DATABASE) private readonly db: AppDatabase,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
 
   async listStaff(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: ListStaffQueryDto = {},
   ): Promise<PaginatedResult<StaffDto>> {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableStaffColumns.name;
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
@@ -89,6 +84,9 @@ export class StaffService {
       ne(member.status, STATUS.MEMBER.DELETED),
       ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
+
+    const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+    if (campusFilter) conditions.push(campusFilter);
 
     if (query.search) {
       conditions.push(
@@ -137,18 +135,15 @@ export class StaffService {
     };
   }
 
-  async listRoles(institutionId: string, authSession: AuthenticatedSession) {
-    await this.requireInstitutionAccess(authSession, institutionId);
+  async listRoles(institutionId: string, _authSession: AuthenticatedSession) {
     return this.listRolesForInstitution(institutionId);
   }
 
   async getStaff(
     institutionId: string,
     staffId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const [staffRecord] = await this.listStaffForInstitution(
       institutionId,
       staffId,
@@ -166,8 +161,6 @@ export class StaffService {
     authSession: AuthenticatedSession,
     payload: CreateStaffDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const selectedCampus = await this.getCampus(
       institutionId,
       payload.campusId,
@@ -238,8 +231,6 @@ export class StaffService {
     authSession: AuthenticatedSession,
     payload: UpdateStaffDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const existingStaff = await this.getStaffMembership(institutionId, staffId);
     const selectedCampus = await this.getCampus(
       institutionId,
@@ -375,17 +366,6 @@ export class StaffService {
       });
 
     return staffRoleMap;
-  }
-
-  private async requireInstitutionAccess(
-    authSession: AuthenticatedSession,
-    institutionId: string,
-  ) {
-    await this.authService.requireOrganizationContext(
-      authSession,
-      institutionId,
-      AUTH_CONTEXT_KEYS.STAFF,
-    );
   }
 
   private readonly staffSelect = {

@@ -1,5 +1,4 @@
 import { DATABASE } from "@repo/backend-core";
-import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import { campus } from "@repo/database";
@@ -21,7 +20,6 @@ import {
   resolveTablePageSize,
   type PaginatedResult,
 } from "../../lib/list-query";
-import { AuthService } from "../auth/auth.service";
 import { slugifyValue } from "../auth/auth.utils";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import type { CampusDto } from "./campuses.dto";
@@ -39,18 +37,13 @@ const sortableColumns = {
 
 @Injectable()
 export class CampusesService {
-  constructor(
-    @Inject(DATABASE) private readonly db: AppDatabase,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
 
   async listCampuses(
     organizationId: string,
     authSession: AuthenticatedSession,
     query: ListCampusesQueryDto = {},
   ): Promise<PaginatedResult<CampusDto>> {
-    await this.requireInstitutionAccess(authSession, organizationId);
-
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableCampusColumns.name;
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
@@ -104,8 +97,6 @@ export class CampusesService {
     authSession: AuthenticatedSession,
     payload: CreateCampusDto,
   ) {
-    await this.requireInstitutionAccess(authSession, organizationId);
-
     const nextSlug = slugifyValue(payload.slug ?? payload.name);
 
     await this.assertCampusSlugAvailable(organizationId, nextSlug);
@@ -164,17 +155,6 @@ export class CampusesService {
     if (existingCampus) {
       throw new ConflictException(ERROR_MESSAGES.ONBOARDING.CAMPUS_SLUG_EXISTS);
     }
-  }
-
-  private async requireInstitutionAccess(
-    authSession: AuthenticatedSession,
-    institutionId: string,
-  ) {
-    await this.authService.requireOrganizationContext(
-      authSession,
-      institutionId,
-      AUTH_CONTEXT_KEYS.STAFF,
-    );
   }
 
   private readonly campusSelect = {

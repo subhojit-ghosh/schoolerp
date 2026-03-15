@@ -14,11 +14,11 @@ import { ExamsModule } from "./modules/exams/exams.module";
 import { InstitutionsModule } from "./modules/institutions/institutions.module";
 import { OnboardingModule } from "./modules/onboarding/onboarding.module";
 import { PublicModule } from "./modules/public/public.module";
+import { RolesModule } from "./modules/roles/roles.module";
 import { StaffModule } from "./modules/staff/staff.module";
 import { TenantContextModule } from "./modules/tenant-context/tenant-context.module";
 import { GuardiansModule } from "./modules/guardians/guardians.module";
 import { StudentsModule } from "./modules/students/students.module";
-
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,6 +41,7 @@ import { StudentsModule } from "./modules/students/students.module";
     AttendanceModule,
     ExamsModule,
     FeesModule,
+    RolesModule,
     InstitutionsModule,
     PublicModule,
   ],

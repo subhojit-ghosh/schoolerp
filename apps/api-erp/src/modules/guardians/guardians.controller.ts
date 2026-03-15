@@ -16,9 +16,13 @@ import {
   ApiOperation,
   ApiTags,
 } from "@nestjs/swagger";
-import { API_DOCS, API_ROUTES } from "../../constants";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import { API_DOCS, API_ROUTES, PERMISSIONS } from "../../constants";
+import { PermissionGuard } from "../auth/permission.guard";
+import { ScopeGuard } from "../auth/scope.guard";
+import { RequirePermission } from "../auth/require-permission.decorator";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { CurrentSession } from "../auth/current-session.decorator";
+import { CurrentScopes } from "../auth/current-scopes.decorator";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
 import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
@@ -41,12 +45,18 @@ import { GuardiansService } from "./guardians.service";
 
 @ApiTags(API_DOCS.TAGS.GUARDIANS)
 @ApiCookieAuth()
-@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@UseGuards(
+  SessionAuthGuard,
+  TenantInstitutionGuard,
+  PermissionGuard,
+  ScopeGuard,
+)
 @Controller(API_ROUTES.GUARDIANS)
 export class GuardiansController {
   constructor(private readonly guardiansService: GuardiansService) {}
 
   @Get()
+  @RequirePermission(PERMISSIONS.GUARDIANS_READ)
   @ApiOperation({
     summary: "List guardians for the current tenant institution",
   })
@@ -54,16 +64,19 @@ export class GuardiansController {
   listGuardians(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Query() query: ListGuardiansQueryDto,
   ) {
     return this.guardiansService.listGuardians(
       institution.id,
       authSession,
+      scopes,
       parseListGuardiansQuery(query),
     );
   }
 
   @Get(":guardianId")
+  @RequirePermission(PERMISSIONS.GUARDIANS_READ)
   @ApiOperation({ summary: "Get a single guardian for the current tenant" })
   @ApiOkResponse({ type: GuardianDto })
   getGuardian(
@@ -79,6 +92,7 @@ export class GuardiansController {
   }
 
   @Patch(":guardianId")
+  @RequirePermission(PERMISSIONS.GUARDIANS_MANAGE)
   @ApiOperation({ summary: "Update guardian details" })
   @ApiBody({ type: UpdateGuardianBodyDto })
   @ApiOkResponse({ type: GuardianDto })
@@ -97,6 +111,7 @@ export class GuardiansController {
   }
 
   @Post(":guardianId/students")
+  @RequirePermission(PERMISSIONS.GUARDIANS_MANAGE)
   @ApiOperation({ summary: "Link a guardian to a student" })
   @ApiBody({ type: LinkGuardianStudentBodyDto })
   @ApiOkResponse({ type: GuardianDto })
@@ -115,6 +130,7 @@ export class GuardiansController {
   }
 
   @Patch(":guardianId/students/:studentId")
+  @RequirePermission(PERMISSIONS.GUARDIANS_MANAGE)
   @ApiOperation({ summary: "Update a guardian-student relationship" })
   @ApiBody({ type: UpdateGuardianStudentLinkBodyDto })
   @ApiOkResponse({ type: GuardianDto })
@@ -135,6 +151,7 @@ export class GuardiansController {
   }
 
   @Delete(":guardianId/students/:studentId")
+  @RequirePermission(PERMISSIONS.GUARDIANS_MANAGE)
   @ApiOperation({ summary: "Unlink a guardian from a student" })
   @ApiOkResponse({ type: GuardianDto })
   unlinkStudent(

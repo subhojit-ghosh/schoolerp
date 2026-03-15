@@ -17,7 +17,9 @@ import {
   ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
-import { API_DOCS, API_ROUTES } from "../../constants";
+import { API_DOCS, API_ROUTES, PERMISSIONS } from "../../constants";
+import { PermissionGuard } from "../auth/permission.guard";
+import { RequirePermission } from "../auth/require-permission.decorator";
 import { CurrentSession } from "../auth/current-session.decorator";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
@@ -40,12 +42,13 @@ import { AcademicYearsService } from "./academic-years.service";
 
 @ApiTags(API_DOCS.TAGS.ACADEMIC_YEARS)
 @ApiCookieAuth()
-@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@UseGuards(SessionAuthGuard, TenantInstitutionGuard, PermissionGuard)
 @Controller(API_ROUTES.ACADEMIC_YEARS)
 export class AcademicYearsController {
   constructor(private readonly academicYearsService: AcademicYearsService) {}
 
   @Get()
+  @RequirePermission(PERMISSIONS.ACADEMICS_READ)
   @ApiOperation({
     summary: "List academic years for the current tenant institution",
   })
@@ -73,6 +76,7 @@ export class AcademicYearsController {
   }
 
   @Post()
+  @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
   @ApiOperation({ summary: "Create an academic year for the current tenant" })
   @ApiBody({ type: CreateAcademicYearBodyDto })
   @ApiCreatedResponse({
@@ -92,6 +96,7 @@ export class AcademicYearsController {
   }
 
   @Get(":academicYearId")
+  @RequirePermission(PERMISSIONS.ACADEMICS_READ)
   @ApiOperation({ summary: "Get a single academic year" })
   @ApiOkResponse({ description: "Academic year detail", type: AcademicYearDto })
   getAcademicYear(
@@ -107,6 +112,7 @@ export class AcademicYearsController {
   }
 
   @Patch(":academicYearId")
+  @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
   @ApiOperation({ summary: "Update an academic year" })
   @ApiBody({ type: UpdateAcademicYearBodyDto })
   @ApiOkResponse({

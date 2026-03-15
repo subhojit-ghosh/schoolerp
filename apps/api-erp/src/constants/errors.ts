@@ -13,6 +13,7 @@ export const ERROR_MESSAGES = {
     CONTEXT_ACCESS_REQUIRED:
       "You do not have access to the selected context for this institution.",
     CAMPUS_ACCESS_REQUIRED: "You do not have access to the selected campus.",
+    PERMISSION_DENIED: "You do not have permission to perform this action.",
     PASSWORD_RESET_REQUEST_BLOCKED:
       "Too many password reset attempts. Try again later.",
     PASSWORD_RESET_TOKEN_INVALID: "The password reset link is invalid.",

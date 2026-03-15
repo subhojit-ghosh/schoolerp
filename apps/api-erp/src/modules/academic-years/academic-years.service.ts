@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
-import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import { academicYears } from "@repo/database";
 import { and, asc, count, desc, eq, ilike, ne, type SQL } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
@@ -22,7 +21,6 @@ import type {
   UpdateAcademicYearDto,
 } from "./academic-years.schemas";
 import { sortableAcademicYearColumns } from "./academic-years.schemas";
-import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
 
 type AcademicYearRecord = {
@@ -44,18 +42,13 @@ const sortableColumns = {
 
 @Injectable()
 export class AcademicYearsService {
-  constructor(
-    @Inject(DATABASE) private readonly database: AppDatabase,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(@Inject(DATABASE) private readonly database: AppDatabase) {}
 
   async listAcademicYears(
     institutionId: string,
     authSession: AuthenticatedSession,
     query: ListAcademicYearsQueryDto = {},
   ): Promise<ListAcademicYearsResultDto> {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableAcademicYearColumns.startDate;
     const sortDirection = query.order === SORT_ORDERS.ASC ? asc : desc;
@@ -101,10 +94,8 @@ export class AcademicYearsService {
   async getAcademicYear(
     institutionId: string,
     academicYearId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
   ): Promise<AcademicYearDto> {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     return this.getAcademicYearOrThrow(academicYearId, institutionId);
   }
 
@@ -113,7 +104,6 @@ export class AcademicYearsService {
     authSession: AuthenticatedSession,
     payload: CreateAcademicYearDto,
   ): Promise<AcademicYearDto> {
-    await this.requireInstitutionAccess(authSession, institutionId);
     const academicYearId = randomUUID();
 
     return this.database.transaction(async (tx) => {
@@ -169,8 +159,6 @@ export class AcademicYearsService {
     authSession: AuthenticatedSession,
     payload: UpdateAcademicYearDto,
   ): Promise<AcademicYearDto> {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     return this.database.transaction(async (tx) => {
       const existingYear = await this.getAcademicYearByIdOrThrow(
         tx,
@@ -227,17 +215,6 @@ export class AcademicYearsService {
     );
 
     return this.toAcademicYearDto(year);
-  }
-
-  private async requireInstitutionAccess(
-    authSession: AuthenticatedSession,
-    institutionId: string,
-  ) {
-    await this.authService.requireOrganizationContext(
-      authSession,
-      institutionId,
-      AUTH_CONTEXT_KEYS.STAFF,
-    );
   }
 
   private readonly academicYearSelect = {

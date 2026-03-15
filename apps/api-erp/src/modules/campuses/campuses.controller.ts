@@ -6,7 +6,9 @@ import {
   ApiOperation,
   ApiTags,
 } from "@nestjs/swagger";
-import { API_DOCS, API_ROUTES } from "../../constants";
+import { API_DOCS, API_ROUTES, PERMISSIONS } from "../../constants";
+import { PermissionGuard } from "../auth/permission.guard";
+import { RequirePermission } from "../auth/require-permission.decorator";
 import { CurrentSession } from "../auth/current-session.decorator";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
@@ -24,12 +26,13 @@ import { CampusesService } from "./campuses.service";
 
 @ApiTags(API_DOCS.TAGS.CAMPUSES)
 @ApiCookieAuth()
-@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@UseGuards(SessionAuthGuard, TenantInstitutionGuard, PermissionGuard)
 @Controller(API_ROUTES.CAMPUSES)
 export class CampusesController {
   constructor(private readonly campusesService: CampusesService) {}
 
   @Get()
+  @RequirePermission(PERMISSIONS.CAMPUS_READ)
   @ApiOperation({ summary: "List campuses for the current tenant institution" })
   @ApiOkResponse({ type: ListCampusesResultDto })
   listCampuses(
@@ -45,6 +48,7 @@ export class CampusesController {
   }
 
   @Post()
+  @RequirePermission(PERMISSIONS.CAMPUS_MANAGE)
   @ApiOperation({
     summary: "Create a campus for the current tenant institution",
   })

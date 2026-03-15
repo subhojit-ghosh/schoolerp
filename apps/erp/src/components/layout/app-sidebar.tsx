@@ -162,7 +162,6 @@ const NAV_SETTINGS = [
   },
   { icon: IconPalette, title: "Branding", url: ERP_ROUTES.SETTINGS_BRANDING },
   {
-    disabled: true,
     icon: IconShieldLock,
     title: "Roles",
     url: ERP_ROUTES.SETTINGS_ROLES,

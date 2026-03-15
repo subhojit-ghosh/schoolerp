@@ -7,9 +7,13 @@ import {
   ApiOperation,
   ApiTags,
 } from "@nestjs/swagger";
-import { API_DOCS, API_ROUTES } from "../../constants";
+import { API_DOCS, API_ROUTES, PERMISSIONS } from "../../constants";
+import { PermissionGuard } from "../auth/permission.guard";
+import { ScopeGuard } from "../auth/scope.guard";
+import { RequirePermission } from "../auth/require-permission.decorator";
 import { CurrentSession } from "../auth/current-session.decorator";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import { CurrentScopes } from "../auth/current-scopes.decorator";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { SessionAuthGuard } from "../auth/session-auth.guard";
 import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
@@ -31,12 +35,18 @@ import { FeesService } from "./fees.service";
 
 @ApiTags(API_DOCS.TAGS.FEES)
 @ApiCookieAuth()
-@UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+@UseGuards(
+  SessionAuthGuard,
+  TenantInstitutionGuard,
+  PermissionGuard,
+  ScopeGuard,
+)
 @Controller(API_ROUTES.FEES)
 export class FeesController {
   constructor(private readonly feesService: FeesService) {}
 
   @Get(API_ROUTES.STRUCTURES)
+  @RequirePermission(PERMISSIONS.FEES_READ)
   @ApiOperation({
     summary: "List fee structures for the current tenant institution",
   })
@@ -44,11 +54,17 @@ export class FeesController {
   listFeeStructures(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
   ) {
-    return this.feesService.listFeeStructures(institution.id, authSession);
+    return this.feesService.listFeeStructures(
+      institution.id,
+      authSession,
+      scopes,
+    );
   }
 
   @Post(API_ROUTES.STRUCTURES)
+  @RequirePermission(PERMISSIONS.FEES_MANAGE)
   @ApiOperation({ summary: "Create a fee structure for the current tenant" })
   @ApiBody({ type: CreateFeeStructureBodyDto })
   @ApiCreatedResponse({ type: FeeStructureDto })
@@ -65,6 +81,7 @@ export class FeesController {
   }
 
   @Get(API_ROUTES.ASSIGNMENTS)
+  @RequirePermission(PERMISSIONS.FEES_READ)
   @ApiOperation({
     summary: "List fee assignments for the current tenant institution",
   })
@@ -77,6 +94,7 @@ export class FeesController {
   }
 
   @Post(API_ROUTES.ASSIGNMENTS)
+  @RequirePermission(PERMISSIONS.FEES_MANAGE)
   @ApiOperation({ summary: "Assign a fee structure to a student" })
   @ApiBody({ type: CreateFeeAssignmentBodyDto })
   @ApiCreatedResponse({ type: FeeAssignmentDto })
@@ -93,6 +111,7 @@ export class FeesController {
   }
 
   @Post(API_ROUTES.PAYMENTS)
+  @RequirePermission(PERMISSIONS.FEES_COLLECT)
   @ApiOperation({ summary: "Record a fee payment for an assignment" })
   @ApiBody({ type: CreateFeePaymentBodyDto })
   @ApiCreatedResponse({ type: FeePaymentDto })
@@ -109,6 +128,7 @@ export class FeesController {
   }
 
   @Get(API_ROUTES.DUES)
+  @RequirePermission(PERMISSIONS.FEES_READ)
   @ApiOperation({ summary: "List outstanding fee dues for the current tenant" })
   @ApiOkResponse({ type: FeeAssignmentDto, isArray: true })
   listFeeDues(

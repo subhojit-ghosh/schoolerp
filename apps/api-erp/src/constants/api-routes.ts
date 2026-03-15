@@ -39,4 +39,5 @@ export const API_ROUTES = {
   ARCHIVE: "archive",
   RESTORE: "restore",
   BRANDING: "branding",
+  PERMISSIONS_LIST: "permissions",
 } as const;

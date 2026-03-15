@@ -1,5 +1,9 @@
 import { DATABASE } from "@repo/backend-core";
-import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
+import {
+  AUTH_CONTEXT_KEYS,
+  DEFAULT_COLOR_PRESET_ID,
+  findPresetById,
+} from "@repo/contracts";
 import { Inject, Injectable, ConflictException } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
@@ -11,15 +15,13 @@ import {
   roles,
   user,
 } from "@repo/database";
-import { eq, and, ne } from "drizzle-orm";
+import { and, eq, isNull, ne } from "drizzle-orm";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import {
   ERROR_MESSAGES,
   MEMBER_TYPES,
-  ROLE_NAMES,
   ROLE_SLUGS,
-  ROLE_TYPES,
   STATUS,
 } from "../../constants";
 import { AuthService } from "../auth/auth.service";
@@ -32,11 +34,12 @@ import {
 } from "../auth/auth.utils";
 import type { CreateInstitutionOnboardingDto } from "./onboarding.schemas";
 
-const DEFAULT_BRANDING = {
-  PRIMARY_COLOR: "#8a5a44",
-  ACCENT_COLOR: "#d59f6a",
-  SIDEBAR_COLOR: "#32241c",
-} as const;
+const DEFAULT_PRESET =
+  findPresetById(DEFAULT_COLOR_PRESET_ID) ?? {
+    primaryColor: "#3730a3",
+    accentColor: "#8b83f7",
+    sidebarColor: "#14123a",
+  };
 
 @Injectable()
 export class OnboardingService {
@@ -54,29 +57,52 @@ export class OnboardingService {
     const normalizedMobile = normalizeMobile(payload.mobile);
     const normalizedEmail = normalizeOptionalEmail(payload.email);
 
-    await this.authService.assertUserIdentityAvailable(
-      normalizedMobile,
-      normalizedEmail,
-    );
-
     await this.assertInstitutionSlugAvailable(institutionSlug);
 
+    const [systemAdminRole] = await this.db
+      .select({ id: roles.id })
+      .from(roles)
+      .where(
+        and(
+          eq(roles.slug, ROLE_SLUGS.INSTITUTION_ADMIN),
+          isNull(roles.institutionId),
+        ),
+      )
+      .limit(1);
+
+    if (!systemAdminRole) {
+      throw new Error(
+        "System role institution_admin not found. Ensure the seed service has run.",
+      );
+    }
+
     const created = await this.db.transaction(async (tx) => {
-      const userId = randomUUID();
+      // Find existing user by mobile, or create a new one
+      const [existingUser] = await tx
+        .select({ id: user.id })
+        .from(user)
+        .where(eq(user.mobile, normalizedMobile))
+        .limit(1);
+
+      let userId: string;
+      if (existingUser) {
+        userId = existingUser.id;
+      } else {
+        userId = randomUUID();
+        const passwordHash = await hash(payload.password, 12);
+        await tx.insert(user).values({
+          id: userId,
+          name: payload.adminName.trim(),
+          mobile: normalizedMobile,
+          email: normalizedEmail,
+          passwordHash,
+        });
+      }
+
       const organizationId = randomUUID();
       const campusId = randomUUID();
       const membershipId = randomUUID();
-      const roleId = randomUUID();
       const membershipRoleId = randomUUID();
-      const passwordHash = await hash(payload.password, 12);
-
-      await tx.insert(user).values({
-        id: userId,
-        name: payload.adminName.trim(),
-        mobile: normalizedMobile,
-        email: normalizedEmail,
-        passwordHash,
-      });
 
       await tx.insert(organization).values({
         id: organizationId,
@@ -88,9 +114,9 @@ export class OnboardingService {
         institutionType: null,
         logoUrl: null,
         faviconUrl: null,
-        primaryColor: DEFAULT_BRANDING.PRIMARY_COLOR,
-        accentColor: DEFAULT_BRANDING.ACCENT_COLOR,
-        sidebarColor: DEFAULT_BRANDING.SIDEBAR_COLOR,
+        primaryColor: DEFAULT_PRESET.primaryColor,
+        accentColor: DEFAULT_PRESET.accentColor,
+        sidebarColor: DEFAULT_PRESET.sidebarColor,
         status: STATUS.ORG.ACTIVE,
       });
 
@@ -119,20 +145,10 @@ export class OnboardingService {
         campusId,
       });
 
-      await tx.insert(roles).values({
-        id: roleId,
-        name: ROLE_NAMES.INSTITUTION_ADMIN,
-        slug: ROLE_SLUGS.INSTITUTION_ADMIN,
-        roleType: ROLE_TYPES.INSTITUTION,
-        institutionId: organizationId,
-        isSystem: true,
-        isConfigurable: false,
-      });
-
       await tx.insert(membershipRoles).values({
         id: membershipRoleId,
         membershipId,
-        roleId,
+        roleId: systemAdminRole.id,
         validFrom: new Date().toISOString().slice(0, 10),
         validTo: null,
         academicYearId: null,

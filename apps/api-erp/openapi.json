@@ -2188,6 +2188,208 @@
         ]
       }
     },
+    "/roles": {
+      "get": {
+        "operationId": "RolesController_listRoles",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List all roles for the current tenant",
+        "tags": [
+          "roles"
+        ]
+      },
+      "post": {
+        "operationId": "RolesController_createRole",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoleBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a custom role for the current tenant",
+        "tags": [
+          "roles"
+        ]
+      }
+    },
+    "/roles/{roleId}": {
+      "get": {
+        "operationId": "RolesController_getRole",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a single role for the current tenant",
+        "tags": [
+          "roles"
+        ]
+      },
+      "patch": {
+        "operationId": "RolesController_updateRole",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoleBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a custom role for the current tenant",
+        "tags": [
+          "roles"
+        ]
+      },
+      "delete": {
+        "operationId": "RolesController_deleteRole",
+        "parameters": [
+          {
+            "name": "roleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Delete a custom role for the current tenant",
+        "tags": [
+          "roles"
+        ]
+      }
+    },
+    "/permissions": {
+      "get": {
+        "operationId": "PermissionsController_listPermissions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PermissionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List all available permission slugs",
+        "tags": [
+          "roles"
+        ]
+      }
+    },
     "/institutions": {
       "get": {
         "operationId": "InstitutionsController_listInstitutions",
@@ -2526,6 +2728,7 @@
             "type": "string",
             "enum": [
               "active",
+              "deleted",
               "inactive",
               "suspended"
             ]
@@ -2576,6 +2779,7 @@
             "type": "string",
             "enum": [
               "active",
+              "deleted",
               "suspended"
             ]
           },
@@ -2658,6 +2862,7 @@
             "type": "string",
             "enum": [
               "active",
+              "deleted",
               "inactive"
             ]
           },
@@ -2963,6 +3168,7 @@
             "type": "string",
             "enum": [
               "active",
+              "deleted",
               "inactive"
             ]
           }
@@ -3302,6 +3508,7 @@
             "type": "string",
             "enum": [
               "active",
+              "deleted",
               "inactive",
               "suspended"
             ]
@@ -3608,6 +3815,7 @@
             "type": "string",
             "enum": [
               "active",
+              "deleted",
               "inactive",
               "suspended"
             ]
@@ -3699,6 +3907,7 @@
             "type": "string",
             "enum": [
               "active",
+              "deleted",
               "inactive",
               "suspended"
             ]
@@ -3735,6 +3944,7 @@
             "type": "string",
             "enum": [
               "active",
+              "deleted",
               "inactive",
               "suspended"
             ]
@@ -3815,6 +4025,7 @@
             "type": "string",
             "enum": [
               "active",
+              "deleted",
               "inactive",
               "suspended"
             ]
@@ -4714,6 +4925,111 @@
           "paymentDate"
         ]
       },
+      "RolePermissionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug"
+        ]
+      },
+      "RoleDto": {
+        "type": "object",
+        "properties": {
+          "roleType": {
+            "type": "string",
+            "enum": [
+              "platform",
+              "system",
+              "institution"
+            ]
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RolePermissionDto"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "isSystem": {
+            "type": "boolean"
+          },
+          "isConfigurable": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "roleType",
+          "permissions",
+          "id",
+          "name",
+          "slug",
+          "isSystem",
+          "isConfigurable"
+        ]
+      },
+      "CreateRoleBodyDto": {
+        "type": "object",
+        "properties": {
+          "permissionIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "permissionIds",
+          "name"
+        ]
+      },
+      "UpdateRoleBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "permissionIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PermissionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug"
+        ]
+      },
       "InstitutionDto": {
         "type": "object",
         "properties": {
@@ -4735,6 +5051,7 @@
             "nullable": true,
             "enum": [
               "active",
+              "deleted",
               "suspended"
             ]
           },

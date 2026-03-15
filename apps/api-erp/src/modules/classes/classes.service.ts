@@ -1,5 +1,4 @@
 import { DATABASE } from "@repo/backend-core";
-import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import {
   ConflictException,
   Inject,
@@ -29,8 +28,8 @@ import {
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
-import { AuthService } from "../auth/auth.service";
-import type { AuthenticatedSession } from "../auth/auth.types";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
+import { campusScopeFilter } from "../auth/scope-filter";
 import type {
   CreateClassDto,
   ListClassesQueryDto,
@@ -53,18 +52,14 @@ function normalizeSectionName(name: string) {
 
 @Injectable()
 export class ClassesService {
-  constructor(
-    @Inject(DATABASE) private readonly db: AppDatabase,
-    private readonly authService: AuthService,
-  ) {}
+  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
 
   async listClasses(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: ListClassesQueryDto = {},
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const scopedCampusId =
       query.campusId ?? authSession.activeCampusId ?? undefined;
 
@@ -82,6 +77,9 @@ export class ClassesService {
 
     if (scopedCampusId) {
       conditions.push(eq(schoolClasses.campusId, scopedCampusId));
+    } else {
+      const scopeFilter = campusScopeFilter(schoolClasses.campusId, scopes);
+      if (scopeFilter) conditions.push(scopeFilter);
     }
 
     if (query.search) {
@@ -138,10 +136,8 @@ export class ClassesService {
   async getClass(
     institutionId: string,
     classId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const [classRecord] = await this.listClassesForInstitution(
       institutionId,
       classId,
@@ -161,8 +157,6 @@ export class ClassesService {
     authSession: AuthenticatedSession,
     payload: CreateClassDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     const selectedCampus = await this.getCampus(
       institutionId,
       payload.campusId,
@@ -204,8 +198,6 @@ export class ClassesService {
     authSession: AuthenticatedSession,
     payload: UpdateClassDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
-
     await this.getClassOrThrow(institutionId, classId);
     const selectedCampus = await this.getCampus(
       institutionId,
@@ -327,7 +319,6 @@ export class ClassesService {
     authSession: AuthenticatedSession,
     payload: SetClassStatusDto,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
     await this.getClassOrThrow(institutionId, classId);
 
     await this.db
@@ -346,9 +337,8 @@ export class ClassesService {
   async deleteClass(
     institutionId: string,
     classId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
   ) {
-    await this.requireInstitutionAccess(authSession, institutionId);
     await this.getClassOrThrow(institutionId, classId);
 
     await this.assertClassRemovable(institutionId, classId);
@@ -630,16 +620,5 @@ export class ClassesService {
       .orderBy(asc(schoolClasses.displayOrder));
 
     return classRows.length;
-  }
-
-  private async requireInstitutionAccess(
-    authSession: AuthenticatedSession,
-    institutionId: string,
-  ) {
-    await this.authService.requireOrganizationContext(
-      authSession,
-      institutionId,
-      AUTH_CONTEXT_KEYS.STAFF,
-    );
   }
 }

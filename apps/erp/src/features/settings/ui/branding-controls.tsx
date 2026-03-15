@@ -462,7 +462,7 @@ export function ColorInput({
   return (
     <div className="flex items-center gap-3">
       <input
-        className="h-10 w-14 shrink-0 cursor-pointer rounded-xl border border-input bg-transparent p-0.5"
+        className="h-10 w-14 shrink-0 cursor-pointer rounded-[var(--radius)] border-none bg-transparent p-0 [&::-webkit-color-swatch-wrapper]:p-0 [&::-webkit-color-swatch]:rounded-[var(--radius)] [&::-webkit-color-swatch]:border-none"
         onChange={(event) => onChange(event.target.value)}
         type="color"
         value={value}

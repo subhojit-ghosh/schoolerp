@@ -19,9 +19,12 @@ function createAuthService() {
     })),
     select: mock(() => ({
       from: mock(() => ({
-        where: mock(() => ({
-          limit: mock(() => []),
-        })),
+        where: mock(() => {
+          const result = Promise.resolve([]);
+          return Object.assign(result, {
+            limit: mock(() => Promise.resolve([])),
+          });
+        }),
       })),
     })),
     transaction: mock(() => Promise.resolve(undefined)),
@@ -309,16 +312,20 @@ describe("AuthService.resetPassword", () => {
 
     db.select = mock(() => ({
       from: mock(() => ({
-        where: mock(() => ({
-          limit: mock(() => [
+        where: mock(() => {
+          const rows = [
             {
               id: "reset-token-1",
               userId: "user-1",
               expiresAt: new Date(Date.now() - 60_000),
               consumedAt: null,
             },
-          ]),
-        })),
+          ];
+          const result = Promise.resolve(rows);
+          return Object.assign(result, {
+            limit: mock(() => Promise.resolve(rows)),
+          });
+        }),
       })),
     }));
 
@@ -340,14 +347,13 @@ describe("AuthService.assertUserIdentityAvailable", () => {
 
     db.select = mock(() => ({
       from: mock(() => ({
-        where: mock(() => ({
-          limit: mock(() => [
-            {
-              mobile: "9999999999",
-              email: "admin@example.com",
-            },
-          ]),
-        })),
+        where: mock(() => {
+          const rows = [{ mobile: "9999999999", email: "admin@example.com" }];
+          const result = Promise.resolve(rows);
+          return Object.assign(result, {
+            limit: mock(() => Promise.resolve(rows)),
+          });
+        }),
       })),
     }));
 
