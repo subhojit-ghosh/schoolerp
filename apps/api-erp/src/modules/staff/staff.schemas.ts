@@ -18,11 +18,6 @@ export const createStaffSchema = z.object({
     .or(z.literal(""))
     .transform((value) => value || undefined),
   campusId: z.uuid(),
-  roleId: z
-    .uuid()
-    .optional()
-    .or(z.literal(""))
-    .transform((value) => value || undefined),
   status: z.enum([
     STATUS.MEMBER.ACTIVE,
     STATUS.MEMBER.INACTIVE,
@@ -31,6 +26,25 @@ export const createStaffSchema = z.object({
 });
 
 export const updateStaffSchema = createStaffSchema;
+
+export const createStaffRoleAssignmentSchema = z.object({
+  roleId: z.string().trim().min(1, "Role is required"),
+  campusId: z
+    .uuid()
+    .optional()
+    .or(z.literal(""))
+    .transform((value) => value || undefined),
+  classId: z
+    .uuid()
+    .optional()
+    .or(z.literal(""))
+    .transform((value) => value || undefined),
+  sectionId: z
+    .uuid()
+    .optional()
+    .or(z.literal(""))
+    .transform((value) => value || undefined),
+});
 
 export const sortableStaffColumns = {
   campus: "campus",
@@ -50,6 +64,9 @@ export const listStaffQuerySchema = baseListQuerySchema.extend({
 
 export type CreateStaffDto = z.infer<typeof createStaffSchema>;
 export type UpdateStaffDto = z.infer<typeof updateStaffSchema>;
+export type CreateStaffRoleAssignmentDto = z.infer<
+  typeof createStaffRoleAssignmentSchema
+>;
 type ListStaffQueryInput = z.infer<typeof listStaffQuerySchema>;
 export type ListStaffQueryDto = Omit<ListStaffQueryInput, "q"> & {
   search?: string;
@@ -71,6 +88,10 @@ export function parseCreateStaff(body: unknown) {
 
 export function parseUpdateStaff(body: unknown) {
   return parseSchema(updateStaffSchema, body);
+}
+
+export function parseCreateStaffRoleAssignment(body: unknown) {
+  return parseSchema(createStaffRoleAssignmentSchema, body);
 }
 
 export function parseListStaffQuery(query: unknown): ListStaffQueryDto {

@@ -1,6 +1,8 @@
 import { DATABASE } from "@repo/backend-core";
 import {
+  BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -9,9 +11,12 @@ import type { AppDatabase } from "@repo/database";
 import {
   campus,
   campusMemberships,
+  classSections,
   member,
+  membershipRoleScopes,
   membershipRoles,
   roles,
+  schoolClasses,
   user,
 } from "@repo/database";
 import {
@@ -34,6 +39,7 @@ import {
   MEMBER_TYPES,
   SORT_ORDERS,
   STATUS,
+  SCOPE_TYPES,
 } from "../../constants";
 import {
   resolvePagination,
@@ -43,9 +49,14 @@ import {
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { campusScopeFilter } from "../auth/scope-filter";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
-import type { StaffDto } from "./staff.dto";
+import type {
+  StaffDto,
+  StaffRoleAssignmentDto,
+  StaffRoleAssignmentScopeDto,
+} from "./staff.dto";
 import type {
   CreateStaffDto,
+  CreateStaffRoleAssignmentDto,
   ListStaffQueryDto,
   UpdateStaffDto,
 } from "./staff.schemas";
@@ -57,7 +68,26 @@ type StaffRoleSummary = {
   slug: string;
 };
 
-type StaffWriter = Pick<AppDatabase, "insert" | "select" | "update">;
+type StaffWriter = Pick<
+  AppDatabase,
+  "delete" | "insert" | "select" | "update"
+>;
+
+type ScopeInput = {
+  campusId?: string;
+  classId?: string;
+  sectionId?: string;
+};
+
+type RoleAssignmentRow = {
+  assignmentId: string;
+  roleId: string;
+  roleName: string;
+  roleSlug: string;
+  validFrom: string;
+  validTo: string | null;
+  createdAt: Date;
+};
 
 const sortableColumns = {
   campus: campus.name,
@@ -71,7 +101,7 @@ export class StaffService {
 
   async listStaff(
     institutionId: string,
-    authSession: AuthenticatedSession,
+    _authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     query: ListStaffQueryDto = {},
   ): Promise<PaginatedResult<StaffDto>> {
@@ -139,13 +169,30 @@ export class StaffService {
     return this.listRolesForInstitution(institutionId);
   }
 
+  async listRoleAssignments(
+    institutionId: string,
+    staffId: string,
+    _authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): Promise<StaffRoleAssignmentDto[]> {
+    const staffMembership = await this.getStaffMembership(
+      institutionId,
+      staffId,
+      scopes,
+    );
+
+    return this.listRoleAssignmentsForMembership(staffMembership.id);
+  }
+
   async getStaff(
     institutionId: string,
     staffId: string,
     _authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
     const [staffRecord] = await this.listStaffForInstitution(
       institutionId,
+      scopes,
       staffId,
     );
 
@@ -159,15 +206,15 @@ export class StaffService {
   async createStaff(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: CreateStaffDto,
   ) {
-    const selectedCampus = await this.getCampus(
-      institutionId,
-      payload.campusId,
+    this.assertRequestedScopeWithinAssignerScopes(
+      { campusId: payload.campusId },
+      scopes,
     );
-    const selectedRole = payload.roleId
-      ? await this.getRole(institutionId, payload.roleId)
-      : null;
+
+    const selectedCampus = await this.getCampus(institutionId, payload.campusId);
 
     const membershipId = await this.db.transaction(async (tx) => {
       const resolvedUser = await this.findOrCreateUser(tx, payload);
@@ -208,37 +255,31 @@ export class StaffService {
         selectedCampus.id,
       );
 
-      if (selectedRole) {
-        await tx.insert(membershipRoles).values({
-          id: randomUUID(),
-          membershipId: nextMembershipId,
-          roleId: selectedRole.id,
-          validFrom: new Date().toISOString().slice(0, 10),
-          validTo: null,
-          academicYearId: null,
-        });
-      }
-
       return nextMembershipId;
     });
 
-    return this.getStaff(institutionId, membershipId, authSession);
+    return this.getStaff(institutionId, membershipId, authSession, scopes);
   }
 
   async updateStaff(
     institutionId: string,
     staffId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: UpdateStaffDto,
   ) {
-    const existingStaff = await this.getStaffMembership(institutionId, staffId);
-    const selectedCampus = await this.getCampus(
+    const existingStaff = await this.getStaffMembership(
       institutionId,
-      payload.campusId,
+      staffId,
+      scopes,
     );
-    const selectedRole = payload.roleId
-      ? await this.getRole(institutionId, payload.roleId)
-      : null;
+
+    this.assertRequestedScopeWithinAssignerScopes(
+      { campusId: payload.campusId },
+      scopes,
+    );
+
+    const selectedCampus = await this.getCampus(institutionId, payload.campusId);
 
     await this.db.transaction(async (tx) => {
       const resolvedUserId = await this.reconcileUserIdentity(
@@ -278,30 +319,142 @@ export class StaffService {
         .where(eq(member.id, staffId));
 
       await this.ensureCampusMembership(tx, staffId, selectedCampus.id);
-      await this.syncMembershipRole(tx, staffId, selectedRole?.id ?? null);
     });
 
-    return this.getStaff(institutionId, staffId, authSession);
+    return this.getStaff(institutionId, staffId, authSession, scopes);
+  }
+
+  async createRoleAssignment(
+    institutionId: string,
+    staffId: string,
+    _authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: CreateStaffRoleAssignmentDto,
+  ) {
+    const staffMembership = await this.getStaffMembership(
+      institutionId,
+      staffId,
+      scopes,
+    );
+    const selectedRole = await this.getRole(institutionId, payload.roleId);
+    const normalizedScope = await this.resolveAssignmentScope(
+      institutionId,
+      payload,
+    );
+
+    this.assertRequestedScopeWithinAssignerScopes(normalizedScope, scopes);
+    await this.assertNoDuplicateRoleAssignment(
+      staffMembership.id,
+      selectedRole.id,
+      normalizedScope,
+    );
+
+    const assignmentId = randomUUID();
+
+    await this.db.transaction(async (tx) => {
+      await tx.insert(membershipRoles).values({
+        id: assignmentId,
+        membershipId: staffMembership.id,
+        roleId: selectedRole.id,
+        validFrom: new Date().toISOString().slice(0, 10),
+        validTo: null,
+        academicYearId: null,
+      });
+
+      const scopeRows = this.buildMembershipRoleScopeRows(
+        assignmentId,
+        normalizedScope,
+      );
+
+      if (scopeRows.length > 0) {
+        await tx.insert(membershipRoleScopes).values(scopeRows);
+      }
+    });
+
+    const assignments = await this.listRoleAssignmentsForMembership(
+      staffMembership.id,
+    );
+
+    const createdAssignment = assignments.find((item) => item.id === assignmentId);
+    if (!createdAssignment) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_NOT_FOUND,
+      );
+    }
+
+    return createdAssignment;
+  }
+
+  async removeRoleAssignment(
+    institutionId: string,
+    staffId: string,
+    assignmentId: string,
+    _authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ) {
+    const staffMembership = await this.getStaffMembership(
+      institutionId,
+      staffId,
+      scopes,
+    );
+
+    const [assignment] = await this.db
+      .select({ id: membershipRoles.id })
+      .from(membershipRoles)
+      .where(
+        and(
+          eq(membershipRoles.id, assignmentId),
+          eq(membershipRoles.membershipId, staffMembership.id),
+          isNull(membershipRoles.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!assignment) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_NOT_FOUND,
+      );
+    }
+
+    await this.db.transaction(async (tx) => {
+      await tx
+        .delete(membershipRoleScopes)
+        .where(eq(membershipRoleScopes.membershipRoleId, assignmentId));
+
+      await tx
+        .update(membershipRoles)
+        .set({ deletedAt: new Date() })
+        .where(eq(membershipRoles.id, assignmentId));
+    });
   }
 
   private async listStaffForInstitution(
     institutionId: string,
+    scopes: ResolvedScopes,
     staffId?: string,
   ) {
+    const conditions: SQL[] = [
+      eq(member.organizationId, institutionId),
+      eq(member.memberType, MEMBER_TYPES.STAFF),
+      ne(member.status, STATUS.MEMBER.DELETED),
+      ne(campus.status, STATUS.CAMPUS.DELETED),
+    ];
+
+    if (staffId) {
+      conditions.push(eq(member.id, staffId));
+    }
+
+    const visibleCampusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+    if (visibleCampusFilter) {
+      conditions.push(visibleCampusFilter);
+    }
+
     const staffRows = await this.db
       .select(this.staffSelect)
       .from(member)
       .innerJoin(user, eq(member.userId, user.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))
-      .where(
-        and(
-          eq(member.organizationId, institutionId),
-          eq(member.memberType, MEMBER_TYPES.STAFF),
-          staffId ? eq(member.id, staffId) : undefined,
-          ne(member.status, STATUS.MEMBER.DELETED),
-          ne(campus.status, STATUS.CAMPUS.DELETED),
-        ),
-      );
+      .where(and(...conditions));
 
     const roleByMembershipId = await this.listRoleMap(
       staffRows.map((row) => row.id),
@@ -322,8 +475,138 @@ export class StaffService {
       })
       .from(roles)
       .where(
-        and(eq(roles.institutionId, institutionId), isNull(roles.deletedAt)),
-      );
+        and(
+          or(isNull(roles.institutionId), eq(roles.institutionId, institutionId)),
+          isNull(roles.deletedAt),
+        ),
+      )
+      .orderBy(asc(roles.isSystem), asc(roles.name));
+  }
+
+  private async listRoleAssignmentsForMembership(membershipId: string) {
+    const assignmentRows = await this.db
+      .select({
+        assignmentId: membershipRoles.id,
+        roleId: roles.id,
+        roleName: roles.name,
+        roleSlug: roles.slug,
+        validFrom: membershipRoles.validFrom,
+        validTo: membershipRoles.validTo,
+        createdAt: membershipRoles.createdAt,
+      })
+      .from(membershipRoles)
+      .innerJoin(roles, eq(membershipRoles.roleId, roles.id))
+      .where(
+        and(
+          eq(membershipRoles.membershipId, membershipId),
+          isNull(membershipRoles.deletedAt),
+          isNull(roles.deletedAt),
+        ),
+      )
+      .orderBy(desc(membershipRoles.createdAt), asc(roles.name));
+
+    return this.enrichRoleAssignments(assignmentRows);
+  }
+
+  private async enrichRoleAssignments(rows: RoleAssignmentRow[]) {
+    if (rows.length === 0) {
+      return [];
+    }
+
+    const assignmentIds = rows.map((row) => row.assignmentId);
+    const scopeRows = await this.db
+      .select({
+        assignmentId: membershipRoleScopes.membershipRoleId,
+        scopeType: membershipRoleScopes.scopeType,
+        scopeId: membershipRoleScopes.scopeId,
+      })
+      .from(membershipRoleScopes)
+      .where(inArray(membershipRoleScopes.membershipRoleId, assignmentIds));
+
+    const campusIds = scopeRows
+      .filter((row) => row.scopeType === SCOPE_TYPES.CAMPUS)
+      .map((row) => row.scopeId);
+    const classIds = scopeRows
+      .filter((row) => row.scopeType === SCOPE_TYPES.CLASS)
+      .map((row) => row.scopeId);
+    const sectionIds = scopeRows
+      .filter((row) => row.scopeType === SCOPE_TYPES.SECTION)
+      .map((row) => row.scopeId);
+
+    const [campusRows, classRows, sectionRows] = await Promise.all([
+      campusIds.length === 0
+        ? Promise.resolve([])
+        : this.db
+            .select({ id: campus.id, name: campus.name })
+            .from(campus)
+            .where(inArray(campus.id, campusIds)),
+      classIds.length === 0
+        ? Promise.resolve([])
+        : this.db
+            .select({ id: schoolClasses.id, name: schoolClasses.name })
+            .from(schoolClasses)
+            .where(inArray(schoolClasses.id, classIds)),
+      sectionIds.length === 0
+        ? Promise.resolve([])
+        : this.db
+            .select({ id: classSections.id, name: classSections.name })
+            .from(classSections)
+            .where(inArray(classSections.id, sectionIds)),
+    ]);
+
+    const campusNameById = new Map(campusRows.map((item) => [item.id, item.name]));
+    const classNameById = new Map(classRows.map((item) => [item.id, item.name]));
+    const sectionNameById = new Map(
+      sectionRows.map((item) => [item.id, item.name]),
+    );
+
+    const scopeByAssignmentId = new Map<string, StaffRoleAssignmentScopeDto>();
+    for (const row of scopeRows) {
+      const currentScope = scopeByAssignmentId.get(row.assignmentId) ?? {
+        campusId: null,
+        campusName: null,
+        classId: null,
+        className: null,
+        sectionId: null,
+        sectionName: null,
+      };
+
+      if (row.scopeType === SCOPE_TYPES.CAMPUS) {
+        currentScope.campusId = row.scopeId;
+        currentScope.campusName = campusNameById.get(row.scopeId) ?? null;
+      }
+
+      if (row.scopeType === SCOPE_TYPES.CLASS) {
+        currentScope.classId = row.scopeId;
+        currentScope.className = classNameById.get(row.scopeId) ?? null;
+      }
+
+      if (row.scopeType === SCOPE_TYPES.SECTION) {
+        currentScope.sectionId = row.scopeId;
+        currentScope.sectionName = sectionNameById.get(row.scopeId) ?? null;
+      }
+
+      scopeByAssignmentId.set(row.assignmentId, currentScope);
+    }
+
+    return rows.map((row) => ({
+      id: row.assignmentId,
+      role: {
+        id: row.roleId,
+        name: row.roleName,
+        slug: row.roleSlug,
+      },
+      scope: scopeByAssignmentId.get(row.assignmentId) ?? {
+        campusId: null,
+        campusName: null,
+        classId: null,
+        className: null,
+        sectionId: null,
+        sectionName: null,
+      },
+      validFrom: row.validFrom,
+      validTo: row.validTo,
+    }));
   }
 
   private async listRoleMap(membershipIds: string[]) {
@@ -385,6 +668,7 @@ export class StaffService {
     const [matchedCampus] = await this.db
       .select({
         id: campus.id,
+        name: campus.name,
       })
       .from(campus)
       .where(
@@ -412,7 +696,7 @@ export class StaffService {
       .where(
         and(
           eq(roles.id, roleId),
-          eq(roles.institutionId, institutionId),
+          or(isNull(roles.institutionId), eq(roles.institutionId, institutionId)),
           isNull(roles.deletedAt),
         ),
       )
@@ -425,22 +709,79 @@ export class StaffService {
     return matchedRole;
   }
 
-  private async getStaffMembership(institutionId: string, staffId: string) {
+  private async getClass(institutionId: string, classId: string) {
+    const [matchedClass] = await this.db
+      .select({
+        id: schoolClasses.id,
+        campusId: schoolClasses.campusId,
+        name: schoolClasses.name,
+      })
+      .from(schoolClasses)
+      .where(
+        and(
+          eq(schoolClasses.id, classId),
+          eq(schoolClasses.institutionId, institutionId),
+          ne(schoolClasses.status, STATUS.CLASS.DELETED),
+        ),
+      )
+      .limit(1);
+
+    if (!matchedClass) {
+      throw new NotFoundException(ERROR_MESSAGES.CLASSES.CLASS_NOT_FOUND);
+    }
+
+    return matchedClass;
+  }
+
+  private async getSection(institutionId: string, sectionId: string) {
+    const [matchedSection] = await this.db
+      .select({
+        id: classSections.id,
+        classId: classSections.classId,
+        name: classSections.name,
+      })
+      .from(classSections)
+      .where(
+        and(
+          eq(classSections.id, sectionId),
+          eq(classSections.institutionId, institutionId),
+        ),
+      )
+      .limit(1);
+
+    if (!matchedSection) {
+      throw new NotFoundException(ERROR_MESSAGES.CLASSES.SECTION_NOT_FOUND);
+    }
+
+    return matchedSection;
+  }
+
+  private async getStaffMembership(
+    institutionId: string,
+    staffId: string,
+    scopes: ResolvedScopes,
+  ) {
+    const conditions: SQL[] = [
+      eq(member.id, staffId),
+      eq(member.organizationId, institutionId),
+      eq(member.memberType, MEMBER_TYPES.STAFF),
+      ne(member.status, STATUS.MEMBER.DELETED),
+    ];
+
+    const visibleCampusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+    if (visibleCampusFilter) {
+      conditions.push(visibleCampusFilter);
+    }
+
     const [matchedStaff] = await this.db
       .select({
         id: member.id,
         userId: user.id,
+        primaryCampusId: member.primaryCampusId,
       })
       .from(member)
       .innerJoin(user, eq(member.userId, user.id))
-      .where(
-        and(
-          eq(member.id, staffId),
-          eq(member.organizationId, institutionId),
-          eq(member.memberType, MEMBER_TYPES.STAFF),
-          ne(member.status, STATUS.MEMBER.DELETED),
-        ),
-      )
+      .where(and(...conditions))
       .limit(1);
 
     if (!matchedStaff) {
@@ -448,6 +789,201 @@ export class StaffService {
     }
 
     return matchedStaff;
+  }
+
+  private async resolveAssignmentScope(
+    institutionId: string,
+    payload: ScopeInput,
+  ) {
+    if (payload.sectionId && !payload.classId) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_SCOPE_INVALID,
+      );
+    }
+
+    if (payload.classId && !payload.campusId) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_SCOPE_INVALID,
+      );
+    }
+
+    const selectedCampus = payload.campusId
+      ? await this.getCampus(institutionId, payload.campusId)
+      : null;
+    const selectedClass = payload.classId
+      ? await this.getClass(institutionId, payload.classId)
+      : null;
+    const selectedSection = payload.sectionId
+      ? await this.getSection(institutionId, payload.sectionId)
+      : null;
+
+    if (selectedCampus && selectedClass && selectedClass.campusId !== selectedCampus.id) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_SCOPE_MISMATCH,
+      );
+    }
+
+    if (selectedClass && selectedSection && selectedSection.classId !== selectedClass.id) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_SCOPE_MISMATCH,
+      );
+    }
+
+    return {
+      campusId: selectedCampus?.id,
+      classId: selectedClass?.id,
+      sectionId: selectedSection?.id,
+    };
+  }
+
+  private assertRequestedScopeWithinAssignerScopes(
+    requestedScope: ScopeInput,
+    scopes: ResolvedScopes,
+  ) {
+    if (scopes.campusIds !== "all") {
+      if (
+        !requestedScope.campusId ||
+        !scopes.campusIds.includes(requestedScope.campusId)
+      ) {
+        throw new ForbiddenException(
+          ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_SCOPE_FORBIDDEN,
+        );
+      }
+    }
+
+    if (scopes.classIds !== "all") {
+      if (
+        !requestedScope.classId ||
+        !scopes.classIds.includes(requestedScope.classId)
+      ) {
+        throw new ForbiddenException(
+          ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_SCOPE_FORBIDDEN,
+        );
+      }
+    }
+
+    if (scopes.sectionIds !== "all") {
+      if (
+        !requestedScope.sectionId ||
+        !scopes.sectionIds.includes(requestedScope.sectionId)
+      ) {
+        throw new ForbiddenException(
+          ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_SCOPE_FORBIDDEN,
+        );
+      }
+    }
+  }
+
+  private async assertNoDuplicateRoleAssignment(
+    membershipId: string,
+    roleId: string,
+    requestedScope: ScopeInput,
+  ) {
+    const assignmentRows = await this.db
+      .select({
+        assignmentId: membershipRoles.id,
+      })
+      .from(membershipRoles)
+      .where(
+        and(
+          eq(membershipRoles.membershipId, membershipId),
+          eq(membershipRoles.roleId, roleId),
+          isNull(membershipRoles.deletedAt),
+        ),
+      );
+
+    if (assignmentRows.length === 0) {
+      return;
+    }
+
+    const scopeRows = await this.db
+      .select({
+        assignmentId: membershipRoleScopes.membershipRoleId,
+        scopeType: membershipRoleScopes.scopeType,
+        scopeId: membershipRoleScopes.scopeId,
+      })
+      .from(membershipRoleScopes)
+      .where(
+        inArray(
+          membershipRoleScopes.membershipRoleId,
+          assignmentRows.map((row) => row.assignmentId),
+        ),
+      );
+
+    const requestedKey = this.buildScopeKey(requestedScope);
+    const scopeMap = new Map<string, ScopeInput>();
+
+    for (const row of scopeRows) {
+      const currentScope = scopeMap.get(row.assignmentId) ?? {};
+
+      if (row.scopeType === SCOPE_TYPES.CAMPUS) {
+        currentScope.campusId = row.scopeId;
+      }
+
+      if (row.scopeType === SCOPE_TYPES.CLASS) {
+        currentScope.classId = row.scopeId;
+      }
+
+      if (row.scopeType === SCOPE_TYPES.SECTION) {
+        currentScope.sectionId = row.scopeId;
+      }
+
+      scopeMap.set(row.assignmentId, currentScope);
+    }
+
+    for (const assignment of assignmentRows) {
+      const existingScope = scopeMap.get(assignment.assignmentId) ?? {};
+      if (this.buildScopeKey(existingScope) === requestedKey) {
+        throw new ConflictException(ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_EXISTS);
+      }
+    }
+  }
+
+  private buildScopeKey(scope: ScopeInput) {
+    return [scope.campusId ?? "", scope.classId ?? "", scope.sectionId ?? ""].join(
+      "::",
+    );
+  }
+
+  private buildMembershipRoleScopeRows(
+    membershipRoleId: string,
+    scope: ScopeInput,
+  ) {
+    const rows: Array<{
+      id: string;
+      membershipRoleId: string;
+      scopeType: (typeof SCOPE_TYPES)[keyof typeof SCOPE_TYPES];
+      scopeId: string;
+    }> = [];
+
+    if (scope.campusId) {
+      rows.push({
+        id: randomUUID(),
+        membershipRoleId,
+        scopeType: SCOPE_TYPES.CAMPUS,
+        scopeId: scope.campusId,
+      });
+    }
+
+    if (scope.classId) {
+      rows.push({
+        id: randomUUID(),
+        membershipRoleId,
+        scopeType: SCOPE_TYPES.CLASS,
+        scopeId: scope.classId,
+      });
+    }
+
+    if (scope.sectionId) {
+      rows.push({
+        id: randomUUID(),
+        membershipRoleId,
+        scopeType: SCOPE_TYPES.SECTION,
+        scopeId: scope.sectionId,
+      });
+    }
+
+    return rows;
   }
 
   private async findOrCreateUser(tx: StaffWriter, payload: CreateStaffDto) {
@@ -582,36 +1118,5 @@ export class StaffService {
         campusId,
       });
     }
-  }
-
-  private async syncMembershipRole(
-    tx: StaffWriter,
-    membershipId: string,
-    roleId: string | null,
-  ) {
-    await tx
-      .update(membershipRoles)
-      .set({
-        deletedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(membershipRoles.membershipId, membershipId),
-          isNull(membershipRoles.deletedAt),
-        ),
-      );
-
-    if (!roleId) {
-      return;
-    }
-
-    await tx.insert(membershipRoles).values({
-      id: randomUUID(),
-      membershipId,
-      roleId,
-      validFrom: new Date().toISOString().slice(0, 10),
-      validTo: null,
-      academicYearId: null,
-    });
   }
 }

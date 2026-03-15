@@ -16,12 +16,8 @@ import {
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
   useCreateStaffMutation,
-  useStaffRolesQuery,
 } from "@/features/staff/api/use-staff";
-import {
-  STAFF_UNASSIGNED_ROLE_VALUE,
-  type StaffFormValues,
-} from "@/features/staff/model/staff-form-schema";
+import { type StaffFormValues } from "@/features/staff/model/staff-form-schema";
 import { StaffForm } from "@/features/staff/ui/staff-form";
 import { ERP_ROUTES } from "@/constants/routes";
 import { appendSearch } from "@/lib/routes";
@@ -32,7 +28,6 @@ const DEFAULT_VALUES: StaffFormValues = {
   mobile: "",
   email: "",
   campusId: "",
-  roleId: STAFF_UNASSIGNED_ROLE_VALUE,
   status: "active",
 };
 
@@ -45,7 +40,6 @@ export function StaffCreatePage() {
   const canManageStaff = isStaffContext(session);
   const managedInstitutionId = canManageStaff ? institutionId : undefined;
   const campuses = session?.campuses ?? [];
-  const staffRolesQuery = useStaffRolesQuery(managedInstitutionId);
   const createStaffMutation = useCreateStaffMutation(managedInstitutionId);
   const createError = createStaffMutation.error as Error | null | undefined;
 
@@ -99,8 +93,8 @@ export function StaffCreatePage() {
         </Button>
         <h1 className="text-2xl font-semibold tracking-tight">Create staff</h1>
         <p className="text-sm text-muted-foreground">
-          Add a staff membership, assign a primary campus, and optionally attach
-          an institution role.
+          Add a staff membership and assign its primary campus. Roles can be
+          assigned from the staff detail page.
         </p>
       </div>
 
@@ -118,7 +112,6 @@ export function StaffCreatePage() {
               void navigate(appendSearch(ERP_ROUTES.STAFF, location.search));
             }}
             onSubmit={handleSubmit}
-            roles={staffRolesQuery.data ?? []}
             submitLabel="Create staff"
           />
         </CardContent>

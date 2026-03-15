@@ -26,23 +26,20 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 
 ## Now
 
-- Lock the next backend boundary on top of the new auth foundation:
-  - extend authorization primitives and capability-driven APIs
-  - turn the student and staff slices into fuller institution-admin workflows
-  - add the first attendance workflow around daily class-section entry and day views
-  - add shallow academics workflows such as exam terms and marks entry without expanding into report cards or analytics
-  - turn the student and staff slices into fuller institution-admin workflows
+- Deepen the first institution-admin workflows now that RBAC primitives are in place:
+  - add stronger backend and browser coverage around student, staff, and scoped role-assignment flows
+  - keep expanding operational slices like attendance, exams, and fees without pushing business rules into the frontend
   - keep the temporary ERP frontend thin over backend-owned rules
 - Keep delivery integrations pragmatic:
   - replace recovery preview delivery with real SMS/email adapters when infra is ready
 
 ## Next
 
-1. Add explicit authorization/capability primitives for institution admin workflows.
-2. Expand the student slice from create/list into detail, edit, and safer guardian management flows.
-3. Add integration coverage around staff create/edit flows and campus-safe role assignment.
-4. Replace placeholder recovery delivery with production SMS/email providers.
-5. Add broader tenant-aware integration coverage around auth, onboarding, and new ERP modules.
+1. Add integration coverage around staff create/edit flows and scoped role assignment.
+2. Add broader tenant-aware integration coverage around auth, onboarding, and ERP browser flows.
+3. Replace placeholder recovery delivery with production SMS/email providers.
+4. Deepen attendance, exams, and fees with safer operational edge cases and reporting foundations.
+5. Move more settled UI and backend primitives into shared packages.
 
 ## Later
 

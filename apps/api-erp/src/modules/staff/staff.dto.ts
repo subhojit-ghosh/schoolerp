@@ -41,9 +41,6 @@ export class CreateStaffBodyDto {
   email?: string | null;
   campusId!: string;
 
-  @ApiPropertyOptional({ nullable: true })
-  roleId?: string | null;
-
   @ApiProperty({
     enum: Object.values(STATUS.MEMBER),
   })
@@ -76,6 +73,54 @@ export class StaffDto {
 
   @ApiPropertyOptional({ type: () => StaffRoleDto, nullable: true })
   role!: StaffRoleDto | null;
+}
+
+export class StaffRoleAssignmentScopeDto {
+  @ApiPropertyOptional({ nullable: true })
+  campusId!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  campusName!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  classId!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  className!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  sectionId!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  sectionName!: string | null;
+}
+
+export class StaffRoleAssignmentDto {
+  id!: string;
+
+  @ApiProperty({ type: () => StaffRoleDto })
+  role!: StaffRoleDto;
+
+  @ApiProperty({ type: () => StaffRoleAssignmentScopeDto })
+  scope!: StaffRoleAssignmentScopeDto;
+
+  validFrom!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  validTo!: string | null;
+}
+
+export class CreateStaffRoleAssignmentBodyDto {
+  roleId!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  campusId?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  classId?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  sectionId?: string | null;
 }
 
 export class ListStaffResultDto {

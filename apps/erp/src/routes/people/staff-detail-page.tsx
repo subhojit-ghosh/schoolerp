@@ -17,15 +17,16 @@ import {
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
+  useCreateStaffRoleAssignmentMutation,
+  useDeleteStaffRoleAssignmentMutation,
   useStaffDetailQuery,
+  useStaffRoleAssignmentsQuery,
   useStaffRolesQuery,
   useUpdateStaffMutation,
 } from "@/features/staff/api/use-staff";
-import {
-  STAFF_UNASSIGNED_ROLE_VALUE,
-  type StaffFormValues,
-} from "@/features/staff/model/staff-form-schema";
+import { type StaffFormValues } from "@/features/staff/model/staff-form-schema";
 import { StaffForm } from "@/features/staff/ui/staff-form";
+import { StaffRoleAssignmentsCard } from "@/features/staff/ui/staff-role-assignments-card";
 import { ERP_ROUTES } from "@/constants/routes";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
@@ -50,9 +51,21 @@ export function StaffDetailPage() {
   const managedInstitutionId = canManageStaff ? institutionId : undefined;
   const campuses = session?.campuses ?? [];
   const staffQuery = useStaffDetailQuery(managedInstitutionId, staffId);
+  const assignmentsQuery = useStaffRoleAssignmentsQuery(
+    managedInstitutionId,
+    staffId,
+  );
   const staffRolesQuery = useStaffRolesQuery(managedInstitutionId);
   const updateStaffMutation = useUpdateStaffMutation(managedInstitutionId);
+  const createAssignmentMutation =
+    useCreateStaffRoleAssignmentMutation(managedInstitutionId);
+  const deleteAssignmentMutation =
+    useDeleteStaffRoleAssignmentMutation(managedInstitutionId);
   const updateError = updateStaffMutation.error as Error | null | undefined;
+  const createAssignmentError =
+    createAssignmentMutation.error as Error | null | undefined;
+  const deleteAssignmentError =
+    deleteAssignmentMutation.error as Error | null | undefined;
 
   const defaultValues = useMemo<StaffFormValues>(() => {
     const staffRecord = staffQuery.data;
@@ -63,7 +76,6 @@ export function StaffDetailPage() {
         mobile: "",
         email: "",
         campusId: session?.activeCampus?.id ?? "",
-        roleId: STAFF_UNASSIGNED_ROLE_VALUE,
         status: "active",
       };
     }
@@ -73,7 +85,6 @@ export function StaffDetailPage() {
       mobile: staffRecord.mobile,
       email: staffRecord.email ?? "",
       campusId: staffRecord.campusId,
-      roleId: staffRecord.role?.id ?? STAFF_UNASSIGNED_ROLE_VALUE,
       status: staffRecord.status as "active" | "inactive" | "suspended",
     };
   }, [session?.activeCampus?.id, staffQuery.data]);
@@ -93,6 +104,45 @@ export function StaffDetailPage() {
     });
 
     toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_RECORD));
+  }
+
+  async function onCreateAssignment(values: {
+    roleId: string;
+    campusId?: string;
+    classId?: string;
+    sectionId?: string;
+  }) {
+    if (!institutionId || !staffId) {
+      return;
+    }
+
+    await createAssignmentMutation.mutateAsync({
+      params: {
+        path: {
+          staffId,
+        },
+      },
+      body: values,
+    });
+
+    toast.success("Role assignment added.");
+  }
+
+  async function onDeleteAssignment(assignmentId: string) {
+    if (!institutionId || !staffId) {
+      return;
+    }
+
+    await deleteAssignmentMutation.mutateAsync({
+      params: {
+        path: {
+          staffId,
+          assignmentId,
+        },
+      },
+    });
+
+    toast.success("Role assignment removed.");
   }
 
   if (!institutionId) {
@@ -210,8 +260,8 @@ export function StaffDetailPage() {
           <CardHeader>
             <CardTitle>Edit staff</CardTitle>
             <CardDescription>
-              Update the staff identity details, campus assignment, and current
-              role.
+              Update the staff identity details, primary campus assignment, and
+              membership status.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -221,46 +271,66 @@ export function StaffDetailPage() {
               errorMessage={updateError?.message}
               isPending={updateStaffMutation.isPending}
               onSubmit={onSubmit}
-              roles={staffRolesQuery.data ?? []}
               submitLabel="Save changes"
             />
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Membership summary</CardTitle>
-            <CardDescription>
-              Current tenant-scoped membership state for this staff record.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="rounded-xl border border-border/70 bg-background/80 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
-                Member type
-              </p>
-              <p className="mt-2 text-sm font-medium">
-                {staffRecord.memberType}
-              </p>
-            </div>
-            <div className="rounded-xl border border-border/70 bg-background/80 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
-                Primary campus
-              </p>
-              <p className="mt-2 text-sm font-medium">
-                {staffRecord.campusName}
-              </p>
-            </div>
-            <div className="rounded-xl border border-border/70 bg-background/80 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
-                Assigned role
-              </p>
-              <p className="mt-2 text-sm font-medium">
-                {staffRecord.role?.name ?? "No role assigned"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Membership summary</CardTitle>
+              <CardDescription>
+                Current tenant-scoped membership state for this staff record.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="rounded-xl border border-border/70 bg-background/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+                  Member type
+                </p>
+                <p className="mt-2 text-sm font-medium">
+                  {staffRecord.memberType}
+                </p>
+              </div>
+              <div className="rounded-xl border border-border/70 bg-background/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+                  Primary campus
+                </p>
+                <p className="mt-2 text-sm font-medium">
+                  {staffRecord.campusName}
+                </p>
+              </div>
+              <div className="rounded-xl border border-border/70 bg-background/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
+                  Latest assigned role
+                </p>
+                <p className="mt-2 text-sm font-medium">
+                  {staffRecord.role?.name ?? "No role assigned"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <StaffRoleAssignmentsCard
+            assignments={assignmentsQuery.data ?? []}
+            assignmentsErrorMessage={
+              assignmentsQuery.isError
+                ? "Role assignments could not be loaded."
+                : undefined
+            }
+            campuses={campuses}
+            canManageAssignments
+            createErrorMessage={createAssignmentError?.message}
+            deleteErrorMessage={deleteAssignmentError?.message}
+            isAssignmentsLoading={assignmentsQuery.isLoading}
+            isCreating={createAssignmentMutation.isPending}
+            isDeleting={deleteAssignmentMutation.isPending}
+            onCreateAssignment={onCreateAssignment}
+            onDeleteAssignment={onDeleteAssignment}
+            roles={staffRolesQuery.data ?? []}
+          />
+        </div>
       </div>
     </div>
   );

@@ -40,6 +40,16 @@ export const ERROR_MESSAGES = {
     STAFF_NOT_FOUND: "The selected staff record was not found.",
     STAFF_MEMBERSHIP_EXISTS:
       "That user already has a staff membership in this institution.",
+    ROLE_ASSIGNMENT_NOT_FOUND:
+      "The selected staff role assignment was not found.",
+    ROLE_ASSIGNMENT_SCOPE_INVALID:
+      "Select scopes in order: campus, then class, then section.",
+    ROLE_ASSIGNMENT_SCOPE_MISMATCH:
+      "The selected scope combination does not belong to the same campus, class, and section.",
+    ROLE_ASSIGNMENT_SCOPE_FORBIDDEN:
+      "You cannot assign a role scope outside your own visible campus, class, or section access.",
+    ROLE_ASSIGNMENT_EXISTS:
+      "That staff role assignment already exists for this staff member.",
   },
   ROLES: {
     ROLE_NOT_FOUND: "The selected role was not found for this institution.",

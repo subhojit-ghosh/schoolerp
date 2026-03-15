@@ -351,6 +351,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/staff/{staffId}/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List role assignments for a staff membership in the current tenant */
+        get: operations["StaffController_listRoleAssignments"];
+        put?: never;
+        /** Assign a role with optional campus, class, and section scope to a staff membership */
+        post: operations["StaffController_createRoleAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/staff/{staffId}": {
         parameters: {
             query?: never;
@@ -367,6 +385,23 @@ export interface paths {
         head?: never;
         /** Update a staff membership for the current tenant */
         patch: operations["StaffController_updateStaff"];
+        trace?: never;
+    };
+    "/staff/{staffId}/roles/{assignmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a role assignment from a staff membership */
+        delete: operations["StaffController_removeRoleAssignment"];
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/guardians": {
@@ -1072,18 +1107,37 @@ export interface components {
             pageSize: number;
             pageCount: number;
         };
+        StaffRoleAssignmentScopeDto: {
+            campusId?: string | null;
+            campusName?: string | null;
+            classId?: string | null;
+            className?: string | null;
+            sectionId?: string | null;
+            sectionName?: string | null;
+        };
+        StaffRoleAssignmentDto: {
+            role: components["schemas"]["StaffRoleDto"];
+            scope: components["schemas"]["StaffRoleAssignmentScopeDto"];
+            validTo?: string | null;
+            id: string;
+            validFrom: string;
+        };
         CreateStaffBodyDto: {
             email?: string | null;
-            roleId?: string | null;
             /** @enum {string} */
             status: "active" | "deleted" | "inactive" | "suspended";
             name: string;
             mobile: string;
             campusId: string;
         };
+        CreateStaffRoleAssignmentBodyDto: {
+            campusId?: string | null;
+            classId?: string | null;
+            sectionId?: string | null;
+            roleId: string;
+        };
         UpdateStaffBodyDto: {
             email?: string | null;
-            roleId?: string | null;
             /** @enum {string} */
             status: "active" | "deleted" | "inactive" | "suspended";
             name: string;
@@ -2047,6 +2101,52 @@ export interface operations {
             };
         };
     };
+    StaffController_listRoleAssignments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffRoleAssignmentDto"][];
+                };
+            };
+        };
+    };
+    StaffController_createRoleAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStaffRoleAssignmentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffRoleAssignmentDto"];
+                };
+            };
+        };
+    };
     StaffController_getStaff: {
         parameters: {
             query?: never;
@@ -2090,6 +2190,26 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["StaffDto"];
                 };
+            };
+        };
+    };
+    StaffController_removeRoleAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+                assignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

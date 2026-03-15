@@ -28,6 +28,9 @@ export const STAFF_API_PATHS = {
   DETAIL: "/staff/{staffId}",
   UPDATE: "/staff/{staffId}",
   ROLES: "/staff/roles",
+  LIST_ASSIGNMENTS: "/staff/{staffId}/roles",
+  CREATE_ASSIGNMENT: "/staff/{staffId}/roles",
+  DELETE_ASSIGNMENT: "/staff/{staffId}/roles/{assignmentId}",
 } as const;
 
 export const GUARDIANS_API_PATHS = {

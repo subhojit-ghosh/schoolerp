@@ -7,8 +7,10 @@ import {
   IconCalendar,
   IconCalendarStats,
   IconCertificate,
+  IconCheck,
   IconChartBar,
   IconChevronDown,
+  IconChevronRight,
   IconCurrencyRupee,
   IconDashboard,
   IconFileDescription,
@@ -24,8 +26,7 @@ import {
   IconUsers,
   IconUsersGroup,
 } from "@tabler/icons-react";
-import { Link } from "react-router";
-import { Badge } from "@repo/ui/components/ui/badge";
+import { Link, useNavigate } from "react-router";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -51,24 +52,29 @@ import {
 
 const CONTEXT_META: Record<
   AuthContextKey,
-  { eyebrow: string; detail: string; Icon: typeof IconSchool }
+  { order: number; Icon: typeof IconSchool }
 > = {
   [AUTH_CONTEXT_KEYS.STAFF]: {
-    eyebrow: "Operations",
-    detail: "Manage records, academics, and administration",
+    order: 1,
     Icon: IconSchool,
   },
   [AUTH_CONTEXT_KEYS.PARENT]: {
-    eyebrow: "Family",
-    detail: "Track children, notices, and school touchpoints",
+    order: 2,
     Icon: IconUserHeart,
   },
   [AUTH_CONTEXT_KEYS.STUDENT]: {
-    eyebrow: "Learner",
-    detail: "Follow classes, attendance, and outcomes",
+    order: 3,
     Icon: IconUserStar,
   },
 };
+
+const CONTEXT_SWITCHER_WIDTH_CLASS = "w-[220px]";
+const CONTEXT_SWITCHER_ITEM_CLASS =
+  "group flex w-full items-center gap-3 rounded-2xl border px-3 py-2 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+const CONTEXT_SWITCHER_ACTIVE_ITEM_CLASS =
+  "border-transparent bg-[color-mix(in_srgb,var(--primary)_12%,white)] text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]";
+const CONTEXT_SWITCHER_INACTIVE_ITEM_CLASS =
+  "border-border/70 bg-card text-foreground hover:border-primary/20 hover:bg-muted/40";
 
 const NAV_OVERVIEW = [
   { icon: IconDashboard, title: "Dashboard", url: ERP_ROUTES.DASHBOARD },
@@ -209,11 +215,13 @@ function InstitutionLogo({
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const navigate = useNavigate();
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const availableContexts = session?.availableContexts ?? [];
   const showStaffNavigation = isStaffContext(session);
   const selectContextMutation = useSelectContextMutation();
+  const [isContextSwitcherOpen, setIsContextSwitcherOpen] = React.useState(false);
   const branding = readCachedTenantBranding();
   const institutionName =
     branding?.institutionName ??
@@ -225,6 +233,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     .toUpperCase();
 
   const logoProps = { logoUrl, institutionName, initial };
+  const sortedContexts = [...availableContexts].sort(
+    (left, right) =>
+      CONTEXT_META[left.key].order - CONTEXT_META[right.key].order,
+  );
 
   const headerInner = (
     <>
@@ -244,7 +256,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader className="overflow-hidden">
         {availableContexts.length > 1 && activeContext ? (
-          <DropdownMenu>
+          <DropdownMenu
+            onOpenChange={setIsContextSwitcherOpen}
+            open={isContextSwitcherOpen}
+          >
             <DropdownMenuTrigger asChild>
               <button className={HEADER_CLASS}>
                 {headerInner}
@@ -253,12 +268,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="start"
-              className="w-[300px] rounded-2xl border-border/70 p-2"
+              className={cn(
+                CONTEXT_SWITCHER_WIDTH_CLASS,
+                "rounded-[20px] border border-border/70 bg-popover p-1 text-popover-foreground shadow-xl",
+              )}
               side="bottom"
               sideOffset={8}
             >
-              <div className="space-y-2">
-                {availableContexts.map((contextOption) => {
+              <div className="space-y-1">
+                {sortedContexts.map((contextOption) => {
                   const meta = CONTEXT_META[contextOption.key];
                   const isActive = activeContext.key === contextOption.key;
 
@@ -266,80 +284,49 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     <button
                       key={contextOption.key}
                       className={cn(
-                        "group relative w-full overflow-hidden rounded-2xl border px-4 py-3 text-left transition-all",
-                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                        CONTEXT_SWITCHER_ITEM_CLASS,
                         isActive
-                          ? "border-transparent text-white shadow-lg"
-                          : "border-border/70 bg-card text-foreground hover:border-primary/30 hover:bg-muted/20",
+                          ? CONTEXT_SWITCHER_ACTIVE_ITEM_CLASS
+                          : CONTEXT_SWITCHER_INACTIVE_ITEM_CLASS,
                       )}
                       disabled={selectContextMutation.isPending || isActive}
-                      onClick={() =>
-                        void selectContextMutation.mutate({
-                          body: { contextKey: contextOption.key },
-                        })
-                      }
+                      onClick={() => {
+                        setIsContextSwitcherOpen(false);
+                        selectContextMutation.mutate(
+                          {
+                            body: { contextKey: contextOption.key },
+                          },
+                          {
+                            onSuccess: () => {
+                              void navigate(ERP_ROUTES.DASHBOARD);
+                            },
+                          },
+                        );
+                      }}
                       type="button"
                     >
-                      <div
+                      <span
                         className={cn(
-                          "absolute inset-0 transition-opacity",
+                          "flex size-8 shrink-0 items-center justify-center rounded-2xl border",
                           isActive
-                            ? "opacity-100"
-                            : "opacity-0 group-hover:opacity-100",
+                            ? "border-transparent bg-[var(--primary)] text-primary-foreground"
+                            : "border-border/70 bg-muted/50 text-[var(--primary)]",
                         )}
-                        style={{
-                          background:
-                            "linear-gradient(135deg, color-mix(in srgb, var(--primary) 92%, black 8%), color-mix(in srgb, var(--sidebar-primary, var(--primary)) 76%, black 24%))",
-                        }}
-                      />
-                      <div className="relative flex items-start justify-between gap-3">
-                        <div className="space-y-1">
-                          <p
-                            className={cn(
-                              "text-[11px] font-semibold uppercase tracking-[0.22em]",
-                              isActive
-                                ? "text-white/70"
-                                : "text-muted-foreground/80",
-                            )}
-                          >
-                            {meta.eyebrow}
-                          </p>
-                          <div className="flex items-center gap-2">
-                            <meta.Icon
-                              className={cn(
-                                "size-4",
-                                isActive
-                                  ? "text-white"
-                                  : "text-[var(--primary)]",
-                              )}
-                            />
-                            <p className="text-base font-semibold tracking-tight">
-                              {contextOption.label}
-                            </p>
-                          </div>
-                          <p
-                            className={cn(
-                              "text-xs leading-relaxed",
-                              isActive
-                                ? "text-white/80"
-                                : "text-muted-foreground",
-                            )}
-                          >
-                            {meta.detail}
-                          </p>
-                        </div>
-                        <Badge
-                          className={cn(
-                            "rounded-full border px-2.5 py-1 text-[10px] uppercase tracking-[0.18em]",
-                            isActive
-                              ? "border-white/20 bg-white/12 text-white"
-                              : "border-border/70 bg-background/80 text-muted-foreground",
-                          )}
-                          variant="outline"
-                        >
-                          {isActive ? "Current" : "Switch"}
-                        </Badge>
-                      </div>
+                      >
+                        <meta.Icon className="size-[18px]" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[15px] font-semibold tracking-[-0.01em]">
+                          {contextOption.label}
+                        </span>
+                      </span>
+                      {isActive ? (
+                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background/95 text-[var(--primary)]">
+                          <IconCheck className="size-3.5" />
+                        </span>
+                      ) : (
+                        <IconChevronRight className="size-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground/70" />
+                      )}
                     </button>
                   );
                 })}

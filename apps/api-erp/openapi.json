@@ -1093,6 +1093,89 @@
         ]
       }
     },
+    "/staff/{staffId}/roles": {
+      "get": {
+        "operationId": "StaffController_listRoleAssignments",
+        "parameters": [
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StaffRoleAssignmentDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List role assignments for a staff membership in the current tenant",
+        "tags": [
+          "staff"
+        ]
+      },
+      "post": {
+        "operationId": "StaffController_createRoleAssignment",
+        "parameters": [
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStaffRoleAssignmentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffRoleAssignmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Assign a role with optional campus, class, and section scope to a staff membership",
+        "tags": [
+          "staff"
+        ]
+      }
+    },
     "/staff/{staffId}": {
       "get": {
         "operationId": "StaffController_getStaff",
@@ -1168,6 +1251,43 @@
           }
         ],
         "summary": "Update a staff membership for the current tenant",
+        "tags": [
+          "staff"
+        ]
+      }
+    },
+    "/staff/{staffId}/roles/{assignmentId}": {
+      "delete": {
+        "operationId": "StaffController_removeRoleAssignment",
+        "parameters": [
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Remove a role assignment from a staff membership",
         "tags": [
           "staff"
         ]
@@ -3892,14 +4012,66 @@
           "pageCount"
         ]
       },
+      "StaffRoleAssignmentScopeDto": {
+        "type": "object",
+        "properties": {
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "classId": {
+            "type": "string",
+            "nullable": true
+          },
+          "className": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "StaffRoleAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "$ref": "#/components/schemas/StaffRoleDto"
+          },
+          "scope": {
+            "$ref": "#/components/schemas/StaffRoleAssignmentScopeDto"
+          },
+          "validTo": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "validFrom": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "scope",
+          "id",
+          "validFrom"
+        ]
+      },
       "CreateStaffBodyDto": {
         "type": "object",
         "properties": {
           "email": {
-            "type": "string",
-            "nullable": true
-          },
-          "roleId": {
             "type": "string",
             "nullable": true
           },
@@ -3929,14 +4101,33 @@
           "campusId"
         ]
       },
-      "UpdateStaffBodyDto": {
+      "CreateStaffRoleAssignmentBodyDto": {
         "type": "object",
         "properties": {
-          "email": {
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "classId": {
+            "type": "string",
+            "nullable": true
+          },
+          "sectionId": {
             "type": "string",
             "nullable": true
           },
           "roleId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "roleId"
+        ]
+      },
+      "UpdateStaffBodyDto": {
+        "type": "object",
+        "properties": {
+          "email": {
             "type": "string",
             "nullable": true
           },

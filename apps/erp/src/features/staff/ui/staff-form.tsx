@@ -19,10 +19,8 @@ import {
 } from "@repo/ui/components/ui/select";
 import {
   STAFF_STATUS_OPTIONS,
-  STAFF_UNASSIGNED_ROLE_VALUE,
   staffFormSchema,
   type StaffFormValues,
-  type StaffRoleOption,
 } from "@/features/staff/model/staff-form-schema";
 import {
   EntityFormPrimaryAction,
@@ -41,7 +39,6 @@ type StaffFormProps = {
   isPending?: boolean;
   onCancel?: () => void;
   onSubmit: (values: StaffFormValues) => Promise<void> | void;
-  roles: StaffRoleOption[];
   submitLabel: string;
 };
 
@@ -56,7 +53,6 @@ export function StaffForm({
   isPending = false,
   onCancel,
   onSubmit,
-  roles,
   submitLabel,
 }: StaffFormProps) {
   const { control, handleSubmit, reset } = useForm<StaffFormValues>({
@@ -147,38 +143,6 @@ export function StaffForm({
                         {campuses.map((campus) => (
                           <SelectItem key={campus.id} value={campus.id}>
                             {campus.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
-          <Controller
-            control={control}
-            name="roleId"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Role</FieldLabel>
-                <FieldContent>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value || STAFF_UNASSIGNED_ROLE_VALUE}
-                  >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="No role assigned" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectItem value={STAFF_UNASSIGNED_ROLE_VALUE}>
-                          No role assigned
-                        </SelectItem>
-                        {roles.map((role) => (
-                          <SelectItem key={role.id} value={role.id}>
-                            {role.name}
                           </SelectItem>
                         ))}
                       </SelectGroup>

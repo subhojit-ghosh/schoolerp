@@ -2,7 +2,6 @@ import { z } from "zod";
 import type { components } from "@/lib/api/generated/schema";
 
 const MOBILE_MIN_LENGTH = 10;
-export const STAFF_UNASSIGNED_ROLE_VALUE = "unassigned";
 
 export const STAFF_STATUS_OPTIONS = [
   "active",
@@ -15,10 +14,11 @@ export const staffFormSchema = z.object({
   mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Staff mobile is required"),
   email: z.email().optional().or(z.literal("")),
   campusId: z.uuid("Select a campus"),
-  roleId: z.string(),
   status: z.enum(STAFF_STATUS_OPTIONS),
 });
 
 export type StaffFormValues = z.infer<typeof staffFormSchema>;
 export type StaffRecord = components["schemas"]["StaffDto"];
 export type StaffRoleOption = components["schemas"]["StaffRoleDto"];
+export type StaffRoleAssignment =
+  components["schemas"]["StaffRoleAssignmentDto"];

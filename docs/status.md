@@ -124,6 +124,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - Phase 1: permission slug constants, system role seeding, `PermissionGuard`, `@RequirePermission()` applied to every ERP controller endpoint
   - Phase 2: scope enforcement — `resolveScopes()`, `ScopeGuard`, `@CurrentScopes()`, campus/section/class scope filters applied to all domain list queries
   - Phase 3: institution role management APIs (`GET/POST/PATCH/DELETE /roles`, `GET /permissions`) and ERP settings UI at `/settings/roles` with read-only system role display, custom role create/edit sheets with grouped permission picker, and delete with active-assignment guard
+  - Phase 4: staff role assignment APIs (`GET/POST/DELETE /staff/:id/roles`) with campus/class/section scope validation plus ERP staff detail roles UI with scoped assignment sheet and immediate remove flow
 
 ## Implemented But Not Strongly Verified
 
@@ -133,6 +134,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - The academic-year slice is covered by typecheck and manual browser automation, but not yet by targeted backend tests.
 - The classes and sections slice is covered by targeted backend tests for destructive dependency guardrails, plus schema generation, OpenAPI export, typecheck, and manual browser automation.
 - The staff slice is covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
+- Staff role assignment APIs and UI are covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
 - The guardian slice is covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
 - The campus slice is covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
 - The student registry and create flow are covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
@@ -145,7 +147,6 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Auth delivery infrastructure remains incomplete:
   - no SMS delivery provider yet
   - no email delivery provider yet
-- Phase 4 RBAC (staff role assignment UI with scope picker) is not yet implemented.
 - Frontend presentation remains temporary.
 
 ## Missing
@@ -154,7 +155,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Richer guardian lifecycle management beyond the current linked-student model.
 - Automated coverage for academic-year create/edit flows.
 - Broader student workflow test coverage.
-- Richer staff workflows such as multi-role assignment UI with scope picker (Phase 4 RBAC), departments, leave, and payroll.
+- Richer staff workflows beyond scoped multi-role assignment, such as departments, leave, and payroll.
 - Class allocation, timetable, and broader academic workflows beyond structure management.
 - Attendance analytics, reporting, notifications, and import flows.
 - Exam workflows beyond shallow term + marks entry, including report cards, ranking, analytics, and grading schemes.

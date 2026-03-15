@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -28,14 +29,17 @@ import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.gua
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   CreateStaffBodyDto,
+  CreateStaffRoleAssignmentBodyDto,
   ListStaffQueryDto,
   ListStaffResultDto,
   StaffDto,
+  StaffRoleAssignmentDto,
   StaffRoleDto,
   UpdateStaffBodyDto,
 } from "./staff.dto";
 import {
   parseCreateStaff,
+  parseCreateStaffRoleAssignment,
   parseListStaffQuery,
   parseUpdateStaff,
 } from "./staff.schemas";
@@ -84,6 +88,26 @@ export class StaffController {
     return this.staffService.listRoles(institution.id, authSession);
   }
 
+  @Get(`:staffId/${API_ROUTES.ROLES}`)
+  @RequirePermission(PERMISSIONS.STAFF_READ)
+  @ApiOperation({
+    summary: "List role assignments for a staff membership in the current tenant",
+  })
+  @ApiOkResponse({ type: StaffRoleAssignmentDto, isArray: true })
+  listRoleAssignments(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+  ) {
+    return this.staffService.listRoleAssignments(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+    );
+  }
+
   @Post()
   @RequirePermission(PERMISSIONS.STAFF_MANAGE)
   @ApiOperation({ summary: "Create a staff membership for the current tenant" })
@@ -92,12 +116,38 @@ export class StaffController {
   createStaff(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: CreateStaffBodyDto,
   ) {
     return this.staffService.createStaff(
       institution.id,
       authSession,
+      scopes,
       parseCreateStaff(body),
+    );
+  }
+
+  @Post(`:staffId/${API_ROUTES.ROLES}`)
+  @RequirePermission(PERMISSIONS.INSTITUTION_USERS_MANAGE)
+  @ApiOperation({
+    summary:
+      "Assign a role with optional campus, class, and section scope to a staff membership",
+  })
+  @ApiBody({ type: CreateStaffRoleAssignmentBodyDto })
+  @ApiOkResponse({ type: StaffRoleAssignmentDto })
+  createRoleAssignment(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+    @Body() body: CreateStaffRoleAssignmentBodyDto,
+  ) {
+    return this.staffService.createRoleAssignment(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+      parseCreateStaffRoleAssignment(body),
     );
   }
 
@@ -109,8 +159,14 @@ export class StaffController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("staffId") staffId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
   ) {
-    return this.staffService.getStaff(institution.id, staffId, authSession);
+    return this.staffService.getStaff(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+    );
   }
 
   @Patch(":staffId")
@@ -122,13 +178,36 @@ export class StaffController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("staffId") staffId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: UpdateStaffBodyDto,
   ) {
     return this.staffService.updateStaff(
       institution.id,
       staffId,
       authSession,
+      scopes,
       parseUpdateStaff(body),
+    );
+  }
+
+  @Delete(`:staffId/${API_ROUTES.ROLES}/:assignmentId`)
+  @RequirePermission(PERMISSIONS.INSTITUTION_USERS_MANAGE)
+  @ApiOperation({
+    summary: "Remove a role assignment from a staff membership",
+  })
+  removeRoleAssignment(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+    @Param("assignmentId") assignmentId: string,
+  ) {
+    return this.staffService.removeRoleAssignment(
+      institution.id,
+      staffId,
+      assignmentId,
+      authSession,
+      scopes,
     );
   }
 }
