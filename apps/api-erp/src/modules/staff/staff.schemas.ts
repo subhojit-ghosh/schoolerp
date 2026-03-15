@@ -27,6 +27,10 @@ export const createStaffSchema = z.object({
 
 export const updateStaffSchema = createStaffSchema;
 
+export const setStaffStatusSchema = z.object({
+  status: z.enum([STATUS.MEMBER.ACTIVE, STATUS.MEMBER.INACTIVE]),
+});
+
 export const createStaffRoleAssignmentSchema = z.object({
   roleId: z.string().trim().min(1, "Role is required"),
   campusId: z
@@ -64,6 +68,7 @@ export const listStaffQuerySchema = baseListQuerySchema.extend({
 
 export type CreateStaffDto = z.infer<typeof createStaffSchema>;
 export type UpdateStaffDto = z.infer<typeof updateStaffSchema>;
+export type SetStaffStatusDto = z.infer<typeof setStaffStatusSchema>;
 export type CreateStaffRoleAssignmentDto = z.infer<
   typeof createStaffRoleAssignmentSchema
 >;
@@ -88,6 +93,10 @@ export function parseCreateStaff(body: unknown) {
 
 export function parseUpdateStaff(body: unknown) {
   return parseSchema(updateStaffSchema, body);
+}
+
+export function parseSetStaffStatus(body: unknown) {
+  return parseSchema(setStaffStatusSchema, body);
 }
 
 export function parseCreateStaffRoleAssignment(body: unknown) {

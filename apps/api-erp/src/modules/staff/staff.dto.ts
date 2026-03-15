@@ -1,8 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
+  AUTH_RECOVERY_CHANNELS,
   MEMBER_TYPES,
   SORT_ORDERS,
   STATUS,
+  type AuthRecoveryChannel,
   type MemberStatus,
   type MemberType,
 } from "../../constants";
@@ -49,6 +51,13 @@ export class CreateStaffBodyDto {
 
 export class UpdateStaffBodyDto extends CreateStaffBodyDto {}
 
+export class SetStaffStatusBodyDto {
+  @ApiProperty({
+    enum: [STATUS.MEMBER.ACTIVE, STATUS.MEMBER.INACTIVE],
+  })
+  status!: "active" | "inactive";
+}
+
 export class StaffDto {
   id!: string;
   userId!: string;
@@ -73,6 +82,27 @@ export class StaffDto {
 
   @ApiPropertyOptional({ type: () => StaffRoleDto, nullable: true })
   role!: StaffRoleDto | null;
+}
+
+export class StaffPasswordSetupDto {
+  success!: boolean;
+
+  @ApiProperty({
+    enum: Object.values(AUTH_RECOVERY_CHANNELS),
+  })
+  channel!: AuthRecoveryChannel;
+  recipient!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  resetTokenPreview!: string | null;
+}
+
+export class CreateStaffResultDto {
+  @ApiProperty({ type: () => StaffDto })
+  staff!: StaffDto;
+
+  @ApiPropertyOptional({ type: () => StaffPasswordSetupDto, nullable: true })
+  passwordSetup!: StaffPasswordSetupDto | null;
 }
 
 export class StaffRoleAssignmentScopeDto {

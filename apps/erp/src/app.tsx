@@ -31,6 +31,7 @@ import { RolesPage } from "@/routes/settings/roles-page";
 import { ClassesPage } from "@/routes/academics/classes-page";
 import { GuardianDetailPage } from "@/routes/people/guardian-detail-page";
 import { GuardiansPage } from "@/routes/people/guardians-page";
+import { NotificationsPage } from "@/routes/notifications/notifications-page";
 import { StaffCreatePage } from "@/routes/people/staff-create-page";
 import { StaffDetailPage } from "@/routes/people/staff-detail-page";
 import { StaffPage } from "@/routes/people/staff-page";
@@ -74,6 +75,7 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
     children: [
       { path: ERP_ROUTES.DASHBOARD, element: <DashboardPage /> },
+      { path: ERP_ROUTES.NOTIFICATIONS, element: <NotificationsPage /> },
       { path: ERP_ROUTES.STUDENTS, element: <StudentsPage /> },
       { path: ERP_ROUTES.STUDENT_CREATE, element: <StudentCreatePage /> },
       { path: ERP_ROUTES.STUDENT_DETAIL, element: <StudentDetailPage /> },

@@ -380,11 +380,29 @@ export interface paths {
         get: operations["StaffController_getStaff"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete a staff membership for the current tenant */
+        delete: operations["StaffController_deleteStaff"];
         options?: never;
         head?: never;
         /** Update a staff membership for the current tenant */
         patch: operations["StaffController_updateStaff"];
+        trace?: never;
+    };
+    "/staff/{staffId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Enable or disable a staff membership */
+        patch: operations["StaffController_setStaffStatus"];
         trace?: never;
     };
     "/staff/{staffId}/roles/{assignmentId}": {
@@ -1136,6 +1154,17 @@ export interface components {
             mobile: string;
             campusId: string;
         };
+        StaffPasswordSetupDto: {
+            /** @enum {string} */
+            channel: "mobile" | "email";
+            resetTokenPreview?: string | null;
+            success: boolean;
+            recipient: string;
+        };
+        CreateStaffResultDto: {
+            staff: components["schemas"]["StaffDto"];
+            passwordSetup?: components["schemas"]["StaffPasswordSetupDto"] | null;
+        };
         CreateStaffRoleAssignmentBodyDto: {
             campusId?: string | null;
             classId?: string | null;
@@ -1149,6 +1178,10 @@ export interface components {
             name: string;
             mobile: string;
             campusId: string;
+        };
+        SetStaffStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive";
         };
         GuardianLinkedStudentDto: {
             /** @enum {string} */
@@ -2083,7 +2116,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StaffDto"];
+                    "application/json": components["schemas"]["CreateStaffResultDto"];
                 };
             };
         };
@@ -2174,6 +2207,25 @@ export interface operations {
             };
         };
     };
+    StaffController_deleteStaff: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     StaffController_updateStaff: {
         parameters: {
             query?: never;
@@ -2186,6 +2238,31 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["UpdateStaffBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffDto"];
+                };
+            };
+        };
+    };
+    StaffController_setStaffStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetStaffStatusBodyDto"];
             };
         };
         responses: {

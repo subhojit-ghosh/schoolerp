@@ -1,6 +1,14 @@
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Link, useLocation } from "react-router";
-import { IconArrowRight, IconPlus, IconSearch } from "@tabler/icons-react";
+import { toast } from "sonner";
+import {
+  IconArrowRight,
+  IconDotsVertical,
+  IconPlus,
+  IconPower,
+  IconSearch,
+  IconTrash,
+} from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
@@ -12,10 +20,18 @@ import {
   CardTitle,
 } from "@repo/ui/components/ui/card";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@repo/ui/components/ui/dropdown-menu";
+import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
   EntityRowAction,
 } from "@/components/entities/entity-actions";
+import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
 import { EntityListPage } from "@/components/entities/entity-list-page";
 import {
   ServerDataTable,
@@ -28,7 +44,11 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { useStaffQuery } from "@/features/staff/api/use-staff";
+import {
+  useDeleteStaffMutation,
+  useSetStaffStatusMutation,
+  useStaffQuery,
+} from "@/features/staff/api/use-staff";
 import {
   STAFF_LIST_SORT_FIELDS,
   STAFF_PAGE_COPY,
@@ -36,6 +56,7 @@ import {
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
 import { appendSearch } from "@/lib/routes";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 type StaffRow = {
   id: string;
@@ -66,6 +87,9 @@ export function StaffPage() {
   const institutionId = session?.activeOrganization?.id;
   const canManageStaff = isStaffContext(session);
   const managedInstitutionId = canManageStaff ? institutionId : undefined;
+  const setStatusMutation = useSetStaffStatusMutation(managedInstitutionId);
+  const deleteMutation = useDeleteStaffMutation(managedInstitutionId);
+  const [deleteTarget, setDeleteTarget] = useState<StaffRow | null>(null);
   const {
     queryState,
     searchInput,
@@ -92,6 +116,35 @@ export function StaffPage() {
     [staffQuery.data?.rows],
   );
   const error = staffQuery.error as Error | null | undefined;
+
+  const handleToggleStatus = useCallback(
+    async (staffRecord: StaffRow) => {
+      if (!managedInstitutionId) {
+        return;
+      }
+
+      const nextStatus =
+        staffRecord.status === "active" ? "inactive" : "active";
+
+      await setStatusMutation.mutateAsync({
+        params: {
+          path: {
+            staffId: staffRecord.id,
+          },
+        },
+        body: {
+          status: nextStatus,
+        },
+      });
+
+      toast.success(
+        nextStatus === "inactive"
+          ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.STAFF_RECORD)
+          : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.STAFF_RECORD),
+      );
+    },
+    [managedInstitutionId, setStatusMutation],
+  );
 
   const columns = useMemo(
     () => [
@@ -183,8 +236,8 @@ export function StaffPage() {
         ),
         cell: ({ getValue }) => (
           <Badge
-            variant={getValue() === "active" ? "secondary" : "outline"}
             className="capitalize"
+            variant={getValue() === "active" ? "secondary" : "outline"}
           >
             {getValue()}
           </Badge>
@@ -192,24 +245,62 @@ export function StaffPage() {
       }),
       columnHelper.display({
         id: "actions",
-        cell: ({ row }) => (
-          <div className="flex justify-end">
-            <EntityRowAction asChild>
-              <Link
-                to={appendSearch(
-                  buildStaffDetailRoute(row.original.id),
-                  location.search,
-                )}
-              >
-                Open record
-                <IconArrowRight className="size-3" />
-              </Link>
-            </EntityRowAction>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const staffRecord = row.original;
+
+          return (
+            <div className="flex items-center justify-end gap-1">
+              <EntityRowAction asChild>
+                <Link
+                  to={appendSearch(
+                    buildStaffDetailRoute(staffRecord.id),
+                    location.search,
+                  )}
+                >
+                  Open record
+                  <IconArrowRight className="size-3" />
+                </Link>
+              </EntityRowAction>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="size-8 text-muted-foreground data-[state=open]:bg-muted"
+                    size="icon"
+                    variant="ghost"
+                  >
+                    <IconDotsVertical className="size-4" />
+                    <span className="sr-only">Row actions</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem
+                    onSelect={() => void handleToggleStatus(staffRecord)}
+                  >
+                    <IconPower className="mr-2 size-4" />
+                    {staffRecord.status === "active" ? "Disable" : "Enable"}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onSelect={() => setDeleteTarget(staffRecord)}
+                    variant="destructive"
+                  >
+                    <IconTrash className="mr-2 size-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
       }),
     ],
-    [location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      handleToggleStatus,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -255,66 +346,104 @@ export function StaffPage() {
 
   const isFiltered = Boolean(queryState.search);
 
+  async function handleDelete() {
+    if (!managedInstitutionId || !deleteTarget) {
+      return;
+    }
+
+    await deleteMutation.mutateAsync({
+      params: {
+        path: {
+          staffId: deleteTarget.id,
+        },
+      },
+    });
+
+    toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.STAFF_RECORD));
+    setDeleteTarget(null);
+  }
+
   return (
-    <EntityListPage
-      actions={
-        <EntityPagePrimaryAction asChild>
-          <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
-            <IconPlus className="size-4" />
-            New staff member
-          </Link>
-        </EntityPagePrimaryAction>
-      }
-      description={STAFF_PAGE_COPY.DESCRIPTION}
-      title={STAFF_PAGE_COPY.TITLE}
-      toolbar={
-        <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative min-w-[280px] flex-1">
-              <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="h-11 w-full max-w-md rounded-lg border-border/70 bg-background pl-10 shadow-none"
-                placeholder={STAFF_PAGE_COPY.SEARCH_PLACEHOLDER}
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
-              />
+    <>
+      <EntityListPage
+        actions={
+          <EntityPagePrimaryAction asChild>
+            <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
+              <IconPlus className="size-4" />
+              New staff member
+            </Link>
+          </EntityPagePrimaryAction>
+        }
+        description={STAFF_PAGE_COPY.DESCRIPTION}
+        title={STAFF_PAGE_COPY.TITLE}
+        toolbar={
+          <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[280px] flex-1">
+                <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="h-11 w-full max-w-md rounded-lg border-border/70 bg-background pl-10 shadow-none"
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  placeholder={STAFF_PAGE_COPY.SEARCH_PLACEHOLDER}
+                  value={searchInput}
+                />
+              </div>
             </div>
           </div>
-        </div>
-      }
-    >
-      <ServerDataTable
-        emptyAction={
-          !isFiltered ? (
-            <EntityEmptyStateAction asChild>
-              <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
-                <IconPlus className="size-4" />
-                New staff member
-              </Link>
-            </EntityEmptyStateAction>
-          ) : undefined
         }
-        emptyDescription={
-          isFiltered
-            ? STAFF_PAGE_COPY.EMPTY_FILTERED_DESCRIPTION
-            : STAFF_PAGE_COPY.EMPTY_DESCRIPTION
-        }
-        emptyTitle={
-          isFiltered
-            ? STAFF_PAGE_COPY.EMPTY_FILTERED_TITLE
-            : STAFF_PAGE_COPY.EMPTY_TITLE
-        }
-        errorDescription={error?.message}
-        errorTitle={STAFF_PAGE_COPY.ERROR_TITLE}
-        isError={staffQuery.isError}
-        isLoading={staffQuery.isLoading}
-        onSearchChange={setSearchInput}
-        searchPlaceholder={STAFF_PAGE_COPY.SEARCH_PLACEHOLDER}
-        searchValue={searchInput}
-        showSearch={false}
-        table={table}
-        totalRows={staffQuery.data?.total ?? 0}
+      >
+        <ServerDataTable
+          emptyAction={
+            !isFiltered ? (
+              <EntityEmptyStateAction asChild>
+                <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
+                  <IconPlus className="size-4" />
+                  New staff member
+                </Link>
+              </EntityEmptyStateAction>
+            ) : undefined
+          }
+          emptyDescription={
+            isFiltered
+              ? STAFF_PAGE_COPY.EMPTY_FILTERED_DESCRIPTION
+              : STAFF_PAGE_COPY.EMPTY_DESCRIPTION
+          }
+          emptyTitle={
+            isFiltered
+              ? STAFF_PAGE_COPY.EMPTY_FILTERED_TITLE
+              : STAFF_PAGE_COPY.EMPTY_TITLE
+          }
+          errorDescription={error?.message}
+          errorTitle={STAFF_PAGE_COPY.ERROR_TITLE}
+          isError={staffQuery.isError}
+          isLoading={staffQuery.isLoading}
+          onSearchChange={setSearchInput}
+          rowCellClassName={(row) =>
+            row.status === "active" ? undefined : "opacity-60"
+          }
+          searchPlaceholder={STAFF_PAGE_COPY.SEARCH_PLACEHOLDER}
+          searchValue={searchInput}
+          showSearch={false}
+          table={table}
+          totalRows={staffQuery.data?.total ?? 0}
+        />
+      </EntityListPage>
+
+      <ConfirmDialog
+        confirmLabel="Delete staff"
+        description={`Delete “${deleteTarget?.name ?? "this staff record"}”? This removes the tenant staff membership but does not delete the shared user identity.`}
+        isPending={deleteMutation.isPending}
+        onConfirm={() => {
+          void handleDelete();
+        }}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteTarget(null);
+          }
+        }}
+        open={Boolean(deleteTarget)}
+        title="Delete staff"
       />
-    </EntityListPage>
+    </>
   );
 }

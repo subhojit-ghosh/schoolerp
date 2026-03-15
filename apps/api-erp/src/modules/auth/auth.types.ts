@@ -113,3 +113,8 @@ export type PasswordResetRequestResult = {
   success: boolean;
   resetTokenPreview: string | null;
 };
+
+export type IssuedPasswordSetupResult = PasswordResetRequestResult & {
+  channel: import("../../constants").AuthRecoveryChannel;
+  recipient: string;
+};

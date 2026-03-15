@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -12,6 +14,7 @@ import {
 import {
   ApiBody,
   ApiCookieAuth,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -28,10 +31,12 @@ import { CurrentInstitution } from "../tenant-context/current-institution.decora
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
+  CreateStaffResultDto,
   CreateStaffBodyDto,
   CreateStaffRoleAssignmentBodyDto,
   ListStaffQueryDto,
   ListStaffResultDto,
+  SetStaffStatusBodyDto,
   StaffDto,
   StaffRoleAssignmentDto,
   StaffRoleDto,
@@ -41,6 +46,7 @@ import {
   parseCreateStaff,
   parseCreateStaffRoleAssignment,
   parseListStaffQuery,
+  parseSetStaffStatus,
   parseUpdateStaff,
 } from "./staff.schemas";
 import { StaffService } from "./staff.service";
@@ -112,7 +118,7 @@ export class StaffController {
   @RequirePermission(PERMISSIONS.STAFF_MANAGE)
   @ApiOperation({ summary: "Create a staff membership for the current tenant" })
   @ApiBody({ type: CreateStaffBodyDto })
-  @ApiOkResponse({ type: StaffDto })
+  @ApiOkResponse({ type: CreateStaffResultDto })
   createStaff(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
@@ -187,6 +193,46 @@ export class StaffController {
       authSession,
       scopes,
       parseUpdateStaff(body),
+    );
+  }
+
+  @Patch(":staffId/status")
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
+  @ApiOperation({ summary: "Enable or disable a staff membership" })
+  @ApiBody({ type: SetStaffStatusBodyDto })
+  @ApiOkResponse({ type: StaffDto })
+  setStaffStatus(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("staffId") staffId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Body() body: SetStaffStatusBodyDto,
+  ) {
+    return this.staffService.setStaffStatus(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+      parseSetStaffStatus(body),
+    );
+  }
+
+  @Delete(":staffId")
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Delete a staff membership for the current tenant" })
+  @ApiNoContentResponse()
+  deleteStaff(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("staffId") staffId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.staffService.deleteStaff(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
     );
   }
 

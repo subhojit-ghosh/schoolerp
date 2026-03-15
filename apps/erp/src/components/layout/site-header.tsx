@@ -1,14 +1,22 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 import {
   IconBuildingEstate,
   IconBell,
+  IconCircleCheckFilled,
   IconMaximize,
   IconMinimize,
+  IconSparkles,
   IconSearch,
 } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@repo/ui/components/ui/dropdown-menu";
 import { Input } from "@repo/ui/components/ui/input";
 import { SidebarTrigger } from "@repo/ui/components/ui/sidebar";
 import {
@@ -23,6 +31,11 @@ import { cn } from "@repo/ui/lib/utils";
 import { useSelectCampusMutation } from "@/features/auth/api/use-auth";
 import { isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { ERP_ROUTES } from "@/constants/routes";
+import {
+  NOTIFICATION_UNREAD_COUNT,
+  NOTIFICATION_UNREAD_ITEMS,
+} from "@/features/notifications/model/notification-feed";
 import { ThemeDrawer } from "@/features/settings/ui/theme-drawer";
 import { ERP_TOAST_MESSAGES } from "@/lib/toast-messages";
 
@@ -69,6 +82,7 @@ export function SiteHeader() {
   const fullscreenSupported = isFullscreenSupported(
     document as FullscreenDocument,
   );
+  const notificationPreviewItems = NOTIFICATION_UNREAD_ITEMS.slice(0, 3);
 
   useEffect(() => {
     function handleFullscreenChange() {
@@ -202,13 +216,88 @@ export function SiteHeader() {
             </Badge>
           ) : null}
 
-          <Button
-            className="hidden h-10 w-10 rounded-full border border-border/70 bg-card/80 shadow-xs md:inline-flex"
-            size="icon"
-            variant="ghost"
-          >
-            <IconBell className="size-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                aria-label={`Open notifications (${NOTIFICATION_UNREAD_COUNT} unread)`}
+                className="relative hidden h-10 w-10 rounded-full border border-border/70 bg-card/80 shadow-xs md:inline-flex"
+                size="icon"
+                variant="ghost"
+              >
+                <IconBell className="size-4" />
+                {NOTIFICATION_UNREAD_COUNT > 0 ? (
+                  <Badge className="absolute -top-1 -right-1 min-w-5 justify-center px-1 text-[10px]">
+                    {NOTIFICATION_UNREAD_COUNT}
+                  </Badge>
+                ) : null}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-[min(92vw,24rem)] rounded-2xl border-border/70 p-0 shadow-xl"
+              sideOffset={10}
+            >
+              <div className="border-b border-border/70 px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold tracking-tight">
+                      Notifications
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Quick look at new updates across academics and operations.
+                    </p>
+                  </div>
+                  <Badge variant="outline">{NOTIFICATION_UNREAD_COUNT} new</Badge>
+                </div>
+              </div>
+
+              <div className="max-h-[26rem] overflow-y-auto p-2">
+                {notificationPreviewItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-xl border border-transparent px-3 py-3 transition-colors hover:border-border/70 hover:bg-muted/40"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <item.Icon className="size-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="truncate text-sm font-medium">{item.title}</p>
+                          {item.actionRequired ? (
+                            <Badge variant="destructive">Action</Badge>
+                          ) : null}
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
+                          {item.message}
+                        </p>
+                        <div className="mt-2 flex items-center gap-2 text-[11px] text-muted-foreground">
+                          <span>{item.campus}</span>
+                          <span className="h-1 w-1 rounded-full bg-border" />
+                          <span>{item.relativeTime}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-border/70 p-3">
+                <div className="flex items-center gap-2">
+                  <Button className="h-9 flex-1 rounded-lg" variant="outline">
+                    <IconCircleCheckFilled className="size-4" />
+                    Mark all read
+                  </Button>
+                  <Button asChild className="h-9 flex-1 rounded-lg">
+                    <Link to={ERP_ROUTES.NOTIFICATIONS}>
+                      <IconSparkles className="size-4" />
+                      Open notifications
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Button
             variant="ghost"

@@ -60,6 +60,7 @@ import type {
   AuthenticatedSession,
   AuthenticatedStaffRole,
   AuthenticatedUser,
+  IssuedPasswordSetupResult,
   PasswordResetRequestResult,
   ResolvedScopes,
   SessionAccessContext,
@@ -171,37 +172,47 @@ export class AuthService {
       };
     }
 
-    await this.database
-      .delete(passwordResetToken)
-      .where(
-        and(
-          eq(passwordResetToken.userId, matchedUser.id),
-          isNull(passwordResetToken.consumedAt),
-        ),
-      );
-
-    const expiresAt = new Date(Date.now() + AUTH_PASSWORD_RESET.TOKEN_TTL_MS);
-
-    await this.database.insert(passwordResetToken).values({
-      id: randomUUID(),
-      userId: matchedUser.id,
-      tokenHash,
-      expiresAt,
-      consumedAt: null,
-    });
-
-    this.passwordResetDeliveryService.sendPasswordReset({
-      channel: matchedUser.email
-        ? AUTH_RECOVERY_CHANNELS.EMAIL
-        : AUTH_RECOVERY_CHANNELS.MOBILE,
-      recipient: matchedUser.email ?? matchedUser.mobile,
+    const result = await this.issuePasswordSetupForMatchedUser(
+      matchedUser.id,
+      matchedUser.mobile,
+      matchedUser.email,
       token,
-    });
+      tokenHash,
+    );
 
     return {
-      success: true,
-      resetTokenPreview: AUTH_PASSWORD_RESET.PREVIEW_ENABLED ? token : null,
+      success: result.success,
+      resetTokenPreview: result.resetTokenPreview,
     };
+  }
+
+  async issuePasswordSetupForUser(
+    userId: string,
+  ): Promise<IssuedPasswordSetupResult> {
+    const [matchedUser] = await this.database
+      .select({
+        id: user.id,
+        mobile: user.mobile,
+        email: user.email,
+      })
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+
+    if (!matchedUser) {
+      throw new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+    }
+
+    const token = this.createPasswordResetToken();
+    const tokenHash = this.hashPasswordResetToken(token);
+
+    return this.issuePasswordSetupForMatchedUser(
+      matchedUser.id,
+      matchedUser.mobile,
+      matchedUser.email,
+      token,
+      tokenHash,
+    );
   }
 
   async resetPassword(token: string, nextPassword: string) {
@@ -1013,6 +1024,51 @@ export class AuthService {
 
   private hashPasswordResetToken(token: string) {
     return createHash("sha256").update(token).digest("hex");
+  }
+
+  private async issuePasswordSetupForMatchedUser(
+    userId: string,
+    mobile: string,
+    email: string | null,
+    token: string,
+    tokenHash: string,
+  ): Promise<IssuedPasswordSetupResult> {
+    await this.database
+      .delete(passwordResetToken)
+      .where(
+        and(
+          eq(passwordResetToken.userId, userId),
+          isNull(passwordResetToken.consumedAt),
+        ),
+      );
+
+    const expiresAt = new Date(Date.now() + AUTH_PASSWORD_RESET.TOKEN_TTL_MS);
+
+    await this.database.insert(passwordResetToken).values({
+      id: randomUUID(),
+      userId,
+      tokenHash,
+      expiresAt,
+      consumedAt: null,
+    });
+
+    const channel = email
+      ? AUTH_RECOVERY_CHANNELS.EMAIL
+      : AUTH_RECOVERY_CHANNELS.MOBILE;
+    const recipient = email ?? mobile;
+
+    this.passwordResetDeliveryService.sendPasswordReset({
+      channel,
+      recipient,
+      token,
+    });
+
+    return {
+      success: true,
+      channel,
+      recipient,
+      resetTokenPreview: AUTH_PASSWORD_RESET.PREVIEW_ENABLED ? token : null,
+    };
   }
 
   private normalizeIdentifier(identifier: string) {

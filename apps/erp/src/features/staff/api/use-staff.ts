@@ -179,6 +179,48 @@ export function useUpdateStaffMutation(institutionId: string | undefined) {
   });
 }
 
+export function useSetStaffStatusMutation(institutionId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("patch", STAFF_API_PATHS.SET_STATUS, {
+    onSuccess: (_, variables) => {
+      if (!institutionId) {
+        return;
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: getStaffListQueryKey(institutionId),
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: apiQueryClient.queryOptions("get", STAFF_API_PATHS.DETAIL, {
+          params: {
+            path: {
+              staffId: variables.params.path.staffId,
+            },
+          },
+        }).queryKey,
+      });
+    },
+  });
+}
+
+export function useDeleteStaffMutation(institutionId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("delete", STAFF_API_PATHS.DELETE, {
+    onSuccess: () => {
+      if (!institutionId) {
+        return;
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: getStaffListQueryKey(institutionId),
+      });
+    },
+  });
+}
+
 export function useDeleteStaffRoleAssignmentMutation(
   institutionId: string | undefined,
 ) {

@@ -88,7 +88,9 @@ Keep this file evidence-based. Do not use it as a roadmap.
   - staff memberships backed by the existing `member` model
   - primary campus assignment plus campus-membership syncing
   - basic single-role assignment backed by `membership_roles`
-  - ERP frontend routes now use URL-backed list state for the staff directory and a dedicated `/staff/new` page for creation
+  - staff membership lifecycle now supports active/inactive toggling plus tenant-scoped soft delete with fail-closed attendance guards
+  - new staff identities now trigger password-setup issuance on creation instead of silently receiving an unknown random password
+  - ERP frontend routes now use URL-backed list state for the staff directory and a dedicated `/staff/new` page for creation with optional initial role assignment and password-setup status
   - ERP frontend list/create/edit screens
 - A minimal guardian management slice now exists with:
   - tenant-scoped guardian list/detail/update APIs resolved from the subdomain

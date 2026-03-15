@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import type { ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -33,6 +34,7 @@ type CampusOption = {
 };
 
 type StaffFormProps = {
+  afterFields?: ReactNode;
   campuses: CampusOption[];
   defaultValues: StaffFormValues;
   errorMessage?: string;
@@ -47,6 +49,7 @@ function toTitleCase(value: string) {
 }
 
 export function StaffForm({
+  afterFields,
   campuses,
   defaultValues,
   errorMessage,
@@ -180,6 +183,8 @@ export function StaffForm({
             )}
           />
         </div>
+
+        {afterFields}
 
         <FieldError>{errorMessage}</FieldError>
 

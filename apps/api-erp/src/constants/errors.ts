@@ -40,6 +40,8 @@ export const ERROR_MESSAGES = {
     STAFF_NOT_FOUND: "The selected staff record was not found.",
     STAFF_MEMBERSHIP_EXISTS:
       "That user already has a staff membership in this institution.",
+    STAFF_HAS_ATTENDANCE_RECORDS:
+      "Cannot delete a staff record that has already marked attendance. Keep the record inactive instead.",
     ROLE_ASSIGNMENT_NOT_FOUND:
       "The selected staff role assignment was not found.",
     ROLE_ASSIGNMENT_SCOPE_INVALID:

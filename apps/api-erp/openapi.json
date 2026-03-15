@@ -1046,7 +1046,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/StaffDto"
+                  "$ref": "#/components/schemas/CreateStaffResultDto"
                 }
               }
             }
@@ -1251,6 +1251,79 @@
           }
         ],
         "summary": "Update a staff membership for the current tenant",
+        "tags": [
+          "staff"
+        ]
+      },
+      "delete": {
+        "operationId": "StaffController_deleteStaff",
+        "parameters": [
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Delete a staff membership for the current tenant",
+        "tags": [
+          "staff"
+        ]
+      }
+    },
+    "/staff/{staffId}/status": {
+      "patch": {
+        "operationId": "StaffController_setStaffStatus",
+        "parameters": [
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetStaffStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Enable or disable a staff membership",
         "tags": [
           "staff"
         ]
@@ -4127,6 +4200,52 @@
           "campusId"
         ]
       },
+      "StaffPasswordSetupDto": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "type": "string",
+            "enum": [
+              "mobile",
+              "email"
+            ]
+          },
+          "resetTokenPreview": {
+            "type": "string",
+            "nullable": true
+          },
+          "success": {
+            "type": "boolean"
+          },
+          "recipient": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel",
+          "success",
+          "recipient"
+        ]
+      },
+      "CreateStaffResultDto": {
+        "type": "object",
+        "properties": {
+          "staff": {
+            "$ref": "#/components/schemas/StaffDto"
+          },
+          "passwordSetup": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StaffPasswordSetupDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "staff"
+        ]
+      },
       "CreateStaffRoleAssignmentBodyDto": {
         "type": "object",
         "properties": {
@@ -4181,6 +4300,21 @@
           "name",
           "mobile",
           "campusId"
+        ]
+      },
+      "SetStaffStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "status"
         ]
       },
       "GuardianLinkedStudentDto": {

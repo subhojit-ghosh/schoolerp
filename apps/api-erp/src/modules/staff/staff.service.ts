@@ -9,6 +9,7 @@ import {
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
+  attendanceRecords,
   campus,
   campusMemberships,
   classSections,
@@ -46,10 +47,16 @@ import {
   resolveTablePageSize,
   type PaginatedResult,
 } from "../../lib/list-query";
-import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
+import type {
+  AuthenticatedSession,
+  IssuedPasswordSetupResult,
+  ResolvedScopes,
+} from "../auth/auth.types";
 import { campusScopeFilter } from "../auth/scope-filter";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
+import { AuthService } from "../auth/auth.service";
 import type {
+  CreateStaffResultDto,
   StaffDto,
   StaffRoleAssignmentDto,
   StaffRoleAssignmentScopeDto,
@@ -58,6 +65,7 @@ import type {
   CreateStaffDto,
   CreateStaffRoleAssignmentDto,
   ListStaffQueryDto,
+  SetStaffStatusDto,
   UpdateStaffDto,
 } from "./staff.schemas";
 import { sortableStaffColumns } from "./staff.schemas";
@@ -97,7 +105,10 @@ const sortableColumns = {
 
 @Injectable()
 export class StaffService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly authService: AuthService,
+  ) {}
 
   async listStaff(
     institutionId: string,
@@ -208,7 +219,7 @@ export class StaffService {
     authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     payload: CreateStaffDto,
-  ) {
+  ): Promise<CreateStaffResultDto> {
     this.assertRequestedScopeWithinAssignerScopes(
       { campusId: payload.campusId },
       scopes,
@@ -216,7 +227,7 @@ export class StaffService {
 
     const selectedCampus = await this.getCampus(institutionId, payload.campusId);
 
-    const membershipId = await this.db.transaction(async (tx) => {
+    const createResult = await this.db.transaction(async (tx) => {
       const resolvedUser = await this.findOrCreateUser(tx, payload);
 
       const [existingStaffMembership] = await tx
@@ -255,10 +266,32 @@ export class StaffService {
         selectedCampus.id,
       );
 
-      return nextMembershipId;
+      return {
+        membershipId: nextMembershipId,
+        userId: resolvedUser.id,
+        createdNewUser: resolvedUser.createdNewUser,
+      };
     });
 
-    return this.getStaff(institutionId, membershipId, authSession, scopes);
+    const staff = await this.getStaff(
+      institutionId,
+      createResult.membershipId,
+      authSession,
+      scopes,
+    );
+
+    let passwordSetup: IssuedPasswordSetupResult | null = null;
+
+    if (createResult.createdNewUser) {
+      passwordSetup = await this.authService.issuePasswordSetupForUser(
+        createResult.userId,
+      );
+    }
+
+    return {
+      staff,
+      passwordSetup,
+    };
   }
 
   async updateStaff(
@@ -322,6 +355,82 @@ export class StaffService {
     });
 
     return this.getStaff(institutionId, staffId, authSession, scopes);
+  }
+
+  async setStaffStatus(
+    institutionId: string,
+    staffId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: SetStaffStatusDto,
+  ) {
+    await this.getStaffMembership(institutionId, staffId, scopes);
+
+    await this.db
+      .update(member)
+      .set({ status: payload.status })
+      .where(
+        and(
+          eq(member.id, staffId),
+          eq(member.organizationId, institutionId),
+          eq(member.memberType, MEMBER_TYPES.STAFF),
+        ),
+      );
+
+    return this.getStaff(institutionId, staffId, authSession, scopes);
+  }
+
+  async deleteStaff(
+    institutionId: string,
+    staffId: string,
+    _authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ) {
+    const staffMembership = await this.getStaffMembership(
+      institutionId,
+      staffId,
+      scopes,
+    );
+
+    await this.assertStaffRemovable(institutionId, staffMembership.id);
+
+    await this.db.transaction(async (tx) => {
+      const activeAssignments = await tx
+        .select({ id: membershipRoles.id })
+        .from(membershipRoles)
+        .where(
+          and(
+            eq(membershipRoles.membershipId, staffMembership.id),
+            isNull(membershipRoles.deletedAt),
+          ),
+        );
+
+      if (activeAssignments.length > 0) {
+        const assignmentIds = activeAssignments.map((assignment) => assignment.id);
+
+        await tx
+          .delete(membershipRoleScopes)
+          .where(inArray(membershipRoleScopes.membershipRoleId, assignmentIds));
+
+        await tx
+          .update(membershipRoles)
+          .set({ deletedAt: new Date() })
+          .where(inArray(membershipRoles.id, assignmentIds));
+      }
+
+      await tx
+        .update(campusMemberships)
+        .set({ deletedAt: new Date() })
+        .where(eq(campusMemberships.membershipId, staffMembership.id));
+
+      await tx
+        .update(member)
+        .set({
+          status: STATUS.MEMBER.DELETED,
+          deletedAt: new Date(),
+        })
+        .where(eq(member.id, staffMembership.id));
+    });
   }
 
   async createRoleAssignment(
@@ -791,6 +900,25 @@ export class StaffService {
     return matchedStaff;
   }
 
+  private async assertStaffRemovable(institutionId: string, staffId: string) {
+    const [attendanceReference] = await this.db
+      .select({ id: attendanceRecords.id })
+      .from(attendanceRecords)
+      .where(
+        and(
+          eq(attendanceRecords.institutionId, institutionId),
+          eq(attendanceRecords.markedByMembershipId, staffId),
+        ),
+      )
+      .limit(1);
+
+    if (attendanceReference) {
+      throw new ConflictException(
+        ERROR_MESSAGES.STAFF.STAFF_HAS_ATTENDANCE_RECORDS,
+      );
+    }
+  }
+
   private async resolveAssignmentScope(
     institutionId: string,
     payload: ScopeInput,
@@ -1005,7 +1133,7 @@ export class StaffService {
         })
         .where(eq(user.id, matchedUser.id));
 
-      return { id: matchedUser.id };
+      return { id: matchedUser.id, createdNewUser: false };
     }
 
     const userId = randomUUID();
@@ -1018,7 +1146,7 @@ export class StaffService {
       passwordHash: await hash(randomUUID(), 12),
     });
 
-    return { id: userId };
+    return { id: userId, createdNewUser: true };
   }
 
   private async reconcileUserIdentity(

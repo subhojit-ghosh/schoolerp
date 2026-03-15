@@ -37,24 +37,40 @@ const buttonVariants = cva(
   },
 );
 
+const BUTTON_VARIANT_FOREGROUND_STYLES = {
+  default: { color: "var(--primary-foreground)" },
+  destructive: { color: "var(--destructive-foreground)" },
+  secondary: { color: "var(--secondary-foreground)" },
+} as const;
+
 function Button({
   className,
   variant = "default",
   size = "default",
   asChild = false,
+  style,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
-  }) {
+}) {
   const Comp = asChild ? Slot.Root : "button";
+  const resolvedVariant = variant ?? "default";
 
   return (
     <Comp
       data-slot="button"
-      data-variant={variant}
+      data-variant={resolvedVariant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant: resolvedVariant, size, className }))}
+      style={{
+        ...(resolvedVariant in BUTTON_VARIANT_FOREGROUND_STYLES
+          ? BUTTON_VARIANT_FOREGROUND_STYLES[
+              resolvedVariant as keyof typeof BUTTON_VARIANT_FOREGROUND_STYLES
+            ]
+          : {}),
+        ...style,
+      }}
       {...props}
     />
   );

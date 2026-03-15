@@ -146,7 +146,7 @@ body {
   margin: 0;
 }
 
-a {
+:where(a) {
   color: inherit;
   text-decoration: none;
 }

@@ -27,6 +27,8 @@ export const STAFF_API_PATHS = {
   CREATE: "/staff",
   DETAIL: "/staff/{staffId}",
   UPDATE: "/staff/{staffId}",
+  SET_STATUS: "/staff/{staffId}/status",
+  DELETE: "/staff/{staffId}",
   ROLES: "/staff/roles",
   LIST_ASSIGNMENTS: "/staff/{staffId}/roles",
   CREATE_ASSIGNMENT: "/staff/{staffId}/roles",

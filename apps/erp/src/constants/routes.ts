@@ -6,6 +6,7 @@ export const ERP_ROUTE_SEGMENTS = {
 export const ERP_ROUTES = {
   ROOT: "/",
   DASHBOARD: "/dashboard",
+  NOTIFICATIONS: "/notifications",
   // Admissions
   ADMISSIONS_ENQUIRIES: "/admissions/enquiries",
   ADMISSIONS_APPLICATIONS: "/admissions/applications",

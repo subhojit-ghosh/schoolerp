@@ -320,7 +320,7 @@ export function StaffDetailPage() {
                 : undefined
             }
             campuses={campuses}
-            canManageAssignments
+            canManageAssignments={staffRolesQuery.isSuccess}
             createErrorMessage={createAssignmentError?.message}
             deleteErrorMessage={deleteAssignmentError?.message}
             isAssignmentsLoading={assignmentsQuery.isLoading}
