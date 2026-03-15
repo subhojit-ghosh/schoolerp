@@ -2971,6 +2971,25 @@
           "membershipIds"
         ]
       },
+      "AuthStaffRoleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug"
+        ]
+      },
       "AuthCampusDto": {
         "type": "object",
         "properties": {
@@ -3091,6 +3110,12 @@
               }
             ]
           },
+          "activeStaffRoles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthStaffRoleDto"
+            }
+          },
           "activeCampus": {
             "nullable": true,
             "allOf": [
@@ -3119,6 +3144,7 @@
           "activeOrganization",
           "availableContexts",
           "activeContext",
+          "activeStaffRoles",
           "activeCampus",
           "campuses",
           "linkedStudents"

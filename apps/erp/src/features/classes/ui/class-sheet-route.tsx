@@ -145,8 +145,8 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
       closeTo={ERP_ROUTES.CLASSES}
       description={
         mode === "create"
-          ? "Add a class and define the sections available for admissions and roster views."
-          : "Update the class name, disable sections you no longer use, or restore inactive sections."
+          ? "Add a class and its sections."
+          : "Update the class and its sections."
       }
       title={mode === "create" ? "New class" : "Edit class"}
     >

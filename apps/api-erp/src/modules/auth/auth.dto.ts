@@ -149,6 +149,12 @@ export class AuthAccessContextDto {
   membershipIds!: string[];
 }
 
+export class AuthStaffRoleDto {
+  id!: string;
+  name!: string;
+  slug!: string;
+}
+
 export class AuthLinkedStudentDto {
   studentId!: string;
   membershipId!: string;
@@ -197,6 +203,12 @@ export class AuthContextDto {
     nullable: true,
   })
   activeContext!: AuthAccessContextDto | null;
+
+  @ApiProperty({
+    type: () => AuthStaffRoleDto,
+    isArray: true,
+  })
+  activeStaffRoles!: AuthStaffRoleDto[];
 
   @ApiProperty({
     type: () => AuthCampusDto,

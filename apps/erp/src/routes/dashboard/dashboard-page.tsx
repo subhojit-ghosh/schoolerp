@@ -25,35 +25,35 @@ import { useStudentsQuery } from "@/features/students/api/use-students";
 const QUICK_ACTIONS = [
   {
     label: "Students",
-    description: "View and manage student records",
+    description: "Manage student records",
     href: ERP_ROUTES.STUDENTS,
     Icon: IconUsers,
     disabled: false,
   },
   {
     label: "Academic Years",
-    description: "Manage current and archived sessions",
+    description: "Review active and archived years",
     href: ERP_ROUTES.ACADEMIC_YEARS,
     Icon: IconBook2,
     disabled: false,
   },
   {
     label: "Exams",
-    description: "Create exam terms and capture marks for active students",
+    description: "Create exam terms and marks",
     href: ERP_ROUTES.EXAMS,
     Icon: IconCertificate,
     disabled: false,
   },
   {
     label: "Attendance",
-    description: "Track daily attendance and view class-wise reports.",
+    description: "Track daily attendance",
     href: ERP_ROUTES.DASHBOARD,
     Icon: IconCalendarStats,
     disabled: true,
   },
   {
     label: "Fees",
-    description: "Collect fees, track payments, and manage dues.",
+    description: "Collect fees and track dues",
     href: ERP_ROUTES.FEES,
     Icon: IconCurrencyRupee,
     disabled: false,
@@ -98,8 +98,7 @@ export function DashboardPage() {
             {getGreeting()}, {firstName(name)}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            This is the lighter family view. Switch back to Staff when you want
-            to manage institution data.
+            View linked students and family updates.
           </p>
         </div>
 
@@ -145,8 +144,7 @@ export function DashboardPage() {
                   ) : null}
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Minimal parent access is live. Attendance, reports, fees, and
-                  notices can layer onto this context later.
+                  Parent tools for this student will appear here.
                 </p>
               </CardContent>
             </Card>
@@ -173,8 +171,7 @@ export function DashboardPage() {
           </div>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Student-mode shell support is ready. Student-specific academics and
-          attendance can now be added without changing login.
+          Student tools will appear here.
         </CardContent>
       </Card>
     );
@@ -196,8 +193,8 @@ export function DashboardPage() {
         >
           {getGreeting()}, {firstName(name)}
         </h2>
-        <p className="text-sm text-muted-foreground mt-1">
-          Here's what's happening at your school today.
+        <p className="mt-1 text-sm text-muted-foreground">
+          Here's what's happening today.
         </p>
       </div>
 

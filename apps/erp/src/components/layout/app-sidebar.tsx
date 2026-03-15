@@ -37,6 +37,8 @@ import { NavMain } from "@/components/navigation/nav-main";
 import { NavUser } from "@/components/navigation/nav-user";
 import { useSelectContextMutation } from "@/features/auth/api/use-auth";
 import {
+  getContextSecondaryLabel,
+  getActiveRoleDisplayLabel,
   getActiveContext,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
@@ -68,7 +70,8 @@ const CONTEXT_META: Record<
   },
 };
 
-const CONTEXT_SWITCHER_WIDTH_CLASS = "w-[220px]";
+const CONTEXT_SWITCHER_WIDTH_CLASS =
+  "w-(--radix-dropdown-menu-trigger-width)";
 const CONTEXT_SWITCHER_ITEM_CLASS =
   "group flex w-full items-center gap-3 rounded-2xl border px-3 py-2 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 const CONTEXT_SWITCHER_ACTIVE_ITEM_CLASS =
@@ -227,6 +230,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     branding?.institutionName ??
     session?.activeOrganization?.name ??
     "School ERP";
+  const activeRoleLabel = getActiveRoleDisplayLabel(session);
   const logoUrl = branding?.logoUrl ?? null;
   const initial = (branding?.shortName ?? institutionName)
     .charAt(0)
@@ -246,7 +250,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           {institutionName}
         </p>
         <p className="truncate text-[11px] uppercase tracking-[0.18em] text-sidebar-foreground/55">
-          {activeContext?.label ?? "Workspace"}
+          {activeRoleLabel ?? "Workspace"}
         </p>
       </div>
     </>
@@ -279,6 +283,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {sortedContexts.map((contextOption) => {
                   const meta = CONTEXT_META[contextOption.key];
                   const isActive = activeContext.key === contextOption.key;
+                  const contextSecondaryLabel = getContextSecondaryLabel(
+                    session,
+                    contextOption.key,
+                  );
 
                   return (
                     <button
@@ -319,6 +327,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <span className="block truncate text-[15px] font-semibold tracking-[-0.01em]">
                           {contextOption.label}
                         </span>
+                        {contextSecondaryLabel ? (
+                          <span className="mt-0.5 block truncate font-mono text-[10.5px] font-medium tracking-[0.04em] text-muted-foreground/80">
+                            {contextSecondaryLabel}
+                          </span>
+                        ) : null}
                       </span>
                       {isActive ? (
                         <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background/95 text-[var(--primary)]">

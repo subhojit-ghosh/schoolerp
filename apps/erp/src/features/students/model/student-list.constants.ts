@@ -5,10 +5,8 @@ export const STUDENT_LIST_SORT_FIELDS = {
 } as const;
 
 export const STUDENTS_PAGE_COPY = {
-  DESCRIPTION:
-    "Keep the active roster searchable and move into dedicated student detail workflows when records need more depth.",
-  EMPTY_DESCRIPTION:
-    "Add the first student to establish the institution roster.",
+  DESCRIPTION: "Search and manage student records.",
+  EMPTY_DESCRIPTION: "Add the first student to get started.",
   EMPTY_FILTERED_DESCRIPTION: "Try adjusting your search.",
   EMPTY_FILTERED_TITLE: "No students match your search",
   EMPTY_TITLE: "No students yet",

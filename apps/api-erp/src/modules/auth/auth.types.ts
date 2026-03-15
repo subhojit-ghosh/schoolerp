@@ -63,6 +63,12 @@ export type AuthenticatedAccessContext = {
   membershipIds: string[];
 };
 
+export type AuthenticatedStaffRole = {
+  id: string;
+  name: string;
+  slug: string;
+};
+
 export type AuthenticatedLinkedStudent = {
   studentId: string;
   membershipId: string;
@@ -80,6 +86,7 @@ export type AuthContext = {
   activeOrganization: AuthenticatedOrganization | null;
   availableContexts: AuthenticatedAccessContext[];
   activeContext: AuthenticatedAccessContext | null;
+  activeStaffRoles: AuthenticatedStaffRole[];
   activeCampus: AuthenticatedCampus | null;
   campuses: AuthenticatedCampus[];
   linkedStudents: AuthenticatedLinkedStudent[];

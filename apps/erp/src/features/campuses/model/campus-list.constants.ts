@@ -6,8 +6,8 @@ export const CAMPUS_LIST_SORT_FIELDS = {
 } as const;
 
 export const CAMPUSES_PAGE_COPY = {
-  DESCRIPTION: "Add and review campus nodes inside the current institution.",
-  EMPTY_DESCRIPTION: "Create the first campus for this institution.",
+  DESCRIPTION: "Manage campuses for this institution.",
+  EMPTY_DESCRIPTION: "Create the first campus to get started.",
   EMPTY_FILTERED_DESCRIPTION: "Try adjusting your search.",
   EMPTY_FILTERED_TITLE: "No campuses match your search",
   EMPTY_TITLE: "No campuses yet",

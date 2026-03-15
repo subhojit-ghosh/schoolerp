@@ -47,6 +47,7 @@ import {
   AuthLinkedStudentDto,
   AuthMembershipDto,
   AuthOrganizationDto,
+  AuthStaffRoleDto,
   type AuthUserDto,
 } from "./auth.dto";
 import type {
@@ -57,6 +58,7 @@ import type {
   AuthenticatedMembership,
   AuthenticatedOrganization,
   AuthenticatedSession,
+  AuthenticatedStaffRole,
   AuthenticatedUser,
   PasswordResetRequestResult,
   ResolvedScopes,
@@ -496,6 +498,9 @@ export class AuthService {
       activeContext: authContext.activeContext
         ? this.toAccessContextDto(authContext.activeContext)
         : null,
+      activeStaffRoles: authContext.activeStaffRoles.map((role) =>
+        this.toStaffRoleDto(role),
+      ),
       activeCampus: authContext.activeCampus
         ? this.toCampusDto(authContext.activeCampus)
         : null,
@@ -708,6 +713,12 @@ export class AuthService {
       authSession.activeContextKey,
       availableContexts,
     );
+    const activeStaffRoles = authSession.activeOrganizationId
+      ? await this.listActiveStaffRoles(
+          authSession.user.id,
+          authSession.activeOrganizationId,
+        )
+      : [];
     const activeCampus =
       campuses.find(
         (campusOption) => campusOption.id === authSession.activeCampusId,
@@ -720,6 +731,7 @@ export class AuthService {
       activeOrganization,
       availableContexts,
       activeContext,
+      activeStaffRoles,
       activeCampus,
       campuses,
       linkedStudents,
@@ -770,6 +782,54 @@ export class AuthService {
           ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       );
+  }
+
+  private async listActiveStaffRoles(
+    userId: string,
+    organizationId: string,
+  ): Promise<AuthenticatedStaffRole[]> {
+    const today = new Date().toISOString().slice(0, 10);
+
+    const roleRows = await this.database
+      .select({
+        id: roles.id,
+        name: roles.name,
+        slug: roles.slug,
+        permissionCount:
+          sql<number>`count(distinct ${rolePermissions.permissionId})`.mapWith(
+            Number,
+          ),
+      })
+      .from(member)
+      .innerJoin(membershipRoles, eq(membershipRoles.membershipId, member.id))
+      .innerJoin(roles, eq(roles.id, membershipRoles.roleId))
+      .leftJoin(rolePermissions, eq(rolePermissions.roleId, roles.id))
+      .where(
+        and(
+          eq(member.userId, userId),
+          eq(member.organizationId, organizationId),
+          eq(member.memberType, MEMBER_TYPES.STAFF),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          lte(membershipRoles.validFrom, today),
+          or(
+            isNull(membershipRoles.validTo),
+            sql`${membershipRoles.validTo} >= ${today}`,
+          ),
+          isNull(membershipRoles.deletedAt),
+          isNull(roles.deletedAt),
+        ),
+      )
+      .groupBy(roles.id, roles.name, roles.slug)
+      .orderBy(
+        sql`count(distinct ${rolePermissions.permissionId}) desc`,
+        sql`lower(${roles.name}) asc`,
+      );
+
+    return roleRows.map(({ id, name, slug }) => ({
+      id,
+      name,
+      slug,
+    }));
   }
 
   private async listLinkedStudents(
@@ -1002,6 +1062,10 @@ export class AuthService {
     linkedStudent: AuthenticatedLinkedStudent,
   ): AuthLinkedStudentDto {
     return linkedStudent;
+  }
+
+  private toStaffRoleDto(role: AuthenticatedStaffRole): AuthStaffRoleDto {
+    return role;
   }
 
   private buildAvailableContexts(

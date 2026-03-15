@@ -859,6 +859,11 @@ export interface components {
             label: "Staff" | "Parent" | "Student";
             membershipIds: string[];
         };
+        AuthStaffRoleDto: {
+            id: string;
+            name: string;
+            slug: string;
+        };
         AuthCampusDto: {
             code: string | null;
             /** @enum {string} */
@@ -887,6 +892,7 @@ export interface components {
             activeOrganization: components["schemas"]["AuthOrganizationDto"] | null;
             availableContexts: components["schemas"]["AuthAccessContextDto"][];
             activeContext: components["schemas"]["AuthAccessContextDto"] | null;
+            activeStaffRoles: components["schemas"]["AuthStaffRoleDto"][];
             activeCampus: components["schemas"]["AuthCampusDto"] | null;
             campuses: components["schemas"]["AuthCampusDto"][];
             linkedStudents: components["schemas"]["AuthLinkedStudentDto"][];

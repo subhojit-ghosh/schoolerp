@@ -41,7 +41,7 @@ export function CampusSheetRoute() {
   return (
     <RouteEntitySheet
       closeTo={ERP_ROUTES.SETTINGS_CAMPUSES}
-      description="Create a new campus so staff can switch into it and define local operations."
+      description="Add a campus for this institution."
       title="Create campus"
     >
       <CampusForm

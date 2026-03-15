@@ -136,8 +136,8 @@ export function AcademicYearSheetRoute({ mode }: AcademicYearSheetRouteProps) {
       closeTo={ERP_ROUTES.ACADEMIC_YEARS}
       description={
         mode === "create"
-          ? "Create a new academic year for this institution."
-          : "Update the selected academic year. The backend keeps the current-year rule authoritative."
+          ? "Set up a new academic year."
+          : "Update this academic year."
       }
       title={mode === "create" ? "New academic year" : "Edit academic year"}
     >

@@ -4,13 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { IconPlus } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/ui/card";
+import { Card } from "@repo/ui/components/ui/card";
 import {
   Field,
   FieldContent,
@@ -216,85 +210,98 @@ export function StaffRoleAssignmentsCard({
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4">
-          <div className="space-y-1">
-            <CardTitle>Roles</CardTitle>
-            <CardDescription>
+        <div className="space-y-4">
+          <div className="space-y-1 px-6 pt-6">
+            <h3 className="text-lg font-semibold tracking-tight">Roles</h3>
+            <p className="text-sm text-muted-foreground">
               Current role assignments and their campus, class, or section
               scope.
-            </CardDescription>
+            </p>
           </div>
-          {canManageAssignments ? (
-            <EntityToolbarSecondaryAction
-              onClick={() => {
-                reset();
-                setIsSheetOpen(true);
-              }}
-              type="button"
-            >
-              <IconPlus className="size-4" />
-              Assign role
-            </EntityToolbarSecondaryAction>
-          ) : null}
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {isAssignmentsLoading ? (
-            Array.from({ length: 2 }).map((_, index) => (
-              <div
-                key={index}
-                className="rounded-xl border border-border/70 px-4 py-4"
-              >
-                <div className="h-4 w-32 animate-pulse rounded bg-muted" />
-                <div className="mt-3 h-3 w-48 animate-pulse rounded bg-muted" />
-              </div>
-            ))
-          ) : assignments.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border/80 px-4 py-8 text-center text-sm text-muted-foreground">
-              No role assignments yet.
-            </div>
-          ) : (
-            assignments.map((assignment) => (
-              <div
-                key={assignment.id}
-                className="flex flex-wrap items-start justify-between gap-3 rounded-xl border border-border/70 px-4 py-4"
-              >
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium">{assignment.role.name}</p>
-                    <Badge variant="outline">
-                      {formatScopeLabel(assignment.scope)}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Active from {assignment.validFrom}
-                  </p>
-                </div>
-                {canManageAssignments ? (
-                  <EntityRowAction
-                    className="text-destructive hover:text-destructive"
-                    onClick={() =>
-                      setDeleteDialog({
-                        assignmentId: assignment.id,
-                        roleName: assignment.role.name,
-                      })
-                    }
-                    type="button"
-                    variant="ghost"
-                  >
-                    Remove
-                  </EntityRowAction>
-                ) : null}
-              </div>
-            ))
-          )}
 
-          {assignmentsErrorMessage ? (
-            <p className="text-sm text-destructive">{assignmentsErrorMessage}</p>
-          ) : null}
-          {deleteErrorMessage ? (
-            <p className="text-sm text-destructive">{deleteErrorMessage}</p>
-          ) : null}
-        </CardContent>
+          <div className="px-6">
+            <div className="flex items-center justify-end rounded-lg border bg-card px-4 py-3">
+              {canManageAssignments ? (
+                <EntityToolbarSecondaryAction
+                  onClick={() => {
+                    reset();
+                    setIsSheetOpen(true);
+                  }}
+                  type="button"
+                >
+                  <IconPlus className="size-4" />
+                  Assign role
+                </EntityToolbarSecondaryAction>
+              ) : null}
+            </div>
+          </div>
+
+          <section className="mx-6 mb-6 overflow-hidden rounded-lg border bg-card">
+            {isAssignmentsLoading ? (
+              <div className="divide-y">
+                {Array.from({ length: 2 }).map((_, index) => (
+                  <div key={index} className="px-5 py-4">
+                    <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+                    <div className="mt-3 h-3 w-48 animate-pulse rounded bg-muted" />
+                  </div>
+                ))}
+              </div>
+            ) : assignments.length === 0 ? (
+              <div className="px-5 py-10 text-center text-sm text-muted-foreground">
+                No role assignments yet.
+              </div>
+            ) : (
+              <div className="divide-y">
+                {assignments.map((assignment) => (
+                  <div
+                    key={assignment.id}
+                    className="flex flex-wrap items-start justify-between gap-3 px-5 py-4"
+                  >
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-medium">
+                          {assignment.role.name}
+                        </p>
+                        <Badge variant="outline">
+                          {formatScopeLabel(assignment.scope)}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Active from {assignment.validFrom}
+                      </p>
+                    </div>
+                    {canManageAssignments ? (
+                      <EntityRowAction
+                        className="text-destructive hover:text-destructive"
+                        onClick={() =>
+                          setDeleteDialog({
+                            assignmentId: assignment.id,
+                            roleName: assignment.role.name,
+                          })
+                        }
+                        type="button"
+                        variant="ghost"
+                      >
+                        Remove
+                      </EntityRowAction>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {assignmentsErrorMessage ? (
+              <div className="border-t px-5 py-3 text-sm text-destructive">
+                {assignmentsErrorMessage}
+              </div>
+            ) : null}
+            {deleteErrorMessage ? (
+              <div className="border-t px-5 py-3 text-sm text-destructive">
+                {deleteErrorMessage}
+              </div>
+            ) : null}
+          </section>
+        </div>
       </Card>
 
       <EntitySheet

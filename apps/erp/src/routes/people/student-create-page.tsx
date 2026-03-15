@@ -104,8 +104,7 @@ export function StudentCreatePage() {
           Create student
         </h1>
         <p className="text-sm text-muted-foreground">
-          Fill in the student details, assign a campus, and attach one or more
-          guardians.
+          Add student details and link guardians.
         </p>
       </div>
 

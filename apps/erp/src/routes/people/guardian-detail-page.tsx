@@ -314,8 +314,7 @@ export function GuardianDetailPage() {
         <CardHeader>
           <CardTitle>Linked students</CardTitle>
           <CardDescription>
-            Manage relationship labels, switch the primary guardian, or unlink
-            students.
+            Manage linked students and guardian roles.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

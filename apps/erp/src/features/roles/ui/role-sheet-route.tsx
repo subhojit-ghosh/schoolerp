@@ -42,7 +42,7 @@ function CreateRoleSheet() {
   return (
     <RouteEntitySheet
       closeTo={ERP_ROUTES.SETTINGS_ROLES}
-      description="Define a name and pick the permissions for this custom role."
+      description="Name the role and choose permissions."
       title="New role"
     >
       <RoleForm
@@ -116,8 +116,8 @@ function EditRoleSheet() {
       closeTo={ERP_ROUTES.SETTINGS_ROLES}
       description={
         isSystem
-          ? "System roles are managed by the platform and cannot be modified."
-          : "Update the name or permissions for this custom role."
+          ? "System roles can't be edited."
+          : "Update the role name and permissions."
       }
       title={isSystem ? "View role" : "Edit role"}
     >

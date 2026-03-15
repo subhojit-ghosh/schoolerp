@@ -169,13 +169,12 @@ export function BrandingPage() {
             {updateBranding.isPending ? "Saving..." : "Save branding"}
           </EntityPagePrimaryAction>
         }
-        description="Configure identity and theme tokens for this institution without changing the shared ERP layout."
+        description="Manage institution identity and theme tokens."
         title="Branding"
         toolbar={
           <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
             <p className="text-sm text-muted-foreground">
-              Changes preview live across the application. Pick a section to
-              update identity, colors, typography, or overall appearance.
+              Changes preview live as you edit.
             </p>
           </div>
         }
