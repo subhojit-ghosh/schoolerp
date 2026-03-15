@@ -7,8 +7,15 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
-import { attendanceRecords, campus, member, students } from "@repo/database";
-import { and, asc, eq, isNull, ne } from "drizzle-orm";
+import {
+  attendanceRecords,
+  campus,
+  classSections,
+  member,
+  schoolClasses,
+  students,
+} from "@repo/database";
+import { and, asc, eq, gte, inArray, isNull, lte, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
@@ -18,6 +25,9 @@ import type {
   AttendanceClassSectionQueryDto,
   AttendanceDayQueryDto,
   AttendanceDayViewQueryDto,
+  AttendanceOverviewQueryDto,
+  AttendanceClassReportQueryDto,
+  AttendanceStudentReportQueryDto,
   UpsertAttendanceDayDto,
 } from "./attendance.schemas";
 
@@ -58,10 +68,14 @@ export class AttendanceService {
     const rows = await this.db
       .select({
         classId: students.classId,
+        className: schoolClasses.name,
         sectionId: students.sectionId,
+        sectionName: classSections.name,
       })
       .from(students)
       .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
       .where(
         and(
           eq(students.institutionId, institutionId),
@@ -71,11 +85,17 @@ export class AttendanceService {
           sectionScopeFilter(students.sectionId, scopes),
         ),
       )
-      .orderBy(asc(students.classId), asc(students.sectionId));
+      .orderBy(asc(schoolClasses.displayOrder), asc(schoolClasses.name), asc(classSections.displayOrder), asc(classSections.name));
 
     const grouped = new Map<
       string,
-      { classId: string; sectionId: string; studentCount: number }
+      {
+        classId: string;
+        className: string;
+        sectionId: string;
+        sectionName: string;
+        studentCount: number;
+      }
     >();
 
     for (const row of rows) {
@@ -89,7 +109,9 @@ export class AttendanceService {
 
       grouped.set(key, {
         classId: row.classId,
+        className: row.className,
         sectionId: row.sectionId,
+        sectionName: row.sectionName,
         studentCount: 1,
       });
     }
@@ -103,7 +125,10 @@ export class AttendanceService {
     query: AttendanceDayQueryDto,
   ) {
     const selectedCampus = await this.getCampus(institutionId, query.campusId);
-    const roster = await this.listRosterForScope(institutionId, query);
+    const [classSection, roster] = await Promise.all([
+      this.getClassSection(query.classId, query.sectionId),
+      this.listRosterForScope(institutionId, query),
+    ]);
 
     if (roster.length === 0) {
       throw new NotFoundException(ERROR_MESSAGES.ATTENDANCE.NO_STUDENTS_FOUND);
@@ -120,7 +145,9 @@ export class AttendanceService {
       campusId: selectedCampus.id,
       campusName: selectedCampus.name,
       classId: query.classId,
+      className: classSection.className,
       sectionId: query.sectionId,
+      sectionName: classSection.sectionName,
       totalStudents: roster.length,
       entries: roster.map((student) => ({
         studentId: student.studentId,
@@ -213,11 +240,15 @@ export class AttendanceService {
         campusId: attendanceRecords.campusId,
         campusName: campus.name,
         classId: attendanceRecords.classId,
+        className: schoolClasses.name,
         sectionId: attendanceRecords.sectionId,
+        sectionName: classSections.name,
         status: attendanceRecords.status,
       })
       .from(attendanceRecords)
       .innerJoin(campus, eq(attendanceRecords.campusId, campus.id))
+      .innerJoin(schoolClasses, eq(attendanceRecords.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(attendanceRecords.sectionId, classSections.id))
       .where(
         and(
           eq(attendanceRecords.institutionId, institutionId),
@@ -226,8 +257,10 @@ export class AttendanceService {
       )
       .orderBy(
         asc(campus.name),
-        asc(attendanceRecords.classId),
-        asc(attendanceRecords.sectionId),
+        asc(schoolClasses.displayOrder),
+        asc(schoolClasses.name),
+        asc(classSections.displayOrder),
+        asc(classSections.name),
       );
 
     const summaries = new Map<
@@ -237,7 +270,9 @@ export class AttendanceService {
         campusId: string;
         campusName: string;
         classId: string;
+        className: string;
         sectionId: string;
+        sectionName: string;
         totalStudents: number;
         counts: AttendanceCounts;
       }
@@ -250,7 +285,9 @@ export class AttendanceService {
         campusId: row.campusId,
         campusName: row.campusName,
         classId: row.classId,
+        className: row.className,
         sectionId: row.sectionId,
+        sectionName: row.sectionName,
         totalStudents: 0,
         counts: { ...EMPTY_ATTENDANCE_COUNTS },
       };
@@ -261,6 +298,367 @@ export class AttendanceService {
     }
 
     return Array.from(summaries.values());
+  }
+
+  async getAttendanceOverview(
+    institutionId: string,
+    query: AttendanceOverviewQueryDto,
+  ) {
+    // Get all distinct (campus, class, section) combos with active students
+    const sectionRows = await this.db
+      .select({
+        campusId: campus.id,
+        campusName: campus.name,
+        classId: schoolClasses.id,
+        className: schoolClasses.name,
+        sectionId: classSections.id,
+        sectionName: classSections.name,
+        displayOrderClass: schoolClasses.displayOrder,
+        displayOrderSection: classSections.displayOrder,
+      })
+      .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
+      .where(
+        and(
+          eq(students.institutionId, institutionId),
+          isNull(students.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
+        ),
+      )
+      .orderBy(
+        asc(campus.name),
+        asc(schoolClasses.displayOrder),
+        asc(schoolClasses.name),
+        asc(classSections.displayOrder),
+        asc(classSections.name),
+      );
+
+    // Build distinct section map preserving order, counting students
+    const sectionMap = new Map<
+      string,
+      {
+        campusId: string;
+        campusName: string;
+        classId: string;
+        className: string;
+        sectionId: string;
+        sectionName: string;
+        studentCount: number;
+      }
+    >();
+
+    for (const row of sectionRows) {
+      const key = `${row.campusId}::${row.classId}::${row.sectionId}`;
+      const current = sectionMap.get(key);
+      if (current) {
+        current.studentCount += 1;
+      } else {
+        sectionMap.set(key, {
+          campusId: row.campusId,
+          campusName: row.campusName,
+          classId: row.classId,
+          className: row.className,
+          sectionId: row.sectionId,
+          sectionName: row.sectionName,
+          studentCount: 1,
+        });
+      }
+    }
+
+    // Get attendance records for the date grouped by (campusId, classId, sectionId)
+    const attendanceRows = await this.db
+      .select({
+        campusId: attendanceRecords.campusId,
+        classId: attendanceRecords.classId,
+        sectionId: attendanceRecords.sectionId,
+        status: attendanceRecords.status,
+      })
+      .from(attendanceRecords)
+      .where(
+        and(
+          eq(attendanceRecords.institutionId, institutionId),
+          eq(attendanceRecords.attendanceDate, query.date),
+        ),
+      );
+
+    // Build counts map keyed by campusId::classId::sectionId
+    const countsMap = new Map<string, AttendanceCounts>();
+    for (const row of attendanceRows) {
+      const key = `${row.campusId}::${row.classId}::${row.sectionId}`;
+      const current = countsMap.get(key) ?? { ...EMPTY_ATTENDANCE_COUNTS };
+      current[row.status as keyof AttendanceCounts] += 1;
+      countsMap.set(key, current);
+    }
+
+    // Merge
+    return Array.from(sectionMap.entries()).map(([key, section]) => {
+      const counts = countsMap.get(key) ?? null;
+      return {
+        campusId: section.campusId,
+        campusName: section.campusName,
+        classId: section.classId,
+        className: section.className,
+        sectionId: section.sectionId,
+        sectionName: section.sectionName,
+        studentCount: section.studentCount,
+        marked: counts !== null,
+        counts: counts
+          ? {
+              present: counts[ATTENDANCE_STATUSES.PRESENT],
+              absent: counts[ATTENDANCE_STATUSES.ABSENT],
+              late: counts[ATTENDANCE_STATUSES.LATE],
+              excused: counts[ATTENDANCE_STATUSES.EXCUSED],
+            }
+          : null,
+      };
+    });
+  }
+
+  async getAttendanceClassReport(
+    institutionId: string,
+    query: AttendanceClassReportQueryDto,
+  ) {
+    // Validate campus, class, section
+    const selectedCampus = await this.getCampus(institutionId, query.campusId);
+    const classSection = await this.getClassSection(query.classId, query.sectionId);
+
+    // Get all students in the section
+    const studentRows = await this.db
+      .select({
+        studentId: students.id,
+        admissionNumber: students.admissionNumber,
+        firstName: students.firstName,
+        lastName: students.lastName,
+      })
+      .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .where(
+        and(
+          eq(students.institutionId, institutionId),
+          eq(member.primaryCampusId, query.campusId),
+          eq(students.classId, query.classId),
+          eq(students.sectionId, query.sectionId),
+          isNull(students.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
+        ),
+      )
+      .orderBy(asc(students.firstName), asc(students.lastName));
+
+    const studentIds = studentRows.map((s) => s.studentId);
+
+    // Get attendance records for the date range
+    const recordRows =
+      studentIds.length > 0
+        ? await this.db
+            .select({
+              studentId: attendanceRecords.studentId,
+              attendanceDate: attendanceRecords.attendanceDate,
+              status: attendanceRecords.status,
+            })
+            .from(attendanceRecords)
+            .where(
+              and(
+                eq(attendanceRecords.institutionId, institutionId),
+                eq(attendanceRecords.classId, query.classId),
+                eq(attendanceRecords.sectionId, query.sectionId),
+                gte(attendanceRecords.attendanceDate, query.startDate),
+                lte(attendanceRecords.attendanceDate, query.endDate),
+                inArray(attendanceRecords.studentId, studentIds),
+              ),
+            )
+        : [];
+
+    // Collect all dates in range that have records
+    const allDatesSet = new Set<string>();
+    for (const row of recordRows) {
+      allDatesSet.add(row.attendanceDate);
+    }
+    const dates = Array.from(allDatesSet).sort();
+
+    // Build per-student data
+    const studentRecordsMap = new Map<
+      string,
+      { records: Record<string, string>; present: number; absent: number; late: number; excused: number }
+    >();
+
+    for (const row of recordRows) {
+      const current = studentRecordsMap.get(row.studentId) ?? {
+        records: {},
+        present: 0,
+        absent: 0,
+        late: 0,
+        excused: 0,
+      };
+      current.records[row.attendanceDate] = row.status;
+      if (row.status === ATTENDANCE_STATUSES.PRESENT) current.present += 1;
+      else if (row.status === ATTENDANCE_STATUSES.ABSENT) current.absent += 1;
+      else if (row.status === ATTENDANCE_STATUSES.LATE) current.late += 1;
+      else if (row.status === ATTENDANCE_STATUSES.EXCUSED) current.excused += 1;
+      studentRecordsMap.set(row.studentId, current);
+    }
+
+    const studentResults = studentRows.map((s) => {
+      const data = studentRecordsMap.get(s.studentId) ?? {
+        records: {},
+        present: 0,
+        absent: 0,
+        late: 0,
+        excused: 0,
+      };
+      const totalMarkedDays = data.present + data.absent + data.late + data.excused;
+      return {
+        studentId: s.studentId,
+        admissionNumber: s.admissionNumber,
+        fullName: [s.firstName, s.lastName].filter(Boolean).join(" "),
+        present: data.present,
+        absent: data.absent,
+        late: data.late,
+        excused: data.excused,
+        attendancePercent:
+          totalMarkedDays === 0
+            ? 0
+            : Math.round((data.present / totalMarkedDays) * 100),
+        records: data.records,
+      };
+    });
+
+    return {
+      classId: query.classId,
+      className: classSection.className,
+      sectionId: query.sectionId,
+      sectionName: classSection.sectionName,
+      campusId: query.campusId,
+      campusName: selectedCampus.name,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      dates,
+      students: studentResults,
+    };
+  }
+
+  async getAttendanceStudentReport(
+    institutionId: string,
+    query: AttendanceStudentReportQueryDto,
+  ) {
+    // Get student with institution check, join to class and section via campus
+    const [studentRow] = await this.db
+      .select({
+        studentId: students.id,
+        admissionNumber: students.admissionNumber,
+        firstName: students.firstName,
+        lastName: students.lastName,
+        classId: students.classId,
+        className: schoolClasses.name,
+        sectionId: students.sectionId,
+        sectionName: classSections.name,
+        campusId: campus.id,
+        campusName: campus.name,
+      })
+      .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
+      .where(
+        and(
+          eq(students.id, query.studentId),
+          eq(students.institutionId, institutionId),
+          isNull(students.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
+        ),
+      )
+      .limit(1);
+
+    if (!studentRow) {
+      throw new NotFoundException(ERROR_MESSAGES.ATTENDANCE.NO_STUDENTS_FOUND);
+    }
+
+    // Get attendance records for the date range ordered by date asc
+    const recordRows = await this.db
+      .select({
+        attendanceDate: attendanceRecords.attendanceDate,
+        status: attendanceRecords.status,
+      })
+      .from(attendanceRecords)
+      .where(
+        and(
+          eq(attendanceRecords.institutionId, institutionId),
+          eq(attendanceRecords.studentId, query.studentId),
+          gte(attendanceRecords.attendanceDate, query.startDate),
+          lte(attendanceRecords.attendanceDate, query.endDate),
+        ),
+      )
+      .orderBy(asc(attendanceRecords.attendanceDate));
+
+    let present = 0;
+    let absent = 0;
+    let late = 0;
+    let excused = 0;
+
+    for (const row of recordRows) {
+      if (row.status === ATTENDANCE_STATUSES.PRESENT) present += 1;
+      else if (row.status === ATTENDANCE_STATUSES.ABSENT) absent += 1;
+      else if (row.status === ATTENDANCE_STATUSES.LATE) late += 1;
+      else if (row.status === ATTENDANCE_STATUSES.EXCUSED) excused += 1;
+    }
+
+    const totalMarkedDays = present + absent + late + excused;
+
+    return {
+      studentId: studentRow.studentId,
+      admissionNumber: studentRow.admissionNumber,
+      fullName: [studentRow.firstName, studentRow.lastName].filter(Boolean).join(" "),
+      classId: studentRow.classId,
+      className: studentRow.className,
+      sectionId: studentRow.sectionId,
+      sectionName: studentRow.sectionName,
+      campusId: studentRow.campusId,
+      campusName: studentRow.campusName,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      totalMarkedDays,
+      present,
+      absent,
+      late,
+      excused,
+      attendancePercent:
+        totalMarkedDays === 0
+          ? 0
+          : Math.round((present / totalMarkedDays) * 100),
+      records: recordRows.map((r) => ({
+        date: r.attendanceDate,
+        status: r.status,
+      })),
+    };
+  }
+
+  private async getClassSection(classId: string, sectionId: string) {
+    const [row] = await this.db
+      .select({
+        className: schoolClasses.name,
+        sectionName: classSections.name,
+      })
+      .from(schoolClasses)
+      .innerJoin(classSections, eq(classSections.classId, schoolClasses.id))
+      .where(
+        and(eq(schoolClasses.id, classId), eq(classSections.id, sectionId)),
+      )
+      .limit(1);
+
+    if (!row) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.ATTENDANCE.CLASS_SECTION_REQUIRED,
+      );
+    }
+
+    return row;
   }
 
   private async getCampus(institutionId: string, campusId: string) {

@@ -13,6 +13,14 @@ Use it to answer:
 
 Keep this file forward-looking. Put factual implementation state in `docs/status.md`.
 
+## Goal
+
+Ship a fully functional v1 that a real school can use day-to-day. Every feature must be complete enough for a paying customer to rely on it — not a prototype, not a demo with placeholders. The bar is: can a school admin use this to run their school tomorrow?
+
+## Testing Policy
+
+**No tests until v1 is functionally complete.** Do not write, suggest, or plan integration tests, unit tests, e2e tests, or any automated test coverage until the full v1 feature set is built and working. Focus entirely on shipping functional product. Testing is a post-v1 concern.
+
 ## Direction
 
 - Build a school-first ERP around the target monorepo structure:
@@ -22,43 +30,45 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
   - `packages/*`
 - Keep NestJS as the source of truth for auth, tenant resolution, and business rules.
 - Treat the frontend as a thin client over tenant-scoped APIs.
-- Continue moving the repo away from legacy architecture and toward the Vite + NestJS split.
+- Every screen a customer sees must be usable, not a placeholder.
 
-## Now
+## Now — Make the core daily workflow usable
 
-- Deepen the first institution-admin workflows now that RBAC primitives are in place:
-  - add stronger backend and browser coverage around student, staff, and scoped role-assignment flows
-  - keep expanding operational slices like attendance, exams, and fees without pushing business rules into the frontend
-  - keep the temporary ERP frontend thin over backend-owned rules
-- Keep delivery integrations pragmatic:
-  - replace recovery preview delivery with real SMS/email adapters when infra is ready
+These are the things a school uses every single day. They must work completely.
 
-## Next
+1. **Dashboard** — real metrics a principal wants to see at a glance: student count, staff count, today's attendance summary, total outstanding fees. No placeholder cards.
+2. **Attendance** — daily class-wise marking must work end to end. Class selector must show class names, not raw IDs. Attendance link must be enabled in the nav and dashboard. A teacher should be able to open the app and mark attendance in under a minute.
+3. **Fees** — fee collection must be a proper workflow: structured list of fee categories, assign to students, record payment, see who still owes. Not three raw forms on one page.
 
-1. Add integration coverage around staff create/edit flows and scoped role assignment.
-2. Add broader tenant-aware integration coverage around auth, onboarding, and ERP browser flows.
-3. Replace placeholder recovery delivery with production SMS/email providers.
-4. Deepen attendance, exams, and fees with safer operational edge cases and reporting foundations.
-5. Move more settled UI and backend primitives into shared packages.
+## Next — Complete the remaining operational domains
 
-## Later
+1. **Exams** — full marks entry per subject, grading scheme, and a printable/viewable report card per student per term.
+2. **Student detail page** — one place to see a student's profile, current enrollment, attendance record, fee status, and exam results. This is what a parent or admin looks at when they call about a student.
+3. **SMS/email delivery** — wire a real provider for password reset and staff password-setup links. The current delivery stub means new staff cannot log in without manual intervention.
 
-- Expand ERP domains after the identity and tenant core is stable:
-  - academics
-  - attendance
-  - exams
-- Deepen existing ERP domains after the initial operational slices are in place:
-  - fees reporting and collection edge cases
-- Move more shared UI and shared backend primitives into packages as patterns settle.
-- Replace temporary frontend presentation with the intended ERP design system.
+## Then — Polish and close gaps
+
+1. **Notifications** — in-app feed is scaffolded; wire real events (fee due, absent streak, password-setup).
+2. **Timetable** — class-wise weekly schedule. Required before the product is complete for a school day.
+3. **Branding** — logo upload, favicon, display name, and primary color applied to the tenant ERP shell. Required before any school would use it publicly.
+4. **Onboarding flow** — public school signup at `erp.test` must be polished enough that a new school can self-serve without assistance.
+
+## Later — Post-v1 depth
+
+- Attendance analytics, absent streak alerts, bulk import
+- Exam ranking, analytics, report card PDF export
+- Fee reminders, payment receipts, ledger export
+- Staff leave and payroll foundations
+- Parent portal with student-centric view
+- Automated test coverage across all domains
 
 ## Risks And Dependencies
 
-- Password recovery still needs real SMS/email delivery providers before it is production-ready.
-- Authorization work should not spread across the frontend; backend guards and tenant checks must stay authoritative.
-- The new student slice relies on the updated membership model that allows one user to hold multiple member types inside a tenant.
-- Destructive ERP operations must fail closed when live records still depend on the target entity; soft-delete alone is not a safe guard.
-- Legacy migration residue may still exist in the repo and should not become the basis for new work.
+- Password reset and staff password-setup links are broken for production use until a real SMS/email provider is wired.
+- Attendance class selector shows raw IDs — blocks teachers from using it reliably.
+- The fees page UX is too raw to hand to a school admin.
+- Dashboard shows almost no data — first thing a customer sees, last thing that should be empty.
+- Business rules must stay in NestJS; any shortcut that pushes authorization or domain logic into the frontend creates a security gap.
 
 ## Locked Product Decisions
 

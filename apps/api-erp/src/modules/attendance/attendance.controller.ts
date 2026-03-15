@@ -25,12 +25,21 @@ import {
   AttendanceDayQueryParamsDto,
   AttendanceDayViewItemDto,
   AttendanceDayViewQueryParamsDto,
+  AttendanceOverviewItemDto,
+  AttendanceOverviewQueryParamsDto,
+  AttendanceClassReportDto,
+  AttendanceClassReportQueryParamsDto,
+  AttendanceStudentReportDto,
+  AttendanceStudentReportQueryParamsDto,
   UpsertAttendanceDayBodyDto,
 } from "./attendance.dto";
 import {
   parseAttendanceClassSectionQuery,
   parseAttendanceDayQuery,
   parseAttendanceDayViewQuery,
+  parseAttendanceOverviewQuery,
+  parseAttendanceClassReportQuery,
+  parseAttendanceStudentReportQuery,
   parseUpsertAttendanceDay,
 } from "./attendance.schemas";
 import { AttendanceService } from "./attendance.service";
@@ -119,6 +128,55 @@ export class AttendanceController {
       institution.id,
       authSession,
       parseAttendanceDayViewQuery(query),
+    );
+  }
+
+  @Get(API_ROUTES.OVERVIEW)
+  @RequirePermission(PERMISSIONS.ATTENDANCE_READ)
+  @ApiOperation({
+    summary: "Get attendance overview for all class sections for a given date",
+  })
+  @ApiQuery({ name: "date", type: String })
+  @ApiOkResponse({ type: AttendanceOverviewItemDto, isArray: true })
+  getAttendanceOverview(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: AttendanceOverviewQueryParamsDto,
+  ) {
+    return this.attendanceService.getAttendanceOverview(
+      institution.id,
+      parseAttendanceOverviewQuery(query),
+    );
+  }
+
+  @Get(API_ROUTES.CLASS_REPORT)
+  @RequirePermission(PERMISSIONS.ATTENDANCE_READ)
+  @ApiOperation({
+    summary: "Get student-wise attendance report for a class-section over a date range",
+  })
+  @ApiOkResponse({ type: AttendanceClassReportDto })
+  getAttendanceClassReport(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: AttendanceClassReportQueryParamsDto,
+  ) {
+    return this.attendanceService.getAttendanceClassReport(
+      institution.id,
+      parseAttendanceClassReportQuery(query),
+    );
+  }
+
+  @Get(API_ROUTES.STUDENT_REPORT)
+  @RequirePermission(PERMISSIONS.ATTENDANCE_READ)
+  @ApiOperation({
+    summary: "Get attendance history for a single student over a date range",
+  })
+  @ApiOkResponse({ type: AttendanceStudentReportDto })
+  getAttendanceStudentReport(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: AttendanceStudentReportQueryParamsDto,
+  ) {
+    return this.attendanceService.getAttendanceStudentReport(
+      institution.id,
+      parseAttendanceStudentReportQuery(query),
     );
   }
 }

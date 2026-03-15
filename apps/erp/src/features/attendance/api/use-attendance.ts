@@ -1,10 +1,25 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { apiQueryClient } from "@/lib/api/client";
 import { ATTENDANCE_API_PATHS } from "@/features/auth/api/auth.constants";
-import type {
-  AttendanceDayViewValues,
-  AttendanceSelectionValues,
-} from "../model/attendance-form-schema";
+import type { AttendanceSelectionValues } from "../model/attendance-form-schema";
+
+export type AttendanceOverviewFilters = {
+  date: string;
+};
+
+export type AttendanceClassReportFilters = {
+  campusId: string;
+  classId: string;
+  sectionId: string;
+  startDate: string;
+  endDate: string;
+};
+
+export type AttendanceStudentReportFilters = {
+  studentId: string;
+  startDate: string;
+  endDate: string;
+};
 
 export function useAttendanceClassSectionsQuery(
   institutionId: string | undefined,
@@ -55,22 +70,80 @@ export function useAttendanceDayQuery(
   );
 }
 
-export function useAttendanceDayViewQuery(
+export function useAttendanceOverviewQuery(
   institutionId: string | undefined,
-  filters: AttendanceDayViewValues,
+  filters: AttendanceOverviewFilters,
 ) {
   return apiQueryClient.useQuery(
     "get",
-    ATTENDANCE_API_PATHS.DAY_VIEW,
+    ATTENDANCE_API_PATHS.OVERVIEW,
     {
       params: {
         query: {
-          attendanceDate: filters.attendanceDate,
+          date: filters.date,
         },
       },
     },
     {
-      enabled: Boolean(institutionId && filters.attendanceDate),
+      enabled: Boolean(institutionId && filters.date),
+    },
+  );
+}
+
+export function useAttendanceClassReportQuery(
+  institutionId: string | undefined,
+  filters: AttendanceClassReportFilters | null,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    ATTENDANCE_API_PATHS.CLASS_REPORT,
+    {
+      params: {
+        query: {
+          campusId: filters?.campusId ?? "",
+          classId: filters?.classId ?? "",
+          sectionId: filters?.sectionId ?? "",
+          startDate: filters?.startDate ?? "",
+          endDate: filters?.endDate ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(
+        institutionId &&
+          filters?.campusId &&
+          filters?.classId &&
+          filters?.sectionId &&
+          filters?.startDate &&
+          filters?.endDate,
+      ),
+    },
+  );
+}
+
+export function useAttendanceStudentReportQuery(
+  institutionId: string | undefined,
+  filters: AttendanceStudentReportFilters | null,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    ATTENDANCE_API_PATHS.STUDENT_REPORT,
+    {
+      params: {
+        query: {
+          studentId: filters?.studentId ?? "",
+          startDate: filters?.startDate ?? "",
+          endDate: filters?.endDate ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(
+        institutionId &&
+          filters?.studentId &&
+          filters?.startDate &&
+          filters?.endDate,
+      ),
     },
   );
 }
@@ -78,7 +151,7 @@ export function useAttendanceDayViewQuery(
 export function useUpsertAttendanceDayMutation(
   institutionId: string | undefined,
   activeFilters: AttendanceSelectionValues | null,
-  dayViewFilters: AttendanceDayViewValues,
+  overviewDate: string,
 ) {
   const queryClient = useQueryClient();
 
@@ -107,19 +180,38 @@ export function useUpsertAttendanceDayMutation(
         });
       }
 
+      // Invalidate overview for the date that was actually marked
+      const markedDate = activeFilters?.attendanceDate ?? overviewDate;
       void queryClient.invalidateQueries({
         queryKey: apiQueryClient.queryOptions(
           "get",
-          ATTENDANCE_API_PATHS.DAY_VIEW,
+          ATTENDANCE_API_PATHS.OVERVIEW,
           {
             params: {
               query: {
-                attendanceDate: dayViewFilters.attendanceDate,
+                date: markedDate,
               },
             },
           },
         ).queryKey,
       });
+
+      // Also invalidate the currently viewed overview date if different
+      if (overviewDate !== markedDate) {
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            ATTENDANCE_API_PATHS.OVERVIEW,
+            {
+              params: {
+                query: {
+                  date: overviewDate,
+                },
+              },
+            },
+          ).queryKey,
+        });
+      }
     },
   });
 }

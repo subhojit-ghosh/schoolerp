@@ -42,6 +42,7 @@ import { AcademicYearSheetRoute } from "@/features/academic-years/ui/academic-ye
 import { CampusSheetRoute } from "@/features/campuses/ui/campus-sheet-route";
 import { ClassSheetRoute } from "@/features/classes/ui/class-sheet-route";
 import { RoleSheetRoute } from "@/features/roles/ui/role-sheet-route";
+import { AttendanceReportsPage } from "@/routes/reports/attendance-report-page";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -113,6 +114,7 @@ const router = createBrowserRouter([
         ],
       },
       { path: ERP_ROUTES.ATTENDANCE, element: <AttendancePage /> },
+      { path: ERP_ROUTES.REPORTS_ATTENDANCE, element: <AttendanceReportsPage /> },
       { path: ERP_ROUTES.EXAMS, element: <ExamsPage /> },
       { path: ERP_ROUTES.FEES, element: <FeesPage /> },
       {

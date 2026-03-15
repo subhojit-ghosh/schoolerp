@@ -2033,6 +2033,165 @@
         ]
       }
     },
+    "/attendance/overview": {
+      "get": {
+        "operationId": "AttendanceController_getAttendanceOverview",
+        "parameters": [
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttendanceOverviewItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get attendance overview for all class sections for a given date",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/attendance/class-report": {
+      "get": {
+        "operationId": "AttendanceController_getAttendanceClassReport",
+        "parameters": [
+          {
+            "name": "campusId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceClassReportDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get student-wise attendance report for a class-section over a date range",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/attendance/student-report": {
+      "get": {
+        "operationId": "AttendanceController_getAttendanceStudentReport",
+        "parameters": [
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceStudentReportDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get attendance history for a single student over a date range",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
     "/exams/terms": {
       "get": {
         "operationId": "ExamsController_listExamTerms",
@@ -4675,7 +4834,13 @@
           "classId": {
             "type": "string"
           },
+          "className": {
+            "type": "string"
+          },
           "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
             "type": "string"
           },
           "studentCount": {
@@ -4684,7 +4849,9 @@
         },
         "required": [
           "classId",
+          "className",
           "sectionId",
+          "sectionName",
           "studentCount"
         ]
       },
@@ -4739,7 +4906,13 @@
           "classId": {
             "type": "string"
           },
+          "className": {
+            "type": "string"
+          },
           "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
             "type": "string"
           },
           "totalStudents": {
@@ -4752,7 +4925,9 @@
           "campusId",
           "campusName",
           "classId",
+          "className",
           "sectionId",
+          "sectionName",
           "totalStudents"
         ]
       },
@@ -4848,7 +5023,13 @@
           "classId": {
             "type": "string"
           },
+          "className": {
+            "type": "string"
+          },
           "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
             "type": "string"
           },
           "totalStudents": {
@@ -4861,8 +5042,254 @@
           "campusId",
           "campusName",
           "classId",
+          "className",
           "sectionId",
+          "sectionName",
           "totalStudents"
+        ]
+      },
+      "AttendanceOverviewItemDto": {
+        "type": "object",
+        "properties": {
+          "counts": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AttendanceSummaryCountsDto"
+              }
+            ]
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "studentCount": {
+            "type": "number"
+          },
+          "marked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "counts",
+          "campusId",
+          "campusName",
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "studentCount",
+          "marked"
+        ]
+      },
+      "AttendanceClassReportStudentDto": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "present": {
+            "type": "number"
+          },
+          "absent": {
+            "type": "number"
+          },
+          "late": {
+            "type": "number"
+          },
+          "excused": {
+            "type": "number"
+          },
+          "attendancePercent": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "records",
+          "studentId",
+          "admissionNumber",
+          "fullName",
+          "present",
+          "absent",
+          "late",
+          "excused",
+          "attendancePercent"
+        ]
+      },
+      "AttendanceClassReportDto": {
+        "type": "object",
+        "properties": {
+          "dates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceClassReportStudentDto"
+            }
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dates",
+          "students",
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "campusId",
+          "campusName",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "AttendanceStudentRecordDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "status"
+        ]
+      },
+      "AttendanceStudentReportDto": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceStudentRecordDto"
+            }
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "totalMarkedDays": {
+            "type": "number"
+          },
+          "present": {
+            "type": "number"
+          },
+          "absent": {
+            "type": "number"
+          },
+          "late": {
+            "type": "number"
+          },
+          "excused": {
+            "type": "number"
+          },
+          "attendancePercent": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "records",
+          "studentId",
+          "admissionNumber",
+          "fullName",
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "campusId",
+          "campusName",
+          "startDate",
+          "endDate",
+          "totalMarkedDays",
+          "present",
+          "absent",
+          "late",
+          "excused",
+          "attendancePercent"
         ]
       },
       "ExamTermDto": {

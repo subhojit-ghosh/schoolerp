@@ -69,6 +69,9 @@ export const ATTENDANCE_API_PATHS = {
   CLASS_SECTIONS: "/attendance/class-sections",
   DAY: "/attendance/day",
   DAY_VIEW: "/attendance/day-view",
+  OVERVIEW: "/attendance/overview",
+  CLASS_REPORT: "/attendance/class-report",
+  STUDENT_REPORT: "/attendance/student-report",
 } as const;
 
 export const EXAMS_API_PATHS = {

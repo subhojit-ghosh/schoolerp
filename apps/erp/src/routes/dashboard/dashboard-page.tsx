@@ -47,9 +47,9 @@ const QUICK_ACTIONS = [
   {
     label: "Attendance",
     description: "Track daily attendance",
-    href: ERP_ROUTES.DASHBOARD,
+    href: ERP_ROUTES.ATTENDANCE,
     Icon: IconCalendarStats,
-    disabled: true,
+    disabled: false,
   },
   {
     label: "Fees",

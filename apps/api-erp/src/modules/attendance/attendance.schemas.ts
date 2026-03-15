@@ -57,6 +57,24 @@ export const upsertAttendanceDaySchema = z
       "Each student can appear only once in the daily attendance submission.",
   });
 
+export const attendanceOverviewQuerySchema = z.object({
+  date: attendanceDateSchema,
+});
+
+export const attendanceClassReportQuerySchema = z.object({
+  campusId: z.uuid(),
+  classId: z.uuid(),
+  sectionId: z.uuid(),
+  startDate: attendanceDateSchema,
+  endDate: attendanceDateSchema,
+});
+
+export const attendanceStudentReportQuerySchema = z.object({
+  studentId: z.uuid(),
+  startDate: attendanceDateSchema,
+  endDate: attendanceDateSchema,
+});
+
 export type AttendanceClassSectionQueryDto = z.infer<
   typeof attendanceClassSectionQuerySchema
 >;
@@ -65,6 +83,15 @@ export type AttendanceDayViewQueryDto = z.infer<
   typeof attendanceDayViewQuerySchema
 >;
 export type UpsertAttendanceDayDto = z.infer<typeof upsertAttendanceDaySchema>;
+export type AttendanceOverviewQueryDto = z.infer<
+  typeof attendanceOverviewQuerySchema
+>;
+export type AttendanceClassReportQueryDto = z.infer<
+  typeof attendanceClassReportQuerySchema
+>;
+export type AttendanceStudentReportQueryDto = z.infer<
+  typeof attendanceStudentReportQuerySchema
+>;
 
 function parseSchema<T>(schema: z.ZodSchema<T>, input: unknown) {
   const result = schema.safeParse(input);
@@ -90,4 +117,16 @@ export function parseAttendanceDayViewQuery(input: unknown) {
 
 export function parseUpsertAttendanceDay(input: unknown) {
   return parseSchema(upsertAttendanceDaySchema, input);
+}
+
+export function parseAttendanceOverviewQuery(input: unknown) {
+  return parseSchema(attendanceOverviewQuerySchema, input);
+}
+
+export function parseAttendanceClassReportQuery(input: unknown) {
+  return parseSchema(attendanceClassReportQuerySchema, input);
+}
+
+export function parseAttendanceStudentReportQuery(input: unknown) {
+  return parseSchema(attendanceStudentReportQuerySchema, input);
 }

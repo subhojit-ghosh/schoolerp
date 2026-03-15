@@ -1,4 +1,4 @@
-import { ATTENDANCE_STATUSES, attendanceStatusSchema } from "@repo/contracts";
+import { attendanceStatusSchema } from "@repo/contracts";
 import { z } from "zod";
 import type { components } from "@/lib/api/generated/schema";
 
@@ -11,15 +11,12 @@ export const attendanceSelectionSchema = z.object({
   sectionId: z.string().trim().min(1, "Section is required"),
 });
 
-export const attendanceDayViewSchema = z.object({
-  attendanceDate: z.string().min(1, "Date is required"),
-});
-
 export const attendanceEntryFormSchema = attendanceSelectionSchema.extend({
   entries: z.array(
     z.object({
       studentId: z.uuid(),
-      status: attendanceStatusSchema,
+      // Empty string = not yet marked by the teacher (draft state)
+      status: attendanceStatusSchema.or(z.literal("")),
     }),
   ),
 });
@@ -31,17 +28,11 @@ export const DEFAULT_ATTENDANCE_SELECTION_VALUES: AttendanceSelectionValues = {
   sectionId: "",
 };
 
-export const DEFAULT_ATTENDANCE_DAY_VIEW_VALUES: AttendanceDayViewValues = {
-  attendanceDate: DEFAULT_DATE,
-};
-
-export const DEFAULT_ATTENDANCE_STATUS =
-  ATTENDANCE_STATUSES.PRESENT satisfies AttendanceStatusOption;
+export const UNSET_ATTENDANCE_STATUS = "" as const;
 
 export type AttendanceSelectionValues = z.infer<
   typeof attendanceSelectionSchema
 >;
-export type AttendanceDayViewValues = z.infer<typeof attendanceDayViewSchema>;
 export type AttendanceEntryFormValues = z.infer<
   typeof attendanceEntryFormSchema
 >;

@@ -3,7 +3,9 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class AttendanceClassSectionDto {
   classId!: string;
+  className!: string;
   sectionId!: string;
+  sectionName!: string;
   studentCount!: number;
 }
 
@@ -61,7 +63,9 @@ export class AttendanceDayDto {
   campusId!: string;
   campusName!: string;
   classId!: string;
+  className!: string;
   sectionId!: string;
+  sectionName!: string;
   totalStudents!: number;
 
   @ApiProperty({
@@ -83,11 +87,107 @@ export class AttendanceDayViewItemDto {
   campusId!: string;
   campusName!: string;
   classId!: string;
+  className!: string;
   sectionId!: string;
+  sectionName!: string;
   totalStudents!: number;
 
   @ApiProperty({
     type: () => AttendanceSummaryCountsDto,
   })
   counts!: AttendanceSummaryCountsDto;
+}
+
+export class AttendanceOverviewQueryParamsDto {
+  date!: string;
+}
+
+export class AttendanceOverviewItemDto {
+  campusId!: string;
+  campusName!: string;
+  classId!: string;
+  className!: string;
+  sectionId!: string;
+  sectionName!: string;
+  studentCount!: number;
+  marked!: boolean;
+
+  @ApiProperty({
+    type: () => AttendanceSummaryCountsDto,
+    nullable: true,
+  })
+  counts!: AttendanceSummaryCountsDto | null;
+}
+
+export class AttendanceClassReportQueryParamsDto {
+  campusId!: string;
+  classId!: string;
+  sectionId!: string;
+  startDate!: string;
+  endDate!: string;
+}
+
+export class AttendanceClassReportStudentDto {
+  studentId!: string;
+  admissionNumber!: string;
+  fullName!: string;
+  present!: number;
+  absent!: number;
+  late!: number;
+  excused!: number;
+  attendancePercent!: number;
+
+  @ApiProperty({ type: 'object', additionalProperties: { type: 'string' } })
+  records!: Record<string, string>;
+}
+
+export class AttendanceClassReportDto {
+  classId!: string;
+  className!: string;
+  sectionId!: string;
+  sectionName!: string;
+  campusId!: string;
+  campusName!: string;
+  startDate!: string;
+  endDate!: string;
+
+  @ApiProperty({ type: String, isArray: true })
+  dates!: string[];
+
+  @ApiProperty({ type: () => AttendanceClassReportStudentDto, isArray: true })
+  students!: AttendanceClassReportStudentDto[];
+}
+
+export class AttendanceStudentReportQueryParamsDto {
+  studentId!: string;
+  startDate!: string;
+  endDate!: string;
+}
+
+export class AttendanceStudentRecordDto {
+  date!: string;
+  status!: string;
+}
+
+export class AttendanceStudentReportDto {
+  studentId!: string;
+  admissionNumber!: string;
+  fullName!: string;
+  classId!: string;
+  className!: string;
+  sectionId!: string;
+  sectionName!: string;
+  campusId!: string;
+  campusName!: string;
+  startDate!: string;
+  endDate!: string;
+  totalMarkedDays!: number;
+  present!: number;
+  absent!: number;
+  late!: number;
+  excused!: number;
+  attendancePercent!: number;
+
+  @ApiProperty({ type: () => AttendanceStudentRecordDto, isArray: true })
+  records!: AttendanceStudentRecordDto[];
 }

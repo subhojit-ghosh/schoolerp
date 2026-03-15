@@ -22,7 +22,7 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <NuqsAdapter>
         <App />
-        <Toaster richColors position="top-right" />
+        <Toaster richColors position="bottom-center" />
       </NuqsAdapter>
     </QueryClientProvider>
   </StrictMode>,

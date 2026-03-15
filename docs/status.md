@@ -6,159 +6,60 @@ This file is the concise factual state of the repository.
 
 Use it to answer:
 
-- what is implemented
-- what is implemented but not strongly verified
-- what is still in progress
-- what is still missing
+- what is implemented and customer-usable
+- what is implemented but not yet customer-usable (rough/incomplete)
+- what is still missing for v1
 
 Keep this file evidence-based. Do not use it as a roadmap.
 
-## Verified By Code
+## Testing Policy
 
-- The repo is organized around:
-  - `apps/web`
-  - `apps/erp`
-  - `apps/api-erp`
-  - `packages/*`
-- NestJS owns auth and tenant-scoped backend rules in `apps/api-erp`.
-- The root `erp.test` app now serves a public Next.js onboarding surface.
-- The Vite ERP app is intended for `https://<tenant>.erp.test` only.
-- The ERP frontend defaults to same-host `/api` calls.
-- Mobile is the canonical login identifier and email is secondary.
-- Auth/session context now supports one logged-in user switching between available tenant contexts such as staff and parent without re-authentication.
-- Institution onboarding provisions:
-  - institution
-  - default campus
-  - initial admin user
-  - membership
-  - initial session
-- A minimal campus management slice now exists with:
-  - tenant-scoped campus list/create APIs resolved from the subdomain
-  - shared backend list-query parsing and paginated campus list responses for server-side search, sort, and pagination
-  - backend-owned staff-context enforcement for campus management
-  - slug collision protection for campus creation
-  - ERP settings route now uses URL-backed list state and a route-addressable create sheet for `/settings/campuses/new`
-  - auth session refresh after campus creation so the campus switcher picks up new records
-- Password recovery backend exists with:
-  - forgot-password endpoint
-  - reset-password endpoint
-  - one-time reset tokens
-  - hashed reset tokens at rest
-  - forgot-password throttling and abuse protection
-  - delivery abstraction for reset delivery
-  - session invalidation after password reset
-- Password recovery frontend exists with:
-  - forgot-password route
-  - reset-password route
-  - feature-level API hooks and schemas
-  - route components that stay thin
-- Automated backend coverage exists for:
-  - tenant slug resolution
-  - tenant membership/session selection paths in auth service
-  - forgot-password throttling
-  - onboarding slug collision and created-session context
-- The first ERP domain slice exists with:
-  - tenant-scoped student create/list/detail/update APIs resolved from the subdomain
-  - shared backend list-query parsing and paginated student list responses for server-side search, sort, and pagination
-  - guardian linking for one or more guardians per student
-  - campus assignment stored on the backend
-  - ERP frontend routes now use URL-backed list state for the student registry and a dedicated `/students/new` page for creation
-  - ERP frontend routes and feature modules for student create/list/detail/edit
-- A shallow academics structure slice exists with:
-  - tenant-scoped class create/list/detail/update APIs resolved from the subdomain
-  - shared backend list-query parsing and paginated class list responses for server-side search, sort, and pagination
-  - optional campus-filtered class lookup for campus-safe downstream forms
-  - nested section create/edit reconciliation owned by NestJS
-  - section lifecycle now uses active/inactive records instead of delete/recreate semantics
-  - backend guardrails that block class deletion or section archival when active students or current enrollments still depend on them
-  - campus assignment stored on the backend
-  - ERP frontend list route now uses URL-backed server table state and route-addressable sheet flows for `/classes/new` and `/classes/:classId/edit`
-- A minimal academics slice exists with:
-  - tenant-scoped academic year list/create/detail/update APIs resolved from the subdomain
-  - shared backend list-query parsing and paginated academic-year list responses for server-side search, sort, and pagination
-  - backend-owned current-year enforcement during create and edit
-  - ERP frontend route now uses URL-backed list state and route-addressable sheet flows for `/academic-years/new` and `/academic-years/:academicYearId/edit`
-  - backend-owned current student enrollment tied to academic year plus class/section
-  - backend-enforced campus/class/section consistency for student placement and enrollment writes
-  - ERP student forms now use campus-scoped class and section selections instead of free-text IDs
-  - ERP frontend route and feature module for student creation/detail/listing
-- A minimal staff slice now exists with:
-  - tenant-scoped staff list/detail/create/update APIs resolved from the subdomain
-  - shared backend list-query parsing and paginated staff list responses for server-side search, sort, and pagination
-  - staff memberships backed by the existing `member` model
-  - primary campus assignment plus campus-membership syncing
-  - basic single-role assignment backed by `membership_roles`
-  - staff membership lifecycle now supports active/inactive toggling plus tenant-scoped soft delete with fail-closed attendance guards
-  - new staff identities now trigger password-setup issuance on creation instead of silently receiving an unknown random password
-  - ERP frontend routes now use URL-backed list state for the staff directory and a dedicated `/staff/new` page for creation with optional initial role assignment and password-setup status
-  - ERP frontend list/create/edit screens
-- A minimal guardian management slice now exists with:
-  - tenant-scoped guardian list/detail/update APIs resolved from the subdomain
-  - shared backend list-query parsing and paginated guardian list responses for server-side search, sort, and pagination
-  - backend-owned guardian-student link, unlink, and primary reconciliation rules
-  - ERP frontend guardian list route now uses URL-backed server table state and preserves query params when opening detail pages
-  - ERP frontend guardian list and detail routes
-  - guardian edit form plus linked-student relationship management forms
-- The ERP now has a shared CRUD/list-page foundation with:
-  - shared `EntityListPage`, `ServerDataTable`, and action-size primitives
-  - URL-backed list state through `nuqs`
-  - route-addressable sheet flows for small entities
-  - dedicated page creation flows for larger entities such as students and staff
-- A minimal attendance slice now exists with:
-  - tenant-scoped class-section option lookup
-  - daily attendance roster read/write APIs by campus, class, section, and date
-  - simple saved day-view summaries for a selected date
-  - ERP attendance entry and review flow on generated OpenAPI types
-  - shared attendance status constants consumed by backend and frontend
-- A shallow exams slice now exists with:
-  - tenant-scoped exam term create/list APIs linked to academic years
-  - backend-owned batch marks replacement and marks listing for an exam term
-  - ERP frontend route for exam term creation, term selection, marks entry, and marks display
-- A minimal fees slice now exists with:
-  - tenant-scoped fee structure create/list APIs resolved from the subdomain
-  - student fee assignment create/list APIs
-  - payment entry API with backend-owned outstanding-balance checks
-  - dues list API derived from fee assignments and payments
-  - ERP frontend fee management route with thin forms over those APIs
-- The ERP shell now changes navigation and dashboard behavior from backend-provided active context instead of separate role-specific login screens.
-- Memberships now allow one user to hold multiple member types inside the same institution.
-- A full RBAC system now exists with:
-  - Phase 1: permission slug constants, system role seeding, `PermissionGuard`, `@RequirePermission()` applied to every ERP controller endpoint
-  - Phase 2: scope enforcement — `resolveScopes()`, `ScopeGuard`, `@CurrentScopes()`, campus/section/class scope filters applied to all domain list queries
-  - Phase 3: institution role management APIs (`GET/POST/PATCH/DELETE /roles`, `GET /permissions`) and ERP settings UI at `/settings/roles` with read-only system role display, custom role create/edit sheets with grouped permission picker, and delete with active-assignment guard
-  - Phase 4: staff role assignment APIs (`GET/POST/DELETE /staff/:id/roles`) with campus/class/section scope validation plus ERP staff detail roles UI with scoped assignment sheet and immediate remove flow
+**No tests until v1 is functionally complete.** Do not write, suggest, or plan any automated test coverage until the full v1 feature set is built and working. Testing is a post-v1 concern.
 
-## Implemented But Not Strongly Verified
+## Infrastructure — Solid
 
-- Local `erp.test` cookie auth wiring appears to be configured correctly, but this file should only call it strongly verified when backed by repeatable tests or an explicit manual verification record.
-- Recovery flow is covered at the service level, but this repo does not currently contain a stored browser verification artifact for the full flow.
-- The student slice is covered by typecheck and targeted backend tests, but not yet by end-to-end browser automation.
-- The academic-year slice is covered by typecheck and manual browser automation, but not yet by targeted backend tests.
-- The classes and sections slice is covered by targeted backend tests for destructive dependency guardrails, plus schema generation, OpenAPI export, typecheck, and manual browser automation.
-- The staff slice is covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
-- Staff role assignment APIs and UI are covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
-- The guardian slice is covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
-- The campus slice is covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
-- The student registry and create flow are covered by typecheck, OpenAPI regeneration, and manual browser automation, but not yet by targeted backend tests.
-- The attendance slice is covered by repo typecheck and generated API types, but not yet by service tests or browser automation.
-- The exams slice is covered by typecheck and OpenAPI regeneration, but not yet by targeted backend tests or browser automation.
-- The fees slice is covered by typecheck and generated OpenAPI types, but not yet by targeted backend tests or end-to-end browser automation.
+- Monorepo: `apps/web`, `apps/erp`, `apps/api-erp`, `packages/*`
+- NestJS owns auth, tenant resolution, and all business rules
+- Vite ERP frontend for `https://<tenant>.erp.test`
+- Same-host `/api` routing via Caddy
+- HTTP-only cookie auth, Passport-based
+- Multi-campus tenant model; campus switching in session
+- RBAC: permission constants, system role seeding, `PermissionGuard`, scope enforcement, role management UI, staff role assignment UI
+- Shared list-page primitives: `EntityListPage`, `ServerDataTable`, URL-backed state, route-addressable sheets
+
+## Customer-Usable — Working end to end
+
+- **Auth** — login, logout, forgot-password, reset-password (delivery is stub-only, not yet wired to SMS/email)
+- **Onboarding** — school self-signup provisions institution, campus, admin user, membership, session
+- **Campus management** — list, create; settings route with URL-backed state and create sheet
+- **Academic years** — list, create, edit; current-year enforcement; sheet flows
+- **Classes and sections** — list, create, edit; section lifecycle (active/inactive); campus assignment; dependency guardrails on delete
+- **Students** — list, create, edit, detail; enrollment tied to academic year/class/section; guardian linking; admission number
+- **Staff** — list, create, edit, detail; campus assignment; role assignment; active/inactive toggle; password-setup issuance on create
+- **Guardians** — list, detail, edit; linked-student relationship management
+- **Roles** — list, create, edit, delete; grouped permission picker; system role display
+
+## Implemented But Not Customer-Usable — Needs work before showing to a customer
+
+- **Dashboard** — exists but shows almost no data. Only student count is live. No attendance summary, no fees outstanding, no staff count. Attendance quick-action is disabled ("Coming soon").
+- **Attendance** — backend works, frontend form works, but: (1) attendance link is disabled in dashboard, (2) class selector shows raw IDs not names. Not usable by a teacher as-is.
+- **Fees** — backend works, but frontend is three raw creation forms on one page. No structured list of fee categories, no proper assign-then-collect workflow. Not usable by a school admin as-is.
+- **Exams** — backend has term create/list and batch marks entry. Frontend has term creation and marks entry form. No grading scheme, no report card, no subject-wise breakdown visible to a parent or student.
 
 ## In Progress
 
-- Auth delivery infrastructure remains incomplete:
-  - no SMS delivery provider yet
-  - no email delivery provider yet
-- Frontend presentation remains temporary.
+- Auth delivery: no SMS or email provider wired. Password reset tokens and staff password-setup links are generated but not delivered.
+- Frontend presentation: many pages are functional but not polished enough for a customer demo.
 
-## Missing
+## Missing for v1
 
-- Broader integration coverage for tenant host routing and cookie auth in browser flows.
-- Richer guardian lifecycle management beyond the current linked-student model.
-- Automated coverage for academic-year create/edit flows.
-- Broader student workflow test coverage.
-- Richer staff workflows beyond scoped multi-role assignment, such as departments, leave, and payroll.
-- Class allocation, timetable, and broader academic workflows beyond structure management.
-- Attendance analytics, reporting, notifications, and import flows.
-- Exam workflows beyond shallow term + marks entry, including report cards, ranking, analytics, and grading schemes.
-- Fees reports, reminder automation, and accounting integrations.
+- **Dashboard** real metrics: today's attendance summary, outstanding fees total, staff count
+- **Attendance** class name display fix; enable nav link; teacher-friendly daily flow
+- **Fees** proper list/assign/collect workflow replacing the current raw-form page
+- **Exams** grading scheme, subject-wise marks, report card view per student per term
+- **Student detail** unified view: profile, enrollment, attendance record, fee status, exam results
+- **SMS/email delivery** for password reset and staff onboarding links
+- **Timetable** — class-wise weekly schedule
+- **Branding** — logo upload, favicon, display name, primary color applied to tenant shell
+- **Notifications** — in-app feed wired to real events (fee due, absent streak, password-setup)
+- **Onboarding polish** — public school signup flow usable without assistance

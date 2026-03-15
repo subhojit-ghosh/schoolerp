@@ -140,7 +140,6 @@ const NAV_FINANCE = [
 
 const NAV_REPORTS = [
   {
-    disabled: true,
     icon: IconCalendarStats,
     title: "Attendance",
     url: ERP_ROUTES.REPORTS_ATTENDANCE,

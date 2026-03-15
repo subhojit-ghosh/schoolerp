@@ -580,6 +580,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/attendance/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get attendance overview for all class sections for a given date */
+        get: operations["AttendanceController_getAttendanceOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/attendance/class-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get student-wise attendance report for a class-section over a date range */
+        get: operations["AttendanceController_getAttendanceClassReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/attendance/student-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get attendance history for a single student over a date range */
+        get: operations["AttendanceController_getAttendanceStudentReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/exams/terms": {
         parameters: {
             query?: never;
@@ -1265,7 +1316,9 @@ export interface components {
         };
         AttendanceClassSectionDto: {
             classId: string;
+            className: string;
             sectionId: string;
+            sectionName: string;
             studentCount: number;
         };
         AttendanceStudentEntryDto: {
@@ -1281,7 +1334,9 @@ export interface components {
             campusId: string;
             campusName: string;
             classId: string;
+            className: string;
             sectionId: string;
+            sectionName: string;
             totalStudents: number;
         };
         AttendanceDayEntryBodyDto: {
@@ -1308,8 +1363,70 @@ export interface components {
             campusId: string;
             campusName: string;
             classId: string;
+            className: string;
             sectionId: string;
+            sectionName: string;
             totalStudents: number;
+        };
+        AttendanceOverviewItemDto: {
+            counts: components["schemas"]["AttendanceSummaryCountsDto"] | null;
+            campusId: string;
+            campusName: string;
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            studentCount: number;
+            marked: boolean;
+        };
+        AttendanceClassReportStudentDto: {
+            records: {
+                [key: string]: string;
+            };
+            studentId: string;
+            admissionNumber: string;
+            fullName: string;
+            present: number;
+            absent: number;
+            late: number;
+            excused: number;
+            attendancePercent: number;
+        };
+        AttendanceClassReportDto: {
+            dates: string[];
+            students: components["schemas"]["AttendanceClassReportStudentDto"][];
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            campusId: string;
+            campusName: string;
+            startDate: string;
+            endDate: string;
+        };
+        AttendanceStudentRecordDto: {
+            date: string;
+            status: string;
+        };
+        AttendanceStudentReportDto: {
+            records: components["schemas"]["AttendanceStudentRecordDto"][];
+            studentId: string;
+            admissionNumber: string;
+            fullName: string;
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            campusId: string;
+            campusName: string;
+            startDate: string;
+            endDate: string;
+            totalMarkedDays: number;
+            present: number;
+            absent: number;
+            late: number;
+            excused: number;
+            attendancePercent: number;
         };
         ExamTermDto: {
             /** Format: date-time */
@@ -2624,6 +2741,75 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AttendanceDayViewItemDto"][];
+                };
+            };
+        };
+    };
+    AttendanceController_getAttendanceOverview: {
+        parameters: {
+            query: {
+                date: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceOverviewItemDto"][];
+                };
+            };
+        };
+    };
+    AttendanceController_getAttendanceClassReport: {
+        parameters: {
+            query: {
+                campusId: string;
+                classId: string;
+                sectionId: string;
+                startDate: string;
+                endDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceClassReportDto"];
+                };
+            };
+        };
+    };
+    AttendanceController_getAttendanceStudentReport: {
+        parameters: {
+            query: {
+                studentId: string;
+                startDate: string;
+                endDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceStudentReportDto"];
                 };
             };
         };
