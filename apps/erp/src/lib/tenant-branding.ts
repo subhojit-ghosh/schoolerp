@@ -1,7 +1,9 @@
-import type { TenantBranding } from "@repo/contracts";
+import {
+  getCurrentTenantSlug,
+  type TenantBranding,
+} from "@repo/contracts";
 import { buildGoogleFontsUrl } from "./font-pairings";
 import { getRadiusValue, getSpacingValue } from "./theme-presets";
-import { getCurrentTenantSlug } from "./tenant-context";
 
 const BRANDING_CACHE_KEY_PREFIX = "erp-tenant-branding";
 const ROOT_SELECTOR = ":root";

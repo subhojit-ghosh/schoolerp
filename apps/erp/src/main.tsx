@@ -10,7 +10,6 @@ import {
   applyTenantBranding,
   readCachedTenantBranding,
 } from "@/lib/tenant-branding";
-import { ThemeProvider } from "@/components/theme/theme-provider";
 
 const cachedBranding = readCachedTenantBranding();
 
@@ -20,13 +19,11 @@ if (cachedBranding) {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <NuqsAdapter>
-          <App />
-          <Toaster richColors position="top-right" />
-        </NuqsAdapter>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <NuqsAdapter>
+        <App />
+        <Toaster richColors position="top-right" />
+      </NuqsAdapter>
+    </QueryClientProvider>
   </StrictMode>,
 );

@@ -9,7 +9,6 @@ Current workspace layout:
 - `packages/backend-core` — shared Nest/database infrastructure
 - `packages/contracts` — shared DTOs and schema contracts
 - `packages/database` — Drizzle schema, client, and migrations
-- `packages/config` — shared config package placeholder
 
 The codebase is still in migration, but new ERP work should target `apps/erp` and `apps/api-erp`.
 

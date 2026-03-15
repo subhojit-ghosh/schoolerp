@@ -1,14 +1,7 @@
 import { useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
-import {
-  createColumnHelper,
-  functionalUpdate,
-  getCoreRowModel,
-  type PaginationState,
-  type SortingState,
-  useReactTable,
-} from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Input } from "@repo/ui/components/ui/input";
 import {
@@ -39,6 +32,7 @@ import {
   CAMPUSES_PAGE_COPY,
 } from "@/features/campuses/model/campus-list.constants";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
+import { useServerDataTable } from "@/hooks/use-server-data-table";
 import { appendSearch } from "@/lib/routes";
 
 type CampusRow = {
@@ -92,15 +86,6 @@ export function CampusesPage() {
     [campusesQuery.data?.rows],
   );
   const error = campusesQuery.error as Error | null | undefined;
-
-  const sortingState = useMemo<SortingState>(() => {
-    return [
-      {
-        id: queryState.sortBy,
-        desc: queryState.sortOrder === SORT_ORDERS.DESC,
-      },
-    ];
-  }, [queryState.sortBy, queryState.sortOrder]);
 
   const columns = useMemo(
     () => [
@@ -182,34 +167,17 @@ export function CampusesPage() {
     [activeCampusId, queryState.sortBy, queryState.sortOrder, setSorting],
   );
 
-  const table = useReactTable({
+  const table = useServerDataTable({
     columns,
     data: rows,
-    getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
-    manualSorting: true,
-    onPaginationChange: (updater) => {
-      const nextPagination = functionalUpdate<PaginationState>(updater, {
-        pageIndex: queryState.page - 1,
-        pageSize: queryState.pageSize,
-      });
-
-      if (nextPagination.pageSize !== queryState.pageSize) {
-        setPageSize(nextPagination.pageSize);
-        return;
-      }
-
-      setPage(nextPagination.pageIndex + 1);
-    },
+    page: queryState.page,
     pageCount: campusesQuery.data?.pageCount ?? 1,
+    pageSize: queryState.pageSize,
     rowCount: campusesQuery.data?.total ?? 0,
-    state: {
-      pagination: {
-        pageIndex: queryState.page - 1,
-        pageSize: queryState.pageSize,
-      },
-      sorting: sortingState,
-    },
+    setPage,
+    setPageSize,
+    sortBy: queryState.sortBy,
+    sortOrder: queryState.sortOrder,
   });
 
   if (!institutionId) {

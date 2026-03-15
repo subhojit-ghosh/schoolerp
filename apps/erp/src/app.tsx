@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import type { TenantBranding } from "@repo/contracts";
+import {
+  buildRootAppUrl,
+  getCurrentTenantSlug,
+  isRootHostname,
+  type TenantBranding,
+} from "@repo/contracts";
 import { createBrowserRouter, Navigate } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
@@ -13,11 +18,6 @@ import {
   cacheTenantBranding,
   readCachedTenantBranding,
 } from "@/lib/tenant-branding";
-import {
-  buildRootAppUrl,
-  getCurrentTenantSlug,
-  isRootHostname,
-} from "@/lib/tenant-context";
 import { DashboardPage } from "@/routes/dashboard/dashboard-page";
 import { ExamsPage } from "@/routes/operations/exams-page";
 import { ForgotPasswordPage } from "@/routes/auth/forgot-password-page";

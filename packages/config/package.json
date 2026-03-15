@@ -1,9 +1,0 @@
-{
-  "name": "@repo/config",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
-    "lint:fix": "bun run format"
-  }
-}

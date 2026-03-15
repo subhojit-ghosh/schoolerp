@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { buildTenantAppUrl } from "@repo/contracts";
 import { Button } from "@repo/ui/components/ui/button";
 import {
   Card,
@@ -20,7 +21,6 @@ import {
   onboardingFormSchema,
   type OnboardingFormValues,
 } from "@/features/onboarding/model/onboarding-form-schema";
-import { buildTenantAppUrl } from "@/lib/tenant-context";
 
 export function SignupForm() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
