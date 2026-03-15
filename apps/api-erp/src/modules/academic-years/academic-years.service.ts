@@ -6,16 +6,7 @@ import {
 import { DATABASE } from "@repo/backend-core";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import { academicYears } from "@repo/database";
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  ilike,
-  isNull,
-  type SQL,
-} from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, ne, type SQL } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
@@ -70,7 +61,7 @@ export class AcademicYearsService {
     const sortDirection = query.order === SORT_ORDERS.ASC ? asc : desc;
     const conditions: SQL[] = [
       eq(academicYears.institutionId, institutionId),
-      isNull(academicYears.deletedAt),
+      ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
     ];
 
     if (query.search) {
@@ -133,7 +124,7 @@ export class AcademicYearsService {
           and(
             eq(academicYears.institutionId, institutionId),
             eq(academicYears.isCurrent, true),
-            isNull(academicYears.deletedAt),
+            ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
           ),
         )
         .limit(1);
@@ -147,7 +138,7 @@ export class AcademicYearsService {
           .where(
             and(
               eq(academicYears.institutionId, institutionId),
-              isNull(academicYears.deletedAt),
+              ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
             ),
           );
       }
@@ -200,7 +191,7 @@ export class AcademicYearsService {
           .where(
             and(
               eq(academicYears.institutionId, institutionId),
-              isNull(academicYears.deletedAt),
+              ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
             ),
           );
       }
@@ -279,7 +270,7 @@ export class AcademicYearsService {
         and(
           eq(academicYears.id, academicYearId),
           eq(academicYears.institutionId, institutionId),
-          isNull(academicYears.deletedAt),
+          ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
         ),
       )
       .limit(1);

@@ -21,9 +21,9 @@ import {
   member,
   students,
 } from "@repo/database";
-import { and, asc, eq, inArray, isNull, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, ne, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
-import { ERROR_MESSAGES } from "../../constants";
+import { ERROR_MESSAGES, STATUS } from "../../constants";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import type {
@@ -291,7 +291,7 @@ export class FeesService {
           isNull(feeAssignments.deletedAt),
           isNull(feeStructures.deletedAt),
           isNull(students.deletedAt),
-          isNull(member.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .orderBy(asc(feeAssignments.dueDate), asc(students.admissionNumber));
@@ -464,7 +464,7 @@ export class FeesService {
         and(
           eq(academicYears.id, academicYearId),
           eq(academicYears.institutionId, institutionId),
-          isNull(academicYears.deletedAt),
+          ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
         ),
       )
       .limit(1);
@@ -496,7 +496,7 @@ export class FeesService {
         and(
           eq(campus.id, campusId),
           eq(campus.organizationId, institutionId),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .limit(1);
@@ -521,7 +521,7 @@ export class FeesService {
           eq(students.id, studentId),
           eq(students.institutionId, institutionId),
           isNull(students.deletedAt),
-          isNull(member.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .limit(1);

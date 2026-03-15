@@ -321,7 +321,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           <p
                             className={cn(
                               "text-xs leading-relaxed",
-                              isActive ? "text-white/80" : "text-muted-foreground",
+                              isActive
+                                ? "text-white/80"
+                                : "text-muted-foreground",
                             )}
                           >
                             {meta.detail}

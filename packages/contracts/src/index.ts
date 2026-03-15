@@ -39,6 +39,18 @@ export const AUTH_CONTEXT_LABELS = {
 export const ACADEMIC_YEAR_STATUS = {
   ACTIVE: "active",
   ARCHIVED: "archived",
+  DELETED: "deleted",
+} as const;
+
+export const CLASS_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  DELETED: "deleted",
+} as const;
+
+export const SECTION_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
 } as const;
 
 export const ACADEMIC_YEAR_NAME_MAX_LENGTH = 100;
@@ -78,6 +90,17 @@ export type FeePaymentMethod = z.infer<typeof feePaymentMethodSchema>;
 export const academicYearStatusSchema = z.enum([
   ACADEMIC_YEAR_STATUS.ACTIVE,
   ACADEMIC_YEAR_STATUS.ARCHIVED,
+  ACADEMIC_YEAR_STATUS.DELETED,
+]);
+
+export const classStatusSchema = z.enum([
+  CLASS_STATUS.ACTIVE,
+  CLASS_STATUS.INACTIVE,
+]);
+
+export const sectionStatusSchema = z.enum([
+  SECTION_STATUS.ACTIVE,
+  SECTION_STATUS.INACTIVE,
 ]);
 export const guardianRelationshipSchema = z.enum([
   GUARDIAN_RELATIONSHIPS.FATHER,
@@ -104,6 +127,8 @@ export const attendanceStatusSchema = z.enum([
 ]);
 
 export type AcademicYearStatus = z.infer<typeof academicYearStatusSchema>;
+export type ClassStatus = z.infer<typeof classStatusSchema>;
+export type SectionStatus = z.infer<typeof sectionStatusSchema>;
 export type GuardianRelationship = z.infer<typeof guardianRelationshipSchema>;
 export type AttendanceStatus = z.infer<typeof attendanceStatusSchema>;
 

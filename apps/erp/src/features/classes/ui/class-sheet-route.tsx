@@ -57,8 +57,8 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
     };
   }, [classQuery.data, mode]);
 
-  const archivedSections = useMemo(
-    () => (mode === "edit" ? classQuery.data?.archivedSections ?? [] : []),
+  const inactiveSections = useMemo(
+    () => (mode === "edit" ? (classQuery.data?.archivedSections ?? []) : []),
     [classQuery.data?.archivedSections, mode],
   );
 
@@ -146,12 +146,12 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
       description={
         mode === "create"
           ? "Add a class and define the sections available for admissions and roster views."
-          : "Update the class name, archive sections you no longer use, or restore archived sections."
+          : "Update the class name, disable sections you no longer use, or restore inactive sections."
       }
       title={mode === "create" ? "New class" : "Edit class"}
     >
       <ClassForm
-        archivedSections={archivedSections}
+        inactiveSections={inactiveSections}
         defaultValues={defaultValues}
         errorMessage={errorMessage}
         isPending={isPending}

@@ -41,6 +41,7 @@ export class AcademicYearDto {
 
   @ApiProperty({
     enum: Object.values(STATUS.ACADEMIC_YEAR),
+    enumName: "AcademicYearStatus",
   })
   status!: (typeof STATUS.ACADEMIC_YEAR)[keyof typeof STATUS.ACADEMIC_YEAR];
 

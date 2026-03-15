@@ -14,9 +14,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/ui/tabs";
-import {
-  EntityPagePrimaryAction,
-} from "@/components/entities/entity-actions";
+import { EntityPagePrimaryAction } from "@/components/entities/entity-actions";
 import { EntityListPage } from "@/components/entities/entity-list-page";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useUpdateBrandingMutation } from "@/features/settings/api/use-settings";
@@ -163,101 +161,101 @@ export function BrandingPage() {
   return (
     <form className="flex flex-col" onSubmit={handleSubmit(onSubmit)}>
       <EntityListPage
-          actions={
-            <EntityPagePrimaryAction
-              disabled={updateBranding.isPending}
-              type="submit"
-            >
-              {updateBranding.isPending ? "Saving..." : "Save branding"}
-            </EntityPagePrimaryAction>
-          }
-          description="Configure identity and theme tokens for this institution without changing the shared ERP layout."
-          title="Branding"
-          toolbar={
-            <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
-              <p className="text-sm text-muted-foreground">
-                Changes preview live across the application. Pick a section to
-                update identity, colors, typography, or overall appearance.
-              </p>
-            </div>
-          }
-        >
-          <div className="p-5">
-            <Tabs
-              className="gap-6 lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start"
-              defaultValue={BRANDING_TABS.IDENTITY}
-              orientation="vertical"
-            >
-              <div className="rounded-xl border border-border/70 bg-muted/20 p-2">
-                <TabsList
-                  className="h-auto w-full items-stretch justify-start gap-1 bg-transparent p-0"
-                  variant="default"
-                >
-                  {Object.entries(BRANDING_TAB_LABELS).map(([tab, meta]) => {
-                    const Icon = meta.icon;
-
-                    return (
-                      <TabsTrigger
-                        key={tab}
-                        className="h-auto min-h-12 justify-start rounded-lg px-3 py-3 text-sm"
-                        value={tab}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Icon />
-                          <span>{meta.title}</span>
-                        </div>
-                      </TabsTrigger>
-                    );
-                  })}
-                </TabsList>
-              </div>
-
-              <div className="min-w-0">
-                <TabsContent className="mt-0" value={BRANDING_TABS.IDENTITY}>
-                  <BrandingSectionFrame
-                    description="Display name, short name, logo, and favicon appear across the app shell and browser surfaces."
-                    title="Identity"
-                  >
-                    <BrandingIdentitySection control={control} />
-                  </BrandingSectionFrame>
-                </TabsContent>
-
-                <TabsContent className="mt-0" value={BRANDING_TABS.COLORS}>
-                  <BrandingSectionFrame
-                    description="Choose a preset or tune colors directly. The page background, actions, and sidebar update live."
-                    title="Colors"
-                  >
-                    <BrandingColorSection
-                      control={control}
-                      selectedPresetId={selectedPreset?.id}
-                      setValue={setValue}
-                    />
-                  </BrandingSectionFrame>
-                </TabsContent>
-
-                <TabsContent className="mt-0" value={BRANDING_TABS.TYPOGRAPHY}>
-                  <BrandingSectionFrame
-                    description="Set the default voice of the product with one paired system for headings, body copy, and code."
-                    title="Typography"
-                  >
-                    <BrandingTypographySection
-                      onSelect={(pairing) => applyFontPairing(pairing, setValue)}
-                      selectedPairing={selectedPairing}
-                    />
-                  </BrandingSectionFrame>
-                </TabsContent>
-
-                <TabsContent className="mt-0" value={BRANDING_TABS.APPEARANCE}>
-                  <BrandingSectionFrame
-                    description="Shape and density keep tenant customization constrained to tokens instead of layout forks."
-                    title="Appearance"
-                  >
-                    <BrandingAppearanceSection control={control} />
-                  </BrandingSectionFrame>
-                </TabsContent>
-              </div>
-            </Tabs>
+        actions={
+          <EntityPagePrimaryAction
+            disabled={updateBranding.isPending}
+            type="submit"
+          >
+            {updateBranding.isPending ? "Saving..." : "Save branding"}
+          </EntityPagePrimaryAction>
+        }
+        description="Configure identity and theme tokens for this institution without changing the shared ERP layout."
+        title="Branding"
+        toolbar={
+          <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
+            <p className="text-sm text-muted-foreground">
+              Changes preview live across the application. Pick a section to
+              update identity, colors, typography, or overall appearance.
+            </p>
           </div>
+        }
+      >
+        <div className="p-5">
+          <Tabs
+            className="gap-6 lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start"
+            defaultValue={BRANDING_TABS.IDENTITY}
+            orientation="vertical"
+          >
+            <div className="rounded-xl border border-border/70 bg-muted/20 p-2">
+              <TabsList
+                className="h-auto w-full items-stretch justify-start gap-1 bg-transparent p-0"
+                variant="default"
+              >
+                {Object.entries(BRANDING_TAB_LABELS).map(([tab, meta]) => {
+                  const Icon = meta.icon;
+
+                  return (
+                    <TabsTrigger
+                      key={tab}
+                      className="h-auto min-h-12 justify-start rounded-lg px-3 py-3 text-sm"
+                      value={tab}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Icon />
+                        <span>{meta.title}</span>
+                      </div>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
+
+            <div className="min-w-0">
+              <TabsContent className="mt-0" value={BRANDING_TABS.IDENTITY}>
+                <BrandingSectionFrame
+                  description="Display name, short name, logo, and favicon appear across the app shell and browser surfaces."
+                  title="Identity"
+                >
+                  <BrandingIdentitySection control={control} />
+                </BrandingSectionFrame>
+              </TabsContent>
+
+              <TabsContent className="mt-0" value={BRANDING_TABS.COLORS}>
+                <BrandingSectionFrame
+                  description="Choose a preset or tune colors directly. The page background, actions, and sidebar update live."
+                  title="Colors"
+                >
+                  <BrandingColorSection
+                    control={control}
+                    selectedPresetId={selectedPreset?.id}
+                    setValue={setValue}
+                  />
+                </BrandingSectionFrame>
+              </TabsContent>
+
+              <TabsContent className="mt-0" value={BRANDING_TABS.TYPOGRAPHY}>
+                <BrandingSectionFrame
+                  description="Set the default voice of the product with one paired system for headings, body copy, and code."
+                  title="Typography"
+                >
+                  <BrandingTypographySection
+                    onSelect={(pairing) => applyFontPairing(pairing, setValue)}
+                    selectedPairing={selectedPairing}
+                  />
+                </BrandingSectionFrame>
+              </TabsContent>
+
+              <TabsContent className="mt-0" value={BRANDING_TABS.APPEARANCE}>
+                <BrandingSectionFrame
+                  description="Shape and density keep tenant customization constrained to tokens instead of layout forks."
+                  title="Appearance"
+                >
+                  <BrandingAppearanceSection control={control} />
+                </BrandingSectionFrame>
+              </TabsContent>
+            </div>
+          </Tabs>
+        </div>
       </EntityListPage>
     </form>
   );

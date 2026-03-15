@@ -12,9 +12,9 @@ import {
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import { attendanceRecords, campus, member, students } from "@repo/database";
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, eq, isNull, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
-import { ERROR_MESSAGES } from "../../constants";
+import { ERROR_MESSAGES, STATUS } from "../../constants";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { AuthService } from "../auth/auth.service";
 import type {
@@ -70,7 +70,7 @@ export class AttendanceService {
           eq(students.institutionId, institutionId),
           eq(member.primaryCampusId, query.campusId),
           isNull(students.deletedAt),
-          isNull(member.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .orderBy(asc(students.classId), asc(students.sectionId));
@@ -290,7 +290,7 @@ export class AttendanceService {
         and(
           eq(campus.id, campusId),
           eq(campus.organizationId, institutionId),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .limit(1);
@@ -336,8 +336,8 @@ export class AttendanceService {
           eq(students.classId, classId),
           eq(students.sectionId, sectionId),
           isNull(students.deletedAt),
-          isNull(member.deletedAt),
-          isNull(campus.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .orderBy(asc(students.firstName), asc(students.lastName))

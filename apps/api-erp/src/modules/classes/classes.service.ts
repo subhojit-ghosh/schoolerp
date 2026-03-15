@@ -23,11 +23,11 @@ import {
   ilike,
   inArray,
   isNull,
+  ne,
   type SQL,
 } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
-import { ERROR_MESSAGES } from "../../constants";
-import { SORT_ORDERS } from "../../constants";
+import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
@@ -42,7 +42,7 @@ import { sortableClassColumns } from "./classes.schemas";
 const sortableColumns = {
   campus: campus.name,
   name: schoolClasses.name,
-  status: schoolClasses.isActive,
+  status: schoolClasses.status,
 } as const;
 
 type ClassesSelectExecutor = Pick<AppDatabase, "select">;
@@ -77,8 +77,7 @@ export class ClassesService {
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
     const conditions: SQL[] = [
       eq(schoolClasses.institutionId, institutionId),
-      isNull(schoolClasses.deletedAt),
-      isNull(campus.deletedAt),
+      ne(schoolClasses.status, STATUS.CLASS.DELETED),
     ];
 
     if (scopedCampusId) {
@@ -106,7 +105,7 @@ export class ClassesService {
         campusId: schoolClasses.campusId,
         campusName: campus.name,
         name: schoolClasses.name,
-        isActive: schoolClasses.isActive,
+        status: schoolClasses.status,
         displayOrder: schoolClasses.displayOrder,
       })
       .from(schoolClasses)
@@ -127,7 +126,7 @@ export class ClassesService {
     return {
       rows: classRows.map((row) => ({
         ...row,
-        sections: sectionsByClassId.get(row.id) ?? [],
+        sections: sectionsByClassId.get(row.id)?.active ?? [],
       })),
       total,
       page: pagination.page,
@@ -232,17 +231,11 @@ export class ClassesService {
         .select({
           id: classSections.id,
           name: classSections.name,
-          isActive: classSections.isActive,
-          deletedAt: classSections.deletedAt,
+          status: classSections.status,
         })
         .from(classSections)
         .where(eq(classSections.classId, classId));
 
-      const activeSectionIds = new Set(
-        existingSections
-          .filter((section) => section.isActive && section.deletedAt === null)
-          .map((section) => section.id),
-      );
       const existingSectionsById = new Map(
         existingSections.map((section) => [section.id, section]),
       );
@@ -264,7 +257,7 @@ export class ClassesService {
             .update(classSections)
             .set({
               name: section.name.trim(),
-              isActive: true,
+              status: STATUS.SECTION.ACTIVE,
               displayOrder: index,
             })
             .where(eq(classSections.id, section.id));
@@ -272,25 +265,25 @@ export class ClassesService {
           continue;
         }
 
-        const matchingDeletedSection = existingSections.find(
+        const matchingInactiveSection = existingSections.find(
           (existingSection) =>
-            (!existingSection.isActive || existingSection.deletedAt !== null) &&
+            existingSection.status !== STATUS.SECTION.ACTIVE &&
             !nextSectionIds.has(existingSection.id) &&
-            normalizeSectionName(existingSection.name) === normalizedSectionName,
+            normalizeSectionName(existingSection.name) ===
+              normalizedSectionName,
         );
 
-        if (matchingDeletedSection) {
-          nextSectionIds.add(matchingDeletedSection.id);
+        if (matchingInactiveSection) {
+          nextSectionIds.add(matchingInactiveSection.id);
 
           await tx
             .update(classSections)
             .set({
               name: section.name.trim(),
-              isActive: true,
+              status: STATUS.SECTION.ACTIVE,
               displayOrder: index,
-              deletedAt: null,
             })
-            .where(eq(classSections.id, matchingDeletedSection.id));
+            .where(eq(classSections.id, matchingInactiveSection.id));
 
           continue;
         }
@@ -307,18 +300,20 @@ export class ClassesService {
       }
 
       const removedSectionIds = existingSections
-        .filter((section) => section.isActive && section.deletedAt === null)
+        .filter((section) => section.status === STATUS.SECTION.ACTIVE)
         .map((section) => section.id)
         .filter((sectionId) => !nextSectionIds.has(sectionId));
 
       if (removedSectionIds.length > 0) {
-        await this.assertSectionsRemovable(tx, institutionId, removedSectionIds);
+        await this.assertSectionsRemovable(
+          tx,
+          institutionId,
+          removedSectionIds,
+        );
 
         await tx
           .update(classSections)
-          .set({
-            isActive: false,
-          })
+          .set({ status: STATUS.SECTION.INACTIVE })
           .where(inArray(classSections.id, removedSectionIds));
       }
     });
@@ -337,7 +332,7 @@ export class ClassesService {
 
     await this.db
       .update(schoolClasses)
-      .set({ isActive: payload.isActive })
+      .set({ status: payload.status })
       .where(
         and(
           eq(schoolClasses.id, classId),
@@ -360,7 +355,7 @@ export class ClassesService {
 
     await this.db
       .update(schoolClasses)
-      .set({ deletedAt: new Date() })
+      .set({ status: STATUS.CLASS.DELETED, deletedAt: new Date() })
       .where(
         and(
           eq(schoolClasses.id, classId),
@@ -382,7 +377,7 @@ export class ClassesService {
         campusId: schoolClasses.campusId,
         campusName: campus.name,
         name: schoolClasses.name,
-        isActive: schoolClasses.isActive,
+        status: schoolClasses.status,
         displayOrder: schoolClasses.displayOrder,
       })
       .from(schoolClasses)
@@ -392,8 +387,7 @@ export class ClassesService {
           eq(schoolClasses.institutionId, institutionId),
           classId ? eq(schoolClasses.id, classId) : undefined,
           campusId ? eq(schoolClasses.campusId, campusId) : undefined,
-          isNull(schoolClasses.deletedAt),
-          isNull(campus.deletedAt),
+          ne(schoolClasses.status, STATUS.CLASS.DELETED),
         ),
       )
       .orderBy(asc(schoolClasses.displayOrder), asc(schoolClasses.name));
@@ -439,14 +433,11 @@ export class ClassesService {
         id: classSections.id,
         classId: classSections.classId,
         name: classSections.name,
-        isActive: classSections.isActive,
+        status: classSections.status,
         displayOrder: classSections.displayOrder,
-        deletedAt: classSections.deletedAt,
       })
       .from(classSections)
-      .where(
-        and(inArray(classSections.classId, classIds)),
-      )
+      .where(and(inArray(classSections.classId, classIds)))
       .orderBy(asc(classSections.displayOrder), asc(classSections.name));
 
     for (const section of sectionRows) {
@@ -455,7 +446,7 @@ export class ClassesService {
         archived: [],
       };
 
-      if (section.isActive && section.deletedAt === null) {
+      if (section.status === STATUS.SECTION.ACTIVE) {
         currentSections.active.push({
           id: section.id,
           classId: section.classId,
@@ -485,7 +476,7 @@ export class ClassesService {
         and(
           eq(schoolClasses.id, classId),
           eq(schoolClasses.institutionId, institutionId),
-          isNull(schoolClasses.deletedAt),
+          ne(schoolClasses.status, STATUS.CLASS.DELETED),
         ),
       )
       .limit(1);
@@ -583,7 +574,7 @@ export class ClassesService {
         and(
           eq(campus.id, campusId),
           eq(campus.organizationId, institutionId),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .limit(1);
@@ -611,7 +602,7 @@ export class ClassesService {
           eq(schoolClasses.institutionId, institutionId),
           eq(schoolClasses.campusId, campusId),
           eq(schoolClasses.name, name.trim()),
-          isNull(schoolClasses.deletedAt),
+          ne(schoolClasses.status, STATUS.CLASS.DELETED),
         ),
       )
       .limit(1);
@@ -633,7 +624,7 @@ export class ClassesService {
       .where(
         and(
           eq(schoolClasses.institutionId, institutionId),
-          isNull(schoolClasses.deletedAt),
+          ne(schoolClasses.status, STATUS.CLASS.DELETED),
         ),
       )
       .orderBy(asc(schoolClasses.displayOrder));

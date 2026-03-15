@@ -23,7 +23,10 @@ import {
   EntityRowAction,
   EntityToolbarSecondaryAction,
 } from "@/components/entities/entity-actions";
-import { ServerDataTable, SortIcon } from "@/components/data-display/server-data-table";
+import {
+  ServerDataTable,
+  SortIcon,
+} from "@/components/data-display/server-data-table";
 import { SORT_ORDERS } from "@/constants/query";
 import { buildGuardianDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {

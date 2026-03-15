@@ -39,11 +39,12 @@ export const academicYears = pgTable(
     startDate: date().notNull(),
     endDate: date().notNull(),
     isCurrent: boolean().notNull().default(false),
-    status: text({ enum: ["active", "archived"] })
+    // active = in use; archived = lifecycle ended naturally; deleted = admin correction (only if no data)
+    status: text({ enum: ["active", "archived", "deleted"] })
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    deletedAt: timestamp(),
+    deletedAt: timestamp(), // audit timestamp — set when status = deleted
   },
   (t) => [
     index("academic_years_institution_idx").on(t.institutionId),
@@ -53,7 +54,7 @@ export const academicYears = pgTable(
     ),
     uniqueIndex("academic_years_single_current_per_institution_idx")
       .on(t.institutionId)
-      .where(sql`${t.isCurrent} IS TRUE AND ${t.deletedAt} IS NULL`),
+      .where(sql`${t.isCurrent} IS TRUE AND ${t.status} != 'deleted'`),
   ],
 );
 
@@ -323,17 +324,20 @@ export const schoolClasses = pgTable(
       .notNull()
       .references(() => campus.id, { onDelete: "restrict" }),
     name: text().notNull(),
-    isActive: boolean().notNull().default(true),
+    // active = in use; inactive = suspended; deleted = admin correction (only if no students)
+    status: text({ enum: ["active", "inactive", "deleted"] })
+      .notNull()
+      .default("active"),
     displayOrder: integer().notNull().default(0),
     createdAt: timestamp().notNull().defaultNow(),
-    deletedAt: timestamp(),
+    deletedAt: timestamp(), // audit timestamp — set when status = deleted
   },
   (table) => [
     index("classes_institution_idx").on(table.institutionId),
     index("classes_campus_idx").on(table.campusId),
     uniqueIndex("classes_name_per_campus_unique_idx")
       .on(table.campusId, table.name)
-      .where(sql`${table.deletedAt} IS NULL`),
+      .where(sql`${table.status} != 'deleted'`),
   ],
 );
 
@@ -348,18 +352,20 @@ export const classSections = pgTable(
       .notNull()
       .references(() => schoolClasses.id, { onDelete: "cascade" }),
     name: text().notNull(),
-    isActive: boolean().notNull().default(true),
+    // active = in use; inactive = archived (never deleted — sections preserve identity for historical records)
+    status: text({ enum: ["active", "inactive"] })
+      .notNull()
+      .default("active"),
     displayOrder: integer().notNull().default(0),
     createdAt: timestamp().notNull().defaultNow(),
-    deletedAt: timestamp(),
   },
   (table) => [
     index("sections_institution_idx").on(table.institutionId),
     index("sections_class_idx").on(table.classId),
-    index("sections_class_active_idx").on(table.classId, table.isActive),
+    index("sections_class_status_idx").on(table.classId, table.status),
     uniqueIndex("sections_name_per_class_unique_idx")
       .on(table.classId, table.name)
-      .where(sql`${table.isActive} IS TRUE AND ${table.deletedAt} IS NULL`),
+      .where(sql`${table.status} = 'active'`),
   ],
 );
 

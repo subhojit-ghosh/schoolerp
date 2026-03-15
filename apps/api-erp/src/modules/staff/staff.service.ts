@@ -24,12 +24,18 @@ import {
   ilike,
   inArray,
   isNull,
+  ne,
   or,
   type SQL,
 } from "drizzle-orm";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
-import { ERROR_MESSAGES, MEMBER_TYPES, SORT_ORDERS } from "../../constants";
+import {
+  ERROR_MESSAGES,
+  MEMBER_TYPES,
+  SORT_ORDERS,
+  STATUS,
+} from "../../constants";
 import {
   resolvePagination,
   resolveTablePageSize,
@@ -80,8 +86,8 @@ export class StaffService {
     const conditions: SQL[] = [
       eq(member.organizationId, institutionId),
       eq(member.memberType, MEMBER_TYPES.STAFF),
-      isNull(member.deletedAt),
-      isNull(campus.deletedAt),
+      ne(member.status, STATUS.MEMBER.DELETED),
+      ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
 
     if (query.search) {
@@ -181,7 +187,7 @@ export class StaffService {
             eq(member.organizationId, institutionId),
             eq(member.userId, resolvedUser.id),
             eq(member.memberType, MEMBER_TYPES.STAFF),
-            isNull(member.deletedAt),
+            ne(member.status, STATUS.MEMBER.DELETED),
           ),
         )
         .limit(1);
@@ -259,7 +265,7 @@ export class StaffService {
               eq(member.organizationId, institutionId),
               eq(member.userId, resolvedUserId),
               eq(member.memberType, MEMBER_TYPES.STAFF),
-              isNull(member.deletedAt),
+              ne(member.status, STATUS.MEMBER.DELETED),
             ),
           )
           .limit(1);
@@ -301,8 +307,8 @@ export class StaffService {
           eq(member.organizationId, institutionId),
           eq(member.memberType, MEMBER_TYPES.STAFF),
           staffId ? eq(member.id, staffId) : undefined,
-          isNull(member.deletedAt),
-          isNull(campus.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       );
 
@@ -405,7 +411,7 @@ export class StaffService {
         and(
           eq(campus.id, campusId),
           eq(campus.organizationId, institutionId),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .limit(1);
@@ -452,7 +458,7 @@ export class StaffService {
           eq(member.id, staffId),
           eq(member.organizationId, institutionId),
           eq(member.memberType, MEMBER_TYPES.STAFF),
-          isNull(member.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .limit(1);

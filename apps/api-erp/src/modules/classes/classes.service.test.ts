@@ -51,8 +51,8 @@ function createClassesService() {
         where: mock(() => Promise.resolve(undefined)),
       })),
     })),
-    transaction: mock(async (callback: (txArg: typeof tx) => Promise<unknown>) =>
-      callback(tx),
+    transaction: mock(
+      async (callback: (txArg: typeof tx) => Promise<unknown>) => callback(tx),
     ),
   };
 
@@ -87,8 +87,8 @@ describe("ClassesService", () => {
         [
           classSections,
           [
-            { id: "section-1", name: "A", isActive: true, deletedAt: null },
-            { id: "section-2", name: "B", isActive: true, deletedAt: null },
+            { id: "section-1", name: "A", status: "active" },
+            { id: "section-2", name: "B", status: "active" },
           ],
         ],
         [students, [{ id: "student-1" }]],
@@ -96,16 +96,11 @@ describe("ClassesService", () => {
     );
 
     try {
-      await service.updateClass(
-        "institution-1",
-        "class-1",
-        {} as never,
-        {
-          campusId: "campus-1",
-          name: "Class 1",
-          sections: [{ id: "section-1", name: "A" }],
-        },
-      );
+      await service.updateClass("institution-1", "class-1", {} as never, {
+        campusId: "campus-1",
+        name: "Class 1",
+        sections: [{ id: "section-1", name: "A" }],
+      });
       throw new Error("Expected section removal to be blocked");
     } catch (error) {
       expect(error).toBeInstanceOf(ConflictException);
@@ -166,10 +161,9 @@ describe("ClassesService", () => {
             {
               id: "section-a-old",
               name: "A",
-              isActive: false,
-              deletedAt: new Date(),
+              status: "inactive",
             },
-            { id: "section-b", name: "B", isActive: true, deletedAt: null },
+            { id: "section-b", name: "B", status: "active" },
           ],
         ],
       ]),
@@ -182,10 +176,7 @@ describe("ClassesService", () => {
       {
         campusId: "campus-1",
         name: "Class 1",
-        sections: [
-          { id: "section-b", name: "B" },
-          { name: "A" },
-        ],
+        sections: [{ id: "section-b", name: "B" }, { name: "A" }],
       },
     );
 
@@ -205,17 +196,15 @@ describe("ClassesService", () => {
               id: "section-a-old",
               classId: "class-1",
               name: "A",
-              isActive: false,
+              status: "inactive",
               displayOrder: 0,
-              deletedAt: new Date(),
             },
             {
               id: "section-b",
               classId: "class-1",
               name: "B",
-              isActive: true,
+              status: "active",
               displayOrder: 1,
-              deletedAt: null,
             },
           ],
         ],
@@ -230,7 +219,7 @@ describe("ClassesService", () => {
           campusId: "campus-1",
           campusName: "Main",
           name: "Class 1",
-          isActive: true,
+          status: "active",
           displayOrder: 0,
           sections: [
             {
@@ -245,8 +234,14 @@ describe("ClassesService", () => {
       ]),
     );
 
-    const result = await service.getClass("institution-1", "class-1", {} as never);
+    const result = await service.getClass(
+      "institution-1",
+      "class-1",
+      {} as never,
+    );
 
-    expect(result.archivedSections).toEqual([{ id: "section-a-old", name: "A" }]);
+    expect(result.archivedSections).toEqual([
+      { id: "section-a-old", name: "A" },
+    ]);
   });
 });

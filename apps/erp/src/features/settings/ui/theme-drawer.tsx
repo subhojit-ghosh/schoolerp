@@ -150,8 +150,8 @@ export function ThemeDrawer() {
         <SheetHeader className="border-b px-5 py-4">
           <SheetTitle>Quick theme</SheetTitle>
           <SheetDescription>
-            Update the current tenant palette and interface feel without
-            leaving the page.
+            Update the current tenant palette and interface feel without leaving
+            the page.
           </SheetDescription>
         </SheetHeader>
 

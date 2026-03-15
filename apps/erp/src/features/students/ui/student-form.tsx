@@ -56,7 +56,7 @@ type AcademicYearOption = {
 type ClassOption = {
   id: string;
   name: string;
-  isActive?: boolean;
+  status: "active" | "inactive" | "deleted";
   sections: Array<{
     id: string;
     name: string;
@@ -124,7 +124,7 @@ export function StudentForm({
   const classOptions = useMemo(
     () =>
       ((classesQuery.data?.rows ?? []) as ClassOption[]).filter(
-        (item) => item.isActive !== false,
+        (item) => item.status === "active",
       ),
     [classesQuery.data?.rows],
   );

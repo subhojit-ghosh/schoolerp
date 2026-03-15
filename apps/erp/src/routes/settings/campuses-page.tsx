@@ -22,7 +22,10 @@ import {
   EntityPagePrimaryAction,
 } from "@/components/entities/entity-actions";
 import { EntityListPage } from "@/components/entities/entity-list-page";
-import { ServerDataTable, SortIcon } from "@/components/data-display/server-data-table";
+import {
+  ServerDataTable,
+  SortIcon,
+} from "@/components/data-display/server-data-table";
 import { SORT_ORDERS } from "@/constants/query";
 import { ERP_ROUTES } from "@/constants/routes";
 import {

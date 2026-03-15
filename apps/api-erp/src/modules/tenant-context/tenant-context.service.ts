@@ -1,9 +1,10 @@
 import { DATABASE } from "@repo/backend-core";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { campus, organization } from "@repo/database";
 import { APP_FALLBACKS, tenantBrandingSchema } from "@repo/contracts";
+import { STATUS } from "../../constants";
 
 const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1"]);
 
@@ -71,13 +72,12 @@ export class TenantContextService {
         borderRadius: organization.borderRadius,
         uiDensity: organization.uiDensity,
         status: organization.status,
-        deletedAt: organization.deletedAt,
       })
       .from(organization)
       .where(eq(organization.slug, slug))
       .limit(1);
 
-    if (!row || row.deletedAt !== null) {
+    if (!row || row.status === STATUS.ORG.DELETED) {
       return null;
     }
 
@@ -100,7 +100,7 @@ export class TenantContextService {
         and(
           eq(campus.organizationId, organizationId),
           eq(campus.isDefault, true),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .limit(1);
@@ -123,7 +123,7 @@ export class TenantContextService {
       .where(
         and(
           eq(campus.organizationId, organizationId),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       );
   }

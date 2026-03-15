@@ -8,7 +8,7 @@ import {
   desc,
   eq,
   ilike,
-  isNull,
+  ne,
   sql,
   type SQL,
 } from "drizzle-orm";
@@ -48,7 +48,7 @@ export class InstitutionsService {
       params.sort ?? sortableInstitutionColumns.createdAt;
     const sortOrder = params.order === SORT_ORDERS.ASC ? asc : desc;
 
-    const conditions: SQL[] = [isNull(organization.deletedAt)];
+    const conditions: SQL[] = [ne(organization.status, STATUS.ORG.DELETED)];
 
     if (params.search) {
       conditions.push(ilike(organization.name, `%${params.search}%`));
@@ -103,7 +103,7 @@ export class InstitutionsService {
         ),
       })
       .from(organization)
-      .where(isNull(organization.deletedAt));
+      .where(ne(organization.status, STATUS.ORG.DELETED));
 
     return {
       total: row?.total ?? 0,
@@ -164,13 +164,12 @@ export class InstitutionsService {
         institutionType: organization.institutionType,
         status: organization.status,
         createdAt: organization.createdAt,
-        deletedAt: organization.deletedAt,
       })
       .from(organization)
       .where(eq(organization.id, id))
       .limit(1);
 
-    if (!row || row.deletedAt !== null) {
+    if (!row || row.status === STATUS.ORG.DELETED) {
       return null;
     }
 

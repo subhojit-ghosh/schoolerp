@@ -46,11 +46,11 @@ export const organization = pgTable("organization", {
   uiDensity: text({
     enum: ["compact", "default", "comfortable"],
   }),
-  status: text({ enum: ["active", "suspended"] })
+  status: text({ enum: ["active", "suspended", "deleted"] })
     .notNull()
     .default("active"),
   createdAt: timestamp().defaultNow().notNull(),
-  deletedAt: timestamp(),
+  deletedAt: timestamp(), // audit timestamp — set when status = deleted
 });
 
 export const campus = pgTable(
@@ -64,20 +64,20 @@ export const campus = pgTable(
     slug: text().notNull(),
     code: text(),
     isDefault: boolean().notNull().default(false),
-    status: text({ enum: ["active", "inactive"] })
+    status: text({ enum: ["active", "inactive", "deleted"] })
       .notNull()
       .default("active"),
     createdAt: timestamp().defaultNow().notNull(),
-    deletedAt: timestamp(),
+    deletedAt: timestamp(), // audit timestamp — set when status = deleted
   },
   (table) => [
     index("campus_organization_idx").on(table.organizationId),
     uniqueIndex("campus_slug_org_unique_idx")
       .on(table.organizationId, table.slug)
-      .where(sql`${table.deletedAt} IS NULL`),
+      .where(sql`${table.status} != 'deleted'`),
     uniqueIndex("campus_single_default_per_org_idx")
       .on(table.organizationId)
-      .where(sql`${table.isDefault} IS TRUE AND ${table.deletedAt} IS NULL`),
+      .where(sql`${table.isDefault} IS TRUE AND ${table.status} != 'deleted'`),
   ],
 );
 
@@ -166,11 +166,11 @@ export const member = pgTable(
     memberType: text({
       enum: ["staff", "student", "guardian"],
     }).notNull(),
-    status: text({ enum: ["active", "inactive", "suspended"] })
+    status: text({ enum: ["active", "inactive", "suspended", "deleted"] })
       .notNull()
       .default("active"),
     createdAt: timestamp().defaultNow().notNull(),
-    deletedAt: timestamp(),
+    deletedAt: timestamp(), // audit timestamp — set when status = deleted
   },
   (table) => [
     index("member_organization_idx").on(table.organizationId),
@@ -178,7 +178,7 @@ export const member = pgTable(
     index("member_primary_campus_idx").on(table.primaryCampusId),
     uniqueIndex("member_org_user_active_unique_idx")
       .on(table.organizationId, table.userId, table.memberType)
-      .where(sql`${table.deletedAt} IS NULL`),
+      .where(sql`${table.status} != 'deleted'`),
   ],
 );
 

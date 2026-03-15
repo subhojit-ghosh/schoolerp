@@ -29,6 +29,7 @@ import {
   ilike,
   inArray,
   isNull,
+  ne,
   or,
   type SQL,
 } from "drizzle-orm";
@@ -129,11 +130,10 @@ export class StudentsService {
     const conditions: SQL[] = [
       eq(students.institutionId, institutionId),
       isNull(students.deletedAt),
-      isNull(member.deletedAt),
-      isNull(campus.deletedAt),
-      isNull(schoolClasses.deletedAt),
-      eq(classSections.isActive, true),
-      isNull(classSections.deletedAt),
+      ne(member.status, STATUS.MEMBER.DELETED),
+      ne(campus.status, STATUS.CAMPUS.DELETED),
+      ne(schoolClasses.status, STATUS.CLASS.DELETED),
+      eq(classSections.status, STATUS.SECTION.ACTIVE),
     ];
 
     if (query.search) {
@@ -410,11 +410,10 @@ export class StudentsService {
           eq(students.institutionId, institutionId),
           studentId ? eq(students.id, studentId) : undefined,
           isNull(students.deletedAt),
-          isNull(member.deletedAt),
-          isNull(campus.deletedAt),
-          isNull(schoolClasses.deletedAt),
-          eq(classSections.isActive, true),
-          isNull(classSections.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
+          ne(schoolClasses.status, STATUS.CLASS.DELETED),
+          eq(classSections.status, STATUS.SECTION.ACTIVE),
         ),
       );
 
@@ -579,7 +578,7 @@ export class StudentsService {
         and(
           eq(campus.id, campusId),
           eq(campus.organizationId, institutionId),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .limit(1);
@@ -619,7 +618,7 @@ export class StudentsService {
             studentMembershipIds,
           ),
           isNull(studentGuardianLinks.deletedAt),
-          isNull(member.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       );
 
@@ -683,10 +682,9 @@ export class StudentsService {
             studentMembershipIds,
           ),
           isNull(studentCurrentEnrollments.deletedAt),
-          isNull(academicYears.deletedAt),
-          isNull(schoolClasses.deletedAt),
-          eq(classSections.isActive, true),
-          isNull(classSections.deletedAt),
+          ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
+          ne(schoolClasses.status, STATUS.CLASS.DELETED),
+          eq(classSections.status, STATUS.SECTION.ACTIVE),
         ),
       );
 
@@ -769,7 +767,7 @@ export class StudentsService {
           eq(member.organizationId, institutionId),
           eq(member.userId, guardianUserId),
           eq(member.memberType, MEMBER_TYPES.GUARDIAN),
-          isNull(member.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .limit(1);
@@ -851,7 +849,7 @@ export class StudentsService {
         and(
           eq(academicYears.id, academicYearId),
           eq(academicYears.institutionId, institutionId),
-          isNull(academicYears.deletedAt),
+          ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
         ),
       )
       .limit(1);
@@ -1006,9 +1004,8 @@ export class StudentsService {
           eq(classSections.institutionId, institutionId),
           eq(schoolClasses.id, classId),
           eq(classSections.id, sectionId),
-          isNull(schoolClasses.deletedAt),
-          eq(classSections.isActive, true),
-          isNull(classSections.deletedAt),
+          ne(schoolClasses.status, STATUS.CLASS.DELETED),
+          eq(classSections.status, STATUS.SECTION.ACTIVE),
         ),
       )
       .limit(1);

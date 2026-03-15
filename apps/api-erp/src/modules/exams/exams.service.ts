@@ -8,9 +8,9 @@ import { DATABASE } from "@repo/backend-core";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import type { AppDatabase } from "@repo/database";
 import { academicYears, examMarks, examTerms, students } from "@repo/database";
-import { and, asc, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, eq, inArray, isNull, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
-import { ERROR_MESSAGES } from "../../constants";
+import { ERROR_MESSAGES, STATUS } from "../../constants";
 import { AuthService } from "../auth/auth.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { ExamMarkDto, ExamTermDto } from "./exams.dto";
@@ -46,7 +46,7 @@ export class ExamsService {
         and(
           eq(examTerms.institutionId, institutionId),
           isNull(examTerms.deletedAt),
-          isNull(academicYears.deletedAt),
+          ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
         ),
       )
       .orderBy(asc(examTerms.startDate), asc(examTerms.name));
@@ -193,7 +193,7 @@ export class ExamsService {
         and(
           eq(academicYears.id, academicYearId),
           eq(academicYears.institutionId, institutionId),
-          isNull(academicYears.deletedAt),
+          ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
         ),
       )
       .limit(1);

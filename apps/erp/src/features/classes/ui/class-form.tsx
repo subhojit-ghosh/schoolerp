@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconArchive, IconPlus, IconRestore } from "@tabler/icons-react";
+import { IconCircleMinus, IconPlus, IconRestore } from "@tabler/icons-react";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
@@ -26,7 +26,7 @@ const EMPTY_SECTION: ClassFormValues["sections"][number] = {
 };
 
 type ClassFormProps = {
-  archivedSections?: Array<{
+  inactiveSections?: Array<{
     id: string;
     name: string;
   }>;
@@ -39,7 +39,7 @@ type ClassFormProps = {
 };
 
 export function ClassForm({
-  archivedSections = [],
+  inactiveSections = [],
   defaultValues,
   errorMessage,
   isPending = false,
@@ -51,9 +51,8 @@ export function ClassForm({
     resolver: zodResolver(classFormSchema),
     defaultValues,
   });
-  const [localArchivedSections, setLocalArchivedSections] = useState(
-    archivedSections,
-  );
+  const [localInactiveSections, setLocalInactiveSections] =
+    useState(inactiveSections);
 
   const sectionsFieldArray = useFieldArray({
     control,
@@ -66,23 +65,27 @@ export function ClassForm({
   }, [defaultValues, reset]);
 
   useEffect(() => {
-    setLocalArchivedSections(archivedSections);
-  }, [archivedSections]);
+    setLocalInactiveSections(inactiveSections);
+  }, [inactiveSections]);
 
-  const visibleArchivedSections = localArchivedSections.filter(
+  const visibleInactiveSections = localInactiveSections.filter(
     (archivedSection) =>
       !sectionsFieldArray.fields.some(
         (section) => section.id === archivedSection.id,
       ),
   );
 
-  function handleArchiveSection(index: number) {
+  function handleDisableSection(index: number) {
     const section = sectionsFieldArray.fields[index];
     const sectionId = section?.id;
 
     if (sectionId) {
-      setLocalArchivedSections((currentSections) => {
-        if (currentSections.some((currentSection) => currentSection.id === sectionId)) {
+      setLocalInactiveSections((currentSections) => {
+        if (
+          currentSections.some(
+            (currentSection) => currentSection.id === sectionId,
+          )
+        ) {
           return currentSections;
         }
 
@@ -98,8 +101,10 @@ export function ClassForm({
       id: section.id,
       name: section.name,
     });
-    setLocalArchivedSections((currentSections) =>
-      currentSections.filter((currentSection) => currentSection.id !== section.id),
+    setLocalInactiveSections((currentSections) =>
+      currentSections.filter(
+        (currentSection) => currentSection.id !== section.id,
+      ),
     );
   }
 
@@ -134,7 +139,7 @@ export function ClassForm({
               <p className="text-xs text-muted-foreground">
                 Keep only the sections that should stay active for admissions
                 and roster flows. Removing an existing section from this list
-                archives it when you save.
+                deactivates it when you save.
               </p>
             </div>
             <EntityToolbarSecondaryAction
@@ -177,11 +182,14 @@ export function ClassForm({
                 <EntityRowAction
                   className="shrink-0"
                   disabled={sectionsFieldArray.fields.length === 1}
-                  onClick={() => handleArchiveSection(index)}
+                  onClick={() => handleDisableSection(index)}
                   type="button"
                 >
-                  <IconArchive data-icon="inline-start" className="size-3.5" />
-                  {section.id ? "Archive" : "Remove"}
+                  <IconCircleMinus
+                    data-icon="inline-start"
+                    className="size-3.5"
+                  />
+                  {section.id ? "Disable" : "Remove"}
                 </EntityRowAction>
               </div>
             ))}
@@ -196,17 +204,17 @@ export function ClassForm({
             </p>
           ) : null}
 
-          {visibleArchivedSections.length > 0 ? (
+          {visibleInactiveSections.length > 0 ? (
             <div className="space-y-2">
               <div>
-                <p className="text-sm font-medium">Archived sections</p>
+                <p className="text-sm font-medium">Inactive sections</p>
                 <p className="text-xs text-muted-foreground">
-                  Archived sections stay out of active flows until you restore
+                  Inactive sections stay out of active flows until you restore
                   them.
                 </p>
               </div>
               <div className="rounded-lg border divide-y bg-muted/20">
-                {visibleArchivedSections.map((section) => (
+                {visibleInactiveSections.map((section) => (
                   <div
                     key={section.id}
                     className="flex items-center justify-between gap-3 px-3 py-2.5"
@@ -214,14 +222,17 @@ export function ClassForm({
                     <div className="min-w-0">
                       <p className="text-sm font-medium">{section.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        Archived section
+                        Inactive section
                       </p>
                     </div>
                     <EntityRowAction
                       onClick={() => handleRestoreSection(section)}
                       type="button"
                     >
-                      <IconRestore data-icon="inline-start" className="size-3.5" />
+                      <IconRestore
+                        data-icon="inline-start"
+                        className="size-3.5"
+                      />
                       Restore
                     </EntityRowAction>
                   </div>

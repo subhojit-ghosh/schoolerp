@@ -40,7 +40,10 @@ import {
   EntityRowAction,
 } from "@/components/entities/entity-actions";
 import { EntityListPage } from "@/components/entities/entity-list-page";
-import { ServerDataTable, SortIcon } from "@/components/data-display/server-data-table";
+import {
+  ServerDataTable,
+  SortIcon,
+} from "@/components/data-display/server-data-table";
 import { buildClassEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
@@ -64,7 +67,7 @@ import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 type ClassRow = {
   id: string;
   name: string;
-  isActive: boolean;
+  status: "active" | "inactive" | "deleted";
   campusName: string;
   sections: Array<{ id: string; name: string; displayOrder: number }>;
 };
@@ -131,13 +134,16 @@ export function ClassesPage() {
         return;
       }
 
+      const nextStatus =
+        schoolClass.status === "active" ? "inactive" : "active";
+
       await setStatusMutation.mutateAsync({
         params: { path: { classId: schoolClass.id } },
-        body: { isActive: !schoolClass.isActive },
+        body: { status: nextStatus },
       });
 
       toast.success(
-        schoolClass.isActive
+        nextStatus === "inactive"
           ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.CLASS)
           : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CLASS),
       );
@@ -195,7 +201,7 @@ export function ClassesPage() {
           </button>
         ),
       }),
-      columnHelper.accessor("isActive", {
+      columnHelper.accessor("status", {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
@@ -213,7 +219,7 @@ export function ClassesPage() {
           </button>
         ),
         cell: ({ getValue }) =>
-          getValue() ? (
+          getValue() === "active" ? (
             <Badge
               variant="secondary"
               className="text-green-700 dark:text-green-400"
@@ -222,7 +228,7 @@ export function ClassesPage() {
             </Badge>
           ) : (
             <Badge variant="outline" className="text-muted-foreground">
-              Disabled
+              Inactive
             </Badge>
           ),
       }),
@@ -280,7 +286,7 @@ export function ClassesPage() {
                     onSelect={() => void handleToggleStatus(schoolClass)}
                   >
                     <IconPower className="mr-2 size-4" />
-                    {schoolClass.isActive ? "Disable" : "Enable"}
+                    {schoolClass.status === "active" ? "Disable" : "Enable"}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -435,7 +441,9 @@ export function ClassesPage() {
           isError={classesQuery.isError}
           isLoading={classesQuery.isLoading}
           onSearchChange={setSearchInput}
-          rowCellClassName={(row) => (row.isActive ? undefined : "opacity-60")}
+          rowCellClassName={(row) =>
+            row.status === "active" ? undefined : "opacity-60"
+          }
           searchPlaceholder={CLASSES_PAGE_COPY.SEARCH_PLACEHOLDER}
           searchValue={searchInput}
           showSearch={false}
@@ -452,9 +460,9 @@ export function ClassesPage() {
             setDeleteTarget(null);
           }
         }}
-        title={`Archive "${deleteTarget?.name ?? "class"}"`}
-        description="This archives the class record after confirming no active students or current enrollments still depend on it."
-        confirmLabel="Archive class"
+        title={`Delete "${deleteTarget?.name ?? "class"}"`}
+        description="This permanently removes the class record after confirming no active students or current enrollments still depend on it."
+        confirmLabel="Delete class"
         isPending={deleteMutation.isPending}
         onConfirm={handleDelete}
       />

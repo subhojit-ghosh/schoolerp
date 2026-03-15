@@ -10,7 +10,7 @@ import {
   desc,
   eq,
   ilike,
-  isNull,
+  ne,
   or,
   type SQL,
 } from "drizzle-orm";
@@ -56,7 +56,7 @@ export class CampusesService {
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
     const conditions: SQL[] = [
       eq(campus.organizationId, organizationId),
-      isNull(campus.deletedAt),
+      ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
 
     if (query.search) {
@@ -156,7 +156,7 @@ export class CampusesService {
         and(
           eq(campus.organizationId, organizationId),
           eq(campus.slug, slug),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .limit(1);
@@ -198,7 +198,7 @@ export class CampusesService {
       .where(
         and(
           eq(campus.organizationId, organizationId),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .orderBy(desc(campus.isDefault), asc(campus.name));

@@ -82,8 +82,8 @@ export class ArchivedClassSectionDto {
 }
 
 export class SetClassStatusBodyDto {
-  @ApiProperty()
-  isActive!: boolean;
+  @ApiProperty({ enum: ["active", "inactive"] })
+  status!: "active" | "inactive";
 }
 
 export class ClassDto {
@@ -102,8 +102,8 @@ export class ClassDto {
   @ApiProperty()
   name!: string;
 
-  @ApiProperty()
-  isActive!: boolean;
+  @ApiProperty({ enum: ["active", "inactive", "deleted"] })
+  status!: "active" | "inactive" | "deleted";
 
   @ApiProperty()
   displayOrder!: number;

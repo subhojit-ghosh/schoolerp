@@ -11,7 +11,7 @@ import {
   roles,
   user,
 } from "@repo/database";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq, and, ne } from "drizzle-orm";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import {
@@ -177,7 +177,7 @@ export class OnboardingService {
       .where(
         and(
           eq(organization.slug, institutionSlug),
-          isNull(organization.deletedAt),
+          ne(organization.status, STATUS.ORG.DELETED),
         ),
       )
       .limit(1);

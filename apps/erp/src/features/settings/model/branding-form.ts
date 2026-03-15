@@ -2,14 +2,8 @@ import type { UseFormSetValue } from "react-hook-form";
 import type { TenantBranding } from "@repo/contracts";
 import { z } from "zod";
 import type { UpdateBrandingBody } from "@/features/settings/api/use-settings";
-import {
-  DEFAULT_FONT_PAIRING,
-  type FontPairing,
-} from "@/lib/font-pairings";
-import type {
-  DensityPreset,
-  RadiusPreset,
-} from "@/lib/theme-presets";
+import { DEFAULT_FONT_PAIRING, type FontPairing } from "@/lib/font-pairings";
+import type { DensityPreset, RadiusPreset } from "@/lib/theme-presets";
 
 export const BRANDING_HEX_COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 export const BRANDING_HEX_COLOR_MESSAGE = "Must be a valid hex color";
@@ -66,8 +60,7 @@ export function getBrandingInitialValues(
     shortName: cached?.shortName ?? organization.shortName ?? "",
     logoUrl: cached?.logoUrl ?? "",
     faviconUrl: cached?.faviconUrl ?? "",
-    primaryColor:
-      cached?.primaryColor ?? BRANDING_DEFAULT_COLORS.primaryColor,
+    primaryColor: cached?.primaryColor ?? BRANDING_DEFAULT_COLORS.primaryColor,
     accentColor: cached?.accentColor ?? BRANDING_DEFAULT_COLORS.accentColor,
     sidebarColor: cached?.sidebarColor ?? BRANDING_DEFAULT_COLORS.sidebarColor,
     fontHeading: cached?.fontHeading ?? DEFAULT_FONT_PAIRING.fontHeading,

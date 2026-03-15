@@ -25,6 +25,7 @@ import {
   inArray,
   isNotNull,
   isNull,
+  ne,
   or,
   type SQL,
 } from "drizzle-orm";
@@ -36,6 +37,7 @@ import {
   ERROR_MESSAGES,
   MEMBER_TYPES,
   SORT_ORDERS,
+  STATUS,
   type MemberStatus,
 } from "../../constants";
 import {
@@ -109,8 +111,8 @@ export class GuardiansService {
     const conditions: SQL[] = [
       eq(member.organizationId, institutionId),
       eq(member.memberType, MEMBER_TYPES.GUARDIAN),
-      isNull(member.deletedAt),
-      isNull(campus.deletedAt),
+      ne(member.status, STATUS.MEMBER.DELETED),
+      ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
 
     if (query.search) {
@@ -446,8 +448,8 @@ export class GuardiansService {
           eq(member.organizationId, institutionId),
           eq(member.memberType, MEMBER_TYPES.GUARDIAN),
           guardianId ? eq(member.id, guardianId) : undefined,
-          isNull(member.deletedAt),
-          isNull(campus.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       );
 
@@ -496,8 +498,8 @@ export class GuardiansService {
           ),
           isNull(studentGuardianLinks.deletedAt),
           isNull(students.deletedAt),
-          isNull(member.deletedAt),
-          isNull(campus.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       );
 
@@ -538,7 +540,7 @@ export class GuardiansService {
           eq(member.id, guardianId),
           eq(member.organizationId, institutionId),
           eq(member.memberType, MEMBER_TYPES.GUARDIAN),
-          isNull(member.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .limit(1);
@@ -656,7 +658,7 @@ export class GuardiansService {
         and(
           eq(campus.id, campusId),
           eq(campus.organizationId, institutionId),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .limit(1);

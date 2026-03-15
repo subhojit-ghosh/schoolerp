@@ -3080,8 +3080,13 @@
           "name": {
             "type": "string"
           },
-          "isActive": {
-            "type": "boolean"
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "deleted"
+            ]
           },
           "displayOrder": {
             "type": "number"
@@ -3105,7 +3110,7 @@
           "campusId",
           "campusName",
           "name",
-          "isActive",
+          "status",
           "displayOrder",
           "sections",
           "archivedSections"
@@ -3203,12 +3208,16 @@
       "SetClassStatusBodyDto": {
         "type": "object",
         "properties": {
-          "isActive": {
-            "type": "boolean"
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
           }
         },
         "required": [
-          "isActive"
+          "status"
         ]
       },
       "StudentGuardianDto": {
@@ -3943,14 +3952,22 @@
           "isPrimary"
         ]
       },
+      "AcademicYearStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "archived",
+          "deleted"
+        ]
+      },
       "AcademicYearDto": {
         "type": "object",
         "properties": {
           "status": {
-            "type": "string",
-            "enum": [
-              "active",
-              "archived"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AcademicYearStatus"
+              }
             ]
           },
           "createdAt": {

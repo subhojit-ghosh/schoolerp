@@ -19,13 +19,8 @@ import {
   FONT_PAIRINGS,
   type FontPairing,
 } from "@/lib/font-pairings";
-import {
-  DENSITY_OPTIONS,
-  RADIUS_OPTIONS,
-} from "@/lib/theme-presets";
-import {
-  type BrandingFormValues,
-} from "@/features/settings/model/branding-form";
+import { DENSITY_OPTIONS, RADIUS_OPTIONS } from "@/lib/theme-presets";
+import { type BrandingFormValues } from "@/features/settings/model/branding-form";
 import { useBrandingPreviewFonts } from "@/features/settings/ui/branding-preview";
 
 type BrandingIdentitySectionProps = {
@@ -121,7 +116,9 @@ export function BrandingColorSection({
 }: BrandingColorSectionProps) {
   return (
     <div className="flex flex-col gap-6">
-      <div className={cn("flex flex-wrap gap-2", compact && "grid grid-cols-2")}>
+      <div
+        className={cn("flex flex-wrap gap-2", compact && "grid grid-cols-2")}
+      >
         {COLOR_PRESETS.map((preset) => {
           const isSelected = selectedPresetId === preset.id;
 
@@ -165,7 +162,9 @@ export function BrandingColorSection({
         })}
       </div>
 
-      <FieldGroup className={cn("grid gap-4", compact ? "grid-cols-1" : "md:grid-cols-3")}>
+      <FieldGroup
+        className={cn("grid gap-4", compact ? "grid-cols-1" : "md:grid-cols-3")}
+      >
         <Controller
           control={control}
           name="primaryColor"
@@ -314,7 +313,9 @@ export function BrandingAppearanceSection({
   control,
 }: BrandingAppearanceSectionProps) {
   return (
-    <div className={cn("grid gap-6", compact ? "grid-cols-1" : "xl:grid-cols-2")}>
+    <div
+      className={cn("grid gap-6", compact ? "grid-cols-1" : "xl:grid-cols-2")}
+    >
       <Controller
         control={control}
         name="borderRadius"

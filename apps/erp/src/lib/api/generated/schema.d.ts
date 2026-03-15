@@ -877,7 +877,8 @@ export interface components {
             campusId: string;
             campusName: string;
             name: string;
-            isActive: boolean;
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
             displayOrder: number;
             sections: components["schemas"]["ClassSectionDto"][];
             archivedSections: components["schemas"]["ArchivedClassSectionDto"][];
@@ -904,7 +905,8 @@ export interface components {
             sections: components["schemas"]["ClassSectionBodyDto"][];
         };
         SetClassStatusBodyDto: {
-            isActive: boolean;
+            /** @enum {string} */
+            status: "active" | "inactive";
         };
         StudentGuardianDto: {
             userId?: string | null;
@@ -1082,9 +1084,10 @@ export interface components {
             relationship: "father" | "mother" | "guardian";
             isPrimary: boolean;
         };
+        /** @enum {string} */
+        AcademicYearStatus: "active" | "archived" | "deleted";
         AcademicYearDto: {
-            /** @enum {string} */
-            status: "active" | "archived";
+            status: components["schemas"]["AcademicYearStatus"];
             /** Format: date-time */
             createdAt: string;
             id: string;

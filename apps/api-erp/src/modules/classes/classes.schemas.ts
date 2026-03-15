@@ -43,7 +43,7 @@ export const createClassSchema = z
 export const updateClassSchema = createClassSchema;
 
 export const setClassStatusSchema = z.object({
-  isActive: z.boolean(),
+  status: z.enum(["active", "inactive"]),
 });
 
 export const listClassesQuerySchema = baseListQuerySchema.extend({

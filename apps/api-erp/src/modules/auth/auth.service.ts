@@ -21,7 +21,7 @@ import {
   students,
   user,
 } from "@repo/database";
-import { and, eq, gt, inArray, isNull, or } from "drizzle-orm";
+import { and, eq, gt, inArray, isNull, ne, or } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Response } from "express";
@@ -30,6 +30,7 @@ import {
   AUTH_PASSWORD_RESET,
   AUTH_RECOVERY_CHANNELS,
   ERROR_MESSAGES,
+  STATUS,
 } from "../../constants";
 import { AUTH_COOKIE_OPTIONS } from "./auth.constants";
 import {
@@ -334,7 +335,7 @@ export class AuthService {
         and(
           eq(member.userId, userId),
           eq(member.organizationId, organizationId),
-          isNull(member.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .limit(1);
@@ -613,8 +614,8 @@ export class AuthService {
       .where(
         and(
           eq(member.userId, userId),
-          isNull(member.deletedAt),
-          isNull(organization.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          ne(organization.status, STATUS.ORG.DELETED),
         ),
       );
   }
@@ -636,7 +637,7 @@ export class AuthService {
       .where(
         and(
           eq(campus.organizationId, organizationId),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       );
   }
@@ -664,7 +665,7 @@ export class AuthService {
         and(
           eq(member.userId, userId),
           eq(member.organizationId, organizationId),
-          isNull(member.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
           isNull(studentGuardianLinks.deletedAt),
           isNull(students.deletedAt),
         ),
@@ -688,8 +689,8 @@ export class AuthService {
             member.id,
             linkedRows.map((row) => row.membershipId),
           ),
-          isNull(member.deletedAt),
-          isNull(campus.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       );
 
@@ -741,7 +742,7 @@ export class AuthService {
       .where(
         and(
           eq(organization.id, organizationId),
-          isNull(organization.deletedAt),
+          ne(organization.status, STATUS.ORG.DELETED),
         ),
       )
       .limit(1);
@@ -764,7 +765,7 @@ export class AuthService {
         and(
           eq(campus.organizationId, organizationId),
           eq(campus.isDefault, true),
-          isNull(campus.deletedAt),
+          ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
       .limit(1);
