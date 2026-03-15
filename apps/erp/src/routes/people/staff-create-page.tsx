@@ -20,17 +20,14 @@ import {
   useCreateStaffMutation,
   useStaffRolesQuery,
 } from "@/features/staff/api/use-staff";
-import { type StaffFormValues } from "@/features/staff/model/staff-form-schema";
-import { StaffForm } from "@/features/staff/ui/staff-form";
 import {
+  type StaffFormValues,
   EMPTY_STAFF_ROLE_ASSIGNMENT_DRAFT,
-  StaffRoleAssignmentFields,
   type StaffRoleAssignmentDraft,
-} from "@/features/staff/ui/staff-role-assignment-fields";
-import {
-  buildStaffDetailRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
+} from "@/features/staff/model/staff-form-schema";
+import { StaffForm } from "@/features/staff/ui/staff-form";
+import { StaffRoleAssignmentFields } from "@/features/staff/ui/staff-role-assignment-fields";
+import { buildStaffDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -87,8 +84,9 @@ export function StaffCreatePage() {
 
     if (roleAssignmentDraft.roleId) {
       roleAssignmentName =
-        staffRolesQuery.data?.find((role) => role.id === roleAssignmentDraft.roleId)
-          ?.name ?? undefined;
+        staffRolesQuery.data?.find(
+          (role) => role.id === roleAssignmentDraft.roleId,
+        )?.name ?? undefined;
 
       try {
         await createAssignmentMutation.mutateAsync({
@@ -289,7 +287,8 @@ export function StaffCreatePage() {
                 <StaffRoleAssignmentFields
                   campuses={campuses}
                   disabled={
-                    createStaffMutation.isPending || createAssignmentMutation.isPending
+                    createStaffMutation.isPending ||
+                    createAssignmentMutation.isPending
                   }
                   errorMessage={roleAssignmentError}
                   onChange={setRoleAssignmentDraft}
@@ -300,7 +299,8 @@ export function StaffCreatePage() {
             }
             errorMessage={createError?.message}
             isPending={
-              createStaffMutation.isPending || createAssignmentMutation.isPending
+              createStaffMutation.isPending ||
+              createAssignmentMutation.isPending
             }
             onCancel={() => {
               void navigate(appendSearch(ERP_ROUTES.STAFF, location.search));

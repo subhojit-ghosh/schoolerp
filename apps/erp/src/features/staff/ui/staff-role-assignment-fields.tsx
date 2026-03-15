@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@repo/ui/components/ui/select";
 import { useClassesQuery } from "@/features/classes/api/use-classes";
+import type { StaffRoleAssignmentDraft } from "@/features/staff/model/staff-form-schema";
 
 const ALL_SCOPE_VALUE = "__all__";
 const UNSELECTED_ROLE_VALUE = "__unselected_role__";
@@ -40,13 +41,6 @@ type ClassOption = {
   }>;
 };
 
-export type StaffRoleAssignmentDraft = {
-  roleId: string;
-  campusId: string;
-  classId: string;
-  sectionId: string;
-};
-
 type StaffRoleAssignmentFieldsProps = {
   campuses: CampusOption[];
   disabled?: boolean;
@@ -54,13 +48,6 @@ type StaffRoleAssignmentFieldsProps = {
   roles: RoleOption[];
   value: StaffRoleAssignmentDraft;
   onChange: (nextValue: StaffRoleAssignmentDraft) => void;
-};
-
-export const EMPTY_STAFF_ROLE_ASSIGNMENT_DRAFT: StaffRoleAssignmentDraft = {
-  roleId: "",
-  campusId: "",
-  classId: "",
-  sectionId: "",
 };
 
 export function StaffRoleAssignmentFields({
@@ -175,7 +162,8 @@ export function StaffRoleAssignmentFields({
               </SelectContent>
             </Select>
             <FieldDescription>
-              Leave this empty if you only want to create the staff identity now.
+              Leave this empty if you only want to create the staff identity
+              now.
             </FieldDescription>
           </FieldContent>
         </Field>

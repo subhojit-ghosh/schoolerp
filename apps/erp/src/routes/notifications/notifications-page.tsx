@@ -27,7 +27,10 @@ import { cn } from "@repo/ui/lib/utils";
 type NotificationFilter =
   (typeof NOTIFICATION_FILTERS)[keyof typeof NOTIFICATION_FILTERS];
 
-function getFilteredItems(filter: NotificationFilter, items: readonly NotificationItem[]) {
+function getFilteredItems(
+  filter: NotificationFilter,
+  items: readonly NotificationItem[],
+) {
   if (filter === NOTIFICATION_FILTERS.UNREAD) {
     return items.filter((item) => item.unread);
   }
@@ -97,8 +100,8 @@ export function NotificationsPage() {
                   Nothing in this filter right now
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Sample data is available in other views. Switch the tab to inspect
-                  unread or action-oriented notifications.
+                  Sample data is available in other views. Switch the tab to
+                  inspect unread or action-oriented notifications.
                 </p>
               </div>
             </div>
@@ -115,7 +118,9 @@ export function NotificationsPage() {
                         {section.summary}
                       </p>
                     </div>
-                    <Badge variant="outline">{section.items.length} items</Badge>
+                    <Badge variant="outline">
+                      {section.items.length} items
+                    </Badge>
                   </div>
 
                   <div className="grid gap-3">
@@ -148,7 +153,9 @@ export function NotificationsPage() {
                               </h3>
                               {item.unread ? <Badge>New</Badge> : null}
                               {item.actionRequired ? (
-                                <Badge variant="destructive">Action required</Badge>
+                                <Badge variant="destructive">
+                                  Action required
+                                </Badge>
                               ) : null}
                             </div>
 

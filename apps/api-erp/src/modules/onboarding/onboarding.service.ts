@@ -34,12 +34,11 @@ import {
 } from "../auth/auth.utils";
 import type { CreateInstitutionOnboardingDto } from "./onboarding.schemas";
 
-const DEFAULT_PRESET =
-  findPresetById(DEFAULT_COLOR_PRESET_ID) ?? {
-    primaryColor: "#3730a3",
-    accentColor: "#8b83f7",
-    sidebarColor: "#14123a",
-  };
+const DEFAULT_PRESET = findPresetById(DEFAULT_COLOR_PRESET_ID) ?? {
+  primaryColor: "#3730a3",
+  accentColor: "#8b83f7",
+  sidebarColor: "#14123a",
+};
 
 @Injectable()
 export class OnboardingService {

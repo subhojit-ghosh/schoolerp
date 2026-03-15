@@ -1,4 +1,8 @@
-import { AUTH_CONTEXT_KEYS, type AuthContextKey } from "@repo/contracts";
+import {
+  AUTH_CONTEXT_KEYS,
+  type AuthContextKey,
+  type PermissionSlug,
+} from "@repo/contracts";
 import type { AuthSession } from "./auth.types";
 
 export function getActiveContext(session: AuthSession | null) {
@@ -32,7 +36,8 @@ export function getActiveRoleDisplayLabel(session: AuthSession | null) {
     return activeStaffRoles[0]?.name ?? null;
   }
 
-  const primaryRole = activeStaffRoles[0]?.name ?? getActiveContext(session)?.label;
+  const primaryRole =
+    activeStaffRoles[0]?.name ?? getActiveContext(session)?.label;
 
   return `${primaryRole} +${activeStaffRoles.length - 1}`;
 }
@@ -62,4 +67,18 @@ export function getContextSecondaryLabel(
   }
 
   return `${primaryRole} +${activeStaffRoles.length - 1}`;
+}
+
+export function hasPermission(
+  session: AuthSession | null,
+  permission: PermissionSlug,
+) {
+  return session?.permissions.includes(permission) ?? false;
+}
+
+export function hasAnyPermission(
+  session: AuthSession | null,
+  permissions: PermissionSlug[],
+) {
+  return permissions.some((permission) => hasPermission(session, permission));
 }

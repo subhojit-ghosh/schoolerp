@@ -1,4 +1,5 @@
 import { useParams, useLocation, useNavigate } from "react-router";
+import { PERMISSIONS } from "@repo/contracts";
 import { toast } from "sonner";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
@@ -11,7 +12,10 @@ import {
 import type { RoleFormValues } from "@/features/roles/model/role-form-schema";
 import { RoleForm } from "@/features/roles/ui/role-form";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { isStaffContext } from "@/features/auth/model/auth-context";
+import {
+  hasPermission,
+  isStaffContext,
+} from "@/features/auth/model/auth-context";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -28,7 +32,9 @@ function CreateRoleSheet() {
   const location = useLocation();
   const navigate = useNavigate();
   const session = useAuthStore((store) => store.session);
-  const enabled = isStaffContext(session);
+  const enabled =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.INSTITUTION_ROLES_MANAGE);
 
   const createMutation = useCreateRoleMutation();
   const permissionsQuery = usePermissionsQuery(enabled);
@@ -71,7 +77,9 @@ function EditRoleSheet() {
   const location = useLocation();
   const navigate = useNavigate();
   const session = useAuthStore((store) => store.session);
-  const enabled = isStaffContext(session);
+  const enabled =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.INSTITUTION_ROLES_MANAGE);
 
   const roleQuery = useRoleQuery(enabled, roleId);
   const permissionsQuery = usePermissionsQuery(enabled);

@@ -3,8 +3,6 @@ export const AUTH_COOKIE = {
   MAX_AGE_MS: 1000 * 60 * 60 * 24 * 7,
   SAME_SITE: "lax",
   PATH: "/",
-  DOMAIN: process.env.AUTH_COOKIE_DOMAIN ?? ".erp.test",
-  SECURE: process.env.AUTH_COOKIE_SECURE !== "false",
 } as const;
 
 export const AUTH_STRATEGY = {
@@ -20,7 +18,6 @@ export const AUTH_FIELD_NAMES = {
 export const AUTH_PASSWORD_RESET = {
   TOKEN_BYTE_LENGTH: 32,
   TOKEN_TTL_MS: 1000 * 60 * 30,
-  PREVIEW_ENABLED: process.env.AUTH_PASSWORD_RESET_PREVIEW === "true",
   RATE_LIMIT_WINDOW_MS: 1000 * 60 * 15,
   RATE_LIMIT_MAX_ATTEMPTS: 5,
   RATE_LIMIT_ACTION: "forgot-password",

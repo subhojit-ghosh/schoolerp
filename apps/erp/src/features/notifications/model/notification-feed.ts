@@ -78,7 +78,8 @@ export const NOTIFICATION_SECTIONS: readonly NotificationSection[] = [
   {
     id: "today",
     label: "Today",
-    summary: "Priority items that still need attention before the school day closes.",
+    summary:
+      "Priority items that still need attention before the school day closes.",
     items: [
       {
         id: "attendance-freeze",

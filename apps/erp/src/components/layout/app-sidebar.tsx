@@ -1,5 +1,10 @@
 import * as React from "react";
-import { AUTH_CONTEXT_KEYS, type AuthContextKey } from "@repo/contracts";
+import {
+  AUTH_CONTEXT_KEYS,
+  PERMISSIONS,
+  type AuthContextKey,
+  type PermissionSlug,
+} from "@repo/contracts";
 import {
   IconBook2,
   IconBooks,
@@ -40,6 +45,7 @@ import {
   getContextSecondaryLabel,
   getActiveRoleDisplayLabel,
   getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -70,8 +76,7 @@ const CONTEXT_META: Record<
   },
 };
 
-const CONTEXT_SWITCHER_WIDTH_CLASS =
-  "w-(--radix-dropdown-menu-trigger-width)";
+const CONTEXT_SWITCHER_WIDTH_CLASS = "w-(--radix-dropdown-menu-trigger-width)";
 const CONTEXT_SWITCHER_ITEM_CLASS =
   "group flex w-full items-center gap-3 rounded-2xl border px-3 py-2 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 const CONTEXT_SWITCHER_ACTIVE_ITEM_CLASS =
@@ -166,16 +171,28 @@ const NAV_COMMUNICATION = [
 const NAV_SETTINGS = [
   {
     icon: IconBuildingEstate,
+    permission: PERMISSIONS.CAMPUS_MANAGE,
     title: "Campuses",
     url: ERP_ROUTES.SETTINGS_CAMPUSES,
   },
-  { icon: IconPalette, title: "Branding", url: ERP_ROUTES.SETTINGS_BRANDING },
+  {
+    icon: IconPalette,
+    permission: PERMISSIONS.INSTITUTION_SETTINGS_MANAGE,
+    title: "Branding",
+    url: ERP_ROUTES.SETTINGS_BRANDING,
+  },
   {
     icon: IconShieldLock,
+    permission: PERMISSIONS.INSTITUTION_ROLES_MANAGE,
     title: "Roles",
     url: ERP_ROUTES.SETTINGS_ROLES,
   },
-] as const;
+] as const satisfies ReadonlyArray<{
+  icon: typeof IconBuildingEstate;
+  permission: PermissionSlug;
+  title: string;
+  url: string;
+}>;
 
 const NAV_FAMILY = [
   {
@@ -224,7 +241,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const availableContexts = session?.availableContexts ?? [];
   const showStaffNavigation = isStaffContext(session);
   const selectContextMutation = useSelectContextMutation();
-  const [isContextSwitcherOpen, setIsContextSwitcherOpen] = React.useState(false);
+  const [isContextSwitcherOpen, setIsContextSwitcherOpen] =
+    React.useState(false);
   const branding = readCachedTenantBranding();
   const institutionName =
     branding?.institutionName ??
@@ -237,6 +255,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     .toUpperCase();
 
   const logoProps = { logoUrl, institutionName, initial };
+  const settingsItems = NAV_SETTINGS.filter((item) =>
+    hasPermission(session, item.permission),
+  );
   const sortedContexts = [...availableContexts].sort(
     (left, right) =>
       CONTEXT_META[left.key].order - CONTEXT_META[right.key].order,
@@ -363,7 +384,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <NavMain items={[...NAV_FINANCE]} label="Finance" />
             <NavMain items={[...NAV_REPORTS]} label="Reports" />
             <NavMain items={[...NAV_COMMUNICATION]} label="Communication" />
-            <NavMain items={[...NAV_SETTINGS]} label="Settings" />
+            {settingsItems.length > 0 ? (
+              <NavMain items={settingsItems} label="Settings" />
+            ) : null}
           </>
         ) : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT ? (
           <NavMain items={[...NAV_FAMILY]} label="Family" />

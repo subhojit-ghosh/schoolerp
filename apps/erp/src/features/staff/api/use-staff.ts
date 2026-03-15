@@ -226,39 +226,43 @@ export function useDeleteStaffRoleAssignmentMutation(
 ) {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("delete", STAFF_API_PATHS.DELETE_ASSIGNMENT, {
-    onSuccess: (_, variables) => {
-      if (!institutionId) {
-        return;
-      }
+  return apiQueryClient.useMutation(
+    "delete",
+    STAFF_API_PATHS.DELETE_ASSIGNMENT,
+    {
+      onSuccess: (_, variables) => {
+        if (!institutionId) {
+          return;
+        }
 
-      void queryClient.invalidateQueries({
-        queryKey: getStaffListQueryKey(institutionId),
-      });
+        void queryClient.invalidateQueries({
+          queryKey: getStaffListQueryKey(institutionId),
+        });
 
-      void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          STAFF_API_PATHS.LIST_ASSIGNMENTS,
-          {
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            STAFF_API_PATHS.LIST_ASSIGNMENTS,
+            {
+              params: {
+                path: {
+                  staffId: variables.params.path.staffId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions("get", STAFF_API_PATHS.DETAIL, {
             params: {
               path: {
                 staffId: variables.params.path.staffId,
               },
             },
-          },
-        ).queryKey,
-      });
-
-      void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", STAFF_API_PATHS.DETAIL, {
-          params: {
-            path: {
-              staffId: variables.params.path.staffId,
-            },
-          },
-        }).queryKey,
-      });
+          }).queryKey,
+        });
+      },
     },
-  });
+  );
 }

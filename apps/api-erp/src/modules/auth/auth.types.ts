@@ -1,4 +1,4 @@
-import type { AuthContextKey } from "@repo/contracts";
+import type { AuthContextKey, PermissionSlug } from "@repo/contracts";
 import type {
   CampusStatus,
   GuardianRelationship,
@@ -86,6 +86,7 @@ export type AuthContext = {
   activeOrganization: AuthenticatedOrganization | null;
   availableContexts: AuthenticatedAccessContext[];
   activeContext: AuthenticatedAccessContext | null;
+  permissions: PermissionSlug[];
   activeStaffRoles: AuthenticatedStaffRole[];
   activeCampus: AuthenticatedCampus | null;
   campuses: AuthenticatedCampus[];

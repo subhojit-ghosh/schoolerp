@@ -148,14 +148,15 @@ async function run() {
       await tx
         .delete(studentGuardianLinks)
         .where(
-          inArray(studentGuardianLinks.studentMembershipId, studentMembershipIds),
+          inArray(
+            studentGuardianLinks.studentMembershipId,
+            studentMembershipIds,
+          ),
         );
     }
 
     // students
-    await tx
-      .delete(students)
-      .where(eq(students.institutionId, org.id));
+    await tx.delete(students).where(eq(students.institutionId, org.id));
 
     // exam terms, fee structures, academic years
     await tx.delete(examTerms).where(eq(examTerms.institutionId, org.id));

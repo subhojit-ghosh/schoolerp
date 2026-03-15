@@ -7,12 +7,14 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   GUARDIAN_RELATIONSHIPS,
   MEMBER_TYPES,
+  PERMISSIONS,
   STATUS,
   type CampusStatus,
   type GuardianRelationship,
   type MemberStatus,
   type MemberType,
   type OrgStatus,
+  type PermissionSlug,
 } from "../../constants";
 
 export class SignUpBodyDto {
@@ -203,6 +205,12 @@ export class AuthContextDto {
     nullable: true,
   })
   activeContext!: AuthAccessContextDto | null;
+
+  @ApiProperty({
+    enum: Object.values(PERMISSIONS),
+    isArray: true,
+  })
+  permissions!: PermissionSlug[];
 
   @ApiProperty({
     type: () => AuthStaffRoleDto,

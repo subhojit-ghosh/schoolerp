@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PERMISSIONS } from "@repo/contracts";
 import {
   IconBrush,
   IconLetterCase,
@@ -18,6 +19,11 @@ import { EntityPagePrimaryAction } from "@/components/entities/entity-actions";
 import { EntityListPage } from "@/components/entities/entity-list-page";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useUpdateBrandingMutation } from "@/features/settings/api/use-settings";
+import {
+  getActiveContext,
+  hasPermission,
+  isStaffContext,
+} from "@/features/auth/model/auth-context";
 import {
   applyFontPairing,
   BRANDING_DEFAULT_COLORS,
@@ -71,6 +77,10 @@ const BRANDING_TAB_LABELS = {
 export function BrandingPage() {
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
+  const activeContext = getActiveContext(session);
+  const canManageBranding =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.INSTITUTION_SETTINGS_MANAGE);
   const cachedBranding = readCachedTenantBranding();
   const organization = {
     name: session?.activeOrganization?.name,
@@ -155,6 +165,34 @@ export function BrandingPage() {
           toast.error(ERP_TOAST_MESSAGES.saveFailed);
         },
       },
+    );
+  }
+
+  if (!institutionId) {
+    return (
+      <EntityListPage
+        description="Manage institution identity and theme tokens."
+        title="Branding"
+      >
+        <div className="p-5 text-sm text-muted-foreground">
+          Sign in with an institution-backed session to manage branding.
+        </div>
+      </EntityListPage>
+    );
+  }
+
+  if (!canManageBranding) {
+    return (
+      <EntityListPage
+        description="Manage institution identity and theme tokens."
+        title="Branding"
+      >
+        <div className="p-5 text-sm text-muted-foreground">
+          {isStaffContext(session)
+            ? "You do not have permission to manage branding for this institution."
+            : `Branding management is available in Staff view. You are currently in ${activeContext?.label ?? "another"} view.`}
+        </div>
+      </EntityListPage>
     );
   }
 

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { IconPlus } from "@tabler/icons-react";
+import { PERMISSIONS } from "@repo/contracts";
 import { toast } from "sonner";
 import { Badge } from "@repo/ui/components/ui/badge";
 import {
@@ -26,6 +27,7 @@ import {
 } from "@/constants/routes";
 import {
   getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -59,7 +61,9 @@ export function RolesPage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const canManage = isStaffContext(session);
+  const canManage =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.INSTITUTION_ROLES_MANAGE);
 
   const rolesQuery = useRolesQuery(Boolean(institutionId) && canManage);
   const deleteMutation = useDeleteRoleMutation();
@@ -90,8 +94,9 @@ export function RolesPage() {
         <CardHeader>
           <CardTitle>{ROLES_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Role management is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            {isStaffContext(session)
+              ? "You do not have permission to manage roles for this institution."
+              : `Role management is available in Staff view. You are currently in ${activeContext?.label ?? "another"} view.`}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -131,7 +136,10 @@ export function RolesPage() {
         {rolesQuery.isLoading ? (
           <div className="divide-y">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center justify-between px-6 py-4">
+              <div
+                key={i}
+                className="flex items-center justify-between px-6 py-4"
+              >
                 <div className="space-y-1">
                   <div className="h-4 w-32 animate-pulse rounded bg-muted" />
                   <div className="h-3 w-48 animate-pulse rounded bg-muted" />
@@ -201,7 +209,10 @@ export function RolesPage() {
                       variant="ghost"
                       className="text-destructive hover:text-destructive"
                       onClick={() =>
-                        setDeleteDialog({ roleId: role.id, roleName: role.name })
+                        setDeleteDialog({
+                          roleId: role.id,
+                          roleName: role.name,
+                        })
                       }
                       type="button"
                     >

@@ -22,3 +22,17 @@ export type StaffRecord = components["schemas"]["StaffDto"];
 export type StaffRoleOption = components["schemas"]["StaffRoleDto"];
 export type StaffRoleAssignment =
   components["schemas"]["StaffRoleAssignmentDto"];
+
+export type StaffRoleAssignmentDraft = {
+  roleId: string;
+  campusId: string;
+  classId: string;
+  sectionId: string;
+};
+
+export const EMPTY_STAFF_ROLE_ASSIGNMENT_DRAFT: StaffRoleAssignmentDraft = {
+  roleId: "",
+  campusId: "",
+  classId: "",
+  sectionId: "",
+};

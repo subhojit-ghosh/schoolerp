@@ -62,10 +62,14 @@ export function StaffDetailPage() {
   const deleteAssignmentMutation =
     useDeleteStaffRoleAssignmentMutation(managedInstitutionId);
   const updateError = updateStaffMutation.error as Error | null | undefined;
-  const createAssignmentError =
-    createAssignmentMutation.error as Error | null | undefined;
-  const deleteAssignmentError =
-    deleteAssignmentMutation.error as Error | null | undefined;
+  const createAssignmentError = createAssignmentMutation.error as
+    | Error
+    | null
+    | undefined;
+  const deleteAssignmentError = deleteAssignmentMutation.error as
+    | Error
+    | null
+    | undefined;
 
   const defaultValues = useMemo<StaffFormValues>(() => {
     const staffRecord = staffQuery.data;

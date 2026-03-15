@@ -39,13 +39,21 @@ function createAuthService() {
     assertForgotPasswordAllowed: mock(() => Promise.resolve(undefined)),
     recordForgotPasswordAttempt: mock(() => Promise.resolve(undefined)),
   } as unknown as AuthRateLimitService;
+  const configService = {
+    get: mock((key: string, fallback?: unknown) => fallback),
+  };
   const deliveryService = {
     sendPasswordReset: mock(() => undefined),
   } as unknown as PasswordResetDeliveryService;
 
   return {
     db,
-    service: new AuthService(db as never, rateLimitService, deliveryService),
+    service: new AuthService(
+      db as never,
+      configService as never,
+      rateLimitService,
+      deliveryService,
+    ),
   };
 }
 

@@ -5,6 +5,7 @@ const envSchema = z.object({
   ERP_FRONTEND_URL: z.url().optional(),
   AUTH_COOKIE_DOMAIN: z.string().min(1).optional(),
   AUTH_COOKIE_SECURE: z.enum(["true", "false"]).optional(),
+  AUTH_PASSWORD_RESET_PREVIEW: z.enum(["true", "false"]).optional(),
 });
 
 export function validateEnvironment(config: Record<string, unknown>) {

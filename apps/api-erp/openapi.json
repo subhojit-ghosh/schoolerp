@@ -3183,6 +3183,36 @@
               }
             ]
           },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "institution:settings:read",
+                "institution:settings:manage",
+                "institution:roles:manage",
+                "institution:users:manage",
+                "campus:read",
+                "campus:manage",
+                "academics:read",
+                "academics:manage",
+                "students:read",
+                "students:manage",
+                "guardians:read",
+                "guardians:manage",
+                "staff:read",
+                "staff:manage",
+                "attendance:read",
+                "attendance:write",
+                "exams:read",
+                "exams:manage",
+                "marks:write",
+                "fees:read",
+                "fees:manage",
+                "fees:collect"
+              ]
+            }
+          },
           "activeStaffRoles": {
             "type": "array",
             "items": {
@@ -3217,6 +3247,7 @@
           "activeOrganization",
           "availableContexts",
           "activeContext",
+          "permissions",
           "activeStaffRoles",
           "activeCampus",
           "campuses",

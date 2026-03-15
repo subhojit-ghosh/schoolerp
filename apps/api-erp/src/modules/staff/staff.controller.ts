@@ -97,7 +97,8 @@ export class StaffController {
   @Get(`:staffId/${API_ROUTES.ROLES}`)
   @RequirePermission(PERMISSIONS.STAFF_READ)
   @ApiOperation({
-    summary: "List role assignments for a staff membership in the current tenant",
+    summary:
+      "List role assignments for a staff membership in the current tenant",
   })
   @ApiOkResponse({ type: StaffRoleAssignmentDto, isArray: true })
   listRoleAssignments(

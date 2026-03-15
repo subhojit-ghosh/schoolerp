@@ -9,6 +9,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { DATABASE } from "@repo/backend-core";
 import type { AppDatabase } from "@repo/database";
 import {
@@ -80,6 +81,7 @@ import { PasswordResetDeliveryService } from "./password-reset-delivery.service"
 export class AuthService {
   constructor(
     @Inject(DATABASE) private readonly database: AppDatabase,
+    private readonly configService: ConfigService,
     private readonly authRateLimitService: AuthRateLimitService,
     private readonly passwordResetDeliveryService: PasswordResetDeliveryService,
   ) {}
@@ -168,7 +170,7 @@ export class AuthService {
     if (!matchedUser) {
       return {
         success: true,
-        resetTokenPreview: AUTH_PASSWORD_RESET.PREVIEW_ENABLED ? token : null,
+        resetTokenPreview: this.isPasswordResetPreviewEnabled() ? token : null,
       };
     }
 
@@ -509,6 +511,7 @@ export class AuthService {
       activeContext: authContext.activeContext
         ? this.toAccessContextDto(authContext.activeContext)
         : null,
+      permissions: authContext.permissions,
       activeStaffRoles: authContext.activeStaffRoles.map((role) =>
         this.toStaffRoleDto(role),
       ),
@@ -676,15 +679,17 @@ export class AuthService {
   writeSessionCookie(response: Response, token: string, expiresAt: Date) {
     response.cookie(AUTH_COOKIE.NAME, token, {
       ...AUTH_COOKIE_OPTIONS,
+      domain: this.getAuthCookieDomain(),
       expires: expiresAt,
-      secure: AUTH_COOKIE.SECURE,
+      secure: this.isAuthCookieSecure(),
     });
   }
 
   clearSessionCookie(response: Response) {
     response.clearCookie(AUTH_COOKIE.NAME, {
       ...AUTH_COOKIE_OPTIONS,
-      secure: AUTH_COOKIE.SECURE,
+      domain: this.getAuthCookieDomain(),
+      secure: this.isAuthCookieSecure(),
     });
   }
 
@@ -724,6 +729,14 @@ export class AuthService {
       authSession.activeContextKey,
       availableContexts,
     );
+    const permissions = authSession.activeOrganizationId
+      ? Array.from(
+          await this.resolvePermissions(
+            authSession.user.id,
+            authSession.activeOrganizationId,
+          ),
+        ).sort()
+      : [];
     const activeStaffRoles = authSession.activeOrganizationId
       ? await this.listActiveStaffRoles(
           authSession.user.id,
@@ -742,6 +755,7 @@ export class AuthService {
       activeOrganization,
       availableContexts,
       activeContext,
+      permissions,
       activeStaffRoles,
       activeCampus,
       campuses,
@@ -1067,8 +1081,23 @@ export class AuthService {
       success: true,
       channel,
       recipient,
-      resetTokenPreview: AUTH_PASSWORD_RESET.PREVIEW_ENABLED ? token : null,
+      resetTokenPreview: this.isPasswordResetPreviewEnabled() ? token : null,
     };
+  }
+
+  private getAuthCookieDomain() {
+    return this.configService.get<string>("auth.cookieDomain", ".erp.test");
+  }
+
+  private isAuthCookieSecure() {
+    return this.configService.get<boolean>("auth.cookieSecure", true);
+  }
+
+  private isPasswordResetPreviewEnabled() {
+    return this.configService.get<boolean>(
+      "auth.passwordResetPreviewEnabled",
+      false,
+    );
   }
 
   private normalizeIdentifier(identifier: string) {

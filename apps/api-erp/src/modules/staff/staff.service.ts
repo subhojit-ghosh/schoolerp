@@ -76,10 +76,7 @@ type StaffRoleSummary = {
   slug: string;
 };
 
-type StaffWriter = Pick<
-  AppDatabase,
-  "delete" | "insert" | "select" | "update"
->;
+type StaffWriter = Pick<AppDatabase, "delete" | "insert" | "select" | "update">;
 
 type ScopeInput = {
   campusId?: string;
@@ -225,7 +222,10 @@ export class StaffService {
       scopes,
     );
 
-    const selectedCampus = await this.getCampus(institutionId, payload.campusId);
+    const selectedCampus = await this.getCampus(
+      institutionId,
+      payload.campusId,
+    );
 
     const createResult = await this.db.transaction(async (tx) => {
       const resolvedUser = await this.findOrCreateUser(tx, payload);
@@ -312,7 +312,10 @@ export class StaffService {
       scopes,
     );
 
-    const selectedCampus = await this.getCampus(institutionId, payload.campusId);
+    const selectedCampus = await this.getCampus(
+      institutionId,
+      payload.campusId,
+    );
 
     await this.db.transaction(async (tx) => {
       const resolvedUserId = await this.reconcileUserIdentity(
@@ -406,7 +409,9 @@ export class StaffService {
         );
 
       if (activeAssignments.length > 0) {
-        const assignmentIds = activeAssignments.map((assignment) => assignment.id);
+        const assignmentIds = activeAssignments.map(
+          (assignment) => assignment.id,
+        );
 
         await tx
           .delete(membershipRoleScopes)
@@ -484,7 +489,9 @@ export class StaffService {
       staffMembership.id,
     );
 
-    const createdAssignment = assignments.find((item) => item.id === assignmentId);
+    const createdAssignment = assignments.find(
+      (item) => item.id === assignmentId,
+    );
     if (!createdAssignment) {
       throw new NotFoundException(
         ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_NOT_FOUND,
@@ -553,7 +560,10 @@ export class StaffService {
       conditions.push(eq(member.id, staffId));
     }
 
-    const visibleCampusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+    const visibleCampusFilter = campusScopeFilter(
+      member.primaryCampusId,
+      scopes,
+    );
     if (visibleCampusFilter) {
       conditions.push(visibleCampusFilter);
     }
@@ -585,7 +595,10 @@ export class StaffService {
       .from(roles)
       .where(
         and(
-          or(isNull(roles.institutionId), eq(roles.institutionId, institutionId)),
+          or(
+            isNull(roles.institutionId),
+            eq(roles.institutionId, institutionId),
+          ),
           isNull(roles.deletedAt),
         ),
       )
@@ -663,8 +676,12 @@ export class StaffService {
             .where(inArray(classSections.id, sectionIds)),
     ]);
 
-    const campusNameById = new Map(campusRows.map((item) => [item.id, item.name]));
-    const classNameById = new Map(classRows.map((item) => [item.id, item.name]));
+    const campusNameById = new Map(
+      campusRows.map((item) => [item.id, item.name]),
+    );
+    const classNameById = new Map(
+      classRows.map((item) => [item.id, item.name]),
+    );
     const sectionNameById = new Map(
       sectionRows.map((item) => [item.id, item.name]),
     );
@@ -805,7 +822,10 @@ export class StaffService {
       .where(
         and(
           eq(roles.id, roleId),
-          or(isNull(roles.institutionId), eq(roles.institutionId, institutionId)),
+          or(
+            isNull(roles.institutionId),
+            eq(roles.institutionId, institutionId),
+          ),
           isNull(roles.deletedAt),
         ),
       )
@@ -877,7 +897,10 @@ export class StaffService {
       ne(member.status, STATUS.MEMBER.DELETED),
     ];
 
-    const visibleCampusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+    const visibleCampusFilter = campusScopeFilter(
+      member.primaryCampusId,
+      scopes,
+    );
     if (visibleCampusFilter) {
       conditions.push(visibleCampusFilter);
     }
@@ -945,13 +968,21 @@ export class StaffService {
       ? await this.getSection(institutionId, payload.sectionId)
       : null;
 
-    if (selectedCampus && selectedClass && selectedClass.campusId !== selectedCampus.id) {
+    if (
+      selectedCampus &&
+      selectedClass &&
+      selectedClass.campusId !== selectedCampus.id
+    ) {
       throw new BadRequestException(
         ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_SCOPE_MISMATCH,
       );
     }
 
-    if (selectedClass && selectedSection && selectedSection.classId !== selectedClass.id) {
+    if (
+      selectedClass &&
+      selectedSection &&
+      selectedSection.classId !== selectedClass.id
+    ) {
       throw new BadRequestException(
         ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_SCOPE_MISMATCH,
       );
@@ -1062,15 +1093,19 @@ export class StaffService {
     for (const assignment of assignmentRows) {
       const existingScope = scopeMap.get(assignment.assignmentId) ?? {};
       if (this.buildScopeKey(existingScope) === requestedKey) {
-        throw new ConflictException(ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_EXISTS);
+        throw new ConflictException(
+          ERROR_MESSAGES.STAFF.ROLE_ASSIGNMENT_EXISTS,
+        );
       }
     }
   }
 
   private buildScopeKey(scope: ScopeInput) {
-    return [scope.campusId ?? "", scope.classId ?? "", scope.sectionId ?? ""].join(
-      "::",
-    );
+    return [
+      scope.campusId ?? "",
+      scope.classId ?? "",
+      scope.sectionId ?? "",
+    ].join("::");
   }
 
   private buildMembershipRoleScopeRows(

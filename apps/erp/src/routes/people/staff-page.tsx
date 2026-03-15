@@ -396,7 +396,9 @@ export function StaffPage() {
           emptyAction={
             !isFiltered ? (
               <EntityEmptyStateAction asChild>
-                <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
+                <Link
+                  to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}
+                >
                   <IconPlus className="size-4" />
                   New staff member
                 </Link>

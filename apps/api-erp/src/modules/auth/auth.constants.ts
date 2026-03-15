@@ -13,7 +13,6 @@ export const AUTH_COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: AUTH_COOKIE.SAME_SITE,
   path: AUTH_COOKIE.PATH,
-  domain: AUTH_COOKIE.DOMAIN,
 } as const;
 
 export const AUTH_FIELDS = AUTH_FIELD_NAMES;

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
+import { PERMISSIONS } from "@repo/contracts";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Input } from "@repo/ui/components/ui/input";
 import {
@@ -23,6 +24,7 @@ import { SORT_ORDERS } from "@/constants/query";
 import { ERP_ROUTES } from "@/constants/routes";
 import {
   getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -58,7 +60,9 @@ export function CampusesPage() {
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
   const activeCampusId = session?.activeCampus?.id;
-  const canManageCampuses = isStaffContext(session);
+  const canManageCampuses =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.CAMPUS_MANAGE);
   const managedInstitutionId = canManageCampuses ? institutionId : undefined;
   const {
     queryState,
@@ -199,8 +203,9 @@ export function CampusesPage() {
         <CardHeader>
           <CardTitle>{CAMPUSES_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Campus management is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            {isStaffContext(session)
+              ? "You do not have permission to manage campuses for this institution."
+              : `Campus management is available in Staff view. You are currently in ${activeContext?.label ?? "another"} view.`}
           </CardDescription>
         </CardHeader>
       </Card>

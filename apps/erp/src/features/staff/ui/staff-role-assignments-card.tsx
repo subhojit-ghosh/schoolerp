@@ -87,11 +87,9 @@ type StaffRoleAssignmentsCardProps = {
 };
 
 function formatScopeLabel(scope: StaffRoleAssignment["scope"]) {
-  const labels = [
-    scope.campusName,
-    scope.className,
-    scope.sectionName,
-  ].filter(Boolean);
+  const labels = [scope.campusName, scope.className, scope.sectionName].filter(
+    Boolean,
+  );
 
   if (labels.length === 0) {
     return "Institution-wide access";
@@ -319,10 +317,7 @@ export function StaffRoleAssignmentsCard({
                 <Field data-invalid={fieldState.invalid || undefined}>
                   <FieldLabel>Role</FieldLabel>
                   <FieldContent>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select role" />
                       </SelectTrigger>
@@ -409,7 +404,10 @@ export function StaffRoleAssignmentsCard({
                             All classes in selected campus
                           </SelectItem>
                           {classOptions.map((classOption) => (
-                            <SelectItem key={classOption.id} value={classOption.id}>
+                            <SelectItem
+                              key={classOption.id}
+                              value={classOption.id}
+                            >
                               {classOption.name}
                             </SelectItem>
                           ))}

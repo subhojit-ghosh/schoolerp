@@ -53,7 +53,7 @@ function Button({
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
-}) {
+  }) {
   const Comp = asChild ? Slot.Root : "button";
   const resolvedVariant = variant ?? "default";
 
@@ -62,7 +62,9 @@ function Button({
       data-slot="button"
       data-variant={resolvedVariant}
       data-size={size}
-      className={cn(buttonVariants({ variant: resolvedVariant, size, className }))}
+      className={cn(
+        buttonVariants({ variant: resolvedVariant, size, className }),
+      )}
       style={{
         ...(resolvedVariant in BUTTON_VARIANT_FOREGROUND_STYLES
           ? BUTTON_VARIANT_FOREGROUND_STYLES[

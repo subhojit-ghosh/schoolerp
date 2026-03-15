@@ -1,6 +1,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { apiQueryClient } from "@/lib/api/client";
-import { PERMISSIONS_API_PATHS, ROLES_API_PATHS } from "@/features/auth/api/auth.constants";
+import {
+  PERMISSIONS_API_PATHS,
+  ROLES_API_PATHS,
+} from "@/features/auth/api/auth.constants";
 
 export function useRolesQuery(enabled: boolean) {
   return apiQueryClient.useQuery("get", ROLES_API_PATHS.LIST, undefined, {

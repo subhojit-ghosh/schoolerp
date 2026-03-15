@@ -247,7 +247,9 @@ export function SiteHeader() {
                       Quick look at new updates across academics and operations.
                     </p>
                   </div>
-                  <Badge variant="outline">{NOTIFICATION_UNREAD_COUNT} new</Badge>
+                  <Badge variant="outline">
+                    {NOTIFICATION_UNREAD_COUNT} new
+                  </Badge>
                 </div>
               </div>
 
@@ -263,7 +265,9 @@ export function SiteHeader() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <p className="truncate text-sm font-medium">{item.title}</p>
+                          <p className="truncate text-sm font-medium">
+                            {item.title}
+                          </p>
                           {item.actionRequired ? (
                             <Badge variant="destructive">Action</Badge>
                           ) : null}
