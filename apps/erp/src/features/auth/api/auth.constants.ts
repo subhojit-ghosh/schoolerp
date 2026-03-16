@@ -88,10 +88,24 @@ export const INSTITUTIONS_API_PATHS = {
 export const FEES_API_PATHS = {
   LIST_STRUCTURES: "/fees/structures",
   CREATE_STRUCTURE: "/fees/structures",
+  GET_STRUCTURE: "/fees/structures/{feeStructureId}",
+  UPDATE_STRUCTURE: "/fees/structures/{feeStructureId}",
+  SET_STRUCTURE_STATUS: "/fees/structures/{feeStructureId}/status",
+  DELETE_STRUCTURE: "/fees/structures/{feeStructureId}",
+  DUPLICATE_STRUCTURE: "/fees/structures/{feeStructureId}/duplicate",
+  CREATE_NEXT_STRUCTURE_VERSION:
+    "/fees/structures/{feeStructureId}/create-next-version",
   LIST_ASSIGNMENTS: "/fees/assignments",
   CREATE_ASSIGNMENT: "/fees/assignments",
+  BULK_ASSIGN: "/fees/assignments/bulk",
+  GET_ASSIGNMENT: "/fees/assignments/{feeAssignmentId}",
+  CREATE_ADJUSTMENT: "/fees/assignments/{feeAssignmentId}/adjustments",
+  UPDATE_ASSIGNMENT: "/fees/assignments/{feeAssignmentId}",
+  DELETE_ASSIGNMENT: "/fees/assignments/{feeAssignmentId}",
   CREATE_PAYMENT: "/fees/payments",
+  REVERSE_PAYMENT: "/fees/payments/{feePaymentId}/reverse",
   LIST_DUES: "/fees/dues",
+  COLLECTION_SUMMARY: "/fees/reports/collection-summary",
 } as const;
 
 export const ROLES_API_PATHS = {

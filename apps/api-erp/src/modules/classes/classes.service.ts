@@ -9,6 +9,7 @@ import type { AppDatabase } from "@repo/database";
 import {
   campus,
   classSections,
+  member,
   schoolClasses,
   studentCurrentEnrollments,
   students,
@@ -482,11 +483,12 @@ export class ClassesService {
     const [enrolledStudent] = await this.db
       .select({ id: students.id })
       .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
       .where(
         and(
           eq(students.classId, classId),
           eq(students.institutionId, institutionId),
-          isNull(students.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .limit(1);
@@ -522,11 +524,12 @@ export class ClassesService {
     const [enrolledStudent] = await db
       .select({ id: students.id })
       .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
       .where(
         and(
           eq(students.institutionId, institutionId),
           inArray(students.sectionId, sectionIds),
-          isNull(students.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .limit(1);

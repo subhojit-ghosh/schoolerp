@@ -31,6 +31,7 @@ import { and, eq, gt, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Response } from "express";
+import { alias } from "drizzle-orm/pg-core";
 import {
   AUTH_COOKIE,
   AUTH_PASSWORD_RESET,
@@ -586,7 +587,6 @@ export class AuthService {
             isNull(membershipRoles.validTo),
             sql`${membershipRoles.validTo} >= ${today}`,
           ),
-          isNull(membershipRoles.deletedAt),
         ),
       );
 
@@ -840,8 +840,6 @@ export class AuthService {
             isNull(membershipRoles.validTo),
             sql`${membershipRoles.validTo} >= ${today}`,
           ),
-          isNull(membershipRoles.deletedAt),
-          isNull(roles.deletedAt),
         ),
       )
       .groupBy(roles.id, roles.name, roles.slug)
@@ -861,6 +859,8 @@ export class AuthService {
     userId: string,
     organizationId: string,
   ): Promise<AuthenticatedLinkedStudent[]> {
+    const studentMember = alias(member, "student_member");
+
     const linkedRows = await this.database
       .select({
         studentId: students.id,
@@ -876,13 +876,14 @@ export class AuthService {
         students,
         eq(studentGuardianLinks.studentMembershipId, students.membershipId),
       )
+      .innerJoin(studentMember, eq(students.membershipId, studentMember.id))
       .where(
         and(
           eq(member.userId, userId),
           eq(member.organizationId, organizationId),
           ne(member.status, STATUS.MEMBER.DELETED),
+          ne(studentMember.status, STATUS.MEMBER.DELETED),
           isNull(studentGuardianLinks.deletedAt),
-          isNull(students.deletedAt),
         ),
       );
 

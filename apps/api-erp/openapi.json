@@ -2346,17 +2346,97 @@
     "/fees/structures": {
       "get": {
         "operationId": "FeesController_listFeeStructures",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "dueDate",
+                "amount",
+                "academicYear"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
+            }
+          },
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string",
+              "enum": [
+                "active",
+                "archived"
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FeeStructureDto"
-                  }
+                  "$ref": "#/components/schemas/PaginatedFeeStructureDto"
                 }
               }
             }
@@ -2367,7 +2447,7 @@
             "cookie": []
           }
         ],
-        "summary": "List fee structures for the current tenant institution",
+        "summary": "List fee structures for the current tenant",
         "tags": [
           "fees"
         ]
@@ -2408,20 +2488,26 @@
         ]
       }
     },
-    "/fees/assignments": {
+    "/fees/structures/{feeStructureId}": {
       "get": {
-        "operationId": "FeesController_listFeeAssignments",
-        "parameters": [],
+        "operationId": "FeesController_getFeeStructure",
+        "parameters": [
+          {
+            "name": "feeStructureId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FeeAssignmentDto"
-                  }
+                  "$ref": "#/components/schemas/FeeStructureDetailDto"
                 }
               }
             }
@@ -2432,7 +2518,298 @@
             "cookie": []
           }
         ],
-        "summary": "List fee assignments for the current tenant institution",
+        "summary": "Get a fee structure with collection summary",
+        "tags": [
+          "fees"
+        ]
+      },
+      "patch": {
+        "operationId": "FeesController_updateFeeStructure",
+        "parameters": [
+          {
+            "name": "feeStructureId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFeeStructureBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeeStructureDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a fee structure",
+        "tags": [
+          "fees"
+        ]
+      },
+      "delete": {
+        "operationId": "FeesController_deleteFeeStructure",
+        "parameters": [
+          {
+            "name": "feeStructureId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Delete a fee structure (only if no active assignments)",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/structures/{feeStructureId}/duplicate": {
+      "post": {
+        "operationId": "FeesController_duplicateFeeStructure",
+        "parameters": [
+          {
+            "name": "feeStructureId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeeStructureDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Duplicate a fee structure",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/structures/{feeStructureId}/create-next-version": {
+      "post": {
+        "operationId": "FeesController_createNextFeeStructureVersion",
+        "parameters": [
+          {
+            "name": "feeStructureId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeeStructureDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create the next version of a fee structure",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/structures/{feeStructureId}/status": {
+      "patch": {
+        "operationId": "FeesController_setFeeStructureStatus",
+        "parameters": [
+          {
+            "name": "feeStructureId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetFeeStructureStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeeStructureDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Set a fee structure status",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/assignments": {
+      "get": {
+        "operationId": "FeesController_listFeeAssignments",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "studentName",
+                "dueDate",
+                "status",
+                "amount"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "feeStructureId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string",
+              "enum": [
+                "pending",
+                "partial",
+                "paid"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedFeeAssignmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List fee assignments for the current tenant",
         "tags": [
           "fees"
         ]
@@ -2456,7 +2833,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/FeeAssignmentDto"
+                  "$ref": "#/components/schemas/CreateFeeAssignmentResultDto"
                 }
               }
             }
@@ -2468,6 +2845,196 @@
           }
         ],
         "summary": "Assign a fee structure to a student",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/assignments/{feeAssignmentId}": {
+      "get": {
+        "operationId": "FeesController_getFeeAssignment",
+        "parameters": [
+          {
+            "name": "feeAssignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeeAssignmentDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a fee assignment with payment history",
+        "tags": [
+          "fees"
+        ]
+      },
+      "patch": {
+        "operationId": "FeesController_updateFeeAssignment",
+        "parameters": [
+          {
+            "name": "feeAssignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFeeAssignmentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeeAssignmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a fee assignment",
+        "tags": [
+          "fees"
+        ]
+      },
+      "delete": {
+        "operationId": "FeesController_deleteFeeAssignment",
+        "parameters": [
+          {
+            "name": "feeAssignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Delete a fee assignment (only if no payments recorded)",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/assignments/{feeAssignmentId}/adjustments": {
+      "post": {
+        "operationId": "FeesController_createFeeAdjustment",
+        "parameters": [
+          {
+            "name": "feeAssignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFeeAdjustmentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeeAdjustmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Apply a concession or waiver to a fee assignment",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/assignments/bulk": {
+      "post": {
+        "operationId": "FeesController_createBulkFeeAssignment",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkFeeAssignmentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkFeeAssignmentResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Bulk-assign a fee structure to all students in a class",
         "tags": [
           "fees"
         ]
@@ -2510,20 +3077,124 @@
         ]
       }
     },
+    "/fees/payments/{feePaymentId}/reverse": {
+      "post": {
+        "operationId": "FeesController_reverseFeePayment",
+        "parameters": [
+          {
+            "name": "feePaymentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReverseFeePaymentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeePaymentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Reverse a recorded fee payment",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
     "/fees/dues": {
       "get": {
         "operationId": "FeesController_listFeeDues",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "studentName",
+                "dueDate",
+                "status",
+                "amount"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "overdue",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "boolean"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FeeAssignmentDto"
-                  }
+                  "$ref": "#/components/schemas/PaginatedFeeAssignmentDto"
                 }
               }
             }
@@ -2535,6 +3206,52 @@
           }
         ],
         "summary": "List outstanding fee dues for the current tenant",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/reports/collection-summary": {
+      "get": {
+        "operationId": "FeesController_getCollectionSummary",
+        "parameters": [
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
+            }
+          },
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CollectionSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get fee collection summary grouped by structure",
         "tags": [
           "fees"
         ]
@@ -5444,6 +6161,33 @@
           "entries"
         ]
       },
+      "FeeStructureInstallmentDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string"
+          },
+          "amountInPaise": {
+            "type": "number"
+          },
+          "dueDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sortOrder",
+          "label",
+          "amountInPaise",
+          "dueDate"
+        ]
+      },
       "FeeStructureDto": {
         "type": "object",
         "properties": {
@@ -5465,6 +6209,20 @@
               "institution",
               "campus"
             ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived",
+              "deleted"
+            ]
+          },
+          "installments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeStructureInstallmentDto"
+            }
           },
           "createdAt": {
             "type": "string",
@@ -5490,10 +6248,15 @@
           },
           "dueDate": {
             "type": "string"
+          },
+          "installmentCount": {
+            "type": "number"
           }
         },
         "required": [
           "scope",
+          "status",
+          "installments",
           "createdAt",
           "id",
           "institutionId",
@@ -5501,6 +6264,160 @@
           "academicYearName",
           "name",
           "amountInPaise",
+          "dueDate",
+          "installmentCount"
+        ]
+      },
+      "PaginatedFeeStructureDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeStructureDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "FeeStructureDetailDto": {
+        "type": "object",
+        "properties": {
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "institution",
+              "campus"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived",
+              "deleted"
+            ]
+          },
+          "installments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeStructureInstallmentDto"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lockReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "assignmentCount": {
+            "type": "number"
+          },
+          "totalAssignedInPaise": {
+            "type": "number"
+          },
+          "totalPaidInPaise": {
+            "type": "number"
+          },
+          "totalOutstandingInPaise": {
+            "type": "number"
+          },
+          "isInstallmentLocked": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "amountInPaise": {
+            "type": "number"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "installmentCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "scope",
+          "status",
+          "installments",
+          "createdAt",
+          "assignmentCount",
+          "totalAssignedInPaise",
+          "totalPaidInPaise",
+          "totalOutstandingInPaise",
+          "isInstallmentLocked",
+          "id",
+          "institutionId",
+          "academicYearId",
+          "academicYearName",
+          "name",
+          "amountInPaise",
+          "dueDate",
+          "installmentCount"
+        ]
+      },
+      "FeeStructureInstallmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "dueDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "amount",
           "dueDate"
         ]
       },
@@ -5522,30 +6439,70 @@
               "campus"
             ]
           },
+          "installments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeStructureInstallmentBodyDto"
+            }
+          },
           "academicYearId": {
             "type": "string"
           },
           "name": {
             "type": "string"
-          },
-          "amount": {
-            "type": "number"
-          },
-          "dueDate": {
-            "type": "string"
           }
         },
         "required": [
           "scope",
+          "installments",
           "academicYearId",
-          "name",
-          "amount",
-          "dueDate"
+          "name"
+        ]
+      },
+      "UpdateFeeStructureBodyDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "installments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeStructureInstallmentBodyDto"
+            }
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "SetFeeStructureStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived"
+            ]
+          }
+        },
+        "required": [
+          "status"
         ]
       },
       "FeeAssignmentDto": {
         "type": "object",
         "properties": {
+          "installmentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "installmentLabel": {
+            "type": "string",
+            "nullable": true
+          },
           "campusName": {
             "type": "string",
             "nullable": true
@@ -5578,6 +6535,9 @@
           "feeStructureName": {
             "type": "string"
           },
+          "installmentSortOrder": {
+            "type": "number"
+          },
           "studentId": {
             "type": "string"
           },
@@ -5588,6 +6548,9 @@
             "type": "string"
           },
           "assignedAmountInPaise": {
+            "type": "number"
+          },
+          "adjustedAmountInPaise": {
             "type": "number"
           },
           "paidAmountInPaise": {
@@ -5610,10 +6573,244 @@
           "institutionId",
           "feeStructureId",
           "feeStructureName",
+          "installmentSortOrder",
           "studentId",
           "studentAdmissionNumber",
           "studentFullName",
           "assignedAmountInPaise",
+          "adjustedAmountInPaise",
+          "paidAmountInPaise",
+          "outstandingAmountInPaise",
+          "paymentCount",
+          "dueDate"
+        ]
+      },
+      "PaginatedFeeAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeAssignmentDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "FeePaymentDto": {
+        "type": "object",
+        "properties": {
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "cash",
+              "upi",
+              "bank_transfer",
+              "card"
+            ]
+          },
+          "referenceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "reversalReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "feeAssignmentId": {
+            "type": "string"
+          },
+          "amountInPaise": {
+            "type": "number"
+          },
+          "paymentDate": {
+            "type": "string"
+          },
+          "reversedAt": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "paymentMethod",
+          "createdAt",
+          "id",
+          "institutionId",
+          "feeAssignmentId",
+          "amountInPaise",
+          "paymentDate",
+          "reversedAt"
+        ]
+      },
+      "FeeAdjustmentDto": {
+        "type": "object",
+        "properties": {
+          "adjustmentType": {
+            "type": "string",
+            "enum": [
+              "waiver",
+              "discount"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "feeAssignmentId": {
+            "type": "string"
+          },
+          "amountInPaise": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "adjustmentType",
+          "createdAt",
+          "id",
+          "feeAssignmentId",
+          "amountInPaise"
+        ]
+      },
+      "FeeAssignmentDetailDto": {
+        "type": "object",
+        "properties": {
+          "installmentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "installmentLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "partial",
+              "paid"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "payments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeePaymentDto"
+            }
+          },
+          "adjustments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeAdjustmentDto"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "feeStructureId": {
+            "type": "string"
+          },
+          "feeStructureName": {
+            "type": "string"
+          },
+          "installmentSortOrder": {
+            "type": "number"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentAdmissionNumber": {
+            "type": "string"
+          },
+          "studentFullName": {
+            "type": "string"
+          },
+          "assignedAmountInPaise": {
+            "type": "number"
+          },
+          "adjustedAmountInPaise": {
+            "type": "number"
+          },
+          "paidAmountInPaise": {
+            "type": "number"
+          },
+          "outstandingAmountInPaise": {
+            "type": "number"
+          },
+          "paymentCount": {
+            "type": "number"
+          },
+          "dueDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "createdAt",
+          "payments",
+          "adjustments",
+          "id",
+          "institutionId",
+          "feeStructureId",
+          "feeStructureName",
+          "installmentSortOrder",
+          "studentId",
+          "studentAdmissionNumber",
+          "studentFullName",
+          "assignedAmountInPaise",
+          "adjustedAmountInPaise",
           "paidAmountInPaise",
           "outstandingAmountInPaise",
           "paymentCount",
@@ -5632,6 +6829,94 @@
           },
           "studentId": {
             "type": "string"
+          }
+        },
+        "required": [
+          "feeStructureId",
+          "studentId"
+        ]
+      },
+      "CreateFeeAssignmentResultDto": {
+        "type": "object",
+        "properties": {
+          "assignments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeAssignmentDto"
+            }
+          }
+        },
+        "required": [
+          "assignments"
+        ]
+      },
+      "CreateFeeAdjustmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "adjustmentType": {
+            "type": "string",
+            "enum": [
+              "waiver",
+              "discount"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "feeAssignmentId": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "adjustmentType",
+          "feeAssignmentId",
+          "amount"
+        ]
+      },
+      "BulkFeeAssignmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "feeStructureId": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "feeStructureId",
+          "classId"
+        ]
+      },
+      "BulkFeeAssignmentResultDto": {
+        "type": "object",
+        "properties": {
+          "created": {
+            "type": "number"
+          },
+          "skipped": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "created",
+          "skipped"
+        ]
+      },
+      "UpdateFeeAssignmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "type": "string",
+            "nullable": true
           },
           "amount": {
             "type": "number"
@@ -5639,13 +6924,7 @@
           "dueDate": {
             "type": "string"
           }
-        },
-        "required": [
-          "feeStructureId",
-          "studentId",
-          "amount",
-          "dueDate"
-        ]
+        }
       },
       "CreateFeePaymentBodyDto": {
         "type": "object",
@@ -5684,54 +6963,82 @@
           "paymentDate"
         ]
       },
-      "FeePaymentDto": {
+      "ReverseFeePaymentBodyDto": {
         "type": "object",
         "properties": {
-          "paymentMethod": {
+          "reason": {
             "type": "string",
-            "enum": [
-              "cash",
-              "upi",
-              "bank_transfer",
-              "card"
-            ]
-          },
-          "referenceNumber": {
+            "nullable": true
+          }
+        }
+      },
+      "CollectionSummaryItemDto": {
+        "type": "object",
+        "properties": {
+          "campusName": {
             "type": "string",
             "nullable": true
           },
-          "notes": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "id": {
+          "feeStructureId": {
             "type": "string"
           },
-          "institutionId": {
+          "feeStructureName": {
             "type": "string"
           },
-          "feeAssignmentId": {
+          "academicYearName": {
             "type": "string"
           },
-          "amountInPaise": {
+          "assignmentCount": {
             "type": "number"
           },
-          "paymentDate": {
-            "type": "string"
+          "totalAssignedInPaise": {
+            "type": "number"
+          },
+          "totalPaidInPaise": {
+            "type": "number"
+          },
+          "totalOutstandingInPaise": {
+            "type": "number"
           }
         },
         "required": [
-          "paymentMethod",
-          "createdAt",
-          "id",
-          "institutionId",
-          "feeAssignmentId",
-          "amountInPaise",
-          "paymentDate"
+          "feeStructureId",
+          "feeStructureName",
+          "academicYearName",
+          "assignmentCount",
+          "totalAssignedInPaise",
+          "totalPaidInPaise",
+          "totalOutstandingInPaise"
+        ]
+      },
+      "CollectionSummaryDto": {
+        "type": "object",
+        "properties": {
+          "byStructure": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CollectionSummaryItemDto"
+            }
+          },
+          "totalAssignedInPaise": {
+            "type": "number"
+          },
+          "totalPaidInPaise": {
+            "type": "number"
+          },
+          "totalOutstandingInPaise": {
+            "type": "number"
+          },
+          "overdueCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "byStructure",
+          "totalAssignedInPaise",
+          "totalPaidInPaise",
+          "totalOutstandingInPaise",
+          "overdueCount"
         ]
       },
       "RolePermissionDto": {

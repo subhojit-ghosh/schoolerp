@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@repo/ui/components/ui/button";
 import {
   Field,
   FieldContent,
@@ -19,34 +18,70 @@ import {
   SelectValue,
 } from "@repo/ui/components/ui/select";
 import {
+  EntityFormPrimaryAction,
+  EntityFormSecondaryAction,
+} from "@/components/entities/entity-actions";
+import {
   feeAssignmentFormSchema,
+  feeAssignmentUpdateFormSchema,
   type FeeAssignmentFormValues,
+  type FeeAssignmentUpdateFormValues,
 } from "@/features/fees/model/fee-form-schema";
+import {
+  formatFeeDate,
+  formatRupees,
+} from "@/features/fees/model/fee-formatters";
 
 type Option = {
   id: string;
   label: string;
 };
 
+type InstallmentPreview = {
+  label: string;
+  amountInPaise: number;
+  dueDate: string;
+};
+
 type FeeAssignmentFormProps = {
+  mode: "create" | "edit";
   structures: Option[];
   students: Option[];
-  defaultValues: FeeAssignmentFormValues;
+  defaultValues: FeeAssignmentFormValues | FeeAssignmentUpdateFormValues;
   errorMessage?: string;
+  installmentPreview?: InstallmentPreview[];
   isPending?: boolean;
-  onSubmit: (values: FeeAssignmentFormValues) => Promise<void> | void;
+  lockStudent?: boolean;
+  lockStructure?: boolean;
+  onCancel?: () => void;
+  onStructureChange?: (feeStructureId: string) => void;
+  onSubmit: (
+    values: FeeAssignmentFormValues | FeeAssignmentUpdateFormValues,
+  ) => Promise<void> | void;
+  submitLabel: string;
 };
 
 export function FeeAssignmentForm({
+  mode,
   structures,
   students,
   defaultValues,
   errorMessage,
+  installmentPreview,
   isPending = false,
+  lockStudent = false,
+  lockStructure = false,
+  onCancel,
+  onStructureChange,
   onSubmit,
+  submitLabel,
 }: FeeAssignmentFormProps) {
-  const { control, handleSubmit, reset } = useForm<FeeAssignmentFormValues>({
-    resolver: zodResolver(feeAssignmentFormSchema),
+  const { control, handleSubmit, reset } = useForm<
+    FeeAssignmentFormValues | FeeAssignmentUpdateFormValues
+  >({
+    resolver: zodResolver(
+      mode === "create" ? feeAssignmentFormSchema : feeAssignmentUpdateFormSchema,
+    ),
     defaultValues,
   });
 
@@ -57,88 +92,94 @@ export function FeeAssignmentForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <FieldGroup className="gap-4">
-        <Controller
-          control={control}
-          name="feeStructureId"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel>Fee structure</FieldLabel>
-              <FieldContent>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value || undefined}
-                >
-                  <SelectTrigger aria-invalid={fieldState.invalid}>
-                    <SelectValue placeholder="Select structure" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {structures.map((structure) => (
-                        <SelectItem key={structure.id} value={structure.id}>
-                          {structure.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </FieldContent>
-            </Field>
-          )}
-        />
-
-        <Controller
-          control={control}
-          name="studentId"
-          render={({ field, fieldState }) => (
-            <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel>Student</FieldLabel>
-              <FieldContent>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value || undefined}
-                >
-                  <SelectTrigger aria-invalid={fieldState.invalid}>
-                    <SelectValue placeholder="Select student" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {students.map((student) => (
-                        <SelectItem key={student.id} value={student.id}>
-                          {student.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </FieldContent>
-            </Field>
-          )}
-        />
-
-        <div className="grid gap-4 md:grid-cols-2">
+        {mode === "create" ? (
           <Controller
             control={control}
-            name="amount"
+            name="feeStructureId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Assigned amount</FieldLabel>
+                <FieldLabel>Fee structure</FieldLabel>
                 <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    inputMode="decimal"
-                    min="0"
-                    step="0.01"
-                    type="number"
-                  />
+                  <Select
+                    disabled={lockStructure}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                      onStructureChange?.(value);
+                    }}
+                    value={field.value || undefined}
+                  >
+                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Select fee structure" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {structures.map((structure) => (
+                          <SelectItem key={structure.id} value={structure.id}>
+                            {structure.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
               </Field>
             )}
           />
+        ) : null}
 
+        {installmentPreview && installmentPreview.length > 0 ? (
+          <div className="rounded-md border bg-muted/30 p-3 space-y-1.5">
+            <p className="text-xs font-medium text-muted-foreground">
+              Payment schedule ({installmentPreview.length} installment
+              {installmentPreview.length !== 1 ? "s" : ""})
+            </p>
+            {installmentPreview.map((inst, i) => (
+              <div key={i} className="flex items-center justify-between text-sm">
+                <span>{inst.label}</span>
+                <span className="text-muted-foreground">
+                  {formatRupees(inst.amountInPaise)} · due{" "}
+                  {formatFeeDate(inst.dueDate)}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {mode === "create" ? (
+          <Controller
+            control={control}
+            name="studentId"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel>Student</FieldLabel>
+                <FieldContent>
+                  <Select
+                    disabled={lockStudent}
+                    onValueChange={field.onChange}
+                    value={field.value || undefined}
+                  >
+                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Select student" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {students.map((student) => (
+                          <SelectItem key={student.id} value={student.id}>
+                            {student.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+        ) : null}
+
+        {mode === "edit" ? (
           <Controller
             control={control}
             name="dueDate"
@@ -146,17 +187,13 @@ export function FeeAssignmentForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Due date</FieldLabel>
                 <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    type="date"
-                  />
+                  <Input {...field} aria-invalid={fieldState.invalid} type="date" />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
               </Field>
             )}
           />
-        </div>
+        ) : null}
 
         <Controller
           control={control}
@@ -176,11 +213,24 @@ export function FeeAssignmentForm({
           )}
         />
 
-        <FieldError>{errorMessage}</FieldError>
+        {errorMessage ? (
+          <p className="text-sm text-destructive">{errorMessage}</p>
+        ) : null}
 
-        <Button disabled={isPending} type="submit">
-          {isPending ? "Saving..." : "Assign fee"}
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <EntityFormPrimaryAction disabled={isPending} type="submit">
+            {isPending ? "Saving..." : submitLabel}
+          </EntityFormPrimaryAction>
+          {onCancel ? (
+            <EntityFormSecondaryAction
+              disabled={isPending}
+              onClick={onCancel}
+              type="button"
+            >
+              Cancel
+            </EntityFormSecondaryAction>
+          ) : null}
+        </div>
       </FieldGroup>
     </form>
   );

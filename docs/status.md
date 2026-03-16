@@ -38,12 +38,13 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Staff** — list, create, edit, detail; campus assignment; role assignment; active/inactive toggle; password-setup issuance on create
 - **Guardians** — list, detail, edit; linked-student relationship management
 - **Roles** — list, create, edit, delete; grouped permission picker; system role display
+- **Fees** — fee structures list/create/edit/archive/delete, single and bulk assignment, dues view, payment collection, concessions, payment reversal, and filtered collection reporting
+  - Fee assignments now use hard delete guardrails (blocked when payments/adjustments exist) to avoid hidden soft-deleted blockers during installment/version workflows
 
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
 - **Dashboard** — exists but shows almost no data. Only student count is live. No attendance summary, no fees outstanding, no staff count. Attendance quick-action is disabled ("Coming soon").
 - **Attendance** — backend works, frontend form works, but: (1) attendance link is disabled in dashboard, (2) class selector shows raw IDs not names. Not usable by a teacher as-is.
-- **Fees** — backend works, but frontend is three raw creation forms on one page. No structured list of fee categories, no proper assign-then-collect workflow. Not usable by a school admin as-is.
 - **Exams** — backend has term create/list and batch marks entry. Frontend has term creation and marks entry form. No grading scheme, no report card, no subject-wise breakdown visible to a parent or student.
 
 ## In Progress
@@ -55,7 +56,6 @@ Keep this file evidence-based. Do not use it as a roadmap.
 
 - **Dashboard** real metrics: today's attendance summary, outstanding fees total, staff count
 - **Attendance** class name display fix; enable nav link; teacher-friendly daily flow
-- **Fees** proper list/assign/collect workflow replacing the current raw-form page
 - **Exams** grading scheme, subject-wise marks, report card view per student per term
 - **Student detail** unified view: profile, enrollment, attendance record, fee status, exam results
 - **SMS/email delivery** for password reset and staff onboarding links

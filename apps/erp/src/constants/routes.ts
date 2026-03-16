@@ -1,6 +1,9 @@
 export const ERP_ROUTE_SEGMENTS = {
   NEW: "new",
   EDIT: "edit",
+  BULK: "bulk",
+  COLLECT: "collect",
+  ADJUSTMENT: "adjustment",
 } as const;
 
 export const ERP_ROUTES = {
@@ -33,6 +36,17 @@ export const ERP_ROUTES = {
   EXAMS: "/exams",
   // Finance
   FEES: "/fees",
+  FEE_STRUCTURES: "/fees/structures",
+  FEE_STRUCTURE_CREATE: `/fees/structures/new`,
+  FEE_STRUCTURE_EDIT: `/fees/structures/:feeStructureId/edit`,
+  FEE_ASSIGNMENTS: "/fees/assignments",
+  FEE_ASSIGNMENT_CREATE: `/fees/assignments/${ERP_ROUTE_SEGMENTS.NEW}`,
+  FEE_ASSIGNMENT_BULK: `/fees/assignments/${ERP_ROUTE_SEGMENTS.BULK}`,
+  FEE_ASSIGNMENT_EDIT: `/fees/assignments/:feeAssignmentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  FEE_ASSIGNMENT_COLLECT: `/fees/assignments/:feeAssignmentId/${ERP_ROUTE_SEGMENTS.COLLECT}`,
+  FEE_ASSIGNMENT_ADJUSTMENT: `/fees/assignments/:feeAssignmentId/${ERP_ROUTE_SEGMENTS.ADJUSTMENT}`,
+  FEE_DUES: "/fees/dues",
+  FEE_REPORTS: "/fees/reports",
   // Communication
   ANNOUNCEMENTS: "/announcements",
   // Reports
@@ -79,4 +93,20 @@ export function buildStaffDetailRoute(staffId: string) {
 
 export function buildRoleEditRoute(roleId: string) {
   return `/settings/roles/${roleId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildFeeStructureEditRoute(feeStructureId: string) {
+  return `/fees/structures/${feeStructureId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildFeeAssignmentEditRoute(feeAssignmentId: string) {
+  return `/fees/assignments/${feeAssignmentId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildFeeAssignmentCollectRoute(feeAssignmentId: string) {
+  return `/fees/assignments/${feeAssignmentId}/${ERP_ROUTE_SEGMENTS.COLLECT}`;
+}
+
+export function buildFeeAssignmentAdjustmentRoute(feeAssignmentId: string) {
+  return `/fees/assignments/${feeAssignmentId}/${ERP_ROUTE_SEGMENTS.ADJUSTMENT}`;
 }

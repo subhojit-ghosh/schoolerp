@@ -124,7 +124,6 @@ export class StudentsService {
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
     const conditions: SQL[] = [
       eq(students.institutionId, institutionId),
-      isNull(students.deletedAt),
       ne(member.status, STATUS.MEMBER.DELETED),
       ne(campus.status, STATUS.CAMPUS.DELETED),
       ne(schoolClasses.status, STATUS.CLASS.DELETED),
@@ -418,7 +417,6 @@ export class StudentsService {
         and(
           eq(students.institutionId, institutionId),
           studentId ? eq(students.id, studentId) : undefined,
-          isNull(students.deletedAt),
           ne(member.status, STATUS.MEMBER.DELETED),
           ne(campus.status, STATUS.CAMPUS.DELETED),
           ne(schoolClasses.status, STATUS.CLASS.DELETED),
@@ -713,11 +711,12 @@ export class StudentsService {
     const matchedStudents = await this.db
       .select({ id: students.id })
       .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
       .where(
         and(
           eq(students.institutionId, institutionId),
           eq(students.admissionNumber, admissionNumber),
-          isNull(students.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .limit(studentIdToIgnore ? 2 : 1);
@@ -825,11 +824,12 @@ export class StudentsService {
         membershipId: students.membershipId,
       })
       .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
       .where(
         and(
           eq(students.id, studentId),
           eq(students.institutionId, institutionId),
-          isNull(students.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .limit(1);

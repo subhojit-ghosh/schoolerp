@@ -127,6 +127,20 @@
       "when": 1773551100749,
       "tag": "0017_fantastic_pretty_boy",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1773668057025,
+      "tag": "0018_bent_kate_bishop",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1773674030904,
+      "tag": "0019_third_wrecker",
+      "breakpoints": true
     }
   ]
 }

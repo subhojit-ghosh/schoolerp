@@ -674,7 +674,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List fee structures for the current tenant institution */
+        /** List fee structures for the current tenant */
         get: operations["FeesController_listFeeStructures"];
         put?: never;
         /** Create a fee structure for the current tenant */
@@ -685,6 +685,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/fees/structures/{feeStructureId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a fee structure with collection summary */
+        get: operations["FeesController_getFeeStructure"];
+        put?: never;
+        post?: never;
+        /** Delete a fee structure (only if no active assignments) */
+        delete: operations["FeesController_deleteFeeStructure"];
+        options?: never;
+        head?: never;
+        /** Update a fee structure */
+        patch: operations["FeesController_updateFeeStructure"];
+        trace?: never;
+    };
+    "/fees/structures/{feeStructureId}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate a fee structure */
+        post: operations["FeesController_duplicateFeeStructure"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/structures/{feeStructureId}/create-next-version": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create the next version of a fee structure */
+        post: operations["FeesController_createNextFeeStructureVersion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/structures/{feeStructureId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Set a fee structure status */
+        patch: operations["FeesController_setFeeStructureStatus"];
+        trace?: never;
+    };
     "/fees/assignments": {
         parameters: {
             query?: never;
@@ -692,11 +762,64 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List fee assignments for the current tenant institution */
+        /** List fee assignments for the current tenant */
         get: operations["FeesController_listFeeAssignments"];
         put?: never;
         /** Assign a fee structure to a student */
         post: operations["FeesController_createFeeAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/assignments/{feeAssignmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a fee assignment with payment history */
+        get: operations["FeesController_getFeeAssignment"];
+        put?: never;
+        post?: never;
+        /** Delete a fee assignment (only if no payments recorded) */
+        delete: operations["FeesController_deleteFeeAssignment"];
+        options?: never;
+        head?: never;
+        /** Update a fee assignment */
+        patch: operations["FeesController_updateFeeAssignment"];
+        trace?: never;
+    };
+    "/fees/assignments/{feeAssignmentId}/adjustments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply a concession or waiver to a fee assignment */
+        post: operations["FeesController_createFeeAdjustment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/assignments/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bulk-assign a fee structure to all students in a class */
+        post: operations["FeesController_createBulkFeeAssignment"];
         delete?: never;
         options?: never;
         head?: never;
@@ -720,6 +843,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/fees/payments/{feePaymentId}/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reverse a recorded fee payment */
+        post: operations["FeesController_reverseFeePayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/fees/dues": {
         parameters: {
             query?: never;
@@ -729,6 +869,23 @@ export interface paths {
         };
         /** List outstanding fee dues for the current tenant */
         get: operations["FeesController_listFeeDues"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/reports/collection-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get fee collection summary grouped by structure */
+        get: operations["FeesController_getCollectionSummary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1468,12 +1625,22 @@ export interface components {
         UpsertExamMarksBodyDto: {
             entries: components["schemas"]["UpsertExamMarkEntryBodyDto"][];
         };
+        FeeStructureInstallmentDto: {
+            id: string;
+            sortOrder: number;
+            label: string;
+            amountInPaise: number;
+            dueDate: string;
+        };
         FeeStructureDto: {
             campusId?: string | null;
             campusName?: string | null;
             description?: string | null;
             /** @enum {string} */
             scope: "institution" | "campus";
+            /** @enum {string} */
+            status: "active" | "archived" | "deleted";
+            installments: components["schemas"]["FeeStructureInstallmentDto"][];
             /** Format: date-time */
             createdAt: string;
             id: string;
@@ -1483,18 +1650,67 @@ export interface components {
             name: string;
             amountInPaise: number;
             dueDate: string;
+            installmentCount: number;
+        };
+        PaginatedFeeStructureDto: {
+            rows: components["schemas"]["FeeStructureDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        FeeStructureDetailDto: {
+            campusId?: string | null;
+            campusName?: string | null;
+            description?: string | null;
+            /** @enum {string} */
+            scope: "institution" | "campus";
+            /** @enum {string} */
+            status: "active" | "archived" | "deleted";
+            installments: components["schemas"]["FeeStructureInstallmentDto"][];
+            /** Format: date-time */
+            createdAt: string;
+            lockReason?: string | null;
+            assignmentCount: number;
+            totalAssignedInPaise: number;
+            totalPaidInPaise: number;
+            totalOutstandingInPaise: number;
+            isInstallmentLocked: boolean;
+            id: string;
+            institutionId: string;
+            academicYearId: string;
+            academicYearName: string;
+            name: string;
+            amountInPaise: number;
+            dueDate: string;
+            installmentCount: number;
+        };
+        FeeStructureInstallmentBodyDto: {
+            label: string;
+            amount: number;
+            dueDate: string;
         };
         CreateFeeStructureBodyDto: {
             campusId?: string | null;
             description?: string | null;
             /** @enum {string} */
             scope: "institution" | "campus";
+            installments: components["schemas"]["FeeStructureInstallmentBodyDto"][];
             academicYearId: string;
             name: string;
-            amount: number;
-            dueDate: string;
+        };
+        UpdateFeeStructureBodyDto: {
+            description?: string | null;
+            installments?: components["schemas"]["FeeStructureInstallmentBodyDto"][];
+            name?: string;
+        };
+        SetFeeStructureStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "archived";
         };
         FeeAssignmentDto: {
+            installmentId?: string | null;
+            installmentLabel?: string | null;
             campusName?: string | null;
             /** @enum {string} */
             status: "pending" | "partial" | "paid";
@@ -1505,10 +1721,70 @@ export interface components {
             institutionId: string;
             feeStructureId: string;
             feeStructureName: string;
+            installmentSortOrder: number;
             studentId: string;
             studentAdmissionNumber: string;
             studentFullName: string;
             assignedAmountInPaise: number;
+            adjustedAmountInPaise: number;
+            paidAmountInPaise: number;
+            outstandingAmountInPaise: number;
+            paymentCount: number;
+            dueDate: string;
+        };
+        PaginatedFeeAssignmentDto: {
+            rows: components["schemas"]["FeeAssignmentDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        FeePaymentDto: {
+            /** @enum {string} */
+            paymentMethod: "cash" | "upi" | "bank_transfer" | "card";
+            referenceNumber?: string | null;
+            notes?: string | null;
+            reversalReason?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            institutionId: string;
+            feeAssignmentId: string;
+            amountInPaise: number;
+            paymentDate: string;
+            reversedAt: string | null;
+        };
+        FeeAdjustmentDto: {
+            /** @enum {string} */
+            adjustmentType: "waiver" | "discount";
+            reason?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            feeAssignmentId: string;
+            amountInPaise: number;
+        };
+        FeeAssignmentDetailDto: {
+            installmentId?: string | null;
+            installmentLabel?: string | null;
+            campusName?: string | null;
+            /** @enum {string} */
+            status: "pending" | "partial" | "paid";
+            notes?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            payments: components["schemas"]["FeePaymentDto"][];
+            adjustments: components["schemas"]["FeeAdjustmentDto"][];
+            id: string;
+            institutionId: string;
+            feeStructureId: string;
+            feeStructureName: string;
+            installmentSortOrder: number;
+            studentId: string;
+            studentAdmissionNumber: string;
+            studentFullName: string;
+            assignedAmountInPaise: number;
+            adjustedAmountInPaise: number;
             paidAmountInPaise: number;
             outstandingAmountInPaise: number;
             paymentCount: number;
@@ -1518,8 +1794,30 @@ export interface components {
             notes?: string | null;
             feeStructureId: string;
             studentId: string;
+        };
+        CreateFeeAssignmentResultDto: {
+            assignments: components["schemas"]["FeeAssignmentDto"][];
+        };
+        CreateFeeAdjustmentBodyDto: {
+            /** @enum {string} */
+            adjustmentType: "waiver" | "discount";
+            reason?: string | null;
+            feeAssignmentId: string;
             amount: number;
-            dueDate: string;
+        };
+        BulkFeeAssignmentBodyDto: {
+            notes?: string | null;
+            feeStructureId: string;
+            classId: string;
+        };
+        BulkFeeAssignmentResultDto: {
+            created: number;
+            skipped: number;
+        };
+        UpdateFeeAssignmentBodyDto: {
+            notes?: string | null;
+            amount?: number;
+            dueDate?: string;
         };
         CreateFeePaymentBodyDto: {
             /** @enum {string} */
@@ -1530,18 +1828,25 @@ export interface components {
             amount: number;
             paymentDate: string;
         };
-        FeePaymentDto: {
-            /** @enum {string} */
-            paymentMethod: "cash" | "upi" | "bank_transfer" | "card";
-            referenceNumber?: string | null;
-            notes?: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            id: string;
-            institutionId: string;
-            feeAssignmentId: string;
-            amountInPaise: number;
-            paymentDate: string;
+        ReverseFeePaymentBodyDto: {
+            reason?: string | null;
+        };
+        CollectionSummaryItemDto: {
+            campusName?: string | null;
+            feeStructureId: string;
+            feeStructureName: string;
+            academicYearName: string;
+            assignmentCount: number;
+            totalAssignedInPaise: number;
+            totalPaidInPaise: number;
+            totalOutstandingInPaise: number;
+        };
+        CollectionSummaryDto: {
+            byStructure: components["schemas"]["CollectionSummaryItemDto"][];
+            totalAssignedInPaise: number;
+            totalPaidInPaise: number;
+            totalOutstandingInPaise: number;
+            overdueCount: number;
         };
         RolePermissionDto: {
             id: string;
@@ -2904,7 +3209,16 @@ export interface operations {
     };
     FeesController_listFeeStructures: {
         parameters: {
-            query?: never;
+            query?: {
+                q?: string;
+                page?: number;
+                limit?: number;
+                sort?: "name" | "dueDate" | "amount" | "academicYear";
+                order?: "asc" | "desc";
+                academicYearId?: string | null;
+                campusId?: string | null;
+                status?: "active" | "archived" | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2916,7 +3230,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FeeStructureDto"][];
+                    "application/json": components["schemas"]["PaginatedFeeStructureDto"];
                 };
             };
         };
@@ -2944,9 +3258,149 @@ export interface operations {
             };
         };
     };
-    FeesController_listFeeAssignments: {
+    FeesController_getFeeStructure: {
         parameters: {
             query?: never;
+            header?: never;
+            path: {
+                feeStructureId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeStructureDetailDto"];
+                };
+            };
+        };
+    };
+    FeesController_deleteFeeStructure: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeStructureId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FeesController_updateFeeStructure: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeStructureId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateFeeStructureBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeStructureDto"];
+                };
+            };
+        };
+    };
+    FeesController_duplicateFeeStructure: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeStructureId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeStructureDetailDto"];
+                };
+            };
+        };
+    };
+    FeesController_createNextFeeStructureVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeStructureId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeStructureDetailDto"];
+                };
+            };
+        };
+    };
+    FeesController_setFeeStructureStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeStructureId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetFeeStructureStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeStructureDto"];
+                };
+            };
+        };
+    };
+    FeesController_listFeeAssignments: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                limit?: number;
+                sort?: "studentName" | "dueDate" | "status" | "amount";
+                order?: "asc" | "desc";
+                feeStructureId?: string | null;
+                status?: "pending" | "partial" | "paid" | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -2958,7 +3412,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FeeAssignmentDto"][];
+                    "application/json": components["schemas"]["PaginatedFeeAssignmentDto"];
                 };
             };
         };
@@ -2981,7 +3435,120 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
+                    "application/json": components["schemas"]["CreateFeeAssignmentResultDto"];
+                };
+            };
+        };
+    };
+    FeesController_getFeeAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeAssignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeAssignmentDetailDto"];
+                };
+            };
+        };
+    };
+    FeesController_deleteFeeAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeAssignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FeesController_updateFeeAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeAssignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateFeeAssignmentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
                     "application/json": components["schemas"]["FeeAssignmentDto"];
+                };
+            };
+        };
+    };
+    FeesController_createFeeAdjustment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeAssignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateFeeAdjustmentBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeAdjustmentDto"];
+                };
+            };
+        };
+    };
+    FeesController_createBulkFeeAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkFeeAssignmentBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BulkFeeAssignmentResultDto"];
                 };
             };
         };
@@ -3009,9 +3576,41 @@ export interface operations {
             };
         };
     };
-    FeesController_listFeeDues: {
+    FeesController_reverseFeePayment: {
         parameters: {
             query?: never;
+            header?: never;
+            path: {
+                feePaymentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReverseFeePaymentBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeePaymentDto"];
+                };
+            };
+        };
+    };
+    FeesController_listFeeDues: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                limit?: number;
+                sort?: "studentName" | "dueDate" | "status" | "amount";
+                order?: "asc" | "desc";
+                overdue?: boolean | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -3023,7 +3622,29 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FeeAssignmentDto"][];
+                    "application/json": components["schemas"]["PaginatedFeeAssignmentDto"];
+                };
+            };
+        };
+    };
+    FeesController_getCollectionSummary: {
+        parameters: {
+            query?: {
+                academicYearId?: string | null;
+                campusId?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CollectionSummaryDto"];
                 };
             };
         };

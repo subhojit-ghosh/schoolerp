@@ -1,4 +1,4 @@
-import { Navigate, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { buildTenantAppUrl } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
 import {
@@ -6,22 +6,16 @@ import {
   useSignInMutation,
 } from "@/features/auth/api/use-auth";
 import type { SignInFormValues } from "@/features/auth/model/auth-form-schema";
-import { useAuthStore } from "@/features/auth/model/auth-store";
 import { AuthLayout } from "@/features/auth/ui/auth-layout";
 import { LoginForm } from "@/features/auth/ui/login-form";
 
 export function SignInPage() {
   const navigate = useNavigate();
-  const status = useAuthStore((store) => store.status);
   const signInMutation = useSignInMutation();
   const errorMessage = useAuthErrorMessage(
     signInMutation.error,
     "Unable to sign in with those credentials.",
   );
-
-  if (status === "authenticated") {
-    return <Navigate replace to={ERP_ROUTES.DASHBOARD} />;
-  }
 
   async function onSubmit(values: SignInFormValues) {
     const session = await signInMutation.mutateAsync({

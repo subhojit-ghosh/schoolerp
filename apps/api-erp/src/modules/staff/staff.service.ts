@@ -404,7 +404,6 @@ export class StaffService {
         .where(
           and(
             eq(membershipRoles.membershipId, staffMembership.id),
-            isNull(membershipRoles.deletedAt),
           ),
         );
 
@@ -418,8 +417,7 @@ export class StaffService {
           .where(inArray(membershipRoleScopes.membershipRoleId, assignmentIds));
 
         await tx
-          .update(membershipRoles)
-          .set({ deletedAt: new Date() })
+          .delete(membershipRoles)
           .where(inArray(membershipRoles.id, assignmentIds));
       }
 
@@ -521,7 +519,6 @@ export class StaffService {
         and(
           eq(membershipRoles.id, assignmentId),
           eq(membershipRoles.membershipId, staffMembership.id),
-          isNull(membershipRoles.deletedAt),
         ),
       )
       .limit(1);
@@ -538,8 +535,7 @@ export class StaffService {
         .where(eq(membershipRoleScopes.membershipRoleId, assignmentId));
 
       await tx
-        .update(membershipRoles)
-        .set({ deletedAt: new Date() })
+        .delete(membershipRoles)
         .where(eq(membershipRoles.id, assignmentId));
     });
   }
@@ -599,7 +595,6 @@ export class StaffService {
             isNull(roles.institutionId),
             eq(roles.institutionId, institutionId),
           ),
-          isNull(roles.deletedAt),
         ),
       )
       .orderBy(asc(roles.isSystem), asc(roles.name));
@@ -621,8 +616,6 @@ export class StaffService {
       .where(
         and(
           eq(membershipRoles.membershipId, membershipId),
-          isNull(membershipRoles.deletedAt),
-          isNull(roles.deletedAt),
         ),
       )
       .orderBy(desc(membershipRoles.createdAt), asc(roles.name));
@@ -753,8 +746,6 @@ export class StaffService {
       .where(
         and(
           inArray(membershipRoles.membershipId, membershipIds),
-          isNull(membershipRoles.deletedAt),
-          isNull(roles.deletedAt),
         ),
       );
 
@@ -826,7 +817,6 @@ export class StaffService {
             isNull(roles.institutionId),
             eq(roles.institutionId, institutionId),
           ),
-          isNull(roles.deletedAt),
         ),
       )
       .limit(1);
@@ -1047,7 +1037,6 @@ export class StaffService {
         and(
           eq(membershipRoles.membershipId, membershipId),
           eq(membershipRoles.roleId, roleId),
-          isNull(membershipRoles.deletedAt),
         ),
       );
 

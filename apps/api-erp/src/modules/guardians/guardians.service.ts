@@ -486,7 +486,6 @@ export class GuardiansService {
             guardianMembershipIds,
           ),
           isNull(studentGuardianLinks.deletedAt),
-          isNull(students.deletedAt),
           ne(member.status, STATUS.MEMBER.DELETED),
           ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
@@ -551,11 +550,12 @@ export class GuardiansService {
         membershipId: students.membershipId,
       })
       .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
       .where(
         and(
           eq(students.id, studentId),
           eq(students.institutionId, institutionId),
-          isNull(students.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
       .limit(1);

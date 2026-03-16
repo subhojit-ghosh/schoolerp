@@ -5,6 +5,8 @@ export const ERP_TOAST_SUBJECTS = {
   CLASS: "Class",
   EXAM_TERM: "Exam term",
   FEE: "Fee",
+  FEE_ASSIGNMENT: "Fee assignment",
+  FEE_PAYMENT: "Payment",
   FEE_STRUCTURE: "Fee structure",
   GUARDIAN: "Guardian",
   MARKS: "Marks",

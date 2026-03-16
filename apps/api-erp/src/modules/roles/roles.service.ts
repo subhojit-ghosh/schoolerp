@@ -54,7 +54,6 @@ export class RolesService {
             isNull(roles.institutionId),
             eq(roles.institutionId, institutionId),
           ),
-          isNull(roles.deletedAt),
         ),
       );
 
@@ -87,7 +86,6 @@ export class RolesService {
             isNull(roles.institutionId),
             eq(roles.institutionId, institutionId),
           ),
-          isNull(roles.deletedAt),
         ),
       );
 
@@ -113,7 +111,6 @@ export class RolesService {
         and(
           eq(roles.slug, slug),
           eq(roles.institutionId, institutionId),
-          isNull(roles.deletedAt),
         ),
       )
       .limit(1);
@@ -182,7 +179,6 @@ export class RolesService {
         and(
           eq(roles.id, roleId),
           eq(roles.institutionId, institutionId),
-          isNull(roles.deletedAt),
         ),
       )
       .limit(1);
@@ -233,7 +229,6 @@ export class RolesService {
         and(
           eq(roles.id, roleId),
           eq(roles.institutionId, institutionId),
-          isNull(roles.deletedAt),
         ),
       )
       .limit(1);
@@ -251,20 +246,22 @@ export class RolesService {
       .where(
         and(
           eq(membershipRoles.roleId, roleId),
-          isNull(membershipRoles.deletedAt),
         ),
       );
 
     if (activeCount > 0) {
       throw new ConflictException(
-        "Cannot delete a role that has active staff assignments",
+        "Cannot delete a role that has staff assignments",
       );
     }
 
-    await this.db
-      .update(roles)
-      .set({ deletedAt: new Date() })
-      .where(eq(roles.id, roleId));
+    await this.db.transaction(async (tx) => {
+      await tx
+        .delete(rolePermissions)
+        .where(eq(rolePermissions.roleId, roleId));
+
+      await tx.delete(roles).where(eq(roles.id, roleId));
+    });
   }
 
   async listPermissions(): Promise<PermissionDto[]> {

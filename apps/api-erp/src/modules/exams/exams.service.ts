@@ -6,7 +6,13 @@ import {
 } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
 import type { AppDatabase } from "@repo/database";
-import { academicYears, examMarks, examTerms, students } from "@repo/database";
+import {
+  academicYears,
+  examMarks,
+  examTerms,
+  member,
+  students,
+} from "@repo/database";
 import { and, asc, eq, inArray, isNull, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
@@ -110,11 +116,12 @@ export class ExamsService {
       })
       .from(examMarks)
       .innerJoin(students, eq(examMarks.studentId, students.id))
+      .innerJoin(member, eq(students.membershipId, member.id))
       .where(
         and(
           eq(examMarks.institutionId, institutionId),
           eq(examMarks.examTermId, examTermId),
-          isNull(students.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
           sectionScopeFilter(students.sectionId, scopes),
         ),
       )
@@ -235,11 +242,12 @@ export class ExamsService {
     const rows = await this.database
       .select({ id: students.id })
       .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
       .where(
         and(
           eq(students.institutionId, institutionId),
           inArray(students.id, distinctStudentIds),
-          isNull(students.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
         ),
       );
 

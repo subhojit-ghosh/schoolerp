@@ -142,10 +142,21 @@ export const FEE_STRUCTURE_SCOPES = {
   CAMPUS: "campus",
 } as const;
 
+export const FEE_STRUCTURE_STATUSES = {
+  ACTIVE: "active",
+  ARCHIVED: "archived",
+  DELETED: "deleted",
+} as const;
+
 export const FEE_ASSIGNMENT_STATUSES = {
   PENDING: "pending",
   PARTIAL: "partial",
   PAID: "paid",
+} as const;
+
+export const FEE_ADJUSTMENT_TYPES = {
+  WAIVER: "waiver",
+  DISCOUNT: "discount",
 } as const;
 
 export const FEE_PAYMENT_METHODS = {
@@ -195,10 +206,21 @@ export const feeStructureScopeSchema = z.enum([
   FEE_STRUCTURE_SCOPES.CAMPUS,
 ]);
 
+export const feeStructureStatusSchema = z.enum([
+  FEE_STRUCTURE_STATUSES.ACTIVE,
+  FEE_STRUCTURE_STATUSES.ARCHIVED,
+  FEE_STRUCTURE_STATUSES.DELETED,
+]);
+
 export const feeAssignmentStatusSchema = z.enum([
   FEE_ASSIGNMENT_STATUSES.PENDING,
   FEE_ASSIGNMENT_STATUSES.PARTIAL,
   FEE_ASSIGNMENT_STATUSES.PAID,
+]);
+
+export const feeAdjustmentTypeSchema = z.enum([
+  FEE_ADJUSTMENT_TYPES.WAIVER,
+  FEE_ADJUSTMENT_TYPES.DISCOUNT,
 ]);
 
 export const feePaymentMethodSchema = z.enum([
@@ -210,7 +232,9 @@ export const feePaymentMethodSchema = z.enum([
 
 export type AuthContextKey = z.infer<typeof authContextKeySchema>;
 export type FeeStructureScope = z.infer<typeof feeStructureScopeSchema>;
+export type FeeStructureStatus = z.infer<typeof feeStructureStatusSchema>;
 export type FeeAssignmentStatus = z.infer<typeof feeAssignmentStatusSchema>;
+export type FeeAdjustmentType = z.infer<typeof feeAdjustmentTypeSchema>;
 export type FeePaymentMethod = z.infer<typeof feePaymentMethodSchema>;
 export const academicYearStatusSchema = z.enum([
   ACADEMIC_YEAR_STATUS.ACTIVE,

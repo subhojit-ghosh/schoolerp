@@ -193,6 +193,13 @@ Package `exports` use conditional exports: `types` points at `.ts` source (for I
 ### Forms
 **All forms must use `react-hook-form` + `zod`.** No exceptions.
 
+#### Placeholder text rules
+- **Never use a realistic-looking value as a placeholder** (e.g. `placeholder="3500"` on a number field, `placeholder="9876543210"` on a phone field). It looks like pre-filled data and confuses users.
+- Use descriptive or instructional placeholders only where they add genuine value (e.g. `placeholder="e.g. Term 1, April"` on a label field).
+- For numeric fields (amounts, counts, IDs), omit the placeholder entirely — an empty field is clearer than a fake number.
+- For optional text fields, a short note like `"Optional internal note"` is acceptable.
+- This rule is especially important in ERP forms where admins scan many fields quickly.
+
 Use the shadcn field pattern:
 
 ```tsx

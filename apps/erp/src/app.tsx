@@ -9,6 +9,7 @@ import { createBrowserRouter, Navigate } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
 import { RouteErrorBoundary } from "@/components/feedback/route-error-boundary";
+import { RedirectIfAuthenticated } from "@/features/auth/ui/redirect-if-authenticated";
 import { RequireSession } from "@/features/auth/ui/require-session";
 import { AttendancePage } from "@/routes/operations/attendance-page";
 import { ERP_ROUTES, ERP_ROUTE_SEGMENTS } from "@/constants/routes";
@@ -24,7 +25,15 @@ import { ForgotPasswordPage } from "@/routes/auth/forgot-password-page";
 import { ResetPasswordPage } from "@/routes/auth/reset-password-page";
 import { SignInPage } from "@/routes/auth/sign-in-page";
 import { AcademicYearsPage } from "@/routes/academics/academic-years-page";
-import { FeesPage } from "@/routes/operations/fees-page";
+import { FeeStructuresPage } from "@/routes/operations/fee-structures-page";
+import { FeeAssignmentsPage } from "@/routes/operations/fee-assignments-page";
+import { FeeDuesPage } from "@/routes/operations/fee-dues-page";
+import { FeeReportsPage } from "@/routes/operations/fee-reports-page";
+import { FeeStructureFormPage } from "@/routes/operations/fee-structure-form-page";
+import { FeeAssignmentSheetRoute } from "@/features/fees/ui/fee-assignment-sheet-route";
+import { CollectPaymentSheetRoute } from "@/features/fees/ui/collect-payment-sheet-route";
+import { BulkFeeAssignmentSheetRoute } from "@/features/fees/ui/bulk-fee-assignment-sheet-route";
+import { FeeAdjustmentSheetRoute } from "@/features/fees/ui/fee-adjustment-sheet-route";
 import { BrandingPage } from "@/routes/settings/branding-page";
 import { CampusesPage } from "@/routes/settings/campuses-page";
 import { RolesPage } from "@/routes/settings/roles-page";
@@ -49,22 +58,38 @@ import { Button } from "@repo/ui/components/ui/button";
 const router = createBrowserRouter([
   {
     path: ERP_ROUTES.ROOT,
-    element: <Navigate replace to={ERP_ROUTES.SIGN_IN} />,
+    element: (
+      <RedirectIfAuthenticated>
+        <Navigate replace to={ERP_ROUTES.SIGN_IN} />
+      </RedirectIfAuthenticated>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: ERP_ROUTES.SIGN_IN,
-    element: <SignInPage />,
+    element: (
+      <RedirectIfAuthenticated>
+        <SignInPage />
+      </RedirectIfAuthenticated>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: ERP_ROUTES.FORGOT_PASSWORD,
-    element: <ForgotPasswordPage />,
+    element: (
+      <RedirectIfAuthenticated>
+        <ForgotPasswordPage />
+      </RedirectIfAuthenticated>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: ERP_ROUTES.RESET_PASSWORD,
-    element: <ResetPasswordPage />,
+    element: (
+      <RedirectIfAuthenticated>
+        <ResetPasswordPage />
+      </RedirectIfAuthenticated>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
@@ -116,7 +141,47 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.ATTENDANCE, element: <AttendancePage /> },
       { path: ERP_ROUTES.REPORTS_ATTENDANCE, element: <AttendanceReportsPage /> },
       { path: ERP_ROUTES.EXAMS, element: <ExamsPage /> },
-      { path: ERP_ROUTES.FEES, element: <FeesPage /> },
+      {
+        path: ERP_ROUTES.FEES,
+        element: <Navigate replace to={ERP_ROUTES.FEE_STRUCTURES} />,
+      },
+      { path: ERP_ROUTES.FEE_STRUCTURES, element: <FeeStructuresPage /> },
+      {
+        path: ERP_ROUTES.FEE_STRUCTURE_CREATE,
+        element: <FeeStructureFormPage mode="create" />,
+      },
+      {
+        path: ERP_ROUTES.FEE_STRUCTURE_EDIT,
+        element: <FeeStructureFormPage mode="edit" />,
+      },
+      {
+        path: ERP_ROUTES.FEE_ASSIGNMENTS,
+        element: <FeeAssignmentsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <FeeAssignmentSheetRoute mode="create" />,
+          },
+          {
+            path: ERP_ROUTE_SEGMENTS.BULK,
+            element: <BulkFeeAssignmentSheetRoute />,
+          },
+          {
+            path: `:feeAssignmentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <FeeAssignmentSheetRoute mode="edit" />,
+          },
+          {
+            path: `:feeAssignmentId/${ERP_ROUTE_SEGMENTS.ADJUSTMENT}`,
+            element: <FeeAdjustmentSheetRoute />,
+          },
+          {
+            path: `:feeAssignmentId/${ERP_ROUTE_SEGMENTS.COLLECT}`,
+            element: <CollectPaymentSheetRoute />,
+          },
+        ],
+      },
+      { path: ERP_ROUTES.FEE_DUES, element: <FeeDuesPage /> },
+      { path: ERP_ROUTES.FEE_REPORTS, element: <FeeReportsPage /> },
       {
         path: ERP_ROUTES.SETTINGS_CAMPUSES,
         element: <CampusesPage />,

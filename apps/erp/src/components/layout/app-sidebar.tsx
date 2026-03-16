@@ -135,7 +135,26 @@ const NAV_ACADEMICS = [
 ] as const;
 
 const NAV_FINANCE = [
-  { icon: IconCurrencyRupee, title: "Fees", url: ERP_ROUTES.FEES },
+  {
+    icon: IconCurrencyRupee,
+    title: "Fee Structures",
+    url: ERP_ROUTES.FEE_STRUCTURES,
+  },
+  {
+    icon: IconReportMoney,
+    title: "Fee Assignments",
+    url: ERP_ROUTES.FEE_ASSIGNMENTS,
+  },
+  {
+    icon: IconReportMoney,
+    title: "Fee Dues",
+    url: ERP_ROUTES.FEE_DUES,
+  },
+  {
+    icon: IconChartBar,
+    title: "Fee Reports",
+    url: ERP_ROUTES.FEE_REPORTS,
+  },
 ] as const;
 
 const NAV_REPORTS = [
@@ -151,10 +170,9 @@ const NAV_REPORTS = [
     url: ERP_ROUTES.REPORTS_EXAMS,
   },
   {
-    disabled: true,
     icon: IconReportMoney,
     title: "Fees",
-    url: ERP_ROUTES.REPORTS_FEES,
+    url: ERP_ROUTES.FEE_REPORTS,
   },
 ] as const;
 

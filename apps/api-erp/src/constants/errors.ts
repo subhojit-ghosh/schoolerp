@@ -104,21 +104,47 @@ export const ERROR_MESSAGES = {
   },
   FEES: {
     ACADEMIC_YEAR_NOT_FOUND: "The selected academic year was not found.",
+    ACADEMIC_YEAR_ARCHIVED:
+      "Fee structures can only be created for active academic years.",
     FEE_STRUCTURE_NOT_FOUND: "The selected fee structure was not found.",
+    FEE_STRUCTURE_INACTIVE:
+      "Only active fee structures can be assigned to students.",
     FEE_STRUCTURE_NAME_EXISTS:
       "That fee structure already exists for the selected scope.",
     FEE_ASSIGNMENT_NOT_FOUND: "The selected fee assignment was not found.",
     FEE_PAYMENT_NOT_FOUND: "The selected fee payment was not found.",
+    FEE_ADJUSTMENT_NOT_FOUND: "The selected fee adjustment was not found.",
+    FEE_PAYMENT_REVERSAL_NOT_FOUND:
+      "The selected fee payment reversal was not found.",
     FEE_ASSIGNMENT_EXISTS:
-      "That student already has an active assignment for this fee structure.",
+      "That student already has an assignment for this installment.",
     FEE_STRUCTURE_AMOUNT_INVALID: "Fee amount must be greater than zero.",
     FEE_ASSIGNMENT_AMOUNT_INVALID: "Assigned amount must be greater than zero.",
+    FEE_ADJUSTMENT_AMOUNT_INVALID:
+      "Adjustment amount must be greater than zero.",
     FEE_PAYMENT_AMOUNT_INVALID: "Payment amount must be greater than zero.",
     FEE_PAYMENT_EXCEEDS_DUE:
       "Payment amount cannot exceed the outstanding dues for this assignment.",
+    FEE_ADJUSTMENT_EXCEEDS_DUE:
+      "Adjustment amount cannot exceed the outstanding dues for this assignment.",
+    FEE_PAYMENT_ALREADY_REVERSED:
+      "That payment has already been reversed.",
     FEE_STRUCTURE_SCOPE_INVALID:
       "Campus-scoped fee structures must target a campus.",
     FEE_STRUCTURE_CAMPUS_MISMATCH:
       "Student campus must match the selected campus-scoped fee structure.",
+    FEE_STRUCTURE_HAS_ASSIGNMENTS:
+      "Cannot delete a fee structure that has assignments.",
+    FEE_ASSIGNMENT_HAS_PAYMENTS:
+      "Cannot delete a fee assignment that already has recorded payments.",
+    FEE_ASSIGNMENT_HAS_ADJUSTMENTS:
+      "Cannot delete a fee assignment that already has recorded adjustments.",
+    FEE_ASSIGNMENT_AMOUNT_LOCKED:
+      "Assigned amount cannot be changed after a payment has been recorded.",
+    FEE_INSTALLMENT_NOT_FOUND: "The selected fee installment was not found.",
+    FEE_INSTALLMENTS_REQUIRED:
+      "At least one installment is required for a fee structure.",
+    FEE_INSTALLMENTS_LOCKED:
+      "Installments cannot be modified after assignments exist, including historical records.",
   },
 } as const;

@@ -14,7 +14,9 @@ import { sql } from "drizzle-orm";
 import { campus, member, organization } from "./auth";
 
 const FEE_STRUCTURE_SCOPE_ENUM = ["institution", "campus"] as const;
+const FEE_STRUCTURE_STATUS_ENUM = ["active", "archived", "deleted"] as const;
 const FEE_ASSIGNMENT_STATUS_ENUM = ["pending", "partial", "paid"] as const;
+const FEE_ADJUSTMENT_TYPE_ENUM = ["waiver", "discount"] as const;
 const FEE_PAYMENT_METHOD_ENUM = [
   "cash",
   "upi",
@@ -387,18 +389,22 @@ export const feeStructures = pgTable(
     scope: text({
       enum: FEE_STRUCTURE_SCOPE_ENUM,
     }).notNull(),
+    status: text({
+      enum: FEE_STRUCTURE_STATUS_ENUM,
+    }).notNull().default("active"),
     amountInPaise: integer().notNull(),
     dueDate: date().notNull(),
     createdAt: timestamp().notNull().defaultNow(),
-    deletedAt: timestamp(),
+    deletedAt: timestamp(), // audit timestamp — set when status = deleted
   },
   (table) => [
     index("fee_structures_institution_idx").on(table.institutionId),
     index("fee_structures_academic_year_idx").on(table.academicYearId),
     index("fee_structures_campus_idx").on(table.campusId),
+    index("fee_structures_status_idx").on(table.status),
     uniqueIndex("fee_structures_name_scope_unique_idx")
       .on(table.institutionId, table.academicYearId, table.campusId, table.name)
-      .where(sql`${table.deletedAt} IS NULL`),
+      .where(sql`${table.status} != 'deleted'`),
   ],
 );
 
@@ -457,6 +463,23 @@ export const examMarks = pgTable(
   ],
 );
 
+export const feeStructureInstallments = pgTable(
+  "fee_structure_installments",
+  {
+    id: text().primaryKey(),
+    feeStructureId: text()
+      .notNull()
+      .references(() => feeStructures.id, { onDelete: "cascade" }),
+    sortOrder: integer().notNull(),
+    label: text().notNull(),
+    amountInPaise: integer().notNull(),
+    dueDate: date().notNull(),
+  },
+  (table) => [
+    index("fee_structure_installments_structure_idx").on(table.feeStructureId),
+  ],
+);
+
 export const feeAssignments = pgTable(
   "fee_assignments",
   {
@@ -467,6 +490,9 @@ export const feeAssignments = pgTable(
     feeStructureId: text()
       .notNull()
       .references(() => feeStructures.id, { onDelete: "restrict" }),
+    installmentId: text().references(() => feeStructureInstallments.id, {
+      onDelete: "restrict",
+    }),
     studentId: text()
       .notNull()
       .references(() => students.id, { onDelete: "restrict" }),
@@ -484,9 +510,11 @@ export const feeAssignments = pgTable(
     index("fee_assignments_structure_idx").on(table.feeStructureId),
     index("fee_assignments_student_idx").on(table.studentId),
     index("fee_assignments_due_date_idx").on(table.dueDate),
-    uniqueIndex("fee_assignments_student_structure_unique_idx")
-      .on(table.studentId, table.feeStructureId)
-      .where(sql`${table.deletedAt} IS NULL`),
+    uniqueIndex("fee_assignments_student_installment_unique_idx")
+      .on(table.studentId, table.installmentId)
+      .where(
+        sql`${table.installmentId} IS NOT NULL AND ${table.deletedAt} IS NULL`,
+      ),
   ],
 );
 
@@ -514,5 +542,47 @@ export const feePayments = pgTable(
     index("fee_payments_institution_idx").on(table.institutionId),
     index("fee_payments_assignment_idx").on(table.feeAssignmentId),
     index("fee_payments_payment_date_idx").on(table.paymentDate),
+  ],
+);
+
+export const feeAssignmentAdjustments = pgTable(
+  "fee_assignment_adjustments",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    feeAssignmentId: text()
+      .notNull()
+      .references(() => feeAssignments.id, { onDelete: "restrict" }),
+    adjustmentType: text({
+      enum: FEE_ADJUSTMENT_TYPE_ENUM,
+    }).notNull(),
+    amountInPaise: integer().notNull(),
+    reason: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (table) => [
+    index("fee_assignment_adjustments_institution_idx").on(table.institutionId),
+    index("fee_assignment_adjustments_assignment_idx").on(table.feeAssignmentId),
+  ],
+);
+
+export const feePaymentReversals = pgTable(
+  "fee_payment_reversals",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    feePaymentId: text()
+      .notNull()
+      .references(() => feePayments.id, { onDelete: "restrict" }),
+    reason: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (table) => [
+    index("fee_payment_reversals_institution_idx").on(table.institutionId),
+    uniqueIndex("fee_payment_reversals_payment_unique_idx").on(table.feePaymentId),
   ],
 );
