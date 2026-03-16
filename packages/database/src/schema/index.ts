@@ -29,6 +29,19 @@ const ATTENDANCE_STATUS_ENUM = [
   "late",
   "excused",
 ] as const;
+const ADMISSION_ENQUIRY_STATUS_ENUM = [
+  "new",
+  "in_progress",
+  "converted",
+  "closed",
+] as const;
+const ADMISSION_APPLICATION_STATUS_ENUM = [
+  "draft",
+  "submitted",
+  "reviewed",
+  "approved",
+  "rejected",
+] as const;
 
 export const academicYears = pgTable(
   "academic_years",
@@ -198,6 +211,82 @@ export const students = pgTable(
       table.classId,
       table.sectionId,
     ),
+  ],
+);
+
+export const admissionEnquiries = pgTable(
+  "admission_enquiries",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text()
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    studentName: text().notNull(),
+    guardianName: text().notNull(),
+    mobile: text().notNull(),
+    email: text(),
+    source: text(),
+    status: text({
+      enum: ADMISSION_ENQUIRY_STATUS_ENUM,
+    })
+      .notNull()
+      .default("new"),
+    notes: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+    deletedAt: timestamp(),
+  },
+  (table) => [
+    index("admission_enquiries_institution_idx").on(table.institutionId),
+    index("admission_enquiries_campus_idx").on(table.campusId),
+    index("admission_enquiries_status_idx").on(table.status),
+  ],
+);
+
+export const admissionApplications = pgTable(
+  "admission_applications",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    enquiryId: text().references(() => admissionEnquiries.id, {
+      onDelete: "restrict",
+    }),
+    campusId: text()
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    studentFirstName: text().notNull(),
+    studentLastName: text(),
+    guardianName: text().notNull(),
+    mobile: text().notNull(),
+    email: text(),
+    desiredClassName: text(),
+    desiredSectionName: text(),
+    status: text({
+      enum: ADMISSION_APPLICATION_STATUS_ENUM,
+    })
+      .notNull()
+      .default("draft"),
+    notes: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+    deletedAt: timestamp(),
+  },
+  (table) => [
+    index("admission_applications_institution_idx").on(table.institutionId),
+    index("admission_applications_enquiry_idx").on(table.enquiryId),
+    index("admission_applications_campus_idx").on(table.campusId),
+    index("admission_applications_status_idx").on(table.status),
   ],
 );
 

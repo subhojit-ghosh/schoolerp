@@ -17,6 +17,7 @@ export function createOpenApiDocument(app: INestApplication) {
     .addTag(API_DOCS.TAGS.PUBLIC)
     .addTag(API_DOCS.TAGS.AUTH)
     .addTag(API_DOCS.TAGS.ONBOARDING)
+    .addTag(API_DOCS.TAGS.ADMISSIONS)
     .addTag(API_DOCS.TAGS.CAMPUSES)
     .addTag(API_DOCS.TAGS.CLASSES)
     .addTag(API_DOCS.TAGS.STUDENTS)

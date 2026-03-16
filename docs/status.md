@@ -43,6 +43,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Dashboard** — live tiles for enrolled students, staff count, today's attendance coverage, and total outstanding fees; quick links for attendance/exams/fees are enabled
 - **Attendance** — daily class-wise marking flow with class/section names, day overview, and class/student attendance reports
 - **Exams** — term management, marks entry, saved marks, and student report card view with grading scheme + printable output
+- **Admissions** — enquiry and application pipelines with list/create/edit flows, status tracking, and tenant-scoped APIs
 
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 

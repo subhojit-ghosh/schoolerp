@@ -209,6 +209,78 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admissions/enquiries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List admission enquiries for the current tenant */
+        get: operations["AdmissionsController_listAdmissionEnquiries"];
+        put?: never;
+        /** Create an admission enquiry */
+        post: operations["AdmissionsController_createAdmissionEnquiry"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/enquiries/{enquiryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an admission enquiry */
+        get: operations["AdmissionsController_getAdmissionEnquiry"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an admission enquiry */
+        patch: operations["AdmissionsController_updateAdmissionEnquiry"];
+        trace?: never;
+    };
+    "/admissions/applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List admission applications for the current tenant */
+        get: operations["AdmissionsController_listAdmissionApplications"];
+        put?: never;
+        /** Create an admission application */
+        post: operations["AdmissionsController_createAdmissionApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/applications/{applicationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an admission application */
+        get: operations["AdmissionsController_getAdmissionApplication"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an admission application */
+        patch: operations["AdmissionsController_updateAdmissionApplication"];
+        trace?: never;
+    };
     "/classes": {
         parameters: {
             query?: never;
@@ -1135,7 +1207,7 @@ export interface components {
             activeOrganization: components["schemas"]["AuthOrganizationDto"] | null;
             availableContexts: components["schemas"]["AuthAccessContextDto"][];
             activeContext: components["schemas"]["AuthAccessContextDto"] | null;
-            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect")[];
+            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect")[];
             activeStaffRoles: components["schemas"]["AuthStaffRoleDto"][];
             activeCampus: components["schemas"]["AuthCampusDto"] | null;
             campuses: components["schemas"]["AuthCampusDto"][];
@@ -1200,6 +1272,103 @@ export interface components {
             slug?: string;
             code?: string | null;
             isDefault?: boolean;
+        };
+        AdmissionEnquiryDto: {
+            email?: string | null;
+            source?: string | null;
+            /** @enum {string} */
+            status: "new" | "in_progress" | "converted" | "closed";
+            notes?: string | null;
+            id: string;
+            institutionId: string;
+            campusId: string;
+            campusName: string;
+            studentName: string;
+            guardianName: string;
+            mobile: string;
+            createdAt: string;
+        };
+        ListAdmissionEnquiriesResultDto: {
+            rows: components["schemas"]["AdmissionEnquiryDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateAdmissionEnquiryBodyDto: {
+            email?: string | null;
+            source?: string | null;
+            /** @enum {string} */
+            status: "new" | "in_progress" | "converted" | "closed";
+            notes?: string | null;
+            campusId: string;
+            studentName: string;
+            guardianName: string;
+            mobile: string;
+        };
+        UpdateAdmissionEnquiryBodyDto: {
+            email?: string | null;
+            source?: string | null;
+            /** @enum {string} */
+            status: "new" | "in_progress" | "converted" | "closed";
+            notes?: string | null;
+            campusId: string;
+            studentName: string;
+            guardianName: string;
+            mobile: string;
+        };
+        AdmissionApplicationDto: {
+            enquiryId?: string | null;
+            studentLastName?: string | null;
+            email?: string | null;
+            desiredClassName?: string | null;
+            desiredSectionName?: string | null;
+            /** @enum {string} */
+            status: "draft" | "submitted" | "reviewed" | "approved" | "rejected";
+            notes?: string | null;
+            id: string;
+            institutionId: string;
+            campusId: string;
+            campusName: string;
+            studentFirstName: string;
+            guardianName: string;
+            mobile: string;
+            createdAt: string;
+        };
+        ListAdmissionApplicationsResultDto: {
+            rows: components["schemas"]["AdmissionApplicationDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateAdmissionApplicationBodyDto: {
+            enquiryId?: string | null;
+            studentLastName?: string | null;
+            email?: string | null;
+            desiredClassName?: string | null;
+            desiredSectionName?: string | null;
+            /** @enum {string} */
+            status: "draft" | "submitted" | "reviewed" | "approved" | "rejected";
+            notes?: string | null;
+            campusId: string;
+            studentFirstName: string;
+            guardianName: string;
+            mobile: string;
+        };
+        UpdateAdmissionApplicationBodyDto: {
+            enquiryId?: string | null;
+            studentLastName?: string | null;
+            email?: string | null;
+            desiredClassName?: string | null;
+            desiredSectionName?: string | null;
+            /** @enum {string} */
+            status: "draft" | "submitted" | "reviewed" | "approved" | "rejected";
+            notes?: string | null;
+            campusId: string;
+            studentFirstName: string;
+            guardianName: string;
+            mobile: string;
         };
         ClassSectionDto: {
             id: string;
@@ -2288,6 +2457,194 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CampusDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_listAdmissionEnquiries: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                sort?: "campus" | "createdAt" | "status" | "studentName";
+                order?: "asc" | "desc";
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListAdmissionEnquiriesResultDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_createAdmissionEnquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAdmissionEnquiryBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdmissionEnquiryDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_getAdmissionEnquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                enquiryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdmissionEnquiryDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_updateAdmissionEnquiry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                enquiryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAdmissionEnquiryBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdmissionEnquiryDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_listAdmissionApplications: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                sort?: "campus" | "createdAt" | "status" | "studentName";
+                order?: "asc" | "desc";
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListAdmissionApplicationsResultDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_createAdmissionApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAdmissionApplicationBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdmissionApplicationDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_getAdmissionApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdmissionApplicationDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_updateAdmissionApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAdmissionApplicationBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdmissionApplicationDto"];
                 };
             };
         };

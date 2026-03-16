@@ -12,7 +12,11 @@ export const ERP_ROUTES = {
   NOTIFICATIONS: "/notifications",
   // Admissions
   ADMISSIONS_ENQUIRIES: "/admissions/enquiries",
+  ADMISSIONS_ENQUIRY_CREATE: `/admissions/enquiries/${ERP_ROUTE_SEGMENTS.NEW}`,
+  ADMISSIONS_ENQUIRY_EDIT: `/admissions/enquiries/:enquiryId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   ADMISSIONS_APPLICATIONS: "/admissions/applications",
+  ADMISSIONS_APPLICATION_CREATE: `/admissions/applications/${ERP_ROUTE_SEGMENTS.NEW}`,
+  ADMISSIONS_APPLICATION_EDIT: `/admissions/applications/:applicationId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   // People
   STUDENTS: "/students",
   STUDENT_CREATE: `/students/${ERP_ROUTE_SEGMENTS.NEW}`,
@@ -81,6 +85,14 @@ export function buildAcademicYearEditRoute(academicYearId: string) {
 
 export function buildStudentDetailRoute(studentId: string) {
   return `${ERP_ROUTES.STUDENTS}/${studentId}`;
+}
+
+export function buildAdmissionEnquiryEditRoute(enquiryId: string) {
+  return `${ERP_ROUTES.ADMISSIONS_ENQUIRIES}/${enquiryId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildAdmissionApplicationEditRoute(applicationId: string) {
+  return `${ERP_ROUTES.ADMISSIONS_APPLICATIONS}/${applicationId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
 }
 
 export function buildGuardianDetailRoute(guardianId: string) {

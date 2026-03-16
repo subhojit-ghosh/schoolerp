@@ -87,6 +87,8 @@ export const PERMISSIONS = {
   GUARDIANS_MANAGE: "guardians:manage",
   STAFF_READ: "staff:read",
   STAFF_MANAGE: "staff:manage",
+  ADMISSIONS_READ: "admissions:read",
+  ADMISSIONS_MANAGE: "admissions:manage",
   ATTENDANCE_READ: "attendance:read",
   ATTENDANCE_WRITE: "attendance:write",
   EXAMS_READ: "exams:read",
@@ -189,6 +191,21 @@ export const SECTION_STATUS = {
   INACTIVE: "inactive",
 } as const;
 
+export const ADMISSION_ENQUIRY_STATUSES = {
+  NEW: "new",
+  IN_PROGRESS: "in_progress",
+  CONVERTED: "converted",
+  CLOSED: "closed",
+} as const;
+
+export const ADMISSION_APPLICATION_STATUSES = {
+  DRAFT: "draft",
+  SUBMITTED: "submitted",
+  REVIEWED: "reviewed",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+} as const;
+
 export const ACADEMIC_YEAR_NAME_MAX_LENGTH = 100;
 export const GUARDIAN_RELATIONSHIPS = {
   FATHER: "father",
@@ -251,6 +268,20 @@ export const sectionStatusSchema = z.enum([
   SECTION_STATUS.ACTIVE,
   SECTION_STATUS.INACTIVE,
 ]);
+export const admissionEnquiryStatusSchema = z.enum([
+  ADMISSION_ENQUIRY_STATUSES.NEW,
+  ADMISSION_ENQUIRY_STATUSES.IN_PROGRESS,
+  ADMISSION_ENQUIRY_STATUSES.CONVERTED,
+  ADMISSION_ENQUIRY_STATUSES.CLOSED,
+]);
+
+export const admissionApplicationStatusSchema = z.enum([
+  ADMISSION_APPLICATION_STATUSES.DRAFT,
+  ADMISSION_APPLICATION_STATUSES.SUBMITTED,
+  ADMISSION_APPLICATION_STATUSES.REVIEWED,
+  ADMISSION_APPLICATION_STATUSES.APPROVED,
+  ADMISSION_APPLICATION_STATUSES.REJECTED,
+]);
 export const guardianRelationshipSchema = z.enum([
   GUARDIAN_RELATIONSHIPS.FATHER,
   GUARDIAN_RELATIONSHIPS.MOTHER,
@@ -278,6 +309,10 @@ export const attendanceStatusSchema = z.enum([
 export type AcademicYearStatus = z.infer<typeof academicYearStatusSchema>;
 export type ClassStatus = z.infer<typeof classStatusSchema>;
 export type SectionStatus = z.infer<typeof sectionStatusSchema>;
+export type AdmissionEnquiryStatus = z.infer<typeof admissionEnquiryStatusSchema>;
+export type AdmissionApplicationStatus = z.infer<
+  typeof admissionApplicationStatusSchema
+>;
 export type GuardianRelationship = z.infer<typeof guardianRelationshipSchema>;
 export type AttendanceStatus = z.infer<typeof attendanceStatusSchema>;
 

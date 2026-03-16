@@ -9,6 +9,8 @@
 import { eq, inArray } from "drizzle-orm";
 import {
   academicYears,
+  admissionApplications,
+  admissionEnquiries,
   attendanceRecords,
   campusMemberships,
   classSections,
@@ -157,6 +159,14 @@ async function run() {
 
     // students
     await tx.delete(students).where(eq(students.institutionId, org.id));
+
+    // admissions
+    await tx
+      .delete(admissionApplications)
+      .where(eq(admissionApplications.institutionId, org.id));
+    await tx
+      .delete(admissionEnquiries)
+      .where(eq(admissionEnquiries.institutionId, org.id));
 
     // exam terms, fee structures, academic years
     await tx.delete(examTerms).where(eq(examTerms.institutionId, org.id));

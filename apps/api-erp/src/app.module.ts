@@ -6,6 +6,7 @@ import { AppService } from "./app.service";
 import { authConfig } from "./config/auth.config";
 import { AcademicYearsModule } from "./modules/academic-years/academic-years.module";
 import { AttendanceModule } from "./modules/attendance/attendance.module";
+import { AdmissionsModule } from "./modules/admissions/admissions.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { CampusesModule } from "./modules/campuses/campuses.module";
 import { ClassesModule } from "./modules/classes/classes.module";
@@ -34,6 +35,7 @@ import { StudentsModule } from "./modules/students/students.module";
     AuthModule,
     OnboardingModule,
     CampusesModule,
+    AdmissionsModule,
     ClassesModule,
     StudentsModule,
     StaffModule,

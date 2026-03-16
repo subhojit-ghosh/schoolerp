@@ -452,6 +452,394 @@
         ]
       }
     },
+    "/admissions/enquiries": {
+      "get": {
+        "operationId": "AdmissionsController_listAdmissionEnquiries",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "campus",
+                "createdAt",
+                "status",
+                "studentName"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListAdmissionEnquiriesResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List admission enquiries for the current tenant",
+        "tags": [
+          "admissions"
+        ]
+      },
+      "post": {
+        "operationId": "AdmissionsController_createAdmissionEnquiry",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdmissionEnquiryBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionEnquiryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an admission enquiry",
+        "tags": [
+          "admissions"
+        ]
+      }
+    },
+    "/admissions/enquiries/{enquiryId}": {
+      "get": {
+        "operationId": "AdmissionsController_getAdmissionEnquiry",
+        "parameters": [
+          {
+            "name": "enquiryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionEnquiryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get an admission enquiry",
+        "tags": [
+          "admissions"
+        ]
+      },
+      "patch": {
+        "operationId": "AdmissionsController_updateAdmissionEnquiry",
+        "parameters": [
+          {
+            "name": "enquiryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdmissionEnquiryBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionEnquiryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update an admission enquiry",
+        "tags": [
+          "admissions"
+        ]
+      }
+    },
+    "/admissions/applications": {
+      "get": {
+        "operationId": "AdmissionsController_listAdmissionApplications",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "campus",
+                "createdAt",
+                "status",
+                "studentName"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListAdmissionApplicationsResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List admission applications for the current tenant",
+        "tags": [
+          "admissions"
+        ]
+      },
+      "post": {
+        "operationId": "AdmissionsController_createAdmissionApplication",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAdmissionApplicationBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionApplicationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an admission application",
+        "tags": [
+          "admissions"
+        ]
+      }
+    },
+    "/admissions/applications/{applicationId}": {
+      "get": {
+        "operationId": "AdmissionsController_getAdmissionApplication",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionApplicationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get an admission application",
+        "tags": [
+          "admissions"
+        ]
+      },
+      "patch": {
+        "operationId": "AdmissionsController_updateAdmissionApplication",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAdmissionApplicationBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionApplicationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update an admission application",
+        "tags": [
+          "admissions"
+        ]
+      }
+    },
     "/classes": {
       "get": {
         "operationId": "ClassesController_listClasses",
@@ -3726,6 +4114,10 @@
       "description": ""
     },
     {
+      "name": "admissions",
+      "description": ""
+    },
+    {
       "name": "campuses",
       "description": ""
     },
@@ -4122,6 +4514,8 @@
                 "guardians:manage",
                 "staff:read",
                 "staff:manage",
+                "admissions:read",
+                "admissions:manage",
                 "attendance:read",
                 "attendance:write",
                 "exams:read",
@@ -4402,6 +4796,407 @@
         },
         "required": [
           "name"
+        ]
+      },
+      "AdmissionEnquiryDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "in_progress",
+              "converted",
+              "closed"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "guardianName": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "id",
+          "institutionId",
+          "campusId",
+          "campusName",
+          "studentName",
+          "guardianName",
+          "mobile",
+          "createdAt"
+        ]
+      },
+      "ListAdmissionEnquiriesResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionEnquiryDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateAdmissionEnquiryBodyDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "in_progress",
+              "converted",
+              "closed"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "guardianName": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "campusId",
+          "studentName",
+          "guardianName",
+          "mobile"
+        ]
+      },
+      "UpdateAdmissionEnquiryBodyDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "new",
+              "in_progress",
+              "converted",
+              "closed"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "guardianName": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "campusId",
+          "studentName",
+          "guardianName",
+          "mobile"
+        ]
+      },
+      "AdmissionApplicationDto": {
+        "type": "object",
+        "properties": {
+          "enquiryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentLastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "desiredClassName": {
+            "type": "string",
+            "nullable": true
+          },
+          "desiredSectionName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "submitted",
+              "reviewed",
+              "approved",
+              "rejected"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "studentFirstName": {
+            "type": "string"
+          },
+          "guardianName": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "id",
+          "institutionId",
+          "campusId",
+          "campusName",
+          "studentFirstName",
+          "guardianName",
+          "mobile",
+          "createdAt"
+        ]
+      },
+      "ListAdmissionApplicationsResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionApplicationDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateAdmissionApplicationBodyDto": {
+        "type": "object",
+        "properties": {
+          "enquiryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentLastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "desiredClassName": {
+            "type": "string",
+            "nullable": true
+          },
+          "desiredSectionName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "submitted",
+              "reviewed",
+              "approved",
+              "rejected"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "studentFirstName": {
+            "type": "string"
+          },
+          "guardianName": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "campusId",
+          "studentFirstName",
+          "guardianName",
+          "mobile"
+        ]
+      },
+      "UpdateAdmissionApplicationBodyDto": {
+        "type": "object",
+        "properties": {
+          "enquiryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentLastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "nullable": true
+          },
+          "desiredClassName": {
+            "type": "string",
+            "nullable": true
+          },
+          "desiredSectionName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "submitted",
+              "reviewed",
+              "approved",
+              "rejected"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "studentFirstName": {
+            "type": "string"
+          },
+          "guardianName": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "campusId",
+          "studentFirstName",
+          "guardianName",
+          "mobile"
         ]
       },
       "ClassSectionDto": {

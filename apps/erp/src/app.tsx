@@ -40,6 +40,8 @@ import { RolesPage } from "@/routes/settings/roles-page";
 import { ClassesPage } from "@/routes/academics/classes-page";
 import { GuardianDetailPage } from "@/routes/people/guardian-detail-page";
 import { GuardiansPage } from "@/routes/people/guardians-page";
+import { AdmissionApplicationsPage } from "@/routes/admissions/admission-applications-page";
+import { AdmissionEnquiriesPage } from "@/routes/admissions/admission-enquiries-page";
 import { NotificationsPage } from "@/routes/notifications/notifications-page";
 import { StaffCreatePage } from "@/routes/people/staff-create-page";
 import { StaffDetailPage } from "@/routes/people/staff-detail-page";
@@ -52,6 +54,8 @@ import { CampusSheetRoute } from "@/features/campuses/ui/campus-sheet-route";
 import { ClassSheetRoute } from "@/features/classes/ui/class-sheet-route";
 import { RoleSheetRoute } from "@/features/roles/ui/role-sheet-route";
 import { AttendanceReportsPage } from "@/routes/reports/attendance-report-page";
+import { AdmissionApplicationSheetRoute } from "@/features/admissions/ui/admission-application-sheet-route";
+import { AdmissionEnquirySheetRoute } from "@/features/admissions/ui/admission-enquiry-sheet-route";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -102,6 +106,34 @@ const router = createBrowserRouter([
     children: [
       { path: ERP_ROUTES.DASHBOARD, element: <DashboardPage /> },
       { path: ERP_ROUTES.NOTIFICATIONS, element: <NotificationsPage /> },
+      {
+        path: ERP_ROUTES.ADMISSIONS_ENQUIRIES,
+        element: <AdmissionEnquiriesPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <AdmissionEnquirySheetRoute mode="create" />,
+          },
+          {
+            path: `:enquiryId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <AdmissionEnquirySheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.ADMISSIONS_APPLICATIONS,
+        element: <AdmissionApplicationsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <AdmissionApplicationSheetRoute mode="create" />,
+          },
+          {
+            path: `:applicationId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <AdmissionApplicationSheetRoute mode="edit" />,
+          },
+        ],
+      },
       { path: ERP_ROUTES.STUDENTS, element: <StudentsPage /> },
       { path: ERP_ROUTES.STUDENT_CREATE, element: <StudentCreatePage /> },
       { path: ERP_ROUTES.STUDENT_DETAIL, element: <StudentDetailPage /> },

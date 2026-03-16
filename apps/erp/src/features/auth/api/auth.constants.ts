@@ -22,6 +22,17 @@ export const STUDENTS_API_PATHS = {
   UPDATE: "/students/{studentId}",
 } as const;
 
+export const ADMISSIONS_API_PATHS = {
+  LIST_ENQUIRIES: "/admissions/enquiries",
+  CREATE_ENQUIRY: "/admissions/enquiries",
+  DETAIL_ENQUIRY: "/admissions/enquiries/{enquiryId}",
+  UPDATE_ENQUIRY: "/admissions/enquiries/{enquiryId}",
+  LIST_APPLICATIONS: "/admissions/applications",
+  CREATE_APPLICATION: "/admissions/applications",
+  DETAIL_APPLICATION: "/admissions/applications/{applicationId}",
+  UPDATE_APPLICATION: "/admissions/applications/{applicationId}",
+} as const;
+
 export const STAFF_API_PATHS = {
   LIST: "/staff",
   CREATE: "/staff",

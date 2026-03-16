@@ -62,6 +62,10 @@ export const ERROR_MESSAGES = {
       "The selected guardian-student relationship was not found.",
     LAST_GUARDIAN_LINK: "A student must keep at least one linked guardian.",
   },
+  ADMISSIONS: {
+    ENQUIRY_NOT_FOUND: "The selected admission enquiry was not found.",
+    APPLICATION_NOT_FOUND: "The selected admission application was not found.",
+  },
   ACADEMIC_YEARS: {
     INVALID_DATE_RANGE: "End date must be after the start date.",
     CURRENT_YEAR_REQUIRED:

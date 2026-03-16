@@ -90,13 +90,11 @@ const NAV_OVERVIEW = [
 
 const NAV_ADMISSIONS = [
   {
-    disabled: true,
     icon: IconUserSearch,
     title: "Enquiries",
     url: ERP_ROUTES.ADMISSIONS_ENQUIRIES,
   },
   {
-    disabled: true,
     icon: IconFileDescription,
     title: "Applications",
     url: ERP_ROUTES.ADMISSIONS_APPLICATIONS,
