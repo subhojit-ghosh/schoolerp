@@ -72,9 +72,14 @@ export const upsertExamMarksSchema = z
     },
   );
 
+export const examReportCardQuerySchema = z.object({
+  studentId: z.uuid(),
+});
+
 export type CreateExamTermDto = z.infer<typeof createExamTermSchema>;
 export type UpsertExamMarkEntryDto = z.infer<typeof upsertExamMarkEntrySchema>;
 export type UpsertExamMarksDto = z.infer<typeof upsertExamMarksSchema>;
+export type ExamReportCardQueryDto = z.infer<typeof examReportCardQuerySchema>;
 
 function parseOrThrow<T>(result: z.ZodSafeParseResult<T>) {
   if (!result.success) {
@@ -90,4 +95,10 @@ export function parseCreateExamTerm(body: unknown): CreateExamTermDto {
 
 export function parseUpsertExamMarks(body: unknown): UpsertExamMarksDto {
   return parseOrThrow(upsertExamMarksSchema.safeParse(body));
+}
+
+export function parseExamReportCardQuery(
+  query: unknown,
+): ExamReportCardQueryDto {
+  return parseOrThrow(examReportCardQuerySchema.safeParse(query));
 }

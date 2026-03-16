@@ -5,6 +5,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from "@nestjs/common";
 import {
@@ -12,6 +13,7 @@ import {
   ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES, PERMISSIONS } from "../../constants";
@@ -28,10 +30,16 @@ import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   CreateExamTermBodyDto,
   ExamMarkDto,
+  ExamReportCardDto,
+  ExamReportCardQueryParamsDto,
   ExamTermDto,
   UpsertExamMarksBodyDto,
 } from "./exams.dto";
-import { parseCreateExamTerm, parseUpsertExamMarks } from "./exams.schemas";
+import {
+  parseCreateExamTerm,
+  parseExamReportCardQuery,
+  parseUpsertExamMarks,
+} from "./exams.schemas";
 import { ExamsService } from "./exams.service";
 
 const EXAM_TERMS_ROUTE = `${API_ROUTES.EXAMS}/${API_ROUTES.TERMS}`;
@@ -112,6 +120,27 @@ export class ExamsController {
       examTermId,
       authSession,
       parseUpsertExamMarks(body),
+    );
+  }
+
+  @Get(`:examTermId/${API_ROUTES.REPORT_CARD}`)
+  @RequirePermission(PERMISSIONS.EXAMS_READ)
+  @ApiOperation({
+    summary: "Get subject-wise report card with grading for one student",
+  })
+  @ApiQuery({ name: "studentId", type: String })
+  @ApiOkResponse({ type: ExamReportCardDto })
+  getExamReportCard(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("examTermId") examTermId: string,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Query() query: ExamReportCardQueryParamsDto,
+  ) {
+    return this.examsService.getExamReportCard(
+      institution.id,
+      examTermId,
+      parseExamReportCardQuery(query),
+      scopes,
     );
   }
 }

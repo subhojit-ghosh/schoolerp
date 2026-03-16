@@ -32,26 +32,24 @@ Ship a fully functional v1 that a real school can use day-to-day. Every feature 
 - Treat the frontend as a thin client over tenant-scoped APIs.
 - Every screen a customer sees must be usable, not a placeholder.
 
-## Now — Make the core daily workflow usable
+## Now — Close remaining v1 blockers
 
-These are the things a school uses every single day. They must work completely.
+These items still block full day-to-day v1 readiness:
 
-1. **Dashboard** — real metrics a principal wants to see at a glance: student count, staff count, today's attendance summary, total outstanding fees. No placeholder cards.
-2. **Attendance** — daily class-wise marking must work end to end. Class selector must show class names, not raw IDs. Attendance link must be enabled in the nav and dashboard. A teacher should be able to open the app and mark attendance in under a minute.
-3. **Fees** — fee collection must be a proper workflow: structured list of fee categories, assign to students, record payment, see who still owes. Not three raw forms on one page.
+1. **Student detail page** — one place to see a student's profile, current enrollment, attendance record, fee status, and exam results.
+2. **SMS/email delivery** — wire a real provider for password reset and staff password-setup links. The current delivery stub means new staff cannot log in without manual intervention.
+3. **Onboarding flow polish** — public school signup at `erp.test` should feel complete for self-serve trials without operator help.
 
 ## Next — Complete the remaining operational domains
 
-1. **Exams** — full marks entry per subject, grading scheme, and a printable/viewable report card per student per term.
-2. **Student detail page** — one place to see a student's profile, current enrollment, attendance record, fee status, and exam results. This is what a parent or admin looks at when they call about a student.
-3. **SMS/email delivery** — wire a real provider for password reset and staff password-setup links. The current delivery stub means new staff cannot log in without manual intervention.
+1. **Timetable** — class-wise weekly schedule. Required before the product is complete for a school day.
+2. **Notifications** — in-app feed scaffold exists; wire real events (fee due, absent streak, password-setup).
+3. **Branding hardening** — ensure tenant logo, favicon, display name, and theme tokens are robust across tenant bootstrap and navigation.
 
 ## Then — Polish and close gaps
 
-1. **Notifications** — in-app feed is scaffolded; wire real events (fee due, absent streak, password-setup).
-2. **Timetable** — class-wise weekly schedule. Required before the product is complete for a school day.
-3. **Branding** — logo upload, favicon, display name, and primary color applied to the tenant ERP shell. Required before any school would use it publicly.
-4. **Onboarding flow** — public school signup at `erp.test` must be polished enough that a new school can self-serve without assistance.
+1. **Cross-module polish** — consistency pass across student/staff/fees/exams/attendance flows for copy, empty states, and action hierarchy.
+2. **Operational quality** — eliminate rough UX edges that create support burden during pilot rollouts.
 
 ## Later — Post-v1 depth
 
@@ -65,9 +63,8 @@ These are the things a school uses every single day. They must work completely.
 ## Risks And Dependencies
 
 - Password reset and staff password-setup links are broken for production use until a real SMS/email provider is wired.
-- Attendance class selector shows raw IDs — blocks teachers from using it reliably.
-- The fees page UX is too raw to hand to a school admin.
-- Dashboard shows almost no data — first thing a customer sees, last thing that should be empty.
+- Student detail still lacks a unified, cross-domain operational view.
+- Onboarding still needs UX hardening for fully self-serve institution setup.
 - Business rules must stay in NestJS; any shortcut that pushes authorization or domain logic into the frontend creates a security gap.
 
 ## Locked Product Decisions

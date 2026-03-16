@@ -75,3 +75,27 @@ export function useReplaceExamMarksMutation(institutionId: string | undefined) {
     },
   });
 }
+
+export function useExamReportCardQuery(
+  institutionId: string | undefined,
+  examTermId: string | undefined,
+  studentId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    EXAMS_API_PATHS.REPORT_CARD,
+    {
+      params: {
+        path: {
+          examTermId: examTermId ?? "",
+        },
+        query: {
+          studentId: studentId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && examTermId && studentId),
+    },
+  );
+}

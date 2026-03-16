@@ -18,8 +18,23 @@ import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { sectionScopeFilter } from "../auth/scope-filter";
-import { ExamMarkDto, ExamTermDto } from "./exams.dto";
-import type { CreateExamTermDto, UpsertExamMarksDto } from "./exams.schemas";
+import { ExamMarkDto, ExamReportCardDto, ExamTermDto } from "./exams.dto";
+import type {
+  CreateExamTermDto,
+  ExamReportCardQueryDto,
+  UpsertExamMarksDto,
+} from "./exams.schemas";
+
+const EXAM_GRADING_SCHEME = [
+  { grade: "A1", minPercent: 90, label: "Outstanding" },
+  { grade: "A2", minPercent: 80, label: "Excellent" },
+  { grade: "B1", minPercent: 70, label: "Very Good" },
+  { grade: "B2", minPercent: 60, label: "Good" },
+  { grade: "C1", minPercent: 50, label: "Satisfactory" },
+  { grade: "C2", minPercent: 40, label: "Needs Improvement" },
+  { grade: "D", minPercent: 33, label: "Pass" },
+  { grade: "E", minPercent: 0, label: "Needs Support" },
+] as const;
 
 @Injectable()
 export class ExamsService {
@@ -183,6 +198,109 @@ export class ExamsService {
     return this.listExamMarks(institutionId, examTermId, authSession);
   }
 
+  async getExamReportCard(
+    institutionId: string,
+    examTermId: string,
+    query: ExamReportCardQueryDto,
+    scopes: ResolvedScopes = {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    },
+  ): Promise<ExamReportCardDto> {
+    const examTerm = await this.getExamTermWithYearOrThrow(
+      institutionId,
+      examTermId,
+    );
+
+    const [studentRow] = await this.database
+      .select({
+        id: students.id,
+        firstName: students.firstName,
+        lastName: students.lastName,
+        admissionNumber: students.admissionNumber,
+      })
+      .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .where(
+        and(
+          eq(students.institutionId, institutionId),
+          eq(students.id, query.studentId),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          sectionScopeFilter(students.sectionId, scopes),
+        ),
+      )
+      .limit(1);
+
+    if (!studentRow) {
+      throw new NotFoundException(ERROR_MESSAGES.STUDENTS.STUDENT_NOT_FOUND);
+    }
+
+    const subjectRows = await this.database
+      .select({
+        subjectName: examMarks.subjectName,
+        maxMarks: examMarks.maxMarks,
+        obtainedMarks: examMarks.obtainedMarks,
+        remarks: examMarks.remarks,
+      })
+      .from(examMarks)
+      .where(
+        and(
+          eq(examMarks.institutionId, institutionId),
+          eq(examMarks.examTermId, examTermId),
+          eq(examMarks.studentId, query.studentId),
+        ),
+      )
+      .orderBy(asc(examMarks.subjectName));
+
+    const subjects = subjectRows.map((row) => {
+      const percent = this.roundPercent(
+        this.toPercent(row.obtainedMarks, row.maxMarks),
+      );
+      return {
+        subjectName: row.subjectName,
+        maxMarks: row.maxMarks,
+        obtainedMarks: row.obtainedMarks,
+        percent,
+        grade: this.resolveGrade(percent),
+        remarks: row.remarks,
+      };
+    });
+
+    const totalMaxMarks = subjects.reduce((sum, row) => sum + row.maxMarks, 0);
+    const totalObtainedMarks = subjects.reduce(
+      (sum, row) => sum + row.obtainedMarks,
+      0,
+    );
+    const overallPercent = this.roundPercent(
+      this.toPercent(totalObtainedMarks, totalMaxMarks),
+    );
+
+    return {
+      examTermId: examTerm.id,
+      examTermName: examTerm.name,
+      academicYearId: examTerm.academicYearId,
+      academicYearName: examTerm.academicYearName,
+      studentId: studentRow.id,
+      studentFullName: [studentRow.firstName, studentRow.lastName]
+        .filter(Boolean)
+        .join(" "),
+      admissionNumber: studentRow.admissionNumber,
+      summary: {
+        totalMaxMarks,
+        totalObtainedMarks,
+        overallPercent,
+        overallGrade: this.resolveGrade(overallPercent),
+      },
+      subjects,
+      gradingScheme: EXAM_GRADING_SCHEME.map((band) => ({
+        grade: band.grade,
+        minPercent: band.minPercent,
+        label: band.label,
+      })),
+    };
+  }
+
   private async getAcademicYearOrThrow(
     institutionId: string,
     academicYearId: string,
@@ -230,6 +348,36 @@ export class ExamsService {
     return examTerm;
   }
 
+  private async getExamTermWithYearOrThrow(
+    institutionId: string,
+    examTermId: string,
+  ) {
+    const [examTerm] = await this.database
+      .select({
+        id: examTerms.id,
+        academicYearId: examTerms.academicYearId,
+        academicYearName: academicYears.name,
+        name: examTerms.name,
+      })
+      .from(examTerms)
+      .innerJoin(academicYears, eq(examTerms.academicYearId, academicYears.id))
+      .where(
+        and(
+          eq(examTerms.id, examTermId),
+          eq(examTerms.institutionId, institutionId),
+          isNull(examTerms.deletedAt),
+          ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
+        ),
+      )
+      .limit(1);
+
+    if (!examTerm) {
+      throw new NotFoundException(ERROR_MESSAGES.EXAMS.TERM_NOT_FOUND);
+    }
+
+    return examTerm;
+  }
+
   private async assertStudentsBelongToInstitution(
     institutionId: string,
     studentIds: string[],
@@ -254,5 +402,28 @@ export class ExamsService {
     if (rows.length !== distinctStudentIds.length) {
       throw new BadRequestException(ERROR_MESSAGES.EXAMS.STUDENT_REQUIRED);
     }
+  }
+
+  private toPercent(obtainedMarks: number, maxMarks: number) {
+    if (maxMarks <= 0) {
+      return 0;
+    }
+
+    return (obtainedMarks / maxMarks) * 100;
+  }
+
+  private roundPercent(value: number) {
+    return Number(value.toFixed(2));
+  }
+
+  private resolveGrade(percent: number) {
+    const matchedBand = EXAM_GRADING_SCHEME.find(
+      (band) => percent >= band.minPercent,
+    );
+    if (matchedBand) {
+      return matchedBand.grade;
+    }
+
+    return "E";
   }
 }

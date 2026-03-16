@@ -1,5 +1,6 @@
 import {
-  IconBuildingEstate,
+  IconCalendarStats,
+  IconCurrencyRupee,
   IconUsers,
   IconUsersGroup,
 } from "@tabler/icons-react";
@@ -12,12 +13,9 @@ import {
   CardTitle,
 } from "@repo/ui/components/ui/card";
 import type { Icon } from "@tabler/icons-react";
-import type { AuthSession } from "@/features/auth/model/auth.types";
 
 const LOADING_VALUE = "—";
-const CAMPUS_FALLBACK = "Not set";
-const MULTI_CAMPUS_STATUS = "Multi-campus";
-const SINGLE_CAMPUS_STATUS = "Single campus";
+const LOADING_BADGE = "Syncing...";
 
 type CardDef = {
   label: string;
@@ -27,47 +25,65 @@ type CardDef = {
 };
 
 type SectionCardsProps = {
+  attendanceBadge: string;
+  isLoadingAttendance: boolean;
+  isLoadingFees: boolean;
+  isLoadingStaff: boolean;
   isLoadingStudents: boolean;
-  session: AuthSession | null;
+  outstandingFeesValue: string;
+  staffCount: number;
   studentCount: number;
+  todayAttendanceValue: string;
 };
 
 export function SectionCards({
+  attendanceBadge,
+  isLoadingAttendance,
+  isLoadingFees,
+  isLoadingStaff,
   isLoadingStudents,
-  session,
+  outstandingFeesValue,
+  staffCount,
   studentCount,
+  todayAttendanceValue,
 }: SectionCardsProps) {
-  const campusCount = session?.campuses.length ?? 0;
-  const membershipCount = session?.memberships.length ?? 0;
-
   const cards: CardDef[] = [
     {
       label: "Enrolled students",
       value: isLoadingStudents ? LOADING_VALUE : String(studentCount),
       badge: isLoadingStudents
-        ? "Syncing…"
+        ? LOADING_BADGE
         : studentCount === 1
           ? "1 student"
           : `${studentCount} students`,
       Icon: IconUsers,
     },
     {
-      label: "Active campus",
-      value: session?.activeCampus?.name ?? CAMPUS_FALLBACK,
-      badge: campusCount > 1 ? MULTI_CAMPUS_STATUS : SINGLE_CAMPUS_STATUS,
-      Icon: IconBuildingEstate,
+      label: "Staff members",
+      value: isLoadingStaff ? LOADING_VALUE : String(staffCount),
+      badge: isLoadingStaff
+        ? LOADING_BADGE
+        : staffCount === 1
+          ? "1 staff"
+          : `${staffCount} staff`,
+      Icon: IconUsersGroup,
     },
     {
-      label: "Your roles",
-      value: String(membershipCount || LOADING_VALUE),
-      badge:
-        membershipCount === 1 ? "1 active role" : `${membershipCount} roles`,
-      Icon: IconUsersGroup,
+      label: "Today's attendance",
+      value: isLoadingAttendance ? LOADING_VALUE : todayAttendanceValue,
+      badge: isLoadingAttendance ? LOADING_BADGE : attendanceBadge,
+      Icon: IconCalendarStats,
+    },
+    {
+      label: "Outstanding fees",
+      value: isLoadingFees ? LOADING_VALUE : outstandingFeesValue,
+      badge: isLoadingFees ? LOADING_BADGE : "Across current filters",
+      Icon: IconCurrencyRupee,
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:shadow-xs @xl/main:grid-cols-3">
+    <div className="grid grid-cols-1 gap-4 *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @4xl/main:grid-cols-4">
       {cards.map(({ label, value, badge, Icon }) => (
         <Card key={label} className="@container/card relative overflow-hidden">
           {/* Primary-color top accent bar */}

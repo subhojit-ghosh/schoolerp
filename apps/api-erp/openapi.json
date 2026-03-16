@@ -2343,6 +2343,50 @@
         ]
       }
     },
+    "/exams/terms/{examTermId}/report-card": {
+      "get": {
+        "operationId": "ExamsController_getExamReportCard",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamReportCardDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get subject-wise report card with grading for one student",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/fees/structures": {
       "get": {
         "operationId": "FeesController_listFeeStructures",
@@ -2589,7 +2633,7 @@
             "cookie": []
           }
         ],
-        "summary": "Delete a fee structure (only if no active assignments)",
+        "summary": "Delete a fee structure (only if no assignments exist)",
         "tags": [
           "fees"
         ]
@@ -6159,6 +6203,132 @@
         },
         "required": [
           "entries"
+        ]
+      },
+      "ExamReportCardSummaryDto": {
+        "type": "object",
+        "properties": {
+          "totalMaxMarks": {
+            "type": "number"
+          },
+          "totalObtainedMarks": {
+            "type": "number"
+          },
+          "overallPercent": {
+            "type": "number"
+          },
+          "overallGrade": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "totalMaxMarks",
+          "totalObtainedMarks",
+          "overallPercent",
+          "overallGrade"
+        ]
+      },
+      "ExamReportCardSubjectDto": {
+        "type": "object",
+        "properties": {
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          },
+          "percent": {
+            "type": "number"
+          },
+          "grade": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks",
+          "percent",
+          "grade"
+        ]
+      },
+      "ExamGradeBandDto": {
+        "type": "object",
+        "properties": {
+          "grade": {
+            "type": "string"
+          },
+          "minPercent": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "grade",
+          "minPercent",
+          "label"
+        ]
+      },
+      "ExamReportCardDto": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/ExamReportCardSummaryDto"
+          },
+          "subjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamReportCardSubjectDto"
+            }
+          },
+          "gradingScheme": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamGradeBandDto"
+            }
+          },
+          "examTermId": {
+            "type": "string"
+          },
+          "examTermName": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentFullName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "summary",
+          "subjects",
+          "gradingScheme",
+          "examTermId",
+          "examTermName",
+          "academicYearId",
+          "academicYearName",
+          "studentId",
+          "studentFullName",
+          "admissionNumber"
         ]
       },
       "FeeStructureInstallmentDto": {

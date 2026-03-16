@@ -33,6 +33,7 @@ export const API_ROUTES = {
   EXAMS: "exams",
   TERMS: "terms",
   MARKS: "marks",
+  REPORT_CARD: "report-card",
   FEES: "fees",
   STRUCTURES: "structures",
   ASSIGNMENTS: "assignments",

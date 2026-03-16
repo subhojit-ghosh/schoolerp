@@ -79,6 +79,7 @@ export const EXAMS_API_PATHS = {
   CREATE_TERM: "/exams/terms",
   LIST_MARKS: "/exams/terms/{examTermId}/marks",
   REPLACE_MARKS: "/exams/terms/{examTermId}/marks",
+  REPORT_CARD: "/exams/terms/{examTermId}/report-card",
 } as const;
 
 export const INSTITUTIONS_API_PATHS = {

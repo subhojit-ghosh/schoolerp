@@ -6,6 +6,7 @@ import {
   IconPlus,
 } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
+import { Button } from "@repo/ui/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,6 +14,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
 import {
   getActiveContext,
   isStaffContext,
@@ -22,6 +31,7 @@ import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academi
 import {
   useCreateExamTermMutation,
   useExamMarksQuery,
+  useExamReportCardQuery,
   useExamTermsQuery,
   useReplaceExamMarksMutation,
 } from "@/features/exams/api/use-exams";
@@ -56,6 +66,8 @@ export function ExamsPage() {
   const replaceMarksMutation =
     useReplaceExamMarksMutation(managedInstitutionId);
   const [selectedExamTermId, setSelectedExamTermId] = useState<string>();
+  const [selectedReportStudentId, setSelectedReportStudentId] =
+    useState<string>();
   const academicYears = useMemo(
     () => academicYearsQuery.data?.rows ?? [],
     [academicYearsQuery.data?.rows],
@@ -68,6 +80,11 @@ export function ExamsPage() {
   const examMarksQuery = useExamMarksQuery(
     managedInstitutionId,
     selectedExamTermId,
+  );
+  const examReportCardQuery = useExamReportCardQuery(
+    managedInstitutionId,
+    selectedExamTermId,
+    selectedReportStudentId,
   );
 
   useEffect(() => {
@@ -82,6 +99,20 @@ export function ExamsPage() {
         : examTerms[0]?.id,
     );
   }, [examTerms]);
+
+  useEffect(() => {
+    const students = studentOptionsQuery.data ?? [];
+    if (students.length === 0) {
+      setSelectedReportStudentId(undefined);
+      return;
+    }
+
+    setSelectedReportStudentId((currentStudentId) =>
+      currentStudentId && students.some((student) => student.id === currentStudentId)
+        ? currentStudentId
+        : students[0]?.id,
+    );
+  }, [studentOptionsQuery.data]);
 
   const termDefaultValues: ExamTermFormValues = useMemo(
     () => ({
@@ -333,6 +364,184 @@ export function ExamsPage() {
               <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
                 No marks saved for this term yet.
               </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/70 shadow-sm">
+          <CardHeader>
+            <CardTitle>Report card</CardTitle>
+            <CardDescription>
+              Subject-wise marks, grade bands, and overall grade for one
+              student in the selected term.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            {!selectedExamTermId ? (
+              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                Select an exam term to view report cards.
+              </div>
+            ) : (studentOptionsQuery.data?.length ?? 0) === 0 ? (
+              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                Add students before generating report cards.
+              </div>
+            ) : (
+              <>
+                <div className="grid gap-3 md:grid-cols-[280px_minmax(0,1fr)] md:items-end">
+                  <div className="space-y-2">
+                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                      Student
+                    </p>
+                    <Select
+                      onValueChange={setSelectedReportStudentId}
+                      value={selectedReportStudentId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select student" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          {(studentOptionsQuery.data ?? []).map((student) => (
+                            <SelectItem key={student.id} value={student.id}>
+                              {student.fullName} ({student.admissionNumber})
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {examReportCardQuery.isLoading ? (
+                  <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                    Loading report card...
+                  </div>
+                ) : examReportCardQuery.isError ? (
+                  <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-destructive">
+                    {(examReportCardQuery.error as Error | null | undefined)
+                      ?.message ?? "Could not load report card."}
+                  </div>
+                ) : examReportCardQuery.data ? (
+                  <div className="space-y-4 rounded-xl border bg-card p-4">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div>
+                        <p className="text-base font-semibold text-foreground">
+                          {examReportCardQuery.data.studentFullName}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {examReportCardQuery.data.examTermName} ·{" "}
+                          {examReportCardQuery.data.academicYearName} ·{" "}
+                          {examReportCardQuery.data.admissionNumber}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge>{examReportCardQuery.data.summary.overallGrade}</Badge>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.print()}
+                        >
+                          Print
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      <div className="rounded-lg border bg-muted/20 px-3 py-2">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          Total marks
+                        </p>
+                        <p className="text-base font-semibold tabular-nums">
+                          {examReportCardQuery.data.summary.totalObtainedMarks}/
+                          {examReportCardQuery.data.summary.totalMaxMarks}
+                        </p>
+                      </div>
+                      <div className="rounded-lg border bg-muted/20 px-3 py-2">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          Percentage
+                        </p>
+                        <p className="text-base font-semibold tabular-nums">
+                          {examReportCardQuery.data.summary.overallPercent}%
+                        </p>
+                      </div>
+                      <div className="rounded-lg border bg-muted/20 px-3 py-2">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          Overall grade
+                        </p>
+                        <p className="text-base font-semibold">
+                          {examReportCardQuery.data.summary.overallGrade}
+                        </p>
+                      </div>
+                    </div>
+
+                    {examReportCardQuery.data.subjects.length > 0 ? (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b bg-muted/30">
+                              <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                                Subject
+                              </th>
+                              <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                                Score
+                              </th>
+                              <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                                %
+                              </th>
+                              <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                                Grade
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y">
+                            {examReportCardQuery.data.subjects.map((subject) => (
+                              <tr key={subject.subjectName}>
+                                <td className="px-3 py-2">
+                                  <p className="font-medium text-foreground">
+                                    {subject.subjectName}
+                                  </p>
+                                  {subject.remarks ? (
+                                    <p className="text-xs text-muted-foreground">
+                                      {subject.remarks}
+                                    </p>
+                                  ) : null}
+                                </td>
+                                <td className="px-3 py-2 text-right tabular-nums">
+                                  {subject.obtainedMarks}/{subject.maxMarks}
+                                </td>
+                                <td className="px-3 py-2 text-right tabular-nums">
+                                  {subject.percent}%
+                                </td>
+                                <td className="px-3 py-2 text-right">
+                                  <Badge variant="outline">{subject.grade}</Badge>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="rounded-xl border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
+                        No marks saved for this student in the selected term.
+                      </div>
+                    )}
+
+                    <div className="rounded-lg border bg-muted/20 px-3 py-3">
+                      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Grading scheme
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {examReportCardQuery.data.gradingScheme.map((band) => (
+                          <Badge key={band.grade} variant="outline">
+                            {band.grade}: {band.minPercent}%+ ({band.label})
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+              </>
             )}
           </CardContent>
         </Card>

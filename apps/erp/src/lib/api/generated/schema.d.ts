@@ -667,6 +667,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exams/terms/{examTermId}/report-card": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get subject-wise report card with grading for one student */
+        get: operations["ExamsController_getExamReportCard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/fees/structures": {
         parameters: {
             query?: never;
@@ -696,7 +713,7 @@ export interface paths {
         get: operations["FeesController_getFeeStructure"];
         put?: never;
         post?: never;
-        /** Delete a fee structure (only if no active assignments) */
+        /** Delete a fee structure (only if no assignments exist) */
         delete: operations["FeesController_deleteFeeStructure"];
         options?: never;
         head?: never;
@@ -1624,6 +1641,37 @@ export interface components {
         };
         UpsertExamMarksBodyDto: {
             entries: components["schemas"]["UpsertExamMarkEntryBodyDto"][];
+        };
+        ExamReportCardSummaryDto: {
+            totalMaxMarks: number;
+            totalObtainedMarks: number;
+            overallPercent: number;
+            overallGrade: string;
+        };
+        ExamReportCardSubjectDto: {
+            remarks?: string | null;
+            subjectName: string;
+            maxMarks: number;
+            obtainedMarks: number;
+            percent: number;
+            grade: string;
+        };
+        ExamGradeBandDto: {
+            grade: string;
+            minPercent: number;
+            label: string;
+        };
+        ExamReportCardDto: {
+            summary: components["schemas"]["ExamReportCardSummaryDto"];
+            subjects: components["schemas"]["ExamReportCardSubjectDto"][];
+            gradingScheme: components["schemas"]["ExamGradeBandDto"][];
+            examTermId: string;
+            examTermName: string;
+            academicYearId: string;
+            academicYearName: string;
+            studentId: string;
+            studentFullName: string;
+            admissionNumber: string;
         };
         FeeStructureInstallmentDto: {
             id: string;
@@ -3203,6 +3251,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExamMarkDto"][];
+                };
+            };
+        };
+    };
+    ExamsController_getExamReportCard: {
+        parameters: {
+            query: {
+                studentId: string;
+            };
+            header?: never;
+            path: {
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamReportCardDto"];
                 };
             };
         };

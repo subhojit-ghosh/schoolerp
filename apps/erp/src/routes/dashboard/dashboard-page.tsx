@@ -17,10 +17,17 @@ import {
   CardTitle,
 } from "@repo/ui/components/ui/card";
 import { SectionCards } from "@/components/data-display/section-cards";
-import { getActiveContext } from "@/features/auth/model/auth-context";
+import {
+  getActiveContext,
+  isStaffContext,
+} from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useStudentsQuery } from "@/features/students/api/use-students";
+import { useStaffQuery } from "@/features/staff/api/use-staff";
+import { useAttendanceOverviewQuery } from "@/features/attendance/api/use-attendance";
+import { useCollectionSummaryQuery } from "@/features/fees/api/use-fees";
+import { formatRupees } from "@/features/fees/model/fee-formatters";
 
 const QUICK_ACTIONS = [
   {
@@ -71,14 +78,55 @@ function firstName(name: string) {
   return name.split(" ")[0] ?? name;
 }
 
+const TODAY = new Date().toISOString().slice(0, 10);
+const DASHBOARD_STAFF_LIMIT = 1;
+
 export function DashboardPage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const name = session?.user.name ?? "";
   const institutionId = session?.activeOrganization?.id;
+  const staffDashboardInstitutionId = isStaffContext(session)
+    ? institutionId
+    : undefined;
   const linkedStudents = session?.linkedStudents ?? [];
-  const studentsQuery = useStudentsQuery(institutionId);
+  const studentsQuery = useStudentsQuery(staffDashboardInstitutionId);
   const studentCount = studentsQuery.data?.total ?? 0;
+  const staffQuery = useStaffQuery(staffDashboardInstitutionId, {
+    page: 1,
+    limit: DASHBOARD_STAFF_LIMIT,
+  });
+  const staffCount = staffQuery.data?.total ?? 0;
+  const attendanceOverviewQuery = useAttendanceOverviewQuery(
+    staffDashboardInstitutionId,
+    {
+      date: TODAY,
+    },
+  );
+  const collectionSummaryQuery = useCollectionSummaryQuery(
+    Boolean(staffDashboardInstitutionId),
+    {},
+  );
+  const attendanceOverview = attendanceOverviewQuery.data ?? [];
+  const markedSections = attendanceOverview.filter((item) => item.marked).length;
+  const totalSections = attendanceOverview.length;
+  const presentCount = attendanceOverview.reduce(
+    (sum, item) => sum + (item.counts?.present ?? 0),
+    0,
+  );
+  const absentCount = attendanceOverview.reduce(
+    (sum, item) => sum + (item.counts?.absent ?? 0),
+    0,
+  );
+  const todayAttendanceValue =
+    totalSections === 0 ? "0/0 sections" : `${markedSections}/${totalSections} sections`;
+  const attendanceBadge =
+    totalSections === 0
+      ? "No class sections"
+      : `P ${presentCount} | A ${absentCount}`;
+  const outstandingFeesValue = formatRupees(
+    collectionSummaryQuery.data?.totalOutstandingInPaise ?? 0,
+  );
 
   if (activeContext?.key === AUTH_CONTEXT_KEYS.PARENT) {
     return (
@@ -200,9 +248,15 @@ export function DashboardPage() {
 
       {/* Stat cards */}
       <SectionCards
+        attendanceBadge={attendanceBadge}
+        isLoadingAttendance={attendanceOverviewQuery.isLoading}
+        isLoadingFees={collectionSummaryQuery.isLoading}
+        isLoadingStaff={staffQuery.isLoading}
         isLoadingStudents={studentsQuery.isLoading}
-        session={session}
+        outstandingFeesValue={outstandingFeesValue}
+        staffCount={staffCount}
         studentCount={studentCount}
+        todayAttendanceValue={todayAttendanceValue}
       />
 
       {/* Quick actions */}

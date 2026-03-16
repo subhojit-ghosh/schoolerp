@@ -40,23 +40,20 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Roles** — list, create, edit, delete; grouped permission picker; system role display
 - **Fees** — fee structures list/create/edit/archive/delete, single and bulk assignment, dues view, payment collection, concessions, payment reversal, and filtered collection reporting
   - Fee assignments now use hard delete guardrails (blocked when payments/adjustments exist) to avoid hidden soft-deleted blockers during installment/version workflows
+- **Dashboard** — live tiles for enrolled students, staff count, today's attendance coverage, and total outstanding fees; quick links for attendance/exams/fees are enabled
+- **Attendance** — daily class-wise marking flow with class/section names, day overview, and class/student attendance reports
+- **Exams** — term management, marks entry, saved marks, and student report card view with grading scheme + printable output
 
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
-- **Dashboard** — exists but shows almost no data. Only student count is live. No attendance summary, no fees outstanding, no staff count. Attendance quick-action is disabled ("Coming soon").
-- **Attendance** — backend works, frontend form works, but: (1) attendance link is disabled in dashboard, (2) class selector shows raw IDs not names. Not usable by a teacher as-is.
-- **Exams** — backend has term create/list and batch marks entry. Frontend has term creation and marks entry form. No grading scheme, no report card, no subject-wise breakdown visible to a parent or student.
+- Frontend presentation: many pages are functional but not polished enough for a customer demo.
 
 ## In Progress
 
 - Auth delivery: no SMS or email provider wired. Password reset tokens and staff password-setup links are generated but not delivered.
-- Frontend presentation: many pages are functional but not polished enough for a customer demo.
 
 ## Missing for v1
 
-- **Dashboard** real metrics: today's attendance summary, outstanding fees total, staff count
-- **Attendance** class name display fix; enable nav link; teacher-friendly daily flow
-- **Exams** grading scheme, subject-wise marks, report card view per student per term
 - **Student detail** unified view: profile, enrollment, attendance record, fee status, exam results
 - **SMS/email delivery** for password reset and staff onboarding links
 - **Timetable** — class-wise weekly schedule
