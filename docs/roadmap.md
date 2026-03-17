@@ -42,11 +42,10 @@ These items still block full day-to-day v1 readiness:
 
 ## Next — Close operational gaps a real school hits quickly
 
-1. **Academic year rollover and student movement** — promotion, class/section changes, withdrawals, and year-end progression cannot stay manual.
-2. **Bulk import/export** — schools need fast onboarding and spreadsheet interoperability for students, staff, guardians, and fee data.
-3. **Audit trail** — sensitive actions such as fee reversals, marks replacement, attendance corrections, and role changes need traceable history.
-4. **Document outputs** — fee receipts, report cards, admission acknowledgements, and certificate-ready output are part of daily school operations.
-5. **Branding hardening** — ensure tenant logo, favicon, display name, and theme tokens are robust across tenant bootstrap, printing, and navigation.
+1. **Bulk import/export** — schools need fast onboarding and spreadsheet interoperability for students, staff, guardians, and fee data.
+2. **Audit trail** — sensitive actions such as fee reversals, marks replacement, attendance corrections, role changes, and rollover actions need traceable history.
+3. **Document outputs** — fee receipts, report cards, admission acknowledgements, and certificate-ready output are part of daily school operations.
+4. **Branding hardening** — ensure tenant logo, favicon, display name, and theme tokens are robust across tenant bootstrap, printing, and navigation.
 
 ## Then — Add the common breadth schools expect in a feature-rich ERP
 
@@ -72,7 +71,7 @@ These items still block full day-to-day v1 readiness:
 
 - Password reset and staff password-setup links are broken for production use until a real SMS/email provider is wired.
 - Parent and student dashboards are still placeholder-grade.
-- Schools will still fall back to spreadsheets for rollover and bulk onboarding until those workflows exist.
+- Schools will still fall back to spreadsheets for bulk onboarding until import/export workflows exist.
 - A broader, feature-rich ERP direction increases surface area; sequencing discipline is required so common breadth modules do not derail core v1 blockers.
 - Onboarding still needs UX hardening for fully self-serve institution setup.
 - Business rules must stay in NestJS; any shortcut that pushes authorization or domain logic into the frontend creates a security gap.

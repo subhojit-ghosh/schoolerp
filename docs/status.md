@@ -35,6 +35,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Academic years** — list, create, edit; current-year enforcement; sheet flows
 - **Classes and sections** — list, create, edit; section lifecycle (active/inactive); campus assignment; dependency guardrails on delete
 - **Students** — list, create, edit, detail; enrollment tied to academic year/class/section; guardian linking; admission number
+- **Student rollover** — source-year roster preview, section-to-section mapping, withdrawal handling, and academic-year progression into target current enrollment
 - **Student 360** — operational student profile with attendance snapshot, fee snapshot, exam snapshot, guardian details, and recent activity timeline
 - **Staff** — list, create, edit, detail; campus assignment; role assignment; active/inactive toggle; password-setup issuance on create
 - **Guardians** — list, detail, edit; linked-student relationship management
@@ -64,7 +65,6 @@ Keep this file evidence-based. Do not use it as a roadmap.
 
 - **SMS/email delivery** for password reset and staff onboarding links
 - **Notifications depth** — expand the feed beyond announcement-publish events into fee due, absent streak, password-setup, admissions, and approval workflows
-- **Academic rollover workflows** — promotion, student movement, withdrawal, and year-end progression
 - **Bulk import/export** for students, staff, guardians, and fee data
 - **Audit trail** for sensitive operational and financial mutations
 - **Document outputs** such as fee receipts, acknowledgements, and certificate/report-card-ready exports

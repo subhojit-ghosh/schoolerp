@@ -2516,6 +2516,80 @@
         ]
       }
     },
+    "/students/rollover/preview": {
+      "post": {
+        "operationId": "StudentRolloverController_preview",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentRolloverBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentRolloverPreviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Preview academic-year rollover for currently enrolled students",
+        "tags": [
+          "students"
+        ]
+      }
+    },
+    "/students/rollover/execute": {
+      "post": {
+        "operationId": "StudentRolloverController_execute",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentRolloverBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentRolloverExecuteDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Execute academic-year rollover for currently enrolled students",
+        "tags": [
+          "students"
+        ]
+      }
+    },
     "/staff": {
       "get": {
         "operationId": "StaffController_listStaff",
@@ -8069,6 +8143,306 @@
           "classId",
           "sectionId",
           "campusId"
+        ]
+      },
+      "StudentRolloverSectionMappingBodyDto": {
+        "type": "object",
+        "properties": {
+          "sourceClassId": {
+            "type": "string"
+          },
+          "sourceSectionId": {
+            "type": "string"
+          },
+          "targetClassId": {
+            "type": "string"
+          },
+          "targetSectionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sourceClassId",
+          "sourceSectionId",
+          "targetClassId",
+          "targetSectionId"
+        ]
+      },
+      "StudentRolloverBodyDto": {
+        "type": "object",
+        "properties": {
+          "sectionMappings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentRolloverSectionMappingBodyDto"
+            }
+          },
+          "withdrawnStudentIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "sourceAcademicYearId": {
+            "type": "string"
+          },
+          "targetAcademicYearId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sectionMappings",
+          "withdrawnStudentIds",
+          "sourceAcademicYearId",
+          "targetAcademicYearId"
+        ]
+      },
+      "StudentRolloverAcademicYearDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "StudentRolloverSummaryDto": {
+        "type": "object",
+        "properties": {
+          "eligibleStudentCount": {
+            "type": "number"
+          },
+          "mappedStudentCount": {
+            "type": "number"
+          },
+          "unmappedStudentCount": {
+            "type": "number"
+          },
+          "withdrawnStudentCount": {
+            "type": "number"
+          },
+          "sourceSectionCount": {
+            "type": "number"
+          },
+          "mappedSectionCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "eligibleStudentCount",
+          "mappedStudentCount",
+          "unmappedStudentCount",
+          "withdrawnStudentCount",
+          "sourceSectionCount",
+          "mappedSectionCount"
+        ]
+      },
+      "StudentRolloverPlacementDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "campusId",
+          "campusName"
+        ]
+      },
+      "StudentRolloverPreviewStudentDto": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "enum": [
+              "continue",
+              "withdraw"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "mapped",
+              "unmapped",
+              "withdrawn"
+            ]
+          },
+          "source": {
+            "$ref": "#/components/schemas/StudentRolloverPlacementDto"
+          },
+          "target": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StudentRolloverPlacementDto"
+              }
+            ]
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "membershipId": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "action",
+          "status",
+          "source",
+          "target",
+          "studentId",
+          "membershipId",
+          "admissionNumber",
+          "fullName"
+        ]
+      },
+      "StudentRolloverPreviewSectionDto": {
+        "type": "object",
+        "properties": {
+          "mapping": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StudentRolloverPlacementDto"
+              }
+            ]
+          },
+          "students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentRolloverPreviewStudentDto"
+            }
+          },
+          "sourceClassId": {
+            "type": "string"
+          },
+          "sourceClassName": {
+            "type": "string"
+          },
+          "sourceSectionId": {
+            "type": "string"
+          },
+          "sourceSectionName": {
+            "type": "string"
+          },
+          "sourceCampusId": {
+            "type": "string"
+          },
+          "sourceCampusName": {
+            "type": "string"
+          },
+          "studentCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "mapping",
+          "students",
+          "sourceClassId",
+          "sourceClassName",
+          "sourceSectionId",
+          "sourceSectionName",
+          "sourceCampusId",
+          "sourceCampusName",
+          "studentCount"
+        ]
+      },
+      "StudentRolloverPreviewDto": {
+        "type": "object",
+        "properties": {
+          "sourceAcademicYear": {
+            "$ref": "#/components/schemas/StudentRolloverAcademicYearDto"
+          },
+          "targetAcademicYear": {
+            "$ref": "#/components/schemas/StudentRolloverAcademicYearDto"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/StudentRolloverSummaryDto"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentRolloverPreviewSectionDto"
+            }
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "sourceAcademicYear",
+          "targetAcademicYear",
+          "summary",
+          "sections",
+          "generatedAt"
+        ]
+      },
+      "StudentRolloverExecuteDto": {
+        "type": "object",
+        "properties": {
+          "sourceAcademicYear": {
+            "$ref": "#/components/schemas/StudentRolloverAcademicYearDto"
+          },
+          "targetAcademicYear": {
+            "$ref": "#/components/schemas/StudentRolloverAcademicYearDto"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/StudentRolloverSummaryDto"
+          },
+          "sections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentRolloverPreviewSectionDto"
+            }
+          },
+          "generatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "executedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "sourceAcademicYear",
+          "targetAcademicYear",
+          "summary",
+          "sections",
+          "generatedAt",
+          "executedAt"
         ]
       },
       "StaffRoleDto": {

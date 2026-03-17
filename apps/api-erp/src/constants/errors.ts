@@ -35,6 +35,12 @@ export const ERROR_MESSAGES = {
       "Each guardian must belong to the selected institution.",
     CLASS_CAMPUS_MISMATCH:
       "The selected class does not belong to the selected campus.",
+    ROLLOVER_TARGET_YEAR_REQUIRED:
+      "Student rollover can only target an active academic year.",
+    ROLLOVER_DIFFERENT_YEAR_REQUIRED:
+      "Select a different source and target academic year for rollover.",
+    ROLLOVER_UNMAPPED_STUDENTS:
+      "Every continuing student must have a target class and section before rollover can run.",
   },
   STAFF: {
     STAFF_NOT_FOUND: "The selected staff record was not found.",

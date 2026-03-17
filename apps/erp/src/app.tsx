@@ -41,6 +41,7 @@ import { ClassesPage } from "@/routes/academics/classes-page";
 import { SubjectsPage } from "@/routes/academics/subjects-page";
 import { TimetablePage } from "@/routes/academics/timetable-page";
 import { CalendarPage } from "@/routes/academics/calendar-page";
+import { StudentRolloverPage } from "@/routes/academics/student-rollover-page";
 import { GuardianDetailPage } from "@/routes/people/guardian-detail-page";
 import { GuardiansPage } from "@/routes/people/guardians-page";
 import { AdmissionApplicationsPage } from "@/routes/admissions/admission-applications-page";
@@ -158,6 +159,7 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.STUDENTS, element: <StudentsPage /> },
       { path: ERP_ROUTES.STUDENT_CREATE, element: <StudentCreatePage /> },
       { path: ERP_ROUTES.STUDENT_DETAIL, element: <StudentDetailPage /> },
+      { path: ERP_ROUTES.STUDENT_ROLLOVER, element: <StudentRolloverPage /> },
       { path: ERP_ROUTES.GUARDIANS, element: <GuardiansPage /> },
       { path: ERP_ROUTES.GUARDIAN_DETAIL, element: <GuardianDetailPage /> },
       { path: ERP_ROUTES.STAFF, element: <StaffPage /> },

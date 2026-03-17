@@ -15,6 +15,7 @@ import {
   IconCertificate,
   IconCheck,
   IconChartBar,
+  IconChevronsUp,
   IconChevronDown,
   IconChevronRight,
   IconClipboardList,
@@ -126,6 +127,11 @@ const NAV_CORE = [
 const NAV_ACADEMIC_MANAGEMENT = [
   { icon: IconBook2, title: "Academic Years", url: ERP_ROUTES.ACADEMIC_YEARS },
   { icon: IconBook2, title: "Classes", url: ERP_ROUTES.CLASSES },
+  {
+    icon: IconChevronsUp,
+    title: "Rollover",
+    url: ERP_ROUTES.STUDENT_ROLLOVER,
+  },
   {
     icon: IconBooks,
     title: "Subjects",

@@ -1026,7 +1026,7 @@ export class FeesService {
           and(
             eq(students.institutionId, institutionId),
             eq(students.classId, payload.classId),
-            ne(member.status, STATUS.MEMBER.DELETED),
+            eq(member.status, STATUS.MEMBER.ACTIVE),
           ),
         );
 

@@ -21,6 +21,7 @@ export const ERP_ROUTES = {
   STUDENTS: "/students",
   STUDENT_CREATE: `/students/${ERP_ROUTE_SEGMENTS.NEW}`,
   STUDENT_DETAIL: "/students/:studentId",
+  STUDENT_ROLLOVER: "/student-rollover",
   GUARDIANS: "/guardians",
   GUARDIAN_DETAIL: "/guardians/:guardianId",
   STAFF: "/staff",

@@ -668,6 +668,40 @@ export interface paths {
         patch: operations["StudentsController_updateStudent"];
         trace?: never;
     };
+    "/students/rollover/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview academic-year rollover for currently enrolled students */
+        post: operations["StudentRolloverController_preview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/students/rollover/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Execute academic-year rollover for currently enrolled students */
+        post: operations["StudentRolloverController_execute"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/staff": {
         parameters: {
             query?: never;
@@ -2058,6 +2092,79 @@ export interface components {
             classId: string;
             sectionId: string;
             campusId: string;
+        };
+        StudentRolloverSectionMappingBodyDto: {
+            sourceClassId: string;
+            sourceSectionId: string;
+            targetClassId: string;
+            targetSectionId: string;
+        };
+        StudentRolloverBodyDto: {
+            sectionMappings: components["schemas"]["StudentRolloverSectionMappingBodyDto"][];
+            withdrawnStudentIds: string[];
+            sourceAcademicYearId: string;
+            targetAcademicYearId: string;
+        };
+        StudentRolloverAcademicYearDto: {
+            id: string;
+            name: string;
+        };
+        StudentRolloverSummaryDto: {
+            eligibleStudentCount: number;
+            mappedStudentCount: number;
+            unmappedStudentCount: number;
+            withdrawnStudentCount: number;
+            sourceSectionCount: number;
+            mappedSectionCount: number;
+        };
+        StudentRolloverPlacementDto: {
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            campusId: string;
+            campusName: string;
+        };
+        StudentRolloverPreviewStudentDto: {
+            /** @enum {string} */
+            action: "continue" | "withdraw";
+            /** @enum {string} */
+            status: "mapped" | "unmapped" | "withdrawn";
+            source: components["schemas"]["StudentRolloverPlacementDto"];
+            target: components["schemas"]["StudentRolloverPlacementDto"] | null;
+            studentId: string;
+            membershipId: string;
+            admissionNumber: string;
+            fullName: string;
+        };
+        StudentRolloverPreviewSectionDto: {
+            mapping: components["schemas"]["StudentRolloverPlacementDto"] | null;
+            students: components["schemas"]["StudentRolloverPreviewStudentDto"][];
+            sourceClassId: string;
+            sourceClassName: string;
+            sourceSectionId: string;
+            sourceSectionName: string;
+            sourceCampusId: string;
+            sourceCampusName: string;
+            studentCount: number;
+        };
+        StudentRolloverPreviewDto: {
+            sourceAcademicYear: components["schemas"]["StudentRolloverAcademicYearDto"];
+            targetAcademicYear: components["schemas"]["StudentRolloverAcademicYearDto"];
+            summary: components["schemas"]["StudentRolloverSummaryDto"];
+            sections: components["schemas"]["StudentRolloverPreviewSectionDto"][];
+            /** Format: date-time */
+            generatedAt: string;
+        };
+        StudentRolloverExecuteDto: {
+            sourceAcademicYear: components["schemas"]["StudentRolloverAcademicYearDto"];
+            targetAcademicYear: components["schemas"]["StudentRolloverAcademicYearDto"];
+            summary: components["schemas"]["StudentRolloverSummaryDto"];
+            sections: components["schemas"]["StudentRolloverPreviewSectionDto"][];
+            /** Format: date-time */
+            generatedAt: string;
+            /** Format: date-time */
+            executedAt: string;
         };
         StaffRoleDto: {
             id: string;
@@ -4020,6 +4127,52 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudentDto"];
+                };
+            };
+        };
+    };
+    StudentRolloverController_preview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentRolloverBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentRolloverPreviewDto"];
+                };
+            };
+        };
+    };
+    StudentRolloverController_execute: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StudentRolloverBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentRolloverExecuteDto"];
                 };
             };
         };

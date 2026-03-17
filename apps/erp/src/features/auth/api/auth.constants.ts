@@ -21,6 +21,8 @@ export const STUDENTS_API_PATHS = {
   DETAIL: "/students/{studentId}",
   SUMMARY: "/students/{studentId}/summary",
   UPDATE: "/students/{studentId}",
+  ROLLOVER_PREVIEW: "/students/rollover/preview",
+  ROLLOVER_EXECUTE: "/students/rollover/execute",
 } as const;
 
 export const ADMISSIONS_API_PATHS = {

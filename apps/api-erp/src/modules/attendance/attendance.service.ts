@@ -80,7 +80,7 @@ export class AttendanceService {
         and(
           eq(students.institutionId, institutionId),
           eq(member.primaryCampusId, query.campusId),
-          ne(member.status, STATUS.MEMBER.DELETED),
+          eq(member.status, STATUS.MEMBER.ACTIVE),
           sectionScopeFilter(students.sectionId, scopes),
         ),
       )
@@ -323,7 +323,7 @@ export class AttendanceService {
       .where(
         and(
           eq(students.institutionId, institutionId),
-          ne(member.status, STATUS.MEMBER.DELETED),
+          eq(member.status, STATUS.MEMBER.ACTIVE),
           ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
@@ -441,7 +441,7 @@ export class AttendanceService {
           eq(member.primaryCampusId, query.campusId),
           eq(students.classId, query.classId),
           eq(students.sectionId, query.sectionId),
-          ne(member.status, STATUS.MEMBER.DELETED),
+          eq(member.status, STATUS.MEMBER.ACTIVE),
           ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
@@ -566,7 +566,7 @@ export class AttendanceService {
         and(
           eq(students.id, query.studentId),
           eq(students.institutionId, institutionId),
-          ne(member.status, STATUS.MEMBER.DELETED),
+          eq(member.status, STATUS.MEMBER.ACTIVE),
           ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
@@ -713,7 +713,7 @@ export class AttendanceService {
           eq(member.primaryCampusId, scope.campusId),
           eq(students.classId, classId),
           eq(students.sectionId, sectionId),
-          ne(member.status, STATUS.MEMBER.DELETED),
+          eq(member.status, STATUS.MEMBER.ACTIVE),
           ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )

@@ -141,6 +141,17 @@ export const AUTH_CONTEXT_KEYS = {
   STUDENT: "student",
 } as const;
 
+export const STUDENT_ROLLOVER_ACTIONS = {
+  CONTINUE: "continue",
+  WITHDRAW: "withdraw",
+} as const;
+
+export const STUDENT_ROLLOVER_PREVIEW_STATUS = {
+  MAPPED: "mapped",
+  UNMAPPED: "unmapped",
+  WITHDRAWN: "withdrawn",
+} as const;
+
 export const FEE_STRUCTURE_SCOPES = {
   INSTITUTION: "institution",
   CAMPUS: "campus",
