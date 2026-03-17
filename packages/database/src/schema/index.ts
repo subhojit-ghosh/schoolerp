@@ -12,13 +12,18 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import {
+  ANNOUNCEMENT_AUDIENCE,
+  ANNOUNCEMENT_STATUS,
   CALENDAR_EVENT_STATUS,
   CALENDAR_EVENT_TYPES,
+  NOTIFICATION_CHANNELS,
+  NOTIFICATION_TONES,
+  NOTIFICATION_TYPES,
   SUBJECT_STATUS,
   TIMETABLE_ENTRY_STATUS,
   WEEKDAY_KEYS,
 } from "@repo/contracts";
-import { campus, member, organization } from "./auth";
+import { campus, member, organization, user } from "./auth";
 
 const FEE_STRUCTURE_SCOPE_ENUM = ["institution", "campus"] as const;
 const FEE_STRUCTURE_STATUS_ENUM = ["active", "archived", "deleted"] as const;
@@ -69,6 +74,34 @@ const CALENDAR_EVENT_STATUS_ENUM = [
   CALENDAR_EVENT_STATUS.ACTIVE,
   CALENDAR_EVENT_STATUS.INACTIVE,
   CALENDAR_EVENT_STATUS.DELETED,
+] as const;
+const ANNOUNCEMENT_AUDIENCE_ENUM = [
+  ANNOUNCEMENT_AUDIENCE.ALL,
+  ANNOUNCEMENT_AUDIENCE.STAFF,
+  ANNOUNCEMENT_AUDIENCE.GUARDIANS,
+  ANNOUNCEMENT_AUDIENCE.STUDENTS,
+] as const;
+const ANNOUNCEMENT_STATUS_ENUM = [
+  ANNOUNCEMENT_STATUS.DRAFT,
+  ANNOUNCEMENT_STATUS.PUBLISHED,
+  ANNOUNCEMENT_STATUS.ARCHIVED,
+  ANNOUNCEMENT_STATUS.DELETED,
+] as const;
+const NOTIFICATION_CHANNEL_ENUM = [
+  NOTIFICATION_CHANNELS.SYSTEM,
+  NOTIFICATION_CHANNELS.ACADEMICS,
+  NOTIFICATION_CHANNELS.OPERATIONS,
+  NOTIFICATION_CHANNELS.FINANCE,
+  NOTIFICATION_CHANNELS.COMMUNITY,
+] as const;
+const NOTIFICATION_TONE_ENUM = [
+  NOTIFICATION_TONES.CRITICAL,
+  NOTIFICATION_TONES.INFO,
+  NOTIFICATION_TONES.POSITIVE,
+  NOTIFICATION_TONES.WARNING,
+] as const;
+const NOTIFICATION_TYPE_ENUM = [
+  NOTIFICATION_TYPES.ANNOUNCEMENT_PUBLISHED,
 ] as const;
 const WEEKDAY_ENUM = [
   WEEKDAY_KEYS.MONDAY,
@@ -603,6 +636,96 @@ export const calendarEvents = pgTable(
     index("calendar_events_campus_idx").on(table.campusId),
     index("calendar_events_event_date_idx").on(table.eventDate),
     index("calendar_events_status_idx").on(table.status),
+  ],
+);
+
+export const announcements = pgTable(
+  "announcements",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text().references(() => campus.id, { onDelete: "restrict" }),
+    createdByUserId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "restrict" }),
+    title: text().notNull(),
+    summary: text(),
+    body: text().notNull(),
+    audience: text({ enum: ANNOUNCEMENT_AUDIENCE_ENUM })
+      .notNull()
+      .default("all"),
+    status: text({ enum: ANNOUNCEMENT_STATUS_ENUM })
+      .notNull()
+      .default("draft"),
+    publishedAt: timestamp(),
+    publishedNotificationId: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+    deletedAt: timestamp(),
+  },
+  (table) => [
+    index("announcements_institution_idx").on(table.institutionId),
+    index("announcements_campus_idx").on(table.campusId),
+    index("announcements_status_idx").on(table.status),
+    index("announcements_published_at_idx").on(table.publishedAt),
+  ],
+);
+
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text().references(() => campus.id, { onDelete: "restrict" }),
+    announcementId: text().references(() => announcements.id, {
+      onDelete: "set null",
+    }),
+    createdByUserId: text().references(() => user.id, {
+      onDelete: "set null",
+    }),
+    type: text({ enum: NOTIFICATION_TYPE_ENUM }).notNull(),
+    channel: text({ enum: NOTIFICATION_CHANNEL_ENUM }).notNull(),
+    tone: text({ enum: NOTIFICATION_TONE_ENUM }).notNull().default("info"),
+    audience: text({ enum: ANNOUNCEMENT_AUDIENCE_ENUM })
+      .notNull()
+      .default("all"),
+    title: text().notNull(),
+    message: text().notNull(),
+    senderLabel: text().notNull(),
+    actionLabel: text(),
+    actionHref: text(),
+    actionRequired: boolean().notNull().default(false),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (table) => [
+    index("notifications_institution_idx").on(table.institutionId),
+    index("notifications_campus_idx").on(table.campusId),
+    index("notifications_created_at_idx").on(table.createdAt),
+    index("notifications_announcement_idx").on(table.announcementId),
+  ],
+);
+
+export const notificationReads = pgTable(
+  "notification_reads",
+  {
+    notificationId: text()
+      .notNull()
+      .references(() => notifications.id, { onDelete: "cascade" }),
+    userId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    readAt: timestamp().notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.notificationId, table.userId] }),
+    index("notification_reads_user_idx").on(table.userId, table.readAt),
   ],
 );
 

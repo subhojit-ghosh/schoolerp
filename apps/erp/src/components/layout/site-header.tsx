@@ -28,14 +28,18 @@ import {
   SelectValue,
 } from "@repo/ui/components/ui/select";
 import { cn } from "@repo/ui/lib/utils";
+import { PERMISSIONS } from "@repo/contracts";
 import { useSelectCampusMutation } from "@/features/auth/api/use-auth";
-import { isStaffContext } from "@/features/auth/model/auth-context";
+import {
+  hasPermission,
+  isStaffContext,
+} from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { ERP_ROUTES } from "@/constants/routes";
 import {
-  NOTIFICATION_UNREAD_COUNT,
-  NOTIFICATION_UNREAD_ITEMS,
+  mapNotificationRecordToItem,
 } from "@/features/notifications/model/notification-feed";
+import { useNotificationsQuery } from "@/features/communications/api/use-communications";
 import { ThemeDrawer } from "@/features/settings/ui/theme-drawer";
 import { ERP_TOAST_MESSAGES } from "@/lib/toast-messages";
 
@@ -79,10 +83,21 @@ export function SiteHeader() {
   const campusName = session?.activeCampus?.name ?? "Campus";
   const campuses = session?.campuses ?? [];
   const showCampusSelector = isStaffContext(session);
+  const canReadNotifications = hasPermission(
+    session,
+    PERMISSIONS.COMMUNICATION_READ,
+  );
+  const notificationsQuery = useNotificationsQuery(canReadNotifications, {
+    limit: 3,
+    unreadOnly: true,
+  });
   const fullscreenSupported = isFullscreenSupported(
     document as FullscreenDocument,
   );
-  const notificationPreviewItems = NOTIFICATION_UNREAD_ITEMS.slice(0, 3);
+  const notificationPreviewItems = (notificationsQuery.data?.rows ?? []).map(
+    mapNotificationRecordToItem,
+  );
+  const unreadCount = notificationsQuery.data?.unreadCount ?? 0;
 
   useEffect(() => {
     function handleFullscreenChange() {
@@ -219,15 +234,15 @@ export function SiteHeader() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                aria-label={`Open notifications (${NOTIFICATION_UNREAD_COUNT} unread)`}
+                aria-label={`Open notifications (${unreadCount} unread)`}
                 className="relative hidden h-10 w-10 rounded-full border border-border/70 bg-card/80 shadow-xs md:inline-flex"
                 size="icon"
                 variant="ghost"
               >
                 <IconBell className="size-4" />
-                {NOTIFICATION_UNREAD_COUNT > 0 ? (
+                {unreadCount > 0 ? (
                   <Badge className="absolute -top-1 -right-1 min-w-5 justify-center px-1 text-[10px]">
-                    {NOTIFICATION_UNREAD_COUNT}
+                    {unreadCount}
                   </Badge>
                 ) : null}
               </Button>
@@ -248,7 +263,7 @@ export function SiteHeader() {
                     </p>
                   </div>
                   <Badge variant="outline">
-                    {NOTIFICATION_UNREAD_COUNT} new
+                    {unreadCount} new
                   </Badge>
                 </div>
               </div>

@@ -1,16 +1,12 @@
 import {
-  IconAlertCircle,
-  IconBellRinging2,
   IconCalendarStats,
   IconCertificate,
   IconCurrencyRupee,
-  IconFileDescription,
-  IconMoodCheck,
   IconSpeakerphone,
   IconUsersGroup,
   type Icon,
 } from "@tabler/icons-react";
-import { ERP_ROUTES } from "@/constants/routes";
+import { ERP_ROUTES, buildAnnouncementEditRoute } from "@/constants/routes";
 
 export const NOTIFICATION_FILTERS = {
   ALL: "all",
@@ -18,25 +14,14 @@ export const NOTIFICATION_FILTERS = {
   ACTION_REQUIRED: "action_required",
 } as const;
 
-export const NOTIFICATION_TONES = {
-  CRITICAL: "critical",
-  INFO: "info",
-  POSITIVE: "positive",
-  WARNING: "warning",
+export const NOTIFICATIONS_PAGE_COPY = {
+  DESCRIPTION:
+    "Track broadcasts, approvals, and campus operations without leaving the ERP shell.",
+  TITLE: "Notifications",
 } as const;
 
-export const NOTIFICATION_CHANNELS = {
-  SYSTEM: "System",
-  ACADEMICS: "Academics",
-  OPERATIONS: "Operations",
-  FINANCE: "Finance",
-  COMMUNITY: "Community",
-} as const;
-
-type NotificationFilter =
+export type NotificationFilter =
   (typeof NOTIFICATION_FILTERS)[keyof typeof NOTIFICATION_FILTERS];
-type NotificationTone =
-  (typeof NOTIFICATION_TONES)[keyof typeof NOTIFICATION_TONES];
 
 export type NotificationAction = {
   href: string;
@@ -48,13 +33,13 @@ export type NotificationItem = {
   title: string;
   message: string;
   campus: string;
+  createdAt: string;
   timestamp: string;
   relativeTime: string;
   sender: string;
-  senderInitials: string;
   audience: string;
   channel: string;
-  tone: NotificationTone;
+  tone: "critical" | "info" | "positive" | "warning";
   unread: boolean;
   actionRequired: boolean;
   actions: readonly NotificationAction[];
@@ -68,223 +53,167 @@ export type NotificationSection = {
   items: readonly NotificationItem[];
 };
 
-export const NOTIFICATIONS_PAGE_COPY = {
-  DESCRIPTION:
-    "Track broadcasts, approvals, and campus operations without leaving the ERP shell.",
-  TITLE: "Notifications",
+const CHANNEL_LABELS = {
+  academics: "Academics",
+  community: "Community",
+  finance: "Finance",
+  operations: "Operations",
+  system: "System",
 } as const;
 
-export const NOTIFICATION_SECTIONS: readonly NotificationSection[] = [
-  {
-    id: "today",
+const AUDIENCE_LABELS = {
+  all: "Everyone",
+  guardians: "Guardians",
+  staff: "Staff",
+  students: "Students",
+} as const;
+
+const SECTION_META = {
+  earlier: {
+    label: "Earlier",
+    summary: "Published communication and backend-driven operational updates.",
+  },
+  today: {
     label: "Today",
-    summary:
-      "Priority items that still need attention before the school day closes.",
-    items: [
-      {
-        id: "attendance-freeze",
-        title: "Attendance freeze pending for Class IX B",
-        message:
-          "Naihati campus has 6 students without final attendance confirmation for period 1 and period 2.",
-        campus: "Naihati",
-        timestamp: "Today, 8:45 AM",
-        relativeTime: "12 min ago",
-        sender: "Attendance Desk",
-        senderInitials: "AD",
-        audience: "Staff operations",
-        channel: NOTIFICATION_CHANNELS.OPERATIONS,
-        tone: NOTIFICATION_TONES.WARNING,
-        unread: true,
-        actionRequired: true,
-        actions: [
-          { href: ERP_ROUTES.ATTENDANCE, label: "Review attendance" },
-          { href: ERP_ROUTES.STAFF, label: "Contact class staff" },
-        ],
-        Icon: IconCalendarStats,
-      },
-      {
-        id: "exam-hall-ticket",
-        title: "Hall-ticket approval queued for 18 students",
-        message:
-          "Mid-term exam credentials are blocked until fee exceptions are confirmed by the exam office.",
-        campus: "Naihati",
-        timestamp: "Today, 8:10 AM",
-        relativeTime: "47 min ago",
-        sender: "Exam Cell",
-        senderInitials: "EC",
-        audience: "Institution admin",
-        channel: NOTIFICATION_CHANNELS.ACADEMICS,
-        tone: NOTIFICATION_TONES.CRITICAL,
-        unread: true,
-        actionRequired: true,
-        actions: [
-          { href: ERP_ROUTES.EXAMS, label: "Open exam queue" },
-          { href: ERP_ROUTES.FEES, label: "Review fee holds" },
-        ],
-        Icon: IconCertificate,
-      },
-      {
-        id: "admission-broadcast",
-        title: "Admission follow-up broadcast delivered",
-        message:
-          "The admissions team message reached 124 guardians with a 92% delivery rate across SMS and email.",
-        campus: "All campuses",
-        timestamp: "Today, 7:20 AM",
-        relativeTime: "1 hr ago",
-        sender: "Communications",
-        senderInitials: "CM",
-        audience: "Admissions team",
-        channel: NOTIFICATION_CHANNELS.COMMUNITY,
-        tone: NOTIFICATION_TONES.POSITIVE,
-        unread: true,
-        actionRequired: false,
-        actions: [
-          { href: ERP_ROUTES.DASHBOARD, label: "View campaign summary" },
-        ],
-        Icon: IconSpeakerphone,
-      },
-    ],
+    summary: "Recent items that still need attention or acknowledgement.",
   },
-  {
-    id: "this-week",
-    label: "Earlier this week",
-    summary: "Operational updates, parent communication, and finance alerts.",
-    items: [
-      {
-        id: "fee-follow-up",
-        title: "Fee collection follow-up needed for 23 families",
-        message:
-          "Outstanding transport fee reminders are still pending for the March cycle at Naihati campus.",
-        campus: "Naihati",
-        timestamp: "Thursday, 4:30 PM",
-        relativeTime: "2 days ago",
-        sender: "Accounts Office",
-        senderInitials: "AO",
-        audience: "Finance staff",
-        channel: NOTIFICATION_CHANNELS.FINANCE,
-        tone: NOTIFICATION_TONES.WARNING,
-        unread: false,
-        actionRequired: true,
-        actions: [{ href: ERP_ROUTES.FEES, label: "Open dues list" }],
-        Icon: IconCurrencyRupee,
-      },
-      {
-        id: "guardian-documents",
-        title: "Guardian documents verified for new admissions",
-        message:
-          "All KYC files for the latest admission batch were verified and marked ready for enrollment.",
-        campus: "Barasat",
-        timestamp: "Wednesday, 1:05 PM",
-        relativeTime: "4 days ago",
-        sender: "Admissions Desk",
-        senderInitials: "AM",
-        audience: "Front office",
-        channel: NOTIFICATION_CHANNELS.ACADEMICS,
-        tone: NOTIFICATION_TONES.POSITIVE,
-        unread: false,
-        actionRequired: false,
-        actions: [{ href: ERP_ROUTES.STUDENTS, label: "Review students" }],
-        Icon: IconFileDescription,
-      },
-      {
-        id: "roles-audit",
-        title: "Staff role audit completed",
-        message:
-          "Three legacy staff accounts were moved out of admin scope after the weekly access review.",
-        campus: "All campuses",
-        timestamp: "Tuesday, 5:40 PM",
-        relativeTime: "5 days ago",
-        sender: "Security Review",
-        senderInitials: "SR",
-        audience: "Institution admin",
-        channel: NOTIFICATION_CHANNELS.SYSTEM,
-        tone: NOTIFICATION_TONES.INFO,
-        unread: false,
-        actionRequired: false,
-        actions: [{ href: ERP_ROUTES.SETTINGS_ROLES, label: "Inspect roles" }],
-        Icon: IconUsersGroup,
-      },
-      {
-        id: "wellbeing-note",
-        title: "Student wellbeing note acknowledged",
-        message:
-          "Class teacher follow-up for the submitted guardian concern has been logged and shared with the counselor.",
-        campus: "Naihati",
-        timestamp: "Monday, 9:15 AM",
-        relativeTime: "6 days ago",
-        sender: "Student Support",
-        senderInitials: "SS",
-        audience: "Class teachers",
-        channel: NOTIFICATION_CHANNELS.COMMUNITY,
-        tone: NOTIFICATION_TONES.INFO,
-        unread: false,
-        actionRequired: false,
-        actions: [{ href: ERP_ROUTES.STUDENTS, label: "Open student file" }],
-        Icon: IconMoodCheck,
-      },
-    ],
-  },
-] as const;
+} as const;
 
-export const NOTIFICATION_TOTAL_COUNT = NOTIFICATION_SECTIONS.reduce(
-  (count, section) => count + section.items.length,
-  0,
-);
+function getNotificationIcon(channel: keyof typeof CHANNEL_LABELS) {
+  switch (channel) {
+    case "academics":
+      return IconCertificate;
+    case "finance":
+      return IconCurrencyRupee;
+    case "operations":
+      return IconCalendarStats;
+    case "system":
+      return IconUsersGroup;
+    case "community":
+    default:
+      return IconSpeakerphone;
+  }
+}
 
-export const NOTIFICATION_UNREAD_COUNT = NOTIFICATION_SECTIONS.reduce(
-  (count, section) =>
-    count + section.items.filter((item) => item.unread).length,
-  0,
-);
+function getSectionKey(dateString: string) {
+  const createdAt = new Date(dateString);
+  const now = new Date();
+  const sameDay =
+    createdAt.getFullYear() === now.getFullYear() &&
+    createdAt.getMonth() === now.getMonth() &&
+    createdAt.getDate() === now.getDate();
 
-export const NOTIFICATION_ACTION_REQUIRED_COUNT = NOTIFICATION_SECTIONS.reduce(
-  (count, section) =>
-    count + section.items.filter((item) => item.actionRequired).length,
-  0,
-);
+  return sameDay ? "today" : "earlier";
+}
 
-export const NOTIFICATION_UNREAD_ITEMS = NOTIFICATION_SECTIONS.flatMap(
-  (section) => section.items,
-).filter((item) => item.unread);
+function formatAbsoluteDate(dateString: string) {
+  return new Intl.DateTimeFormat("en-IN", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(dateString));
+}
 
-export const NOTIFICATION_FILTER_META: Record<
-  NotificationFilter,
-  { count: number; label: string }
-> = {
-  [NOTIFICATION_FILTERS.ALL]: {
-    count: NOTIFICATION_TOTAL_COUNT,
-    label: "All",
-  },
-  [NOTIFICATION_FILTERS.UNREAD]: {
-    count: NOTIFICATION_UNREAD_COUNT,
-    label: "Unread",
-  },
-  [NOTIFICATION_FILTERS.ACTION_REQUIRED]: {
-    count: NOTIFICATION_ACTION_REQUIRED_COUNT,
-    label: "Needs action",
-  },
-};
+function formatRelativeDate(dateString: string) {
+  const diffMs = new Date(dateString).getTime() - Date.now();
+  const diffHours = Math.round(diffMs / (1000 * 60 * 60));
+  const formatter = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 
-export const NOTIFICATION_HIGHLIGHTS = [
-  {
-    id: "unread",
-    label: "Unread",
-    value: `${NOTIFICATION_UNREAD_COUNT}`,
-    caption: "Fresh updates since your last check-in",
-    Icon: IconBellRinging2,
-  },
-  {
-    id: "action",
-    label: "Needs action",
-    value: `${NOTIFICATION_ACTION_REQUIRED_COUNT}`,
-    caption: "Items that block a follow-up or approval",
-    Icon: IconAlertCircle,
-  },
-  {
-    id: "campuses",
-    label: "Campus coverage",
-    value: "2 campuses",
-    caption: "Naihati and Barasat updates are represented",
-    Icon: IconUsersGroup,
-  },
-] as const;
+  if (Math.abs(diffHours) < 24) {
+    const diffMinutes = Math.round(diffMs / (1000 * 60));
+    return formatter.format(diffMinutes, "minute");
+  }
+
+  const diffDays = Math.round(diffHours / 24);
+  return formatter.format(diffDays, "day");
+}
+
+export function resolveNotificationActions(item: {
+  actionHref?: string | null;
+  actionLabel?: string | null;
+  announcementId?: string | null;
+}) {
+  if (item.actionHref && item.actionLabel) {
+    return [{ href: item.actionHref, label: item.actionLabel }] as const;
+  }
+
+  if (item.announcementId) {
+    return [
+      {
+        href: buildAnnouncementEditRoute(item.announcementId),
+        label: "Open announcement",
+      },
+    ] as const;
+  }
+
+  return [{ href: ERP_ROUTES.DASHBOARD, label: "Open dashboard" }] as const;
+}
+
+export function mapNotificationRecordToItem(record: {
+  id: string;
+  title: string;
+  message: string;
+  campusName?: string | null;
+  createdAt: string;
+  senderLabel: string;
+  audience: "all" | "staff" | "guardians" | "students";
+  channel: "system" | "academics" | "operations" | "finance" | "community";
+  tone: "critical" | "info" | "positive" | "warning";
+  unread: boolean;
+  actionRequired: boolean;
+  actionHref?: string | null;
+  actionLabel?: string | null;
+  announcementId?: string | null;
+}): NotificationItem {
+  return {
+    id: record.id,
+    title: record.title,
+    message: record.message,
+    campus: record.campusName ?? "All campuses",
+    createdAt: record.createdAt,
+    timestamp: formatAbsoluteDate(record.createdAt),
+    relativeTime: formatRelativeDate(record.createdAt),
+    sender: record.senderLabel,
+    audience: AUDIENCE_LABELS[record.audience],
+    channel: CHANNEL_LABELS[record.channel],
+    tone: record.tone,
+    unread: record.unread,
+    actionRequired: record.actionRequired,
+    actions: resolveNotificationActions(record),
+    Icon: getNotificationIcon(record.channel),
+  };
+}
+
+export function getNotificationFilterMeta(items: readonly NotificationItem[]) {
+  return {
+    [NOTIFICATION_FILTERS.ALL]: {
+      count: items.length,
+      label: "All",
+    },
+    [NOTIFICATION_FILTERS.UNREAD]: {
+      count: items.filter((item) => item.unread).length,
+      label: "Unread",
+    },
+    [NOTIFICATION_FILTERS.ACTION_REQUIRED]: {
+      count: items.filter((item) => item.actionRequired).length,
+      label: "Action required",
+    },
+  } as const;
+}
+
+export function groupNotificationSections(items: readonly NotificationItem[]) {
+  const grouped = new Map<string, NotificationItem[]>();
+
+  for (const item of items) {
+    const key = getSectionKey(item.createdAt);
+    const sectionItems = grouped.get(key) ?? [];
+    sectionItems.push(item);
+    grouped.set(key, sectionItems);
+  }
+
+  return Array.from(grouped.entries()).map(([key, sectionItems]) => ({
+    id: key,
+    label: SECTION_META[key as keyof typeof SECTION_META].label,
+    summary: SECTION_META[key as keyof typeof SECTION_META].summary,
+    items: sectionItems,
+  })) as NotificationSection[];
+}

@@ -95,6 +95,20 @@ export const CALENDAR_API_PATHS = {
   DELETE_EVENT: "/calendar/events/{eventId}",
 } as const;
 
+export const COMMUNICATIONS_API_PATHS = {
+  LIST_ANNOUNCEMENTS: "/communications/announcements",
+  CREATE_ANNOUNCEMENT: "/communications/announcements",
+  DETAIL_ANNOUNCEMENT: "/communications/announcements/{announcementId}",
+  UPDATE_ANNOUNCEMENT: "/communications/announcements/{announcementId}",
+  SET_ANNOUNCEMENT_STATUS:
+    "/communications/announcements/{announcementId}/status",
+  PUBLISH_ANNOUNCEMENT:
+    "/communications/announcements/{announcementId}/publish",
+  LIST_NOTIFICATIONS: "/communications/notifications",
+  MARK_ALL_NOTIFICATIONS_READ:
+    "/communications/notifications/mark-all-read",
+} as const;
+
 export const CAMPUSES_API_PATHS = {
   LIST: "/campuses",
   CREATE: "/campuses",

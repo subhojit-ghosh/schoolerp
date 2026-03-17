@@ -243,9 +243,9 @@ const NAV_REPORTS = [
 
 const NAV_COMMUNICATION = [
   {
-    badgeLabel: "Next",
-    disabled: true,
+    badgeLabel: "Now",
     icon: IconSpeakerphone,
+    permission: PERMISSIONS.COMMUNICATION_READ,
     title: "Announcements",
     url: ERP_ROUTES.ANNOUNCEMENTS,
   },

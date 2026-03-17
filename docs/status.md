@@ -47,12 +47,11 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Timetable** — class/section weekly schedule editor with replace flow and per-entry deletion
 - **Calendar** — event list/create/edit, active/inactive toggle, and tenant-scoped calendar events
 - **Admissions** — enquiry and application pipelines with list/create/edit flows, status tracking, and tenant-scoped APIs
+- **Announcements / communication** — announcement list/create/edit/publish flows plus backend-driven in-app notification feed and mark-all-read support
 
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
 - Frontend presentation: many pages are functional but not polished enough for a customer demo.
-- **Notifications** — route exists, but it renders static sample data rather than real backend-driven events.
-- **Announcements / communication** — navigation exists only as a disabled `Soon` entry; no working announcements module is shipped.
 - **Student detail** — current page is mainly an edit form plus enrollment/guardian cards, not a full operational student view.
 - **Parent dashboard** — visible but still placeholder-grade.
 - **Student dashboard** — visible but still placeholder-grade.
@@ -65,8 +64,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 
 - **Student 360** unified view: profile, enrollment, attendance record, fee status, exam results, and operational history
 - **SMS/email delivery** for password reset and staff onboarding links
-- **Announcements / circulars** for school-to-family and school-to-staff communication
-- **Notifications** — in-app feed wired to real events (fee due, absent streak, password-setup, admissions, approvals)
+- **Notifications depth** — expand the feed beyond announcement-publish events into fee due, absent streak, password-setup, admissions, and approval workflows
 - **Academic rollover workflows** — promotion, student movement, withdrawal, and year-end progression
 - **Bulk import/export** for students, staff, guardians, and fee data
 - **Audit trail** for sensitive operational and financial mutations

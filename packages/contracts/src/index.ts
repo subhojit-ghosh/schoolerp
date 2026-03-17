@@ -97,6 +97,8 @@ export const PERMISSIONS = {
   FEES_READ: "fees:read",
   FEES_MANAGE: "fees:manage",
   FEES_COLLECT: "fees:collect",
+  COMMUNICATION_READ: "communication:read",
+  COMMUNICATION_MANAGE: "communication:manage",
 } as const;
 
 export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -224,6 +226,39 @@ export const CALENDAR_EVENT_STATUS = {
   ACTIVE: "active",
   INACTIVE: "inactive",
   DELETED: "deleted",
+} as const;
+
+export const ANNOUNCEMENT_AUDIENCE = {
+  ALL: "all",
+  STAFF: "staff",
+  GUARDIANS: "guardians",
+  STUDENTS: "students",
+} as const;
+
+export const ANNOUNCEMENT_STATUS = {
+  DRAFT: "draft",
+  PUBLISHED: "published",
+  ARCHIVED: "archived",
+  DELETED: "deleted",
+} as const;
+
+export const NOTIFICATION_CHANNELS = {
+  SYSTEM: "system",
+  ACADEMICS: "academics",
+  OPERATIONS: "operations",
+  FINANCE: "finance",
+  COMMUNITY: "community",
+} as const;
+
+export const NOTIFICATION_TONES = {
+  CRITICAL: "critical",
+  INFO: "info",
+  POSITIVE: "positive",
+  WARNING: "warning",
+} as const;
+
+export const NOTIFICATION_TYPES = {
+  ANNOUNCEMENT_PUBLISHED: "announcement_published",
 } as const;
 
 export const ADMISSION_ENQUIRY_STATUSES = {

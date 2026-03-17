@@ -38,8 +38,7 @@ These items still block full day-to-day v1 readiness:
 
 1. **Student 360 view** — turn the current student detail editor into a true operational profile with attendance, fees, exams, guardians, and history in one place.
 2. **SMS/email delivery** — wire a real provider for password reset, staff password-setup, and future school communications. The current delivery stub means new staff cannot log in without manual intervention.
-3. **Notifications and announcements** — replace sample notification data with real backend events and ship a usable announcements/circulars module.
-4. **Onboarding flow polish** — public school signup at `erp.test` should feel complete for self-serve trials without operator help.
+3. **Onboarding flow polish** — public school signup at `erp.test` should feel complete for self-serve trials without operator help.
 
 ## Next — Close operational gaps a real school hits quickly
 
@@ -73,8 +72,6 @@ These items still block full day-to-day v1 readiness:
 
 - Password reset and staff password-setup links are broken for production use until a real SMS/email provider is wired.
 - Student detail still lacks a unified, cross-domain operational view.
-- Notifications currently present sample data, not tenant event history.
-- Announcements/circulars are still not shipped.
 - Parent and student dashboards are still placeholder-grade.
 - Schools will still fall back to spreadsheets for rollover and bulk onboarding until those workflows exist.
 - A broader, feature-rich ERP direction increases surface area; sequencing discipline is required so common breadth modules do not derail core v1 blockers.

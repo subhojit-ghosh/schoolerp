@@ -61,6 +61,8 @@ export const ERP_ROUTES = {
   // Communication
   MESSAGES: "/messages",
   ANNOUNCEMENTS: "/announcements",
+  ANNOUNCEMENT_CREATE: `/announcements/${ERP_ROUTE_SEGMENTS.NEW}`,
+  ANNOUNCEMENT_EDIT: `/announcements/:announcementId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   // Reports
   REPORTS_ATTENDANCE: "/reports/attendance",
   REPORTS_EXAMS: "/reports/exams",
@@ -174,4 +176,8 @@ export function buildSubjectEditRoute(subjectId: string) {
 
 export function buildCalendarEventEditRoute(eventId: string) {
   return `${ERP_ROUTES.CALENDAR}/${eventId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildAnnouncementEditRoute(announcementId: string) {
+  return `${ERP_ROUTES.ANNOUNCEMENTS}/${announcementId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
 }

@@ -15,14 +15,19 @@ import {
 } from "@repo/ui/components/ui/tabs";
 import { EntityToolbarSecondaryAction } from "@/components/entities/entity-actions";
 import { EntityListPage } from "@/components/entities/entity-list-page";
+import { useNotificationsQuery, useMarkNotificationsReadMutation } from "@/features/communications/api/use-communications";
+import { useAuthStore } from "@/features/auth/model/auth-store";
+import { hasPermission } from "@/features/auth/model/auth-context";
 import {
-  NOTIFICATION_FILTERS,
-  NOTIFICATION_FILTER_META,
-  NOTIFICATION_SECTIONS,
   NOTIFICATIONS_PAGE_COPY,
   type NotificationItem,
+  getNotificationFilterMeta,
+  groupNotificationSections,
+  mapNotificationRecordToItem,
+  NOTIFICATION_FILTERS,
 } from "@/features/notifications/model/notification-feed";
 import { cn } from "@repo/ui/lib/utils";
+import { PERMISSIONS } from "@repo/contracts";
 
 type NotificationFilter =
   (typeof NOTIFICATION_FILTERS)[keyof typeof NOTIFICATION_FILTERS];
@@ -43,25 +48,51 @@ function getFilteredItems(
 }
 
 export function NotificationsPage() {
+  const session = useAuthStore((store) => store.session);
   const [activeFilter, setActiveFilter] = useState<NotificationFilter>(
     NOTIFICATION_FILTERS.ALL,
+  );
+  const markAllReadMutation = useMarkNotificationsReadMutation();
+  const canReadNotifications = hasPermission(
+    session,
+    PERMISSIONS.COMMUNICATION_READ,
+  );
+  const notificationsQuery = useNotificationsQuery(canReadNotifications, {
+    limit: 20,
+  });
+
+  const items = useMemo(
+    () => (notificationsQuery.data?.rows ?? []).map(mapNotificationRecordToItem),
+    [notificationsQuery.data?.rows],
+  );
+  const filterMeta = useMemo(
+    () => getNotificationFilterMeta(items),
+    [items],
   );
 
   const sections = useMemo(
     () =>
-      NOTIFICATION_SECTIONS.map((section) => ({
-        ...section,
-        items: getFilteredItems(activeFilter, section.items),
-      })).filter((section) => section.items.length > 0),
-    [activeFilter],
+      groupNotificationSections(getFilteredItems(activeFilter, items)).filter(
+        (section) => section.items.length > 0,
+      ),
+    [activeFilter, items],
   );
+
+  const errorMessage = (notificationsQuery.error as Error | null | undefined)?.message;
 
   return (
     <EntityListPage
       title={NOTIFICATIONS_PAGE_COPY.TITLE}
       description={NOTIFICATIONS_PAGE_COPY.DESCRIPTION}
       actions={
-        <EntityToolbarSecondaryAction>
+        <EntityToolbarSecondaryAction
+          disabled={markAllReadMutation.isPending || items.length === 0}
+          onClick={() =>
+            void markAllReadMutation.mutateAsync({
+              body: {},
+            })
+          }
+        >
           <IconCircleCheckFilled className="size-4" />
           Mark all read
         </EntityToolbarSecondaryAction>
@@ -74,7 +105,7 @@ export function NotificationsPage() {
       >
         <div className="border-b border-border/70 px-4 py-4 sm:px-6">
           <TabsList className="h-auto flex-wrap rounded-2xl bg-muted/70 p-1">
-            {Object.entries(NOTIFICATION_FILTER_META).map(([key, meta]) => (
+            {Object.entries(filterMeta).map(([key, meta]) => (
               <TabsTrigger
                 key={key}
                 className="min-w-28 rounded-xl px-4 py-2 text-sm"
@@ -90,7 +121,22 @@ export function NotificationsPage() {
         </div>
 
         <TabsContent className="m-0" value={activeFilter}>
-          {sections.length === 0 ? (
+          {notificationsQuery.isLoading ? (
+            <div className="flex min-h-72 items-center justify-center px-6 py-16 text-sm text-muted-foreground">
+              Loading notifications...
+            </div>
+          ) : errorMessage ? (
+            <div className="flex min-h-72 items-center justify-center px-6 py-16">
+              <div className="max-w-sm text-center">
+                <h2 className="text-lg font-semibold tracking-tight">
+                  Unable to load notifications
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {errorMessage}
+                </p>
+              </div>
+            </div>
+          ) : sections.length === 0 ? (
             <div className="flex min-h-72 items-center justify-center px-6 py-16">
               <div className="max-w-sm text-center">
                 <div className="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted">
@@ -100,8 +146,9 @@ export function NotificationsPage() {
                   Nothing in this filter right now
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                  Sample data is available in other views. Switch the tab to
-                  inspect unread or action-oriented notifications.
+                  New backend-driven notifications will appear here after
+                  announcements are published or other communication events are
+                  emitted.
                 </p>
               </div>
             </div>

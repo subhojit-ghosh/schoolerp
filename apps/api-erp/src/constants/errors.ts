@@ -105,6 +105,11 @@ export const ERROR_MESSAGES = {
     EVENT_NOT_FOUND: "The selected calendar event was not found.",
     INVALID_TIME_RANGE: "Event end time must be after the start time.",
   },
+  COMMUNICATIONS: {
+    ANNOUNCEMENT_NOT_FOUND: "The selected announcement was not found.",
+    ANNOUNCEMENT_ALREADY_PUBLISHED:
+      "That announcement has already been published.",
+  },
   ATTENDANCE: {
     CLASS_SECTION_REQUIRED: "Class and section are required for attendance.",
     NO_STUDENTS_FOUND:

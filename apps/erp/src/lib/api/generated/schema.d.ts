@@ -494,6 +494,110 @@ export interface paths {
         patch: operations["CalendarController_setEventStatus"];
         trace?: never;
     };
+    "/communications/announcements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List announcements for the current tenant */
+        get: operations["CommunicationsController_listAnnouncements"];
+        put?: never;
+        /** Create an announcement for the current tenant */
+        post: operations["CommunicationsController_createAnnouncement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/communications/announcements/{announcementId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an announcement for the current tenant */
+        get: operations["CommunicationsController_getAnnouncement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an announcement for the current tenant */
+        patch: operations["CommunicationsController_updateAnnouncement"];
+        trace?: never;
+    };
+    "/communications/announcements/{announcementId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update announcement workflow status */
+        patch: operations["CommunicationsController_setAnnouncementStatus"];
+        trace?: never;
+    };
+    "/communications/announcements/{announcementId}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish an announcement and emit a notification */
+        post: operations["CommunicationsController_publishAnnouncement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/communications/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List notification feed items for the current session */
+        get: operations["CommunicationsController_listNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/communications/notifications/mark-all-read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark notifications as read for the current session */
+        post: operations["CommunicationsController_markNotificationsRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/students": {
         parameters: {
             query?: never;
@@ -1366,7 +1470,7 @@ export interface components {
             activeOrganization: components["schemas"]["AuthOrganizationDto"] | null;
             availableContexts: components["schemas"]["AuthAccessContextDto"][];
             activeContext: components["schemas"]["AuthAccessContextDto"] | null;
-            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect")[];
+            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage")[];
             activeStaffRoles: components["schemas"]["AuthStaffRoleDto"][];
             activeCampus: components["schemas"]["AuthCampusDto"] | null;
             campuses: components["schemas"]["AuthCampusDto"][];
@@ -1690,6 +1794,88 @@ export interface components {
         SetCalendarEventStatusBodyDto: {
             /** @enum {string} */
             status: "active" | "inactive";
+        };
+        AnnouncementDto: {
+            id: string;
+            institutionId: string;
+            campusId?: string | null;
+            campusName?: string | null;
+            title: string;
+            summary?: string | null;
+            body: string;
+            /** @enum {string} */
+            audience: "all" | "staff" | "guardians" | "students";
+            /** @enum {string} */
+            status: "draft" | "published" | "archived" | "deleted";
+            publishedAt?: string | null;
+            createdAt: string;
+            updatedAt: string;
+            createdByUserId: string;
+        };
+        ListAnnouncementsResultDto: {
+            rows: components["schemas"]["AnnouncementDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateAnnouncementBodyDto: {
+            campusId?: string | null;
+            title: string;
+            summary?: string | null;
+            body: string;
+            /** @enum {string} */
+            audience: "all" | "staff" | "guardians" | "students";
+            /** @default false */
+            publishNow: boolean;
+        };
+        UpdateAnnouncementBodyDto: {
+            campusId?: string | null;
+            title: string;
+            summary?: string | null;
+            body: string;
+            /** @enum {string} */
+            audience: "all" | "staff" | "guardians" | "students";
+            /** @default false */
+            publishNow: boolean;
+        };
+        SetAnnouncementStatusBodyDto: {
+            /** @enum {string} */
+            status: "draft" | "archived";
+        };
+        NotificationDto: {
+            id: string;
+            campusId?: string | null;
+            campusName?: string | null;
+            announcementId?: string | null;
+            /** @enum {string} */
+            type: "announcement_published";
+            /** @enum {string} */
+            channel: "system" | "academics" | "operations" | "finance" | "community";
+            /** @enum {string} */
+            tone: "critical" | "info" | "positive" | "warning";
+            /** @enum {string} */
+            audience: "all" | "staff" | "guardians" | "students";
+            title: string;
+            message: string;
+            senderLabel: string;
+            actionLabel?: string | null;
+            actionHref?: string | null;
+            actionRequired: boolean;
+            unread: boolean;
+            createdAt: string;
+        };
+        ListNotificationsResultDto: {
+            rows: components["schemas"]["NotificationDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+            unreadCount: number;
+            actionRequiredCount: number;
+        };
+        MarkNotificationsReadBodyDto: {
+            notificationIds?: string[];
         };
         StudentGuardianDto: {
             userId?: string | null;
@@ -3406,6 +3592,201 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CalendarEventDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_listAnnouncements: {
+        parameters: {
+            query?: {
+                campusId?: string | null;
+                q?: string;
+                page?: number;
+                limit?: number;
+                sort?: "publishedAt" | "status" | "title" | "audience";
+                order?: "asc" | "desc";
+                audience?: "all" | "staff" | "guardians" | "students";
+                status?: "draft" | "published" | "archived";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListAnnouncementsResultDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_createAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAnnouncementBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_getAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_updateAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAnnouncementBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_setAnnouncementStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetAnnouncementStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_publishAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_listNotifications: {
+        parameters: {
+            query?: {
+                campusId?: string | null;
+                q?: string;
+                page?: number;
+                limit?: number;
+                unreadOnly?: boolean;
+                actionRequired?: boolean;
+                channel?: "system" | "academics" | "operations" | "finance" | "community";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListNotificationsResultDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_markNotificationsRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkNotificationsReadBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        updated?: number;
+                    };
                 };
             };
         };

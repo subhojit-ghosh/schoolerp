@@ -46,6 +46,7 @@ import { GuardiansPage } from "@/routes/people/guardians-page";
 import { AdmissionApplicationsPage } from "@/routes/admissions/admission-applications-page";
 import { AdmissionEnquiriesPage } from "@/routes/admissions/admission-enquiries-page";
 import { NotificationsPage } from "@/routes/notifications/notifications-page";
+import { AnnouncementsPage } from "@/routes/communications/announcements-page";
 import { StaffCreatePage } from "@/routes/people/staff-create-page";
 import { StaffDetailPage } from "@/routes/people/staff-detail-page";
 import { StaffPage } from "@/routes/people/staff-page";
@@ -61,6 +62,7 @@ import { AdmissionApplicationSheetRoute } from "@/features/admissions/ui/admissi
 import { AdmissionEnquirySheetRoute } from "@/features/admissions/ui/admission-enquiry-sheet-route";
 import { SubjectSheetRoute } from "@/features/subjects/ui/subject-sheet-route";
 import { CalendarEventSheetRoute } from "@/features/calendar/ui/calendar-event-sheet-route";
+import { AnnouncementSheetRoute } from "@/features/communications/ui/announcement-sheet-route";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -111,6 +113,20 @@ const router = createBrowserRouter([
     children: [
       { path: ERP_ROUTES.DASHBOARD, element: <DashboardPage /> },
       { path: ERP_ROUTES.NOTIFICATIONS, element: <NotificationsPage /> },
+      {
+        path: ERP_ROUTES.ANNOUNCEMENTS,
+        element: <AnnouncementsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <AnnouncementSheetRoute mode="create" />,
+          },
+          {
+            path: `:announcementId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <AnnouncementSheetRoute mode="edit" />,
+          },
+        ],
+      },
       {
         path: ERP_ROUTES.ADMISSIONS_ENQUIRIES,
         element: <AdmissionEnquiriesPage />,

@@ -11,6 +11,7 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { CalendarModule } from "./modules/calendar/calendar.module";
 import { CampusesModule } from "./modules/campuses/campuses.module";
 import { ClassesModule } from "./modules/classes/classes.module";
+import { CommunicationsModule } from "./modules/communications/communications.module";
 import { validateEnvironment } from "./config/env.validation";
 import { FeesModule } from "./modules/fees/fees.module";
 import { ExamsModule } from "./modules/exams/exams.module";
@@ -43,6 +44,7 @@ import { StudentsModule } from "./modules/students/students.module";
     SubjectsModule,
     TimetableModule,
     CalendarModule,
+    CommunicationsModule,
     StudentsModule,
     StaffModule,
     GuardiansModule,
