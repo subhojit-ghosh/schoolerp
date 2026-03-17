@@ -335,6 +335,165 @@ export interface paths {
         patch: operations["ClassesController_setClassStatus"];
         trace?: never;
     };
+    "/subjects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List subjects for the current tenant institution */
+        get: operations["SubjectsController_listSubjects"];
+        put?: never;
+        /** Create a subject for the current tenant */
+        post: operations["SubjectsController_createSubject"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/subjects/{subjectId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a subject for the current tenant */
+        get: operations["SubjectsController_getSubject"];
+        put?: never;
+        post?: never;
+        /** Delete a subject for the current tenant */
+        delete: operations["SubjectsController_deleteSubject"];
+        options?: never;
+        head?: never;
+        /** Update a subject for the current tenant */
+        patch: operations["SubjectsController_updateSubject"];
+        trace?: never;
+    };
+    "/subjects/{subjectId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Enable or disable a subject for the current tenant */
+        patch: operations["SubjectsController_setSubjectStatus"];
+        trace?: never;
+    };
+    "/timetable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get class-section timetable for the current tenant */
+        get: operations["TimetableController_getTimetable"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/timetable/sections/{sectionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace the full timetable for a class section in the current tenant */
+        put: operations["TimetableController_replaceSectionTimetable"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/timetable/{entryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a timetable entry for the current tenant */
+        delete: operations["TimetableController_deleteEntry"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/calendar/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List calendar events for the current tenant */
+        get: operations["CalendarController_listEvents"];
+        put?: never;
+        /** Create a calendar event for the current tenant */
+        post: operations["CalendarController_createEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/calendar/events/{eventId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a calendar event for the current tenant */
+        get: operations["CalendarController_getEvent"];
+        put?: never;
+        post?: never;
+        /** Delete a calendar event for the current tenant */
+        delete: operations["CalendarController_deleteEvent"];
+        options?: never;
+        head?: never;
+        /** Update a calendar event for the current tenant */
+        patch: operations["CalendarController_updateEvent"];
+        trace?: never;
+    };
+    "/calendar/events/{eventId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Enable or disable a calendar event */
+        patch: operations["CalendarController_setEventStatus"];
+        trace?: never;
+    };
     "/students": {
         parameters: {
             query?: never;
@@ -1413,6 +1572,122 @@ export interface components {
             sections: components["schemas"]["ClassSectionBodyDto"][];
         };
         SetClassStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        SubjectDto: {
+            id: string;
+            institutionId: string;
+            campusId: string;
+            campusName: string;
+            name: string;
+            code?: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
+            createdAt: string;
+        };
+        ListSubjectsResultDto: {
+            rows: components["schemas"]["SubjectDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateSubjectBodyDto: {
+            campusId: string;
+            name: string;
+            code?: string | null;
+        };
+        UpdateSubjectBodyDto: {
+            campusId: string;
+            name: string;
+            code?: string | null;
+        };
+        SetSubjectStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        TimetableEntryDto: {
+            id: string;
+            /** @enum {string} */
+            dayOfWeek: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+            periodIndex: number;
+            startTime: string;
+            endTime: string;
+            subjectId: string;
+            subjectName: string;
+            room?: string | null;
+        };
+        TimetableViewDto: {
+            campusId: string;
+            campusName: string;
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            entries: components["schemas"]["TimetableEntryDto"][];
+        };
+        ReplaceTimetableEntryBodyDto: {
+            /** @enum {string} */
+            dayOfWeek: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+            periodIndex: number;
+            startTime: string;
+            endTime: string;
+            subjectId: string;
+            room?: string | null;
+        };
+        ReplaceSectionTimetableBodyDto: {
+            campusId: string;
+            classId: string;
+            entries: components["schemas"]["ReplaceTimetableEntryBodyDto"][];
+        };
+        CalendarEventDto: {
+            id: string;
+            institutionId: string;
+            campusId?: string | null;
+            campusName?: string | null;
+            title: string;
+            description?: string | null;
+            eventDate: string;
+            startTime?: string | null;
+            endTime?: string | null;
+            isAllDay: boolean;
+            /** @enum {string} */
+            eventType: "holiday" | "exam" | "event" | "deadline";
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
+            createdAt: string;
+        };
+        ListCalendarEventsResultDto: {
+            rows: components["schemas"]["CalendarEventDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateCalendarEventBodyDto: {
+            campusId?: string | null;
+            title: string;
+            description?: string | null;
+            eventDate: string;
+            startTime?: string | null;
+            endTime?: string | null;
+            isAllDay: boolean;
+            /** @enum {string} */
+            eventType: "holiday" | "exam" | "event" | "deadline";
+        };
+        UpdateCalendarEventBodyDto: {
+            campusId?: string | null;
+            title: string;
+            description?: string | null;
+            eventDate: string;
+            startTime?: string | null;
+            endTime?: string | null;
+            isAllDay: boolean;
+            /** @enum {string} */
+            eventType: "holiday" | "exam" | "event" | "deadline";
+        };
+        SetCalendarEventStatusBodyDto: {
             /** @enum {string} */
             status: "active" | "inactive";
         };
@@ -2784,6 +3059,353 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ClassDto"];
+                };
+            };
+        };
+    };
+    SubjectsController_listSubjects: {
+        parameters: {
+            query?: {
+                campusId?: string | null;
+                page?: number;
+                limit?: number;
+                q?: string;
+                sort?: "name" | "status" | "code";
+                order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListSubjectsResultDto"];
+                };
+            };
+        };
+    };
+    SubjectsController_createSubject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSubjectBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubjectDto"];
+                };
+            };
+        };
+    };
+    SubjectsController_getSubject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subjectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubjectDto"];
+                };
+            };
+        };
+    };
+    SubjectsController_deleteSubject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subjectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SubjectsController_updateSubject: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subjectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSubjectBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubjectDto"];
+                };
+            };
+        };
+    };
+    SubjectsController_setSubjectStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subjectId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetSubjectStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubjectDto"];
+                };
+            };
+        };
+    };
+    TimetableController_getTimetable: {
+        parameters: {
+            query: {
+                campusId: string;
+                classId: string;
+                sectionId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableViewDto"];
+                };
+            };
+        };
+    };
+    TimetableController_replaceSectionTimetable: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplaceSectionTimetableBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableViewDto"];
+                };
+            };
+        };
+    };
+    TimetableController_deleteEntry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CalendarController_listEvents: {
+        parameters: {
+            query?: {
+                campusId?: string | null;
+                fromDate?: string | null;
+                toDate?: string | null;
+                page?: number;
+                limit?: number;
+                q?: string;
+                sort?: "date" | "title" | "status" | "type";
+                order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListCalendarEventsResultDto"];
+                };
+            };
+        };
+    };
+    CalendarController_createEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCalendarEventBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarEventDto"];
+                };
+            };
+        };
+    };
+    CalendarController_getEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarEventDto"];
+                };
+            };
+        };
+    };
+    CalendarController_deleteEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    CalendarController_updateEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCalendarEventBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarEventDto"];
+                };
+            };
+        };
+    };
+    CalendarController_setEventStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                eventId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetCalendarEventStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarEventDto"];
                 };
             };
         };

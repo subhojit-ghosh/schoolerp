@@ -34,8 +34,12 @@ export const ERP_ROUTES = {
   CLASS_CREATE: `/classes/${ERP_ROUTE_SEGMENTS.NEW}`,
   CLASS_EDIT: `/classes/:classId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   SUBJECTS: "/subjects",
+  SUBJECT_CREATE: `/subjects/${ERP_ROUTE_SEGMENTS.NEW}`,
+  SUBJECT_EDIT: `/subjects/:subjectId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   TIMETABLE: "/timetable",
   CALENDAR: "/calendar",
+  CALENDAR_EVENT_CREATE: `/calendar/${ERP_ROUTE_SEGMENTS.NEW}`,
+  CALENDAR_EVENT_EDIT: `/calendar/:eventId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   ATTENDANCE: "/attendance",
   EXAMS: "/exams",
   // Finance
@@ -121,4 +125,12 @@ export function buildFeeAssignmentCollectRoute(feeAssignmentId: string) {
 
 export function buildFeeAssignmentAdjustmentRoute(feeAssignmentId: string) {
   return `/fees/assignments/${feeAssignmentId}/${ERP_ROUTE_SEGMENTS.ADJUSTMENT}`;
+}
+
+export function buildSubjectEditRoute(subjectId: string) {
+  return `${ERP_ROUTES.SUBJECTS}/${subjectId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildCalendarEventEditRoute(eventId: string) {
+  return `${ERP_ROUTES.CALENDAR}/${eventId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
 }

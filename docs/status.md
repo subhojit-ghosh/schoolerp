@@ -43,6 +43,9 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Dashboard** — live tiles for enrolled students, staff count, today's attendance coverage, and total outstanding fees; quick links for attendance/exams/fees are enabled
 - **Attendance** — daily class-wise marking flow with class/section names, day overview, and class/student attendance reports
 - **Exams** — term management, marks entry, saved marks, and student report card view with grading scheme + printable output
+- **Subjects** — list, create, edit, active/inactive toggle, and delete guardrails when timetable dependencies exist
+- **Timetable** — class/section weekly schedule editor with replace flow and per-entry deletion
+- **Calendar** — event list/create/edit, active/inactive toggle, and tenant-scoped calendar events
 - **Admissions** — enquiry and application pipelines with list/create/edit flows, status tracking, and tenant-scoped APIs
 
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
@@ -57,7 +60,6 @@ Keep this file evidence-based. Do not use it as a roadmap.
 
 - **Student detail** unified view: profile, enrollment, attendance record, fee status, exam results
 - **SMS/email delivery** for password reset and staff onboarding links
-- **Timetable** — class-wise weekly schedule
 - **Branding** — logo upload, favicon, display name, primary color applied to tenant shell
 - **Notifications** — in-app feed wired to real events (fee due, absent streak, password-setup)
 - **Onboarding polish** — public school signup flow usable without assistance

@@ -38,6 +38,9 @@ import { BrandingPage } from "@/routes/settings/branding-page";
 import { CampusesPage } from "@/routes/settings/campuses-page";
 import { RolesPage } from "@/routes/settings/roles-page";
 import { ClassesPage } from "@/routes/academics/classes-page";
+import { SubjectsPage } from "@/routes/academics/subjects-page";
+import { TimetablePage } from "@/routes/academics/timetable-page";
+import { CalendarPage } from "@/routes/academics/calendar-page";
 import { GuardianDetailPage } from "@/routes/people/guardian-detail-page";
 import { GuardiansPage } from "@/routes/people/guardians-page";
 import { AdmissionApplicationsPage } from "@/routes/admissions/admission-applications-page";
@@ -56,6 +59,8 @@ import { RoleSheetRoute } from "@/features/roles/ui/role-sheet-route";
 import { AttendanceReportsPage } from "@/routes/reports/attendance-report-page";
 import { AdmissionApplicationSheetRoute } from "@/features/admissions/ui/admission-application-sheet-route";
 import { AdmissionEnquirySheetRoute } from "@/features/admissions/ui/admission-enquiry-sheet-route";
+import { SubjectSheetRoute } from "@/features/subjects/ui/subject-sheet-route";
+import { CalendarEventSheetRoute } from "@/features/calendar/ui/calendar-event-sheet-route";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -167,6 +172,35 @@ const router = createBrowserRouter([
           {
             path: `:classId/${ERP_ROUTE_SEGMENTS.EDIT}`,
             element: <ClassSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.SUBJECTS,
+        element: <SubjectsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <SubjectSheetRoute mode="create" />,
+          },
+          {
+            path: `:subjectId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <SubjectSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      { path: ERP_ROUTES.TIMETABLE, element: <TimetablePage /> },
+      {
+        path: ERP_ROUTES.CALENDAR,
+        element: <CalendarPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <CalendarEventSheetRoute mode="create" />,
+          },
+          {
+            path: `:eventId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <CalendarEventSheetRoute mode="edit" />,
           },
         ],
       },

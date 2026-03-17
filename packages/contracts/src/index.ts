@@ -191,6 +191,41 @@ export const SECTION_STATUS = {
   INACTIVE: "inactive",
 } as const;
 
+export const SUBJECT_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  DELETED: "deleted",
+} as const;
+
+export const TIMETABLE_ENTRY_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  DELETED: "deleted",
+} as const;
+
+export const WEEKDAY_KEYS = {
+  MONDAY: "monday",
+  TUESDAY: "tuesday",
+  WEDNESDAY: "wednesday",
+  THURSDAY: "thursday",
+  FRIDAY: "friday",
+  SATURDAY: "saturday",
+  SUNDAY: "sunday",
+} as const;
+
+export const CALENDAR_EVENT_TYPES = {
+  HOLIDAY: "holiday",
+  EXAM: "exam",
+  EVENT: "event",
+  DEADLINE: "deadline",
+} as const;
+
+export const CALENDAR_EVENT_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  DELETED: "deleted",
+} as const;
+
 export const ADMISSION_ENQUIRY_STATUSES = {
   NEW: "new",
   IN_PROGRESS: "in_progress",
@@ -258,6 +293,12 @@ export const academicYearStatusSchema = z.enum([
   ACADEMIC_YEAR_STATUS.ARCHIVED,
   ACADEMIC_YEAR_STATUS.DELETED,
 ]);
+
+export type SubjectStatus = (typeof SUBJECT_STATUS)[keyof typeof SUBJECT_STATUS];
+export type TimetableEntryStatus =
+  (typeof TIMETABLE_ENTRY_STATUS)[keyof typeof TIMETABLE_ENTRY_STATUS];
+export type CalendarEventStatus =
+  (typeof CALENDAR_EVENT_STATUS)[keyof typeof CALENDAR_EVENT_STATUS];
 
 export const classStatusSchema = z.enum([
   CLASS_STATUS.ACTIVE,

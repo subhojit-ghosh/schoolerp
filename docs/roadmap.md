@@ -42,9 +42,8 @@ These items still block full day-to-day v1 readiness:
 
 ## Next — Complete the remaining operational domains
 
-1. **Timetable** — class-wise weekly schedule. Required before the product is complete for a school day.
-2. **Notifications** — in-app feed scaffold exists; wire real events (fee due, absent streak, password-setup).
-3. **Branding hardening** — ensure tenant logo, favicon, display name, and theme tokens are robust across tenant bootstrap and navigation.
+1. **Notifications** — in-app feed scaffold exists; wire real events (fee due, absent streak, password-setup).
+2. **Branding hardening** — ensure tenant logo, favicon, display name, and theme tokens are robust across tenant bootstrap and navigation.
 
 ## Then — Polish and close gaps
 

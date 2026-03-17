@@ -87,6 +87,24 @@ export const ERROR_MESSAGES = {
     SECTION_HAS_CURRENT_ENROLLMENTS:
       "Cannot remove a section that is still used by current enrollments. Update those enrollments first.",
   },
+  SUBJECTS: {
+    SUBJECT_NOT_FOUND: "The selected subject was not found.",
+    SUBJECT_NAME_EXISTS:
+      "That subject name is already in use for the selected campus.",
+    SUBJECT_HAS_TIMETABLE_ENTRIES:
+      "Cannot disable or delete a subject that is used in the timetable. Update the timetable first.",
+  },
+  TIMETABLE: {
+    CLASS_SECTION_REQUIRED: "Class and section are required for timetable.",
+    INVALID_TIME_RANGE: "End time must be after the start time.",
+    DUPLICATE_PERIOD:
+      "Each timetable period must be unique for the selected day.",
+    ENTRY_NOT_FOUND: "The selected timetable entry was not found.",
+  },
+  CALENDAR: {
+    EVENT_NOT_FOUND: "The selected calendar event was not found.",
+    INVALID_TIME_RANGE: "Event end time must be after the start time.",
+  },
   ATTENDANCE: {
     CLASS_SECTION_REQUIRED: "Class and section are required for attendance.",
     NO_STUDENTS_FOUND:

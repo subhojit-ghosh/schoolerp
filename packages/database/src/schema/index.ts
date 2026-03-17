@@ -11,6 +11,13 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import {
+  CALENDAR_EVENT_STATUS,
+  CALENDAR_EVENT_TYPES,
+  SUBJECT_STATUS,
+  TIMETABLE_ENTRY_STATUS,
+  WEEKDAY_KEYS,
+} from "@repo/contracts";
 import { campus, member, organization } from "./auth";
 
 const FEE_STRUCTURE_SCOPE_ENUM = ["institution", "campus"] as const;
@@ -41,6 +48,36 @@ const ADMISSION_APPLICATION_STATUS_ENUM = [
   "reviewed",
   "approved",
   "rejected",
+] as const;
+const SUBJECT_STATUS_ENUM = [
+  SUBJECT_STATUS.ACTIVE,
+  SUBJECT_STATUS.INACTIVE,
+  SUBJECT_STATUS.DELETED,
+] as const;
+const TIMETABLE_ENTRY_STATUS_ENUM = [
+  TIMETABLE_ENTRY_STATUS.ACTIVE,
+  TIMETABLE_ENTRY_STATUS.INACTIVE,
+  TIMETABLE_ENTRY_STATUS.DELETED,
+] as const;
+const CALENDAR_EVENT_TYPE_ENUM = [
+  CALENDAR_EVENT_TYPES.HOLIDAY,
+  CALENDAR_EVENT_TYPES.EXAM,
+  CALENDAR_EVENT_TYPES.EVENT,
+  CALENDAR_EVENT_TYPES.DEADLINE,
+] as const;
+const CALENDAR_EVENT_STATUS_ENUM = [
+  CALENDAR_EVENT_STATUS.ACTIVE,
+  CALENDAR_EVENT_STATUS.INACTIVE,
+  CALENDAR_EVENT_STATUS.DELETED,
+] as const;
+const WEEKDAY_ENUM = [
+  WEEKDAY_KEYS.MONDAY,
+  WEEKDAY_KEYS.TUESDAY,
+  WEEKDAY_KEYS.WEDNESDAY,
+  WEEKDAY_KEYS.THURSDAY,
+  WEEKDAY_KEYS.FRIDAY,
+  WEEKDAY_KEYS.SATURDAY,
+  WEEKDAY_KEYS.SUNDAY,
 ] as const;
 
 export const academicYears = pgTable(
@@ -457,6 +494,115 @@ export const classSections = pgTable(
     uniqueIndex("sections_name_per_class_unique_idx")
       .on(table.classId, table.name)
       .where(sql`${table.status} = 'active'`),
+  ],
+);
+
+export const subjects = pgTable(
+  "subjects",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text()
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    name: text().notNull(),
+    code: text(),
+    status: text({ enum: SUBJECT_STATUS_ENUM }).notNull().default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(), // audit timestamp — set when status = deleted
+  },
+  (table) => [
+    index("subjects_institution_idx").on(table.institutionId),
+    index("subjects_campus_idx").on(table.campusId),
+    index("subjects_status_idx").on(table.status),
+    uniqueIndex("subjects_name_per_campus_unique_idx")
+      .on(table.campusId, table.name)
+      .where(sql`${table.status} != 'deleted'`),
+  ],
+);
+
+export const timetableEntries = pgTable(
+  "timetable_entries",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text()
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    classId: text()
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "restrict" }),
+    sectionId: text()
+      .notNull()
+      .references(() => classSections.id, { onDelete: "restrict" }),
+    subjectId: text()
+      .notNull()
+      .references(() => subjects.id, { onDelete: "restrict" }),
+    dayOfWeek: text({ enum: WEEKDAY_ENUM }).notNull(),
+    periodIndex: integer().notNull(),
+    startTime: text().notNull(),
+    endTime: text().notNull(),
+    room: text(),
+    status: text({ enum: TIMETABLE_ENTRY_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+    deletedAt: timestamp(), // audit timestamp — set when status = deleted
+  },
+  (table) => [
+    index("timetable_entries_institution_idx").on(table.institutionId),
+    index("timetable_entries_scope_idx").on(
+      table.campusId,
+      table.classId,
+      table.sectionId,
+    ),
+    index("timetable_entries_subject_idx").on(table.subjectId),
+    uniqueIndex("timetable_entries_section_slot_unique_idx")
+      .on(table.sectionId, table.dayOfWeek, table.periodIndex)
+      .where(sql`${table.status} != 'deleted'`),
+  ],
+);
+
+export const calendarEvents = pgTable(
+  "calendar_events",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text().references(() => campus.id, { onDelete: "restrict" }),
+    title: text().notNull(),
+    description: text(),
+    eventDate: date().notNull(),
+    startTime: text(),
+    endTime: text(),
+    isAllDay: boolean().notNull().default(true),
+    eventType: text({ enum: CALENDAR_EVENT_TYPE_ENUM })
+      .notNull()
+      .default("event"),
+    status: text({ enum: CALENDAR_EVENT_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+    deletedAt: timestamp(), // audit timestamp — set when status = deleted
+  },
+  (table) => [
+    index("calendar_events_institution_idx").on(table.institutionId),
+    index("calendar_events_campus_idx").on(table.campusId),
+    index("calendar_events_event_date_idx").on(table.eventDate),
+    index("calendar_events_status_idx").on(table.status),
   ],
 );
 

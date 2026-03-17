@@ -111,19 +111,16 @@ const NAV_ACADEMICS = [
   { icon: IconBook2, title: "Academic Years", url: ERP_ROUTES.ACADEMIC_YEARS },
   { icon: IconBook2, title: "Classes", url: ERP_ROUTES.CLASSES },
   {
-    disabled: true,
     icon: IconBooks,
     title: "Subjects",
     url: ERP_ROUTES.SUBJECTS,
   },
   {
-    disabled: true,
     icon: IconLayoutGrid,
     title: "Timetable",
     url: ERP_ROUTES.TIMETABLE,
   },
   {
-    disabled: true,
     icon: IconCalendar,
     title: "Calendar",
     url: ERP_ROUTES.CALENDAR,

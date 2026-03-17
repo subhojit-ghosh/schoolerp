@@ -3,6 +3,7 @@ import {
   ADMISSION_APPLICATION_STATUSES,
   ADMISSION_ENQUIRY_STATUSES,
   ATTENDANCE_STATUSES,
+  CALENDAR_EVENT_STATUS,
   CLASS_STATUS,
   FEE_STRUCTURE_STATUSES,
   GUARDIAN_RELATIONSHIPS,
@@ -11,10 +12,15 @@ import {
   ROLE_TYPES,
   SCOPE_TYPES,
   SECTION_STATUS,
+  SUBJECT_STATUS,
+  TIMETABLE_ENTRY_STATUS,
   type AttendanceStatus,
+  type CalendarEventStatus,
   type ClassStatus,
   type GuardianRelationship,
   type SectionStatus,
+  type SubjectStatus,
+  type TimetableEntryStatus,
 } from "@repo/contracts";
 
 export {
@@ -43,6 +49,9 @@ export const STATUS = {
   },
   ACADEMIC_YEAR: ACADEMIC_YEAR_STATUS,
   CLASS: CLASS_STATUS,
+  SUBJECT: SUBJECT_STATUS,
+  TIMETABLE: TIMETABLE_ENTRY_STATUS,
+  CALENDAR_EVENT: CALENDAR_EVENT_STATUS,
   FEE_STRUCTURE: FEE_STRUCTURE_STATUSES,
   SECTION: SECTION_STATUS,
   ATTENDANCE: ATTENDANCE_STATUSES,
@@ -62,5 +71,6 @@ export type MemberStatus = (typeof STATUS.MEMBER)[keyof typeof STATUS.MEMBER];
 export type MemberType = (typeof MEMBER_TYPES)[keyof typeof MEMBER_TYPES];
 export type AcademicYearStatus =
   (typeof STATUS.ACADEMIC_YEAR)[keyof typeof STATUS.ACADEMIC_YEAR];
+export type { CalendarEventStatus, SubjectStatus, TimetableEntryStatus };
 export type { ClassStatus, GuardianRelationship, SectionStatus };
 export type AttendanceRecordStatus = AttendanceStatus;

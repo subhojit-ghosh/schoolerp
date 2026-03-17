@@ -71,6 +71,30 @@ export const CLASSES_API_PATHS = {
   DELETE: "/classes/{classId}",
 } as const;
 
+export const SUBJECTS_API_PATHS = {
+  LIST: "/subjects",
+  CREATE: "/subjects",
+  DETAIL: "/subjects/{subjectId}",
+  UPDATE: "/subjects/{subjectId}",
+  SET_STATUS: "/subjects/{subjectId}/status",
+  DELETE: "/subjects/{subjectId}",
+} as const;
+
+export const TIMETABLE_API_PATHS = {
+  VIEW: "/timetable",
+  REPLACE_SECTION: "/timetable/sections/{sectionId}",
+  DELETE_ENTRY: "/timetable/{entryId}",
+} as const;
+
+export const CALENDAR_API_PATHS = {
+  LIST_EVENTS: "/calendar/events",
+  CREATE_EVENT: "/calendar/events",
+  DETAIL_EVENT: "/calendar/events/{eventId}",
+  UPDATE_EVENT: "/calendar/events/{eventId}",
+  SET_EVENT_STATUS: "/calendar/events/{eventId}/status",
+  DELETE_EVENT: "/calendar/events/{eventId}",
+} as const;
+
 export const CAMPUSES_API_PATHS = {
   LIST: "/campuses",
   CREATE: "/campuses",

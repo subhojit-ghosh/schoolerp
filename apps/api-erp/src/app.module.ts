@@ -8,6 +8,7 @@ import { AcademicYearsModule } from "./modules/academic-years/academic-years.mod
 import { AttendanceModule } from "./modules/attendance/attendance.module";
 import { AdmissionsModule } from "./modules/admissions/admissions.module";
 import { AuthModule } from "./modules/auth/auth.module";
+import { CalendarModule } from "./modules/calendar/calendar.module";
 import { CampusesModule } from "./modules/campuses/campuses.module";
 import { ClassesModule } from "./modules/classes/classes.module";
 import { validateEnvironment } from "./config/env.validation";
@@ -18,7 +19,9 @@ import { OnboardingModule } from "./modules/onboarding/onboarding.module";
 import { PublicModule } from "./modules/public/public.module";
 import { RolesModule } from "./modules/roles/roles.module";
 import { StaffModule } from "./modules/staff/staff.module";
+import { SubjectsModule } from "./modules/subjects/subjects.module";
 import { TenantContextModule } from "./modules/tenant-context/tenant-context.module";
+import { TimetableModule } from "./modules/timetable/timetable.module";
 import { GuardiansModule } from "./modules/guardians/guardians.module";
 import { StudentsModule } from "./modules/students/students.module";
 @Module({
@@ -37,6 +40,9 @@ import { StudentsModule } from "./modules/students/students.module";
     CampusesModule,
     AdmissionsModule,
     ClassesModule,
+    SubjectsModule,
+    TimetableModule,
+    CalendarModule,
     StudentsModule,
     StaffModule,
     GuardiansModule,
