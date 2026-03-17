@@ -25,11 +25,11 @@
     "@repo/backend-core": "workspace:*",
     "@repo/contracts": "workspace:*",
     "@repo/database": "workspace:*",
-    "@nestjs/common": "^11.1.8",
+    "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.2",
-    "@nestjs/core": "^11.1.8",
+    "@nestjs/core": "^11.1.17",
     "@nestjs/passport": "^11.0.5",
-    "@nestjs/platform-express": "^11.1.8",
+    "@nestjs/platform-express": "^11.1.17",
     "@nestjs/swagger": "^11.2.6",
     "@scalar/nestjs-api-reference": "^1.1.2",
     "bcryptjs": "^3.0.3",
@@ -64,6 +64,6 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.57.0"
+    "typescript-eslint": "^8.57.1"
   }
 }

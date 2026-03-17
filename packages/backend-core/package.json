@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@repo/database": "workspace:*",
-    "@nestjs/common": "^11.1.8",
+    "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.2"
   },
   "devDependencies": {
