@@ -180,3 +180,7 @@ export const ROLES_API_PATHS = {
 export const PERMISSIONS_API_PATHS = {
   LIST: "/permissions",
 } as const;
+
+export const AUDIT_API_PATHS = {
+  LIST: "/audit-logs",
+} as const;

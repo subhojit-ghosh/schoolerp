@@ -77,6 +77,7 @@ export const PERMISSIONS = {
   INSTITUTION_SETTINGS_MANAGE: "institution:settings:manage",
   INSTITUTION_ROLES_MANAGE: "institution:roles:manage",
   INSTITUTION_USERS_MANAGE: "institution:users:manage",
+  AUDIT_READ: "audit:read",
   CAMPUS_READ: "campus:read",
   CAMPUS_MANAGE: "campus:manage",
   ACADEMICS_READ: "academics:read",
@@ -113,11 +114,32 @@ export const DATA_EXCHANGE_ACTIONS = {
   EXPORT: "export",
 } as const;
 
+export const AUDIT_ACTIONS = {
+  CREATE: "create",
+  UPDATE: "update",
+  DELETE: "delete",
+  MARK: "mark",
+  REPLACE: "replace",
+  REVERSE: "reverse",
+  EXECUTE: "execute",
+} as const;
+
+export const AUDIT_ENTITY_TYPES = {
+  ROLE: "role",
+  ATTENDANCE_DAY: "attendance_day",
+  EXAM_MARKS: "exam_marks",
+  FEE_PAYMENT: "fee_payment",
+  STUDENT_ROLLOVER: "student_rollover",
+} as const;
+
 export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 export type DataExchangeEntityType =
   (typeof DATA_EXCHANGE_ENTITY_TYPES)[keyof typeof DATA_EXCHANGE_ENTITY_TYPES];
 export type DataExchangeAction =
   (typeof DATA_EXCHANGE_ACTIONS)[keyof typeof DATA_EXCHANGE_ACTIONS];
+export type AuditAction = (typeof AUDIT_ACTIONS)[keyof typeof AUDIT_ACTIONS];
+export type AuditEntityType =
+  (typeof AUDIT_ENTITY_TYPES)[keyof typeof AUDIT_ENTITY_TYPES];
 
 export const ROLE_TYPES = {
   PLATFORM: "platform",

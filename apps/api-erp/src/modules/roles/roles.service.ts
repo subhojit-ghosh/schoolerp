@@ -1,4 +1,5 @@
 import { DATABASE } from "@repo/backend-core";
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import {
   ConflictException,
   Inject,
@@ -16,6 +17,7 @@ import {
 import { and, eq, isNull, or, isNotNull, count } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedSession } from "../auth/auth.types";
+import { AuditService } from "../audit/audit.service";
 import type { CreateRoleDto, UpdateRoleDto } from "./roles.schemas";
 import type { PermissionDto, RoleDto, RolePermissionDto } from "./roles.dto";
 
@@ -28,7 +30,10 @@ function slugify(name: string): string {
 
 @Injectable()
 export class RolesService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async listRoles(
     institutionId: string,
@@ -98,7 +103,7 @@ export class RolesService {
 
   async createRole(
     institutionId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     data: CreateRoleDto,
   ): Promise<RoleDto> {
     const slug = slugify(data.name);
@@ -161,9 +166,23 @@ export class RolesService {
           })),
         );
       }
+
+      await this.auditService.recordInTransaction(tx, {
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.ROLE,
+        entityId: roleId,
+        entityLabel: data.name,
+        summary: `Created role ${data.name}.`,
+        metadata: {
+          roleSlug: slug,
+          permissionCount: data.permissionIds.length,
+        },
+      });
     });
 
-    return this.getRole(institutionId, roleId, _authSession);
+    return this.getRole(institutionId, roleId, authSession);
   }
 
   async updateRole(
@@ -172,23 +191,23 @@ export class RolesService {
     authSession: AuthenticatedSession,
     data: UpdateRoleDto,
   ): Promise<RoleDto> {
-    const role = await this.db
+    const existingRole = await this.getRole(institutionId, roleId, authSession);
+    const [role] = await this.db
       .select({ id: roles.id, isSystem: roles.isSystem })
       .from(roles)
-      .where(
-        and(
-          eq(roles.id, roleId),
-          eq(roles.institutionId, institutionId),
-        ),
-      )
+      .where(and(eq(roles.id, roleId), eq(roles.institutionId, institutionId)))
       .limit(1);
 
-    if (role.length === 0) {
+    if (!role) {
       throw new NotFoundException("Role not found");
     }
-    if (role[0].isSystem) {
+    if (role.isSystem) {
       throw new ConflictException("System roles cannot be modified");
     }
+
+    const nextRoleName = data.name ?? existingRole.name;
+    const nextPermissionIds =
+      data.permissionIds ?? existingRole.permissions.map((permission) => permission.id);
 
     await this.db.transaction(async (tx) => {
       if (data.name !== undefined) {
@@ -212,6 +231,22 @@ export class RolesService {
           );
         }
       }
+
+      await this.auditService.recordInTransaction(tx, {
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.ROLE,
+        entityId: roleId,
+        entityLabel: nextRoleName,
+        summary: `Updated role ${nextRoleName}.`,
+        metadata: {
+          previousName: existingRole.name,
+          nextName: nextRoleName,
+          previousPermissionCount: existingRole.permissions.length,
+          nextPermissionCount: nextPermissionIds.length,
+        },
+      });
     });
 
     return this.getRole(institutionId, roleId, authSession);
@@ -220,23 +255,19 @@ export class RolesService {
   async deleteRole(
     institutionId: string,
     roleId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
   ): Promise<void> {
-    const role = await this.db
+    const existingRole = await this.getRole(institutionId, roleId, authSession);
+    const [role] = await this.db
       .select({ id: roles.id, isSystem: roles.isSystem })
       .from(roles)
-      .where(
-        and(
-          eq(roles.id, roleId),
-          eq(roles.institutionId, institutionId),
-        ),
-      )
+      .where(and(eq(roles.id, roleId), eq(roles.institutionId, institutionId)))
       .limit(1);
 
-    if (role.length === 0) {
+    if (!role) {
       throw new NotFoundException("Role not found");
     }
-    if (role[0].isSystem) {
+    if (role.isSystem) {
       throw new ConflictException("System roles cannot be deleted");
     }
 
@@ -259,6 +290,19 @@ export class RolesService {
       await tx
         .delete(rolePermissions)
         .where(eq(rolePermissions.roleId, roleId));
+
+      await this.auditService.recordInTransaction(tx, {
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.DELETE,
+        entityType: AUDIT_ENTITY_TYPES.ROLE,
+        entityId: roleId,
+        entityLabel: existingRole.name,
+        summary: `Deleted role ${existingRole.name}.`,
+        metadata: {
+          permissionCount: existingRole.permissions.length,
+        },
+      });
 
       await tx.delete(roles).where(eq(roles.id, roleId));
     });

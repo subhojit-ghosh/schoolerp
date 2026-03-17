@@ -338,6 +338,12 @@ const NAV_SETTINGS = [
     title: "Roles",
     url: ERP_ROUTES.SETTINGS_ROLES,
   },
+  {
+    icon: IconClipboardList,
+    permission: PERMISSIONS.AUDIT_READ,
+    title: "Audit Trail",
+    url: ERP_ROUTES.SETTINGS_AUDIT,
+  },
 ] as const satisfies ReadonlyArray<{
   icon: typeof IconBuildingEstate;
   permission: PermissionSlug;

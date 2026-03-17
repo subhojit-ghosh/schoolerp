@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import type { AppDatabase } from "@repo/database";
 import {
   academicYears,
@@ -16,6 +17,7 @@ import {
 import { and, asc, eq, inArray, isNull, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
+import { AuditService } from "../audit/audit.service";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { sectionScopeFilter } from "../auth/scope-filter";
 import { ExamMarkDto, ExamReportCardDto, ExamTermDto } from "./exams.dto";
@@ -38,7 +40,10 @@ const EXAM_GRADING_SCHEME = [
 
 @Injectable()
 export class ExamsService {
-  constructor(@Inject(DATABASE) private readonly database: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly database: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async listExamTerms(
     institutionId: string,
@@ -168,31 +173,58 @@ export class ExamsService {
     authSession: AuthenticatedSession,
     payload: UpsertExamMarksDto,
   ): Promise<ExamMarkDto[]> {
-    await this.getExamTermOrThrow(institutionId, examTermId);
+    const examTerm = await this.getExamTermWithYearOrThrow(institutionId, examTermId);
     await this.assertStudentsBelongToInstitution(
       institutionId,
       payload.entries.map((entry) => entry.studentId),
     );
 
+    const existingMarks = await this.database
+      .select({ id: examMarks.id })
+      .from(examMarks)
+      .where(
+        and(
+          eq(examMarks.institutionId, institutionId),
+          eq(examMarks.examTermId, examTermId),
+        ),
+      );
+    const uniqueStudentCount = new Set(
+      payload.entries.map((entry) => entry.studentId),
+    ).size;
+
     await this.database.transaction(async (tx) => {
       await tx.delete(examMarks).where(eq(examMarks.examTermId, examTermId));
 
-      if (payload.entries.length === 0) {
-        return;
+      if (payload.entries.length > 0) {
+        await tx.insert(examMarks).values(
+          payload.entries.map((entry) => ({
+            id: randomUUID(),
+            institutionId,
+            examTermId,
+            studentId: entry.studentId,
+            subjectName: entry.subjectName.trim(),
+            maxMarks: entry.maxMarks,
+            obtainedMarks: entry.obtainedMarks,
+            remarks: entry.remarks?.trim() || null,
+          })),
+        );
       }
 
-      await tx.insert(examMarks).values(
-        payload.entries.map((entry) => ({
-          id: randomUUID(),
-          institutionId,
-          examTermId,
-          studentId: entry.studentId,
-          subjectName: entry.subjectName.trim(),
-          maxMarks: entry.maxMarks,
-          obtainedMarks: entry.obtainedMarks,
-          remarks: entry.remarks?.trim() || null,
-        })),
-      );
+      await this.auditService.recordInTransaction(tx, {
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.REPLACE,
+        entityType: AUDIT_ENTITY_TYPES.EXAM_MARKS,
+        entityId: examTermId,
+        entityLabel: examTerm.name,
+        summary: `Replaced marks for ${examTerm.name}.`,
+        metadata: {
+          academicYearId: examTerm.academicYearId,
+          previousEntryCount: existingMarks.length,
+          nextEntryCount: payload.entries.length,
+          uniqueStudentCount,
+        },
+      });
     });
 
     return this.listExamMarks(institutionId, examTermId, authSession);

@@ -1,5 +1,10 @@
 import { DATABASE } from "@repo/backend-core";
-import { ATTENDANCE_STATUSES, type AttendanceStatus } from "@repo/contracts";
+import {
+  ATTENDANCE_STATUSES,
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  type AttendanceStatus,
+} from "@repo/contracts";
 import {
   BadRequestException,
   Inject,
@@ -18,6 +23,7 @@ import {
 import { and, asc, eq, gte, inArray, isNull, lte, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
+import { AuditService } from "../audit/audit.service";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { sectionScopeFilter } from "../auth/scope-filter";
 import { AuthService } from "../auth/auth.service";
@@ -55,6 +61,7 @@ export class AttendanceService {
   constructor(
     @Inject(DATABASE) private readonly db: AppDatabase,
     private readonly authService: AuthService,
+    private readonly auditService: AuditService,
   ) {}
 
   async listClassSections(
@@ -173,6 +180,10 @@ export class AttendanceService {
 
     const markingMembershipId = membership.id;
     const roster = await this.listRosterForScope(institutionId, payload);
+    const classSection = await this.getClassSection(
+      payload.classId,
+      payload.sectionId,
+    );
 
     if (roster.length === 0) {
       throw new NotFoundException(ERROR_MESSAGES.ATTENDANCE.NO_STUDENTS_FOUND);
@@ -183,7 +194,30 @@ export class AttendanceService {
     const rosterByStudentId = new Map(
       roster.map((student) => [student.studentId, student] as const),
     );
+    const existingAttendanceByStudentId = await this.listAttendanceByStudentId(
+      institutionId,
+      payload.attendanceDate,
+      roster.map((student) => student.studentId),
+    );
     const now = new Date();
+    let createdCount = 0;
+    let updatedCount = 0;
+    let changedCount = 0;
+
+    for (const entry of payload.entries) {
+      const existingStatus = existingAttendanceByStudentId.get(entry.studentId);
+
+      if (!existingStatus) {
+        createdCount += 1;
+        continue;
+      }
+
+      updatedCount += 1;
+
+      if (existingStatus !== entry.status) {
+        changedCount += 1;
+      }
+    }
 
     await this.db.transaction(async (tx) => {
       for (const entry of payload.entries) {
@@ -224,6 +258,25 @@ export class AttendanceService {
             },
           });
       }
+
+      await this.auditService.recordInTransaction(tx, {
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.MARK,
+        entityType: AUDIT_ENTITY_TYPES.ATTENDANCE_DAY,
+        entityId: `${payload.attendanceDate}:${payload.classId}:${payload.sectionId}`,
+        entityLabel: `${classSection.className} ${classSection.sectionName}`,
+        summary: `Marked attendance for ${classSection.className} ${classSection.sectionName} on ${payload.attendanceDate}.`,
+        metadata: {
+          attendanceDate: payload.attendanceDate,
+          classId: payload.classId,
+          sectionId: payload.sectionId,
+          totalEntries: payload.entries.length,
+          createdCount,
+          updatedCount,
+          changedCount,
+        },
+      });
     });
 
     return this.getAttendanceDay(institutionId, authSession, payload);

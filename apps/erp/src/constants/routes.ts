@@ -110,6 +110,7 @@ export const ERP_ROUTES = {
   SETTINGS_CAMPUSES_CREATE: `/settings/campuses/${ERP_ROUTE_SEGMENTS.NEW}`,
   SETTINGS_BRANDING: "/settings/branding",
   SETTINGS_ROLES: "/settings/roles",
+  SETTINGS_AUDIT: "/settings/audit",
   SETTINGS_ROLES_CREATE: `/settings/roles/${ERP_ROUTE_SEGMENTS.NEW}`,
   SETTINGS_ROLES_EDIT: `/settings/roles/:roleId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   // Auth

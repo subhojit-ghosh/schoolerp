@@ -1,5 +1,7 @@
 import { DATABASE } from "@repo/backend-core";
 import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
   STUDENT_ROLLOVER_ACTIONS,
   STUDENT_ROLLOVER_PREVIEW_STATUS,
 } from "@repo/contracts";
@@ -29,6 +31,7 @@ import {
 } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
+import { AuditService } from "../audit/audit.service";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { campusScopeFilter, sectionScopeFilter } from "../auth/scope-filter";
 import type {
@@ -69,7 +72,10 @@ type StudentRolloverWriter = Pick<
 
 @Injectable()
 export class StudentRolloverService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async preview(
     institutionId: string,
@@ -82,7 +88,7 @@ export class StudentRolloverService {
 
   async execute(
     institutionId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     payload: StudentRolloverRequestDto,
   ): Promise<StudentRolloverExecuteDto> {
@@ -170,6 +176,24 @@ export class StudentRolloverService {
             );
         }
       }
+
+      await this.auditService.recordInTransaction(tx, {
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.EXECUTE,
+        entityType: AUDIT_ENTITY_TYPES.STUDENT_ROLLOVER,
+        entityId: payload.targetAcademicYearId,
+        entityLabel: `${preview.sourceAcademicYear.name} -> ${preview.targetAcademicYear.name}`,
+        summary: `Executed student rollover from ${preview.sourceAcademicYear.name} to ${preview.targetAcademicYear.name}.`,
+        metadata: {
+          sourceAcademicYearId: payload.sourceAcademicYearId,
+          targetAcademicYearId: payload.targetAcademicYearId,
+          sectionMappings: payload.sectionMappings.length,
+          eligibleStudentCount: preview.summary.eligibleStudentCount,
+          mappedStudentCount: preview.summary.mappedStudentCount,
+          withdrawnStudentCount: preview.summary.withdrawnStudentCount,
+        },
+      });
     });
 
     return {

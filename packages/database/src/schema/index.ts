@@ -3,6 +3,7 @@ import {
   date,
   integer,
   index,
+  jsonb,
   pgTable,
   primaryKey,
   text,
@@ -12,6 +13,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
   ANNOUNCEMENT_AUDIENCE,
   ANNOUNCEMENT_STATUS,
   CALENDAR_EVENT_STATUS,
@@ -111,6 +114,22 @@ const WEEKDAY_ENUM = [
   WEEKDAY_KEYS.FRIDAY,
   WEEKDAY_KEYS.SATURDAY,
   WEEKDAY_KEYS.SUNDAY,
+] as const;
+const AUDIT_ACTION_ENUM = [
+  AUDIT_ACTIONS.CREATE,
+  AUDIT_ACTIONS.UPDATE,
+  AUDIT_ACTIONS.DELETE,
+  AUDIT_ACTIONS.MARK,
+  AUDIT_ACTIONS.REPLACE,
+  AUDIT_ACTIONS.REVERSE,
+  AUDIT_ACTIONS.EXECUTE,
+] as const;
+const AUDIT_ENTITY_TYPE_ENUM = [
+  AUDIT_ENTITY_TYPES.ROLE,
+  AUDIT_ENTITY_TYPES.ATTENDANCE_DAY,
+  AUDIT_ENTITY_TYPES.EXAM_MARKS,
+  AUDIT_ENTITY_TYPES.FEE_PAYMENT,
+  AUDIT_ENTITY_TYPES.STUDENT_ROLLOVER,
 ] as const;
 
 export const academicYears = pgTable(
@@ -222,6 +241,49 @@ export const membershipRoleScopes = pgTable("membership_role_scopes", {
   }).notNull(),
   scopeId: text().notNull(),
 });
+
+export const auditLogs = pgTable(
+  "audit_logs",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    actorUserId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "restrict" }),
+    actorCampusId: text().references(() => campus.id, {
+      onDelete: "set null",
+    }),
+    actorContextKey: text({
+      enum: ["staff", "parent", "student"],
+    }),
+    action: text({ enum: AUDIT_ACTION_ENUM }).notNull(),
+    entityType: text({ enum: AUDIT_ENTITY_TYPE_ENUM }).notNull(),
+    entityId: text(),
+    entityLabel: text(),
+    summary: text().notNull(),
+    metadata: jsonb().$type<Record<string, unknown> | null>(),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (table) => [
+    index("audit_logs_institution_created_at_idx").on(
+      table.institutionId,
+      table.createdAt,
+    ),
+    index("audit_logs_institution_entity_idx").on(
+      table.institutionId,
+      table.entityType,
+      table.createdAt,
+    ),
+    index("audit_logs_institution_action_idx").on(
+      table.institutionId,
+      table.action,
+      table.createdAt,
+    ),
+    index("audit_logs_actor_user_idx").on(table.actorUserId, table.createdAt),
+  ],
+);
 
 export const campusMemberships = pgTable(
   "campus_memberships",

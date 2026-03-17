@@ -8,6 +8,8 @@ import {
 } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
 import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
   FEE_ADJUSTMENT_TYPES,
   FEE_ASSIGNMENT_STATUSES,
   FEE_STRUCTURE_SCOPES,
@@ -49,6 +51,7 @@ import {
   type PaginatedResult,
 } from "../../lib/list-query";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
+import { AuditService } from "../audit/audit.service";
 import { campusScopeFilter } from "../auth/scope-filter";
 import type {
   BulkFeeAssignmentDto,
@@ -106,7 +109,10 @@ const FEE_STRUCTURE_NEXT_VERSION_START = 2;
 
 @Injectable()
 export class FeesService {
-  constructor(@Inject(DATABASE) private readonly database: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly database: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   // ── Fee Structures ────────────────────────────────────────────────────────
 
@@ -1187,6 +1193,7 @@ export class FeesService {
 
   async reverseFeePayment(
     institutionId: string,
+    authSession: AuthenticatedSession,
     feePaymentId: string,
     payload: ReverseFeePaymentDto,
   ) {
@@ -1219,6 +1226,10 @@ export class FeesService {
       institutionId,
       payment.feeAssignmentId,
     );
+    const studentFullName = this.buildStudentFullName(
+      assignment.studentFirstName,
+      assignment.studentLastName,
+    );
 
     const nextPaidAmountInPaise =
       currentPaidAmountInPaise - payment.amountInPaise;
@@ -1246,6 +1257,22 @@ export class FeesService {
           ),
         })
         .where(eq(feeAssignments.id, payment.feeAssignmentId));
+
+      await this.auditService.recordInTransaction(tx, {
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.REVERSE,
+        entityType: AUDIT_ENTITY_TYPES.FEE_PAYMENT,
+        entityId: feePaymentId,
+        entityLabel: studentFullName,
+        summary: `Reversed fee payment for ${studentFullName}.`,
+        metadata: {
+          feeAssignmentId: payment.feeAssignmentId,
+          amountInPaise: payment.amountInPaise,
+          reversalReason: payload.reason ?? null,
+          paymentId: feePaymentId,
+        },
+      });
     });
 
     return this.getFeePaymentById(feePaymentId, institutionId);
@@ -2231,6 +2258,10 @@ export class FeesService {
     }
 
     return FEE_ASSIGNMENT_STATUSES.PENDING;
+  }
+
+  private buildStudentFullName(firstName: string, lastName: string | null) {
+    return [firstName, lastName].filter(Boolean).join(" ");
   }
 
   private toPaise(amount: number, errorMessage: string) {

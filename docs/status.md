@@ -62,12 +62,13 @@ Keep this file evidence-based. Do not use it as a roadmap.
 ## In Progress
 
 - Auth delivery: tokens and password-setup links now flow through a configurable delivery abstraction, but no real SMS or email vendor is wired yet.
+- Audit trail: backend audit log storage and tenant-scoped read API are implemented for role changes, attendance marking, marks replacement, fee payment reversal, and student rollover, but there is no ERP UI yet and broader sensitive-action coverage is still pending.
 
 ## Missing for v1
 
 - **SMS/email delivery** for password reset and staff onboarding links
 - **Notifications depth** — expand the feed beyond announcement-publish events into fee due, absent streak, password-setup, admissions, and approval workflows
-- **Audit trail** for sensitive operational and financial mutations
+- **Audit trail completion** — ERP UI and broader sensitive-action coverage are still missing beyond the first backend hooks
 - **Document outputs** such as fee receipts, acknowledgements, and certificate/report-card-ready exports
 - **Onboarding polish** — public school signup flow usable without assistance
 

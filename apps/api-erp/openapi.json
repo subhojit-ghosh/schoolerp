@@ -23,6 +23,125 @@
         ]
       }
     },
+    "/audit-logs": {
+      "get": {
+        "operationId": "AuditController_listAuditLogs",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "action",
+                "entityType",
+                "actor"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "action",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "create",
+                "update",
+                "delete",
+                "mark",
+                "replace",
+                "reverse",
+                "execute"
+              ]
+            }
+          },
+          {
+            "name": "entityType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "role",
+                "attendance_day",
+                "exam_marks",
+                "fee_payment",
+                "student_rollover"
+              ]
+            }
+          },
+          {
+            "name": "actorUserId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListAuditLogsResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List audit trail entries for the current tenant",
+        "tags": [
+          "audit"
+        ]
+      }
+    },
     "/auth/sign-up": {
       "post": {
         "operationId": "AuthController_signUp",
@@ -5579,6 +5698,127 @@
           "status"
         ]
       },
+      "AuditActorDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "contextKey": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "userId",
+          "name",
+          "mobile"
+        ]
+      },
+      "AuditLogDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "create",
+              "update",
+              "delete",
+              "mark",
+              "replace",
+              "reverse",
+              "execute"
+            ]
+          },
+          "entityType": {
+            "type": "string",
+            "enum": [
+              "role",
+              "attendance_day",
+              "exam_marks",
+              "fee_payment",
+              "student_rollover"
+            ]
+          },
+          "entityId": {
+            "type": "string",
+            "nullable": true
+          },
+          "entityLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "summary": {
+            "type": "string"
+          },
+          "actor": {
+            "$ref": "#/components/schemas/AuditActorDto"
+          },
+          "metadata": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "institutionId",
+          "action",
+          "entityType",
+          "summary",
+          "actor",
+          "createdAt"
+        ]
+      },
+      "ListAuditLogsResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuditLogDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
       "SignUpBodyDto": {
         "type": "object",
         "properties": {
@@ -5915,6 +6155,7 @@
                 "institution:settings:manage",
                 "institution:roles:manage",
                 "institution:users:manage",
+                "audit:read",
                 "campus:read",
                 "campus:manage",
                 "academics:read",

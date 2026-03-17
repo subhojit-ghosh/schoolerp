@@ -8,6 +8,7 @@ import { deliveryConfig } from "./config/delivery.config";
 import { AcademicYearsModule } from "./modules/academic-years/academic-years.module";
 import { AttendanceModule } from "./modules/attendance/attendance.module";
 import { AdmissionsModule } from "./modules/admissions/admissions.module";
+import { AuditModule } from "./modules/audit/audit.module";
 import { AuthModule } from "./modules/auth/auth.module";
 import { CalendarModule } from "./modules/calendar/calendar.module";
 import { CampusesModule } from "./modules/campuses/campuses.module";
@@ -37,6 +38,7 @@ import { StudentsModule } from "./modules/students/students.module";
       validate: validateEnvironment,
     }),
     DatabaseModule,
+    AuditModule,
     TenantContextModule,
     AuthModule,
     OnboardingModule,

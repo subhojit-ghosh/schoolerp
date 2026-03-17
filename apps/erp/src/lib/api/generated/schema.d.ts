@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/audit-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List audit trail entries for the current tenant */
+        get: operations["AuditController_listAuditLogs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/sign-up": {
         parameters: {
             query?: never;
@@ -1528,6 +1545,36 @@ export interface components {
         HealthResponseDto: {
             status: string;
         };
+        AuditActorDto: {
+            userId: string;
+            name: string;
+            mobile: string;
+            campusId?: string | null;
+            contextKey?: string | null;
+        };
+        AuditLogDto: {
+            id: string;
+            institutionId: string;
+            /** @enum {string} */
+            action: "create" | "update" | "delete" | "mark" | "replace" | "reverse" | "execute";
+            /** @enum {string} */
+            entityType: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover";
+            entityId?: string | null;
+            entityLabel?: string | null;
+            summary: string;
+            actor: components["schemas"]["AuditActorDto"];
+            metadata?: {
+                [key: string]: unknown;
+            } | null;
+            createdAt: string;
+        };
+        ListAuditLogsResultDto: {
+            rows: components["schemas"]["AuditLogDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
         SignUpBodyDto: {
             email?: string | null;
             name: string;
@@ -1606,7 +1653,7 @@ export interface components {
             activeOrganization: components["schemas"]["AuthOrganizationDto"] | null;
             availableContexts: components["schemas"]["AuthAccessContextDto"][];
             activeContext: components["schemas"]["AuthAccessContextDto"] | null;
-            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage")[];
+            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "audit:read" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage")[];
             activeStaffRoles: components["schemas"]["AuthStaffRoleDto"][];
             activeCampus: components["schemas"]["AuthCampusDto"] | null;
             campuses: components["schemas"]["AuthCampusDto"][];
@@ -2983,6 +3030,34 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HealthResponseDto"];
+                };
+            };
+        };
+    };
+    AuditController_listAuditLogs: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                limit?: number;
+                sort?: "createdAt" | "action" | "entityType" | "actor";
+                order?: "asc" | "desc";
+                action?: "create" | "update" | "delete" | "mark" | "replace" | "reverse" | "execute";
+                entityType?: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover";
+                actorUserId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListAuditLogsResultDto"];
                 };
             };
         };

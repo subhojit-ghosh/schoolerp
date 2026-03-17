@@ -361,11 +361,13 @@ export class FeesController {
   @ApiCreatedResponse({ type: FeePaymentDto })
   reverseFeePayment(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
     @Param("feePaymentId") feePaymentId: string,
     @Body() body: ReverseFeePaymentBodyDto,
   ) {
     return this.feesService.reverseFeePayment(
       institution.id,
+      authSession,
       feePaymentId,
       parseReverseFeePayment(body),
     );
