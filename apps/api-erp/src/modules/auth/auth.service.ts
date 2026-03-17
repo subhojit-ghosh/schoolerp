@@ -1072,7 +1072,7 @@ export class AuthService {
       : AUTH_RECOVERY_CHANNELS.MOBILE;
     const recipient = email ?? mobile;
 
-    this.passwordResetDeliveryService.sendPasswordReset({
+    await this.passwordResetDeliveryService.sendPasswordReset({
       channel,
       recipient,
       token,

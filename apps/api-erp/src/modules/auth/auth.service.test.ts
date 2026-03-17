@@ -43,7 +43,7 @@ function createAuthService() {
     get: mock((key: string, fallback?: unknown) => fallback),
   };
   const deliveryService = {
-    sendPasswordReset: mock(() => undefined),
+    sendPasswordReset: mock(() => Promise.resolve(undefined)),
   } as unknown as PasswordResetDeliveryService;
 
   return {

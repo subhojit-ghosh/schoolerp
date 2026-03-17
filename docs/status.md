@@ -23,6 +23,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Vite ERP frontend for `https://<tenant>.erp.test`
 - Same-host `/api` routing via Caddy
 - HTTP-only cookie auth, Passport-based
+- Configurable outbound delivery layer for auth flows with channel-specific provider selection (`log`, `disabled`, `webhook`)
 - Multi-campus tenant model; campus switching in session
 - RBAC: permission constants, system role seeding, `PermissionGuard`, scope enforcement, role management UI, staff role assignment UI
 - Shared list-page primitives: `EntityListPage`, `ServerDataTable`, URL-backed state, route-addressable sheets
@@ -59,7 +60,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 
 ## In Progress
 
-- Auth delivery: no SMS or email provider wired. Password reset tokens and staff password-setup links are generated but not delivered.
+- Auth delivery: tokens and password-setup links now flow through a configurable delivery abstraction, but no real SMS or email vendor is wired yet.
 
 ## Missing for v1
 

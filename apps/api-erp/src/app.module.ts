@@ -4,6 +4,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { authConfig } from "./config/auth.config";
+import { deliveryConfig } from "./config/delivery.config";
 import { AcademicYearsModule } from "./modules/academic-years/academic-years.module";
 import { AttendanceModule } from "./modules/attendance/attendance.module";
 import { AdmissionsModule } from "./modules/admissions/admissions.module";
@@ -31,7 +32,7 @@ import { StudentsModule } from "./modules/students/students.module";
       isGlobal: true,
       cache: true,
       envFilePath: [".env.local", ".env"],
-      load: [databaseConfig, authConfig],
+      load: [databaseConfig, authConfig, deliveryConfig],
       validate: validateEnvironment,
     }),
     DatabaseModule,
