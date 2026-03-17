@@ -1,4 +1,5 @@
 import { DATABASE } from "@repo/backend-core";
+import { ATTENDANCE_STATUSES } from "@repo/contracts";
 import {
   BadRequestException,
   ConflictException,
@@ -8,10 +9,19 @@ import {
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
+  attendanceRecords,
   academicYears,
   campus,
-  classSections,
   campusMemberships,
+  classSections,
+  examMarks,
+  examTerms,
+  feeAssignmentAdjustments,
+  feeAssignments,
+  feePaymentReversals,
+  feePayments,
+  feeStructureInstallments,
+  feeStructures,
   member,
   schoolClasses,
   studentCurrentEnrollments,
@@ -25,11 +35,13 @@ import {
   count,
   desc,
   eq,
+  gte,
   ilike,
   inArray,
   isNull,
   ne,
   or,
+  sql,
   type SQL,
 } from "drizzle-orm";
 import { hash } from "bcryptjs";
@@ -87,11 +99,110 @@ type ResolvedClassSection = {
 
 type StudentsWriter = Pick<AppDatabase, "insert" | "select" | "update">;
 
+type StudentAttendanceSummary = {
+  absent: number;
+  absentStreak: number;
+  attendancePercent: number;
+  endDate: string;
+  excused: number;
+  late: number;
+  present: number;
+  recentRecords: Array<{
+    date: string;
+    status: string;
+  }>;
+  startDate: string;
+  totalMarkedDays: number;
+};
+
+type StudentFeesSummary = {
+  assignmentCount: number;
+  nextDueDate: string | null;
+  overdueCount: number;
+  paymentCount: number;
+  recentAssignments: Array<{
+    adjustedAmountInPaise: number;
+    assignedAmountInPaise: number;
+    dueDate: string;
+    feeStructureId: string;
+    feeStructureName: string;
+    id: string;
+    installmentId: string | null;
+    installmentLabel: string | null;
+    outstandingAmountInPaise: number;
+    paidAmountInPaise: number;
+    status: string;
+  }>;
+  recentPayments: Array<{
+    amountInPaise: number;
+    createdAt: string;
+    feeAssignmentId: string;
+    id: string;
+    paymentDate: string;
+    paymentMethod: string;
+  }>;
+  totalAdjustedInPaise: number;
+  totalAssignedInPaise: number;
+  totalOutstandingInPaise: number;
+  totalPaidInPaise: number;
+};
+
+type StudentExamTermSummary = {
+  academicYearId: string;
+  academicYearName: string;
+  endDate: string;
+  examTermId: string;
+  examTermName: string;
+  overallGrade: string;
+  overallPercent: number;
+  subjectCount: number;
+  totalMaxMarks: number;
+  totalObtainedMarks: number;
+};
+
+type StudentExamsSummary = {
+  latestTerm: StudentExamTermSummary | null;
+  recentTerms: StudentExamTermSummary[];
+};
+
+type StudentTimelineEvent = {
+  description: string;
+  occurredAt: string;
+  title: string;
+  type: string;
+};
+
 const sortableColumns = {
   admissionNumber: students.admissionNumber,
   campus: campus.name,
   name: students.firstName,
 } as const;
+
+const ATTENDANCE_RECENT_WINDOW_DAYS = 30;
+const STUDENT_ATTENDANCE_RECENT_RECORD_LIMIT = 7;
+const STUDENT_FEE_RECENT_ASSIGNMENT_LIMIT = 5;
+const STUDENT_FEE_RECENT_PAYMENT_LIMIT = 5;
+const STUDENT_EXAM_RECENT_TERM_LIMIT = 5;
+const STUDENT_TIMELINE_LIMIT = 10;
+
+const STUDENT_TIMELINE_EVENT_TYPES = {
+  ATTENDANCE: "attendance",
+  EXAM: "exam",
+  FEE_PAYMENT: "fee_payment",
+  GUARDIAN: "guardian",
+  PROFILE: "profile",
+} as const;
+
+const EXAM_GRADING_SCHEME = [
+  { grade: "A1", minPercent: 90 },
+  { grade: "A2", minPercent: 80 },
+  { grade: "B1", minPercent: 70 },
+  { grade: "B2", minPercent: 60 },
+  { grade: "C1", minPercent: 50 },
+  { grade: "C2", minPercent: 40 },
+  { grade: "D", minPercent: 33 },
+  { grade: "E", minPercent: 0 },
+] as const;
 
 @Injectable()
 export class StudentsService {
@@ -219,6 +330,39 @@ export class StudentsService {
     }
 
     return studentRecord;
+  }
+
+  async getStudentSummary(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes = {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    },
+  ) {
+    const student = await this.getStudent(
+      institutionId,
+      studentId,
+      authSession,
+      scopes,
+    );
+
+    const [attendance, fees, exams, timeline] = await Promise.all([
+      this.getStudentAttendanceSummary(institutionId, studentId),
+      this.getStudentFeesSummary(institutionId, studentId),
+      this.getStudentExamsSummary(institutionId, studentId),
+      this.getStudentTimeline(institutionId, studentId, student.membershipId),
+    ]);
+
+    return {
+      student,
+      attendance,
+      fees,
+      exams,
+      timeline,
+    };
   }
 
   async listStudentOptions(
@@ -442,6 +586,504 @@ export class StudentsService {
       currentEnrollment:
         currentEnrollmentByStudent.get(row.membershipId) ?? null,
     }));
+  }
+
+  private async getStudentAttendanceSummary(
+    institutionId: string,
+    studentId: string,
+  ): Promise<StudentAttendanceSummary> {
+    const endDate = this.getCurrentDateString();
+    const startDate = this.getDateDaysAgoString(
+      ATTENDANCE_RECENT_WINDOW_DAYS - 1,
+    );
+    const rows = await this.db
+      .select({
+        attendanceDate: attendanceRecords.attendanceDate,
+        status: attendanceRecords.status,
+      })
+      .from(attendanceRecords)
+      .where(
+        and(
+          eq(attendanceRecords.institutionId, institutionId),
+          eq(attendanceRecords.studentId, studentId),
+          gte(attendanceRecords.attendanceDate, startDate),
+        ),
+      )
+      .orderBy(desc(attendanceRecords.attendanceDate));
+
+    let present = 0;
+    let absent = 0;
+    let late = 0;
+    let excused = 0;
+
+    for (const row of rows) {
+      if (row.status === ATTENDANCE_STATUSES.PRESENT) present += 1;
+      else if (row.status === ATTENDANCE_STATUSES.ABSENT) absent += 1;
+      else if (row.status === ATTENDANCE_STATUSES.LATE) late += 1;
+      else if (row.status === ATTENDANCE_STATUSES.EXCUSED) excused += 1;
+    }
+
+    let absentStreak = 0;
+    for (const row of rows) {
+      if (row.status !== ATTENDANCE_STATUSES.ABSENT) {
+        break;
+      }
+
+      absentStreak += 1;
+    }
+
+    const totalMarkedDays = present + absent + late + excused;
+
+    return {
+      startDate,
+      endDate,
+      totalMarkedDays,
+      present,
+      absent,
+      late,
+      excused,
+      attendancePercent:
+        totalMarkedDays === 0
+          ? 0
+          : Math.round((present / totalMarkedDays) * 100),
+      absentStreak,
+      recentRecords: rows
+        .slice(0, STUDENT_ATTENDANCE_RECENT_RECORD_LIMIT)
+        .map((row) => ({
+          date: row.attendanceDate,
+          status: row.status,
+        })),
+    };
+  }
+
+  private async getStudentFeesSummary(
+    institutionId: string,
+    studentId: string,
+  ): Promise<StudentFeesSummary> {
+    const assignmentRows = await this.db
+      .select({
+        id: feeAssignments.id,
+        feeStructureId: feeAssignments.feeStructureId,
+        feeStructureName: feeStructures.name,
+        installmentId: feeAssignments.installmentId,
+        installmentLabel: feeStructureInstallments.label,
+        assignedAmountInPaise: feeAssignments.assignedAmountInPaise,
+        dueDate: feeAssignments.dueDate,
+        status: feeAssignments.status,
+        createdAt: feeAssignments.createdAt,
+      })
+      .from(feeAssignments)
+      .innerJoin(feeStructures, eq(feeAssignments.feeStructureId, feeStructures.id))
+      .leftJoin(
+        feeStructureInstallments,
+        eq(feeAssignments.installmentId, feeStructureInstallments.id),
+      )
+      .where(
+        and(
+          eq(feeAssignments.institutionId, institutionId),
+          eq(feeAssignments.studentId, studentId),
+          ne(feeStructures.status, STATUS.FEE_STRUCTURE.DELETED),
+        ),
+      )
+      .orderBy(asc(feeAssignments.dueDate), desc(feeAssignments.createdAt));
+
+    const assignmentIds = assignmentRows.map((row) => row.id);
+    const [paymentSummaryRows, adjustmentSummaryRows, recentPaymentRows] =
+      assignmentIds.length === 0
+        ? [[], [], []]
+        : await Promise.all([
+            this.db
+              .select({
+                feeAssignmentId: feePayments.feeAssignmentId,
+                totalPaidAmountInPaise:
+                  sql<number>`coalesce(sum(${feePayments.amountInPaise}), 0)`,
+                paymentCount: sql<number>`count(${feePayments.id})`,
+              })
+              .from(feePayments)
+              .leftJoin(
+                feePaymentReversals,
+                eq(feePaymentReversals.feePaymentId, feePayments.id),
+              )
+              .where(
+                and(
+                  inArray(feePayments.feeAssignmentId, assignmentIds),
+                  isNull(feePayments.deletedAt),
+                  isNull(feePaymentReversals.id),
+                ),
+              )
+              .groupBy(feePayments.feeAssignmentId),
+            this.db
+              .select({
+                feeAssignmentId: feeAssignmentAdjustments.feeAssignmentId,
+                totalAdjustmentAmountInPaise:
+                  sql<number>`coalesce(sum(${feeAssignmentAdjustments.amountInPaise}), 0)`,
+              })
+              .from(feeAssignmentAdjustments)
+              .where(
+                inArray(feeAssignmentAdjustments.feeAssignmentId, assignmentIds),
+              )
+              .groupBy(feeAssignmentAdjustments.feeAssignmentId),
+            this.db
+              .select({
+                id: feePayments.id,
+                feeAssignmentId: feePayments.feeAssignmentId,
+                amountInPaise: feePayments.amountInPaise,
+                paymentDate: feePayments.paymentDate,
+                paymentMethod: feePayments.paymentMethod,
+                createdAt: feePayments.createdAt,
+              })
+              .from(feePayments)
+              .innerJoin(
+                feeAssignments,
+                eq(feePayments.feeAssignmentId, feeAssignments.id),
+              )
+              .leftJoin(
+                feePaymentReversals,
+                eq(feePaymentReversals.feePaymentId, feePayments.id),
+              )
+              .where(
+                and(
+                  eq(feeAssignments.institutionId, institutionId),
+                  eq(feeAssignments.studentId, studentId),
+                  isNull(feePayments.deletedAt),
+                  isNull(feePaymentReversals.id),
+                ),
+              )
+              .orderBy(desc(feePayments.paymentDate), desc(feePayments.createdAt))
+              .limit(STUDENT_FEE_RECENT_PAYMENT_LIMIT),
+          ]);
+
+    const paymentSummaryByAssignment = new Map(
+      paymentSummaryRows.map((row) => [
+        row.feeAssignmentId,
+        {
+          totalPaidAmountInPaise: Number(row.totalPaidAmountInPaise),
+          paymentCount: Number(row.paymentCount),
+        },
+      ]),
+    );
+    const adjustmentSummaryByAssignment = new Map(
+      adjustmentSummaryRows.map((row) => [
+        row.feeAssignmentId,
+        Number(row.totalAdjustmentAmountInPaise),
+      ]),
+    );
+
+    const assignmentSummaries = assignmentRows.map((row) => {
+      const paymentSummary = paymentSummaryByAssignment.get(row.id) ?? {
+        totalPaidAmountInPaise: 0,
+        paymentCount: 0,
+      };
+      const adjustedAmountInPaise =
+        adjustmentSummaryByAssignment.get(row.id) ?? 0;
+      const outstandingAmountInPaise =
+        row.assignedAmountInPaise -
+        paymentSummary.totalPaidAmountInPaise -
+        adjustedAmountInPaise;
+
+      return {
+        id: row.id,
+        feeStructureId: row.feeStructureId,
+        feeStructureName: row.feeStructureName,
+        installmentId: row.installmentId,
+        installmentLabel: row.installmentLabel ?? null,
+        dueDate: row.dueDate,
+        assignedAmountInPaise: row.assignedAmountInPaise,
+        paidAmountInPaise: paymentSummary.totalPaidAmountInPaise,
+        adjustedAmountInPaise,
+        outstandingAmountInPaise,
+        status: row.status,
+        createdAt: row.createdAt,
+        paymentCount: paymentSummary.paymentCount,
+      };
+    });
+
+    const totalAssignedInPaise = assignmentSummaries.reduce(
+      (sum, row) => sum + row.assignedAmountInPaise,
+      0,
+    );
+    const totalPaidInPaise = assignmentSummaries.reduce(
+      (sum, row) => sum + row.paidAmountInPaise,
+      0,
+    );
+    const totalAdjustedInPaise = assignmentSummaries.reduce(
+      (sum, row) => sum + row.adjustedAmountInPaise,
+      0,
+    );
+    const totalOutstandingInPaise = assignmentSummaries.reduce(
+      (sum, row) => sum + row.outstandingAmountInPaise,
+      0,
+    );
+    const paymentCount = assignmentSummaries.reduce(
+      (sum, row) => sum + row.paymentCount,
+      0,
+    );
+    const openAssignments = assignmentSummaries
+      .filter((row) => row.outstandingAmountInPaise > 0)
+      .sort((left, right) => left.dueDate.localeCompare(right.dueDate));
+    const today = this.getCurrentDateString();
+
+    return {
+      assignmentCount: assignmentSummaries.length,
+      paymentCount,
+      overdueCount: openAssignments.filter((row) => row.dueDate < today).length,
+      totalAssignedInPaise,
+      totalPaidInPaise,
+      totalAdjustedInPaise,
+      totalOutstandingInPaise,
+      nextDueDate: openAssignments[0]?.dueDate ?? null,
+      recentAssignments: (openAssignments.length > 0
+        ? openAssignments
+        : [...assignmentSummaries].sort((left, right) =>
+            right.dueDate.localeCompare(left.dueDate),
+          )
+      )
+        .slice(0, STUDENT_FEE_RECENT_ASSIGNMENT_LIMIT)
+        .map(({ createdAt: _createdAt, paymentCount: _paymentCount, ...row }) => row),
+      recentPayments: recentPaymentRows.map((row) => ({
+        id: row.id,
+        feeAssignmentId: row.feeAssignmentId,
+        amountInPaise: row.amountInPaise,
+        paymentDate: row.paymentDate,
+        paymentMethod: row.paymentMethod,
+        createdAt: row.createdAt.toISOString(),
+      })),
+    };
+  }
+
+  private async getStudentExamsSummary(
+    institutionId: string,
+    studentId: string,
+  ): Promise<StudentExamsSummary> {
+    const rows = await this.db
+      .select({
+        examTermId: examTerms.id,
+        examTermName: examTerms.name,
+        academicYearId: examTerms.academicYearId,
+        academicYearName: academicYears.name,
+        endDate: examTerms.endDate,
+        maxMarks: examMarks.maxMarks,
+        obtainedMarks: examMarks.obtainedMarks,
+      })
+      .from(examMarks)
+      .innerJoin(examTerms, eq(examMarks.examTermId, examTerms.id))
+      .innerJoin(academicYears, eq(examTerms.academicYearId, academicYears.id))
+      .where(
+        and(
+          eq(examMarks.institutionId, institutionId),
+          eq(examMarks.studentId, studentId),
+          eq(examTerms.institutionId, institutionId),
+          isNull(examTerms.deletedAt),
+          ne(academicYears.status, STATUS.ACADEMIC_YEAR.DELETED),
+        ),
+      )
+      .orderBy(desc(examTerms.endDate), asc(examTerms.name));
+
+    const grouped = new Map<
+      string,
+      Omit<StudentExamTermSummary, "overallGrade" | "overallPercent">
+    >();
+
+    for (const row of rows) {
+      const current = grouped.get(row.examTermId) ?? {
+        examTermId: row.examTermId,
+        examTermName: row.examTermName,
+        academicYearId: row.academicYearId,
+        academicYearName: row.academicYearName,
+        endDate: row.endDate,
+        subjectCount: 0,
+        totalMaxMarks: 0,
+        totalObtainedMarks: 0,
+      };
+
+      current.subjectCount += 1;
+      current.totalMaxMarks += row.maxMarks;
+      current.totalObtainedMarks += row.obtainedMarks;
+      grouped.set(row.examTermId, current);
+    }
+
+    const recentTerms = Array.from(grouped.values())
+      .map((row) => {
+        const overallPercent = this.toRoundedPercent(
+          row.totalObtainedMarks,
+          row.totalMaxMarks,
+        );
+
+        return {
+          ...row,
+          overallPercent,
+          overallGrade: this.resolveExamGrade(overallPercent),
+        };
+      })
+      .sort((left, right) => right.endDate.localeCompare(left.endDate))
+      .slice(0, STUDENT_EXAM_RECENT_TERM_LIMIT);
+
+    return {
+      latestTerm: recentTerms[0] ?? null,
+      recentTerms,
+    };
+  }
+
+  private async getStudentTimeline(
+    institutionId: string,
+    studentId: string,
+    studentMembershipId: string,
+  ): Promise<StudentTimelineEvent[]> {
+    const [[studentRow], guardianRows, attendanceRows, paymentRows, examRows] =
+      await Promise.all([
+        this.db
+          .select({
+            createdAt: students.createdAt,
+          })
+          .from(students)
+          .where(
+            and(
+              eq(students.id, studentId),
+              eq(students.institutionId, institutionId),
+            ),
+          )
+          .limit(1),
+        this.db
+          .select({
+            invitedAt: studentGuardianLinks.invitedAt,
+            name: user.name,
+            relationship: studentGuardianLinks.relationship,
+          })
+          .from(studentGuardianLinks)
+          .innerJoin(member, eq(studentGuardianLinks.parentMembershipId, member.id))
+          .innerJoin(user, eq(member.userId, user.id))
+          .where(
+            and(
+              eq(studentGuardianLinks.studentMembershipId, studentMembershipId),
+              isNull(studentGuardianLinks.deletedAt),
+              ne(member.status, STATUS.MEMBER.DELETED),
+            ),
+          )
+          .orderBy(desc(studentGuardianLinks.invitedAt))
+          .limit(3),
+        this.db
+          .select({
+            attendanceDate: attendanceRecords.attendanceDate,
+            status: attendanceRecords.status,
+          })
+          .from(attendanceRecords)
+          .where(
+            and(
+              eq(attendanceRecords.institutionId, institutionId),
+              eq(attendanceRecords.studentId, studentId),
+              inArray(attendanceRecords.status, [
+                ATTENDANCE_STATUSES.ABSENT,
+                ATTENDANCE_STATUSES.LATE,
+              ]),
+            ),
+          )
+          .orderBy(desc(attendanceRecords.attendanceDate))
+          .limit(3),
+        this.db
+          .select({
+            createdAt: feePayments.createdAt,
+            amountInPaise: feePayments.amountInPaise,
+            paymentDate: feePayments.paymentDate,
+          })
+          .from(feePayments)
+          .innerJoin(
+            feeAssignments,
+            eq(feePayments.feeAssignmentId, feeAssignments.id),
+          )
+          .leftJoin(
+            feePaymentReversals,
+            eq(feePaymentReversals.feePaymentId, feePayments.id),
+          )
+          .where(
+            and(
+              eq(feeAssignments.institutionId, institutionId),
+              eq(feeAssignments.studentId, studentId),
+              isNull(feePayments.deletedAt),
+              isNull(feePaymentReversals.id),
+            ),
+          )
+          .orderBy(desc(feePayments.paymentDate), desc(feePayments.createdAt))
+          .limit(3),
+        this.db
+          .select({
+            examTermName: examTerms.name,
+            endDate: examTerms.endDate,
+            totalMaxMarks: sql<number>`coalesce(sum(${examMarks.maxMarks}), 0)`,
+            totalObtainedMarks:
+              sql<number>`coalesce(sum(${examMarks.obtainedMarks}), 0)`,
+          })
+          .from(examMarks)
+          .innerJoin(examTerms, eq(examMarks.examTermId, examTerms.id))
+          .where(
+            and(
+              eq(examMarks.institutionId, institutionId),
+              eq(examMarks.studentId, studentId),
+              eq(examTerms.institutionId, institutionId),
+              isNull(examTerms.deletedAt),
+            ),
+          )
+          .groupBy(examTerms.id, examTerms.name, examTerms.endDate)
+          .orderBy(desc(examTerms.endDate))
+          .limit(2),
+      ]);
+
+    const events: StudentTimelineEvent[] = [];
+
+    if (studentRow) {
+      events.push({
+        type: STUDENT_TIMELINE_EVENT_TYPES.PROFILE,
+        title: "Student profile created",
+        description: "The student record was added to this institution.",
+        occurredAt: studentRow.createdAt.toISOString(),
+      });
+    }
+
+    for (const row of guardianRows) {
+      events.push({
+        type: STUDENT_TIMELINE_EVENT_TYPES.GUARDIAN,
+        title: "Guardian linked",
+        description: `${row.name} was linked as ${row.relationship}.`,
+        occurredAt: row.invitedAt.toISOString(),
+      });
+    }
+
+    for (const row of attendanceRows) {
+      events.push({
+        type: STUDENT_TIMELINE_EVENT_TYPES.ATTENDANCE,
+        title:
+          row.status === ATTENDANCE_STATUSES.ABSENT
+            ? "Marked absent"
+            : "Marked late",
+        description: `Attendance updated for ${row.attendanceDate}.`,
+        occurredAt: this.toDateTimestamp(row.attendanceDate),
+      });
+    }
+
+    for (const row of paymentRows) {
+      events.push({
+        type: STUDENT_TIMELINE_EVENT_TYPES.FEE_PAYMENT,
+        title: "Fee payment collected",
+        description: `Payment of ${row.amountInPaise / 100} INR recorded for ${row.paymentDate}.`,
+        occurredAt: row.createdAt.toISOString(),
+      });
+    }
+
+    for (const row of examRows) {
+      const overallPercent = this.toRoundedPercent(
+        Number(row.totalObtainedMarks),
+        Number(row.totalMaxMarks),
+      );
+      events.push({
+        type: STUDENT_TIMELINE_EVENT_TYPES.EXAM,
+        title: "Exam results published",
+        description: `${row.examTermName} recorded at ${overallPercent}%.`,
+        occurredAt: this.toDateTimestamp(row.endDate),
+      });
+    }
+
+    return events
+      .sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))
+      .slice(0, STUDENT_TIMELINE_LIMIT);
   }
 
   async createStudent(
@@ -1028,5 +1670,36 @@ export class StudentsService {
         ERROR_MESSAGES.STUDENTS.CLASS_CAMPUS_MISMATCH,
       );
     }
+  }
+
+  private getCurrentDateString() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  private getDateDaysAgoString(daysAgo: number) {
+    const date = new Date();
+    date.setUTCDate(date.getUTCDate() - daysAgo);
+
+    return date.toISOString().slice(0, 10);
+  }
+
+  private toDateTimestamp(date: string) {
+    return new Date(`${date}T00:00:00.000Z`).toISOString();
+  }
+
+  private toRoundedPercent(obtained: number, max: number) {
+    if (max <= 0) {
+      return 0;
+    }
+
+    return Number(((obtained / max) * 100).toFixed(2));
+  }
+
+  private resolveExamGrade(percent: number) {
+    const matchedBand = EXAM_GRADING_SCHEME.find(
+      (band) => percent >= band.minPercent,
+    );
+
+    return matchedBand?.grade ?? "E";
   }
 }

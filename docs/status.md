@@ -35,6 +35,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Academic years** — list, create, edit; current-year enforcement; sheet flows
 - **Classes and sections** — list, create, edit; section lifecycle (active/inactive); campus assignment; dependency guardrails on delete
 - **Students** — list, create, edit, detail; enrollment tied to academic year/class/section; guardian linking; admission number
+- **Student 360** — operational student profile with attendance snapshot, fee snapshot, exam snapshot, guardian details, and recent activity timeline
 - **Staff** — list, create, edit, detail; campus assignment; role assignment; active/inactive toggle; password-setup issuance on create
 - **Guardians** — list, detail, edit; linked-student relationship management
 - **Roles** — list, create, edit, delete; grouped permission picker; system role display
@@ -52,7 +53,6 @@ Keep this file evidence-based. Do not use it as a roadmap.
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
 - Frontend presentation: many pages are functional but not polished enough for a customer demo.
-- **Student detail** — current page is mainly an edit form plus enrollment/guardian cards, not a full operational student view.
 - **Parent dashboard** — visible but still placeholder-grade.
 - **Student dashboard** — visible but still placeholder-grade.
 
@@ -62,7 +62,6 @@ Keep this file evidence-based. Do not use it as a roadmap.
 
 ## Missing for v1
 
-- **Student 360** unified view: profile, enrollment, attendance record, fee status, exam results, and operational history
 - **SMS/email delivery** for password reset and staff onboarding links
 - **Notifications depth** — expand the feed beyond announcement-publish events into fee due, absent streak, password-setup, admissions, and approval workflows
 - **Academic rollover workflows** — promotion, student movement, withdrawal, and year-end progression

@@ -2400,6 +2400,42 @@
         ]
       }
     },
+    "/students/{studentId}/summary": {
+      "get": {
+        "operationId": "StudentsController_getStudentSummary",
+        "parameters": [
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentSummaryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get an operational Student 360 summary for the current tenant institution",
+        "tags": [
+          "students"
+        ]
+      }
+    },
     "/students/{studentId}": {
       "get": {
         "operationId": "StudentsController_getStudent",
@@ -7651,6 +7687,342 @@
           "classId",
           "sectionId",
           "campusId"
+        ]
+      },
+      "StudentAttendanceRecordDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "present",
+              "absent",
+              "late",
+              "excused"
+            ]
+          },
+          "date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "date"
+        ]
+      },
+      "StudentAttendanceSummaryDto": {
+        "type": "object",
+        "properties": {
+          "recentRecords": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentAttendanceRecordDto"
+            }
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "totalMarkedDays": {
+            "type": "number"
+          },
+          "present": {
+            "type": "number"
+          },
+          "absent": {
+            "type": "number"
+          },
+          "late": {
+            "type": "number"
+          },
+          "excused": {
+            "type": "number"
+          },
+          "attendancePercent": {
+            "type": "number"
+          },
+          "absentStreak": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "recentRecords",
+          "startDate",
+          "endDate",
+          "totalMarkedDays",
+          "present",
+          "absent",
+          "late",
+          "excused",
+          "attendancePercent",
+          "absentStreak"
+        ]
+      },
+      "StudentFeeAssignmentSummaryDto": {
+        "type": "object",
+        "properties": {
+          "installmentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "installmentLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "feeStructureId": {
+            "type": "string"
+          },
+          "feeStructureName": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "assignedAmountInPaise": {
+            "type": "number"
+          },
+          "paidAmountInPaise": {
+            "type": "number"
+          },
+          "adjustedAmountInPaise": {
+            "type": "number"
+          },
+          "outstandingAmountInPaise": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "feeStructureId",
+          "feeStructureName",
+          "dueDate",
+          "assignedAmountInPaise",
+          "paidAmountInPaise",
+          "adjustedAmountInPaise",
+          "outstandingAmountInPaise",
+          "status"
+        ]
+      },
+      "StudentFeePaymentSummaryDto": {
+        "type": "object",
+        "properties": {
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "cash",
+              "upi",
+              "bank_transfer",
+              "card"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "feeAssignmentId": {
+            "type": "string"
+          },
+          "amountInPaise": {
+            "type": "number"
+          },
+          "paymentDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "paymentMethod",
+          "createdAt",
+          "id",
+          "feeAssignmentId",
+          "amountInPaise",
+          "paymentDate"
+        ]
+      },
+      "StudentFeesSummaryDto": {
+        "type": "object",
+        "properties": {
+          "nextDueDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "recentAssignments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentFeeAssignmentSummaryDto"
+            }
+          },
+          "recentPayments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentFeePaymentSummaryDto"
+            }
+          },
+          "assignmentCount": {
+            "type": "number"
+          },
+          "paymentCount": {
+            "type": "number"
+          },
+          "overdueCount": {
+            "type": "number"
+          },
+          "totalAssignedInPaise": {
+            "type": "number"
+          },
+          "totalPaidInPaise": {
+            "type": "number"
+          },
+          "totalAdjustedInPaise": {
+            "type": "number"
+          },
+          "totalOutstandingInPaise": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "recentAssignments",
+          "recentPayments",
+          "assignmentCount",
+          "paymentCount",
+          "overdueCount",
+          "totalAssignedInPaise",
+          "totalPaidInPaise",
+          "totalAdjustedInPaise",
+          "totalOutstandingInPaise"
+        ]
+      },
+      "StudentExamTermSummaryDto": {
+        "type": "object",
+        "properties": {
+          "examTermId": {
+            "type": "string"
+          },
+          "examTermName": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "subjectCount": {
+            "type": "number"
+          },
+          "totalMaxMarks": {
+            "type": "number"
+          },
+          "totalObtainedMarks": {
+            "type": "number"
+          },
+          "overallPercent": {
+            "type": "number"
+          },
+          "overallGrade": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "examTermId",
+          "examTermName",
+          "academicYearId",
+          "academicYearName",
+          "subjectCount",
+          "totalMaxMarks",
+          "totalObtainedMarks",
+          "overallPercent",
+          "overallGrade",
+          "endDate"
+        ]
+      },
+      "StudentExamsSummaryDto": {
+        "type": "object",
+        "properties": {
+          "latestTerm": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StudentExamTermSummaryDto"
+              }
+            ]
+          },
+          "recentTerms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentExamTermSummaryDto"
+            }
+          }
+        },
+        "required": [
+          "recentTerms"
+        ]
+      },
+      "StudentTimelineEventDto": {
+        "type": "object",
+        "properties": {
+          "occurredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "occurredAt",
+          "type",
+          "title",
+          "description"
+        ]
+      },
+      "StudentSummaryDto": {
+        "type": "object",
+        "properties": {
+          "student": {
+            "$ref": "#/components/schemas/StudentDto"
+          },
+          "attendance": {
+            "$ref": "#/components/schemas/StudentAttendanceSummaryDto"
+          },
+          "fees": {
+            "$ref": "#/components/schemas/StudentFeesSummaryDto"
+          },
+          "exams": {
+            "$ref": "#/components/schemas/StudentExamsSummaryDto"
+          },
+          "timeline": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentTimelineEventDto"
+            }
+          }
+        },
+        "required": [
+          "student",
+          "attendance",
+          "fees",
+          "exams",
+          "timeline"
         ]
       },
       "UpdateStudentBodyDto": {

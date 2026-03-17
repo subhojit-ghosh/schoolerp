@@ -19,6 +19,7 @@ export const STUDENTS_API_PATHS = {
   OPTIONS: "/students/options",
   CREATE: "/students",
   DETAIL: "/students/{studentId}",
+  SUMMARY: "/students/{studentId}/summary",
   UPDATE: "/students/{studentId}",
 } as const;
 

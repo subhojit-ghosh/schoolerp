@@ -1,11 +1,13 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
+  ATTENDANCE_STATUSES,
+  FEE_PAYMENT_METHODS,
   GUARDIAN_RELATIONSHIPS,
-  SORT_ORDERS,
-  STATUS,
+  type AttendanceStatus,
+  type FeePaymentMethod,
   type GuardianRelationship,
-  type MemberStatus,
-} from "../../constants";
+} from "@repo/contracts";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { SORT_ORDERS, STATUS, type MemberStatus } from "../../constants";
 import { sortableStudentColumns } from "./students.schemas";
 
 export class ListStudentsQueryDto {
@@ -172,4 +174,159 @@ export class ListStudentsResultDto {
   page!: number;
   pageSize!: number;
   pageCount!: number;
+}
+
+export class StudentAttendanceRecordDto {
+  date!: string;
+
+  @ApiProperty({
+    enum: Object.values(ATTENDANCE_STATUSES),
+  })
+  status!: AttendanceStatus;
+}
+
+export class StudentAttendanceSummaryDto {
+  startDate!: string;
+  endDate!: string;
+  totalMarkedDays!: number;
+  present!: number;
+  absent!: number;
+  late!: number;
+  excused!: number;
+  attendancePercent!: number;
+  absentStreak!: number;
+
+  @ApiProperty({
+    type: () => StudentAttendanceRecordDto,
+    isArray: true,
+  })
+  recentRecords!: StudentAttendanceRecordDto[];
+}
+
+export class StudentFeeAssignmentSummaryDto {
+  id!: string;
+  feeStructureId!: string;
+  feeStructureName!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  installmentId!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  installmentLabel!: string | null;
+  dueDate!: string;
+  assignedAmountInPaise!: number;
+  paidAmountInPaise!: number;
+  adjustedAmountInPaise!: number;
+  outstandingAmountInPaise!: number;
+  status!: string;
+}
+
+export class StudentFeePaymentSummaryDto {
+  id!: string;
+  feeAssignmentId!: string;
+  amountInPaise!: number;
+  paymentDate!: string;
+
+  @ApiProperty({
+    enum: Object.values(FEE_PAYMENT_METHODS),
+  })
+  paymentMethod!: FeePaymentMethod;
+
+  @ApiProperty({
+    type: String,
+    format: "date-time",
+  })
+  createdAt!: string;
+}
+
+export class StudentFeesSummaryDto {
+  assignmentCount!: number;
+  paymentCount!: number;
+  overdueCount!: number;
+  totalAssignedInPaise!: number;
+  totalPaidInPaise!: number;
+  totalAdjustedInPaise!: number;
+  totalOutstandingInPaise!: number;
+
+  @ApiPropertyOptional({ nullable: true })
+  nextDueDate!: string | null;
+
+  @ApiProperty({
+    type: () => StudentFeeAssignmentSummaryDto,
+    isArray: true,
+  })
+  recentAssignments!: StudentFeeAssignmentSummaryDto[];
+
+  @ApiProperty({
+    type: () => StudentFeePaymentSummaryDto,
+    isArray: true,
+  })
+  recentPayments!: StudentFeePaymentSummaryDto[];
+}
+
+export class StudentExamTermSummaryDto {
+  examTermId!: string;
+  examTermName!: string;
+  academicYearId!: string;
+  academicYearName!: string;
+  subjectCount!: number;
+  totalMaxMarks!: number;
+  totalObtainedMarks!: number;
+  overallPercent!: number;
+  overallGrade!: string;
+  endDate!: string;
+}
+
+export class StudentExamsSummaryDto {
+  @ApiPropertyOptional({
+    type: () => StudentExamTermSummaryDto,
+    nullable: true,
+  })
+  latestTerm!: StudentExamTermSummaryDto | null;
+
+  @ApiProperty({
+    type: () => StudentExamTermSummaryDto,
+    isArray: true,
+  })
+  recentTerms!: StudentExamTermSummaryDto[];
+}
+
+export class StudentTimelineEventDto {
+  type!: string;
+  title!: string;
+  description!: string;
+
+  @ApiProperty({
+    type: String,
+    format: "date-time",
+  })
+  occurredAt!: string;
+}
+
+export class StudentSummaryDto {
+  @ApiProperty({
+    type: () => StudentDto,
+  })
+  student!: StudentDto;
+
+  @ApiProperty({
+    type: () => StudentAttendanceSummaryDto,
+  })
+  attendance!: StudentAttendanceSummaryDto;
+
+  @ApiProperty({
+    type: () => StudentFeesSummaryDto,
+  })
+  fees!: StudentFeesSummaryDto;
+
+  @ApiProperty({
+    type: () => StudentExamsSummaryDto,
+  })
+  exams!: StudentExamsSummaryDto;
+
+  @ApiProperty({
+    type: () => StudentTimelineEventDto,
+    isArray: true,
+  })
+  timeline!: StudentTimelineEventDto[];
 }

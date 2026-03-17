@@ -59,15 +59,26 @@ function invalidateStudentDetail(
   _institutionId: string,
   studentId: string,
 ) {
-  return queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.DETAIL, {
-      params: {
-        path: {
-          studentId,
+  return Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.DETAIL, {
+        params: {
+          path: {
+            studentId,
+          },
         },
-      },
-    }).queryKey,
-  });
+      }).queryKey,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.SUMMARY, {
+        params: {
+          path: {
+            studentId,
+          },
+        },
+      }).queryKey,
+    }),
+  ]);
 }
 
 export function useGuardiansQuery(

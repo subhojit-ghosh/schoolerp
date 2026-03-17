@@ -633,6 +633,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/students/{studentId}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an operational Student 360 summary for the current tenant institution */
+        get: operations["StudentsController_getStudentSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/students/{studentId}": {
         parameters: {
             query?: never;
@@ -1949,6 +1966,88 @@ export interface components {
             classId: string;
             sectionId: string;
             campusId: string;
+        };
+        StudentAttendanceRecordDto: {
+            /** @enum {string} */
+            status: "present" | "absent" | "late" | "excused";
+            date: string;
+        };
+        StudentAttendanceSummaryDto: {
+            recentRecords: components["schemas"]["StudentAttendanceRecordDto"][];
+            startDate: string;
+            endDate: string;
+            totalMarkedDays: number;
+            present: number;
+            absent: number;
+            late: number;
+            excused: number;
+            attendancePercent: number;
+            absentStreak: number;
+        };
+        StudentFeeAssignmentSummaryDto: {
+            installmentId?: string | null;
+            installmentLabel?: string | null;
+            id: string;
+            feeStructureId: string;
+            feeStructureName: string;
+            dueDate: string;
+            assignedAmountInPaise: number;
+            paidAmountInPaise: number;
+            adjustedAmountInPaise: number;
+            outstandingAmountInPaise: number;
+            status: string;
+        };
+        StudentFeePaymentSummaryDto: {
+            /** @enum {string} */
+            paymentMethod: "cash" | "upi" | "bank_transfer" | "card";
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            feeAssignmentId: string;
+            amountInPaise: number;
+            paymentDate: string;
+        };
+        StudentFeesSummaryDto: {
+            nextDueDate?: string | null;
+            recentAssignments: components["schemas"]["StudentFeeAssignmentSummaryDto"][];
+            recentPayments: components["schemas"]["StudentFeePaymentSummaryDto"][];
+            assignmentCount: number;
+            paymentCount: number;
+            overdueCount: number;
+            totalAssignedInPaise: number;
+            totalPaidInPaise: number;
+            totalAdjustedInPaise: number;
+            totalOutstandingInPaise: number;
+        };
+        StudentExamTermSummaryDto: {
+            examTermId: string;
+            examTermName: string;
+            academicYearId: string;
+            academicYearName: string;
+            subjectCount: number;
+            totalMaxMarks: number;
+            totalObtainedMarks: number;
+            overallPercent: number;
+            overallGrade: string;
+            endDate: string;
+        };
+        StudentExamsSummaryDto: {
+            latestTerm?: components["schemas"]["StudentExamTermSummaryDto"] | null;
+            recentTerms: components["schemas"]["StudentExamTermSummaryDto"][];
+        };
+        StudentTimelineEventDto: {
+            /** Format: date-time */
+            occurredAt: string;
+            type: string;
+            title: string;
+            description: string;
+        };
+        StudentSummaryDto: {
+            student: components["schemas"]["StudentDto"];
+            attendance: components["schemas"]["StudentAttendanceSummaryDto"];
+            fees: components["schemas"]["StudentFeesSummaryDto"];
+            exams: components["schemas"]["StudentExamsSummaryDto"];
+            timeline: components["schemas"]["StudentTimelineEventDto"][];
         };
         UpdateStudentBodyDto: {
             lastName?: string | null;
@@ -3854,6 +3953,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudentOptionDto"][];
+                };
+            };
+        };
+    };
+    StudentsController_getStudentSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentSummaryDto"];
                 };
             };
         };

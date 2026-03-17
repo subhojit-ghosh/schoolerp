@@ -32,6 +32,7 @@ import {
   ListStudentsResultDto,
   StudentOptionDto,
   StudentDto,
+  StudentSummaryDto,
   UpdateStudentBodyDto,
 } from "./students.dto";
 import {
@@ -106,6 +107,26 @@ export class StudentsController {
       institution.id,
       authSession,
       parseCreateStudent(body),
+    );
+  }
+
+  @Get(`:studentId/${API_ROUTES.SUMMARY}`)
+  @RequirePermission(PERMISSIONS.STUDENTS_READ)
+  @ApiOperation({
+    summary: "Get an operational Student 360 summary for the current tenant institution",
+  })
+  @ApiOkResponse({ type: StudentSummaryDto })
+  getStudentSummary(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.studentsService.getStudentSummary(
+      institution.id,
+      studentId,
+      authSession,
+      scopes,
     );
   }
 

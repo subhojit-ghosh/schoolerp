@@ -103,6 +103,26 @@ export function useStudentQuery(
   );
 }
 
+export function useStudentSummaryQuery(
+  institutionId: string | undefined,
+  studentId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    STUDENTS_API_PATHS.SUMMARY,
+    {
+      params: {
+        path: {
+          studentId: studentId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && studentId),
+    },
+  );
+}
+
 export function useUpdateStudentMutation(institutionId: string | undefined) {
   const queryClient = useQueryClient();
 
@@ -124,6 +144,20 @@ export function useUpdateStudentMutation(institutionId: string | undefined) {
         queryKey: apiQueryClient.queryOptions(
           "get",
           STUDENTS_API_PATHS.DETAIL,
+          {
+            params: {
+              path: {
+                studentId: variables.params.path.studentId,
+              },
+            },
+          },
+        ).queryKey,
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          STUDENTS_API_PATHS.SUMMARY,
           {
             params: {
               path: {
