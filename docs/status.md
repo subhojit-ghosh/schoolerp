@@ -51,6 +51,11 @@ Keep this file evidence-based. Do not use it as a roadmap.
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
 - Frontend presentation: many pages are functional but not polished enough for a customer demo.
+- **Notifications** — route exists, but it renders static sample data rather than real backend-driven events.
+- **Announcements / communication** — navigation exists only as a disabled `Soon` entry; no working announcements module is shipped.
+- **Student detail** — current page is mainly an edit form plus enrollment/guardian cards, not a full operational student view.
+- **Parent dashboard** — visible but still placeholder-grade.
+- **Student dashboard** — visible but still placeholder-grade.
 
 ## In Progress
 
@@ -58,8 +63,21 @@ Keep this file evidence-based. Do not use it as a roadmap.
 
 ## Missing for v1
 
-- **Student detail** unified view: profile, enrollment, attendance record, fee status, exam results
+- **Student 360** unified view: profile, enrollment, attendance record, fee status, exam results, and operational history
 - **SMS/email delivery** for password reset and staff onboarding links
-- **Branding** — logo upload, favicon, display name, primary color applied to tenant shell
-- **Notifications** — in-app feed wired to real events (fee due, absent streak, password-setup)
+- **Announcements / circulars** for school-to-family and school-to-staff communication
+- **Notifications** — in-app feed wired to real events (fee due, absent streak, password-setup, admissions, approvals)
+- **Academic rollover workflows** — promotion, student movement, withdrawal, and year-end progression
+- **Bulk import/export** for students, staff, guardians, and fee data
+- **Audit trail** for sensitive operational and financial mutations
+- **Document outputs** such as fee receipts, acknowledgements, and certificate/report-card-ready exports
 - **Onboarding polish** — public school signup flow usable without assistance
+
+## Planned Next — Feature-rich ERP breadth not yet implemented
+
+- **Library** — catalog, issue/return, member history, and fines
+- **Transport** — routes, stops, vehicles, and student transport assignment
+- **Staff leave management** — leave balances, requests, approvals, and calendar visibility
+- **Inventory** — stock, issue tracking, and basic procurement-adjacent workflows
+- **Payroll** — salary structures, deductions, and payslip workflows after staff leave foundations
+- **Hostel** — segment-specific boarding workflows if target schools require them

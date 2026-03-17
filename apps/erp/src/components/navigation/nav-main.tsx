@@ -1,4 +1,5 @@
-import type { Icon } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
+import { IconChevronDown, IconChevronRight, type Icon } from "@tabler/icons-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "@repo/ui/lib/utils";
 import {
@@ -11,10 +12,15 @@ import {
 } from "@repo/ui/components/ui/sidebar";
 
 export function NavMain({
+  collapsible = false,
+  defaultExpanded = true,
   items,
   label,
 }: {
+  collapsible?: boolean;
+  defaultExpanded?: boolean;
   items: {
+    badgeLabel?: string;
     title: string;
     url: string;
     icon?: Icon;
@@ -31,14 +37,40 @@ export function NavMain({
     );
   }
 
+  const hasActiveItem = items.some((item) => isActivePath(item.url));
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded || hasActiveItem);
+
+  useEffect(() => {
+    if (hasActiveItem) {
+      setIsExpanded(true);
+    }
+  }, [hasActiveItem]);
+
   return (
     <SidebarGroup>
       {label ? (
-        <SidebarGroupLabel className="px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/50">
-          {label}
-        </SidebarGroupLabel>
+        collapsible ? (
+          <button
+            className="flex w-full items-center gap-2 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/50 transition-colors hover:text-sidebar-foreground/75"
+            onClick={() => setIsExpanded((value) => !value)}
+            type="button"
+          >
+            {isExpanded ? (
+              <IconChevronDown className="size-3 shrink-0" />
+            ) : (
+              <IconChevronRight className="size-3 shrink-0" />
+            )}
+            <SidebarGroupLabel className="p-0 text-inherit">
+              {label}
+            </SidebarGroupLabel>
+          </button>
+        ) : (
+          <SidebarGroupLabel className="px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/50">
+            {label}
+          </SidebarGroupLabel>
+        )
       ) : null}
-      <SidebarGroupContent>
+      <SidebarGroupContent className={cn(collapsible && !isExpanded ? "hidden" : undefined)}>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
@@ -58,7 +90,7 @@ export function NavMain({
                     {item.icon ? <item.icon className="shrink-0" /> : null}
                     <span className="flex-1 truncate">{item.title}</span>
                     <span className="ml-auto text-[10px] font-medium tracking-wide text-muted-foreground/60 uppercase">
-                      Soon
+                      {item.badgeLabel ?? "Soon"}
                     </span>
                   </>
                 ) : (

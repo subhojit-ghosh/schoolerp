@@ -36,33 +36,48 @@ Ship a fully functional v1 that a real school can use day-to-day. Every feature 
 
 These items still block full day-to-day v1 readiness:
 
-1. **Student detail page** — one place to see a student's profile, current enrollment, attendance record, fee status, and exam results.
-2. **SMS/email delivery** — wire a real provider for password reset and staff password-setup links. The current delivery stub means new staff cannot log in without manual intervention.
-3. **Onboarding flow polish** — public school signup at `erp.test` should feel complete for self-serve trials without operator help.
+1. **Student 360 view** — turn the current student detail editor into a true operational profile with attendance, fees, exams, guardians, and history in one place.
+2. **SMS/email delivery** — wire a real provider for password reset, staff password-setup, and future school communications. The current delivery stub means new staff cannot log in without manual intervention.
+3. **Notifications and announcements** — replace sample notification data with real backend events and ship a usable announcements/circulars module.
+4. **Onboarding flow polish** — public school signup at `erp.test` should feel complete for self-serve trials without operator help.
 
-## Next — Complete the remaining operational domains
+## Next — Close operational gaps a real school hits quickly
 
-1. **Notifications** — in-app feed scaffold exists; wire real events (fee due, absent streak, password-setup).
-2. **Branding hardening** — ensure tenant logo, favicon, display name, and theme tokens are robust across tenant bootstrap and navigation.
+1. **Academic year rollover and student movement** — promotion, class/section changes, withdrawals, and year-end progression cannot stay manual.
+2. **Bulk import/export** — schools need fast onboarding and spreadsheet interoperability for students, staff, guardians, and fee data.
+3. **Audit trail** — sensitive actions such as fee reversals, marks replacement, attendance corrections, and role changes need traceable history.
+4. **Document outputs** — fee receipts, report cards, admission acknowledgements, and certificate-ready output are part of daily school operations.
+5. **Branding hardening** — ensure tenant logo, favicon, display name, and theme tokens are robust across tenant bootstrap, printing, and navigation.
 
-## Then — Polish and close gaps
+## Then — Add the common breadth schools expect in a feature-rich ERP
 
-1. **Cross-module polish** — consistency pass across student/staff/fees/exams/attendance flows for copy, empty states, and action hierarchy.
-2. **Operational quality** — eliminate rough UX edges that create support burden during pilot rollouts.
+1. **Parent portal completion** — dues, attendance, report cards, notices, and student-centric actions must work outside the staff dashboard.
+2. **Student portal completion** — student view is still placeholder-grade and must become useful for timetable, attendance, exams, and notices.
+3. **Library** — catalog, issue/return, member history, and fine tracking are common school ERP expectations.
+4. **Transport** — routes, stops, vehicle mapping, and student transport assignment are common operational requirements.
+5. **Staff leave management** — leave requests, balances, approvals, and calendar visibility should land before payroll.
+6. **Cross-module polish** — consistency pass across student/staff/fees/exams/attendance/admissions flows for copy, empty states, and action hierarchy.
+7. **Operational quality** — eliminate rough UX edges that create support burden during pilot rollouts.
 
 ## Later — Post-v1 depth
 
-- Attendance analytics, absent streak alerts, bulk import
-- Exam ranking, analytics, report card PDF export
-- Fee reminders, payment receipts, ledger export
-- Staff leave and payroll foundations
-- Parent portal with student-centric view
+- Attendance analytics and absent streak automation
+- Exam analytics, deeper reporting, and ranking
+- Finance depth: receipts hardening, ledger export, accounting-adjacent workflows
+- Inventory and stock workflows
+- Payroll after staff leave and attendance foundations are stable
+- Hostel and other segment-specific extensions where the target schools require them
 - Automated test coverage across all domains
 
 ## Risks And Dependencies
 
 - Password reset and staff password-setup links are broken for production use until a real SMS/email provider is wired.
 - Student detail still lacks a unified, cross-domain operational view.
+- Notifications currently present sample data, not tenant event history.
+- Announcements/circulars are still not shipped.
+- Parent and student dashboards are still placeholder-grade.
+- Schools will still fall back to spreadsheets for rollover and bulk onboarding until those workflows exist.
+- A broader, feature-rich ERP direction increases surface area; sequencing discipline is required so common breadth modules do not derail core v1 blockers.
 - Onboarding still needs UX hardening for fully self-serve institution setup.
 - Business rules must stay in NestJS; any shortcut that pushes authorization or domain logic into the frontend creates a security gap.
 

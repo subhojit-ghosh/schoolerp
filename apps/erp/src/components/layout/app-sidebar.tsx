@@ -8,6 +8,7 @@ import {
 import {
   IconBook2,
   IconBooks,
+  IconBellRinging2,
   IconBuildingEstate,
   IconCalendar,
   IconCalendarStats,
@@ -16,15 +17,22 @@ import {
   IconChartBar,
   IconChevronDown,
   IconChevronRight,
+  IconClipboardList,
   IconCurrencyRupee,
   IconDashboard,
   IconFileDescription,
+  IconFileText,
+  IconFolder,
+  IconHome,
   IconLayoutGrid,
+  IconMessageCircle,
+  IconNotebook,
   IconPalette,
   IconReportMoney,
   IconSchool,
   IconShieldLock,
   IconSpeakerphone,
+  IconTruck,
   IconUserHeart,
   IconUserSearch,
   IconUserStar,
@@ -84,8 +92,14 @@ const CONTEXT_SWITCHER_ACTIVE_ITEM_CLASS =
 const CONTEXT_SWITCHER_INACTIVE_ITEM_CLASS =
   "border-border/70 bg-card text-foreground hover:border-primary/20 hover:bg-muted/40";
 
-const NAV_OVERVIEW = [
+const NAV_HOME = [
   { icon: IconDashboard, title: "Dashboard", url: ERP_ROUTES.DASHBOARD },
+  {
+    badgeLabel: "Now",
+    icon: IconBellRinging2,
+    title: "Notifications",
+    url: ERP_ROUTES.NOTIFICATIONS,
+  },
 ] as const;
 
 const NAV_ADMISSIONS = [
@@ -101,13 +115,15 @@ const NAV_ADMISSIONS = [
   },
 ] as const;
 
-const NAV_PEOPLE = [
+const NAV_CORE = [
   { icon: IconUsers, title: "Students", url: ERP_ROUTES.STUDENTS },
-  { icon: IconUsers, title: "Guardians", url: ERP_ROUTES.GUARDIANS },
   { icon: IconUsersGroup, title: "Staff", url: ERP_ROUTES.STAFF },
+  { icon: IconCalendarStats, title: "Attendance", url: ERP_ROUTES.ATTENDANCE },
+  { icon: IconCertificate, title: "Exams", url: ERP_ROUTES.EXAMS },
+  { icon: IconCurrencyRupee, title: "Fees", url: ERP_ROUTES.FEES },
 ] as const;
 
-const NAV_ACADEMICS = [
+const NAV_ACADEMIC_MANAGEMENT = [
   { icon: IconBook2, title: "Academic Years", url: ERP_ROUTES.ACADEMIC_YEARS },
   { icon: IconBook2, title: "Classes", url: ERP_ROUTES.CLASSES },
   {
@@ -125,8 +141,38 @@ const NAV_ACADEMICS = [
     title: "Calendar",
     url: ERP_ROUTES.CALENDAR,
   },
-  { icon: IconCalendarStats, title: "Attendance", url: ERP_ROUTES.ATTENDANCE },
-  { icon: IconCertificate, title: "Exams", url: ERP_ROUTES.EXAMS },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconNotebook,
+    title: "Homework",
+    url: ERP_ROUTES.HOMEWORK,
+  },
+] as const;
+
+const NAV_RECORDS = [
+  { icon: IconUsers, title: "Guardians", url: ERP_ROUTES.GUARDIANS },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconFolder,
+    title: "Documents",
+    url: ERP_ROUTES.DOCUMENTS,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconCertificate,
+    title: "Certificates",
+    url: ERP_ROUTES.CERTIFICATES,
+  },
+  {
+    badgeLabel: "Later",
+    disabled: true,
+    icon: IconClipboardList,
+    title: "Discipline",
+    url: ERP_ROUTES.DISCIPLINE,
+  },
 ] as const;
 
 const NAV_FINANCE = [
@@ -150,33 +196,120 @@ const NAV_FINANCE = [
     title: "Fee Reports",
     url: ERP_ROUTES.FEE_REPORTS,
   },
+  {
+    badgeLabel: "Later",
+    disabled: true,
+    icon: IconFileText,
+    title: "Ledger",
+    url: ERP_ROUTES.FEE_LEDGER,
+  },
 ] as const;
 
 const NAV_REPORTS = [
   {
+    badgeLabel: "Now",
     icon: IconCalendarStats,
     title: "Attendance",
     url: ERP_ROUTES.REPORTS_ATTENDANCE,
   },
   {
+    badgeLabel: "Next",
     disabled: true,
     icon: IconChartBar,
     title: "Exams",
     url: ERP_ROUTES.REPORTS_EXAMS,
   },
   {
+    badgeLabel: "Now",
     icon: IconReportMoney,
     title: "Fees",
     url: ERP_ROUTES.FEE_REPORTS,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconFileDescription,
+    title: "Admissions",
+    url: ERP_ROUTES.REPORTS_ADMISSIONS,
+  },
+  {
+    badgeLabel: "Later",
+    disabled: true,
+    icon: IconUsers,
+    title: "Students",
+    url: ERP_ROUTES.REPORTS_STUDENTS,
   },
 ] as const;
 
 const NAV_COMMUNICATION = [
   {
+    badgeLabel: "Next",
     disabled: true,
     icon: IconSpeakerphone,
     title: "Announcements",
     url: ERP_ROUTES.ANNOUNCEMENTS,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconMessageCircle,
+    title: "Messages",
+    url: ERP_ROUTES.MESSAGES,
+  },
+] as const;
+
+const NAV_SERVICES = [
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconBooks,
+    title: "Library",
+    url: ERP_ROUTES.LIBRARY,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconTruck,
+    title: "Transport",
+    url: ERP_ROUTES.TRANSPORT,
+  },
+  {
+    badgeLabel: "Later",
+    disabled: true,
+    icon: IconLayoutGrid,
+    title: "Inventory",
+    url: ERP_ROUTES.INVENTORY,
+  },
+  {
+    badgeLabel: "Later",
+    disabled: true,
+    icon: IconBuildingEstate,
+    title: "Hostel",
+    url: ERP_ROUTES.HOSTEL,
+  },
+] as const;
+
+const NAV_HR = [
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconCalendarStats,
+    title: "Staff Attendance",
+    url: ERP_ROUTES.STAFF_ATTENDANCE,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconCalendar,
+    title: "Staff Leave",
+    url: ERP_ROUTES.STAFF_LEAVE,
+  },
+  {
+    badgeLabel: "Later",
+    disabled: true,
+    icon: IconReportMoney,
+    title: "Payroll",
+    url: ERP_ROUTES.PAYROLL,
   },
 ] as const;
 
@@ -210,7 +343,178 @@ const NAV_FAMILY = [
   {
     icon: IconUsers,
     title: "Children",
-    url: ERP_ROUTES.DASHBOARD,
+    url: ERP_ROUTES.FAMILY_CHILDREN,
+    disabled: true,
+    badgeLabel: "Planned",
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconCalendarStats,
+    title: "Attendance",
+    url: ERP_ROUTES.FAMILY_ATTENDANCE,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconLayoutGrid,
+    title: "Timetable",
+    url: ERP_ROUTES.FAMILY_TIMETABLE,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconNotebook,
+    title: "Homework",
+    url: ERP_ROUTES.FAMILY_HOMEWORK,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconCertificate,
+    title: "Exams",
+    url: ERP_ROUTES.FAMILY_EXAMS,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconCurrencyRupee,
+    title: "Fees",
+    url: ERP_ROUTES.FAMILY_FEES,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconFolder,
+    title: "Documents",
+    url: ERP_ROUTES.FAMILY_DOCUMENTS,
+  },
+] as const;
+
+const NAV_FAMILY_COMMUNICATION = [
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconSpeakerphone,
+    title: "Announcements",
+    url: ERP_ROUTES.FAMILY_ANNOUNCEMENTS,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconMessageCircle,
+    title: "Messages",
+    url: ERP_ROUTES.FAMILY_MESSAGES,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconCalendar,
+    title: "Calendar",
+    url: ERP_ROUTES.FAMILY_CALENDAR,
+  },
+] as const;
+
+const NAV_FAMILY_SERVICES = [
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconTruck,
+    title: "Transport",
+    url: ERP_ROUTES.FAMILY_TRANSPORT,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconBooks,
+    title: "Library",
+    url: ERP_ROUTES.FAMILY_LIBRARY,
+  },
+] as const;
+
+const NAV_STUDENT_ACADEMICS = [
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconLayoutGrid,
+    title: "Timetable",
+    url: ERP_ROUTES.STUDENT_TIMETABLE,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconCalendarStats,
+    title: "Attendance",
+    url: ERP_ROUTES.STUDENT_ATTENDANCE,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconNotebook,
+    title: "Homework",
+    url: ERP_ROUTES.STUDENT_HOMEWORK,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconCertificate,
+    title: "Exams",
+    url: ERP_ROUTES.STUDENT_EXAMS,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconChartBar,
+    title: "Results",
+    url: ERP_ROUTES.STUDENT_RESULTS,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconCalendar,
+    title: "Calendar",
+    url: ERP_ROUTES.STUDENT_CALENDAR,
+  },
+] as const;
+
+const NAV_STUDENT_COMMUNICATION = [
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconSpeakerphone,
+    title: "Announcements",
+    url: ERP_ROUTES.STUDENT_ANNOUNCEMENTS,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconMessageCircle,
+    title: "Messages",
+    url: ERP_ROUTES.STUDENT_MESSAGES,
+  },
+] as const;
+
+const NAV_STUDENT_SERVICES = [
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconBooks,
+    title: "Library",
+    url: ERP_ROUTES.STUDENT_LIBRARY,
+  },
+  {
+    badgeLabel: "Planned",
+    disabled: true,
+    icon: IconTruck,
+    title: "Transport",
+    url: ERP_ROUTES.STUDENT_TRANSPORT,
+  },
+  {
+    badgeLabel: "Later",
+    disabled: true,
+    icon: IconHome,
+    title: "Hostel",
+    url: ERP_ROUTES.STUDENT_HOSTEL,
   },
 ] as const;
 
@@ -387,21 +691,106 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
 
       <SidebarContent>
-        <NavMain items={[...NAV_OVERVIEW]} />
         {showStaffNavigation ? (
           <>
-            <NavMain items={[...NAV_ADMISSIONS]} label="Admissions" />
-            <NavMain items={[...NAV_PEOPLE]} label="People" />
-            <NavMain items={[...NAV_ACADEMICS]} label="Academics" />
-            <NavMain items={[...NAV_FINANCE]} label="Finance" />
-            <NavMain items={[...NAV_REPORTS]} label="Reports" />
-            <NavMain items={[...NAV_COMMUNICATION]} label="Communication" />
+            <NavMain items={[...NAV_HOME]} label="Home" />
+            <NavMain collapsible defaultExpanded items={[...NAV_CORE]} label="Core" />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_ADMISSIONS]}
+              label="Admissions"
+            />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_ACADEMIC_MANAGEMENT]}
+              label="Academic Management"
+            />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_RECORDS]}
+              label="Records"
+            />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_FINANCE]}
+              label="Finance"
+            />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_COMMUNICATION]}
+              label="Communication"
+            />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_SERVICES]}
+              label="School Services"
+            />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_HR]}
+              label="HR & Payroll"
+            />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_REPORTS]}
+              label="Reports"
+            />
             {settingsItems.length > 0 ? (
-              <NavMain items={settingsItems} label="Settings" />
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={settingsItems}
+                label="Settings"
+              />
             ) : null}
           </>
         ) : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT ? (
-          <NavMain items={[...NAV_FAMILY]} label="Family" />
+          <>
+            <NavMain items={[...NAV_HOME]} label="Home" />
+            <NavMain collapsible defaultExpanded items={[...NAV_FAMILY]} label="Family" />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_FAMILY_COMMUNICATION]}
+              label="Communication"
+            />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_FAMILY_SERVICES]}
+              label="Services"
+            />
+          </>
+        ) : activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT ? (
+          <>
+            <NavMain items={[...NAV_HOME]} label="Home" />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_STUDENT_ACADEMICS]}
+              label="Academics"
+            />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_STUDENT_COMMUNICATION]}
+              label="Communication"
+            />
+            <NavMain
+              collapsible
+              defaultExpanded
+              items={[...NAV_STUDENT_SERVICES]}
+              label="Services"
+            />
+          </>
         ) : null}
       </SidebarContent>
 
