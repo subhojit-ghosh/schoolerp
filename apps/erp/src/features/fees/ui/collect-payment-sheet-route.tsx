@@ -177,7 +177,7 @@ function CollectPaymentForm({
                   <Input
                     {...field}
                     aria-invalid={fieldState.invalid}
-                    placeholder="Txn or receipt number"
+                    placeholder="Optional payment reference"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>

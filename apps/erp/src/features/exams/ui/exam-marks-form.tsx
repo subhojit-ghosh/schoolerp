@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { Button } from "@repo/ui/components/ui/button";
@@ -57,7 +58,7 @@ export function ExamMarksForm({
   students,
   onSubmit,
 }: ExamMarksFormProps) {
-  const { control, handleSubmit, reset } = useForm<ExamMarksFormValues>({
+  const { control, handleSubmit, reset, setValue } = useForm<ExamMarksFormValues>({
     resolver: zodResolver(examMarksFormSchema),
     defaultValues,
   });
@@ -66,10 +67,30 @@ export function ExamMarksForm({
     control,
     name: "entries",
   });
+  const entries = useWatch({
+    control,
+    name: "entries",
+  });
+  const defaultStudentId = students.length === 1 ? students[0]!.id : "";
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (!defaultStudentId) {
+      return;
+    }
+
+    entries.forEach((entry, index) => {
+      if (!entry?.studentId) {
+        setValue(`entries.${index}.studentId`, defaultStudentId, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+    });
+  }, [defaultStudentId, entries, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -84,7 +105,12 @@ export function ExamMarksForm({
           </div>
           <Button
             disabled={students.length === 0}
-            onClick={() => fieldArray.append(DEFAULT_ENTRY)}
+            onClick={() =>
+              fieldArray.append({
+                ...DEFAULT_ENTRY,
+                studentId: defaultStudentId,
+              })
+            }
             size="sm"
             type="button"
             variant="outline"
@@ -97,20 +123,23 @@ export function ExamMarksForm({
         {fieldArray.fields.map((entry, index) => (
           <div
             key={entry.id}
-            className="grid gap-4 rounded-xl border bg-muted/20 p-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_120px_120px_minmax(0,1fr)_auto]"
+            className="grid grid-cols-12 gap-4 rounded-xl border bg-muted/20 p-4"
           >
             <Controller
               control={control}
               name={`entries.${index}.studentId`}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
+                <Field
+                  className="col-span-12 min-w-0 md:col-span-6"
+                  data-invalid={fieldState.invalid || undefined}
+                >
                   <FieldLabel>Student</FieldLabel>
                   <FieldContent>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value || undefined}
+                      value={field.value ?? ""}
                     >
-                      <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
                         <SelectValue placeholder="Select student" />
                       </SelectTrigger>
                       <SelectContent>
@@ -133,13 +162,16 @@ export function ExamMarksForm({
               control={control}
               name={`entries.${index}.subjectName`}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
+                <Field
+                  className="col-span-12 min-w-0 md:col-span-6"
+                  data-invalid={fieldState.invalid || undefined}
+                >
                   <FieldLabel>Subject</FieldLabel>
                   <FieldContent>
                     <Input
                       {...field}
                       aria-invalid={fieldState.invalid}
-                      placeholder="Mathematics"
+                      placeholder="Subject name"
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </FieldContent>
@@ -151,7 +183,10 @@ export function ExamMarksForm({
               control={control}
               name={`entries.${index}.maxMarks`}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
+                <Field
+                  className="col-span-6 md:col-span-3"
+                  data-invalid={fieldState.invalid || undefined}
+                >
                   <FieldLabel>Max</FieldLabel>
                   <FieldContent>
                     <Input
@@ -175,7 +210,10 @@ export function ExamMarksForm({
               control={control}
               name={`entries.${index}.obtainedMarks`}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
+                <Field
+                  className="col-span-6 md:col-span-3"
+                  data-invalid={fieldState.invalid || undefined}
+                >
                   <FieldLabel>Score</FieldLabel>
                   <FieldContent>
                     <Input
@@ -199,13 +237,16 @@ export function ExamMarksForm({
               control={control}
               name={`entries.${index}.remarks`}
               render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
+                <Field
+                  className="col-span-12 min-w-0 md:col-span-6"
+                  data-invalid={fieldState.invalid || undefined}
+                >
                   <FieldLabel>Remarks</FieldLabel>
                   <FieldContent>
                     <Input
                       {...field}
                       aria-invalid={fieldState.invalid}
-                      placeholder="Optional"
+                      placeholder="Optional remark"
                     />
                     <FieldError>{fieldState.error?.message}</FieldError>
                   </FieldContent>
@@ -213,7 +254,7 @@ export function ExamMarksForm({
               )}
             />
 
-            <div className="flex items-end">
+            <div className="col-span-12 flex items-end justify-end">
               <Button
                 disabled={fieldArray.fields.length === 1}
                 onClick={() => fieldArray.remove(index)}

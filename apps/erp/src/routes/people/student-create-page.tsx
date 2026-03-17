@@ -100,9 +100,7 @@ export function StudentCreatePage() {
             Back to students
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Create student
-        </h1>
+        <h1 className="text-2xl font-semibold tracking-tight">New student</h1>
         <p className="text-sm text-muted-foreground">
           Add student details and link guardians.
         </p>

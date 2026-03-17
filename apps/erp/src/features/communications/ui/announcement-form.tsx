@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   EntityFormPrimaryAction,
@@ -53,14 +54,27 @@ export function AnnouncementForm({
   onSubmit,
   submitLabel,
 }: AnnouncementFormProps) {
-  const { control, handleSubmit, reset } = useForm<AnnouncementFormValues>({
+  const { control, handleSubmit, reset, setValue } = useForm<AnnouncementFormValues>({
     resolver: zodResolver(announcementFormSchema),
     defaultValues,
+  });
+  const selectedCampusId = useWatch({
+    control,
+    name: "campusId",
   });
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (campuses.length === 1 && !selectedCampusId) {
+      setValue("campusId", campuses[0]!.id, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [campuses, selectedCampusId, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -110,7 +124,7 @@ export function AnnouncementForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="announcement-title"
-                    placeholder="Fee reminder for March transport dues"
+                    placeholder="Announcement title"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>

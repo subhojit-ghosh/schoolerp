@@ -150,6 +150,10 @@ export function AttendancePage() {
     control: selectionForm.control,
     name: "classId",
   });
+  const selectedSectionId = useWatch({
+    control: selectionForm.control,
+    name: "sectionId",
+  });
 
   const classSectionsQuery = useAttendanceClassSectionsQuery(
     managedInstitutionId,
@@ -245,6 +249,33 @@ export function AttendancePage() {
     (item) => item.classId === selectedClassId,
   );
 
+  useEffect(() => {
+    if (!selectedClassId) {
+      return;
+    }
+
+    const onlySection = sectionsForSelectedClass[0];
+    const hasCurrentSection = sectionsForSelectedClass.some(
+      (item) => item.sectionId === selectedSectionId,
+    );
+
+    if (sectionsForSelectedClass.length === 1 && onlySection) {
+      if (selectedSectionId !== onlySection.sectionId) {
+        selectionForm.setValue("sectionId", onlySection.sectionId);
+      }
+      return;
+    }
+
+    if (!hasCurrentSection && selectedSectionId) {
+      selectionForm.setValue("sectionId", "");
+    }
+  }, [
+    selectedClassId,
+    selectedSectionId,
+    sectionsForSelectedClass,
+    selectionForm,
+  ]);
+
   const markedCount = overviewItems.filter((i) => i.marked).length;
   const totalCount = overviewItems.length;
 
@@ -313,7 +344,7 @@ export function AttendancePage() {
                                 selectionForm.setValue("classId", "");
                                 selectionForm.setValue("sectionId", "");
                               }}
-                              value={field.value || undefined}
+                              value={field.value ?? ""}
                             >
                               <SelectTrigger
                                 aria-invalid={fieldState.invalid}
@@ -345,7 +376,7 @@ export function AttendancePage() {
                                 field.onChange(value);
                                 selectionForm.setValue("sectionId", "");
                               }}
-                              value={field.value || undefined}
+                              value={field.value ?? ""}
                             >
                               <SelectTrigger
                                 aria-invalid={fieldState.invalid}
@@ -374,7 +405,7 @@ export function AttendancePage() {
                           <FieldContent>
                             <Select
                               onValueChange={field.onChange}
-                              value={field.value || undefined}
+                              value={field.value ?? ""}
                             >
                               <SelectTrigger
                                 aria-invalid={fieldState.invalid}

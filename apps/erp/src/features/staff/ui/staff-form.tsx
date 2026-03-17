@@ -82,7 +82,7 @@ export function StaffForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="staff-name"
-                    placeholder="Aarav Sharma"
+                    placeholder="Staff full name"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
@@ -101,7 +101,6 @@ export function StaffForm({
                     aria-invalid={fieldState.invalid}
                     id="staff-mobile"
                     inputMode="tel"
-                    placeholder="+91 98765 43210"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
@@ -119,7 +118,7 @@ export function StaffForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="staff-email"
-                    placeholder="staff@example.com"
+                    placeholder="Optional staff email"
                     type="email"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
@@ -136,7 +135,7 @@ export function StaffForm({
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select campus" />

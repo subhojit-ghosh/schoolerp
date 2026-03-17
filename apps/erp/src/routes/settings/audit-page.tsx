@@ -22,6 +22,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { EntityToolbarSecondaryAction } from "@/components/entities/entity-actions";
 import { EntityListPage } from "@/components/entities/entity-list-page";
 import { SORT_ORDERS } from "@/constants/query";
 import {
@@ -323,6 +324,8 @@ export function AuditPage() {
     filters.action !== "all" ||
     filters.entityType !== "all";
 
+  const hasActiveFilters = filters.action !== "all" || filters.entityType !== "all";
+
   return (
     <EntityListPage
       title={AUDIT_PAGE_COPY.TITLE}
@@ -379,6 +382,20 @@ export function AuditPage() {
                 ))}
               </SelectContent>
             </Select>
+
+            {hasActiveFilters ? (
+              <EntityToolbarSecondaryAction
+                onClick={() =>
+                  void setFilters({
+                    [AUDIT_FILTER_QUERY_PARAMS.ACTION]: "all",
+                    [AUDIT_FILTER_QUERY_PARAMS.ENTITY_TYPE]: "all",
+                  })
+                }
+                type="button"
+              >
+                Clear filters
+              </EntityToolbarSecondaryAction>
+            ) : null}
           </div>
         </div>
       }

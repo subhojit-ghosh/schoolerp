@@ -70,7 +70,7 @@ export function BrandingIdentitySection({
               <Input
                 {...field}
                 aria-invalid={fieldState.invalid}
-                placeholder="https://example.com/logo.png"
+                placeholder="Paste the hosted logo URL"
                 type="url"
               />
               <FieldError>{fieldState.error?.message}</FieldError>
@@ -89,7 +89,7 @@ export function BrandingIdentitySection({
               <Input
                 {...field}
                 aria-invalid={fieldState.invalid}
-                placeholder="https://example.com/favicon.ico"
+                placeholder="Paste the hosted favicon URL"
                 type="url"
               />
               <FieldError>{fieldState.error?.message}</FieldError>

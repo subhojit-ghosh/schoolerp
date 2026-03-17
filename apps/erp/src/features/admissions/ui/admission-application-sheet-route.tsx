@@ -30,6 +30,15 @@ type AdmissionApplicationSheetRouteProps = {
   mode: "create" | "edit";
 };
 
+type EnquiryDraft = {
+  campusId: string;
+  email: string;
+  guardianName: string;
+  id: string;
+  mobile: string;
+  studentName: string;
+};
+
 export function AdmissionApplicationSheetRoute({
   mode,
 }: AdmissionApplicationSheetRouteProps) {
@@ -93,11 +102,15 @@ export function AdmissionApplicationSheetRoute({
   const enquiryOptions = useMemo(
     () =>
       (enquiriesQuery.data?.rows ?? []).map((enquiry) => ({
+        campusId: enquiry.campusId,
+        email: enquiry.email ?? "",
+        guardianName: enquiry.guardianName,
         id: enquiry.id,
+        mobile: enquiry.mobile,
         studentName: enquiry.studentName,
       })),
     [enquiriesQuery.data?.rows],
-  );
+  ) as EnquiryDraft[];
 
   async function handleSubmit(values: AdmissionApplicationFormValues) {
     if (!institutionId) {
@@ -188,6 +201,7 @@ export function AdmissionApplicationSheetRoute({
         campuses={campusOptions}
         defaultValues={defaultValues}
         enquiries={enquiryOptions}
+        enableLinkedEnquiryAutofill={mode === "create"}
         errorMessage={errorMessage}
         isPending={isPending}
         onCancel={() => {

@@ -58,6 +58,7 @@ export function AdmissionEnquiryForm({
   onSubmit,
   submitLabel,
 }: AdmissionEnquiryFormProps) {
+  const hasSingleCampus = campuses.length === 1;
   const { control, handleSubmit, reset } = useForm<AdmissionEnquiryFormValues>({
     resolver: zodResolver(admissionEnquiryFormSchema),
     defaultValues,
@@ -66,6 +67,22 @@ export function AdmissionEnquiryForm({
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (campuses.length !== 1) {
+      return;
+    }
+
+    const defaultCampusId = campuses[0]!.id;
+    if (defaultValues.campusId === defaultCampusId) {
+      return;
+    }
+
+    reset({
+      ...defaultValues,
+      campusId: defaultCampusId,
+    });
+  }, [campuses, defaultValues, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -140,7 +157,7 @@ export function AdmissionEnquiryForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="admission-enquiry-email"
-                    placeholder="guardian@example.com"
+                    placeholder="Optional guardian email"
                     type="email"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
@@ -156,10 +173,14 @@ export function AdmissionEnquiryForm({
                 <FieldLabel>Campus</FieldLabel>
                 <FieldContent>
                   <Select
+                    disabled={hasSingleCampus}
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                    <SelectTrigger
+                      aria-invalid={fieldState.invalid}
+                      disabled={hasSingleCampus}
+                    >
                       <SelectValue placeholder="Select campus" />
                     </SelectTrigger>
                     <SelectContent>
@@ -214,7 +235,7 @@ export function AdmissionEnquiryForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="admission-enquiry-source"
-                    placeholder="Walk-in, referral, website"
+                    placeholder="How the family reached your school"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>

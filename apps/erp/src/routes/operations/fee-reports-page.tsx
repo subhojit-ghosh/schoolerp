@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -67,6 +67,29 @@ export function FeeReportsPage() {
     () => campusesQuery.data?.rows ?? [],
     [campusesQuery.data?.rows],
   );
+  const defaultAcademicYearId = useMemo(
+    () =>
+      academicYearOptions.find((academicYear) => academicYear.isCurrent)?.id ??
+      academicYearOptions[0]?.id ??
+      "all",
+    [academicYearOptions],
+  );
+  const defaultCampusId = useMemo(
+    () => (campusOptions.length === 1 ? campusOptions[0]!.id : "all"),
+    [campusOptions],
+  );
+
+  useEffect(() => {
+    if (academicYearId === "all" && defaultAcademicYearId !== "all") {
+      setAcademicYearId(defaultAcademicYearId);
+    }
+  }, [academicYearId, defaultAcademicYearId]);
+
+  useEffect(() => {
+    if (campusId === "all" && defaultCampusId !== "all") {
+      setCampusId(defaultCampusId);
+    }
+  }, [campusId, defaultCampusId]);
 
   if (!institutionId) {
     return (

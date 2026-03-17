@@ -72,7 +72,7 @@ export function CalendarEventForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="calendar-title"
-                    placeholder="Annual sports day"
+                    placeholder="Event title"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>

@@ -24,14 +24,20 @@ import { FeeStructureForm } from "@/features/fees/ui/fee-structure-form";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
-const DEFAULT_FEE_STRUCTURE_FORM_VALUES: FeeStructureFormValues = {
-  academicYearId: "",
-  campusId: "",
-  name: "",
-  description: "",
-  scope: "institution",
-  installments: [{ label: "Full payment", amount: "", dueDate: "" }],
-};
+function buildDefaultFeeStructureFormValues(
+  academicYearId: string,
+): FeeStructureFormValues {
+  return {
+    academicYearId,
+    campusId: "",
+    name: "",
+    description: "",
+    scope: "institution",
+    installments: [{ label: "Full payment", amount: "", dueDate: "" }],
+  };
+}
+
+const EMPTY_ACADEMIC_YEAR_ID = "";
 
 type FeeStructureFormPageProps = {
   mode: "create" | "edit";
@@ -77,7 +83,15 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
 
   const defaultValues = useMemo<FeeStructureFormValues>(() => {
     if (mode === "create" || !feeStructureQuery.data) {
-      return DEFAULT_FEE_STRUCTURE_FORM_VALUES;
+      const activeAcademicYears = (academicYearsQuery.data?.rows ?? []).filter(
+        (academicYear) => academicYear.status === "active",
+      );
+      const defaultAcademicYearId =
+        activeAcademicYears.find((academicYear) => academicYear.isCurrent)?.id ??
+        activeAcademicYears[0]?.id ??
+        EMPTY_ACADEMIC_YEAR_ID;
+
+      return buildDefaultFeeStructureFormValues(defaultAcademicYearId);
     }
 
     const structure = feeStructureQuery.data;
@@ -97,7 +111,7 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
             }))
           : [{ label: "Full payment", amount: "", dueDate: "" }],
     };
-  }, [feeStructureQuery.data, mode]);
+  }, [academicYearsQuery.data?.rows, feeStructureQuery.data, mode]);
 
   async function handleSubmit(values: FeeStructureFormValues) {
     if (!institutionId) return;

@@ -84,6 +84,33 @@ function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
+function formatStudentPlacement(student: {
+  className: string;
+  currentEnrollment?: {
+    className: string;
+    sectionName: string;
+    academicYearName: string;
+  } | null | undefined;
+  sectionName: string;
+}) {
+  if (student.currentEnrollment) {
+    return {
+      academicYearName: student.currentEnrollment.academicYearName,
+      isManagedEnrollment: true,
+      placementLabel:
+        `${student.currentEnrollment.className} ${student.currentEnrollment.sectionName}`.trim(),
+    };
+  }
+
+  const fallbackPlacement = `${student.className} ${student.sectionName}`.trim();
+
+  return {
+    academicYearName: null,
+    isManagedEnrollment: false,
+    placementLabel: fallbackPlacement,
+  };
+}
+
 function attendanceBadgeVariant(status: string) {
   if (status === ATTENDANCE_STATUSES.ABSENT) {
     return "destructive";
@@ -191,6 +218,18 @@ export function StudentDetailPage() {
         : EMPTY_CURRENT_ENROLLMENT,
     };
   }, [session?.activeCampus?.id, studentSummaryQuery.data?.student]);
+
+  const studentPlacement = useMemo(() => {
+    if (!studentSummaryQuery.data?.student) {
+      return {
+        academicYearName: null,
+        isManagedEnrollment: false,
+        placementLabel: "",
+      };
+    }
+
+    return formatStudentPlacement(studentSummaryQuery.data.student);
+  }, [studentSummaryQuery.data]);
 
   async function onSubmit(values: StudentFormValues) {
     if (!institutionId || !studentId) {
@@ -301,8 +340,9 @@ export function StudentDetailPage() {
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground">
-              Admission {student.admissionNumber} • {student.className}{" "}
-              {student.sectionName} • {student.campusName}
+              Admission {student.admissionNumber} •{" "}
+              {studentPlacement.placementLabel || "Placement not assigned"} •{" "}
+              {student.campusName}
             </p>
           </div>
         </div>
@@ -678,20 +718,24 @@ export function StudentDetailPage() {
                   <Separator />
                   <div>
                     <p className="text-sm font-medium">
-                      {student.className} {student.sectionName}
+                      {studentPlacement.placementLabel || "Not assigned"}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Current class and section
+                      {studentPlacement.isManagedEnrollment
+                        ? "Current class and section"
+                        : "Student profile placement"}
                     </p>
                   </div>
                   <Separator />
                   <div>
                     <p className="text-sm font-medium">
-                      {student.currentEnrollment?.academicYearName ??
-                        "Not assigned"}
+                      {studentPlacement.academicYearName ??
+                        "Not linked to an academic year"}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Current academic year
+                      {studentPlacement.isManagedEnrollment
+                        ? "Current academic year"
+                        : "Enrollment academic year"}
                     </p>
                   </div>
                   <Separator />
@@ -853,9 +897,24 @@ export function StudentDetailPage() {
                       </div>
                     </>
                   ) : (
-                    <p className="text-sm text-muted-foreground">
-                      No current enrollment assigned yet.
-                    </p>
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        No backend-managed current enrollment is linked yet.
+                      </p>
+                      {studentPlacement.placementLabel ? (
+                        <>
+                          <Separator />
+                          <div>
+                            <p className="text-sm font-medium">
+                              {studentPlacement.placementLabel}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Student profile placement
+                            </p>
+                          </div>
+                        </>
+                      ) : null}
+                    </div>
                   )}
                 </CardContent>
               </Card>

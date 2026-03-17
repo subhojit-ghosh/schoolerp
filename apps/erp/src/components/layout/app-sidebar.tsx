@@ -39,6 +39,7 @@ import {
   IconUserStar,
   IconUsers,
   IconUsersGroup,
+  type Icon,
 } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router";
 import {
@@ -533,6 +534,19 @@ const NAV_STUDENT_SERVICES = [
 const HEADER_CLASS =
   "flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-white/8 bg-white/4 px-3 py-3 text-left transition-[width,height,padding] hover:bg-white/8 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-2";
 
+type NavItem = {
+  badgeLabel?: string;
+  disabled?: boolean;
+  icon?: Icon;
+  permission?: PermissionSlug;
+  title: string;
+  url: string;
+};
+
+function getActionableNavItems(items: readonly NavItem[]): NavItem[] {
+  return items.filter((item) => !item.disabled);
+}
+
 function InstitutionLogo({
   logoUrl,
   institutionName,
@@ -583,9 +597,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     .toUpperCase();
 
   const logoProps = { logoUrl, institutionName, initial };
-  const settingsItems = NAV_SETTINGS.filter((item) =>
-    hasPermission(session, item.permission),
+  const homeItems = getActionableNavItems(NAV_HOME);
+  const coreItems = getActionableNavItems(NAV_CORE);
+  const admissionsItems = getActionableNavItems(NAV_ADMISSIONS);
+  const academicManagementItems = getActionableNavItems(NAV_ACADEMIC_MANAGEMENT);
+  const recordItems = getActionableNavItems(NAV_RECORDS);
+  const financeItems = getActionableNavItems(NAV_FINANCE);
+  const communicationItems = getActionableNavItems(NAV_COMMUNICATION).filter(
+    (item) => {
+      if (!item.permission) {
+        return true;
+      }
+
+      return hasPermission(session, item.permission);
+    },
   );
+  const servicesItems = getActionableNavItems(NAV_SERVICES);
+  const hrItems = getActionableNavItems(NAV_HR);
+  const reportItems = getActionableNavItems(NAV_REPORTS);
+  const settingsItems = getActionableNavItems(NAV_SETTINGS).filter(
+    (item) => item.permission && hasPermission(session, item.permission),
+  );
+  const familyItems = getActionableNavItems(NAV_FAMILY);
+  const familyCommunicationItems = getActionableNavItems(NAV_FAMILY_COMMUNICATION);
+  const familyServicesItems = getActionableNavItems(NAV_FAMILY_SERVICES);
+  const studentAcademicItems = getActionableNavItems(NAV_STUDENT_ACADEMICS);
+  const studentCommunicationItems = getActionableNavItems(NAV_STUDENT_COMMUNICATION);
+  const studentServicesItems = getActionableNavItems(NAV_STUDENT_SERVICES);
   const sortedContexts = [...availableContexts].sort(
     (left, right) =>
       CONTEXT_META[left.key].order - CONTEXT_META[right.key].order,
@@ -705,56 +743,74 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         {showStaffNavigation ? (
           <>
-            <NavMain items={[...NAV_HOME]} label="Home" />
-            <NavMain collapsible defaultExpanded items={[...NAV_CORE]} label="Core" />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_ADMISSIONS]}
-              label="Admissions"
-            />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_ACADEMIC_MANAGEMENT]}
-              label="Academic Management"
-            />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_RECORDS]}
-              label="Records"
-            />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_FINANCE]}
-              label="Finance"
-            />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_COMMUNICATION]}
-              label="Communication"
-            />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_SERVICES]}
-              label="School Services"
-            />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_HR]}
-              label="HR & Payroll"
-            />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_REPORTS]}
-              label="Reports"
-            />
+            <NavMain items={homeItems} label="Home" />
+            {coreItems.length > 0 ? (
+              <NavMain collapsible defaultExpanded items={coreItems} label="Core" />
+            ) : null}
+            {admissionsItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={admissionsItems}
+                label="Admissions"
+              />
+            ) : null}
+            {academicManagementItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={academicManagementItems}
+                label="Academic Management"
+              />
+            ) : null}
+            {recordItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={recordItems}
+                label="Records"
+              />
+            ) : null}
+            {financeItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={financeItems}
+                label="Finance"
+              />
+            ) : null}
+            {communicationItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={communicationItems}
+                label="Communication"
+              />
+            ) : null}
+            {servicesItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={servicesItems}
+                label="School Services"
+              />
+            ) : null}
+            {hrItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={hrItems}
+                label="HR & Payroll"
+              />
+            ) : null}
+            {reportItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={reportItems}
+                label="Reports"
+              />
+            ) : null}
             {settingsItems.length > 0 ? (
               <NavMain
                 collapsible
@@ -766,42 +822,54 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </>
         ) : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT ? (
           <>
-            <NavMain items={[...NAV_HOME]} label="Home" />
-            <NavMain collapsible defaultExpanded items={[...NAV_FAMILY]} label="Family" />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_FAMILY_COMMUNICATION]}
-              label="Communication"
-            />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_FAMILY_SERVICES]}
-              label="Services"
-            />
+            <NavMain items={homeItems} label="Home" />
+            {familyItems.length > 0 ? (
+              <NavMain collapsible defaultExpanded items={familyItems} label="Family" />
+            ) : null}
+            {familyCommunicationItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={familyCommunicationItems}
+                label="Communication"
+              />
+            ) : null}
+            {familyServicesItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={familyServicesItems}
+                label="Services"
+              />
+            ) : null}
           </>
         ) : activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT ? (
           <>
-            <NavMain items={[...NAV_HOME]} label="Home" />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_STUDENT_ACADEMICS]}
-              label="Academics"
-            />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_STUDENT_COMMUNICATION]}
-              label="Communication"
-            />
-            <NavMain
-              collapsible
-              defaultExpanded
-              items={[...NAV_STUDENT_SERVICES]}
-              label="Services"
-            />
+            <NavMain items={homeItems} label="Home" />
+            {studentAcademicItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={studentAcademicItems}
+                label="Academics"
+              />
+            ) : null}
+            {studentCommunicationItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={studentCommunicationItems}
+                label="Communication"
+              />
+            ) : null}
+            {studentServicesItems.length > 0 ? (
+              <NavMain
+                collapsible
+                defaultExpanded
+                items={studentServicesItems}
+                label="Services"
+              />
+            ) : null}
           </>
         ) : null}
       </SidebarContent>

@@ -190,23 +190,13 @@ export function StaffCreatePage() {
                   .
                 </p>
 
-                {createdResult.passwordSetup.resetTokenPreview ? (
-                  <div className="space-y-3 rounded-lg border bg-muted/40 p-4">
-                    <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                      Dev preview token
-                    </p>
-                    <code className="block break-all rounded-md border bg-background px-3 py-2 text-xs">
-                      {createdResult.passwordSetup.resetTokenPreview}
-                    </code>
-                    <Button asChild variant="outline">
-                      <Link
-                        to={`${ERP_ROUTES.RESET_PASSWORD}?token=${encodeURIComponent(createdResult.passwordSetup.resetTokenPreview)}`}
-                      >
-                        Open reset password page
-                      </Link>
-                    </Button>
-                  </div>
-                ) : null}
+                <div className="rounded-lg border border-dashed bg-muted/30 p-4">
+                  <p className="text-sm text-muted-foreground">
+                    Complete password setup through the configured delivery
+                    provider. In local development, check the backend delivery
+                    logs instead of surfacing the token in the ERP.
+                  </p>
+                </div>
               </>
             ) : (
               <p className="text-sm text-muted-foreground">
@@ -267,7 +257,7 @@ export function StaffCreatePage() {
             Back to staff
           </Link>
         </Button>
-        <h1 className="text-2xl font-semibold tracking-tight">Create staff</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">New staff</h1>
         <p className="text-sm text-muted-foreground">
           Add a staff member, optionally assign the first role, and start their
           password setup flow.

@@ -251,6 +251,7 @@ export function FeeAssignmentsPage() {
         cell: ({ row }) => {
           const assignment = row.original;
           const canDelete = assignment.paymentCount === 0;
+          const canAdjust = assignment.outstandingAmountInPaise > 0;
 
           return (
             <div className="flex items-center justify-end gap-1">
@@ -267,17 +268,19 @@ export function FeeAssignmentsPage() {
                   </Link>
                 </EntityRowAction>
               ) : null}
-              <EntityRowAction asChild>
-                <Link
-                  to={appendSearch(
-                    buildFeeAssignmentAdjustmentRoute(assignment.id),
-                    location.search,
-                  )}
-                >
-                  <IconDiscount2 className="size-3" />
-                  Concession
-                </Link>
-              </EntityRowAction>
+              {canAdjust ? (
+                <EntityRowAction asChild>
+                  <Link
+                    to={appendSearch(
+                      buildFeeAssignmentAdjustmentRoute(assignment.id),
+                      location.search,
+                    )}
+                  >
+                    <IconDiscount2 className="size-3" />
+                    Concession
+                  </Link>
+                </EntityRowAction>
+              ) : null}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button

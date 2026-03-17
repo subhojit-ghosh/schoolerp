@@ -1,7 +1,6 @@
 import type { PropsWithChildren } from "react";
 import { Navigate } from "react-router";
 import { ERP_ROUTES } from "@/constants/routes";
-import { useSessionQuery } from "../api/use-auth";
 import { useAuthStore } from "../model/auth-store";
 
 /**
@@ -10,12 +9,7 @@ import { useAuthStore } from "../model/auth-store";
  * of seeing the login form again.
  */
 export function RedirectIfAuthenticated({ children }: PropsWithChildren) {
-  const { isLoading } = useSessionQuery();
   const status = useAuthStore((store) => store.status);
-
-  if (isLoading || status === "unknown") {
-    return null;
-  }
 
   if (status === "authenticated") {
     return <Navigate replace to={ERP_ROUTES.DASHBOARD} />;

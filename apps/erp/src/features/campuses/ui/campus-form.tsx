@@ -1,4 +1,5 @@
-import { Controller, useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
@@ -28,6 +29,14 @@ type CampusFormProps = {
   submitLabel: string;
 };
 
+function slugifyCampusName(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export function CampusForm({
   defaultValues,
   errorMessage,
@@ -36,10 +45,33 @@ export function CampusForm({
   onSubmit,
   submitLabel,
 }: CampusFormProps) {
-  const { control, handleSubmit } = useForm<CampusFormValues>({
+  const { control, handleSubmit, reset, setValue } = useForm<CampusFormValues>({
     resolver: zodResolver(campusFormSchema),
     defaultValues,
   });
+  const [slugEditedManually, setSlugEditedManually] = useState(
+    Boolean(defaultValues.slug),
+  );
+  const campusName = useWatch({
+    control,
+    name: "name",
+  });
+
+  useEffect(() => {
+    reset(defaultValues);
+    setSlugEditedManually(Boolean(defaultValues.slug));
+  }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (slugEditedManually) {
+      return;
+    }
+
+    setValue("slug", slugifyCampusName(campusName ?? ""), {
+      shouldDirty: Boolean((campusName ?? "").trim()),
+      shouldValidate: true,
+    });
+  }, [campusName, setValue, slugEditedManually]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -55,7 +87,7 @@ export function CampusForm({
                   {...field}
                   aria-invalid={fieldState.invalid}
                   id="campus-name"
-                  placeholder="Naihati Campus"
+                  placeholder="Campus display name"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </FieldContent>
@@ -74,7 +106,11 @@ export function CampusForm({
                   {...field}
                   aria-invalid={fieldState.invalid}
                   id="campus-slug"
-                  placeholder="naihati-campus"
+                  onChange={(event) => {
+                    setSlugEditedManually(true);
+                    field.onChange(event.target.value);
+                  }}
+                  placeholder="Auto-generated from campus name"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </FieldContent>
@@ -93,7 +129,7 @@ export function CampusForm({
                   {...field}
                   aria-invalid={fieldState.invalid}
                   id="campus-code"
-                  placeholder="NH"
+                  placeholder="Optional short code"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </FieldContent>

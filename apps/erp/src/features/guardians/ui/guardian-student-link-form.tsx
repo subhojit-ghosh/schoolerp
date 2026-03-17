@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/ui/button";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
@@ -53,15 +54,28 @@ export function GuardianStudentLinkForm({
   students,
   submitLabel,
 }: GuardianStudentLinkFormProps) {
-  const { control, handleSubmit, reset } =
+  const { control, handleSubmit, reset, setValue } =
     useForm<GuardianStudentLinkFormValues>({
       resolver: zodResolver(guardianStudentLinkFormSchema),
       defaultValues,
     });
+  const selectedStudentId = useWatch({
+    control,
+    name: "studentId",
+  });
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (showStudentSelect && !selectedStudentId && students.length === 1) {
+      setValue("studentId", students[0]!.id, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [selectedStudentId, setValue, showStudentSelect, students]);
 
   const selectedStudent = students.find(
     (student) => student.id === defaultValues.studentId,
@@ -80,7 +94,7 @@ export function GuardianStudentLinkForm({
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select student" />

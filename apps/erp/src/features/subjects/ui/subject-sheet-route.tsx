@@ -138,7 +138,9 @@ export function SubjectSheetRoute({ mode }: SubjectSheetRouteProps) {
     <RouteEntitySheet
       closeTo={ERP_ROUTES.SUBJECTS}
       description={
-        mode === "create" ? "Add a subject for your campus." : "Update subject details."
+        mode === "create"
+          ? "Create a new subject for your campus."
+          : "Update subject details."
       }
       title={mode === "create" ? "New subject" : "Edit subject"}
     >

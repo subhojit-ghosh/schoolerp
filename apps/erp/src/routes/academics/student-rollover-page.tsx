@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -103,6 +103,8 @@ export function StudentRolloverPage() {
       })),
     [academicYearsQuery.data?.rows],
   );
+  const sourceAcademicYearId = watch("sourceAcademicYearId");
+  const targetAcademicYearId = watch("targetAcademicYearId");
 
   const classOptions = useMemo(
     () =>
@@ -118,6 +120,32 @@ export function StudentRolloverPage() {
   );
   const previewError = previewMutation.error as Error | null | undefined;
   const executeError = executeMutation.error as Error | null | undefined;
+  const defaultSourceAcademicYearId = useMemo(() => {
+    return (
+      academicYearOptions.find((year) => year.isCurrent)?.id ??
+      academicYearOptions
+        .filter((year) => year.status === "active")
+        .at(-1)?.id ??
+      academicYearOptions.at(-1)?.id ??
+      ""
+    );
+  }, [academicYearOptions]);
+  const defaultTargetAcademicYearId = useMemo(() => {
+    if (academicYearOptions.length === 0) {
+      return "";
+    }
+
+    const activeYearIds = academicYearOptions
+      .filter((year) => year.status === "active")
+      .map((year) => year.id);
+
+    return (
+      activeYearIds.find((yearId) => yearId !== defaultSourceAcademicYearId) ??
+      academicYearOptions.find((year) => year.id !== defaultSourceAcademicYearId)
+        ?.id ??
+      ""
+    );
+  }, [academicYearOptions, defaultSourceAcademicYearId]);
 
   const sectionMetaBySource = useMemo(
     () =>
@@ -163,6 +191,53 @@ export function StudentRolloverPage() {
       mappedSectionCount: preview.summary.mappedSectionCount,
     };
   }, [preview, withdrawnStudentIds]);
+
+  useEffect(() => {
+    if (!sourceAcademicYearId && defaultSourceAcademicYearId) {
+      setValue("sourceAcademicYearId", defaultSourceAcademicYearId, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [defaultSourceAcademicYearId, setValue, sourceAcademicYearId]);
+
+  useEffect(() => {
+    if (!targetAcademicYearId && defaultTargetAcademicYearId) {
+      setValue("targetAcademicYearId", defaultTargetAcademicYearId, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [defaultTargetAcademicYearId, setValue, targetAcademicYearId]);
+
+  useEffect(() => {
+    fields.forEach((_field, index) => {
+      const targetClassId = values.sectionMappings[index]?.targetClassId;
+      const targetSectionId = values.sectionMappings[index]?.targetSectionId;
+
+      if (!targetClassId) {
+        if (targetSectionId) {
+          setValue(`sectionMappings.${index}.targetSectionId`, "");
+        }
+        return;
+      }
+
+      const targetSections =
+        classOptions.find((option) => option.id === targetClassId)?.sections ?? [];
+
+      if (
+        targetSectionId &&
+        !targetSections.some((section) => section.id === targetSectionId)
+      ) {
+        setValue(`sectionMappings.${index}.targetSectionId`, "");
+        return;
+      }
+
+      if (targetSections.length === 1 && !targetSectionId) {
+        setValue(`sectionMappings.${index}.targetSectionId`, targetSections[0]!.id);
+      }
+    });
+  }, [classOptions, fields, setValue, values.sectionMappings]);
 
   async function loadRoster() {
     const currentValues = getValues();

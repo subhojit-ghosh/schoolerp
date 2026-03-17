@@ -130,7 +130,7 @@ function SortableInstallmentRow({
                 {...field}
                 aria-invalid={fieldState.invalid}
                 disabled={isReadOnly}
-                placeholder="e.g. Term 1, April"
+                placeholder="Installment label"
               />
               <FieldError>{fieldState.error?.message}</FieldError>
             </FieldContent>
@@ -244,7 +244,7 @@ export function FeeStructureForm({
         <div className="space-y-4">
           <SectionLabel>Structure details</SectionLabel>
           <FieldGroup className="gap-4">
-            <div className="grid gap-4 sm:grid-cols-[1fr_10rem_10rem]">
+            <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_12rem_11rem]">
               <Controller
                 control={control}
                 name="name"
@@ -256,7 +256,7 @@ export function FeeStructureForm({
                         {...field}
                         aria-invalid={fieldState.invalid}
                         disabled={isReadOnly}
-                        placeholder="Tuition Term 1"
+                        placeholder="Fee structure name"
                       />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </FieldContent>
@@ -274,10 +274,10 @@ export function FeeStructureForm({
                       <Select
                         disabled={lockScope || isReadOnly}
                         onValueChange={field.onChange}
-                        value={field.value || undefined}
+                        value={field.value ?? ""}
                       >
-                        <SelectTrigger aria-invalid={fieldState.invalid}>
-                          <SelectValue placeholder="Select" />
+                        <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                          <SelectValue placeholder="Select year" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
@@ -305,8 +305,8 @@ export function FeeStructureForm({
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger aria-invalid={fieldState.invalid}>
-                          <SelectValue placeholder="Select" />
+                        <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                          <SelectValue placeholder="Select scope" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
@@ -335,9 +335,9 @@ export function FeeStructureForm({
                         <Select
                           disabled={lockScope || isReadOnly}
                           onValueChange={field.onChange}
-                          value={field.value || undefined}
+                          value={field.value ?? ""}
                         >
-                          <SelectTrigger aria-invalid={fieldState.invalid}>
+                          <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
                             <SelectValue placeholder="Select campus" />
                           </SelectTrigger>
                           <SelectContent>

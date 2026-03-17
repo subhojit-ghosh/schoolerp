@@ -74,6 +74,13 @@ type SubjectOption = {
   status: "active" | "inactive" | "deleted";
 };
 
+function buildEmptyTimetableEntry(defaultSubjectId = "") {
+  return {
+    ...EMPTY_TIMETABLE_ENTRY,
+    subjectId: defaultSubjectId,
+  };
+}
+
 export function TimetablePage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
@@ -105,6 +112,12 @@ export function TimetablePage() {
     () => (subjectsQuery.data?.rows ?? []) as SubjectOption[],
     [subjectsQuery.data?.rows],
   );
+  const activeSubjects = useMemo(
+    () => subjects.filter((subject) => subject.status === "active"),
+    [subjects],
+  );
+  const defaultSubjectId =
+    activeSubjects.length === 1 ? activeSubjects[0]!.id : "";
 
   const [classId, setClassId] = useState<string>("");
   const [sectionId, setSectionId] = useState<string>("");
@@ -323,7 +336,9 @@ export function TimetablePage() {
             <div className="flex justify-end">
               <EntityToolbarSecondaryAction
                 type="button"
-                onClick={() => entryFieldArray.append({ ...EMPTY_TIMETABLE_ENTRY })}
+                onClick={() =>
+                  entryFieldArray.append(buildEmptyTimetableEntry(defaultSubjectId))
+                }
               >
                 <IconPlus data-icon="inline-start" />
                 Add period
@@ -332,129 +347,155 @@ export function TimetablePage() {
 
             <div className="rounded-lg border divide-y">
               {entryFieldArray.fields.length === 0 ? (
-                <p className="px-4 py-8 text-sm text-muted-foreground">
-                  No timetable entries yet.
-                </p>
-              ) : (
-                entryFieldArray.fields.map((entry, index) => (
-                  <div
-                    key={entry.fieldKey}
-                    className="grid gap-3 px-3 py-3 lg:grid-cols-[160px_110px_130px_130px_1fr_140px_auto]"
+                <div className="flex flex-col items-center gap-3 px-4 py-10 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    No timetable entries yet.
+                  </p>
+                  <p className="max-w-md text-sm text-muted-foreground">
+                    Add the first period to start building the weekly schedule
+                    for this section.
+                  </p>
+                  <EntityToolbarSecondaryAction
+                    onClick={() =>
+                      entryFieldArray.append(
+                        buildEmptyTimetableEntry(defaultSubjectId),
+                      )
+                    }
+                    type="button"
                   >
-                    <Controller
-                      control={control}
-                      name={`entries.${index}.dayOfWeek`}
-                      render={({ field }) => (
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Day" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {WEEKDAY_OPTIONS.map((day) => (
-                              <SelectItem key={day.value} value={day.value}>
-                                {day.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    />
+                    <IconPlus data-icon="inline-start" />
+                    Add first period
+                  </EntityToolbarSecondaryAction>
+                </div>
+              ) : (
+                <>
+                  <div className="hidden px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground lg:grid lg:grid-cols-[160px_110px_130px_130px_1fr_140px_auto]">
+                    <span>Day</span>
+                    <span>Period</span>
+                    <span>Start</span>
+                    <span>End</span>
+                    <span>Subject</span>
+                    <span>Room</span>
+                    <span className="text-right">Action</span>
+                  </div>
+                  {entryFieldArray.fields.map((entry, index) => (
+                    <div
+                      key={entry.fieldKey}
+                      className="grid gap-3 px-3 py-3 lg:grid-cols-[160px_110px_130px_130px_1fr_140px_auto]"
+                    >
+                      <Controller
+                        control={control}
+                        name={`entries.${index}.dayOfWeek`}
+                        render={({ field }) => (
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Day" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {WEEKDAY_OPTIONS.map((day) => (
+                                <SelectItem key={day.value} value={day.value}>
+                                  {day.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
 
-                    <Controller
-                      control={control}
-                      name={`entries.${index}.periodIndex`}
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <FieldContent>
-                            <Input
-                              {...field}
-                              type="number"
-                              min={1}
-                              value={String(field.value ?? 1)}
-                              onChange={(event) =>
-                                field.onChange(event.target.valueAsNumber || 1)
-                              }
-                            />
-                            <FieldError>{fieldState.error?.message}</FieldError>
-                          </FieldContent>
-                        </Field>
-                      )}
-                    />
+                      <Controller
+                        control={control}
+                        name={`entries.${index}.periodIndex`}
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldContent>
+                              <Input
+                                {...field}
+                                type="number"
+                                min={1}
+                                value={String(field.value ?? 1)}
+                                onChange={(event) =>
+                                  field.onChange(event.target.valueAsNumber || 1)
+                                }
+                              />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
 
-                    <Controller
-                      control={control}
-                      name={`entries.${index}.startTime`}
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <FieldContent>
-                            <Input {...field} type="time" />
-                            <FieldError>{fieldState.error?.message}</FieldError>
-                          </FieldContent>
-                        </Field>
-                      )}
-                    />
+                      <Controller
+                        control={control}
+                        name={`entries.${index}.startTime`}
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldContent>
+                              <Input {...field} type="time" />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
 
-                    <Controller
-                      control={control}
-                      name={`entries.${index}.endTime`}
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <FieldContent>
-                            <Input {...field} type="time" />
-                            <FieldError>{fieldState.error?.message}</FieldError>
-                          </FieldContent>
-                        </Field>
-                      )}
-                    />
+                      <Controller
+                        control={control}
+                        name={`entries.${index}.endTime`}
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldContent>
+                              <Input {...field} type="time" />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
 
-                    <Controller
-                      control={control}
-                      name={`entries.${index}.subjectId`}
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <FieldContent>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select subject" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {subjects
-                                  .filter((subject) => subject.status === "active")
-                                  .map((subject) => (
+                      <Controller
+                        control={control}
+                        name={`entries.${index}.subjectId`}
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldContent>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select subject" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {activeSubjects.map((subject) => (
                                     <SelectItem key={subject.id} value={subject.id}>
                                       {subject.name}
                                     </SelectItem>
                                   ))}
-                              </SelectContent>
-                            </Select>
-                            <FieldError>{fieldState.error?.message}</FieldError>
-                          </FieldContent>
-                        </Field>
-                      )}
-                    />
+                                </SelectContent>
+                              </Select>
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
 
-                    <Controller
-                      control={control}
-                      name={`entries.${index}.room`}
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <FieldContent>
-                            <Input {...field} placeholder="Room (optional)" value={field.value ?? ""} />
-                            <FieldError>{fieldState.error?.message}</FieldError>
-                          </FieldContent>
-                        </Field>
-                      )}
-                    />
+                      <Controller
+                        control={control}
+                        name={`entries.${index}.room`}
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldContent>
+                              <Input {...field} placeholder="Room (optional)" value={field.value ?? ""} />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
 
-                    <EntityRowAction
-                      type="button"
-                      onClick={() => entryFieldArray.remove(index)}
-                    >
-                      <IconTrash data-icon="inline-start" className="size-3.5" />
-                      Remove
-                    </EntityRowAction>
-                  </div>
-                ))
+                      <EntityRowAction
+                        type="button"
+                        onClick={() => entryFieldArray.remove(index)}
+                      >
+                        <IconTrash data-icon="inline-start" className="size-3.5" />
+                        Remove
+                      </EntityRowAction>
+                    </div>
+                  ))}
+                </>
               )}
             </div>
 

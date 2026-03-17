@@ -81,6 +81,7 @@ const VALID_SORT_FIELDS = [
   STAFF_LIST_SORT_FIELDS.NAME,
   STAFF_LIST_SORT_FIELDS.STATUS,
 ] as const;
+const STAFF_CREATE_LABEL = "New staff";
 
 export function StaffPage() {
   const location = useLocation();
@@ -376,7 +377,7 @@ export function StaffPage() {
             <EntityPagePrimaryAction asChild>
               <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
                 <IconPlus className="size-4" />
-                New staff member
+                {STAFF_CREATE_LABEL}
               </Link>
             </EntityPagePrimaryAction>
           </div>
@@ -407,7 +408,7 @@ export function StaffPage() {
                   to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}
                 >
                   <IconPlus className="size-4" />
-                  New staff member
+                  {STAFF_CREATE_LABEL}
                 </Link>
               </EntityEmptyStateAction>
             ) : undefined

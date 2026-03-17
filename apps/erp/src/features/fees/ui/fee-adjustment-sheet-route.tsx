@@ -65,6 +65,9 @@ export function FeeAdjustmentSheetRoute() {
     resolver: zodResolver(feeAdjustmentFormSchema),
     defaultValues: DEFAULT_VALUES,
   });
+  const outstandingAmountInPaise =
+    assignmentQuery.data?.outstandingAmountInPaise ?? 0;
+  const canApplyAdjustment = outstandingAmountInPaise > 0;
 
   async function onSubmit(values: FeeAdjustmentFormValues) {
     if (!feeAssignmentId) {
@@ -98,94 +101,103 @@ export function FeeAdjustmentSheetRoute() {
               <CardTitle className="text-base">{assignmentQuery.data.studentFullName}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
-              Outstanding: {formatRupees(assignmentQuery.data.outstandingAmountInPaise)}
+              Outstanding: {formatRupees(outstandingAmountInPaise)}
             </CardContent>
           </Card>
         ) : null}
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <FieldGroup className="gap-4">
-            <Controller
-              control={control}
-              name="adjustmentType"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>Type</FieldLabel>
-                  <FieldContent>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger aria-invalid={fieldState.invalid}>
-                        <SelectValue placeholder="Select adjustment type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {FEE_ADJUSTMENT_TYPE_OPTIONS.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {toAdjustmentLabel(type)}
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </FieldContent>
-                </Field>
-              )}
-            />
+        {assignmentQuery.data && !canApplyAdjustment ? (
+          <Card>
+            <CardContent className="pt-6 text-sm text-muted-foreground">
+              This assignment does not have any outstanding balance left to
+              waive or discount.
+            </CardContent>
+          </Card>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <FieldGroup className="gap-4">
+              <Controller
+                control={control}
+                name="adjustmentType"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <FieldLabel>Type</FieldLabel>
+                    <FieldContent>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                          <SelectValue placeholder="Select adjustment type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {FEE_ADJUSTMENT_TYPE_OPTIONS.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {toAdjustmentLabel(type)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </FieldContent>
+                  </Field>
+                )}
+              />
 
-            <Controller
-              control={control}
-              name="amount"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>Amount (₹)</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      inputMode="decimal"
-                      min="0"
-                      type="number"
-                    />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </FieldContent>
-                </Field>
-              )}
-            />
+              <Controller
+                control={control}
+                name="amount"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <FieldLabel>Amount (₹)</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        inputMode="decimal"
+                        min="0"
+                        type="number"
+                      />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </FieldContent>
+                  </Field>
+                )}
+              />
 
-            <Controller
-              control={control}
-              name="reason"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>Reason</FieldLabel>
-                  <FieldContent>
-                    <Input
-                      {...field}
-                      aria-invalid={fieldState.invalid}
-                      placeholder="Optional reason for the concession"
-                    />
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </FieldContent>
-                </Field>
-              )}
-            />
+              <Controller
+                control={control}
+                name="reason"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <FieldLabel>Reason</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        placeholder="Optional reason for the concession"
+                      />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </FieldContent>
+                  </Field>
+                )}
+              />
 
-            <div className="flex items-center gap-3">
-              <EntityFormPrimaryAction disabled={adjustmentMutation.isPending} type="submit">
-                {adjustmentMutation.isPending ? "Saving..." : "Apply concession"}
-              </EntityFormPrimaryAction>
-              <EntityFormSecondaryAction
-                disabled={adjustmentMutation.isPending}
-                onClick={() =>
-                  void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search))
-                }
-                type="button"
-              >
-                Cancel
-              </EntityFormSecondaryAction>
-            </div>
-          </FieldGroup>
-        </form>
+              <div className="flex items-center gap-3">
+                <EntityFormPrimaryAction disabled={adjustmentMutation.isPending} type="submit">
+                  {adjustmentMutation.isPending ? "Saving..." : "Apply concession"}
+                </EntityFormPrimaryAction>
+                <EntityFormSecondaryAction
+                  disabled={adjustmentMutation.isPending}
+                  onClick={() =>
+                    void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search))
+                  }
+                  type="button"
+                >
+                  Cancel
+                </EntityFormSecondaryAction>
+              </div>
+            </FieldGroup>
+          </form>
+        )}
       </div>
     </RouteEntitySheet>
   );

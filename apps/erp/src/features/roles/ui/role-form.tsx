@@ -93,7 +93,7 @@ export function RoleForm({
                   aria-invalid={fieldState.invalid}
                   disabled={isReadOnly}
                   id="role-name"
-                  placeholder="Librarian"
+                  placeholder="Custom role name"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </FieldContent>

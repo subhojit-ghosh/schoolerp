@@ -80,6 +80,28 @@ export function StaffRoleAssignmentFields({
   }, [classOptions, value.classId]);
 
   useEffect(() => {
+    if (!value.roleId && roles.length === 1) {
+      onChange({
+        ...value,
+        roleId: roles[0]!.id,
+      });
+    }
+  }, [onChange, roles, value]);
+
+  useEffect(() => {
+    if (!value.roleId) {
+      return;
+    }
+
+    if (!value.campusId && campuses.length === 1) {
+      onChange({
+        ...value,
+        campusId: campuses[0]!.id,
+      });
+    }
+  }, [campuses, onChange, value]);
+
+  useEffect(() => {
     if (!value.campusId && (value.classId || value.sectionId)) {
       onChange({
         ...value,
@@ -117,6 +139,31 @@ export function StaffRoleAssignmentFields({
       onChange({
         ...value,
         sectionId: "",
+      });
+      return;
+    }
+
+    if (value.classId || !value.campusId) {
+      return;
+    }
+
+    if (classOptions.length === 1) {
+      onChange({
+        ...value,
+        classId: classOptions[0]!.id,
+      });
+    }
+  }, [classOptions, onChange, sectionOptions, value]);
+
+  useEffect(() => {
+    if (!value.classId || value.sectionId) {
+      return;
+    }
+
+    if (sectionOptions.length === 1) {
+      onChange({
+        ...value,
+        sectionId: sectionOptions[0]!.id,
       });
     }
   }, [onChange, sectionOptions, value]);

@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Field,
@@ -33,13 +34,18 @@ type CampusOption = {
 };
 
 type EnquiryOption = {
+  campusId: string;
+  email: string;
+  guardianName: string;
   id: string;
+  mobile: string;
   studentName: string;
 };
 
 type AdmissionApplicationFormProps = {
   campuses: CampusOption[];
   defaultValues: AdmissionApplicationFormValues;
+  enableLinkedEnquiryAutofill?: boolean;
   enquiries: EnquiryOption[];
   errorMessage?: string;
   isPending?: boolean;
@@ -60,6 +66,7 @@ function toTitleCase(value: string) {
 export function AdmissionApplicationForm({
   campuses,
   defaultValues,
+  enableLinkedEnquiryAutofill = false,
   enquiries,
   errorMessage,
   isPending = false,
@@ -67,14 +74,97 @@ export function AdmissionApplicationForm({
   onSubmit,
   submitLabel,
 }: AdmissionApplicationFormProps) {
-  const { control, handleSubmit, reset } = useForm<AdmissionApplicationFormValues>({
-    resolver: zodResolver(admissionApplicationFormSchema),
-    defaultValues,
+  const hasSingleCampus = campuses.length === 1;
+  const hasLinkedEnquiries = enquiries.length > 0;
+  const { control, getValues, handleSubmit, reset, setValue } =
+    useForm<AdmissionApplicationFormValues>({
+      resolver: zodResolver(admissionApplicationFormSchema),
+      defaultValues,
+    });
+  const selectedEnquiryId = useWatch({
+    control,
+    name: "enquiryId",
   });
+
+  const enquiryMap = useMemo(
+    () => new Map(enquiries.map((enquiry) => [enquiry.id, enquiry])),
+    [enquiries],
+  );
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (campuses.length !== 1) {
+      return;
+    }
+
+    const defaultCampusId = campuses[0]!.id;
+    if (defaultValues.campusId === defaultCampusId) {
+      return;
+    }
+
+    reset({
+      ...defaultValues,
+      campusId: defaultCampusId,
+    });
+  }, [campuses, defaultValues, reset]);
+
+  useEffect(() => {
+    if (!enableLinkedEnquiryAutofill || !selectedEnquiryId) {
+      return;
+    }
+
+    const selectedEnquiry = enquiryMap.get(selectedEnquiryId);
+
+    if (!selectedEnquiry) {
+      return;
+    }
+
+    const trimmedStudentName = selectedEnquiry.studentName.trim();
+    const nameParts = trimmedStudentName.split(/\s+/).filter(Boolean);
+    const nextFirstName = nameParts.shift() ?? "";
+    const nextLastName = nameParts.join(" ");
+    const currentValues = getValues();
+
+    setValue("campusId", selectedEnquiry.campusId, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setValue("studentFirstName", nextFirstName || currentValues.studentFirstName, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setValue("studentLastName", nextLastName, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setValue("guardianName", selectedEnquiry.guardianName, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setValue("mobile", selectedEnquiry.mobile, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+    setValue("email", selectedEnquiry.email, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  }, [
+    enableLinkedEnquiryAutofill,
+    enquiryMap,
+    getValues,
+    selectedEnquiryId,
+    setValue,
+  ]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -88,6 +178,7 @@ export function AdmissionApplicationForm({
                 <FieldLabel>Linked enquiry</FieldLabel>
                 <FieldContent>
                   <Select
+                    disabled={!hasLinkedEnquiries}
                     onValueChange={(value) =>
                       field.onChange(
                         value === NO_LINKED_ENQUIRY_VALUE ? "" : value,
@@ -95,7 +186,10 @@ export function AdmissionApplicationForm({
                     }
                     value={field.value || NO_LINKED_ENQUIRY_VALUE}
                   >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                    <SelectTrigger
+                      aria-invalid={fieldState.invalid}
+                      disabled={!hasLinkedEnquiries}
+                    >
                       <SelectValue placeholder="Optional" />
                     </SelectTrigger>
                     <SelectContent>
@@ -125,10 +219,14 @@ export function AdmissionApplicationForm({
                 <FieldLabel>Campus</FieldLabel>
                 <FieldContent>
                   <Select
+                    disabled={hasSingleCampus}
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                    <SelectTrigger
+                      aria-invalid={fieldState.invalid}
+                      disabled={hasSingleCampus}
+                    >
                       <SelectValue placeholder="Select campus" />
                     </SelectTrigger>
                     <SelectContent>
@@ -242,7 +340,7 @@ export function AdmissionApplicationForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="admission-application-email"
-                    placeholder="guardian@example.com"
+                    placeholder="Optional guardian email"
                     type="email"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
@@ -264,7 +362,7 @@ export function AdmissionApplicationForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="admission-application-class-name"
-                    placeholder="e.g. Class 6"
+                    placeholder="Desired class"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
@@ -285,7 +383,7 @@ export function AdmissionApplicationForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="admission-application-section-name"
-                    placeholder="e.g. Section A"
+                    placeholder="Optional section preference"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>

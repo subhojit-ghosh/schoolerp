@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -43,14 +44,28 @@ export function GuardianForm({
   isPending = false,
   onSubmit,
 }: GuardianFormProps) {
-  const { control, handleSubmit, reset } = useForm<GuardianFormValues>({
+  const hasSingleCampus = campuses.length === 1;
+  const { control, handleSubmit, reset, setValue } = useForm<GuardianFormValues>({
     resolver: zodResolver(guardianFormSchema),
     defaultValues,
+  });
+  const selectedCampusId = useWatch({
+    control,
+    name: "campusId",
   });
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (campuses.length === 1 && !selectedCampusId) {
+      setValue("campusId", campuses[0]!.id, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [campuses, selectedCampusId, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -67,7 +82,7 @@ export function GuardianForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="guardian-name"
-                    placeholder="Neha Sharma"
+                    placeholder="Guardian full name"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
@@ -86,7 +101,6 @@ export function GuardianForm({
                     aria-invalid={fieldState.invalid}
                     id="guardian-mobile"
                     inputMode="tel"
-                    placeholder="+91 98765 43210"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
@@ -104,7 +118,7 @@ export function GuardianForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="guardian-email"
-                    placeholder="guardian@example.com"
+                    placeholder="Optional guardian email"
                     type="email"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
@@ -120,10 +134,14 @@ export function GuardianForm({
                 <FieldLabel>Primary campus</FieldLabel>
                 <FieldContent>
                   <Select
+                    disabled={hasSingleCampus}
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                    <SelectTrigger
+                      aria-invalid={fieldState.invalid}
+                      disabled={hasSingleCampus}
+                    >
                       <SelectValue placeholder="Select campus" />
                     </SelectTrigger>
                     <SelectContent>

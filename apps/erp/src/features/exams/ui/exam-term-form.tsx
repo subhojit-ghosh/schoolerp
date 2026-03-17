@@ -52,8 +52,18 @@ export function ExamTermForm({
     reset(defaultValues);
   }, [defaultValues, reset]);
 
+  async function handleFormSubmit(values: ExamTermFormValues) {
+    await onSubmit(values);
+    reset({
+      ...defaultValues,
+      name: "",
+      startDate: "",
+      endDate: "",
+    });
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(handleFormSubmit)}>
       <FieldGroup className="gap-5">
         <Controller
           control={control}
@@ -64,9 +74,9 @@ export function ExamTermForm({
               <FieldContent>
                 <Select
                   onValueChange={field.onChange}
-                  value={field.value || undefined}
+                  value={field.value ?? ""}
                 >
-                  <SelectTrigger aria-invalid={fieldState.invalid}>
+                  <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
                     <SelectValue placeholder="Select academic year" />
                   </SelectTrigger>
                   <SelectContent>
@@ -98,7 +108,7 @@ export function ExamTermForm({
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
-                  placeholder="Mid Term 1"
+                  placeholder="Exam term name"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </FieldContent>

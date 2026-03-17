@@ -59,7 +59,7 @@ export function SubjectForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="subject-name"
-                    placeholder="Mathematics"
+                    placeholder="Subject display name"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>

@@ -159,7 +159,7 @@ export function CalendarEventSheetRoute({ mode }: CalendarEventSheetRouteProps) 
       closeTo={ERP_ROUTES.CALENDAR}
       description={
         mode === "create"
-          ? "Add a calendar event for your institution."
+          ? "Create a new calendar event for your institution."
           : "Update calendar event details."
       }
       title={mode === "create" ? "New calendar event" : "Edit calendar event"}

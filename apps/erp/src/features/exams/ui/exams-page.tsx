@@ -206,7 +206,7 @@ export function ExamsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
               <IconPlus className="size-4 text-[var(--primary)]" />
-              Create exam term
+              New exam term
             </CardTitle>
             <CardDescription>
               Keep exam planning shallow for now: one term linked to one

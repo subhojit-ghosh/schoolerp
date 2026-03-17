@@ -143,7 +143,7 @@ export function AcademicYearForm({
                     manualNameOverrideRef.current = true;
                     field.onChange(event);
                   }}
-                  placeholder="2026-2027"
+                  placeholder="Academic year name"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </FieldContent>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation, useNavigate } from "react-router";
@@ -64,7 +64,7 @@ export function BulkFeeAssignmentSheetRoute() {
   );
   const bulkAssignMutation = useBulkFeeAssignmentMutation();
 
-  const { control, handleSubmit } = useForm<FeeBulkAssignmentFormValues>({
+  const { control, handleSubmit, reset } = useForm<FeeBulkAssignmentFormValues>({
     resolver: zodResolver(feeBulkAssignmentFormSchema),
     defaultValues: DEFAULT_VALUES,
   });
@@ -86,6 +86,19 @@ export function BulkFeeAssignmentSheetRoute() {
       })),
     [classesQuery.data?.rows],
   );
+
+  useEffect(() => {
+    const defaultFeeStructureId =
+      structureOptions.length === 1 ? structureOptions[0]!.id : "";
+    const defaultClassId = classOptions.length === 1 ? classOptions[0]!.id : "";
+
+    reset({
+      feeStructureId: defaultFeeStructureId,
+      classId: defaultClassId,
+      notes: "",
+    });
+    setSelectedStructureId(defaultFeeStructureId);
+  }, [classOptions, reset, structureOptions]);
 
   async function onSubmit(values: FeeBulkAssignmentFormValues) {
     const result = await bulkAssignMutation.mutateAsync({
@@ -120,9 +133,9 @@ export function BulkFeeAssignmentSheetRoute() {
                       field.onChange(value);
                       setSelectedStructureId(value);
                     }}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                    <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
                       <SelectValue placeholder="Select fee structure" />
                     </SelectTrigger>
                     <SelectContent>
@@ -148,8 +161,8 @@ export function BulkFeeAssignmentSheetRoute() {
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Class</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value || undefined}>
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                  <Select onValueChange={field.onChange} value={field.value ?? ""}>
+                    <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
                       <SelectValue placeholder="Select class" />
                     </SelectTrigger>
                     <SelectContent>

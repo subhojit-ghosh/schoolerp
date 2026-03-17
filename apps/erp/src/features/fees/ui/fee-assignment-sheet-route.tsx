@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import {
@@ -26,11 +26,6 @@ import { useStudentOptionsQuery } from "@/features/students/api/use-students";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
-const DEFAULT_FORM_VALUES: FeeAssignmentFormValues = {
-  feeStructureId: "",
-  studentId: "",
-  notes: "",
-};
 const DEFAULT_UPDATE_FORM_VALUES: FeeAssignmentUpdateFormValues = {
   dueDate: "",
   notes: "",
@@ -96,8 +91,16 @@ export function FeeAssignmentSheetRoute({ mode }: FeeAssignmentSheetRouteProps) 
   const defaultValues = useMemo<
     FeeAssignmentFormValues | FeeAssignmentUpdateFormValues
   >(() => {
-    if (mode === "create" || !feeAssignmentQuery.data) {
-      return mode === "create" ? DEFAULT_FORM_VALUES : DEFAULT_UPDATE_FORM_VALUES;
+    if (mode === "create") {
+      return {
+        feeStructureId: structureOptions.length === 1 ? structureOptions[0]!.id : "",
+        studentId: studentOptions.length === 1 ? studentOptions[0]!.id : "",
+        notes: "",
+      };
+    }
+
+    if (!feeAssignmentQuery.data) {
+      return DEFAULT_UPDATE_FORM_VALUES;
     }
 
     const assignment = feeAssignmentQuery.data;
@@ -106,7 +109,17 @@ export function FeeAssignmentSheetRoute({ mode }: FeeAssignmentSheetRouteProps) 
       dueDate: assignment.dueDate,
       notes: assignment.notes ?? "",
     };
-  }, [feeAssignmentQuery.data, mode]);
+  }, [feeAssignmentQuery.data, mode, structureOptions, studentOptions]);
+
+  useEffect(() => {
+    if (mode !== "create") {
+      return;
+    }
+
+    if (structureOptions.length === 1) {
+      setSelectedStructureId(structureOptions[0]!.id);
+    }
+  }, [mode, structureOptions]);
 
   async function handleSubmit(
     values: FeeAssignmentFormValues | FeeAssignmentUpdateFormValues,

@@ -161,6 +161,15 @@ export function StaffRoleAssignmentsCard({
   );
 
   useEffect(() => {
+    if (campuses.length === 1 && !selectedCampusId) {
+      setValue("campusId", campuses[0]!.id, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [campuses, selectedCampusId, setValue]);
+
+  useEffect(() => {
     if (!selectedCampusId) {
       setValue("classId", "", { shouldDirty: true, shouldValidate: true });
       setValue("sectionId", "", { shouldDirty: true, shouldValidate: true });
@@ -187,6 +196,24 @@ export function StaffRoleAssignmentsCard({
       !sectionOptions.some((section) => section.id === selectedSectionId)
     ) {
       setValue("sectionId", "", { shouldDirty: true, shouldValidate: true });
+    }
+  }, [sectionOptions, selectedClassId, selectedSectionId, setValue]);
+
+  useEffect(() => {
+    if (selectedCampusId && classOptions.length === 1 && !selectedClassId) {
+      setValue("classId", classOptions[0]!.id, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [classOptions, selectedCampusId, selectedClassId, setValue]);
+
+  useEffect(() => {
+    if (selectedClassId && sectionOptions.length === 1 && !selectedSectionId) {
+      setValue("sectionId", sectionOptions[0]!.id, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
     }
   }, [sectionOptions, selectedClassId, selectedSectionId, setValue]);
 
@@ -310,6 +337,12 @@ export function StaffRoleAssignmentsCard({
       >
         <form onSubmit={handleSubmit(handleCreate)}>
           <FieldGroup className="gap-6">
+            <div className="rounded-lg border border-border/70 bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+              Leave the scope at the broadest level to grant wider access.
+              Narrow it to a campus, then a class, then a section only when this
+              role should apply to a smaller slice of the school.
+            </div>
+
             <Controller
               control={control}
               name="roleId"
@@ -353,7 +386,7 @@ export function StaffRoleAssignmentsCard({
                       }
                       value={field.value || ALL_SCOPE_VALUE}
                     >
-                      <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
                         <SelectValue placeholder="Institution-wide" />
                       </SelectTrigger>
                       <SelectContent>
@@ -389,7 +422,7 @@ export function StaffRoleAssignmentsCard({
                       }
                       value={field.value || ALL_SCOPE_VALUE}
                     >
-                      <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
                         <SelectValue
                           placeholder={
                             selectedCampusId
@@ -434,7 +467,7 @@ export function StaffRoleAssignmentsCard({
                       }
                       value={field.value || ALL_SCOPE_VALUE}
                     >
-                      <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
                         <SelectValue
                           placeholder={
                             selectedClassId

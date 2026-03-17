@@ -107,6 +107,10 @@ export function StudentForm({
     control,
     name: "currentEnrollment.classId",
   });
+  const selectedEnrollmentAcademicYearId = useWatch({
+    control,
+    name: "currentEnrollment.academicYearId",
+  });
   const selectedEnrollmentSectionId = useWatch({
     control,
     name: "currentEnrollment.sectionId",
@@ -146,10 +150,30 @@ export function StudentForm({
     () => selectedEnrollmentClass?.sections ?? [],
     [selectedEnrollmentClass],
   );
+  const defaultEnrollmentAcademicYearId = useMemo(() => {
+    if (academicYears.length === 0) {
+      return "";
+    }
+
+    if (academicYears.length === 1) {
+      return academicYears[0]!.id;
+    }
+
+    return academicYears.find((academicYear) => academicYear.isCurrent)?.id ?? "";
+  }, [academicYears]);
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (campuses.length === 1 && !selectedCampusId) {
+      setValue("campusId", campuses[0]!.id, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [campuses, selectedCampusId, setValue]);
 
   useEffect(() => {
     if (classesQuery.isLoading) {
@@ -177,12 +201,38 @@ export function StudentForm({
     ) {
       setValue("sectionId", "", { shouldDirty: true, shouldValidate: true });
     }
+
+    if (selectedClass && sectionOptions.length === 1 && !selectedSectionId) {
+      setValue("sectionId", sectionOptions[0]!.id, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
   }, [
     classesQuery.isLoading,
     sectionOptions,
     selectedClass,
     selectedClassId,
     selectedSectionId,
+    setValue,
+  ]);
+
+  useEffect(() => {
+    if (classesQuery.isLoading || !selectedCampusId) {
+      return;
+    }
+
+    if (classOptions.length === 1 && !selectedClassId) {
+      setValue("classId", classOptions[0]!.id, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [
+    classOptions,
+    classesQuery.isLoading,
+    selectedCampusId,
+    selectedClassId,
     setValue,
   ]);
 
@@ -226,12 +276,43 @@ export function StudentForm({
         shouldValidate: true,
       });
     }
+
+    if (
+      selectedEnrollmentClass &&
+      enrollmentSectionOptions.length === 1 &&
+      !selectedEnrollmentSectionId
+    ) {
+      setValue("currentEnrollment.sectionId", enrollmentSectionOptions[0]!.id, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
   }, [
     classesQuery.isLoading,
     enrollmentSectionOptions,
     selectedEnrollmentClass,
     selectedEnrollmentClassId,
     selectedEnrollmentSectionId,
+    setValue,
+  ]);
+
+  useEffect(() => {
+    if (
+      !selectedEnrollmentClassId ||
+      !defaultEnrollmentAcademicYearId ||
+      selectedEnrollmentAcademicYearId
+    ) {
+      return;
+    }
+
+    setValue("currentEnrollment.academicYearId", defaultEnrollmentAcademicYearId, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  }, [
+    defaultEnrollmentAcademicYearId,
+    selectedEnrollmentAcademicYearId,
+    selectedEnrollmentClassId,
     setValue,
   ]);
 
@@ -252,7 +333,7 @@ export function StudentForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="admission-number"
-                    placeholder="ADM-2026-001"
+                    placeholder="School admission number"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
@@ -268,7 +349,7 @@ export function StudentForm({
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select campus" />
@@ -299,7 +380,7 @@ export function StudentForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="first-name"
-                    placeholder="Aarav"
+                    placeholder="Student first name"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
@@ -315,7 +396,7 @@ export function StudentForm({
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue
@@ -353,7 +434,7 @@ export function StudentForm({
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue
@@ -390,7 +471,7 @@ export function StudentForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="last-name"
-                    placeholder="Sharma"
+                    placeholder="Optional"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
@@ -416,7 +497,7 @@ export function StudentForm({
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue placeholder="Select academic year" />
@@ -449,7 +530,7 @@ export function StudentForm({
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue
@@ -487,7 +568,7 @@ export function StudentForm({
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
                     <SelectTrigger aria-invalid={fieldState.invalid}>
                       <SelectValue
@@ -577,7 +658,7 @@ export function StudentForm({
                       <Input
                         {...field}
                         aria-invalid={fieldState.invalid}
-                        placeholder="Neha Sharma"
+                        placeholder="Guardian full name"
                       />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </FieldContent>
@@ -595,7 +676,6 @@ export function StudentForm({
                         {...field}
                         aria-invalid={fieldState.invalid}
                         inputMode="tel"
-                        placeholder="+91 98765 43210"
                       />
                       <FieldError>{fieldState.error?.message}</FieldError>
                     </FieldContent>
@@ -612,7 +692,7 @@ export function StudentForm({
                       <Input
                         {...field}
                         aria-invalid={fieldState.invalid}
-                        placeholder="guardian@example.com"
+                        placeholder="Optional guardian email"
                         type="email"
                       />
                       <FieldError>{fieldState.error?.message}</FieldError>

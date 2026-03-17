@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -124,6 +124,7 @@ function ClassReportTab({
 
   const campusId = form.watch("campusId");
   const classId = form.watch("classId");
+  const sectionId = form.watch("sectionId");
 
   const classSectionsQuery = useAttendanceClassSectionsQuery(
     institutionId,
@@ -138,6 +139,34 @@ function ClassReportTab({
   const sectionsForClass = classSections.filter(
     (item) => item.classId === classId,
   );
+
+  useEffect(() => {
+    if (campuses.length === 1 && !campusId) {
+      form.setValue("campusId", campuses[0]!.id);
+    }
+  }, [campusId, campuses, form]);
+
+  useEffect(() => {
+    if (!classId) {
+      return;
+    }
+
+    const onlySection = sectionsForClass[0];
+    const hasCurrentSection = sectionsForClass.some(
+      (item) => item.sectionId === sectionId,
+    );
+
+    if (sectionsForClass.length === 1 && onlySection) {
+      if (sectionId !== onlySection.sectionId) {
+        form.setValue("sectionId", onlySection.sectionId);
+      }
+      return;
+    }
+
+    if (!hasCurrentSection && sectionId) {
+      form.setValue("sectionId", "");
+    }
+  }, [classId, form, sectionId, sectionsForClass]);
 
   const reportQuery = useAttendanceClassReportQuery(
     institutionId,
@@ -168,7 +197,7 @@ function ClassReportTab({
                         form.setValue("classId", "");
                         form.setValue("sectionId", "");
                       }}
-                      value={field.value || undefined}
+                      value={field.value ?? ""}
                     >
                       <SelectTrigger aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select campus" />
@@ -198,7 +227,7 @@ function ClassReportTab({
                         field.onChange(v);
                         form.setValue("sectionId", "");
                       }}
-                      value={field.value || undefined}
+                      value={field.value ?? ""}
                     >
                       <SelectTrigger aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select class" />
@@ -225,7 +254,7 @@ function ClassReportTab({
                   <FieldContent>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value || undefined}
+                      value={field.value ?? ""}
                     >
                       <SelectTrigger aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select section" />
@@ -419,6 +448,12 @@ function StudentReportTab({
   const studentOptionsQuery = useStudentOptionsQuery(institutionId);
   const studentOptions = studentOptionsQuery.data ?? [];
 
+  useEffect(() => {
+    if (studentOptions.length === 1 && !form.getValues("studentId")) {
+      form.setValue("studentId", studentOptions[0]!.id);
+    }
+  }, [form, studentOptions]);
+
   const reportQuery = useAttendanceStudentReportQuery(
     institutionId,
     activeFilters,
@@ -444,7 +479,7 @@ function StudentReportTab({
                   <FieldContent>
                     <Select
                       onValueChange={field.onChange}
-                      value={field.value || undefined}
+                      value={field.value ?? ""}
                     >
                       <SelectTrigger aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select student" />

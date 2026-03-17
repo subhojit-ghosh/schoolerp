@@ -75,6 +75,26 @@ export function ClassForm({
       ),
   );
 
+  function buildSuggestedSectionName() {
+    const usedNames = new Set(
+      [
+        ...sectionsFieldArray.fields.map((section) => section.name),
+        ...localInactiveSections.map((section) => section.name),
+      ]
+        .map((name) => name.trim().toUpperCase())
+        .filter(Boolean),
+    );
+
+    for (let index = 0; index < 26; index += 1) {
+      const nextName = String.fromCharCode(65 + index);
+      if (!usedNames.has(nextName)) {
+        return nextName;
+      }
+    }
+
+    return "";
+  }
+
   function handleDisableSection(index: number) {
     const section = sectionsFieldArray.fields[index];
     const sectionId = section?.id;
@@ -123,7 +143,7 @@ export function ClassForm({
                     {...field}
                     aria-invalid={fieldState.invalid}
                     id="class-name"
-                    placeholder="Grade 8"
+                    placeholder="Class display name"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
@@ -144,7 +164,12 @@ export function ClassForm({
             </div>
             <EntityToolbarSecondaryAction
               className="gap-1.5"
-              onClick={() => sectionsFieldArray.append({ ...EMPTY_SECTION })}
+              onClick={() =>
+                sectionsFieldArray.append({
+                  ...EMPTY_SECTION,
+                  name: buildSuggestedSectionName(),
+                })
+              }
               type="button"
             >
               <IconPlus data-icon="inline-start" />
@@ -171,7 +196,7 @@ export function ClassForm({
                           {...field}
                           aria-invalid={fieldState.invalid}
                           id={`section-name-${index}`}
-                          placeholder={`Section ${String.fromCharCode(65 + index)}`}
+                          placeholder="Section name"
                           className="h-8 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
                         />
                         <FieldError>{fieldState.error?.message}</FieldError>

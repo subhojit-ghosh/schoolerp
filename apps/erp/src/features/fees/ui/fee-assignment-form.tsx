@@ -106,9 +106,9 @@ export function FeeAssignmentForm({
                       field.onChange(value);
                       onStructureChange?.(value);
                     }}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                    <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
                       <SelectValue placeholder="Select fee structure" />
                     </SelectTrigger>
                     <SelectContent>
@@ -157,9 +157,9 @@ export function FeeAssignmentForm({
                   <Select
                     disabled={lockStudent}
                     onValueChange={field.onChange}
-                    value={field.value || undefined}
+                    value={field.value ?? ""}
                   >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                    <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
                       <SelectValue placeholder="Select student" />
                     </SelectTrigger>
                     <SelectContent>

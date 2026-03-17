@@ -36,8 +36,6 @@ export function ForgotPasswordPage() {
     reset();
   }
 
-  const tokenPreview = forgotPasswordMutation.data?.resetTokenPreview;
-
   return (
     <AuthLayout>
       <div className="w-full max-w-[360px]">
@@ -112,23 +110,13 @@ export function ForgotPasswordPage() {
               </div>
             </div>
 
-            {tokenPreview ? (
-              <div className="flex flex-col gap-3">
-                <p className="text-[12px] text-muted-foreground uppercase tracking-wider font-medium">
-                  Dev preview token
-                </p>
-                <code className="block rounded-lg border bg-muted px-3 py-2.5 text-xs font-mono break-all leading-relaxed">
-                  {tokenPreview}
-                </code>
-                <Button asChild className="w-full h-11" variant="outline">
-                  <Link
-                    to={`${ERP_ROUTES.RESET_PASSWORD}?token=${encodeURIComponent(tokenPreview)}`}
-                  >
-                    Continue with preview token
-                  </Link>
-                </Button>
-              </div>
-            ) : null}
+            <div className="rounded-xl border border-dashed bg-muted/30 px-4 py-3">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Use the configured delivery channel to complete recovery. In
+                local development, verify the reset message through the backend
+                delivery logs instead of exposing the token in the app.
+              </p>
+            </div>
 
             <Link
               className="text-center text-[13px] text-muted-foreground hover:text-foreground transition-colors"
@@ -159,7 +147,7 @@ export function ForgotPasswordPage() {
                     aria-invalid={fieldState.invalid}
                     className="h-11 bg-white border-border/80 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1"
                     id="forgot-identifier"
-                    placeholder="+91 98765 43210"
+                    placeholder="Enter mobile number or email"
                   />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </div>

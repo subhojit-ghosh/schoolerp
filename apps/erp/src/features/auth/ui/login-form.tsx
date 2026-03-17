@@ -69,7 +69,7 @@ export function LoginForm({
                 autoComplete="username"
                 className="h-11 bg-white border-border/80 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1"
                 id="identifier"
-                placeholder="+91 98765 43210"
+                placeholder="Enter mobile number or email"
               />
               <FieldError>{fieldState.error?.message}</FieldError>
             </div>
