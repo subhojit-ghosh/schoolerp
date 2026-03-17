@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { DATA_EXCHANGE_ENTITY_TYPES } from "@repo/contracts";
 import { Link, useLocation } from "react-router";
 import { IconArrowRight, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -27,6 +28,7 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { DataExchangeEntityActions } from "@/features/data-exchange/ui/data-exchange-entity-actions";
 import { useGuardiansQuery } from "@/features/guardians/api/use-guardians";
 import {
   GUARDIAN_LIST_SORT_FIELDS,
@@ -258,6 +260,9 @@ export function GuardiansPage() {
             <EntityToolbarSecondaryAction asChild>
               <Link to={ERP_ROUTES.STUDENTS}>Go to students</Link>
             </EntityToolbarSecondaryAction>
+            <DataExchangeEntityActions
+              entityType={DATA_EXCHANGE_ENTITY_TYPES.GUARDIANS}
+            />
           </div>
         </div>
       }

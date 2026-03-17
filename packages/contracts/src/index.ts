@@ -101,7 +101,23 @@ export const PERMISSIONS = {
   COMMUNICATION_MANAGE: "communication:manage",
 } as const;
 
+export const DATA_EXCHANGE_ENTITY_TYPES = {
+  STUDENTS: "students",
+  STAFF: "staff",
+  GUARDIANS: "guardians",
+  FEE_ASSIGNMENTS: "feeAssignments",
+} as const;
+
+export const DATA_EXCHANGE_ACTIONS = {
+  IMPORT: "import",
+  EXPORT: "export",
+} as const;
+
 export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+export type DataExchangeEntityType =
+  (typeof DATA_EXCHANGE_ENTITY_TYPES)[keyof typeof DATA_EXCHANGE_ENTITY_TYPES];
+export type DataExchangeAction =
+  (typeof DATA_EXCHANGE_ACTIONS)[keyof typeof DATA_EXCHANGE_ACTIONS];
 
 export const ROLE_TYPES = {
   PLATFORM: "platform",
@@ -373,6 +389,12 @@ export const guardianRelationshipSchema = z.enum([
   GUARDIAN_RELATIONSHIPS.FATHER,
   GUARDIAN_RELATIONSHIPS.MOTHER,
   GUARDIAN_RELATIONSHIPS.GUARDIAN,
+]);
+export const dataExchangeEntityTypeSchema = z.enum([
+  DATA_EXCHANGE_ENTITY_TYPES.STUDENTS,
+  DATA_EXCHANGE_ENTITY_TYPES.STAFF,
+  DATA_EXCHANGE_ENTITY_TYPES.GUARDIANS,
+  DATA_EXCHANGE_ENTITY_TYPES.FEE_ASSIGNMENTS,
 ]);
 export const ATTENDANCE_STATUSES = {
   PRESENT: "present",

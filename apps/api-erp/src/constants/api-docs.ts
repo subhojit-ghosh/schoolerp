@@ -27,6 +27,7 @@ export const API_DOCS = {
     ATTENDANCE: "attendance",
     EXAMS: "exams",
     FEES: "fees",
+    DATA_EXCHANGE: "data-exchange",
     ROLES: "roles",
   },
   THEMES: {

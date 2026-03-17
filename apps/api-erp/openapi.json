@@ -2257,6 +2257,165 @@
         ]
       }
     },
+    "/data-exchange/capabilities": {
+      "get": {
+        "operationId": "DataExchangeController_getCapabilities",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataExchangeCapabilitiesDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List available bulk import/export capabilities",
+        "tags": [
+          "data-exchange"
+        ]
+      }
+    },
+    "/data-exchange/templates/{entityType}": {
+      "get": {
+        "operationId": "DataExchangeController_downloadTemplate",
+        "parameters": [
+          {
+            "name": "entityType",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Download a CSV template for an import/export entity type",
+        "tags": [
+          "data-exchange"
+        ]
+      }
+    },
+    "/data-exchange/imports/preview": {
+      "post": {
+        "operationId": "DataExchangeController_previewImport",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataExchangeBodyRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataExchangePreviewResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Preview a bulk CSV import before execution",
+        "tags": [
+          "data-exchange"
+        ]
+      }
+    },
+    "/data-exchange/imports/execute": {
+      "post": {
+        "operationId": "DataExchangeController_executeImport",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DataExchangeBodyRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataExchangeExecuteResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Execute a validated bulk CSV import",
+        "tags": [
+          "data-exchange"
+        ]
+      }
+    },
+    "/data-exchange/exports/{entityType}": {
+      "get": {
+        "operationId": "DataExchangeController_exportData",
+        "parameters": [
+          {
+            "name": "entityType",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Export entity data to CSV",
+        "tags": [
+          "data-exchange"
+        ]
+      }
+    },
     "/students": {
       "get": {
         "operationId": "StudentsController_listStudents",
@@ -3306,727 +3465,6 @@
         ]
       }
     },
-    "/academic-years": {
-      "get": {
-        "operationId": "AcademicYearsController_listAcademicYears",
-        "parameters": [
-          {
-            "name": "page",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "minimum": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "sort",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "current",
-                "endDate",
-                "name",
-                "startDate"
-              ]
-            }
-          },
-          {
-            "name": "order",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "asc",
-                "desc"
-              ]
-            }
-          },
-          {
-            "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Academic years list",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ListAcademicYearsResultDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "List academic years for the current tenant institution",
-        "tags": [
-          "academic-years"
-        ]
-      },
-      "post": {
-        "operationId": "AcademicYearsController_createAcademicYear",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAcademicYearBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Academic year created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcademicYearDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Create an academic year for the current tenant",
-        "tags": [
-          "academic-years"
-        ]
-      }
-    },
-    "/academic-years/{academicYearId}": {
-      "get": {
-        "operationId": "AcademicYearsController_getAcademicYear",
-        "parameters": [
-          {
-            "name": "academicYearId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Academic year detail",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcademicYearDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Get a single academic year",
-        "tags": [
-          "academic-years"
-        ]
-      },
-      "patch": {
-        "operationId": "AcademicYearsController_updateAcademicYear",
-        "parameters": [
-          {
-            "name": "academicYearId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAcademicYearBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Academic year updated",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AcademicYearDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Update an academic year",
-        "tags": [
-          "academic-years"
-        ]
-      }
-    },
-    "/attendance/class-sections": {
-      "get": {
-        "operationId": "AttendanceController_listClassSections",
-        "parameters": [
-          {
-            "name": "campusId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AttendanceClassSectionDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "List available class-section combinations for attendance",
-        "tags": [
-          "attendance"
-        ]
-      }
-    },
-    "/attendance/day": {
-      "get": {
-        "operationId": "AttendanceController_listAttendanceDay",
-        "parameters": [
-          {
-            "name": "attendanceDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "campusId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "classId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "sectionId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AttendanceDayDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Get the attendance roster for a class-section and day",
-        "tags": [
-          "attendance"
-        ]
-      },
-      "post": {
-        "operationId": "AttendanceController_upsertAttendanceDay",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpsertAttendanceDayBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AttendanceDayDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Create or update daily attendance for a class-section",
-        "tags": [
-          "attendance"
-        ]
-      }
-    },
-    "/attendance/day-view": {
-      "get": {
-        "operationId": "AttendanceController_listAttendanceDayView",
-        "parameters": [
-          {
-            "name": "attendanceDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AttendanceDayViewItemDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "List simple attendance summaries for a day",
-        "tags": [
-          "attendance"
-        ]
-      }
-    },
-    "/attendance/overview": {
-      "get": {
-        "operationId": "AttendanceController_getAttendanceOverview",
-        "parameters": [
-          {
-            "name": "date",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/AttendanceOverviewItemDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Get attendance overview for all class sections for a given date",
-        "tags": [
-          "attendance"
-        ]
-      }
-    },
-    "/attendance/class-report": {
-      "get": {
-        "operationId": "AttendanceController_getAttendanceClassReport",
-        "parameters": [
-          {
-            "name": "campusId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "classId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "sectionId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "startDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "endDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AttendanceClassReportDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Get student-wise attendance report for a class-section over a date range",
-        "tags": [
-          "attendance"
-        ]
-      }
-    },
-    "/attendance/student-report": {
-      "get": {
-        "operationId": "AttendanceController_getAttendanceStudentReport",
-        "parameters": [
-          {
-            "name": "studentId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "startDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "endDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AttendanceStudentReportDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Get attendance history for a single student over a date range",
-        "tags": [
-          "attendance"
-        ]
-      }
-    },
-    "/exams/terms": {
-      "get": {
-        "operationId": "ExamsController_listExamTerms",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExamTermDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "List exam terms for the current tenant institution",
-        "tags": [
-          "exams"
-        ]
-      },
-      "post": {
-        "operationId": "ExamsController_createExamTerm",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateExamTermBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExamTermDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Create an exam term for the current tenant",
-        "tags": [
-          "exams"
-        ]
-      }
-    },
-    "/exams/terms/{examTermId}/marks": {
-      "get": {
-        "operationId": "ExamsController_listExamMarks",
-        "parameters": [
-          {
-            "name": "examTermId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExamMarkDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "List marks for an exam term",
-        "tags": [
-          "exams"
-        ]
-      },
-      "put": {
-        "operationId": "ExamsController_replaceExamMarks",
-        "parameters": [
-          {
-            "name": "examTermId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpsertExamMarksBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExamMarkDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Replace the marks list for an exam term",
-        "tags": [
-          "exams"
-        ]
-      }
-    },
-    "/exams/terms/{examTermId}/report-card": {
-      "get": {
-        "operationId": "ExamsController_getExamReportCard",
-        "parameters": [
-          {
-            "name": "examTermId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "studentId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExamReportCardDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Get subject-wise report card with grading for one student",
-        "tags": [
-          "exams"
-        ]
-      }
-    },
     "/fees/structures": {
       "get": {
         "operationId": "FeesController_listFeeStructures",
@@ -4938,6 +4376,727 @@
         "summary": "Get fee collection summary grouped by structure",
         "tags": [
           "fees"
+        ]
+      }
+    },
+    "/academic-years": {
+      "get": {
+        "operationId": "AcademicYearsController_listAcademicYears",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "current",
+                "endDate",
+                "name",
+                "startDate"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Academic years list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListAcademicYearsResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List academic years for the current tenant institution",
+        "tags": [
+          "academic-years"
+        ]
+      },
+      "post": {
+        "operationId": "AcademicYearsController_createAcademicYear",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAcademicYearBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Academic year created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcademicYearDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an academic year for the current tenant",
+        "tags": [
+          "academic-years"
+        ]
+      }
+    },
+    "/academic-years/{academicYearId}": {
+      "get": {
+        "operationId": "AcademicYearsController_getAcademicYear",
+        "parameters": [
+          {
+            "name": "academicYearId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Academic year detail",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcademicYearDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a single academic year",
+        "tags": [
+          "academic-years"
+        ]
+      },
+      "patch": {
+        "operationId": "AcademicYearsController_updateAcademicYear",
+        "parameters": [
+          {
+            "name": "academicYearId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAcademicYearBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Academic year updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcademicYearDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update an academic year",
+        "tags": [
+          "academic-years"
+        ]
+      }
+    },
+    "/attendance/class-sections": {
+      "get": {
+        "operationId": "AttendanceController_listClassSections",
+        "parameters": [
+          {
+            "name": "campusId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttendanceClassSectionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List available class-section combinations for attendance",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/attendance/day": {
+      "get": {
+        "operationId": "AttendanceController_listAttendanceDay",
+        "parameters": [
+          {
+            "name": "attendanceDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "campusId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceDayDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get the attendance roster for a class-section and day",
+        "tags": [
+          "attendance"
+        ]
+      },
+      "post": {
+        "operationId": "AttendanceController_upsertAttendanceDay",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertAttendanceDayBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceDayDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create or update daily attendance for a class-section",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/attendance/day-view": {
+      "get": {
+        "operationId": "AttendanceController_listAttendanceDayView",
+        "parameters": [
+          {
+            "name": "attendanceDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttendanceDayViewItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List simple attendance summaries for a day",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/attendance/overview": {
+      "get": {
+        "operationId": "AttendanceController_getAttendanceOverview",
+        "parameters": [
+          {
+            "name": "date",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AttendanceOverviewItemDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get attendance overview for all class sections for a given date",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/attendance/class-report": {
+      "get": {
+        "operationId": "AttendanceController_getAttendanceClassReport",
+        "parameters": [
+          {
+            "name": "campusId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceClassReportDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get student-wise attendance report for a class-section over a date range",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/attendance/student-report": {
+      "get": {
+        "operationId": "AttendanceController_getAttendanceStudentReport",
+        "parameters": [
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttendanceStudentReportDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get attendance history for a single student over a date range",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/exams/terms": {
+      "get": {
+        "operationId": "ExamsController_listExamTerms",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamTermDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List exam terms for the current tenant institution",
+        "tags": [
+          "exams"
+        ]
+      },
+      "post": {
+        "operationId": "ExamsController_createExamTerm",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExamTermBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamTermDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an exam term for the current tenant",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/exams/terms/{examTermId}/marks": {
+      "get": {
+        "operationId": "ExamsController_listExamMarks",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamMarkDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List marks for an exam term",
+        "tags": [
+          "exams"
+        ]
+      },
+      "put": {
+        "operationId": "ExamsController_replaceExamMarks",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertExamMarksBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamMarkDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Replace the marks list for an exam term",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/exams/terms/{examTermId}/report-card": {
+      "get": {
+        "operationId": "ExamsController_getExamReportCard",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamReportCardDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get subject-wise report card with grading for one student",
+        "tags": [
+          "exams"
         ]
       }
     },
@@ -7458,6 +7617,195 @@
           }
         }
       },
+      "DataExchangeCapabilityDto": {
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "type": "string",
+            "enum": [
+              "students",
+              "staff",
+              "guardians",
+              "feeAssignments"
+            ]
+          },
+          "actions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "import",
+                "export"
+              ]
+            }
+          }
+        },
+        "required": [
+          "entityType",
+          "actions"
+        ]
+      },
+      "DataExchangeCapabilitiesDto": {
+        "type": "object",
+        "properties": {
+          "entities": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataExchangeCapabilityDto"
+            }
+          }
+        },
+        "required": [
+          "entities"
+        ]
+      },
+      "DataExchangeBodyRequestDto": {
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "type": "string",
+            "enum": [
+              "students",
+              "staff",
+              "guardians",
+              "feeAssignments"
+            ]
+          },
+          "csvContent": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entityType",
+          "csvContent"
+        ]
+      },
+      "DataExchangePreviewSummaryDto": {
+        "type": "object",
+        "properties": {
+          "totalRows": {
+            "type": "number"
+          },
+          "validRows": {
+            "type": "number"
+          },
+          "invalidRows": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "totalRows",
+          "validRows",
+          "invalidRows"
+        ]
+      },
+      "DataExchangeRowResultDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "valid",
+              "error",
+              "imported",
+              "failed"
+            ]
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rowNumber": {
+            "type": "number"
+          },
+          "identifier": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "messages",
+          "rowNumber",
+          "identifier"
+        ]
+      },
+      "DataExchangePreviewResultDto": {
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "type": "string",
+            "enum": [
+              "students",
+              "staff",
+              "guardians",
+              "feeAssignments"
+            ]
+          },
+          "summary": {
+            "$ref": "#/components/schemas/DataExchangePreviewSummaryDto"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataExchangeRowResultDto"
+            }
+          }
+        },
+        "required": [
+          "entityType",
+          "summary",
+          "rows"
+        ]
+      },
+      "DataExchangeExecuteSummaryDto": {
+        "type": "object",
+        "properties": {
+          "totalRows": {
+            "type": "number"
+          },
+          "importedRows": {
+            "type": "number"
+          },
+          "failedRows": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "totalRows",
+          "importedRows",
+          "failedRows"
+        ]
+      },
+      "DataExchangeExecuteResultDto": {
+        "type": "object",
+        "properties": {
+          "entityType": {
+            "type": "string",
+            "enum": [
+              "students",
+              "staff",
+              "guardians",
+              "feeAssignments"
+            ]
+          },
+          "summary": {
+            "$ref": "#/components/schemas/DataExchangeExecuteSummaryDto"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DataExchangeRowResultDto"
+            }
+          }
+        },
+        "required": [
+          "entityType",
+          "summary",
+          "rows"
+        ]
+      },
       "StudentGuardianDto": {
         "type": "object",
         "properties": {
@@ -8963,872 +9311,6 @@
           "isPrimary"
         ]
       },
-      "AcademicYearStatus": {
-        "type": "string",
-        "enum": [
-          "active",
-          "archived",
-          "deleted"
-        ]
-      },
-      "AcademicYearDto": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/AcademicYearStatus"
-              }
-            ]
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "id": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
-          },
-          "isCurrent": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "status",
-          "createdAt",
-          "id",
-          "name",
-          "startDate",
-          "endDate",
-          "isCurrent"
-        ]
-      },
-      "ListAcademicYearsResultDto": {
-        "type": "object",
-        "properties": {
-          "rows": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AcademicYearDto"
-            }
-          },
-          "total": {
-            "type": "number"
-          },
-          "page": {
-            "type": "number"
-          },
-          "pageSize": {
-            "type": "number"
-          },
-          "pageCount": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "rows",
-          "total",
-          "page",
-          "pageSize",
-          "pageCount"
-        ]
-      },
-      "CreateAcademicYearBodyDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
-          },
-          "isCurrent": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "name",
-          "startDate",
-          "endDate",
-          "isCurrent"
-        ]
-      },
-      "UpdateAcademicYearBodyDto": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
-          },
-          "isCurrent": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "name",
-          "startDate",
-          "endDate",
-          "isCurrent"
-        ]
-      },
-      "AttendanceClassSectionDto": {
-        "type": "object",
-        "properties": {
-          "classId": {
-            "type": "string"
-          },
-          "className": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          },
-          "sectionName": {
-            "type": "string"
-          },
-          "studentCount": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "classId",
-          "className",
-          "sectionId",
-          "sectionName",
-          "studentCount"
-        ]
-      },
-      "AttendanceStudentEntryDto": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "nullable": true,
-            "enum": [
-              "present",
-              "absent",
-              "late",
-              "excused"
-            ]
-          },
-          "studentId": {
-            "type": "string"
-          },
-          "admissionNumber": {
-            "type": "string"
-          },
-          "fullName": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "status",
-          "studentId",
-          "admissionNumber",
-          "fullName"
-        ]
-      },
-      "AttendanceDayDto": {
-        "type": "object",
-        "properties": {
-          "entries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AttendanceStudentEntryDto"
-            }
-          },
-          "attendanceDate": {
-            "type": "string"
-          },
-          "campusId": {
-            "type": "string"
-          },
-          "campusName": {
-            "type": "string"
-          },
-          "classId": {
-            "type": "string"
-          },
-          "className": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          },
-          "sectionName": {
-            "type": "string"
-          },
-          "totalStudents": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "entries",
-          "attendanceDate",
-          "campusId",
-          "campusName",
-          "classId",
-          "className",
-          "sectionId",
-          "sectionName",
-          "totalStudents"
-        ]
-      },
-      "AttendanceDayEntryBodyDto": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "present",
-              "absent",
-              "late",
-              "excused"
-            ]
-          },
-          "studentId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "status",
-          "studentId"
-        ]
-      },
-      "UpsertAttendanceDayBodyDto": {
-        "type": "object",
-        "properties": {
-          "entries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AttendanceDayEntryBodyDto"
-            }
-          },
-          "attendanceDate": {
-            "type": "string"
-          },
-          "campusId": {
-            "type": "string"
-          },
-          "classId": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "entries",
-          "attendanceDate",
-          "campusId",
-          "classId",
-          "sectionId"
-        ]
-      },
-      "AttendanceSummaryCountsDto": {
-        "type": "object",
-        "properties": {
-          "present": {
-            "type": "number"
-          },
-          "absent": {
-            "type": "number"
-          },
-          "late": {
-            "type": "number"
-          },
-          "excused": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "present",
-          "absent",
-          "late",
-          "excused"
-        ]
-      },
-      "AttendanceDayViewItemDto": {
-        "type": "object",
-        "properties": {
-          "counts": {
-            "$ref": "#/components/schemas/AttendanceSummaryCountsDto"
-          },
-          "attendanceDate": {
-            "type": "string"
-          },
-          "campusId": {
-            "type": "string"
-          },
-          "campusName": {
-            "type": "string"
-          },
-          "classId": {
-            "type": "string"
-          },
-          "className": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          },
-          "sectionName": {
-            "type": "string"
-          },
-          "totalStudents": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "counts",
-          "attendanceDate",
-          "campusId",
-          "campusName",
-          "classId",
-          "className",
-          "sectionId",
-          "sectionName",
-          "totalStudents"
-        ]
-      },
-      "AttendanceOverviewItemDto": {
-        "type": "object",
-        "properties": {
-          "counts": {
-            "nullable": true,
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/AttendanceSummaryCountsDto"
-              }
-            ]
-          },
-          "campusId": {
-            "type": "string"
-          },
-          "campusName": {
-            "type": "string"
-          },
-          "classId": {
-            "type": "string"
-          },
-          "className": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          },
-          "sectionName": {
-            "type": "string"
-          },
-          "studentCount": {
-            "type": "number"
-          },
-          "marked": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "counts",
-          "campusId",
-          "campusName",
-          "classId",
-          "className",
-          "sectionId",
-          "sectionName",
-          "studentCount",
-          "marked"
-        ]
-      },
-      "AttendanceClassReportStudentDto": {
-        "type": "object",
-        "properties": {
-          "records": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
-          },
-          "studentId": {
-            "type": "string"
-          },
-          "admissionNumber": {
-            "type": "string"
-          },
-          "fullName": {
-            "type": "string"
-          },
-          "present": {
-            "type": "number"
-          },
-          "absent": {
-            "type": "number"
-          },
-          "late": {
-            "type": "number"
-          },
-          "excused": {
-            "type": "number"
-          },
-          "attendancePercent": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "records",
-          "studentId",
-          "admissionNumber",
-          "fullName",
-          "present",
-          "absent",
-          "late",
-          "excused",
-          "attendancePercent"
-        ]
-      },
-      "AttendanceClassReportDto": {
-        "type": "object",
-        "properties": {
-          "dates": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "students": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AttendanceClassReportStudentDto"
-            }
-          },
-          "classId": {
-            "type": "string"
-          },
-          "className": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          },
-          "sectionName": {
-            "type": "string"
-          },
-          "campusId": {
-            "type": "string"
-          },
-          "campusName": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "dates",
-          "students",
-          "classId",
-          "className",
-          "sectionId",
-          "sectionName",
-          "campusId",
-          "campusName",
-          "startDate",
-          "endDate"
-        ]
-      },
-      "AttendanceStudentRecordDto": {
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string"
-          },
-          "status": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "date",
-          "status"
-        ]
-      },
-      "AttendanceStudentReportDto": {
-        "type": "object",
-        "properties": {
-          "records": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AttendanceStudentRecordDto"
-            }
-          },
-          "studentId": {
-            "type": "string"
-          },
-          "admissionNumber": {
-            "type": "string"
-          },
-          "fullName": {
-            "type": "string"
-          },
-          "classId": {
-            "type": "string"
-          },
-          "className": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          },
-          "sectionName": {
-            "type": "string"
-          },
-          "campusId": {
-            "type": "string"
-          },
-          "campusName": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
-          },
-          "totalMarkedDays": {
-            "type": "number"
-          },
-          "present": {
-            "type": "number"
-          },
-          "absent": {
-            "type": "number"
-          },
-          "late": {
-            "type": "number"
-          },
-          "excused": {
-            "type": "number"
-          },
-          "attendancePercent": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "records",
-          "studentId",
-          "admissionNumber",
-          "fullName",
-          "classId",
-          "className",
-          "sectionId",
-          "sectionName",
-          "campusId",
-          "campusName",
-          "startDate",
-          "endDate",
-          "totalMarkedDays",
-          "present",
-          "absent",
-          "late",
-          "excused",
-          "attendancePercent"
-        ]
-      },
-      "ExamTermDto": {
-        "type": "object",
-        "properties": {
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "id": {
-            "type": "string"
-          },
-          "institutionId": {
-            "type": "string"
-          },
-          "academicYearId": {
-            "type": "string"
-          },
-          "academicYearName": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "createdAt",
-          "id",
-          "institutionId",
-          "academicYearId",
-          "academicYearName",
-          "name",
-          "startDate",
-          "endDate"
-        ]
-      },
-      "CreateExamTermBodyDto": {
-        "type": "object",
-        "properties": {
-          "academicYearId": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "academicYearId",
-          "name",
-          "startDate",
-          "endDate"
-        ]
-      },
-      "ExamMarkDto": {
-        "type": "object",
-        "properties": {
-          "remarks": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "id": {
-            "type": "string"
-          },
-          "examTermId": {
-            "type": "string"
-          },
-          "studentId": {
-            "type": "string"
-          },
-          "studentFullName": {
-            "type": "string"
-          },
-          "admissionNumber": {
-            "type": "string"
-          },
-          "subjectName": {
-            "type": "string"
-          },
-          "maxMarks": {
-            "type": "number"
-          },
-          "obtainedMarks": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "createdAt",
-          "id",
-          "examTermId",
-          "studentId",
-          "studentFullName",
-          "admissionNumber",
-          "subjectName",
-          "maxMarks",
-          "obtainedMarks"
-        ]
-      },
-      "UpsertExamMarkEntryBodyDto": {
-        "type": "object",
-        "properties": {
-          "remarks": {
-            "type": "string",
-            "nullable": true
-          },
-          "studentId": {
-            "type": "string"
-          },
-          "subjectName": {
-            "type": "string"
-          },
-          "maxMarks": {
-            "type": "number"
-          },
-          "obtainedMarks": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "studentId",
-          "subjectName",
-          "maxMarks",
-          "obtainedMarks"
-        ]
-      },
-      "UpsertExamMarksBodyDto": {
-        "type": "object",
-        "properties": {
-          "entries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UpsertExamMarkEntryBodyDto"
-            }
-          }
-        },
-        "required": [
-          "entries"
-        ]
-      },
-      "ExamReportCardSummaryDto": {
-        "type": "object",
-        "properties": {
-          "totalMaxMarks": {
-            "type": "number"
-          },
-          "totalObtainedMarks": {
-            "type": "number"
-          },
-          "overallPercent": {
-            "type": "number"
-          },
-          "overallGrade": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "totalMaxMarks",
-          "totalObtainedMarks",
-          "overallPercent",
-          "overallGrade"
-        ]
-      },
-      "ExamReportCardSubjectDto": {
-        "type": "object",
-        "properties": {
-          "remarks": {
-            "type": "string",
-            "nullable": true
-          },
-          "subjectName": {
-            "type": "string"
-          },
-          "maxMarks": {
-            "type": "number"
-          },
-          "obtainedMarks": {
-            "type": "number"
-          },
-          "percent": {
-            "type": "number"
-          },
-          "grade": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "subjectName",
-          "maxMarks",
-          "obtainedMarks",
-          "percent",
-          "grade"
-        ]
-      },
-      "ExamGradeBandDto": {
-        "type": "object",
-        "properties": {
-          "grade": {
-            "type": "string"
-          },
-          "minPercent": {
-            "type": "number"
-          },
-          "label": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "grade",
-          "minPercent",
-          "label"
-        ]
-      },
-      "ExamReportCardDto": {
-        "type": "object",
-        "properties": {
-          "summary": {
-            "$ref": "#/components/schemas/ExamReportCardSummaryDto"
-          },
-          "subjects": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ExamReportCardSubjectDto"
-            }
-          },
-          "gradingScheme": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ExamGradeBandDto"
-            }
-          },
-          "examTermId": {
-            "type": "string"
-          },
-          "examTermName": {
-            "type": "string"
-          },
-          "academicYearId": {
-            "type": "string"
-          },
-          "academicYearName": {
-            "type": "string"
-          },
-          "studentId": {
-            "type": "string"
-          },
-          "studentFullName": {
-            "type": "string"
-          },
-          "admissionNumber": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "summary",
-          "subjects",
-          "gradingScheme",
-          "examTermId",
-          "examTermName",
-          "academicYearId",
-          "academicYearName",
-          "studentId",
-          "studentFullName",
-          "admissionNumber"
-        ]
-      },
       "FeeStructureInstallmentDto": {
         "type": "object",
         "properties": {
@@ -10707,6 +10189,872 @@
           "totalPaidInPaise",
           "totalOutstandingInPaise",
           "overdueCount"
+        ]
+      },
+      "AcademicYearStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "archived",
+          "deleted"
+        ]
+      },
+      "AcademicYearDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AcademicYearStatus"
+              }
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "createdAt",
+          "id",
+          "name",
+          "startDate",
+          "endDate",
+          "isCurrent"
+        ]
+      },
+      "ListAcademicYearsResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AcademicYearDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateAcademicYearBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "startDate",
+          "endDate",
+          "isCurrent"
+        ]
+      },
+      "UpdateAcademicYearBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "isCurrent": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "startDate",
+          "endDate",
+          "isCurrent"
+        ]
+      },
+      "AttendanceClassSectionDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "studentCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "studentCount"
+        ]
+      },
+      "AttendanceStudentEntryDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "present",
+              "absent",
+              "late",
+              "excused"
+            ]
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "studentId",
+          "admissionNumber",
+          "fullName"
+        ]
+      },
+      "AttendanceDayDto": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceStudentEntryDto"
+            }
+          },
+          "attendanceDate": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "totalStudents": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "entries",
+          "attendanceDate",
+          "campusId",
+          "campusName",
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "totalStudents"
+        ]
+      },
+      "AttendanceDayEntryBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "present",
+              "absent",
+              "late",
+              "excused"
+            ]
+          },
+          "studentId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "studentId"
+        ]
+      },
+      "UpsertAttendanceDayBodyDto": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceDayEntryBodyDto"
+            }
+          },
+          "attendanceDate": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entries",
+          "attendanceDate",
+          "campusId",
+          "classId",
+          "sectionId"
+        ]
+      },
+      "AttendanceSummaryCountsDto": {
+        "type": "object",
+        "properties": {
+          "present": {
+            "type": "number"
+          },
+          "absent": {
+            "type": "number"
+          },
+          "late": {
+            "type": "number"
+          },
+          "excused": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "present",
+          "absent",
+          "late",
+          "excused"
+        ]
+      },
+      "AttendanceDayViewItemDto": {
+        "type": "object",
+        "properties": {
+          "counts": {
+            "$ref": "#/components/schemas/AttendanceSummaryCountsDto"
+          },
+          "attendanceDate": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "totalStudents": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "counts",
+          "attendanceDate",
+          "campusId",
+          "campusName",
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "totalStudents"
+        ]
+      },
+      "AttendanceOverviewItemDto": {
+        "type": "object",
+        "properties": {
+          "counts": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AttendanceSummaryCountsDto"
+              }
+            ]
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "studentCount": {
+            "type": "number"
+          },
+          "marked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "counts",
+          "campusId",
+          "campusName",
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "studentCount",
+          "marked"
+        ]
+      },
+      "AttendanceClassReportStudentDto": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "present": {
+            "type": "number"
+          },
+          "absent": {
+            "type": "number"
+          },
+          "late": {
+            "type": "number"
+          },
+          "excused": {
+            "type": "number"
+          },
+          "attendancePercent": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "records",
+          "studentId",
+          "admissionNumber",
+          "fullName",
+          "present",
+          "absent",
+          "late",
+          "excused",
+          "attendancePercent"
+        ]
+      },
+      "AttendanceClassReportDto": {
+        "type": "object",
+        "properties": {
+          "dates": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceClassReportStudentDto"
+            }
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "dates",
+          "students",
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "campusId",
+          "campusName",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "AttendanceStudentRecordDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "date",
+          "status"
+        ]
+      },
+      "AttendanceStudentReportDto": {
+        "type": "object",
+        "properties": {
+          "records": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AttendanceStudentRecordDto"
+            }
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "totalMarkedDays": {
+            "type": "number"
+          },
+          "present": {
+            "type": "number"
+          },
+          "absent": {
+            "type": "number"
+          },
+          "late": {
+            "type": "number"
+          },
+          "excused": {
+            "type": "number"
+          },
+          "attendancePercent": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "records",
+          "studentId",
+          "admissionNumber",
+          "fullName",
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "campusId",
+          "campusName",
+          "startDate",
+          "endDate",
+          "totalMarkedDays",
+          "present",
+          "absent",
+          "late",
+          "excused",
+          "attendancePercent"
+        ]
+      },
+      "ExamTermDto": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "id",
+          "institutionId",
+          "academicYearId",
+          "academicYearName",
+          "name",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "CreateExamTermBodyDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "name",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "ExamMarkDto": {
+        "type": "object",
+        "properties": {
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "examTermId": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentFullName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "createdAt",
+          "id",
+          "examTermId",
+          "studentId",
+          "studentFullName",
+          "admissionNumber",
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks"
+        ]
+      },
+      "UpsertExamMarkEntryBodyDto": {
+        "type": "object",
+        "properties": {
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "studentId",
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks"
+        ]
+      },
+      "UpsertExamMarksBodyDto": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertExamMarkEntryBodyDto"
+            }
+          }
+        },
+        "required": [
+          "entries"
+        ]
+      },
+      "ExamReportCardSummaryDto": {
+        "type": "object",
+        "properties": {
+          "totalMaxMarks": {
+            "type": "number"
+          },
+          "totalObtainedMarks": {
+            "type": "number"
+          },
+          "overallPercent": {
+            "type": "number"
+          },
+          "overallGrade": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "totalMaxMarks",
+          "totalObtainedMarks",
+          "overallPercent",
+          "overallGrade"
+        ]
+      },
+      "ExamReportCardSubjectDto": {
+        "type": "object",
+        "properties": {
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          },
+          "percent": {
+            "type": "number"
+          },
+          "grade": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks",
+          "percent",
+          "grade"
+        ]
+      },
+      "ExamGradeBandDto": {
+        "type": "object",
+        "properties": {
+          "grade": {
+            "type": "string"
+          },
+          "minPercent": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "grade",
+          "minPercent",
+          "label"
+        ]
+      },
+      "ExamReportCardDto": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/ExamReportCardSummaryDto"
+          },
+          "subjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamReportCardSubjectDto"
+            }
+          },
+          "gradingScheme": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamGradeBandDto"
+            }
+          },
+          "examTermId": {
+            "type": "string"
+          },
+          "examTermName": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentFullName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "summary",
+          "subjects",
+          "gradingScheme",
+          "examTermId",
+          "examTermName",
+          "academicYearId",
+          "academicYearName",
+          "studentId",
+          "studentFullName",
+          "admissionNumber"
         ]
       },
       "RolePermissionDto": {

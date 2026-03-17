@@ -180,4 +180,11 @@ export const ERROR_MESSAGES = {
     FEE_INSTALLMENTS_LOCKED:
       "Installments cannot be modified after assignments exist, including historical records.",
   },
+  DATA_EXCHANGE: {
+    CSV_EMPTY: "Upload a CSV file with a header row and at least one data row.",
+    CSV_HEADER_REQUIRED: "The CSV file must include a header row.",
+    ENTITY_TYPE_UNSUPPORTED: "The selected import/export entity type is not supported.",
+    TEMPLATE_NOT_FOUND: "No template is available for the selected import/export entity type.",
+    NO_ROWS_TO_IMPORT: "No valid rows were found to import.",
+  },
 } as const;

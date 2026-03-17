@@ -51,6 +51,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Calendar** — event list/create/edit, active/inactive toggle, and tenant-scoped calendar events
 - **Admissions** — enquiry and application pipelines with list/create/edit flows, status tracking, and tenant-scoped APIs
 - **Announcements / communication** — announcement list/create/edit/publish flows plus backend-driven in-app notification feed and mark-all-read support
+- **Bulk import/export** — staff-facing CSV templates, preview, execute, and export flows for students, staff, guardians, and fee assignments
 
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
@@ -66,7 +67,6 @@ Keep this file evidence-based. Do not use it as a roadmap.
 
 - **SMS/email delivery** for password reset and staff onboarding links
 - **Notifications depth** — expand the feed beyond announcement-publish events into fee due, absent streak, password-setup, admissions, and approval workflows
-- **Bulk import/export** for students, staff, guardians, and fee data
 - **Audit trail** for sensitive operational and financial mutations
 - **Document outputs** such as fee receipts, acknowledgements, and certificate/report-card-ready exports
 - **Onboarding polish** — public school signup flow usable without assistance

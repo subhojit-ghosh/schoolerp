@@ -161,6 +161,14 @@ export const FEES_API_PATHS = {
   COLLECTION_SUMMARY: "/fees/reports/collection-summary",
 } as const;
 
+export const DATA_EXCHANGE_API_PATHS = {
+  CAPABILITIES: "/data-exchange/capabilities",
+  TEMPLATE: "/data-exchange/templates/{entityType}",
+  PREVIEW_IMPORT: "/data-exchange/imports/preview",
+  EXECUTE_IMPORT: "/data-exchange/imports/execute",
+  EXPORT: "/data-exchange/exports/{entityType}",
+} as const;
+
 export const ROLES_API_PATHS = {
   LIST: "/roles",
   CREATE: "/roles",

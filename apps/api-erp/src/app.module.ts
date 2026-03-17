@@ -14,6 +14,7 @@ import { CampusesModule } from "./modules/campuses/campuses.module";
 import { ClassesModule } from "./modules/classes/classes.module";
 import { CommunicationsModule } from "./modules/communications/communications.module";
 import { validateEnvironment } from "./config/env.validation";
+import { DataExchangeModule } from "./modules/data-exchange/data-exchange.module";
 import { FeesModule } from "./modules/fees/fees.module";
 import { ExamsModule } from "./modules/exams/exams.module";
 import { InstitutionsModule } from "./modules/institutions/institutions.module";
@@ -46,6 +47,7 @@ import { StudentsModule } from "./modules/students/students.module";
     TimetableModule,
     CalendarModule,
     CommunicationsModule,
+    DataExchangeModule,
     StudentsModule,
     StaffModule,
     GuardiansModule,

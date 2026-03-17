@@ -598,6 +598,91 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/data-exchange/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available bulk import/export capabilities */
+        get: operations["DataExchangeController_getCapabilities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/data-exchange/templates/{entityType}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download a CSV template for an import/export entity type */
+        get: operations["DataExchangeController_downloadTemplate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/data-exchange/imports/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview a bulk CSV import before execution */
+        post: operations["DataExchangeController_previewImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/data-exchange/imports/execute": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Execute a validated bulk CSV import */
+        post: operations["DataExchangeController_executeImport"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/data-exchange/exports/{entityType}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export entity data to CSV */
+        get: operations["DataExchangeController_exportData"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/students": {
         parameters: {
             query?: never;
@@ -878,198 +963,6 @@ export interface paths {
         patch: operations["GuardiansController_updateStudentLink"];
         trace?: never;
     };
-    "/academic-years": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List academic years for the current tenant institution */
-        get: operations["AcademicYearsController_listAcademicYears"];
-        put?: never;
-        /** Create an academic year for the current tenant */
-        post: operations["AcademicYearsController_createAcademicYear"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/academic-years/{academicYearId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get a single academic year */
-        get: operations["AcademicYearsController_getAcademicYear"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update an academic year */
-        patch: operations["AcademicYearsController_updateAcademicYear"];
-        trace?: never;
-    };
-    "/attendance/class-sections": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List available class-section combinations for attendance */
-        get: operations["AttendanceController_listClassSections"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendance/day": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the attendance roster for a class-section and day */
-        get: operations["AttendanceController_listAttendanceDay"];
-        put?: never;
-        /** Create or update daily attendance for a class-section */
-        post: operations["AttendanceController_upsertAttendanceDay"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendance/day-view": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List simple attendance summaries for a day */
-        get: operations["AttendanceController_listAttendanceDayView"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendance/overview": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get attendance overview for all class sections for a given date */
-        get: operations["AttendanceController_getAttendanceOverview"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendance/class-report": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get student-wise attendance report for a class-section over a date range */
-        get: operations["AttendanceController_getAttendanceClassReport"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/attendance/student-report": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get attendance history for a single student over a date range */
-        get: operations["AttendanceController_getAttendanceStudentReport"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exams/terms": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List exam terms for the current tenant institution */
-        get: operations["ExamsController_listExamTerms"];
-        put?: never;
-        /** Create an exam term for the current tenant */
-        post: operations["ExamsController_createExamTerm"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exams/terms/{examTermId}/marks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List marks for an exam term */
-        get: operations["ExamsController_listExamMarks"];
-        /** Replace the marks list for an exam term */
-        put: operations["ExamsController_replaceExamMarks"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exams/terms/{examTermId}/report-card": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get subject-wise report card with grading for one student */
-        get: operations["ExamsController_getExamReportCard"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/fees/structures": {
         parameters: {
             query?: never;
@@ -1289,6 +1182,198 @@ export interface paths {
         };
         /** Get fee collection summary grouped by structure */
         get: operations["FeesController_getCollectionSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/academic-years": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List academic years for the current tenant institution */
+        get: operations["AcademicYearsController_listAcademicYears"];
+        put?: never;
+        /** Create an academic year for the current tenant */
+        post: operations["AcademicYearsController_createAcademicYear"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/academic-years/{academicYearId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single academic year */
+        get: operations["AcademicYearsController_getAcademicYear"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an academic year */
+        patch: operations["AcademicYearsController_updateAcademicYear"];
+        trace?: never;
+    };
+    "/attendance/class-sections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List available class-section combinations for attendance */
+        get: operations["AttendanceController_listClassSections"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/attendance/day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the attendance roster for a class-section and day */
+        get: operations["AttendanceController_listAttendanceDay"];
+        put?: never;
+        /** Create or update daily attendance for a class-section */
+        post: operations["AttendanceController_upsertAttendanceDay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/attendance/day-view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List simple attendance summaries for a day */
+        get: operations["AttendanceController_listAttendanceDayView"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/attendance/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get attendance overview for all class sections for a given date */
+        get: operations["AttendanceController_getAttendanceOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/attendance/class-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get student-wise attendance report for a class-section over a date range */
+        get: operations["AttendanceController_getAttendanceClassReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/attendance/student-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get attendance history for a single student over a date range */
+        get: operations["AttendanceController_getAttendanceStudentReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exams/terms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List exam terms for the current tenant institution */
+        get: operations["ExamsController_listExamTerms"];
+        put?: never;
+        /** Create an exam term for the current tenant */
+        post: operations["ExamsController_createExamTerm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exams/terms/{examTermId}/marks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List marks for an exam term */
+        get: operations["ExamsController_listExamMarks"];
+        /** Replace the marks list for an exam term */
+        put: operations["ExamsController_replaceExamMarks"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exams/terms/{examTermId}/report-card": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get subject-wise report card with grading for one student */
+        get: operations["ExamsController_getExamReportCard"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1928,6 +2013,48 @@ export interface components {
         MarkNotificationsReadBodyDto: {
             notificationIds?: string[];
         };
+        DataExchangeCapabilityDto: {
+            /** @enum {string} */
+            entityType: "students" | "staff" | "guardians" | "feeAssignments";
+            actions: ("import" | "export")[];
+        };
+        DataExchangeCapabilitiesDto: {
+            entities: components["schemas"]["DataExchangeCapabilityDto"][];
+        };
+        DataExchangeBodyRequestDto: {
+            /** @enum {string} */
+            entityType: "students" | "staff" | "guardians" | "feeAssignments";
+            csvContent: string;
+        };
+        DataExchangePreviewSummaryDto: {
+            totalRows: number;
+            validRows: number;
+            invalidRows: number;
+        };
+        DataExchangeRowResultDto: {
+            /** @enum {string} */
+            status: "valid" | "error" | "imported" | "failed";
+            messages: string[];
+            rowNumber: number;
+            identifier: string;
+        };
+        DataExchangePreviewResultDto: {
+            /** @enum {string} */
+            entityType: "students" | "staff" | "guardians" | "feeAssignments";
+            summary: components["schemas"]["DataExchangePreviewSummaryDto"];
+            rows: components["schemas"]["DataExchangeRowResultDto"][];
+        };
+        DataExchangeExecuteSummaryDto: {
+            totalRows: number;
+            importedRows: number;
+            failedRows: number;
+        };
+        DataExchangeExecuteResultDto: {
+            /** @enum {string} */
+            entityType: "students" | "staff" | "guardians" | "feeAssignments";
+            summary: components["schemas"]["DataExchangeExecuteSummaryDto"];
+            rows: components["schemas"]["DataExchangeRowResultDto"][];
+        };
         StudentGuardianDto: {
             userId?: string | null;
             email?: string | null;
@@ -2293,222 +2420,6 @@ export interface components {
             relationship: "father" | "mother" | "guardian";
             isPrimary: boolean;
         };
-        /** @enum {string} */
-        AcademicYearStatus: "active" | "archived" | "deleted";
-        AcademicYearDto: {
-            status: components["schemas"]["AcademicYearStatus"];
-            /** Format: date-time */
-            createdAt: string;
-            id: string;
-            name: string;
-            startDate: string;
-            endDate: string;
-            isCurrent: boolean;
-        };
-        ListAcademicYearsResultDto: {
-            rows: components["schemas"]["AcademicYearDto"][];
-            total: number;
-            page: number;
-            pageSize: number;
-            pageCount: number;
-        };
-        CreateAcademicYearBodyDto: {
-            name: string;
-            startDate: string;
-            endDate: string;
-            isCurrent: boolean;
-        };
-        UpdateAcademicYearBodyDto: {
-            name: string;
-            startDate: string;
-            endDate: string;
-            isCurrent: boolean;
-        };
-        AttendanceClassSectionDto: {
-            classId: string;
-            className: string;
-            sectionId: string;
-            sectionName: string;
-            studentCount: number;
-        };
-        AttendanceStudentEntryDto: {
-            /** @enum {string|null} */
-            status: "present" | "absent" | "late" | "excused" | null;
-            studentId: string;
-            admissionNumber: string;
-            fullName: string;
-        };
-        AttendanceDayDto: {
-            entries: components["schemas"]["AttendanceStudentEntryDto"][];
-            attendanceDate: string;
-            campusId: string;
-            campusName: string;
-            classId: string;
-            className: string;
-            sectionId: string;
-            sectionName: string;
-            totalStudents: number;
-        };
-        AttendanceDayEntryBodyDto: {
-            /** @enum {string} */
-            status: "present" | "absent" | "late" | "excused";
-            studentId: string;
-        };
-        UpsertAttendanceDayBodyDto: {
-            entries: components["schemas"]["AttendanceDayEntryBodyDto"][];
-            attendanceDate: string;
-            campusId: string;
-            classId: string;
-            sectionId: string;
-        };
-        AttendanceSummaryCountsDto: {
-            present: number;
-            absent: number;
-            late: number;
-            excused: number;
-        };
-        AttendanceDayViewItemDto: {
-            counts: components["schemas"]["AttendanceSummaryCountsDto"];
-            attendanceDate: string;
-            campusId: string;
-            campusName: string;
-            classId: string;
-            className: string;
-            sectionId: string;
-            sectionName: string;
-            totalStudents: number;
-        };
-        AttendanceOverviewItemDto: {
-            counts: components["schemas"]["AttendanceSummaryCountsDto"] | null;
-            campusId: string;
-            campusName: string;
-            classId: string;
-            className: string;
-            sectionId: string;
-            sectionName: string;
-            studentCount: number;
-            marked: boolean;
-        };
-        AttendanceClassReportStudentDto: {
-            records: {
-                [key: string]: string;
-            };
-            studentId: string;
-            admissionNumber: string;
-            fullName: string;
-            present: number;
-            absent: number;
-            late: number;
-            excused: number;
-            attendancePercent: number;
-        };
-        AttendanceClassReportDto: {
-            dates: string[];
-            students: components["schemas"]["AttendanceClassReportStudentDto"][];
-            classId: string;
-            className: string;
-            sectionId: string;
-            sectionName: string;
-            campusId: string;
-            campusName: string;
-            startDate: string;
-            endDate: string;
-        };
-        AttendanceStudentRecordDto: {
-            date: string;
-            status: string;
-        };
-        AttendanceStudentReportDto: {
-            records: components["schemas"]["AttendanceStudentRecordDto"][];
-            studentId: string;
-            admissionNumber: string;
-            fullName: string;
-            classId: string;
-            className: string;
-            sectionId: string;
-            sectionName: string;
-            campusId: string;
-            campusName: string;
-            startDate: string;
-            endDate: string;
-            totalMarkedDays: number;
-            present: number;
-            absent: number;
-            late: number;
-            excused: number;
-            attendancePercent: number;
-        };
-        ExamTermDto: {
-            /** Format: date-time */
-            createdAt: string;
-            id: string;
-            institutionId: string;
-            academicYearId: string;
-            academicYearName: string;
-            name: string;
-            startDate: string;
-            endDate: string;
-        };
-        CreateExamTermBodyDto: {
-            academicYearId: string;
-            name: string;
-            startDate: string;
-            endDate: string;
-        };
-        ExamMarkDto: {
-            remarks?: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            id: string;
-            examTermId: string;
-            studentId: string;
-            studentFullName: string;
-            admissionNumber: string;
-            subjectName: string;
-            maxMarks: number;
-            obtainedMarks: number;
-        };
-        UpsertExamMarkEntryBodyDto: {
-            remarks?: string | null;
-            studentId: string;
-            subjectName: string;
-            maxMarks: number;
-            obtainedMarks: number;
-        };
-        UpsertExamMarksBodyDto: {
-            entries: components["schemas"]["UpsertExamMarkEntryBodyDto"][];
-        };
-        ExamReportCardSummaryDto: {
-            totalMaxMarks: number;
-            totalObtainedMarks: number;
-            overallPercent: number;
-            overallGrade: string;
-        };
-        ExamReportCardSubjectDto: {
-            remarks?: string | null;
-            subjectName: string;
-            maxMarks: number;
-            obtainedMarks: number;
-            percent: number;
-            grade: string;
-        };
-        ExamGradeBandDto: {
-            grade: string;
-            minPercent: number;
-            label: string;
-        };
-        ExamReportCardDto: {
-            summary: components["schemas"]["ExamReportCardSummaryDto"];
-            subjects: components["schemas"]["ExamReportCardSubjectDto"][];
-            gradingScheme: components["schemas"]["ExamGradeBandDto"][];
-            examTermId: string;
-            examTermName: string;
-            academicYearId: string;
-            academicYearName: string;
-            studentId: string;
-            studentFullName: string;
-            admissionNumber: string;
-        };
         FeeStructureInstallmentDto: {
             id: string;
             sortOrder: number;
@@ -2731,6 +2642,222 @@ export interface components {
             totalPaidInPaise: number;
             totalOutstandingInPaise: number;
             overdueCount: number;
+        };
+        /** @enum {string} */
+        AcademicYearStatus: "active" | "archived" | "deleted";
+        AcademicYearDto: {
+            status: components["schemas"]["AcademicYearStatus"];
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            name: string;
+            startDate: string;
+            endDate: string;
+            isCurrent: boolean;
+        };
+        ListAcademicYearsResultDto: {
+            rows: components["schemas"]["AcademicYearDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateAcademicYearBodyDto: {
+            name: string;
+            startDate: string;
+            endDate: string;
+            isCurrent: boolean;
+        };
+        UpdateAcademicYearBodyDto: {
+            name: string;
+            startDate: string;
+            endDate: string;
+            isCurrent: boolean;
+        };
+        AttendanceClassSectionDto: {
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            studentCount: number;
+        };
+        AttendanceStudentEntryDto: {
+            /** @enum {string|null} */
+            status: "present" | "absent" | "late" | "excused" | null;
+            studentId: string;
+            admissionNumber: string;
+            fullName: string;
+        };
+        AttendanceDayDto: {
+            entries: components["schemas"]["AttendanceStudentEntryDto"][];
+            attendanceDate: string;
+            campusId: string;
+            campusName: string;
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            totalStudents: number;
+        };
+        AttendanceDayEntryBodyDto: {
+            /** @enum {string} */
+            status: "present" | "absent" | "late" | "excused";
+            studentId: string;
+        };
+        UpsertAttendanceDayBodyDto: {
+            entries: components["schemas"]["AttendanceDayEntryBodyDto"][];
+            attendanceDate: string;
+            campusId: string;
+            classId: string;
+            sectionId: string;
+        };
+        AttendanceSummaryCountsDto: {
+            present: number;
+            absent: number;
+            late: number;
+            excused: number;
+        };
+        AttendanceDayViewItemDto: {
+            counts: components["schemas"]["AttendanceSummaryCountsDto"];
+            attendanceDate: string;
+            campusId: string;
+            campusName: string;
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            totalStudents: number;
+        };
+        AttendanceOverviewItemDto: {
+            counts: components["schemas"]["AttendanceSummaryCountsDto"] | null;
+            campusId: string;
+            campusName: string;
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            studentCount: number;
+            marked: boolean;
+        };
+        AttendanceClassReportStudentDto: {
+            records: {
+                [key: string]: string;
+            };
+            studentId: string;
+            admissionNumber: string;
+            fullName: string;
+            present: number;
+            absent: number;
+            late: number;
+            excused: number;
+            attendancePercent: number;
+        };
+        AttendanceClassReportDto: {
+            dates: string[];
+            students: components["schemas"]["AttendanceClassReportStudentDto"][];
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            campusId: string;
+            campusName: string;
+            startDate: string;
+            endDate: string;
+        };
+        AttendanceStudentRecordDto: {
+            date: string;
+            status: string;
+        };
+        AttendanceStudentReportDto: {
+            records: components["schemas"]["AttendanceStudentRecordDto"][];
+            studentId: string;
+            admissionNumber: string;
+            fullName: string;
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            campusId: string;
+            campusName: string;
+            startDate: string;
+            endDate: string;
+            totalMarkedDays: number;
+            present: number;
+            absent: number;
+            late: number;
+            excused: number;
+            attendancePercent: number;
+        };
+        ExamTermDto: {
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            institutionId: string;
+            academicYearId: string;
+            academicYearName: string;
+            name: string;
+            startDate: string;
+            endDate: string;
+        };
+        CreateExamTermBodyDto: {
+            academicYearId: string;
+            name: string;
+            startDate: string;
+            endDate: string;
+        };
+        ExamMarkDto: {
+            remarks?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            examTermId: string;
+            studentId: string;
+            studentFullName: string;
+            admissionNumber: string;
+            subjectName: string;
+            maxMarks: number;
+            obtainedMarks: number;
+        };
+        UpsertExamMarkEntryBodyDto: {
+            remarks?: string | null;
+            studentId: string;
+            subjectName: string;
+            maxMarks: number;
+            obtainedMarks: number;
+        };
+        UpsertExamMarksBodyDto: {
+            entries: components["schemas"]["UpsertExamMarkEntryBodyDto"][];
+        };
+        ExamReportCardSummaryDto: {
+            totalMaxMarks: number;
+            totalObtainedMarks: number;
+            overallPercent: number;
+            overallGrade: string;
+        };
+        ExamReportCardSubjectDto: {
+            remarks?: string | null;
+            subjectName: string;
+            maxMarks: number;
+            obtainedMarks: number;
+            percent: number;
+            grade: string;
+        };
+        ExamGradeBandDto: {
+            grade: string;
+            minPercent: number;
+            label: string;
+        };
+        ExamReportCardDto: {
+            summary: components["schemas"]["ExamReportCardSummaryDto"];
+            subjects: components["schemas"]["ExamReportCardSubjectDto"][];
+            gradingScheme: components["schemas"]["ExamGradeBandDto"][];
+            examTermId: string;
+            examTermName: string;
+            academicYearId: string;
+            academicYearName: string;
+            studentId: string;
+            studentFullName: string;
+            admissionNumber: string;
         };
         RolePermissionDto: {
             id: string;
@@ -3997,6 +4124,109 @@ export interface operations {
             };
         };
     };
+    DataExchangeController_getCapabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataExchangeCapabilitiesDto"];
+                };
+            };
+        };
+    };
+    DataExchangeController_downloadTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entityType: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DataExchangeController_previewImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DataExchangeBodyRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataExchangePreviewResultDto"];
+                };
+            };
+        };
+    };
+    DataExchangeController_executeImport: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DataExchangeBodyRequestDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DataExchangeExecuteResultDto"];
+                };
+            };
+        };
+    };
+    DataExchangeController_exportData: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entityType: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     StudentsController_listStudents: {
         parameters: {
             query?: {
@@ -4544,373 +4774,6 @@ export interface operations {
             };
         };
     };
-    AcademicYearsController_listAcademicYears: {
-        parameters: {
-            query?: {
-                page?: number;
-                limit?: number;
-                sort?: "current" | "endDate" | "name" | "startDate";
-                order?: "asc" | "desc";
-                q?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Academic years list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ListAcademicYearsResultDto"];
-                };
-            };
-        };
-    };
-    AcademicYearsController_createAcademicYear: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateAcademicYearBodyDto"];
-            };
-        };
-        responses: {
-            /** @description Academic year created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AcademicYearDto"];
-                };
-            };
-        };
-    };
-    AcademicYearsController_getAcademicYear: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                academicYearId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Academic year detail */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AcademicYearDto"];
-                };
-            };
-        };
-    };
-    AcademicYearsController_updateAcademicYear: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                academicYearId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAcademicYearBodyDto"];
-            };
-        };
-        responses: {
-            /** @description Academic year updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AcademicYearDto"];
-                };
-            };
-        };
-    };
-    AttendanceController_listClassSections: {
-        parameters: {
-            query: {
-                campusId: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceClassSectionDto"][];
-                };
-            };
-        };
-    };
-    AttendanceController_listAttendanceDay: {
-        parameters: {
-            query: {
-                attendanceDate: string;
-                campusId: string;
-                classId: string;
-                sectionId: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceDayDto"];
-                };
-            };
-        };
-    };
-    AttendanceController_upsertAttendanceDay: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertAttendanceDayBodyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceDayDto"];
-                };
-            };
-        };
-    };
-    AttendanceController_listAttendanceDayView: {
-        parameters: {
-            query: {
-                attendanceDate: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceDayViewItemDto"][];
-                };
-            };
-        };
-    };
-    AttendanceController_getAttendanceOverview: {
-        parameters: {
-            query: {
-                date: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceOverviewItemDto"][];
-                };
-            };
-        };
-    };
-    AttendanceController_getAttendanceClassReport: {
-        parameters: {
-            query: {
-                campusId: string;
-                classId: string;
-                sectionId: string;
-                startDate: string;
-                endDate: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceClassReportDto"];
-                };
-            };
-        };
-    };
-    AttendanceController_getAttendanceStudentReport: {
-        parameters: {
-            query: {
-                studentId: string;
-                startDate: string;
-                endDate: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AttendanceStudentReportDto"];
-                };
-            };
-        };
-    };
-    ExamsController_listExamTerms: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamTermDto"][];
-                };
-            };
-        };
-    };
-    ExamsController_createExamTerm: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateExamTermBodyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamTermDto"];
-                };
-            };
-        };
-    };
-    ExamsController_listExamMarks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                examTermId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamMarkDto"][];
-                };
-            };
-        };
-    };
-    ExamsController_replaceExamMarks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                examTermId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertExamMarksBodyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamMarkDto"][];
-                };
-            };
-        };
-    };
-    ExamsController_getExamReportCard: {
-        parameters: {
-            query: {
-                studentId: string;
-            };
-            header?: never;
-            path: {
-                examTermId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamReportCardDto"];
-                };
-            };
-        };
-    };
     FeesController_listFeeStructures: {
         parameters: {
             query?: {
@@ -5349,6 +5212,373 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CollectionSummaryDto"];
+                };
+            };
+        };
+    };
+    AcademicYearsController_listAcademicYears: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                sort?: "current" | "endDate" | "name" | "startDate";
+                order?: "asc" | "desc";
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Academic years list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListAcademicYearsResultDto"];
+                };
+            };
+        };
+    };
+    AcademicYearsController_createAcademicYear: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAcademicYearBodyDto"];
+            };
+        };
+        responses: {
+            /** @description Academic year created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicYearDto"];
+                };
+            };
+        };
+    };
+    AcademicYearsController_getAcademicYear: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                academicYearId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Academic year detail */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicYearDto"];
+                };
+            };
+        };
+    };
+    AcademicYearsController_updateAcademicYear: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                academicYearId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAcademicYearBodyDto"];
+            };
+        };
+        responses: {
+            /** @description Academic year updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcademicYearDto"];
+                };
+            };
+        };
+    };
+    AttendanceController_listClassSections: {
+        parameters: {
+            query: {
+                campusId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceClassSectionDto"][];
+                };
+            };
+        };
+    };
+    AttendanceController_listAttendanceDay: {
+        parameters: {
+            query: {
+                attendanceDate: string;
+                campusId: string;
+                classId: string;
+                sectionId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceDayDto"];
+                };
+            };
+        };
+    };
+    AttendanceController_upsertAttendanceDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertAttendanceDayBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceDayDto"];
+                };
+            };
+        };
+    };
+    AttendanceController_listAttendanceDayView: {
+        parameters: {
+            query: {
+                attendanceDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceDayViewItemDto"][];
+                };
+            };
+        };
+    };
+    AttendanceController_getAttendanceOverview: {
+        parameters: {
+            query: {
+                date: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceOverviewItemDto"][];
+                };
+            };
+        };
+    };
+    AttendanceController_getAttendanceClassReport: {
+        parameters: {
+            query: {
+                campusId: string;
+                classId: string;
+                sectionId: string;
+                startDate: string;
+                endDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceClassReportDto"];
+                };
+            };
+        };
+    };
+    AttendanceController_getAttendanceStudentReport: {
+        parameters: {
+            query: {
+                studentId: string;
+                startDate: string;
+                endDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceStudentReportDto"];
+                };
+            };
+        };
+    };
+    ExamsController_listExamTerms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamTermDto"][];
+                };
+            };
+        };
+    };
+    ExamsController_createExamTerm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateExamTermBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamTermDto"];
+                };
+            };
+        };
+    };
+    ExamsController_listExamMarks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamMarkDto"][];
+                };
+            };
+        };
+    };
+    ExamsController_replaceExamMarks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertExamMarksBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamMarkDto"][];
+                };
+            };
+        };
+    };
+    ExamsController_getExamReportCard: {
+        parameters: {
+            query: {
+                studentId: string;
+            };
+            header?: never;
+            path: {
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamReportCardDto"];
                 };
             };
         };

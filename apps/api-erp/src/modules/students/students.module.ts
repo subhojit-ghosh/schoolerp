@@ -9,5 +9,6 @@ import { StudentsService } from "./students.service";
   imports: [AuthModule],
   controllers: [StudentsController, StudentRolloverController],
   providers: [StudentsService, StudentRolloverService],
+  exports: [StudentsService],
 })
 export class StudentsModule {}

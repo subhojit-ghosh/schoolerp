@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { DATA_EXCHANGE_ENTITY_TYPES } from "@repo/contracts";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
@@ -47,6 +48,7 @@ import {
 import { SORT_ORDERS } from "@/constants/query";
 import { isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { DataExchangeEntityActions } from "@/features/data-exchange/ui/data-exchange-entity-actions";
 import {
   useDeleteFeeAssignmentMutation,
   useFeeAssignmentsQuery,
@@ -378,6 +380,9 @@ export function FeeAssignmentsPage() {
       <EntityListPage
         actions={
           <div className="flex items-center gap-3">
+            <DataExchangeEntityActions
+              entityType={DATA_EXCHANGE_ENTITY_TYPES.FEE_ASSIGNMENTS}
+            />
             <EntityToolbarSecondaryAction asChild>
               <Link
                 to={appendSearch(

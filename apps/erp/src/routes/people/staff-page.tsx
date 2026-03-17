@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { DATA_EXCHANGE_ENTITY_TYPES } from "@repo/contracts";
 import { Link, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
@@ -49,6 +50,7 @@ import {
   useSetStaffStatusMutation,
   useStaffQuery,
 } from "@/features/staff/api/use-staff";
+import { DataExchangeEntityActions } from "@/features/data-exchange/ui/data-exchange-entity-actions";
 import {
   STAFF_LIST_SORT_FIELDS,
   STAFF_PAGE_COPY,
@@ -367,12 +369,17 @@ export function StaffPage() {
     <>
       <EntityListPage
         actions={
-          <EntityPagePrimaryAction asChild>
-            <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
-              <IconPlus className="size-4" />
-              New staff member
-            </Link>
-          </EntityPagePrimaryAction>
+          <div className="flex items-center gap-3">
+            <DataExchangeEntityActions
+              entityType={DATA_EXCHANGE_ENTITY_TYPES.STAFF}
+            />
+            <EntityPagePrimaryAction asChild>
+              <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
+                <IconPlus className="size-4" />
+                New staff member
+              </Link>
+            </EntityPagePrimaryAction>
+          </div>
         }
         description={STAFF_PAGE_COPY.DESCRIPTION}
         title={STAFF_PAGE_COPY.TITLE}

@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { DATA_EXCHANGE_ENTITY_TYPES } from "@repo/contracts";
 import { Link, useLocation, useSearchParams } from "react-router";
 import { IconArrowRight, IconPlus, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -15,6 +16,7 @@ import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
   EntityRowAction,
+  EntityToolbarSecondaryAction,
 } from "@/components/entities/entity-actions";
 import { EntityListPage } from "@/components/entities/entity-list-page";
 import {
@@ -29,6 +31,7 @@ import {
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useStudentsQuery } from "@/features/students/api/use-students";
+import { DataExchangeEntityActions } from "@/features/data-exchange/ui/data-exchange-entity-actions";
 import {
   STUDENT_LIST_SORT_FIELDS,
   STUDENTS_PAGE_COPY,
@@ -280,12 +283,17 @@ export function StudentsPage() {
   return (
     <EntityListPage
       actions={
-        <EntityPagePrimaryAction asChild>
-          <Link to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}>
-            <IconPlus className="size-4" />
-            New student
-          </Link>
-        </EntityPagePrimaryAction>
+        <div className="flex items-center gap-3">
+          <DataExchangeEntityActions
+            entityType={DATA_EXCHANGE_ENTITY_TYPES.STUDENTS}
+          />
+          <EntityPagePrimaryAction asChild>
+            <Link to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}>
+              <IconPlus className="size-4" />
+              New student
+            </Link>
+          </EntityPagePrimaryAction>
+        </div>
       }
       description={STUDENTS_PAGE_COPY.DESCRIPTION}
       title={STUDENTS_PAGE_COPY.TITLE}
@@ -301,6 +309,9 @@ export function StudentsPage() {
                 onChange={(event) => setSearchInput(event.target.value)}
               />
             </div>
+            <EntityToolbarSecondaryAction asChild>
+              <Link to={ERP_ROUTES.GUARDIANS}>View guardians</Link>
+            </EntityToolbarSecondaryAction>
           </div>
         </div>
       }

@@ -7,5 +7,6 @@ import { GuardiansService } from "./guardians.service";
   imports: [AuthModule],
   controllers: [GuardiansController],
   providers: [GuardiansService],
+  exports: [GuardiansService],
 })
 export class GuardiansModule {}

@@ -29,6 +29,7 @@ import {
   or,
   type SQL,
 } from "drizzle-orm";
+import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { campusScopeFilter } from "../auth/scope-filter";
@@ -177,6 +178,80 @@ export class GuardiansService {
     }
 
     return guardianRecord;
+  }
+
+  async upsertGuardian(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    payload: UpdateGuardianDto,
+  ) {
+    const selectedCampus = await this.getCampus(
+      institutionId,
+      payload.campusId,
+    );
+    const normalizedMobile = normalizeMobile(payload.mobile);
+    const normalizedEmail = normalizeOptionalEmail(payload.email);
+    const existingGuardian = await this.findGuardianMembershipByIdentity(
+      institutionId,
+      normalizedMobile,
+      normalizedEmail,
+    );
+
+    if (existingGuardian) {
+      await this.assertGuardianIdentityAvailable(
+        existingGuardian.userId,
+        normalizedMobile,
+        normalizedEmail,
+      );
+
+      await this.db.transaction(async (tx) => {
+        await tx
+          .update(user)
+          .set({
+            name: payload.name.trim(),
+            mobile: normalizedMobile,
+            email: normalizedEmail,
+          })
+          .where(eq(user.id, existingGuardian.userId));
+
+        await tx
+          .update(member)
+          .set({
+            primaryCampusId: selectedCampus.id,
+          })
+          .where(eq(member.id, existingGuardian.id));
+
+        await this.ensureCampusMembership(tx, existingGuardian.id, selectedCampus.id);
+      });
+
+      return this.getGuardian(institutionId, existingGuardian.id, authSession);
+    }
+
+    const createdGuardianId = randomUUID();
+    const createdUserId = randomUUID();
+
+    await this.db.transaction(async (tx) => {
+      await tx.insert(user).values({
+        id: createdUserId,
+        name: payload.name.trim(),
+        mobile: normalizedMobile,
+        email: normalizedEmail,
+        passwordHash: await hash(randomUUID(), 12),
+      });
+
+      await tx.insert(member).values({
+        id: createdGuardianId,
+        organizationId: institutionId,
+        userId: createdUserId,
+        primaryCampusId: selectedCampus.id,
+        memberType: MEMBER_TYPES.GUARDIAN,
+        status: STATUS.MEMBER.ACTIVE,
+      });
+
+      await this.ensureCampusMembership(tx, createdGuardianId, selectedCampus.id);
+    });
+
+    return this.getGuardian(institutionId, createdGuardianId, authSession);
   }
 
   async updateGuardian(
@@ -687,6 +762,31 @@ export class GuardiansService {
     if (matchedEmailUser && matchedEmailUser.id !== currentUserId) {
       throw new ConflictException(ERROR_MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
     }
+  }
+
+  private async findGuardianMembershipByIdentity(
+    institutionId: string,
+    mobile: string,
+    email: string | null,
+  ) {
+    const conditions = [
+      eq(member.organizationId, institutionId),
+      eq(member.memberType, MEMBER_TYPES.GUARDIAN),
+      ne(member.status, STATUS.MEMBER.DELETED),
+      or(eq(user.mobile, mobile), email ? eq(user.email, email) : undefined),
+    ].filter(Boolean);
+
+    const [matchedGuardian] = await this.db
+      .select({
+        id: member.id,
+        userId: user.id,
+      })
+      .from(member)
+      .innerJoin(user, eq(member.userId, user.id))
+      .where(and(...conditions)!)
+      .limit(1);
+
+    return matchedGuardian ?? null;
   }
 
   private async ensureCampusMembership(
