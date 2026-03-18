@@ -57,6 +57,7 @@ export const sortableStaffColumns = {
 } as const;
 
 export const listStaffQuerySchema = baseListQuerySchema.extend({
+  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableStaffColumns.campus,
@@ -107,6 +108,7 @@ export function parseListStaffQuery(query: unknown): ListStaffQueryDto {
   const result = parseListQuerySchema(listStaffQuerySchema, query);
 
   return {
+    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,

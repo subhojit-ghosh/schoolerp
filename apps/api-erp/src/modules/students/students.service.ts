@@ -230,6 +230,13 @@ export class StudentsService {
     scopes: ResolvedScopes,
     query: ListStudentsQueryDto = {},
   ): Promise<PaginatedResult<Awaited<ReturnType<typeof this.getStudent>>>> {
+    const scopedCampusId =
+      query.campusId ?? authSession.activeCampusId ?? undefined;
+
+    if (scopedCampusId) {
+      await this.getCampus(institutionId, scopedCampusId);
+    }
+
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableStudentColumns.name;
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
@@ -241,8 +248,12 @@ export class StudentsService {
       eq(classSections.status, STATUS.SECTION.ACTIVE),
     ];
 
-    const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
-    if (campusFilter) conditions.push(campusFilter);
+    if (scopedCampusId) {
+      conditions.push(eq(member.primaryCampusId, scopedCampusId));
+    } else {
+      const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+      if (campusFilter) conditions.push(campusFilter);
+    }
     const sectionFilter = sectionScopeFilter(students.sectionId, scopes);
     if (sectionFilter) conditions.push(sectionFilter);
 

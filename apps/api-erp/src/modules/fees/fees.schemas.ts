@@ -151,6 +151,7 @@ export const listFeeStructuresQuerySchema = baseListQuerySchema.extend({
 });
 
 export const listFeeAssignmentsQuerySchema = baseListQuerySchema.extend({
+  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableFeeAssignmentColumns.studentName,
@@ -170,6 +171,7 @@ export const listFeeAssignmentsQuerySchema = baseListQuerySchema.extend({
 });
 
 export const listFeeDuesQuerySchema = baseListQuerySchema.extend({
+  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableFeeAssignmentColumns.studentName,
@@ -277,6 +279,7 @@ export function parseListFeeAssignmentsQuery(query: unknown): ListFeeAssignments
   const result = parseListQuerySchema(listFeeAssignmentsQuerySchema, query);
 
   return {
+    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,
@@ -291,6 +294,7 @@ export function parseListFeeDuesQuery(query: unknown): ListFeeDuesQueryDto {
   const result = parseListQuerySchema(listFeeDuesQuerySchema, query);
 
   return {
+    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,

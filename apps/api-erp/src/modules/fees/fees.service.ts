@@ -118,23 +118,39 @@ export class FeesService {
 
   async listFeeStructures(
     institutionId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     query: ListFeeStructuresQueryDto = {},
   ): Promise<PaginatedResult<ReturnType<typeof this.formatFeeStructureRow>>> {
+    const scopedCampusId =
+      query.campusId ?? authSession.activeCampusId ?? undefined;
+
+    if (scopedCampusId) {
+      await this.getCampusOrThrow(institutionId, scopedCampusId);
+    }
+
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableFeeStructureColumns.academicYear;
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
-    const scopeFilter = campusScopeFilter(feeStructures.campusId, scopes);
-
     const conditions: SQL[] = [
       eq(feeStructures.institutionId, institutionId),
       ne(feeStructures.status, STATUS.FEE_STRUCTURE.DELETED),
     ];
 
-    if (scopeFilter) conditions.push(scopeFilter);
+    if (scopedCampusId) {
+      conditions.push(
+        or(
+          isNull(feeStructures.campusId),
+          eq(feeStructures.campusId, scopedCampusId),
+        )!,
+      );
+    } else {
+      const scopeFilter = campusScopeFilter(feeStructures.campusId, scopes);
+      if (scopeFilter) {
+        conditions.push(or(isNull(feeStructures.campusId), scopeFilter)!);
+      }
+    }
     if (query.academicYearId) conditions.push(eq(feeStructures.academicYearId, query.academicYearId));
-    if (query.campusId) conditions.push(eq(feeStructures.campusId, query.campusId));
     if (query.status) conditions.push(eq(feeStructures.status, query.status));
     if (query.search) conditions.push(ilike(feeStructures.name, `%${query.search}%`));
 
@@ -636,11 +652,16 @@ export class FeesService {
 
   async listFeeAssignments(
     institutionId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     query: ListFeeAssignmentsQueryDto = {},
   ): Promise<PaginatedResult<ReturnType<typeof this.buildAssignmentResult>>> {
-    return this.queryFeeAssignmentsPaginated(institutionId, scopes, query);
+    return this.queryFeeAssignmentsPaginated(
+      institutionId,
+      authSession,
+      scopes,
+      query,
+    );
   }
 
   async getFeeAssignment(institutionId: string, feeAssignmentId: string) {
@@ -1282,12 +1303,13 @@ export class FeesService {
 
   async listFeeDues(
     institutionId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     query: ListFeeDuesQueryDto = {},
   ): Promise<PaginatedResult<ReturnType<typeof this.buildAssignmentResult>>> {
     const today = new Date().toISOString().split("T")[0]!;
     const assignmentQuery: ListFeeAssignmentsQueryDto = {
+      campusId: query.campusId,
       limit: query.limit,
       order: query.order,
       page: query.page,
@@ -1295,10 +1317,16 @@ export class FeesService {
       sort: query.sort as ListFeeAssignmentsQueryDto["sort"],
     };
 
-    return this.queryFeeAssignmentsPaginated(institutionId, scopes, assignmentQuery, {
-      outstandingOnly: true,
-      overdueOnly: query.overdue === true ? today : undefined,
-    });
+    return this.queryFeeAssignmentsPaginated(
+      institutionId,
+      authSession,
+      scopes,
+      assignmentQuery,
+      {
+        outstandingOnly: true,
+        overdueOnly: query.overdue === true ? today : undefined,
+      },
+    );
   }
 
   // ── Reports ───────────────────────────────────────────────────────────────
@@ -1430,10 +1458,18 @@ export class FeesService {
 
   private async queryFeeAssignmentsPaginated(
     institutionId: string,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     query: ListFeeAssignmentsQueryDto,
     filters: { outstandingOnly?: boolean; overdueOnly?: string } = {},
   ): Promise<PaginatedResult<ReturnType<typeof this.buildAssignmentResult>>> {
+    const scopedCampusId =
+      query.campusId ?? authSession.activeCampusId ?? undefined;
+
+    if (scopedCampusId) {
+      await this.getCampusOrThrow(institutionId, scopedCampusId);
+    }
+
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableFeeAssignmentColumns.dueDate;
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
@@ -1454,7 +1490,9 @@ export class FeesService {
       ne(member.status, STATUS.MEMBER.DELETED),
     ];
 
-    if (campusFilter) {
+    if (scopedCampusId) {
+      conditions.push(eq(member.primaryCampusId, scopedCampusId));
+    } else if (campusFilter) {
       conditions.push(campusFilter);
     }
     if (query.feeStructureId) {

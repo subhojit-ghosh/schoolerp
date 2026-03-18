@@ -80,10 +80,8 @@ export function SubjectsPage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id;
   const canManageSubjects = isStaffContext(session);
-  const canQuerySubjects =
-    canManageSubjects && Boolean(institutionId && activeCampusId);
+  const canQuerySubjects = canManageSubjects && Boolean(institutionId);
   const setStatusMutation = useSetSubjectStatusMutation();
   const deleteMutation = useDeleteSubjectMutation();
   const [deleteTarget, setDeleteTarget] = useState<SubjectRow | null>(null);

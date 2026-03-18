@@ -83,6 +83,7 @@ export const sortableAdmissionApplicationColumns = {
 } as const;
 
 export const listAdmissionEnquiriesQuerySchema = baseListQuerySchema.extend({
+  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableAdmissionEnquiryColumns.campus,
@@ -94,6 +95,7 @@ export const listAdmissionEnquiriesQuerySchema = baseListQuerySchema.extend({
 });
 
 export const listAdmissionApplicationsQuerySchema = baseListQuerySchema.extend({
+  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableAdmissionApplicationColumns.campus,
@@ -165,6 +167,7 @@ export function parseListAdmissionEnquiriesQuery(
   const result = parseListQuerySchema(listAdmissionEnquiriesQuerySchema, query);
 
   return {
+    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,
@@ -179,6 +182,7 @@ export function parseListAdmissionApplicationsQuery(
   const result = parseListQuerySchema(listAdmissionApplicationsQuerySchema, query);
 
   return {
+    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,

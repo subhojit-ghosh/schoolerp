@@ -1924,7 +1924,6 @@ export interface components {
             room?: string | null;
         };
         ReplaceSectionTimetableBodyDto: {
-            campusId: string;
             classId: string;
             entries: components["schemas"]["ReplaceTimetableEntryBodyDto"][];
         };
@@ -3337,6 +3336,7 @@ export interface operations {
                 limit?: number;
                 sort?: "campus" | "createdAt" | "status" | "studentName";
                 order?: "asc" | "desc";
+                campusId?: string | null;
                 q?: string;
             };
             header?: never;
@@ -3431,6 +3431,7 @@ export interface operations {
                 limit?: number;
                 sort?: "campus" | "createdAt" | "status" | "studentName";
                 order?: "asc" | "desc";
+                campusId?: string | null;
                 q?: string;
             };
             header?: never;
@@ -3799,7 +3800,6 @@ export interface operations {
     TimetableController_getTimetable: {
         parameters: {
             query: {
-                campusId: string;
                 classId: string;
                 sectionId: string;
             };
@@ -4309,6 +4309,7 @@ export interface operations {
                 limit?: number;
                 sort?: "admissionNumber" | "campus" | "name";
                 order?: "asc" | "desc";
+                campusId?: string | null;
                 q?: string;
             };
             header?: never;
@@ -4489,6 +4490,7 @@ export interface operations {
                 limit?: number;
                 sort?: "campus" | "name" | "status";
                 order?: "asc" | "desc";
+                campusId?: string | null;
                 q?: string;
             };
             header?: never;
@@ -4712,6 +4714,7 @@ export interface operations {
                 limit?: number;
                 sort?: "campus" | "name" | "status";
                 order?: "asc" | "desc";
+                campusId?: string | null;
                 q?: string;
             };
             header?: never;
@@ -5041,6 +5044,7 @@ export interface operations {
                 sort?: "studentName" | "dueDate" | "status" | "amount";
                 order?: "asc" | "desc";
                 feeStructureId?: string | null;
+                campusId?: string | null;
                 status?: "pending" | "partial" | "paid" | null;
             };
             header?: never;
@@ -5252,6 +5256,7 @@ export interface operations {
                 sort?: "studentName" | "dueDate" | "status" | "amount";
                 order?: "asc" | "desc";
                 overdue?: boolean | null;
+                campusId?: string | null;
             };
             header?: never;
             path?: never;

@@ -619,6 +619,15 @@
             }
           },
           {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
+            }
+          },
+          {
             "name": "q",
             "required": false,
             "in": "query",
@@ -810,6 +819,15 @@
                 "asc",
                 "desc"
               ]
+            }
+          },
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
             }
           },
           {
@@ -1513,14 +1531,6 @@
       "get": {
         "operationId": "TimetableController_getTimetable",
         "parameters": [
-          {
-            "name": "campusId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "classId",
             "required": true,
@@ -2582,6 +2592,15 @@
             }
           },
           {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
+            }
+          },
+          {
             "name": "q",
             "required": false,
             "in": "query",
@@ -2912,6 +2931,15 @@
                 "asc",
                 "desc"
               ]
+            }
+          },
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
             }
           },
           {
@@ -3328,6 +3356,15 @@
                 "asc",
                 "desc"
               ]
+            }
+          },
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
             }
           },
           {
@@ -4019,6 +4056,15 @@
             }
           },
           {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
+            }
+          },
+          {
             "name": "status",
             "required": false,
             "in": "query",
@@ -4426,6 +4472,15 @@
             "schema": {
               "nullable": true,
               "type": "boolean"
+            }
+          },
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "type": "string"
             }
           }
         ],
@@ -7302,9 +7357,6 @@
       "ReplaceSectionTimetableBodyDto": {
         "type": "object",
         "properties": {
-          "campusId": {
-            "type": "string"
-          },
           "classId": {
             "type": "string"
           },
@@ -7316,7 +7368,6 @@
           }
         },
         "required": [
-          "campusId",
           "classId",
           "entries"
         ]

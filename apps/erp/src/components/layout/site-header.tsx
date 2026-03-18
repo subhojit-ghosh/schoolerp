@@ -88,6 +88,7 @@ export function SiteHeader() {
     PERMISSIONS.COMMUNICATION_READ,
   );
   const notificationsQuery = useNotificationsQuery(canReadNotifications, {
+    campusId: session?.activeCampus?.id,
     limit: 3,
     unreadOnly: true,
   });

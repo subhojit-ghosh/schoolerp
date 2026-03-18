@@ -44,6 +44,7 @@ export const updateGuardianStudentLinkSchema = z.object({
 });
 
 export const listGuardiansQuerySchema = baseListQuerySchema.extend({
+  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableGuardianColumns.campus,
@@ -79,6 +80,7 @@ export function parseListGuardiansQuery(query: unknown): ListGuardiansQueryDto {
   const result = parseListQuerySchema(listGuardiansQuerySchema, query);
 
   return {
+    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,

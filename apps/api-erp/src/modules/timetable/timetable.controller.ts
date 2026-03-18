@@ -56,7 +56,6 @@ export class TimetableController {
   @Get()
   @RequirePermission(PERMISSIONS.ACADEMICS_READ)
   @ApiOperation({ summary: "Get class-section timetable for the current tenant" })
-  @ApiQuery({ name: "campusId", required: true, type: String })
   @ApiQuery({ name: "classId", required: true, type: String })
   @ApiQuery({ name: "sectionId", required: true, type: String })
   @ApiOkResponse({ type: TimetableViewDto })

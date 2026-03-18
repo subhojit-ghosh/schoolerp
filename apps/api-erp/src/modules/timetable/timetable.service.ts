@@ -32,7 +32,6 @@ export class TimetableService {
       institutionId,
       query.classId,
       query.sectionId,
-      query.campusId,
       scopes,
     );
 
@@ -52,7 +51,7 @@ export class TimetableService {
       .where(
         and(
           eq(timetableEntries.institutionId, institutionId),
-          eq(timetableEntries.campusId, query.campusId),
+          eq(timetableEntries.campusId, sectionScope.campusId),
           eq(timetableEntries.classId, query.classId),
           eq(timetableEntries.sectionId, query.sectionId),
           ne(timetableEntries.status, STATUS.TIMETABLE.DELETED),
@@ -78,18 +77,17 @@ export class TimetableService {
     scopes: ResolvedScopes,
     payload: ReplaceSectionTimetableDto,
   ) {
-    await this.getSectionScope(
+    const sectionScope = await this.getSectionScope(
       institutionId,
       payload.classId,
       sectionId,
-      payload.campusId,
       scopes,
     );
 
     if (payload.entries.length > 0) {
       await this.assertSubjectsAvailable(
         institutionId,
-        payload.campusId,
+        sectionScope.campusId,
         payload.entries.map((entry) => entry.subjectId),
       );
     }
@@ -115,7 +113,7 @@ export class TimetableService {
         payload.entries.map((entry) => ({
           id: randomUUID(),
           institutionId,
-          campusId: payload.campusId,
+          campusId: sectionScope.campusId,
           classId: payload.classId,
           sectionId,
           dayOfWeek: entry.dayOfWeek,
@@ -130,7 +128,6 @@ export class TimetableService {
     });
 
     return this.getTimetable(institutionId, authSession, scopes, {
-      campusId: payload.campusId,
       classId: payload.classId,
       sectionId,
     });
@@ -172,10 +169,22 @@ export class TimetableService {
     institutionId: string,
     classId: string,
     sectionId: string,
-    campusId: string,
     scopes: ResolvedScopes,
   ) {
+    const conditions = [
+      eq(classSections.institutionId, institutionId),
+      eq(schoolClasses.institutionId, institutionId),
+      eq(classSections.id, sectionId),
+      eq(schoolClasses.id, classId),
+      ne(schoolClasses.status, STATUS.CLASS.DELETED),
+      eq(classSections.status, STATUS.SECTION.ACTIVE),
+      ne(campus.status, STATUS.CAMPUS.DELETED),
+    ];
     const scopeFilter = campusScopeFilter(schoolClasses.campusId, scopes);
+
+    if (scopeFilter) {
+      conditions.push(scopeFilter);
+    }
 
     const [row] = await this.db
       .select({
@@ -189,19 +198,7 @@ export class TimetableService {
       .from(classSections)
       .innerJoin(schoolClasses, eq(classSections.classId, schoolClasses.id))
       .innerJoin(campus, eq(schoolClasses.campusId, campus.id))
-      .where(
-        and(
-          eq(classSections.institutionId, institutionId),
-          eq(schoolClasses.institutionId, institutionId),
-          eq(classSections.id, sectionId),
-          eq(schoolClasses.id, classId),
-          eq(schoolClasses.campusId, campusId),
-          ne(schoolClasses.status, STATUS.CLASS.DELETED),
-          eq(classSections.status, STATUS.SECTION.ACTIVE),
-          ne(campus.status, STATUS.CAMPUS.DELETED),
-          scopeFilter,
-        ),
-      )
+      .where(and(...conditions))
       .limit(1);
 
     if (!row) {

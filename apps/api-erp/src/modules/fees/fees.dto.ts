@@ -72,6 +72,9 @@ export class ListFeeAssignmentsQueryDto {
   @ApiPropertyOptional({ nullable: true })
   feeStructureId?: string;
 
+  @ApiPropertyOptional({ nullable: true })
+  campusId?: string;
+
   @ApiPropertyOptional({
     enum: Object.values(FEE_ASSIGNMENT_STATUSES),
     nullable: true,
@@ -99,6 +102,9 @@ export class ListFeeDuesQueryDto {
 
   @ApiPropertyOptional({ type: Boolean, nullable: true })
   overdue?: boolean;
+
+  @ApiPropertyOptional({ nullable: true })
+  campusId?: string;
 }
 
 export class CollectionSummaryQueryDto {

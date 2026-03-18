@@ -66,6 +66,7 @@ export const sortableStudentColumns = {
 } as const;
 
 export const listStudentsQuerySchema = baseListQuerySchema.extend({
+  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableStudentColumns.admissionNumber,
@@ -100,6 +101,7 @@ export function parseListStudentsQuery(query: unknown): ListStudentsQueryDto {
   const result = parseListQuerySchema(listStudentsQuerySchema, query);
 
   return {
+    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,

@@ -3,9 +3,6 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class TimetableScopeQueryDto {
   @ApiProperty()
-  campusId!: string;
-
-  @ApiProperty()
   classId!: string;
 
   @ApiProperty()
@@ -40,9 +37,6 @@ export class ReplaceTimetableEntryBodyDto {
 }
 
 export class ReplaceSectionTimetableBodyDto {
-  @ApiProperty()
-  campusId!: string;
-
   @ApiProperty()
   classId!: string;
 

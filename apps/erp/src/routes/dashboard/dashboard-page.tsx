@@ -105,7 +105,6 @@ export function DashboardPage() {
   );
   const collectionSummaryQuery = useCollectionSummaryQuery(
     Boolean(staffDashboardInstitutionId),
-    {},
   );
   const attendanceOverview = attendanceOverviewQuery.data ?? [];
   const markedSections = attendanceOverview.filter((item) => item.marked).length;

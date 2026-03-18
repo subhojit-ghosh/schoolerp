@@ -3,7 +3,6 @@ import { TIMETABLE_API_PATHS } from "@/features/auth/api/auth.constants";
 import { apiQueryClient } from "@/lib/api/client";
 
 type TimetableScopeQuery = {
-  campusId: string;
   classId: string;
   sectionId: string;
 };

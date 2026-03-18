@@ -14,6 +14,7 @@ type AdmissionApplicationListSort =
   (typeof ADMISSION_APPLICATION_LIST_SORT_FIELDS)[keyof typeof ADMISSION_APPLICATION_LIST_SORT_FIELDS];
 
 type AdmissionEnquiriesListQuery = {
+  campusId?: string;
   limit?: number;
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
   page?: number;
@@ -22,6 +23,7 @@ type AdmissionEnquiriesListQuery = {
 };
 
 type AdmissionApplicationsListQuery = {
+  campusId?: string;
   limit?: number;
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
   page?: number;

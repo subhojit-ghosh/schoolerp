@@ -11,6 +11,7 @@ type GuardiansListSort =
   (typeof GUARDIAN_LIST_SORT_FIELDS)[keyof typeof GUARDIAN_LIST_SORT_FIELDS];
 
 type GuardiansListQuery = {
+  campusId?: string;
   limit?: number;
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
   page?: number;

@@ -36,14 +36,12 @@ function hasUniqueSlots(entries: Array<z.infer<typeof timetableEntryBodySchema>>
 }
 
 export const timetableScopeQuerySchema = z.object({
-  campusId: z.uuid(),
   classId: z.uuid(),
   sectionId: z.uuid(),
 });
 
 export const replaceSectionTimetableSchema = z
   .object({
-    campusId: z.uuid(),
     classId: z.uuid(),
     entries: z.array(timetableEntryBodySchema),
   })

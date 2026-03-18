@@ -56,10 +56,17 @@ export class AdmissionsService {
 
   async listAdmissionEnquiries(
     institutionId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     query: ListAdmissionEnquiriesQueryDto = {},
   ): Promise<PaginatedResult<Awaited<ReturnType<typeof this.getAdmissionEnquiry>>>> {
+    const scopedCampusId =
+      query.campusId ?? authSession.activeCampusId ?? undefined;
+
+    if (scopedCampusId) {
+      await this.assertCampusAccess(institutionId, scopedCampusId, scopes);
+    }
+
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableAdmissionEnquiryColumns.createdAt;
     const sortDirection = query.order === SORT_ORDERS.ASC ? asc : desc;
@@ -69,8 +76,15 @@ export class AdmissionsService {
       ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
 
-    const scopedCampusFilter = campusScopeFilter(admissionEnquiries.campusId, scopes);
-    if (scopedCampusFilter) conditions.push(scopedCampusFilter);
+    if (scopedCampusId) {
+      conditions.push(eq(admissionEnquiries.campusId, scopedCampusId));
+    } else {
+      const scopedCampusFilter = campusScopeFilter(
+        admissionEnquiries.campusId,
+        scopes,
+      );
+      if (scopedCampusFilter) conditions.push(scopedCampusFilter);
+    }
 
     if (query.search) {
       conditions.push(
@@ -222,12 +236,19 @@ export class AdmissionsService {
 
   async listAdmissionApplications(
     institutionId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     query: ListAdmissionApplicationsQueryDto = {},
   ): Promise<
     PaginatedResult<Awaited<ReturnType<typeof this.getAdmissionApplication>>>
   > {
+    const scopedCampusId =
+      query.campusId ?? authSession.activeCampusId ?? undefined;
+
+    if (scopedCampusId) {
+      await this.assertCampusAccess(institutionId, scopedCampusId, scopes);
+    }
+
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableAdmissionApplicationColumns.createdAt;
     const sortDirection = query.order === SORT_ORDERS.ASC ? asc : desc;
@@ -237,11 +258,15 @@ export class AdmissionsService {
       ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
 
-    const scopedCampusFilter = campusScopeFilter(
-      admissionApplications.campusId,
-      scopes,
-    );
-    if (scopedCampusFilter) conditions.push(scopedCampusFilter);
+    if (scopedCampusId) {
+      conditions.push(eq(admissionApplications.campusId, scopedCampusId));
+    } else {
+      const scopedCampusFilter = campusScopeFilter(
+        admissionApplications.campusId,
+        scopes,
+      );
+      if (scopedCampusFilter) conditions.push(scopedCampusFilter);
+    }
 
     if (query.search) {
       conditions.push(

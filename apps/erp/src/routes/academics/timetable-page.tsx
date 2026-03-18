@@ -85,19 +85,16 @@ export function TimetablePage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id;
   const canManage = isStaffContext(session);
-  const canQuery = canManage && Boolean(institutionId && activeCampusId);
+  const canQuery = canManage && Boolean(institutionId);
 
   const classesQuery = useClassesQuery(canQuery, {
-    campusId: activeCampusId,
     limit: 50,
     page: 1,
     sort: "name",
     order: "asc",
   });
   const subjectsQuery = useSubjectsQuery(canQuery, {
-    campusId: activeCampusId,
     limit: 50,
     page: 1,
     sort: "name",
@@ -154,9 +151,8 @@ export function TimetablePage() {
   }, [sectionId, selectedClass]);
 
   const timetableQuery = useTimetableQuery(
-    canQuery && Boolean(classId && sectionId && activeCampusId),
+    canQuery && Boolean(classId && sectionId),
     {
-      campusId: activeCampusId ?? "",
       classId,
       sectionId,
     },
@@ -207,7 +203,7 @@ export function TimetablePage() {
   }
 
   async function handleSave(values: TimetableEditorFormValues) {
-    if (!activeCampusId || !classId || !sectionId) {
+    if (!classId || !sectionId) {
       return;
     }
 
@@ -218,7 +214,6 @@ export function TimetablePage() {
         },
       },
       body: {
-        campusId: activeCampusId,
         classId,
         entries: values.entries.map((entry) => ({
           dayOfWeek: entry.dayOfWeek,

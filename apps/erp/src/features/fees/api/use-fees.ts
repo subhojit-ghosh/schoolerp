@@ -29,6 +29,7 @@ export type FeeStructuresListQuery = {
 };
 
 export type FeeAssignmentsListQuery = {
+  campusId?: string;
   q?: string;
   page?: number;
   limit?: number;
@@ -39,6 +40,7 @@ export type FeeAssignmentsListQuery = {
 };
 
 export type FeeDuesListQuery = {
+  campusId?: string;
   q?: string;
   page?: number;
   limit?: number;

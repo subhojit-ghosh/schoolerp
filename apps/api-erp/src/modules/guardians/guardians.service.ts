@@ -102,6 +102,13 @@ export class GuardiansService {
     scopes: ResolvedScopes,
     query: ListGuardiansQueryDto = {},
   ): Promise<PaginatedResult<GuardianSummary>> {
+    const scopedCampusId =
+      query.campusId ?? authSession.activeCampusId ?? undefined;
+
+    if (scopedCampusId) {
+      await this.getCampus(institutionId, scopedCampusId);
+    }
+
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableGuardianColumns.name;
     const sortDirection = query.order === SORT_ORDERS.DESC ? desc : asc;
@@ -112,8 +119,12 @@ export class GuardiansService {
       ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
 
-    const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
-    if (campusFilter) conditions.push(campusFilter);
+    if (scopedCampusId) {
+      conditions.push(eq(member.primaryCampusId, scopedCampusId));
+    } else {
+      const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+      if (campusFilter) conditions.push(campusFilter);
+    }
 
     if (query.search) {
       conditions.push(

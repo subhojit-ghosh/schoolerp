@@ -8,6 +8,7 @@ type StaffListSort =
   (typeof STAFF_LIST_SORT_FIELDS)[keyof typeof STAFF_LIST_SORT_FIELDS];
 
 type StaffListQuery = {
+  campusId?: string;
   limit?: number;
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
   page?: number;
