@@ -111,8 +111,14 @@ export class ClassesController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("classId") classId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
   ) {
-    return this.classesService.getClass(institution.id, classId, authSession);
+    return this.classesService.getClass(
+      institution.id,
+      classId,
+      authSession,
+      scopes,
+    );
   }
 
   @Patch(":classId")
@@ -126,12 +132,14 @@ export class ClassesController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("classId") classId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: UpdateClassBodyDto,
   ) {
     return this.classesService.updateClass(
       institution.id,
       classId,
       authSession,
+      scopes,
       parseUpdateClass(body),
     );
   }
@@ -145,12 +153,14 @@ export class ClassesController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("classId") classId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: SetClassStatusBodyDto,
   ) {
     return this.classesService.setClassStatus(
       institution.id,
       classId,
       authSession,
+      scopes,
       parseSetClassStatus(body),
     );
   }
@@ -164,11 +174,13 @@ export class ClassesController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("classId") classId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
   ) {
     return this.classesService.deleteClass(
       institution.id,
       classId,
       authSession,
+      scopes,
     );
   }
 }

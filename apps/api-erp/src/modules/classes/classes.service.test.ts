@@ -8,6 +8,12 @@ import {
 import { ERROR_MESSAGES } from "../../constants";
 import { ClassesService } from "./classes.service";
 
+const ALL_SCOPES = {
+  campusIds: "all",
+  classIds: "all",
+  sectionIds: "all",
+} as const;
+
 function setPrivateMethod(instance: object, name: string, value: unknown) {
   Reflect.set(instance, name, value);
 }
@@ -69,7 +75,7 @@ describe("ClassesService", () => {
     const { service, tx } = createClassesService();
 
     setPrivateMethod(service, "getClassOrThrow", () =>
-      Promise.resolve({ id: "class-1" }),
+      Promise.resolve({ id: "class-1", campusId: "campus-1" }),
     );
     setPrivateMethod(service, "getCampus", () =>
       Promise.resolve({ id: "campus-1" }),
@@ -96,9 +102,10 @@ describe("ClassesService", () => {
         "institution-1",
         "class-1",
         { activeCampusId: "campus-1" } as never,
+        ALL_SCOPES as never,
         {
-        name: "Class 1",
-        sections: [{ id: "section-1", name: "A" }],
+          name: "Class 1",
+          sections: [{ id: "section-1", name: "A" }],
         },
       );
       throw new Error("Expected section removal to be blocked");
@@ -126,7 +133,12 @@ describe("ClassesService", () => {
     );
 
     try {
-      await service.deleteClass("institution-1", "class-1", {} as never);
+      await service.deleteClass(
+        "institution-1",
+        "class-1",
+        { activeCampusId: "campus-1" } as never,
+        ALL_SCOPES as never,
+      );
       throw new Error("Expected class deletion to be blocked");
     } catch (error) {
       expect(error).toBeInstanceOf(ConflictException);
@@ -141,7 +153,7 @@ describe("ClassesService", () => {
     const { service, tx, txInsertValues } = createClassesService();
 
     setPrivateMethod(service, "getClassOrThrow", () =>
-      Promise.resolve({ id: "class-1" }),
+      Promise.resolve({ id: "class-1", campusId: "campus-1" }),
     );
     setPrivateMethod(service, "getCampus", () =>
       Promise.resolve({ id: "campus-1" }),
@@ -173,6 +185,7 @@ describe("ClassesService", () => {
       "institution-1",
       "class-1",
       { activeCampusId: "campus-1" } as never,
+      ALL_SCOPES as never,
       {
         name: "Class 1",
         sections: [{ id: "section-b", name: "B" }, { name: "A" }],
@@ -236,7 +249,8 @@ describe("ClassesService", () => {
     const result = await service.getClass(
       "institution-1",
       "class-1",
-      {} as never,
+      { activeCampusId: "campus-1" } as never,
+      ALL_SCOPES as never,
     );
 
     expect(result.archivedSections).toEqual([

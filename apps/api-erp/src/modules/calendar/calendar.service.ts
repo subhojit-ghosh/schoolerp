@@ -124,8 +124,12 @@ export class CalendarService {
   async getEvent(
     institutionId: string,
     eventId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+
     const [row] = await this.db
       .select({
         id: calendarEvents.id,
@@ -148,6 +152,7 @@ export class CalendarService {
         and(
           eq(calendarEvents.id, eventId),
           eq(calendarEvents.institutionId, institutionId),
+          eq(calendarEvents.campusId, activeCampusId),
           ne(calendarEvents.status, STATUS.CALENDAR_EVENT.DELETED),
         ),
       )
@@ -184,23 +189,27 @@ export class CalendarService {
       status: STATUS.CALENDAR_EVENT.ACTIVE,
     });
 
-    return this.getEvent(institutionId, eventId, authSession);
+    return this.getEvent(institutionId, eventId, authSession, {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    });
   }
 
   async updateEvent(
     institutionId: string,
     eventId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: UpdateCalendarEventDto,
   ) {
-    await this.getEventOrThrow(institutionId, eventId);
     const campusId = this.requireActiveCampusId(authSession);
-    await this.getCampus(institutionId, campusId);
+    this.assertCampusScopeAccess(campusId, scopes);
+    await this.getEventOrThrow(institutionId, eventId, campusId);
 
     await this.db
       .update(calendarEvents)
       .set({
-        campusId,
         title: normalizeCalendarValue(payload.title)!,
         description: normalizeCalendarValue(payload.description) ?? null,
         eventDate: payload.eventDate,
@@ -216,16 +225,19 @@ export class CalendarService {
         ),
       );
 
-    return this.getEvent(institutionId, eventId, authSession);
+    return this.getEvent(institutionId, eventId, authSession, scopes);
   }
 
   async setEventStatus(
     institutionId: string,
     eventId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: SetCalendarEventStatusDto,
   ) {
-    await this.getEventOrThrow(institutionId, eventId);
+    const campusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(campusId, scopes);
+    await this.getEventOrThrow(institutionId, eventId, campusId);
 
     await this.db
       .update(calendarEvents)
@@ -237,15 +249,18 @@ export class CalendarService {
         ),
       );
 
-    return this.getEvent(institutionId, eventId, authSession);
+    return this.getEvent(institutionId, eventId, authSession, scopes);
   }
 
   async deleteEvent(
     institutionId: string,
     eventId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
-    await this.getEventOrThrow(institutionId, eventId);
+    const campusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(campusId, scopes);
+    await this.getEventOrThrow(institutionId, eventId, campusId);
 
     await this.db
       .update(calendarEvents)
@@ -261,7 +276,11 @@ export class CalendarService {
       );
   }
 
-  private async getEventOrThrow(institutionId: string, eventId: string) {
+  private async getEventOrThrow(
+    institutionId: string,
+    eventId: string,
+    campusId: string,
+  ) {
     const [eventRow] = await this.db
       .select({
         id: calendarEvents.id,
@@ -271,6 +290,7 @@ export class CalendarService {
         and(
           eq(calendarEvents.id, eventId),
           eq(calendarEvents.institutionId, institutionId),
+          eq(calendarEvents.campusId, campusId),
           ne(calendarEvents.status, STATUS.CALENDAR_EVENT.DELETED),
         ),
       )

@@ -111,8 +111,12 @@ export class SubjectsService {
   async getSubject(
     institutionId: string,
     subjectId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+
     const [row] = await this.db
       .select({
         id: subjects.id,
@@ -130,6 +134,7 @@ export class SubjectsService {
         and(
           eq(subjects.id, subjectId),
           eq(subjects.institutionId, institutionId),
+          eq(subjects.campusId, activeCampusId),
           ne(subjects.status, STATUS.SUBJECT.DELETED),
         ),
       )
@@ -162,18 +167,23 @@ export class SubjectsService {
       status: STATUS.SUBJECT.ACTIVE,
     });
 
-    return this.getSubject(institutionId, subjectId, authSession);
+    return this.getSubject(institutionId, subjectId, authSession, {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    });
   }
 
   async updateSubject(
     institutionId: string,
     subjectId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: UpdateSubjectDto,
   ) {
-    await this.getSubjectOrThrow(institutionId, subjectId);
     const campusId = this.requireActiveCampusId(authSession);
-    await this.getCampus(institutionId, campusId);
+    this.assertCampusScopeAccess(campusId, scopes);
+    await this.getSubjectOrThrow(institutionId, subjectId, campusId);
     await this.assertSubjectNameAvailable(
       institutionId,
       campusId,
@@ -184,7 +194,6 @@ export class SubjectsService {
     await this.db
       .update(subjects)
       .set({
-        campusId,
         name: normalizeSubjectName(payload.name),
         code: normalizeSubjectCode(payload.code) ?? null,
       })
@@ -195,16 +204,19 @@ export class SubjectsService {
         ),
       );
 
-    return this.getSubject(institutionId, subjectId, authSession);
+    return this.getSubject(institutionId, subjectId, authSession, scopes);
   }
 
   async setSubjectStatus(
     institutionId: string,
     subjectId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: SetSubjectStatusDto,
   ) {
-    await this.getSubjectOrThrow(institutionId, subjectId);
+    const campusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(campusId, scopes);
+    await this.getSubjectOrThrow(institutionId, subjectId, campusId);
 
     if (payload.status === STATUS.SUBJECT.INACTIVE) {
       await this.assertSubjectHasNoTimetableEntries(institutionId, subjectId);
@@ -222,15 +234,18 @@ export class SubjectsService {
         ),
       );
 
-    return this.getSubject(institutionId, subjectId, authSession);
+    return this.getSubject(institutionId, subjectId, authSession, scopes);
   }
 
   async deleteSubject(
     institutionId: string,
     subjectId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
-    await this.getSubjectOrThrow(institutionId, subjectId);
+    const campusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(campusId, scopes);
+    await this.getSubjectOrThrow(institutionId, subjectId, campusId);
     await this.assertSubjectHasNoTimetableEntries(institutionId, subjectId);
 
     await this.db
@@ -267,7 +282,11 @@ export class SubjectsService {
     return campusRecord;
   }
 
-  private async getSubjectOrThrow(institutionId: string, subjectId: string) {
+  private async getSubjectOrThrow(
+    institutionId: string,
+    subjectId: string,
+    campusId: string,
+  ) {
     const [subjectRecord] = await this.db
       .select({
         id: subjects.id,
@@ -277,6 +296,7 @@ export class SubjectsService {
         and(
           eq(subjects.id, subjectId),
           eq(subjects.institutionId, institutionId),
+          eq(subjects.campusId, campusId),
           ne(subjects.status, STATUS.SUBJECT.DELETED),
         ),
       )

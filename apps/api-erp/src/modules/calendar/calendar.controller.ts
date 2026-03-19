@@ -108,9 +108,15 @@ export class CalendarController {
   getEvent(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("eventId") eventId: string,
   ) {
-    return this.calendarService.getEvent(institution.id, eventId, authSession);
+    return this.calendarService.getEvent(
+      institution.id,
+      eventId,
+      authSession,
+      scopes,
+    );
   }
 
   @Patch(`${API_ROUTES.EVENTS}/:eventId`)
@@ -121,6 +127,7 @@ export class CalendarController {
   updateEvent(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("eventId") eventId: string,
     @Body() body: UpdateCalendarEventBodyDto,
   ) {
@@ -128,6 +135,7 @@ export class CalendarController {
       institution.id,
       eventId,
       authSession,
+      scopes,
       parseUpdateCalendarEvent(body),
     );
   }
@@ -140,6 +148,7 @@ export class CalendarController {
   setEventStatus(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("eventId") eventId: string,
     @Body() body: SetCalendarEventStatusBodyDto,
   ) {
@@ -147,6 +156,7 @@ export class CalendarController {
       institution.id,
       eventId,
       authSession,
+      scopes,
       parseSetCalendarEventStatus(body),
     );
   }
@@ -159,8 +169,14 @@ export class CalendarController {
   deleteEvent(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("eventId") eventId: string,
   ) {
-    return this.calendarService.deleteEvent(institution.id, eventId, authSession);
+    return this.calendarService.deleteEvent(
+      institution.id,
+      eventId,
+      authSession,
+      scopes,
+    );
   }
 }

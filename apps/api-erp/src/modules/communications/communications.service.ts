@@ -121,49 +121,28 @@ export class CommunicationsService {
   async getAnnouncement(
     institutionId: string,
     announcementId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
-    const [row] = await this.db
-      .select({
-        id: announcements.id,
-        institutionId: announcements.institutionId,
-        campusId: announcements.campusId,
-        campusName: campus.name,
-        title: announcements.title,
-        summary: announcements.summary,
-        body: announcements.body,
-        audience: announcements.audience,
-        status: announcements.status,
-        publishedAt: announcements.publishedAt,
-        createdAt: announcements.createdAt,
-        updatedAt: announcements.updatedAt,
-        createdByUserId: announcements.createdByUserId,
-      })
-      .from(announcements)
-      .leftJoin(campus, eq(announcements.campusId, campus.id))
-      .where(
-        and(
-          eq(announcements.id, announcementId),
-          eq(announcements.institutionId, institutionId),
-          ne(announcements.status, STATUS.ANNOUNCEMENT.DELETED),
-        ),
-      )
-      .limit(1);
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
 
-    if (!row) {
-      throw new NotFoundException(ERROR_MESSAGES.COMMUNICATIONS.ANNOUNCEMENT_NOT_FOUND);
-    }
-
-    return row;
+    return this.getAnnouncementOrThrow(
+      institutionId,
+      announcementId,
+      activeCampusId,
+    );
   }
 
   async createAnnouncement(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: CreateAnnouncementDto,
   ) {
     this.ensureStaffContext(authSession);
     const campusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(campusId, scopes);
     await this.getCampus(institutionId, campusId);
 
     const announcementId = randomUUID();
@@ -182,26 +161,36 @@ export class CommunicationsService {
     });
 
     if (payload.publishNow) {
-      await this.publishAnnouncementNotification(institutionId, announcementId, authSession);
+      await this.publishAnnouncementNotification(
+        institutionId,
+        announcementId,
+        authSession,
+        scopes,
+      );
     }
 
-    return this.getAnnouncement(institutionId, announcementId, authSession);
+    return this.getAnnouncement(institutionId, announcementId, authSession, scopes);
   }
 
   async updateAnnouncement(
     institutionId: string,
     announcementId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: UpdateAnnouncementDto,
   ) {
-    const existing = await this.getAnnouncementOrThrow(institutionId, announcementId);
-    const campusId = this.requireActiveCampusId(authSession);
-    await this.getCampus(institutionId, campusId);
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    const existing = await this.getAnnouncementOrThrow(
+      institutionId,
+      announcementId,
+      activeCampusId,
+    );
 
     await this.db
       .update(announcements)
       .set({
-        campusId,
+        campusId: existing.campusId,
         title: payload.title.trim(),
         summary: payload.summary?.trim() ?? null,
         body: payload.body.trim(),
@@ -215,19 +204,31 @@ export class CommunicationsService {
       );
 
     if (payload.publishNow && existing.status !== STATUS.ANNOUNCEMENT.PUBLISHED) {
-      await this.publishAnnouncementNotification(institutionId, announcementId, authSession);
+      await this.publishAnnouncementNotification(
+        institutionId,
+        announcementId,
+        authSession,
+        scopes,
+      );
     }
 
-    return this.getAnnouncement(institutionId, announcementId, authSession);
+    return this.getAnnouncement(institutionId, announcementId, authSession, scopes);
   }
 
   async setAnnouncementStatus(
     institutionId: string,
     announcementId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: SetAnnouncementStatusDto,
   ) {
-    await this.getAnnouncementOrThrow(institutionId, announcementId);
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    await this.getAnnouncementOrThrow(
+      institutionId,
+      announcementId,
+      activeCampusId,
+    );
 
     await this.db
       .update(announcements)
@@ -239,18 +240,26 @@ export class CommunicationsService {
         ),
       );
 
-    return this.getAnnouncement(institutionId, announcementId, authSession);
+    return this.getAnnouncement(institutionId, announcementId, authSession, scopes);
   }
 
   async publishAnnouncement(
     institutionId: string,
     announcementId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
     this.ensureStaffContext(authSession);
-    await this.publishAnnouncementNotification(institutionId, announcementId, authSession);
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    await this.publishAnnouncementNotification(
+      institutionId,
+      announcementId,
+      authSession,
+      scopes,
+    );
 
-    return this.getAnnouncement(institutionId, announcementId, authSession);
+    return this.getAnnouncement(institutionId, announcementId, authSession, scopes);
   }
 
   async listNotifications(
@@ -411,8 +420,14 @@ export class CommunicationsService {
     institutionId: string,
     announcementId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
-    const announcement = await this.getAnnouncementOrThrow(institutionId, announcementId);
+    const announcement = await this.getAnnouncement(
+      institutionId,
+      announcementId,
+      authSession,
+      scopes,
+    );
 
     if (announcement.status === STATUS.ANNOUNCEMENT.PUBLISHED) {
       throw new ConflictException(
@@ -612,18 +627,29 @@ export class CommunicationsService {
     }
   }
 
-  private async getAnnouncementOrThrow(institutionId: string, announcementId: string) {
+  private async getAnnouncementOrThrow(
+    institutionId: string,
+    announcementId: string,
+    activeCampusId: string,
+  ) {
     const [row] = await this.db
       .select({
         id: announcements.id,
+        institutionId: announcements.institutionId,
         campusId: announcements.campusId,
+        campusName: campus.name,
         audience: announcements.audience,
         title: announcements.title,
         summary: announcements.summary,
         body: announcements.body,
         status: announcements.status,
+        publishedAt: announcements.publishedAt,
+        createdAt: announcements.createdAt,
+        updatedAt: announcements.updatedAt,
+        createdByUserId: announcements.createdByUserId,
       })
       .from(announcements)
+      .leftJoin(campus, eq(announcements.campusId, campus.id))
       .where(
         and(
           eq(announcements.id, announcementId),
@@ -633,7 +659,7 @@ export class CommunicationsService {
       )
       .limit(1);
 
-    if (!row) {
+    if (!row || (row.campusId && row.campusId !== activeCampusId)) {
       throw new NotFoundException(ERROR_MESSAGES.COMMUNICATIONS.ANNOUNCEMENT_NOT_FOUND);
     }
 

@@ -40,6 +40,7 @@ export function CalendarEventSheetRoute({ mode }: CalendarEventSheetRouteProps) 
   const { eventId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
+  const activeCampusId = session?.activeCampus?.id;
   const eventQuery = useCalendarEventQuery(
     mode === "edit" && Boolean(institutionId),
     eventId,
@@ -133,6 +134,31 @@ export function CalendarEventSheetRoute({ mode }: CalendarEventSheetRouteProps) 
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             Try returning to the calendar list and opening the record again.
+          </CardContent>
+        </Card>
+      </RouteEntitySheet>
+    );
+  }
+
+  if (
+    mode === "edit" &&
+    eventQuery.data &&
+    activeCampusId &&
+    eventQuery.data.campusId !== activeCampusId
+  ) {
+    return (
+      <RouteEntitySheet
+        closeTo={ERP_ROUTES.CALENDAR}
+        description="This calendar event belongs to a different campus than the one currently active."
+        title="Switch back to the record campus"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Switch back to the record campus</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            This event belongs to {eventQuery.data.campusName}. Change the
+            active campus back before editing to avoid cross-campus updates.
           </CardContent>
         </Card>
       </RouteEntitySheet>

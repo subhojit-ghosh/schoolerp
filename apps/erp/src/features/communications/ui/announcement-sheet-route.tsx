@@ -34,6 +34,7 @@ export function AnnouncementSheetRoute({
   const { announcementId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
+  const activeCampusId = session?.activeCampus?.id;
   const activeCampusName = session?.activeCampus?.name;
   const announcementQuery = useAnnouncementQuery(
     mode === "edit" && Boolean(institutionId),
@@ -122,6 +123,33 @@ export function AnnouncementSheetRoute({
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             Return to the announcements list and open the record again.
+          </CardContent>
+        </Card>
+      </RouteEntitySheet>
+    );
+  }
+
+  if (
+    mode === "edit" &&
+    announcementQuery.data &&
+    activeCampusId &&
+    announcementQuery.data.campusId &&
+    announcementQuery.data.campusId !== activeCampusId
+  ) {
+    return (
+      <RouteEntitySheet
+        closeTo={ERP_ROUTES.ANNOUNCEMENTS}
+        description="This announcement belongs to a different campus than the one currently active."
+        title="Switch back to the record campus"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Switch back to the record campus</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            This announcement belongs to {announcementQuery.data.campusName}.
+            Change the active campus back before editing to avoid cross-campus
+            updates.
           </CardContent>
         </Card>
       </RouteEntitySheet>

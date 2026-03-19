@@ -35,6 +35,7 @@ export function SubjectSheetRoute({ mode }: SubjectSheetRouteProps) {
   const { subjectId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
+  const activeCampusId = session?.activeCampus?.id;
   const subjectQuery = useSubjectQuery(
     mode === "edit" && Boolean(institutionId),
     subjectId,
@@ -113,6 +114,31 @@ export function SubjectSheetRoute({ mode }: SubjectSheetRouteProps) {
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             Try returning to the subjects list and opening the record again.
+          </CardContent>
+        </Card>
+      </RouteEntitySheet>
+    );
+  }
+
+  if (
+    mode === "edit" &&
+    subjectQuery.data &&
+    activeCampusId &&
+    subjectQuery.data.campusId !== activeCampusId
+  ) {
+    return (
+      <RouteEntitySheet
+        closeTo={ERP_ROUTES.SUBJECTS}
+        description="This subject belongs to a different campus than the one currently active."
+        title="Switch back to the record campus"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Switch back to the record campus</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm text-muted-foreground">
+            This subject belongs to {subjectQuery.data.campusName}. Change the
+            active campus back before editing to avoid cross-campus updates.
           </CardContent>
         </Card>
       </RouteEntitySheet>

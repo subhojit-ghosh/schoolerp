@@ -93,11 +93,13 @@ export class CommunicationsController {
   createAnnouncement(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: CreateAnnouncementBodyDto,
   ) {
     return this.communicationsService.createAnnouncement(
       institution.id,
       authSession,
+      scopes,
       parseCreateAnnouncement(body),
     );
   }
@@ -109,12 +111,14 @@ export class CommunicationsController {
   getAnnouncement(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("announcementId") announcementId: string,
   ) {
     return this.communicationsService.getAnnouncement(
       institution.id,
       announcementId,
       authSession,
+      scopes,
     );
   }
 
@@ -126,6 +130,7 @@ export class CommunicationsController {
   updateAnnouncement(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("announcementId") announcementId: string,
     @Body() body: UpdateAnnouncementBodyDto,
   ) {
@@ -133,6 +138,7 @@ export class CommunicationsController {
       institution.id,
       announcementId,
       authSession,
+      scopes,
       parseUpdateAnnouncement(body),
     );
   }
@@ -145,6 +151,7 @@ export class CommunicationsController {
   setAnnouncementStatus(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("announcementId") announcementId: string,
     @Body() body: SetAnnouncementStatusBodyDto,
   ) {
@@ -152,6 +159,7 @@ export class CommunicationsController {
       institution.id,
       announcementId,
       authSession,
+      scopes,
       parseSetAnnouncementStatus(body),
     );
   }
@@ -163,12 +171,14 @@ export class CommunicationsController {
   publishAnnouncement(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("announcementId") announcementId: string,
   ) {
     return this.communicationsService.publishAnnouncement(
       institution.id,
       announcementId,
       authSession,
+      scopes,
     );
   }
 

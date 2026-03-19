@@ -107,8 +107,14 @@ export class SubjectsController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("subjectId") subjectId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
   ) {
-    return this.subjectsService.getSubject(institution.id, subjectId, authSession);
+    return this.subjectsService.getSubject(
+      institution.id,
+      subjectId,
+      authSession,
+      scopes,
+    );
   }
 
   @Patch(":subjectId")
@@ -120,12 +126,14 @@ export class SubjectsController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("subjectId") subjectId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: UpdateSubjectBodyDto,
   ) {
     return this.subjectsService.updateSubject(
       institution.id,
       subjectId,
       authSession,
+      scopes,
       parseUpdateSubject(body),
     );
   }
@@ -139,12 +147,14 @@ export class SubjectsController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("subjectId") subjectId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: SetSubjectStatusBodyDto,
   ) {
     return this.subjectsService.setSubjectStatus(
       institution.id,
       subjectId,
       authSession,
+      scopes,
       parseSetSubjectStatus(body),
     );
   }
@@ -158,7 +168,13 @@ export class SubjectsController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("subjectId") subjectId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
   ) {
-    return this.subjectsService.deleteSubject(institution.id, subjectId, authSession);
+    return this.subjectsService.deleteSubject(
+      institution.id,
+      subjectId,
+      authSession,
+      scopes,
+    );
   }
 }

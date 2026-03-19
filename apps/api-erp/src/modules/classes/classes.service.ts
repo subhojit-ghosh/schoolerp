@@ -127,12 +127,16 @@ export class ClassesService {
   async getClass(
     institutionId: string,
     classId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+
     const [classRecord] = await this.listClassesForInstitution(
       institutionId,
       classId,
-      undefined,
+      activeCampusId,
       true,
     );
 
@@ -180,23 +184,30 @@ export class ClassesService {
       );
     });
 
-    return this.getClass(institutionId, createdClassId, authSession);
+    return this.getClass(institutionId, createdClassId, authSession, {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    });
   }
 
   async updateClass(
     institutionId: string,
     classId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: UpdateClassDto,
   ) {
-    await this.getClassOrThrow(institutionId, classId);
-    const selectedCampus = await this.getCampus(
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    const existingClass = await this.getClassOrThrow(
       institutionId,
-      this.requireActiveCampusId(authSession),
+      classId,
+      activeCampusId,
     );
     await this.assertClassNameAvailable(
       institutionId,
-      selectedCampus.id,
+      existingClass.campusId,
       payload.name,
       classId,
     );
@@ -205,7 +216,6 @@ export class ClassesService {
       await tx
         .update(schoolClasses)
         .set({
-          campusId: selectedCampus.id,
           name: payload.name.trim(),
         })
         .where(eq(schoolClasses.id, classId));
@@ -301,16 +311,19 @@ export class ClassesService {
       }
     });
 
-    return this.getClass(institutionId, classId, authSession);
+    return this.getClass(institutionId, classId, authSession, scopes);
   }
 
   async setClassStatus(
     institutionId: string,
     classId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: SetClassStatusDto,
   ) {
-    await this.getClassOrThrow(institutionId, classId);
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    await this.getClassOrThrow(institutionId, classId, activeCampusId);
 
     await this.db
       .update(schoolClasses)
@@ -322,15 +335,18 @@ export class ClassesService {
         ),
       );
 
-    return this.getClass(institutionId, classId, authSession);
+    return this.getClass(institutionId, classId, authSession, scopes);
   }
 
   async deleteClass(
     institutionId: string,
     classId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
-    await this.getClassOrThrow(institutionId, classId);
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    await this.getClassOrThrow(institutionId, classId, activeCampusId);
 
     await this.assertClassRemovable(institutionId, classId);
 
@@ -447,16 +463,22 @@ export class ClassesService {
     return sectionsByClassId;
   }
 
-  private async getClassOrThrow(institutionId: string, classId: string) {
+  private async getClassOrThrow(
+    institutionId: string,
+    classId: string,
+    campusId: string,
+  ) {
     const [classRecord] = await this.db
       .select({
         id: schoolClasses.id,
+        campusId: schoolClasses.campusId,
       })
       .from(schoolClasses)
       .where(
         and(
           eq(schoolClasses.id, classId),
           eq(schoolClasses.institutionId, institutionId),
+          eq(schoolClasses.campusId, campusId),
           ne(schoolClasses.status, STATUS.CLASS.DELETED),
         ),
       )
