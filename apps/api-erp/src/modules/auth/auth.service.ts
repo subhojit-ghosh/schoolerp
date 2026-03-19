@@ -19,6 +19,7 @@ import {
   eq,
   gt,
   inArray,
+  isNotNull,
   isNull,
   lte,
   member,
@@ -331,7 +332,7 @@ export class AuthService {
       return null;
     }
 
-    return {
+    return this.reconcileSessionAccessContext({
       token: matchedSession.token,
       expiresAt: matchedSession.expiresAt,
       activeOrganizationId: matchedSession.activeOrganizationId,
@@ -343,7 +344,7 @@ export class AuthService {
         mobile: matchedSession.mobile,
         email: matchedSession.email,
       },
-    };
+    });
   }
 
   async getAuthContext(token: string) {
@@ -743,9 +744,6 @@ export class AuthService {
     const activeOrganization = authSession.activeOrganizationId
       ? await this.getOrganizationSummary(authSession.activeOrganizationId)
       : null;
-    const campuses = authSession.activeOrganizationId
-      ? await this.listCampusSummaries(authSession.activeOrganizationId)
-      : [];
     const linkedStudents = authSession.activeOrganizationId
       ? await this.listLinkedStudents(
           authSession.user.id,
@@ -764,6 +762,14 @@ export class AuthService {
       authSession.activeContextKey,
       availableContexts,
     );
+    const campuses =
+      authSession.activeOrganizationId && activeContext
+        ? await this.listAccessibleCampuses(
+            authSession.user.id,
+            authSession.activeOrganizationId,
+            activeContext.key,
+          )
+        : [];
     const permissions = authSession.activeOrganizationId
       ? Array.from(
           await this.resolvePermissions(
@@ -778,10 +784,13 @@ export class AuthService {
           authSession.activeOrganizationId,
         )
       : [];
+    const accessibleCampusIds = new Set(campuses.map((campusOption) => campusOption.id));
+    const activeCampusId =
+      authSession.activeCampusId && accessibleCampusIds.has(authSession.activeCampusId)
+        ? authSession.activeCampusId
+        : null;
     const activeCampus =
-      campuses.find(
-        (campusOption) => campusOption.id === authSession.activeCampusId,
-      ) ?? null;
+      campuses.find((campusOption) => campusOption.id === activeCampusId) ?? null;
 
     return {
       user: authSession.user,
@@ -1052,15 +1061,16 @@ export class AuthService {
     organizationId: string,
     activeContextKey: AuthContextKey | null,
   ) {
-    if (
-      activeContextKey === AUTH_CONTEXT_KEYS.PARENT ||
-      activeContextKey === AUTH_CONTEXT_KEYS.STUDENT
-    ) {
+    if (activeContextKey === AUTH_CONTEXT_KEYS.PARENT) {
       const linkedStudents = await this.listLinkedStudents(userId, organizationId);
 
       return Array.from(
         new Set(linkedStudents.map((student) => student.campusId)),
       );
+    }
+
+    if (activeContextKey === AUTH_CONTEXT_KEYS.STUDENT) {
+      return this.listStudentCampusIds(userId, organizationId);
     }
 
     const scopes = await this.resolveScopes(userId, organizationId);
@@ -1074,6 +1084,52 @@ export class AuthService {
     return scopes.campusIds;
   }
 
+  private async listAccessibleCampuses(
+    userId: string,
+    organizationId: string,
+    activeContextKey: AuthContextKey | null,
+  ) {
+    const accessibleCampusIds = await this.resolveAccessibleCampusIds(
+      userId,
+      organizationId,
+      activeContextKey,
+    );
+
+    if (accessibleCampusIds.length === 0) {
+      return [];
+    }
+
+    const accessibleCampusIdSet = new Set(accessibleCampusIds);
+    const campuses = await this.listCampusSummaries(organizationId);
+
+    return campuses.filter((campusOption) => accessibleCampusIdSet.has(campusOption.id));
+  }
+
+  private async listStudentCampusIds(userId: string, organizationId: string) {
+    const studentCampusRows = await this.database
+      .select({
+        campusId: member.primaryCampusId,
+      })
+      .from(member)
+      .where(
+        and(
+          eq(member.userId, userId),
+          eq(member.organizationId, organizationId),
+          eq(member.memberType, MEMBER_TYPES.STUDENT),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          isNotNull(member.primaryCampusId),
+        ),
+      );
+
+    return Array.from(
+      new Set(
+        studentCampusRows
+          .map((row) => row.campusId)
+          .filter((campusId): campusId is string => Boolean(campusId)),
+      ),
+    );
+  }
+
   private async assertActiveCampusSelectionAllowed(
     authSession: AuthenticatedSession,
     campusId: string,
@@ -1082,34 +1138,70 @@ export class AuthService {
       return;
     }
 
-    if (
-      authSession.activeContextKey === AUTH_CONTEXT_KEYS.PARENT ||
-      authSession.activeContextKey === AUTH_CONTEXT_KEYS.STUDENT
-    ) {
-      const linkedStudents = await this.listLinkedStudents(
-        authSession.user.id,
-        authSession.activeOrganizationId,
-      );
-
-      if (!linkedStudents.some((student) => student.campusId === campusId)) {
-        throw new UnauthorizedException(
-          ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED,
-        );
-      }
-
-      return;
-    }
-
-    const scopes = await this.resolveScopes(
+    const accessibleCampusIds = await this.resolveAccessibleCampusIds(
       authSession.user.id,
       authSession.activeOrganizationId,
+      authSession.activeContextKey,
     );
 
-    if (scopes.campusIds === "all" || scopes.campusIds.includes(campusId)) {
+    if (accessibleCampusIds.includes(campusId)) {
       return;
     }
 
     throw new UnauthorizedException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+  }
+
+  private async reconcileSessionAccessContext(
+    authSession: AuthenticatedSession,
+  ): Promise<AuthenticatedSession> {
+    if (!authSession.activeOrganizationId) {
+      return authSession;
+    }
+
+    const memberships = await this.listMemberships(authSession.user.id);
+    const organizationMemberships = memberships.filter(
+      (membership) => membership.organizationId === authSession.activeOrganizationId,
+    );
+    const activeContextKey = this.resolveDefaultContextKey(
+      organizationMemberships,
+      authSession.activeContextKey,
+    );
+    const contextMemberships = organizationMemberships.filter(
+      (membership) =>
+        activeContextKey !== null &&
+        this.memberTypeToContextKey(membership.memberType) === activeContextKey,
+    );
+    const activeCampusId =
+      activeContextKey === null
+        ? null
+        : await this.resolveDefaultCampusId(
+            authSession.user.id,
+            authSession.activeOrganizationId,
+            activeContextKey,
+            contextMemberships,
+            authSession.activeCampusId,
+          );
+
+    if (
+      activeContextKey === authSession.activeContextKey &&
+      activeCampusId === authSession.activeCampusId
+    ) {
+      return authSession;
+    }
+
+    await this.database
+      .update(session)
+      .set({
+        activeContextKey,
+        activeCampusId,
+      })
+      .where(eq(session.token, authSession.token));
+
+    return {
+      ...authSession,
+      activeContextKey,
+      activeCampusId,
+    };
   }
 
   async assertUserIdentityAvailable(mobile: string, email: string | null) {
