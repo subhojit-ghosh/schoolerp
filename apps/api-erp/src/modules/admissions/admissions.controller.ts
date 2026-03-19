@@ -28,21 +28,27 @@ import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import {
   AdmissionApplicationDto,
+  AdmissionFormFieldDto,
   AdmissionEnquiryDto,
   CreateAdmissionApplicationBodyDto,
   CreateAdmissionEnquiryBodyDto,
+  ListAdmissionFormFieldsQueryDto,
+  ListAdmissionFormFieldsResultDto,
   ListAdmissionApplicationsQueryDto,
   ListAdmissionApplicationsResultDto,
   ListAdmissionEnquiriesQueryDto,
   ListAdmissionEnquiriesResultDto,
+  UpsertAdmissionFormFieldBodyDto,
   UpdateAdmissionApplicationBodyDto,
   UpdateAdmissionEnquiryBodyDto,
 } from "./admissions.dto";
 import {
   parseCreateAdmissionApplication,
   parseCreateAdmissionEnquiry,
+  parseListAdmissionFormFieldsQuery,
   parseListAdmissionApplicationsQuery,
   parseListAdmissionEnquiriesQuery,
+  parseUpsertAdmissionFormField,
   parseUpdateAdmissionApplication,
   parseUpdateAdmissionEnquiry,
 } from "./admissions.schemas";
@@ -59,6 +65,54 @@ import { AdmissionsService } from "./admissions.service";
 @Controller(API_ROUTES.ADMISSIONS)
 export class AdmissionsController {
   constructor(private readonly admissionsService: AdmissionsService) {}
+
+  @Get(API_ROUTES.FORM_FIELDS)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_READ)
+  @ApiOperation({ summary: "List configured admission form fields" })
+  @ApiOkResponse({ type: ListAdmissionFormFieldsResultDto })
+  listAdmissionFormFields(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: ListAdmissionFormFieldsQueryDto,
+  ) {
+    const parsed = parseListAdmissionFormFieldsQuery(query);
+
+    return this.admissionsService.listAdmissionFormFields(
+      institution.id,
+      parsed.scope,
+    );
+  }
+
+  @Post(API_ROUTES.FORM_FIELDS)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: "Create an admission form field definition" })
+  @ApiBody({ type: UpsertAdmissionFormFieldBodyDto })
+  @ApiOkResponse({ type: AdmissionFormFieldDto })
+  createAdmissionFormField(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Body() body: UpsertAdmissionFormFieldBodyDto,
+  ) {
+    return this.admissionsService.createAdmissionFormField(
+      institution.id,
+      parseUpsertAdmissionFormField(body),
+    );
+  }
+
+  @Patch(`${API_ROUTES.FORM_FIELDS}/:fieldId`)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: "Update an admission form field definition" })
+  @ApiBody({ type: UpsertAdmissionFormFieldBodyDto })
+  @ApiOkResponse({ type: AdmissionFormFieldDto })
+  updateAdmissionFormField(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("fieldId") fieldId: string,
+    @Body() body: UpsertAdmissionFormFieldBodyDto,
+  ) {
+    return this.admissionsService.updateAdmissionFormField(
+      institution.id,
+      fieldId,
+      parseUpsertAdmissionFormField(body),
+    );
+  }
 
   @Get(API_ROUTES.ENQUIRIES)
   @RequirePermission(PERMISSIONS.ADMISSIONS_READ)

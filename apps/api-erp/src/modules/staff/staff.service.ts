@@ -10,29 +10,27 @@ import {
 import type { AppDatabase } from "@repo/database";
 import {
   attendanceRecords,
+  and,
+  asc,
   campus,
   campusMemberships,
   classSections,
-  member,
-  membershipRoleScopes,
-  membershipRoles,
-  roles,
-  schoolClasses,
-  user,
-} from "@repo/database";
-import {
-  and,
-  asc,
   count,
   desc,
   eq,
   ilike,
   inArray,
   isNull,
+  member,
+  membershipRoleScopes,
+  membershipRoles,
   ne,
   or,
+  roles,
+  schoolClasses,
   type SQL,
-} from "drizzle-orm";
+  user,
+} from "@repo/database";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import {
@@ -113,12 +111,8 @@ export class StaffService {
     scopes: ResolvedScopes,
     query: ListStaffQueryDto = {},
   ): Promise<PaginatedResult<StaffDto>> {
-    const scopedCampusId =
-      query.campusId ?? authSession.activeCampusId ?? undefined;
-
-    if (scopedCampusId) {
-      await this.getCampus(institutionId, scopedCampusId);
-    }
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    await this.getCampus(institutionId, activeCampusId);
 
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableStaffColumns.name;
@@ -130,12 +124,7 @@ export class StaffService {
       ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
 
-    if (scopedCampusId) {
-      conditions.push(eq(member.primaryCampusId, scopedCampusId));
-    } else {
-      const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
-      if (campusFilter) conditions.push(campusFilter);
-    }
+    conditions.push(eq(member.primaryCampusId, activeCampusId));
 
     if (query.search) {
       conditions.push(
@@ -191,13 +180,14 @@ export class StaffService {
   async listRoleAssignments(
     institutionId: string,
     staffId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
   ): Promise<StaffRoleAssignmentDto[]> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     const staffMembership = await this.getStaffMembership(
       institutionId,
       staffId,
-      scopes,
+      activeCampusScopes,
     );
 
     return this.listRoleAssignmentsForMembership(staffMembership.id);
@@ -206,12 +196,13 @@ export class StaffService {
   async getStaff(
     institutionId: string,
     staffId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
   ) {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     const [staffRecord] = await this.listStaffForInstitution(
       institutionId,
-      scopes,
+      activeCampusScopes,
       staffId,
     );
 
@@ -228,15 +219,14 @@ export class StaffService {
     scopes: ResolvedScopes,
     payload: CreateStaffDto,
   ): Promise<CreateStaffResultDto> {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     this.assertRequestedScopeWithinAssignerScopes(
-      { campusId: payload.campusId },
-      scopes,
+      { campusId: activeCampusId },
+      activeCampusScopes,
     );
 
-    const selectedCampus = await this.getCampus(
-      institutionId,
-      payload.campusId,
-    );
+    const selectedCampus = await this.getCampus(institutionId, activeCampusId);
 
     const createResult = await this.db.transaction(async (tx) => {
       const resolvedUser = await this.findOrCreateUser(tx, payload);
@@ -288,7 +278,7 @@ export class StaffService {
       institutionId,
       createResult.membershipId,
       authSession,
-      scopes,
+      activeCampusScopes,
     );
 
     let passwordSetup: IssuedPasswordSetupResult | null = null;
@@ -312,21 +302,20 @@ export class StaffService {
     scopes: ResolvedScopes,
     payload: UpdateStaffDto,
   ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     const existingStaff = await this.getStaffMembership(
       institutionId,
       staffId,
-      scopes,
+      activeCampusScopes,
     );
 
     this.assertRequestedScopeWithinAssignerScopes(
-      { campusId: payload.campusId },
-      scopes,
+      { campusId: activeCampusId },
+      activeCampusScopes,
     );
 
-    const selectedCampus = await this.getCampus(
-      institutionId,
-      payload.campusId,
-    );
+    const selectedCampus = await this.getCampus(institutionId, activeCampusId);
 
     await this.db.transaction(async (tx) => {
       const resolvedUserId = await this.reconcileUserIdentity(
@@ -368,7 +357,12 @@ export class StaffService {
       await this.ensureCampusMembership(tx, staffId, selectedCampus.id);
     });
 
-    return this.getStaff(institutionId, staffId, authSession, scopes);
+    return this.getStaff(
+      institutionId,
+      staffId,
+      authSession,
+      activeCampusScopes,
+    );
   }
 
   async setStaffStatus(
@@ -378,7 +372,8 @@ export class StaffService {
     scopes: ResolvedScopes,
     payload: SetStaffStatusDto,
   ) {
-    await this.getStaffMembership(institutionId, staffId, scopes);
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
 
     await this.db
       .update(member)
@@ -391,19 +386,25 @@ export class StaffService {
         ),
       );
 
-    return this.getStaff(institutionId, staffId, authSession, scopes);
+    return this.getStaff(
+      institutionId,
+      staffId,
+      authSession,
+      activeCampusScopes,
+    );
   }
 
   async deleteStaff(
     institutionId: string,
     staffId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
   ) {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     const staffMembership = await this.getStaffMembership(
       institutionId,
       staffId,
-      scopes,
+      activeCampusScopes,
     );
 
     await this.assertStaffRemovable(institutionId, staffMembership.id);
@@ -412,11 +413,7 @@ export class StaffService {
       const activeAssignments = await tx
         .select({ id: membershipRoles.id })
         .from(membershipRoles)
-        .where(
-          and(
-            eq(membershipRoles.membershipId, staffMembership.id),
-          ),
-        );
+        .where(and(eq(membershipRoles.membershipId, staffMembership.id)));
 
       if (activeAssignments.length > 0) {
         const assignmentIds = activeAssignments.map(
@@ -450,14 +447,15 @@ export class StaffService {
   async createRoleAssignment(
     institutionId: string,
     staffId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     payload: CreateStaffRoleAssignmentDto,
   ) {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     const staffMembership = await this.getStaffMembership(
       institutionId,
       staffId,
-      scopes,
+      activeCampusScopes,
     );
     const selectedRole = await this.getRole(institutionId, payload.roleId);
     const normalizedScope = await this.resolveAssignmentScope(
@@ -465,7 +463,10 @@ export class StaffService {
       payload,
     );
 
-    this.assertRequestedScopeWithinAssignerScopes(normalizedScope, scopes);
+    this.assertRequestedScopeWithinAssignerScopes(
+      normalizedScope,
+      activeCampusScopes,
+    );
     await this.assertNoDuplicateRoleAssignment(
       staffMembership.id,
       selectedRole.id,
@@ -514,13 +515,14 @@ export class StaffService {
     institutionId: string,
     staffId: string,
     assignmentId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
   ) {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     const staffMembership = await this.getStaffMembership(
       institutionId,
       staffId,
-      scopes,
+      activeCampusScopes,
     );
 
     const [assignment] = await this.db
@@ -624,11 +626,7 @@ export class StaffService {
       })
       .from(membershipRoles)
       .innerJoin(roles, eq(membershipRoles.roleId, roles.id))
-      .where(
-        and(
-          eq(membershipRoles.membershipId, membershipId),
-        ),
-      )
+      .where(and(eq(membershipRoles.membershipId, membershipId)))
       .orderBy(desc(membershipRoles.createdAt), asc(roles.name));
 
     return this.enrichRoleAssignments(assignmentRows);
@@ -754,11 +752,7 @@ export class StaffService {
       })
       .from(membershipRoles)
       .innerJoin(roles, eq(membershipRoles.roleId, roles.id))
-      .where(
-        and(
-          inArray(membershipRoles.membershipId, membershipIds),
-        ),
-      );
+      .where(and(inArray(membershipRoles.membershipId, membershipIds)));
 
     const staffRoleMap = new Map<string, StaffRoleSummary>();
 
@@ -1281,5 +1275,32 @@ export class StaffService {
         campusId,
       });
     }
+  }
+
+  private requireActiveCampusId(authSession: AuthenticatedSession) {
+    if (!authSession.activeCampusId) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return authSession.activeCampusId;
+  }
+
+  private scopeToActiveCampus(
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): ResolvedScopes {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+
+    if (
+      scopes.campusIds !== "all" &&
+      !scopes.campusIds.includes(activeCampusId)
+    ) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return {
+      ...scopes,
+      campusIds: [activeCampusId],
+    };
   }
 }

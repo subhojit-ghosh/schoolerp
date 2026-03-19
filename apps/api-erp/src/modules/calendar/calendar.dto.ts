@@ -5,9 +5,6 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ListCalendarEventsQueryDto {
   @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
-
-  @ApiPropertyOptional({ nullable: true })
   fromDate?: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -34,9 +31,6 @@ export class ListCalendarEventsQueryDto {
 }
 
 export class CreateCalendarEventBodyDto {
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
-
   @ApiProperty()
   title!: string;
 
@@ -64,9 +58,6 @@ export class CreateCalendarEventBodyDto {
 }
 
 export class UpdateCalendarEventBodyDto {
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
-
   @ApiProperty()
   title!: string;
 

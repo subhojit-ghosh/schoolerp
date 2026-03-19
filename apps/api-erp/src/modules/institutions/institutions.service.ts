@@ -9,10 +9,10 @@ import {
   eq,
   ilike,
   ne,
+  organization,
   sql,
   type SQL,
-} from "drizzle-orm";
-import { organization } from "@repo/database";
+} from "@repo/database";
 import { STATUS, SORT_ORDERS } from "../../constants";
 import { resolvePagination } from "../../lib/list-query";
 import {

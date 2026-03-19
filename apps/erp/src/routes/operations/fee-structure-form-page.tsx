@@ -12,7 +12,6 @@ import {
 import { buildFeeStructureEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
-import { useCampusesQuery } from "@/features/campuses/api/use-campuses";
 import {
   useCreateNextFeeStructureVersionMutation,
   useCreateFeeStructureMutation,
@@ -29,7 +28,6 @@ function buildDefaultFeeStructureFormValues(
 ): FeeStructureFormValues {
   return {
     academicYearId,
-    campusId: "",
     name: "",
     description: "",
     scope: "institution",
@@ -49,9 +47,9 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
   const { feeStructureId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
+  const activeCampusLabel = session?.activeCampus?.name;
 
   const academicYearsQuery = useAcademicYearsQuery(institutionId, { limit: 50 });
-  const campusesQuery = useCampusesQuery(institutionId, { limit: 50 });
   const feeStructureQuery = useFeeStructureQuery(
     mode === "edit" && Boolean(institutionId),
     feeStructureId,
@@ -72,15 +70,6 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
     [academicYearsQuery.data?.rows],
   );
 
-  const campusOptions = useMemo(
-    () =>
-      (campusesQuery.data?.rows ?? []).map((c) => ({
-        id: c.id,
-        name: c.name,
-      })),
-    [campusesQuery.data?.rows],
-  );
-
   const defaultValues = useMemo<FeeStructureFormValues>(() => {
     if (mode === "create" || !feeStructureQuery.data) {
       const activeAcademicYears = (academicYearsQuery.data?.rows ?? []).filter(
@@ -98,7 +87,6 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
 
     return {
       academicYearId: structure.academicYearId,
-      campusId: structure.campusId ?? "",
       name: structure.name,
       description: structure.description ?? "",
       scope: structure.scope,
@@ -127,7 +115,6 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
       await createMutation.mutateAsync({
         body: {
           academicYearId: values.academicYearId,
-          campusId: values.campusId || undefined,
           name: values.name,
           description: values.description || null,
           scope: values.scope,
@@ -225,7 +212,12 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
         <CardContent className="pt-6">
           <FeeStructureForm
             academicYears={academicYearOptions}
-            campuses={campusOptions}
+            campusLabel={
+              mode === "edit"
+                ? (feeStructureQuery.data?.campusName ?? activeCampusLabel)
+                : activeCampusLabel
+            }
+            canUseCampusScope={Boolean(activeCampusLabel)}
             defaultValues={defaultValues}
             errorMessage={errorMessage}
             isPending={isPending}

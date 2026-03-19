@@ -62,7 +62,6 @@ export class SubjectsController {
   @Get()
   @RequirePermission(PERMISSIONS.ACADEMICS_READ)
   @ApiOperation({ summary: "List subjects for the current tenant institution" })
-  @ApiQuery({ name: "campusId", required: false, type: String })
   @ApiQuery({ name: "page", required: false, type: Number })
   @ApiQuery({ name: "limit", required: false, type: Number })
   @ApiQuery({ name: "q", required: false, type: String })

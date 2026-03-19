@@ -54,7 +54,8 @@ type Option = {
 
 type FeeStructureFormProps = {
   academicYears: Option[];
-  campuses: Option[];
+  campusLabel?: string;
+  canUseCampusScope?: boolean;
   defaultValues: FeeStructureFormValues;
   errorMessage?: string;
   isPending?: boolean;
@@ -197,7 +198,8 @@ function SortableInstallmentRow({
 
 export function FeeStructureForm({
   academicYears,
-  campuses,
+  campusLabel,
+  canUseCampusScope = true,
   defaultValues,
   errorMessage,
   isPending = false,
@@ -222,6 +224,21 @@ export function FeeStructureForm({
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (!canUseCampusScope && selectedScope === FEE_STRUCTURE_SCOPES.CAMPUS) {
+      reset(
+        {
+          ...defaultValues,
+          scope: FEE_STRUCTURE_SCOPES.INSTITUTION,
+        },
+        {
+          keepErrors: true,
+          keepTouched: true,
+        },
+      );
+    }
+  }, [canUseCampusScope, defaultValues, reset, selectedScope]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -311,7 +328,16 @@ export function FeeStructureForm({
                         <SelectContent>
                           <SelectGroup>
                             {FEE_STRUCTURE_SCOPE_OPTIONS.map((scope) => (
-                              <SelectItem key={scope} value={scope}>{toScopeLabel(scope)}</SelectItem>
+                              <SelectItem
+                                key={scope}
+                                value={scope}
+                                disabled={
+                                  scope === FEE_STRUCTURE_SCOPES.CAMPUS &&
+                                  !canUseCampusScope
+                                }
+                              >
+                                {toScopeLabel(scope)}
+                              </SelectItem>
                             ))}
                           </SelectGroup>
                         </SelectContent>
@@ -323,36 +349,21 @@ export function FeeStructureForm({
               />
             </div>
 
+            {!canUseCampusScope ? (
+              <p className="text-sm text-muted-foreground">
+                Select an active campus in the header to create a campus-scoped fee
+                structure.
+              </p>
+            ) : null}
+
             <div className="grid gap-4 sm:grid-cols-2">
               {selectedScope === FEE_STRUCTURE_SCOPES.CAMPUS ? (
-                <Controller
-                  control={control}
-                  name="campusId"
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid || undefined}>
-                      <FieldLabel>Campus</FieldLabel>
-                      <FieldContent>
-                        <Select
-                          disabled={lockScope || isReadOnly}
-                          onValueChange={field.onChange}
-                          value={field.value ?? ""}
-                        >
-                          <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
-                            <SelectValue placeholder="Select campus" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              {campuses.map((c) => (
-                                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                              ))}
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                        <FieldError>{fieldState.error?.message}</FieldError>
-                      </FieldContent>
-                    </Field>
-                  )}
-                />
+                <Field>
+                  <FieldLabel>Campus</FieldLabel>
+                  <FieldContent>
+                    <Input disabled readOnly value={campusLabel ?? "Active campus"} />
+                  </FieldContent>
+                </Field>
               ) : null}
 
               <Controller

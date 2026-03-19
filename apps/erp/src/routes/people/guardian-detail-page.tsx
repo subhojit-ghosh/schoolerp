@@ -51,9 +51,9 @@ export function GuardianDetailPage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
+  const activeCampusId = session?.activeCampus?.id;
   const canManageGuardians = isStaffContext(session);
   const managedInstitutionId = canManageGuardians ? institutionId : undefined;
-  const campuses = session?.campuses ?? [];
   const guardianQuery = useGuardianQuery(managedInstitutionId, guardianId);
   const studentOptionsQuery = useStudentOptionsQuery(managedInstitutionId);
   const updateGuardianMutation = useUpdateGuardianMutation(
@@ -81,7 +81,6 @@ export function GuardianDetailPage() {
         name: "",
         mobile: "",
         email: "",
-        campusId: session?.activeCampus?.id ?? "",
       };
     }
 
@@ -89,9 +88,8 @@ export function GuardianDetailPage() {
       name: guardian.name,
       mobile: guardian.mobile,
       email: guardian.email ?? "",
-      campusId: guardian.campusId,
     };
-  }, [guardianQuery.data, session?.activeCampus?.id]);
+  }, [guardianQuery.data]);
 
   const studentOptions = useMemo(
     () =>
@@ -226,6 +224,28 @@ export function GuardianDetailPage() {
   }
 
   const guardian = guardianQuery.data;
+
+  if (activeCampusId && guardian.campusId !== activeCampusId) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Switch back to the record campus</CardTitle>
+          <CardDescription>
+            This guardian record belongs to {guardian.campusName}. Change the
+            active campus back before editing to avoid cross-campus updates.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild variant="outline">
+            <Link to={appendSearch(ERP_ROUTES.GUARDIANS, location.search)}>
+              <IconChevronLeft data-icon="inline-start" />
+              Back to guardians
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
   const updateGuardianError = updateGuardianMutation.error as
     | Error
     | null
@@ -268,12 +288,12 @@ export function GuardianDetailPage() {
           <CardHeader>
             <CardTitle>Edit guardian</CardTitle>
             <CardDescription>
-              Update guardian contact details and primary campus assignment.
+              Update guardian contact details for the active campus.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <GuardianForm
-              campuses={campuses}
+              campusName={guardian.campusName}
               defaultValues={guardianDefaultValues}
               errorMessage={updateGuardianError?.message}
               isPending={updateGuardianMutation.isPending}

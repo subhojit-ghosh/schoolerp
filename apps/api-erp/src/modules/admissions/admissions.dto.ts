@@ -1,7 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
+  ADMISSION_FORM_FIELD_SCOPES,
+  ADMISSION_FORM_FIELD_TYPES,
   ADMISSION_APPLICATION_STATUSES,
   ADMISSION_ENQUIRY_STATUSES,
+  type AdmissionFormFieldOption,
+  type AdmissionFormFieldScope,
+  type AdmissionFormFieldType,
   type AdmissionApplicationStatus,
   type AdmissionEnquiryStatus,
 } from "@repo/contracts";
@@ -29,8 +34,6 @@ export class ListAdmissionEnquiriesQueryDto {
   })
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
 
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
 }
 
 export class ListAdmissionApplicationsQueryDto {
@@ -51,12 +54,9 @@ export class ListAdmissionApplicationsQueryDto {
   })
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
 
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
 }
 
 export class CreateAdmissionEnquiryBodyDto {
-  campusId!: string;
   studentName!: string;
   guardianName!: string;
   mobile!: string;
@@ -82,7 +82,6 @@ export class CreateAdmissionApplicationBodyDto {
   @ApiPropertyOptional({ nullable: true })
   enquiryId?: string | null;
 
-  campusId!: string;
   studentFirstName!: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -107,6 +106,13 @@ export class CreateAdmissionApplicationBodyDto {
 
   @ApiPropertyOptional({ nullable: true })
   notes?: string | null;
+
+  @ApiPropertyOptional({
+    type: "object",
+    additionalProperties: true,
+    nullable: true,
+  })
+  customFieldValues?: Record<string, unknown> | null;
 }
 
 export class UpdateAdmissionApplicationBodyDto extends CreateAdmissionApplicationBodyDto {}
@@ -169,7 +175,96 @@ export class AdmissionApplicationDto {
 
   @ApiPropertyOptional({ nullable: true })
   notes!: string | null;
+
+  @ApiPropertyOptional({
+    type: "object",
+    additionalProperties: true,
+    nullable: true,
+  })
+  customFieldValues!: Record<string, unknown> | null;
   createdAt!: string;
+}
+
+export class AdmissionFormFieldOptionDto implements AdmissionFormFieldOption {
+  label!: string;
+  value!: string;
+}
+
+export class ListAdmissionFormFieldsQueryDto {
+  @ApiPropertyOptional({
+    enum: Object.values(ADMISSION_FORM_FIELD_SCOPES),
+  })
+  scope?: AdmissionFormFieldScope;
+}
+
+export class UpsertAdmissionFormFieldBodyDto {
+  key!: string;
+  label!: string;
+
+  @ApiProperty({
+    enum: Object.values(ADMISSION_FORM_FIELD_SCOPES),
+  })
+  scope!: AdmissionFormFieldScope;
+
+  @ApiProperty({
+    enum: Object.values(ADMISSION_FORM_FIELD_TYPES),
+  })
+  fieldType!: AdmissionFormFieldType;
+
+  @ApiPropertyOptional({ nullable: true })
+  placeholder?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  helpText?: string | null;
+
+  required!: boolean;
+  active!: boolean;
+
+  @ApiPropertyOptional({
+    type: () => AdmissionFormFieldOptionDto,
+    isArray: true,
+    nullable: true,
+  })
+  options?: AdmissionFormFieldOptionDto[] | null;
+
+  sortOrder!: number;
+}
+
+export class AdmissionFormFieldDto {
+  id!: string;
+  institutionId!: string;
+  key!: string;
+  label!: string;
+
+  @ApiProperty({
+    enum: Object.values(ADMISSION_FORM_FIELD_SCOPES),
+  })
+  scope!: AdmissionFormFieldScope;
+
+  @ApiProperty({
+    enum: Object.values(ADMISSION_FORM_FIELD_TYPES),
+  })
+  fieldType!: AdmissionFormFieldType;
+
+  @ApiPropertyOptional({ nullable: true })
+  placeholder!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  helpText!: string | null;
+
+  required!: boolean;
+  active!: boolean;
+
+  @ApiPropertyOptional({
+    type: () => AdmissionFormFieldOptionDto,
+    isArray: true,
+    nullable: true,
+  })
+  options!: AdmissionFormFieldOptionDto[] | null;
+
+  sortOrder!: number;
+  createdAt!: string;
+  updatedAt!: string;
 }
 
 export class ListAdmissionEnquiriesResultDto {
@@ -188,4 +283,9 @@ export class ListAdmissionApplicationsResultDto {
   page!: number;
   pageSize!: number;
   pageCount!: number;
+}
+
+export class ListAdmissionFormFieldsResultDto {
+  @ApiProperty({ type: () => AdmissionFormFieldDto, isArray: true })
+  rows!: AdmissionFormFieldDto[];
 }

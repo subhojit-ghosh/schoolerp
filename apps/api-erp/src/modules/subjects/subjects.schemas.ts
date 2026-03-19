@@ -13,7 +13,6 @@ export const sortableSubjectColumns = {
 } as const;
 
 export const createSubjectSchema = z.object({
-  campusId: z.uuid(),
   name: z.string().trim().min(SUBJECT_NAME_MIN_LENGTH, "Subject name is required"),
   code: z.string().trim().min(1).max(20).optional(),
 });
@@ -25,7 +24,6 @@ export const setSubjectStatusSchema = z.object({
 });
 
 export const listSubjectsQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableSubjectColumns.name,
@@ -67,7 +65,6 @@ export function parseListSubjectsQuery(query: unknown): ListSubjectsQueryDto {
   const result = parseSchema(listSubjectsQuerySchema, query);
 
   return {
-    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,

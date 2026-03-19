@@ -19,7 +19,6 @@ import { isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useCollectionSummaryQuery } from "@/features/fees/api/use-fees";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
-import { useCampusesQuery } from "@/features/campuses/api/use-campuses";
 import { formatRupees } from "@/features/fees/model/fee-formatters";
 
 function SummaryCard({
@@ -49,23 +48,16 @@ export function FeeReportsPage() {
   const canManageFees = isStaffContext(session);
   const canQuery = canManageFees && Boolean(institutionId);
   const [academicYearId, setAcademicYearId] = useState<string>("all");
-  const [campusId, setCampusId] = useState<string>("all");
 
   const academicYearsQuery = useAcademicYearsQuery(institutionId, { limit: 50 });
-  const campusesQuery = useCampusesQuery(institutionId, { limit: 50 });
 
   const summaryQuery = useCollectionSummaryQuery(canQuery, {
     academicYearId: academicYearId === "all" ? undefined : academicYearId,
-    campusId: campusId === "all" ? undefined : campusId,
   });
 
   const academicYearOptions = useMemo(
     () => academicYearsQuery.data?.rows ?? [],
     [academicYearsQuery.data?.rows],
-  );
-  const campusOptions = useMemo(
-    () => campusesQuery.data?.rows ?? [],
-    [campusesQuery.data?.rows],
   );
   const defaultAcademicYearId = useMemo(
     () =>
@@ -74,22 +66,11 @@ export function FeeReportsPage() {
       "all",
     [academicYearOptions],
   );
-  const defaultCampusId = useMemo(
-    () => (campusOptions.length === 1 ? campusOptions[0]!.id : "all"),
-    [campusOptions],
-  );
-
   useEffect(() => {
     if (academicYearId === "all" && defaultAcademicYearId !== "all") {
       setAcademicYearId(defaultAcademicYearId);
     }
   }, [academicYearId, defaultAcademicYearId]);
-
-  useEffect(() => {
-    if (campusId === "all" && defaultCampusId !== "all") {
-      setCampusId(defaultCampusId);
-    }
-  }, [campusId, defaultCampusId]);
 
   if (!institutionId) {
     return (
@@ -128,7 +109,7 @@ export function FeeReportsPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 rounded-xl border border-border/70 bg-card px-4 py-3 md:grid-cols-2">
+      <div className="grid gap-4 rounded-xl border border-border/70 bg-card px-4 py-3">
         <div className="space-y-2">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             Academic year
@@ -143,27 +124,6 @@ export function FeeReportsPage() {
                 {academicYearOptions.map((academicYear) => (
                   <SelectItem key={academicYear.id} value={academicYear.id}>
                     {academicYear.name}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Campus
-          </p>
-          <Select onValueChange={setCampusId} value={campusId}>
-            <SelectTrigger>
-              <SelectValue placeholder="All campuses" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">All campuses</SelectItem>
-                {campusOptions.map((campus) => (
-                  <SelectItem key={campus.id} value={campus.id}>
-                    {campus.name}
                   </SelectItem>
                 ))}
               </SelectGroup>

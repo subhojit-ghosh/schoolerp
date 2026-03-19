@@ -8,7 +8,6 @@ import {
 } from "@repo/contracts";
 import { z } from "zod";
 import { baseListQuerySchema, parseListQuerySchema } from "../../lib/list-query";
-import { ERROR_MESSAGES } from "../../constants";
 
 const MONEY_MIN_AMOUNT = 0;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -33,11 +32,6 @@ const installmentSchema = z.object({
 export const createFeeStructureSchema = z
   .object({
     academicYearId: z.uuid(),
-    campusId: z
-      .uuid()
-      .nullish()
-      .or(z.literal(""))
-      .transform((value) => value || undefined),
     name: z.string().trim().min(1, "Fee structure name is required"),
     description: optionalTextSchema,
     scope: z.enum([
@@ -47,15 +41,6 @@ export const createFeeStructureSchema = z
     installments: z
       .array(installmentSchema)
       .min(1, "At least one installment is required"),
-  })
-  .superRefine((value, ctx) => {
-    if (value.scope === FEE_STRUCTURE_SCOPES.CAMPUS && !value.campusId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["campusId"],
-        message: ERROR_MESSAGES.FEES.FEE_STRUCTURE_SCOPE_INVALID,
-      });
-    }
   });
 
 export const updateFeeStructureSchema = z.object({
@@ -141,7 +126,6 @@ export const listFeeStructuresQuerySchema = baseListQuerySchema.extend({
     ])
     .optional(),
   academicYearId: z.uuid().optional(),
-  campusId: z.uuid().optional(),
   status: z
     .enum([
       FEE_STRUCTURE_STATUSES.ACTIVE,
@@ -151,7 +135,6 @@ export const listFeeStructuresQuerySchema = baseListQuerySchema.extend({
 });
 
 export const listFeeAssignmentsQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableFeeAssignmentColumns.studentName,
@@ -171,7 +154,6 @@ export const listFeeAssignmentsQuerySchema = baseListQuerySchema.extend({
 });
 
 export const listFeeDuesQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableFeeAssignmentColumns.studentName,
@@ -184,7 +166,6 @@ export const listFeeDuesQuerySchema = baseListQuerySchema.extend({
 
 export const collectionSummaryQuerySchema = z.object({
   academicYearId: z.uuid().optional(),
-  campusId: z.uuid().optional(),
 });
 
 export type CreateFeeStructureDto = z.infer<typeof createFeeStructureSchema>;
@@ -270,7 +251,6 @@ export function parseListFeeStructuresQuery(query: unknown): ListFeeStructuresQu
     search: result.q,
     sort: result.sort,
     academicYearId: result.academicYearId,
-    campusId: result.campusId,
     status: result.status,
   };
 }
@@ -279,7 +259,6 @@ export function parseListFeeAssignmentsQuery(query: unknown): ListFeeAssignments
   const result = parseListQuerySchema(listFeeAssignmentsQuerySchema, query);
 
   return {
-    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,
@@ -294,7 +273,6 @@ export function parseListFeeDuesQuery(query: unknown): ListFeeDuesQueryDto {
   const result = parseListQuerySchema(listFeeDuesQuerySchema, query);
 
   return {
-    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,

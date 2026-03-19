@@ -3,9 +3,6 @@ import { sortableSubjectColumns } from "./subjects.schemas";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ListSubjectsQueryDto {
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
-
   @ApiPropertyOptional({ minimum: 1, type: Number })
   page?: number;
 
@@ -28,9 +25,6 @@ export class ListSubjectsQueryDto {
 
 export class CreateSubjectBodyDto {
   @ApiProperty()
-  campusId!: string;
-
-  @ApiProperty()
   name!: string;
 
   @ApiPropertyOptional({ nullable: true })
@@ -38,9 +32,6 @@ export class CreateSubjectBodyDto {
 }
 
 export class UpdateSubjectBodyDto {
-  @ApiProperty()
-  campusId!: string;
-
   @ApiProperty()
   name!: string;
 

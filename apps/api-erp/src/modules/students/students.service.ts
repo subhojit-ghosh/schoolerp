@@ -1,19 +1,28 @@
 import { DATABASE } from "@repo/backend-core";
-import { ATTENDANCE_STATUSES } from "@repo/contracts";
+import {
+  ADMISSION_FORM_FIELD_SCOPES,
+  ATTENDANCE_STATUSES,
+} from "@repo/contracts";
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
-  attendanceRecords,
   academicYears,
+  and,
+  asc,
+  attendanceRecords,
   campus,
   campusMemberships,
   classSections,
+  count,
+  desc,
+  eq,
   examMarks,
   examTerms,
   feeAssignmentAdjustments,
@@ -22,28 +31,21 @@ import {
   feePayments,
   feeStructureInstallments,
   feeStructures,
-  member,
-  schoolClasses,
-  studentCurrentEnrollments,
-  studentGuardianLinks,
-  students,
-  user,
-} from "@repo/database";
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
   gte,
   ilike,
   inArray,
   isNull,
+  member,
   ne,
   or,
+  schoolClasses,
+  studentCurrentEnrollments,
+  studentGuardianLinks,
+  students,
   sql,
   type SQL,
-} from "drizzle-orm";
+  user,
+} from "@repo/database";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import {
@@ -61,6 +63,7 @@ import {
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { campusScopeFilter, sectionScopeFilter } from "../auth/scope-filter";
+import { AdmissionFormFieldsService } from "../admissions/admission-form-fields.service";
 import type {
   CreateGuardianLinkDto,
   CurrentEnrollmentDto,
@@ -220,9 +223,13 @@ export class StudentsService {
     campusId: campus.id,
     campusName: campus.name,
     status: member.status,
+    customFieldValues: students.customFieldValues,
   };
 
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly admissionFormFieldsService: AdmissionFormFieldsService,
+  ) {}
 
   async listStudents(
     institutionId: string,
@@ -230,12 +237,9 @@ export class StudentsService {
     scopes: ResolvedScopes,
     query: ListStudentsQueryDto = {},
   ): Promise<PaginatedResult<Awaited<ReturnType<typeof this.getStudent>>>> {
-    const scopedCampusId =
-      query.campusId ?? authSession.activeCampusId ?? undefined;
-
-    if (scopedCampusId) {
-      await this.getCampus(institutionId, scopedCampusId);
-    }
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getCampus(institutionId, activeCampusId);
 
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableStudentColumns.name;
@@ -248,13 +252,12 @@ export class StudentsService {
       eq(classSections.status, STATUS.SECTION.ACTIVE),
     ];
 
-    if (scopedCampusId) {
-      conditions.push(eq(member.primaryCampusId, scopedCampusId));
-    } else {
-      const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
-      if (campusFilter) conditions.push(campusFilter);
-    }
-    const sectionFilter = sectionScopeFilter(students.sectionId, scopes);
+    conditions.push(eq(member.primaryCampusId, activeCampusId));
+
+    const sectionFilter = sectionScopeFilter(
+      students.sectionId,
+      activeCampusScopes,
+    );
     if (sectionFilter) conditions.push(sectionFilter);
 
     if (query.search) {
@@ -323,16 +326,17 @@ export class StudentsService {
   async getStudent(
     institutionId: string,
     studentId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes = {
       campusIds: "all",
       classIds: "all",
       sectionIds: "all",
     },
   ) {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     const [studentRecord] = await this.listStudentsForInstitution(
       institutionId,
-      scopes,
+      activeCampusScopes,
       studentId,
     );
 
@@ -378,16 +382,17 @@ export class StudentsService {
 
   async listStudentOptions(
     institutionId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes = {
       campusIds: "all",
       classIds: "all",
       sectionIds: "all",
     },
   ) {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     const studentRows = await this.listStudentsForInstitution(
       institutionId,
-      scopes,
+      activeCampusScopes,
     );
 
     return studentRows.map((student) => ({
@@ -404,14 +409,13 @@ export class StudentsService {
     authSession: AuthenticatedSession,
     payload: UpdateStudentDto,
   ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
     const existingStudent = await this.getStudentMembership(
       institutionId,
       studentId,
+      activeCampusId,
     );
-    const selectedCampus = await this.getCampus(
-      institutionId,
-      payload.campusId,
-    );
+    const selectedCampus = await this.getCampus(institutionId, activeCampusId);
     const nextCurrentEnrollment = payload.currentEnrollment ?? null;
 
     if (nextCurrentEnrollment) {
@@ -449,6 +453,13 @@ export class StudentsService {
       studentId,
     );
 
+    const customFieldValues =
+      await this.admissionFormFieldsService.validateValues(
+        institutionId,
+        ADMISSION_FORM_FIELD_SCOPES.STUDENT,
+        payload.customFieldValues ?? undefined,
+      );
+
     await this.db.transaction(async (tx) => {
       await tx
         .update(member)
@@ -471,6 +482,7 @@ export class StudentsService {
           lastName: payload.lastName?.trim() || null,
           classId: studentPlacement.classId,
           sectionId: studentPlacement.sectionId,
+          customFieldValues,
         })
         .where(eq(students.id, studentId));
 
@@ -684,7 +696,10 @@ export class StudentsService {
         createdAt: feeAssignments.createdAt,
       })
       .from(feeAssignments)
-      .innerJoin(feeStructures, eq(feeAssignments.feeStructureId, feeStructures.id))
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
       .leftJoin(
         feeStructureInstallments,
         eq(feeAssignments.installmentId, feeStructureInstallments.id),
@@ -706,8 +721,7 @@ export class StudentsService {
             this.db
               .select({
                 feeAssignmentId: feePayments.feeAssignmentId,
-                totalPaidAmountInPaise:
-                  sql<number>`coalesce(sum(${feePayments.amountInPaise}), 0)`,
+                totalPaidAmountInPaise: sql<number>`coalesce(sum(${feePayments.amountInPaise}), 0)`,
                 paymentCount: sql<number>`count(${feePayments.id})`,
               })
               .from(feePayments)
@@ -726,12 +740,14 @@ export class StudentsService {
             this.db
               .select({
                 feeAssignmentId: feeAssignmentAdjustments.feeAssignmentId,
-                totalAdjustmentAmountInPaise:
-                  sql<number>`coalesce(sum(${feeAssignmentAdjustments.amountInPaise}), 0)`,
+                totalAdjustmentAmountInPaise: sql<number>`coalesce(sum(${feeAssignmentAdjustments.amountInPaise}), 0)`,
               })
               .from(feeAssignmentAdjustments)
               .where(
-                inArray(feeAssignmentAdjustments.feeAssignmentId, assignmentIds),
+                inArray(
+                  feeAssignmentAdjustments.feeAssignmentId,
+                  assignmentIds,
+                ),
               )
               .groupBy(feeAssignmentAdjustments.feeAssignmentId),
             this.db
@@ -760,7 +776,10 @@ export class StudentsService {
                   isNull(feePaymentReversals.id),
                 ),
               )
-              .orderBy(desc(feePayments.paymentDate), desc(feePayments.createdAt))
+              .orderBy(
+                desc(feePayments.paymentDate),
+                desc(feePayments.createdAt),
+              )
               .limit(STUDENT_FEE_RECENT_PAYMENT_LIMIT),
           ]);
 
@@ -850,7 +869,10 @@ export class StudentsService {
           )
       )
         .slice(0, STUDENT_FEE_RECENT_ASSIGNMENT_LIMIT)
-        .map(({ createdAt: _createdAt, paymentCount: _paymentCount, ...row }) => row),
+        .map(
+          ({ createdAt: _createdAt, paymentCount: _paymentCount, ...row }) =>
+            row,
+        ),
       recentPayments: recentPaymentRows.map((row) => ({
         id: row.id,
         feeAssignmentId: row.feeAssignmentId,
@@ -961,7 +983,10 @@ export class StudentsService {
             relationship: studentGuardianLinks.relationship,
           })
           .from(studentGuardianLinks)
-          .innerJoin(member, eq(studentGuardianLinks.parentMembershipId, member.id))
+          .innerJoin(
+            member,
+            eq(studentGuardianLinks.parentMembershipId, member.id),
+          )
           .innerJoin(user, eq(member.userId, user.id))
           .where(
             and(
@@ -1020,8 +1045,7 @@ export class StudentsService {
             examTermName: examTerms.name,
             endDate: examTerms.endDate,
             totalMaxMarks: sql<number>`coalesce(sum(${examMarks.maxMarks}), 0)`,
-            totalObtainedMarks:
-              sql<number>`coalesce(sum(${examMarks.obtainedMarks}), 0)`,
+            totalObtainedMarks: sql<number>`coalesce(sum(${examMarks.obtainedMarks}), 0)`,
           })
           .from(examMarks)
           .innerJoin(examTerms, eq(examMarks.examTermId, examTerms.id))
@@ -1102,10 +1126,8 @@ export class StudentsService {
     authSession: AuthenticatedSession,
     payload: CreateStudentDto,
   ) {
-    const selectedCampus = await this.getCampus(
-      institutionId,
-      payload.campusId,
-    );
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    const selectedCampus = await this.getCampus(institutionId, activeCampusId);
     const nextCurrentEnrollment = payload.currentEnrollment ?? null;
 
     if (nextCurrentEnrollment) {
@@ -1142,6 +1164,13 @@ export class StudentsService {
       payload.admissionNumber.trim(),
     );
 
+    const customFieldValues =
+      await this.admissionFormFieldsService.validateValues(
+        institutionId,
+        ADMISSION_FORM_FIELD_SCOPES.STUDENT,
+        payload.customFieldValues ?? undefined,
+      );
+
     const createdStudent = await this.db.transaction(async (tx) => {
       const studentMembershipId = randomUUID();
       const studentId = randomUUID();
@@ -1170,6 +1199,7 @@ export class StudentsService {
         lastName: payload.lastName?.trim() || null,
         classId: studentPlacement.classId,
         sectionId: studentPlacement.sectionId,
+        customFieldValues,
       });
 
       for (const guardianPayload of payload.guardians) {
@@ -1470,7 +1500,11 @@ export class StudentsService {
     }
   }
 
-  private async getStudentMembership(institutionId: string, studentId: string) {
+  private async getStudentMembership(
+    institutionId: string,
+    studentId: string,
+    campusId: string,
+  ) {
     const [matchedStudent] = await this.db
       .select({
         id: students.id,
@@ -1482,6 +1516,7 @@ export class StudentsService {
         and(
           eq(students.id, studentId),
           eq(students.institutionId, institutionId),
+          eq(member.primaryCampusId, campusId),
           ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
@@ -1681,6 +1716,33 @@ export class StudentsService {
         ERROR_MESSAGES.STUDENTS.CLASS_CAMPUS_MISMATCH,
       );
     }
+  }
+
+  private requireActiveCampusId(authSession: AuthenticatedSession) {
+    if (!authSession.activeCampusId) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return authSession.activeCampusId;
+  }
+
+  private scopeToActiveCampus(
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): ResolvedScopes {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+
+    if (
+      scopes.campusIds !== "all" &&
+      !scopes.campusIds.includes(activeCampusId)
+    ) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return {
+      ...scopes,
+      campusIds: [activeCampusId],
+    };
   }
 
   private getCurrentDateString() {

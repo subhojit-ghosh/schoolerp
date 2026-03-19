@@ -8,7 +8,6 @@ type ClassesListSort =
   (typeof CLASS_LIST_SORT_FIELDS)[keyof typeof CLASS_LIST_SORT_FIELDS];
 
 type ClassesListQuery = {
-  campusId?: string;
   limit?: number;
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
   page?: number;
@@ -16,15 +15,7 @@ type ClassesListQuery = {
   sort?: ClassesListSort;
 };
 
-export function useClassesQuery(
-  enabled: boolean,
-  queryOrCampusId?: ClassesListQuery | string,
-) {
-  const query =
-    typeof queryOrCampusId === "string"
-      ? { campusId: queryOrCampusId }
-      : (queryOrCampusId ?? {});
-
+export function useClassesQuery(enabled: boolean, query: ClassesListQuery = {}) {
   return apiQueryClient.useQuery(
     "get",
     CLASSES_API_PATHS.LIST,

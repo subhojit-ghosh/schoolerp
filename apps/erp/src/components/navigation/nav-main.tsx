@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { IconChevronDown, IconChevronRight, type Icon } from "@tabler/icons-react";
+import { IconChevronDown, type Icon } from "@tabler/icons-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "@repo/ui/lib/utils";
 import {
@@ -13,12 +13,14 @@ import {
 
 export function NavMain({
   collapsible = false,
-  defaultExpanded = true,
+  defaultExpanded = false,
+  icon,
   items,
   label,
 }: {
   collapsible?: boolean;
   defaultExpanded?: boolean;
+  icon?: Icon;
   items: {
     badgeLabel?: string;
     title: string;
@@ -28,6 +30,7 @@ export function NavMain({
   }[];
   label?: string;
 }) {
+  const GroupIcon = icon;
   const location = useLocation();
 
   function isActivePath(itemUrl: string) {
@@ -37,8 +40,17 @@ export function NavMain({
     );
   }
 
+  const storageKey = label ? `sidebar-group-${label}` : null;
+
   const hasActiveItem = items.some((item) => isActivePath(item.url));
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded || hasActiveItem);
+  const [isExpanded, setIsExpanded] = useState(() => {
+    if (!collapsible) return true;
+    if (storageKey) {
+      const stored = localStorage.getItem(storageKey);
+      if (stored !== null) return stored === "true";
+    }
+    return defaultExpanded || hasActiveItem;
+  });
 
   useEffect(() => {
     if (hasActiveItem) {
@@ -46,31 +58,62 @@ export function NavMain({
     }
   }, [hasActiveItem]);
 
+  function handleToggle() {
+    setIsExpanded((prev) => {
+      const next = !prev;
+      if (storageKey) localStorage.setItem(storageKey, String(next));
+      return next;
+    });
+  }
+
   return (
-    <SidebarGroup>
+    <SidebarGroup className="py-0 pb-1.5">
       {label ? (
         collapsible ? (
           <button
-            className="flex w-full items-center gap-2 px-2 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/50 transition-colors hover:text-sidebar-foreground/75"
-            onClick={() => setIsExpanded((value) => !value)}
+            className={cn(
+              "flex w-full items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-150",
+              isExpanded
+                ? "text-sidebar-foreground hover:bg-white/5"
+                : "text-sidebar-foreground/80 hover:bg-white/5 hover:text-sidebar-foreground",
+            )}
+            onClick={handleToggle}
             type="button"
           >
-            {isExpanded ? (
-              <IconChevronDown className="size-3 shrink-0" />
-            ) : (
-              <IconChevronRight className="size-3 shrink-0" />
-            )}
-            <SidebarGroupLabel className="p-0 text-inherit">
+            {GroupIcon ? (
+              <span
+                className={cn(
+                  "flex size-[26px] shrink-0 items-center justify-center rounded-lg border transition-colors duration-150",
+                  hasActiveItem
+                    ? "border-[var(--accent)]/25 bg-[var(--accent)]/20 text-[var(--accent)]"
+                    : isExpanded
+                      ? "border-white/10 bg-white/10 text-sidebar-foreground/80"
+                      : "border-white/10 bg-white/[0.07] text-sidebar-foreground/70",
+                )}
+              >
+                <GroupIcon className="size-[14px]" />
+              </span>
+            ) : null}
+            <span className="flex-1 text-left text-[13px] font-medium leading-none">
               {label}
-            </SidebarGroupLabel>
+            </span>
+            <IconChevronDown
+              className={cn(
+                "size-3 shrink-0 opacity-40 transition-transform duration-200",
+                !isExpanded && "-rotate-90",
+              )}
+            />
           </button>
         ) : (
-          <SidebarGroupLabel className="px-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-sidebar-foreground/50">
+          <SidebarGroupLabel className="flex items-center gap-2 px-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-sidebar-foreground/40">
+            {GroupIcon ? <GroupIcon className="size-3.5 shrink-0" /> : null}
             {label}
           </SidebarGroupLabel>
         )
       ) : null}
-      <SidebarGroupContent className={cn(collapsible && !isExpanded ? "hidden" : undefined)}>
+      <SidebarGroupContent
+        className={cn(collapsible && !isExpanded ? "hidden" : undefined)}
+      >
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>

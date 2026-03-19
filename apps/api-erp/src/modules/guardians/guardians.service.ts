@@ -2,22 +2,17 @@ import type { GuardianRelationship } from "@repo/contracts";
 import { DATABASE } from "@repo/backend-core";
 import {
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
-  campus,
-  campusMemberships,
-  member,
-  studentGuardianLinks,
-  students,
-  user,
-} from "@repo/database";
-import {
   and,
   asc,
+  campus,
+  campusMemberships,
   count,
   desc,
   eq,
@@ -25,14 +20,17 @@ import {
   inArray,
   isNotNull,
   isNull,
+  member,
   ne,
   or,
+  studentGuardianLinks,
+  students,
   type SQL,
-} from "drizzle-orm";
+  user,
+} from "@repo/database";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
-import { campusScopeFilter } from "../auth/scope-filter";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import {
   ERROR_MESSAGES,
@@ -102,12 +100,9 @@ export class GuardiansService {
     scopes: ResolvedScopes,
     query: ListGuardiansQueryDto = {},
   ): Promise<PaginatedResult<GuardianSummary>> {
-    const scopedCampusId =
-      query.campusId ?? authSession.activeCampusId ?? undefined;
-
-    if (scopedCampusId) {
-      await this.getCampus(institutionId, scopedCampusId);
-    }
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    await this.getCampus(institutionId, activeCampusId);
 
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableGuardianColumns.name;
@@ -119,12 +114,7 @@ export class GuardiansService {
       ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
 
-    if (scopedCampusId) {
-      conditions.push(eq(member.primaryCampusId, scopedCampusId));
-    } else {
-      const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
-      if (campusFilter) conditions.push(campusFilter);
-    }
+    conditions.push(eq(member.primaryCampusId, activeCampusId));
 
     if (query.search) {
       conditions.push(
@@ -177,10 +167,12 @@ export class GuardiansService {
   async getGuardian(
     institutionId: string,
     guardianId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
   ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
     const [guardianRecord] = await this.listGuardiansForInstitution(
       institutionId,
+      activeCampusId,
       guardianId,
     );
 
@@ -196,10 +188,8 @@ export class GuardiansService {
     authSession: AuthenticatedSession,
     payload: UpdateGuardianDto,
   ) {
-    const selectedCampus = await this.getCampus(
-      institutionId,
-      payload.campusId,
-    );
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    const selectedCampus = await this.getCampus(institutionId, activeCampusId);
     const normalizedMobile = normalizeMobile(payload.mobile);
     const normalizedEmail = normalizeOptionalEmail(payload.email);
     const existingGuardian = await this.findGuardianMembershipByIdentity(
@@ -232,7 +222,11 @@ export class GuardiansService {
           })
           .where(eq(member.id, existingGuardian.id));
 
-        await this.ensureCampusMembership(tx, existingGuardian.id, selectedCampus.id);
+        await this.ensureCampusMembership(
+          tx,
+          existingGuardian.id,
+          selectedCampus.id,
+        );
       });
 
       return this.getGuardian(institutionId, existingGuardian.id, authSession);
@@ -259,7 +253,11 @@ export class GuardiansService {
         status: STATUS.MEMBER.ACTIVE,
       });
 
-      await this.ensureCampusMembership(tx, createdGuardianId, selectedCampus.id);
+      await this.ensureCampusMembership(
+        tx,
+        createdGuardianId,
+        selectedCampus.id,
+      );
     });
 
     return this.getGuardian(institutionId, createdGuardianId, authSession);
@@ -271,14 +269,13 @@ export class GuardiansService {
     authSession: AuthenticatedSession,
     payload: UpdateGuardianDto,
   ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
     const guardianMembership = await this.getGuardianMembership(
       institutionId,
       guardianId,
+      activeCampusId,
     );
-    const selectedCampus = await this.getCampus(
-      institutionId,
-      payload.campusId,
-    );
+    const selectedCampus = await this.getCampus(institutionId, activeCampusId);
     const guardianUserId = guardianMembership.userId;
     const normalizedMobile = normalizeMobile(payload.mobile);
     const normalizedEmail = normalizeOptionalEmail(payload.email);
@@ -322,13 +319,16 @@ export class GuardiansService {
     authSession: AuthenticatedSession,
     payload: LinkGuardianStudentDto,
   ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
     const guardianMembership = await this.getGuardianMembership(
       institutionId,
       guardianId,
+      activeCampusId,
     );
     const studentMembership = await this.getStudentMembership(
       institutionId,
       payload.studentId,
+      activeCampusId,
     );
 
     await this.db.transaction(async (tx) => {
@@ -413,10 +413,12 @@ export class GuardiansService {
     authSession: AuthenticatedSession,
     payload: UpdateGuardianStudentLinkDto,
   ) {
-    await this.getGuardianMembership(institutionId, guardianId);
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    await this.getGuardianMembership(institutionId, guardianId, activeCampusId);
     const studentMembership = await this.getStudentMembership(
       institutionId,
       studentId,
+      activeCampusId,
     );
 
     await this.db.transaction(async (tx) => {
@@ -465,10 +467,12 @@ export class GuardiansService {
     studentId: string,
     authSession: AuthenticatedSession,
   ) {
-    await this.getGuardianMembership(institutionId, guardianId);
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    await this.getGuardianMembership(institutionId, guardianId, activeCampusId);
     const studentMembership = await this.getStudentMembership(
       institutionId,
       studentId,
+      activeCampusId,
     );
 
     await this.db.transaction(async (tx) => {
@@ -511,6 +515,7 @@ export class GuardiansService {
 
   private async listGuardiansForInstitution(
     institutionId: string,
+    activeCampusId: string,
     guardianId?: string,
   ) {
     const guardianRows = await this.db
@@ -523,6 +528,7 @@ export class GuardiansService {
           eq(member.organizationId, institutionId),
           eq(member.memberType, MEMBER_TYPES.GUARDIAN),
           guardianId ? eq(member.id, guardianId) : undefined,
+          eq(member.primaryCampusId, activeCampusId),
           ne(member.status, STATUS.MEMBER.DELETED),
           ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
@@ -602,6 +608,7 @@ export class GuardiansService {
   private async getGuardianMembership(
     institutionId: string,
     guardianId: string,
+    campusId: string,
   ) {
     const [guardianMembership] = await this.db
       .select({
@@ -614,6 +621,7 @@ export class GuardiansService {
           eq(member.id, guardianId),
           eq(member.organizationId, institutionId),
           eq(member.memberType, MEMBER_TYPES.GUARDIAN),
+          eq(member.primaryCampusId, campusId),
           ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
@@ -629,7 +637,11 @@ export class GuardiansService {
     };
   }
 
-  private async getStudentMembership(institutionId: string, studentId: string) {
+  private async getStudentMembership(
+    institutionId: string,
+    studentId: string,
+    campusId: string,
+  ) {
     const [matchedStudent] = await this.db
       .select({
         id: students.id,
@@ -641,6 +653,7 @@ export class GuardiansService {
         and(
           eq(students.id, studentId),
           eq(students.institutionId, institutionId),
+          eq(member.primaryCampusId, campusId),
           ne(member.status, STATUS.MEMBER.DELETED),
         ),
       )
@@ -837,4 +850,22 @@ export class GuardiansService {
     campusName: campus.name,
     status: member.status,
   };
+
+  private requireActiveCampusId(authSession: AuthenticatedSession) {
+    if (!authSession.activeCampusId) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return authSession.activeCampusId;
+  }
+
+  private assertCampusScopeAccess(campusId: string, scopes: ResolvedScopes) {
+    if (scopes.campusIds === "all") {
+      return;
+    }
+
+    if (!scopes.campusIds.includes(campusId)) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+  }
 }

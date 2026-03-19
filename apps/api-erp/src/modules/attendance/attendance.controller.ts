@@ -34,7 +34,6 @@ import {
   UpsertAttendanceDayBodyDto,
 } from "./attendance.dto";
 import {
-  parseAttendanceClassSectionQuery,
   parseAttendanceDayQuery,
   parseAttendanceDayViewQuery,
   parseAttendanceOverviewQuery,
@@ -61,19 +60,16 @@ export class AttendanceController {
   @ApiOperation({
     summary: "List available class-section combinations for attendance",
   })
-  @ApiQuery({ name: "campusId", type: String })
   @ApiOkResponse({ type: AttendanceClassSectionDto, isArray: true })
   listClassSections(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
     @CurrentScopes() scopes: ResolvedScopes,
-    @Query() query: AttendanceClassSectionQueryParamsDto,
   ) {
     return this.attendanceService.listClassSections(
       institution.id,
       authSession,
       scopes,
-      parseAttendanceClassSectionQuery(query),
     );
   }
 
@@ -140,10 +136,12 @@ export class AttendanceController {
   @ApiOkResponse({ type: AttendanceOverviewItemDto, isArray: true })
   getAttendanceOverview(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
     @Query() query: AttendanceOverviewQueryParamsDto,
   ) {
     return this.attendanceService.getAttendanceOverview(
       institution.id,
+      authSession,
       parseAttendanceOverviewQuery(query),
     );
   }
@@ -151,15 +149,18 @@ export class AttendanceController {
   @Get(API_ROUTES.CLASS_REPORT)
   @RequirePermission(PERMISSIONS.ATTENDANCE_READ)
   @ApiOperation({
-    summary: "Get student-wise attendance report for a class-section over a date range",
+    summary:
+      "Get student-wise attendance report for a class-section over a date range",
   })
   @ApiOkResponse({ type: AttendanceClassReportDto })
   getAttendanceClassReport(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
     @Query() query: AttendanceClassReportQueryParamsDto,
   ) {
     return this.attendanceService.getAttendanceClassReport(
       institution.id,
+      authSession,
       parseAttendanceClassReportQuery(query),
     );
   }
@@ -172,10 +173,12 @@ export class AttendanceController {
   @ApiOkResponse({ type: AttendanceStudentReportDto })
   getAttendanceStudentReport(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
     @Query() query: AttendanceStudentReportQueryParamsDto,
   ) {
     return this.attendanceService.getAttendanceStudentReport(
       institution.id,
+      authSession,
       parseAttendanceStudentReportQuery(query),
     );
   }

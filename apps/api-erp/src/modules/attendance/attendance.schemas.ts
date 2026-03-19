@@ -16,21 +16,17 @@ export const attendanceDateSchema = z
   .regex(DATE_PATTERN, "Attendance date must be in YYYY-MM-DD format");
 
 export const attendanceScopeSchema = z.object({
-  campusId: z.uuid(),
   classId: z.uuid(),
   sectionId: z.uuid(),
 });
 
 export const attendanceDayQuerySchema = z.object({
   attendanceDate: attendanceDateSchema,
-  campusId: z.uuid(),
   classId: z.uuid(),
   sectionId: z.uuid(),
 });
 
-export const attendanceClassSectionQuerySchema = z.object({
-  campusId: z.uuid(),
-});
+export const attendanceClassSectionQuerySchema = z.object({});
 
 export const attendanceDayViewQuerySchema = z.object({
   attendanceDate: attendanceDateSchema,
@@ -44,7 +40,6 @@ export const attendanceEntrySchema = z.object({
 export const upsertAttendanceDaySchema = z
   .object({
     attendanceDate: attendanceDateSchema,
-    campusId: z.uuid(),
     classId: z.uuid(),
     sectionId: z.uuid(),
     entries: z
@@ -62,7 +57,6 @@ export const attendanceOverviewQuerySchema = z.object({
 });
 
 export const attendanceClassReportQuerySchema = z.object({
-  campusId: z.uuid(),
   classId: z.uuid(),
   sectionId: z.uuid(),
   startDate: attendanceDateSchema,

@@ -26,6 +26,7 @@ export const API_ROUTES = {
   ROLES: "roles",
   GUARDIANS: "guardians",
   ADMISSIONS: "admissions",
+  FORM_FIELDS: "form-fields",
   ENQUIRIES: "enquiries",
   APPLICATIONS: "applications",
   ACADEMIC_YEARS: "academic-years",

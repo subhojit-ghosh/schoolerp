@@ -8,7 +8,6 @@ export type AnnouncementsListQuery = {
   limit?: number;
   sort?: "publishedAt" | "status" | "title" | "audience";
   order?: "asc" | "desc";
-  campusId?: string;
   audience?: "all" | "staff" | "guardians" | "students";
   status?: "draft" | "published" | "archived";
 };
@@ -17,7 +16,6 @@ export type NotificationsListQuery = {
   q?: string;
   page?: number;
   limit?: number;
-  campusId?: string;
   unreadOnly?: boolean;
   actionRequired?: boolean;
   channel?: "system" | "academics" | "operations" | "finance" | "community";

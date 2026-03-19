@@ -226,6 +226,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admissions/form-fields": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List configured admission form fields */
+        get: operations["AdmissionsController_listAdmissionFormFields"];
+        put?: never;
+        /** Create an admission form field definition */
+        post: operations["AdmissionsController_createAdmissionFormField"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/form-fields/{fieldId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an admission form field definition */
+        patch: operations["AdmissionsController_updateAdmissionFormField"];
+        trace?: never;
+    };
     "/admissions/enquiries": {
         parameters: {
             query?: never;
@@ -1719,6 +1754,45 @@ export interface components {
             code?: string | null;
             isDefault?: boolean;
         };
+        AdmissionFormFieldOptionDto: {
+            label: string;
+            value: string;
+        };
+        AdmissionFormFieldDto: {
+            /** @enum {string} */
+            scope: "application" | "student" | "both";
+            /** @enum {string} */
+            fieldType: "text" | "textarea" | "number" | "date" | "select" | "email" | "phone" | "url" | "checkbox";
+            placeholder?: string | null;
+            helpText?: string | null;
+            options?: components["schemas"]["AdmissionFormFieldOptionDto"][] | null;
+            id: string;
+            institutionId: string;
+            key: string;
+            label: string;
+            required: boolean;
+            active: boolean;
+            sortOrder: number;
+            createdAt: string;
+            updatedAt: string;
+        };
+        ListAdmissionFormFieldsResultDto: {
+            rows: components["schemas"]["AdmissionFormFieldDto"][];
+        };
+        UpsertAdmissionFormFieldBodyDto: {
+            /** @enum {string} */
+            scope: "application" | "student" | "both";
+            /** @enum {string} */
+            fieldType: "text" | "textarea" | "number" | "date" | "select" | "email" | "phone" | "url" | "checkbox";
+            placeholder?: string | null;
+            helpText?: string | null;
+            options?: components["schemas"]["AdmissionFormFieldOptionDto"][] | null;
+            key: string;
+            label: string;
+            required: boolean;
+            active: boolean;
+            sortOrder: number;
+        };
         AdmissionEnquiryDto: {
             email?: string | null;
             source?: string | null;
@@ -1747,7 +1821,6 @@ export interface components {
             /** @enum {string} */
             status: "new" | "in_progress" | "converted" | "closed";
             notes?: string | null;
-            campusId: string;
             studentName: string;
             guardianName: string;
             mobile: string;
@@ -1758,7 +1831,6 @@ export interface components {
             /** @enum {string} */
             status: "new" | "in_progress" | "converted" | "closed";
             notes?: string | null;
-            campusId: string;
             studentName: string;
             guardianName: string;
             mobile: string;
@@ -1772,6 +1844,9 @@ export interface components {
             /** @enum {string} */
             status: "draft" | "submitted" | "reviewed" | "approved" | "rejected";
             notes?: string | null;
+            customFieldValues?: {
+                [key: string]: unknown;
+            } | null;
             id: string;
             institutionId: string;
             campusId: string;
@@ -1797,7 +1872,9 @@ export interface components {
             /** @enum {string} */
             status: "draft" | "submitted" | "reviewed" | "approved" | "rejected";
             notes?: string | null;
-            campusId: string;
+            customFieldValues?: {
+                [key: string]: unknown;
+            } | null;
             studentFirstName: string;
             guardianName: string;
             mobile: string;
@@ -1811,7 +1888,9 @@ export interface components {
             /** @enum {string} */
             status: "draft" | "submitted" | "reviewed" | "approved" | "rejected";
             notes?: string | null;
-            campusId: string;
+            customFieldValues?: {
+                [key: string]: unknown;
+            } | null;
             studentFirstName: string;
             guardianName: string;
             mobile: string;
@@ -1850,12 +1929,10 @@ export interface components {
         };
         CreateClassBodyDto: {
             name: string;
-            campusId: string;
             sections: components["schemas"]["ClassSectionBodyDto"][];
         };
         UpdateClassBodyDto: {
             name: string;
-            campusId: string;
             sections: components["schemas"]["ClassSectionBodyDto"][];
         };
         SetClassStatusBodyDto: {
@@ -1881,12 +1958,10 @@ export interface components {
             pageCount: number;
         };
         CreateSubjectBodyDto: {
-            campusId: string;
             name: string;
             code?: string | null;
         };
         UpdateSubjectBodyDto: {
-            campusId: string;
             name: string;
             code?: string | null;
         };
@@ -1952,7 +2027,6 @@ export interface components {
             pageCount: number;
         };
         CreateCalendarEventBodyDto: {
-            campusId?: string | null;
             title: string;
             description?: string | null;
             eventDate: string;
@@ -1963,7 +2037,6 @@ export interface components {
             eventType: "holiday" | "exam" | "event" | "deadline";
         };
         UpdateCalendarEventBodyDto: {
-            campusId?: string | null;
             title: string;
             description?: string | null;
             eventDate: string;
@@ -2002,7 +2075,6 @@ export interface components {
             pageCount: number;
         };
         CreateAnnouncementBodyDto: {
-            campusId?: string | null;
             title: string;
             summary?: string | null;
             body: string;
@@ -2012,7 +2084,6 @@ export interface components {
             publishNow: boolean;
         };
         UpdateAnnouncementBodyDto: {
-            campusId?: string | null;
             title: string;
             summary?: string | null;
             body: string;
@@ -2125,6 +2196,9 @@ export interface components {
             status: "active" | "deleted" | "inactive" | "suspended";
             guardians: components["schemas"]["StudentGuardianDto"][];
             currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentDto"] | null;
+            customFieldValues?: {
+                [key: string]: unknown;
+            } | null;
             id: string;
             membershipId: string;
             institutionId: string;
@@ -2167,12 +2241,14 @@ export interface components {
         CreateStudentBodyDto: {
             lastName?: string | null;
             guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
+            customFieldValues?: {
+                [key: string]: unknown;
+            } | null;
             currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
             admissionNumber: string;
             firstName: string;
             classId: string;
             sectionId: string;
-            campusId: string;
         };
         StudentAttendanceRecordDto: {
             /** @enum {string} */
@@ -2259,12 +2335,14 @@ export interface components {
         UpdateStudentBodyDto: {
             lastName?: string | null;
             guardians: components["schemas"]["CreateGuardianLinkBodyDto"][];
+            customFieldValues?: {
+                [key: string]: unknown;
+            } | null;
             currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
             admissionNumber: string;
             firstName: string;
             classId: string;
             sectionId: string;
-            campusId: string;
         };
         StudentRolloverSectionMappingBodyDto: {
             sourceClassId: string;
@@ -2387,7 +2465,6 @@ export interface components {
             status: "active" | "deleted" | "inactive" | "suspended";
             name: string;
             mobile: string;
-            campusId: string;
         };
         StaffPasswordSetupDto: {
             /** @enum {string} */
@@ -2412,7 +2489,6 @@ export interface components {
             status: "active" | "deleted" | "inactive" | "suspended";
             name: string;
             mobile: string;
-            campusId: string;
         };
         SetStaffStatusBodyDto: {
             /** @enum {string} */
@@ -2453,7 +2529,6 @@ export interface components {
             email?: string | null;
             name: string;
             mobile: string;
-            campusId: string;
         };
         LinkGuardianStudentBodyDto: {
             /** @enum {string} */
@@ -2532,7 +2607,6 @@ export interface components {
             dueDate: string;
         };
         CreateFeeStructureBodyDto: {
-            campusId?: string | null;
             description?: string | null;
             /** @enum {string} */
             scope: "institution" | "campus";
@@ -2753,7 +2827,6 @@ export interface components {
         UpsertAttendanceDayBodyDto: {
             entries: components["schemas"]["AttendanceDayEntryBodyDto"][];
             attendanceDate: string;
-            campusId: string;
             classId: string;
             sectionId: string;
         };
@@ -3329,6 +3402,75 @@ export interface operations {
             };
         };
     };
+    AdmissionsController_listAdmissionFormFields: {
+        parameters: {
+            query?: {
+                scope?: "application" | "student" | "both";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListAdmissionFormFieldsResultDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_createAdmissionFormField: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertAdmissionFormFieldBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdmissionFormFieldDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_updateAdmissionFormField: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fieldId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertAdmissionFormFieldBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdmissionFormFieldDto"];
+                };
+            };
+        };
+    };
     AdmissionsController_listAdmissionEnquiries: {
         parameters: {
             query?: {
@@ -3336,7 +3478,6 @@ export interface operations {
                 limit?: number;
                 sort?: "campus" | "createdAt" | "status" | "studentName";
                 order?: "asc" | "desc";
-                campusId?: string | null;
                 q?: string;
             };
             header?: never;
@@ -3431,7 +3572,6 @@ export interface operations {
                 limit?: number;
                 sort?: "campus" | "createdAt" | "status" | "studentName";
                 order?: "asc" | "desc";
-                campusId?: string | null;
                 q?: string;
             };
             header?: never;
@@ -3522,7 +3662,6 @@ export interface operations {
     ClassesController_listClasses: {
         parameters: {
             query?: {
-                campusId?: string | null;
                 page?: number;
                 limit?: number;
                 q?: string;
@@ -3661,7 +3800,6 @@ export interface operations {
     SubjectsController_listSubjects: {
         parameters: {
             query?: {
-                campusId?: string | null;
                 page?: number;
                 limit?: number;
                 q?: string;
@@ -3866,7 +4004,6 @@ export interface operations {
     CalendarController_listEvents: {
         parameters: {
             query?: {
-                campusId?: string | null;
                 fromDate?: string | null;
                 toDate?: string | null;
                 page?: number;
@@ -4007,7 +4144,6 @@ export interface operations {
     CommunicationsController_listAnnouncements: {
         parameters: {
             query?: {
-                campusId?: string | null;
                 q?: string;
                 page?: number;
                 limit?: number;
@@ -4150,7 +4286,6 @@ export interface operations {
     CommunicationsController_listNotifications: {
         parameters: {
             query?: {
-                campusId?: string | null;
                 q?: string;
                 page?: number;
                 limit?: number;
@@ -4309,7 +4444,6 @@ export interface operations {
                 limit?: number;
                 sort?: "admissionNumber" | "campus" | "name";
                 order?: "asc" | "desc";
-                campusId?: string | null;
                 q?: string;
             };
             header?: never;
@@ -4490,7 +4624,6 @@ export interface operations {
                 limit?: number;
                 sort?: "campus" | "name" | "status";
                 order?: "asc" | "desc";
-                campusId?: string | null;
                 q?: string;
             };
             header?: never;
@@ -4714,7 +4847,6 @@ export interface operations {
                 limit?: number;
                 sort?: "campus" | "name" | "status";
                 order?: "asc" | "desc";
-                campusId?: string | null;
                 q?: string;
             };
             header?: never;
@@ -4861,7 +4993,6 @@ export interface operations {
                 sort?: "name" | "dueDate" | "amount" | "academicYear";
                 order?: "asc" | "desc";
                 academicYearId?: string | null;
-                campusId?: string | null;
                 status?: "active" | "archived" | null;
             };
             header?: never;
@@ -5044,7 +5175,6 @@ export interface operations {
                 sort?: "studentName" | "dueDate" | "status" | "amount";
                 order?: "asc" | "desc";
                 feeStructureId?: string | null;
-                campusId?: string | null;
                 status?: "pending" | "partial" | "paid" | null;
             };
             header?: never;
@@ -5256,7 +5386,6 @@ export interface operations {
                 sort?: "studentName" | "dueDate" | "status" | "amount";
                 order?: "asc" | "desc";
                 overdue?: boolean | null;
-                campusId?: string | null;
             };
             header?: never;
             path?: never;
@@ -5278,7 +5407,6 @@ export interface operations {
         parameters: {
             query?: {
                 academicYearId?: string | null;
-                campusId?: string | null;
             };
             header?: never;
             path?: never;
@@ -5396,9 +5524,7 @@ export interface operations {
     };
     AttendanceController_listClassSections: {
         parameters: {
-            query: {
-                campusId: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -5419,7 +5545,6 @@ export interface operations {
         parameters: {
             query: {
                 attendanceDate: string;
-                campusId: string;
                 classId: string;
                 sectionId: string;
             };
@@ -5507,7 +5632,6 @@ export interface operations {
     AttendanceController_getAttendanceClassReport: {
         parameters: {
             query: {
-                campusId: string;
                 classId: string;
                 sectionId: string;
                 startDate: string;

@@ -1,45 +1,33 @@
 import * as React from "react";
 import {
   AUTH_CONTEXT_KEYS,
-  PERMISSIONS,
   type AuthContextKey,
-  type PermissionSlug,
 } from "@repo/contracts";
 import {
+  IconAdjustments,
   IconBook2,
   IconBooks,
-  IconBellRinging2,
-  IconBuildingEstate,
   IconCalendar,
   IconCalendarStats,
   IconCertificate,
   IconCheck,
   IconChartBar,
-  IconChevronsUp,
   IconChevronDown,
   IconChevronRight,
-  IconClipboardList,
   IconCurrencyRupee,
-  IconDashboard,
   IconFileDescription,
-  IconFileText,
   IconFolder,
   IconHome,
   IconLayoutGrid,
   IconMessageCircle,
   IconNotebook,
-  IconPalette,
-  IconReportMoney,
   IconSchool,
-  IconShieldLock,
   IconSpeakerphone,
   IconTruck,
   IconUserHeart,
-  IconUserSearch,
   IconUserStar,
   IconUsers,
   IconUsersGroup,
-  type Icon,
 } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router";
 import {
@@ -50,6 +38,20 @@ import {
 import { cn } from "@repo/ui/lib/utils";
 import { NavMain } from "@/components/navigation/nav-main";
 import { NavUser } from "@/components/navigation/nav-user";
+import {
+  getActionableNavItems,
+  NAV_HOME,
+  NAV_CORE,
+  NAV_ADMISSIONS,
+  NAV_ACADEMIC_MANAGEMENT,
+  NAV_RECORDS,
+  NAV_FINANCE,
+  NAV_COMMUNICATION,
+  NAV_SERVICES,
+  NAV_HR,
+  NAV_REPORTS,
+  NAV_SETTINGS,
+} from "@/components/navigation/nav-items";
 import { useSelectContextMutation } from "@/features/auth/api/use-auth";
 import {
   getContextSecondaryLabel,
@@ -93,264 +95,6 @@ const CONTEXT_SWITCHER_ACTIVE_ITEM_CLASS =
   "border-transparent bg-[color-mix(in_srgb,var(--primary)_12%,white)] text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]";
 const CONTEXT_SWITCHER_INACTIVE_ITEM_CLASS =
   "border-border/70 bg-card text-foreground hover:border-primary/20 hover:bg-muted/40";
-
-const NAV_HOME = [
-  { icon: IconDashboard, title: "Dashboard", url: ERP_ROUTES.DASHBOARD },
-  {
-    badgeLabel: "Now",
-    icon: IconBellRinging2,
-    title: "Notifications",
-    url: ERP_ROUTES.NOTIFICATIONS,
-  },
-] as const;
-
-const NAV_ADMISSIONS = [
-  {
-    icon: IconUserSearch,
-    title: "Enquiries",
-    url: ERP_ROUTES.ADMISSIONS_ENQUIRIES,
-  },
-  {
-    icon: IconFileDescription,
-    title: "Applications",
-    url: ERP_ROUTES.ADMISSIONS_APPLICATIONS,
-  },
-] as const;
-
-const NAV_CORE = [
-  { icon: IconUsers, title: "Students", url: ERP_ROUTES.STUDENTS },
-  { icon: IconUsersGroup, title: "Staff", url: ERP_ROUTES.STAFF },
-  { icon: IconCalendarStats, title: "Attendance", url: ERP_ROUTES.ATTENDANCE },
-  { icon: IconCertificate, title: "Exams", url: ERP_ROUTES.EXAMS },
-  { icon: IconCurrencyRupee, title: "Fees", url: ERP_ROUTES.FEES },
-] as const;
-
-const NAV_ACADEMIC_MANAGEMENT = [
-  { icon: IconBook2, title: "Academic Years", url: ERP_ROUTES.ACADEMIC_YEARS },
-  { icon: IconBook2, title: "Classes", url: ERP_ROUTES.CLASSES },
-  {
-    icon: IconChevronsUp,
-    title: "Rollover",
-    url: ERP_ROUTES.STUDENT_ROLLOVER,
-  },
-  {
-    icon: IconBooks,
-    title: "Subjects",
-    url: ERP_ROUTES.SUBJECTS,
-  },
-  {
-    icon: IconLayoutGrid,
-    title: "Timetable",
-    url: ERP_ROUTES.TIMETABLE,
-  },
-  {
-    icon: IconCalendar,
-    title: "Calendar",
-    url: ERP_ROUTES.CALENDAR,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconNotebook,
-    title: "Homework",
-    url: ERP_ROUTES.HOMEWORK,
-  },
-] as const;
-
-const NAV_RECORDS = [
-  { icon: IconUsers, title: "Guardians", url: ERP_ROUTES.GUARDIANS },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconFolder,
-    title: "Documents",
-    url: ERP_ROUTES.DOCUMENTS,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconCertificate,
-    title: "Certificates",
-    url: ERP_ROUTES.CERTIFICATES,
-  },
-  {
-    badgeLabel: "Later",
-    disabled: true,
-    icon: IconClipboardList,
-    title: "Discipline",
-    url: ERP_ROUTES.DISCIPLINE,
-  },
-] as const;
-
-const NAV_FINANCE = [
-  {
-    icon: IconCurrencyRupee,
-    title: "Fee Structures",
-    url: ERP_ROUTES.FEE_STRUCTURES,
-  },
-  {
-    icon: IconReportMoney,
-    title: "Fee Assignments",
-    url: ERP_ROUTES.FEE_ASSIGNMENTS,
-  },
-  {
-    icon: IconReportMoney,
-    title: "Fee Dues",
-    url: ERP_ROUTES.FEE_DUES,
-  },
-  {
-    icon: IconChartBar,
-    title: "Fee Reports",
-    url: ERP_ROUTES.FEE_REPORTS,
-  },
-  {
-    badgeLabel: "Later",
-    disabled: true,
-    icon: IconFileText,
-    title: "Ledger",
-    url: ERP_ROUTES.FEE_LEDGER,
-  },
-] as const;
-
-const NAV_REPORTS = [
-  {
-    badgeLabel: "Now",
-    icon: IconCalendarStats,
-    title: "Attendance",
-    url: ERP_ROUTES.REPORTS_ATTENDANCE,
-  },
-  {
-    badgeLabel: "Next",
-    disabled: true,
-    icon: IconChartBar,
-    title: "Exams",
-    url: ERP_ROUTES.REPORTS_EXAMS,
-  },
-  {
-    badgeLabel: "Now",
-    icon: IconReportMoney,
-    title: "Fees",
-    url: ERP_ROUTES.FEE_REPORTS,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconFileDescription,
-    title: "Admissions",
-    url: ERP_ROUTES.REPORTS_ADMISSIONS,
-  },
-  {
-    badgeLabel: "Later",
-    disabled: true,
-    icon: IconUsers,
-    title: "Students",
-    url: ERP_ROUTES.REPORTS_STUDENTS,
-  },
-] as const;
-
-const NAV_COMMUNICATION = [
-  {
-    badgeLabel: "Now",
-    icon: IconSpeakerphone,
-    permission: PERMISSIONS.COMMUNICATION_READ,
-    title: "Announcements",
-    url: ERP_ROUTES.ANNOUNCEMENTS,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconMessageCircle,
-    title: "Messages",
-    url: ERP_ROUTES.MESSAGES,
-  },
-] as const;
-
-const NAV_SERVICES = [
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconBooks,
-    title: "Library",
-    url: ERP_ROUTES.LIBRARY,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconTruck,
-    title: "Transport",
-    url: ERP_ROUTES.TRANSPORT,
-  },
-  {
-    badgeLabel: "Later",
-    disabled: true,
-    icon: IconLayoutGrid,
-    title: "Inventory",
-    url: ERP_ROUTES.INVENTORY,
-  },
-  {
-    badgeLabel: "Later",
-    disabled: true,
-    icon: IconBuildingEstate,
-    title: "Hostel",
-    url: ERP_ROUTES.HOSTEL,
-  },
-] as const;
-
-const NAV_HR = [
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconCalendarStats,
-    title: "Staff Attendance",
-    url: ERP_ROUTES.STAFF_ATTENDANCE,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconCalendar,
-    title: "Staff Leave",
-    url: ERP_ROUTES.STAFF_LEAVE,
-  },
-  {
-    badgeLabel: "Later",
-    disabled: true,
-    icon: IconReportMoney,
-    title: "Payroll",
-    url: ERP_ROUTES.PAYROLL,
-  },
-] as const;
-
-const NAV_SETTINGS = [
-  {
-    icon: IconBuildingEstate,
-    permission: PERMISSIONS.CAMPUS_MANAGE,
-    title: "Campuses",
-    url: ERP_ROUTES.SETTINGS_CAMPUSES,
-  },
-  {
-    icon: IconPalette,
-    permission: PERMISSIONS.INSTITUTION_SETTINGS_MANAGE,
-    title: "Branding",
-    url: ERP_ROUTES.SETTINGS_BRANDING,
-  },
-  {
-    icon: IconShieldLock,
-    permission: PERMISSIONS.INSTITUTION_ROLES_MANAGE,
-    title: "Roles",
-    url: ERP_ROUTES.SETTINGS_ROLES,
-  },
-  {
-    icon: IconClipboardList,
-    permission: PERMISSIONS.AUDIT_READ,
-    title: "Audit Trail",
-    url: ERP_ROUTES.SETTINGS_AUDIT,
-  },
-] as const satisfies ReadonlyArray<{
-  icon: typeof IconBuildingEstate;
-  permission: PermissionSlug;
-  title: string;
-  url: string;
-}>;
 
 const NAV_FAMILY = [
   {
@@ -534,18 +278,6 @@ const NAV_STUDENT_SERVICES = [
 const HEADER_CLASS =
   "flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-white/8 bg-white/4 px-3 py-3 text-left transition-[width,height,padding] hover:bg-white/8 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-2";
 
-type NavItem = {
-  badgeLabel?: string;
-  disabled?: boolean;
-  icon?: Icon;
-  permission?: PermissionSlug;
-  title: string;
-  url: string;
-};
-
-function getActionableNavItems(items: readonly NavItem[]): NavItem[] {
-  return items.filter((item) => !item.disabled);
-}
 
 function InstitutionLogo({
   logoUrl,
@@ -600,7 +332,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const homeItems = getActionableNavItems(NAV_HOME);
   const coreItems = getActionableNavItems(NAV_CORE);
   const admissionsItems = getActionableNavItems(NAV_ADMISSIONS);
-  const academicManagementItems = getActionableNavItems(NAV_ACADEMIC_MANAGEMENT);
+  const academicManagementItems = getActionableNavItems(
+    NAV_ACADEMIC_MANAGEMENT,
+  );
   const recordItems = getActionableNavItems(NAV_RECORDS);
   const financeItems = getActionableNavItems(NAV_FINANCE);
   const communicationItems = getActionableNavItems(NAV_COMMUNICATION).filter(
@@ -619,10 +353,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     (item) => item.permission && hasPermission(session, item.permission),
   );
   const familyItems = getActionableNavItems(NAV_FAMILY);
-  const familyCommunicationItems = getActionableNavItems(NAV_FAMILY_COMMUNICATION);
+  const familyCommunicationItems = getActionableNavItems(
+    NAV_FAMILY_COMMUNICATION,
+  );
   const familyServicesItems = getActionableNavItems(NAV_FAMILY_SERVICES);
   const studentAcademicItems = getActionableNavItems(NAV_STUDENT_ACADEMICS);
-  const studentCommunicationItems = getActionableNavItems(NAV_STUDENT_COMMUNICATION);
+  const studentCommunicationItems = getActionableNavItems(
+    NAV_STUDENT_COMMUNICATION,
+  );
   const studentServicesItems = getActionableNavItems(NAV_STUDENT_SERVICES);
   const sortedContexts = [...availableContexts].sort(
     (left, right) =>
@@ -743,93 +481,55 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         {showStaffNavigation ? (
           <>
-            <NavMain items={homeItems} label="Home" />
+            <NavMain items={homeItems} />
             {coreItems.length > 0 ? (
-              <NavMain collapsible defaultExpanded items={coreItems} label="Core" />
+              <NavMain collapsible icon={IconUsers} items={coreItems} label="People" />
             ) : null}
             {admissionsItems.length > 0 ? (
-              <NavMain
-                collapsible
-                defaultExpanded
-                items={admissionsItems}
-                label="Admissions"
-              />
+              <NavMain collapsible icon={IconFileDescription} items={admissionsItems} label="Admissions" />
             ) : null}
             {academicManagementItems.length > 0 ? (
-              <NavMain
-                collapsible
-                defaultExpanded
-                items={academicManagementItems}
-                label="Academic Management"
-              />
+              <NavMain collapsible icon={IconBook2} items={academicManagementItems} label="Academics" />
             ) : null}
             {recordItems.length > 0 ? (
-              <NavMain
-                collapsible
-                defaultExpanded
-                items={recordItems}
-                label="Records"
-              />
+              <NavMain collapsible icon={IconFolder} items={recordItems} label="Records" />
             ) : null}
             {financeItems.length > 0 ? (
-              <NavMain
-                collapsible
-                defaultExpanded
-                items={financeItems}
-                label="Finance"
-              />
+              <NavMain collapsible icon={IconCurrencyRupee} items={financeItems} label="Finance" />
             ) : null}
             {communicationItems.length > 0 ? (
-              <NavMain
-                collapsible
-                defaultExpanded
-                items={communicationItems}
-                label="Communication"
-              />
+              <NavMain collapsible icon={IconSpeakerphone} items={communicationItems} label="Communication" />
             ) : null}
             {servicesItems.length > 0 ? (
-              <NavMain
-                collapsible
-                defaultExpanded
-                items={servicesItems}
-                label="School Services"
-              />
+              <NavMain collapsible icon={IconLayoutGrid} items={servicesItems} label="Services" />
             ) : null}
             {hrItems.length > 0 ? (
-              <NavMain
-                collapsible
-                defaultExpanded
-                items={hrItems}
-                label="HR & Payroll"
-              />
+              <NavMain collapsible icon={IconUsersGroup} items={hrItems} label="HR & Payroll" />
             ) : null}
             {reportItems.length > 0 ? (
-              <NavMain
-                collapsible
-                defaultExpanded
-                items={reportItems}
-                label="Reports"
-              />
+              <NavMain collapsible icon={IconChartBar} items={reportItems} label="Reports" />
             ) : null}
             {settingsItems.length > 0 ? (
-              <NavMain
-                collapsible
-                defaultExpanded
-                items={settingsItems}
-                label="Settings"
-              />
+              <NavMain collapsible icon={IconAdjustments} items={settingsItems} label="Settings" />
             ) : null}
           </>
         ) : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT ? (
           <>
-            <NavMain items={homeItems} label="Home" />
+            <NavMain items={homeItems} />
             {familyItems.length > 0 ? (
-              <NavMain collapsible defaultExpanded items={familyItems} label="Family" />
+              <NavMain
+                collapsible
+                defaultExpanded
+                icon={IconUserHeart}
+                items={familyItems}
+                label="Family"
+              />
             ) : null}
             {familyCommunicationItems.length > 0 ? (
               <NavMain
                 collapsible
                 defaultExpanded
+                icon={IconSpeakerphone}
                 items={familyCommunicationItems}
                 label="Communication"
               />
@@ -838,6 +538,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 defaultExpanded
+                icon={IconLayoutGrid}
                 items={familyServicesItems}
                 label="Services"
               />
@@ -845,11 +546,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </>
         ) : activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT ? (
           <>
-            <NavMain items={homeItems} label="Home" />
+            <NavMain items={homeItems} />
             {studentAcademicItems.length > 0 ? (
               <NavMain
                 collapsible
                 defaultExpanded
+                icon={IconBook2}
                 items={studentAcademicItems}
                 label="Academics"
               />
@@ -858,6 +560,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 defaultExpanded
+                icon={IconSpeakerphone}
                 items={studentCommunicationItems}
                 label="Communication"
               />
@@ -866,6 +569,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 defaultExpanded
+                icon={IconLayoutGrid}
                 items={studentServicesItems}
                 label="Services"
               />

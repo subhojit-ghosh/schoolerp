@@ -1,26 +1,25 @@
 import { DATABASE } from "@repo/backend-core";
 import {
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
-import { calendarEvents, campus } from "@repo/database";
 import {
   and,
   asc,
+  calendarEvents,
+  campus,
   count,
   desc,
   eq,
-  ilike,
-  inArray,
-  isNull,
-  ne,
-  or,
   gte,
+  ilike,
   lte,
+  ne,
   type SQL,
-} from "drizzle-orm";
+} from "@repo/database";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
@@ -53,11 +52,9 @@ export class CalendarService {
     scopes: ResolvedScopes,
     query: ListCalendarEventsQueryDto = {},
   ) {
-    const scopedCampusId = query.campusId ?? authSession.activeCampusId ?? undefined;
-
-    if (scopedCampusId) {
-      await this.getCampus(institutionId, scopedCampusId);
-    }
+    const scopedCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(scopedCampusId, scopes);
+    await this.getCampus(institutionId, scopedCampusId);
 
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableCalendarColumns.date;
@@ -80,21 +77,7 @@ export class CalendarService {
       conditions.push(ilike(calendarEvents.title, `%${query.search}%`));
     }
 
-    if (scopedCampusId) {
-      conditions.push(
-        or(
-          isNull(calendarEvents.campusId),
-          eq(calendarEvents.campusId, scopedCampusId),
-        )!,
-      );
-    } else if (scopes.campusIds !== "all") {
-      conditions.push(
-        or(
-          isNull(calendarEvents.campusId),
-          inArray(calendarEvents.campusId, scopes.campusIds),
-        )!,
-      );
-    }
+    conditions.push(eq(calendarEvents.campusId, scopedCampusId));
 
     const where = and(...conditions)!;
 
@@ -182,16 +165,15 @@ export class CalendarService {
     authSession: AuthenticatedSession,
     payload: CreateCalendarEventDto,
   ) {
-    if (payload.campusId) {
-      await this.getCampus(institutionId, payload.campusId);
-    }
+    const campusId = this.requireActiveCampusId(authSession);
+    await this.getCampus(institutionId, campusId);
 
     const eventId = randomUUID();
 
     await this.db.insert(calendarEvents).values({
       id: eventId,
       institutionId,
-      campusId: payload.campusId ?? null,
+      campusId,
       title: normalizeCalendarValue(payload.title)!,
       description: normalizeCalendarValue(payload.description) ?? null,
       eventDate: payload.eventDate,
@@ -212,15 +194,13 @@ export class CalendarService {
     payload: UpdateCalendarEventDto,
   ) {
     await this.getEventOrThrow(institutionId, eventId);
-
-    if (payload.campusId) {
-      await this.getCampus(institutionId, payload.campusId);
-    }
+    const campusId = this.requireActiveCampusId(authSession);
+    await this.getCampus(institutionId, campusId);
 
     await this.db
       .update(calendarEvents)
       .set({
-        campusId: payload.campusId ?? null,
+        campusId,
         title: normalizeCalendarValue(payload.title)!,
         description: normalizeCalendarValue(payload.description) ?? null,
         eventDate: payload.eventDate,
@@ -321,5 +301,23 @@ export class CalendarService {
     }
 
     return campusRecord;
+  }
+
+  private requireActiveCampusId(authSession: AuthenticatedSession) {
+    if (!authSession.activeCampusId) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return authSession.activeCampusId;
+  }
+
+  private assertCampusScopeAccess(campusId: string, scopes: ResolvedScopes) {
+    if (scopes.campusIds === "all") {
+      return;
+    }
+
+    if (!scopes.campusIds.includes(campusId)) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
   }
 }

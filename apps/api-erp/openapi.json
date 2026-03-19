@@ -571,6 +571,128 @@
         ]
       }
     },
+    "/admissions/form-fields": {
+      "get": {
+        "operationId": "AdmissionsController_listAdmissionFormFields",
+        "parameters": [
+          {
+            "name": "scope",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "application",
+                "student",
+                "both"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListAdmissionFormFieldsResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List configured admission form fields",
+        "tags": [
+          "admissions"
+        ]
+      },
+      "post": {
+        "operationId": "AdmissionsController_createAdmissionFormField",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertAdmissionFormFieldBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionFormFieldDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an admission form field definition",
+        "tags": [
+          "admissions"
+        ]
+      }
+    },
+    "/admissions/form-fields/{fieldId}": {
+      "patch": {
+        "operationId": "AdmissionsController_updateAdmissionFormField",
+        "parameters": [
+          {
+            "name": "fieldId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertAdmissionFormFieldBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdmissionFormFieldDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update an admission form field definition",
+        "tags": [
+          "admissions"
+        ]
+      }
+    },
     "/admissions/enquiries": {
       "get": {
         "operationId": "AdmissionsController_listAdmissionEnquiries",
@@ -616,15 +738,6 @@
                 "asc",
                 "desc"
               ]
-            }
-          },
-          {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
             }
           },
           {
@@ -822,15 +935,6 @@
             }
           },
           {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
-          },
-          {
             "name": "q",
             "required": false,
             "in": "query",
@@ -981,15 +1085,6 @@
       "get": {
         "operationId": "ClassesController_listClasses",
         "parameters": [
-          {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
-          },
           {
             "name": "page",
             "required": false,
@@ -1256,15 +1351,6 @@
       "get": {
         "operationId": "SubjectsController_listSubjects",
         "parameters": [
-          {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
-          },
           {
             "name": "page",
             "required": false,
@@ -1651,15 +1737,6 @@
         "operationId": "CalendarController_listEvents",
         "parameters": [
           {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
-          },
-          {
             "name": "fromDate",
             "required": false,
             "in": "query",
@@ -1944,15 +2021,6 @@
       "get": {
         "operationId": "CommunicationsController_listAnnouncements",
         "parameters": [
-          {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
-          },
           {
             "name": "q",
             "required": false,
@@ -2256,15 +2324,6 @@
       "get": {
         "operationId": "CommunicationsController_listNotifications",
         "parameters": [
-          {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
-          },
           {
             "name": "q",
             "required": false,
@@ -2589,15 +2648,6 @@
                 "asc",
                 "desc"
               ]
-            }
-          },
-          {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
             }
           },
           {
@@ -2931,15 +2981,6 @@
                 "asc",
                 "desc"
               ]
-            }
-          },
-          {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
             }
           },
           {
@@ -3359,15 +3400,6 @@
             }
           },
           {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
-          },
-          {
             "name": "q",
             "required": false,
             "in": "query",
@@ -3678,15 +3710,6 @@
           },
           {
             "name": "academicYearId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
-          },
-          {
-            "name": "campusId",
             "required": false,
             "in": "query",
             "schema": {
@@ -4048,15 +4071,6 @@
           },
           {
             "name": "feeStructureId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
-          },
-          {
-            "name": "campusId",
             "required": false,
             "in": "query",
             "schema": {
@@ -4473,15 +4487,6 @@
               "nullable": true,
               "type": "boolean"
             }
-          },
-          {
-            "name": "campusId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
           }
         ],
         "responses": {
@@ -4513,15 +4518,6 @@
         "parameters": [
           {
             "name": "academicYearId",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "type": "string"
-            }
-          },
-          {
-            "name": "campusId",
             "required": false,
             "in": "query",
             "schema": {
@@ -4750,16 +4746,7 @@
     "/attendance/class-sections": {
       "get": {
         "operationId": "AttendanceController_listClassSections",
-        "parameters": [
-          {
-            "name": "campusId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "",
@@ -4792,14 +4779,6 @@
         "parameters": [
           {
             "name": "attendanceDate",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "campusId",
             "required": true,
             "in": "query",
             "schema": {
@@ -4963,14 +4942,6 @@
       "get": {
         "operationId": "AttendanceController_getAttendanceClassReport",
         "parameters": [
-          {
-            "name": "campusId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
           {
             "name": "classId",
             "required": true,
@@ -6507,6 +6478,183 @@
           "name"
         ]
       },
+      "AdmissionFormFieldOptionDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "value"
+        ]
+      },
+      "AdmissionFormFieldDto": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "application",
+              "student",
+              "both"
+            ]
+          },
+          "fieldType": {
+            "type": "string",
+            "enum": [
+              "text",
+              "textarea",
+              "number",
+              "date",
+              "select",
+              "email",
+              "phone",
+              "url",
+              "checkbox"
+            ]
+          },
+          "placeholder": {
+            "type": "string",
+            "nullable": true
+          },
+          "helpText": {
+            "type": "string",
+            "nullable": true
+          },
+          "options": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionFormFieldOptionDto"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "scope",
+          "fieldType",
+          "id",
+          "institutionId",
+          "key",
+          "label",
+          "required",
+          "active",
+          "sortOrder",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "ListAdmissionFormFieldsResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionFormFieldDto"
+            }
+          }
+        },
+        "required": [
+          "rows"
+        ]
+      },
+      "UpsertAdmissionFormFieldBodyDto": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "application",
+              "student",
+              "both"
+            ]
+          },
+          "fieldType": {
+            "type": "string",
+            "enum": [
+              "text",
+              "textarea",
+              "number",
+              "date",
+              "select",
+              "email",
+              "phone",
+              "url",
+              "checkbox"
+            ]
+          },
+          "placeholder": {
+            "type": "string",
+            "nullable": true
+          },
+          "helpText": {
+            "type": "string",
+            "nullable": true
+          },
+          "options": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdmissionFormFieldOptionDto"
+            }
+          },
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "scope",
+          "fieldType",
+          "key",
+          "label",
+          "required",
+          "active",
+          "sortOrder"
+        ]
+      },
       "AdmissionEnquiryDto": {
         "type": "object",
         "properties": {
@@ -6622,9 +6770,6 @@
             "type": "string",
             "nullable": true
           },
-          "campusId": {
-            "type": "string"
-          },
           "studentName": {
             "type": "string"
           },
@@ -6637,7 +6782,6 @@
         },
         "required": [
           "status",
-          "campusId",
           "studentName",
           "guardianName",
           "mobile"
@@ -6667,9 +6811,6 @@
             "type": "string",
             "nullable": true
           },
-          "campusId": {
-            "type": "string"
-          },
           "studentName": {
             "type": "string"
           },
@@ -6682,7 +6823,6 @@
         },
         "required": [
           "status",
-          "campusId",
           "studentName",
           "guardianName",
           "mobile"
@@ -6724,6 +6864,11 @@
           "notes": {
             "type": "string",
             "nullable": true
+          },
+          "customFieldValues": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true
           },
           "id": {
             "type": "string"
@@ -6829,8 +6974,10 @@
             "type": "string",
             "nullable": true
           },
-          "campusId": {
-            "type": "string"
+          "customFieldValues": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true
           },
           "studentFirstName": {
             "type": "string"
@@ -6844,7 +6991,6 @@
         },
         "required": [
           "status",
-          "campusId",
           "studentFirstName",
           "guardianName",
           "mobile"
@@ -6887,8 +7033,10 @@
             "type": "string",
             "nullable": true
           },
-          "campusId": {
-            "type": "string"
+          "customFieldValues": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true
           },
           "studentFirstName": {
             "type": "string"
@@ -6902,7 +7050,6 @@
         },
         "required": [
           "status",
-          "campusId",
           "studentFirstName",
           "guardianName",
           "mobile"
@@ -7047,9 +7194,6 @@
           "name": {
             "type": "string"
           },
-          "campusId": {
-            "type": "string"
-          },
           "sections": {
             "type": "array",
             "items": {
@@ -7059,7 +7203,6 @@
         },
         "required": [
           "name",
-          "campusId",
           "sections"
         ]
       },
@@ -7069,9 +7212,6 @@
           "name": {
             "type": "string"
           },
-          "campusId": {
-            "type": "string"
-          },
           "sections": {
             "type": "array",
             "items": {
@@ -7081,7 +7221,6 @@
         },
         "required": [
           "name",
-          "campusId",
           "sections"
         ]
       },
@@ -7177,9 +7316,6 @@
       "CreateSubjectBodyDto": {
         "type": "object",
         "properties": {
-          "campusId": {
-            "type": "string"
-          },
           "name": {
             "type": "string"
           },
@@ -7189,16 +7325,12 @@
           }
         },
         "required": [
-          "campusId",
           "name"
         ]
       },
       "UpdateSubjectBodyDto": {
         "type": "object",
         "properties": {
-          "campusId": {
-            "type": "string"
-          },
           "name": {
             "type": "string"
           },
@@ -7208,7 +7340,6 @@
           }
         },
         "required": [
-          "campusId",
           "name"
         ]
       },
@@ -7475,10 +7606,6 @@
       "CreateCalendarEventBodyDto": {
         "type": "object",
         "properties": {
-          "campusId": {
-            "type": "string",
-            "nullable": true
-          },
           "title": {
             "type": "string"
           },
@@ -7520,10 +7647,6 @@
       "UpdateCalendarEventBodyDto": {
         "type": "object",
         "properties": {
-          "campusId": {
-            "type": "string",
-            "nullable": true
-          },
           "title": {
             "type": "string"
           },
@@ -7681,10 +7804,6 @@
       "CreateAnnouncementBodyDto": {
         "type": "object",
         "properties": {
-          "campusId": {
-            "type": "string",
-            "nullable": true
-          },
           "title": {
             "type": "string"
           },
@@ -7718,10 +7837,6 @@
       "UpdateAnnouncementBodyDto": {
         "type": "object",
         "properties": {
-          "campusId": {
-            "type": "string",
-            "nullable": true
-          },
           "title": {
             "type": "string"
           },
@@ -8199,6 +8314,11 @@
               }
             ]
           },
+          "customFieldValues": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true
+          },
           "id": {
             "type": "string"
           },
@@ -8370,6 +8490,11 @@
               "$ref": "#/components/schemas/CreateGuardianLinkBodyDto"
             }
           },
+          "customFieldValues": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true
+          },
           "currentEnrollment": {
             "nullable": true,
             "allOf": [
@@ -8389,9 +8514,6 @@
           },
           "sectionId": {
             "type": "string"
-          },
-          "campusId": {
-            "type": "string"
           }
         },
         "required": [
@@ -8399,8 +8521,7 @@
           "admissionNumber",
           "firstName",
           "classId",
-          "sectionId",
-          "campusId"
+          "sectionId"
         ]
       },
       "StudentAttendanceRecordDto": {
@@ -8752,6 +8873,11 @@
               "$ref": "#/components/schemas/CreateGuardianLinkBodyDto"
             }
           },
+          "customFieldValues": {
+            "type": "object",
+            "nullable": true,
+            "additionalProperties": true
+          },
           "currentEnrollment": {
             "nullable": true,
             "allOf": [
@@ -8771,9 +8897,6 @@
           },
           "sectionId": {
             "type": "string"
-          },
-          "campusId": {
-            "type": "string"
           }
         },
         "required": [
@@ -8781,8 +8904,7 @@
           "admissionNumber",
           "firstName",
           "classId",
-          "sectionId",
-          "campusId"
+          "sectionId"
         ]
       },
       "StudentRolloverSectionMappingBodyDto": {
@@ -9277,16 +9399,12 @@
           },
           "mobile": {
             "type": "string"
-          },
-          "campusId": {
-            "type": "string"
           }
         },
         "required": [
           "status",
           "name",
-          "mobile",
-          "campusId"
+          "mobile"
         ]
       },
       "StaffPasswordSetupDto": {
@@ -9379,16 +9497,12 @@
           },
           "mobile": {
             "type": "string"
-          },
-          "campusId": {
-            "type": "string"
           }
         },
         "required": [
           "status",
           "name",
-          "mobile",
-          "campusId"
+          "mobile"
         ]
       },
       "SetStaffStatusBodyDto": {
@@ -9548,15 +9662,11 @@
           },
           "mobile": {
             "type": "string"
-          },
-          "campusId": {
-            "type": "string"
           }
         },
         "required": [
           "name",
-          "mobile",
-          "campusId"
+          "mobile"
         ]
       },
       "LinkGuardianStudentBodyDto": {
@@ -9866,10 +9976,6 @@
       "CreateFeeStructureBodyDto": {
         "type": "object",
         "properties": {
-          "campusId": {
-            "type": "string",
-            "nullable": true
-          },
           "description": {
             "type": "string",
             "nullable": true
@@ -10743,9 +10849,6 @@
           "attendanceDate": {
             "type": "string"
           },
-          "campusId": {
-            "type": "string"
-          },
           "classId": {
             "type": "string"
           },
@@ -10756,7 +10859,6 @@
         "required": [
           "entries",
           "attendanceDate",
-          "campusId",
           "classId",
           "sectionId"
         ]

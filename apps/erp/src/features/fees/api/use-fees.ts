@@ -24,12 +24,10 @@ export type FeeStructuresListQuery = {
   sort?: FeeStructureSortField;
   order?: SortOrder;
   academicYearId?: string;
-  campusId?: string;
   status?: "active" | "archived";
 };
 
 export type FeeAssignmentsListQuery = {
-  campusId?: string;
   q?: string;
   page?: number;
   limit?: number;
@@ -40,7 +38,6 @@ export type FeeAssignmentsListQuery = {
 };
 
 export type FeeDuesListQuery = {
-  campusId?: string;
   q?: string;
   page?: number;
   limit?: number;
@@ -51,7 +48,6 @@ export type FeeDuesListQuery = {
 
 export type CollectionSummaryQuery = {
   academicYearId?: string;
-  campusId?: string;
 };
 
 function invalidateFeesLists(queryClient: ReturnType<typeof useQueryClient>) {

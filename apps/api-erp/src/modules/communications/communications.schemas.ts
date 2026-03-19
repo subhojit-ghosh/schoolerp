@@ -23,7 +23,6 @@ export const sortableAnnouncementColumns = {
 } as const;
 
 export const listAnnouncementsQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   audience: z
     .enum([
       ANNOUNCEMENT_AUDIENCE.ALL,
@@ -50,7 +49,6 @@ export const listAnnouncementsQuerySchema = baseListQuerySchema.extend({
 });
 
 const baseAnnouncementSchema = z.object({
-  campusId: z.uuid().optional(),
   title: z.string().trim().min(TITLE_MIN_LENGTH, "Announcement title is required"),
   summary: z.string().trim().min(1).max(240).optional(),
   body: z.string().trim().min(BODY_MIN_LENGTH, "Announcement body is required"),
@@ -74,7 +72,6 @@ export const setAnnouncementStatusSchema = z.object({
 });
 
 export const listNotificationsQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   unreadOnly: z.coerce.boolean().optional(),
   actionRequired: z.coerce.boolean().optional(),
   channel: z
@@ -138,7 +135,6 @@ export function parseListAnnouncementsQuery(
 
   return {
     audience: result.audience,
-    campusId: result.campusId,
     limit: result.limit,
     order: result.order ?? SORT_ORDERS.DESC,
     page: result.page,
@@ -155,7 +151,6 @@ export function parseListNotificationsQuery(
 
   return {
     actionRequired: result.actionRequired,
-    campusId: result.campusId,
     channel: result.channel,
     limit: result.limit,
     order: result.order ?? SORT_ORDERS.DESC,

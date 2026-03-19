@@ -1,8 +1,7 @@
 import { DATABASE } from "@repo/backend-core";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
-import { and, eq, ne } from "drizzle-orm";
-import { campus, organization } from "@repo/database";
+import { and, campus, eq, ne, organization } from "@repo/database";
 import { APP_FALLBACKS, tenantBrandingSchema } from "@repo/contracts";
 import { STATUS } from "../../constants";
 

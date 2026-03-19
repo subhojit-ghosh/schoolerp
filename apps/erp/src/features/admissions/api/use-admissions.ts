@@ -1,4 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
+import { ADMISSION_FORM_FIELD_SCOPES } from "@repo/contracts";
 import { SORT_ORDERS } from "@/constants/query";
 import { ADMISSIONS_API_PATHS } from "@/features/auth/api/auth.constants";
 import {
@@ -14,7 +15,6 @@ type AdmissionApplicationListSort =
   (typeof ADMISSION_APPLICATION_LIST_SORT_FIELDS)[keyof typeof ADMISSION_APPLICATION_LIST_SORT_FIELDS];
 
 type AdmissionEnquiriesListQuery = {
-  campusId?: string;
   limit?: number;
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
   page?: number;
@@ -23,7 +23,6 @@ type AdmissionEnquiriesListQuery = {
 };
 
 type AdmissionApplicationsListQuery = {
-  campusId?: string;
   limit?: number;
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
   page?: number;
@@ -76,6 +75,28 @@ export function useAdmissionEnquiriesQuery(
       ? {
           params: {
             query,
+          },
+        }
+      : undefined,
+    {
+      enabled: Boolean(institutionId),
+    },
+  );
+}
+
+export function useAdmissionFormFieldsQuery(
+  institutionId: string | undefined,
+  scope?: (typeof ADMISSION_FORM_FIELD_SCOPES)[keyof typeof ADMISSION_FORM_FIELD_SCOPES],
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    ADMISSIONS_API_PATHS.LIST_FORM_FIELDS,
+    scope
+      ? {
+          params: {
+            query: {
+              scope,
+            },
           },
         }
       : undefined,
@@ -251,4 +272,46 @@ export function useUpdateAdmissionApplicationMutation(
       },
     },
   );
+}
+
+export function useCreateAdmissionFormFieldMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("post", ADMISSIONS_API_PATHS.CREATE_FORM_FIELD, {
+    onSuccess: () => {
+      if (!institutionId) {
+        return;
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          ADMISSIONS_API_PATHS.LIST_FORM_FIELDS,
+        ).queryKey,
+      });
+    },
+  });
+}
+
+export function useUpdateAdmissionFormFieldMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("patch", ADMISSIONS_API_PATHS.UPDATE_FORM_FIELD, {
+    onSuccess: () => {
+      if (!institutionId) {
+        return;
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          ADMISSIONS_API_PATHS.LIST_FORM_FIELDS,
+        ).queryKey,
+      });
+    },
+  });
 }

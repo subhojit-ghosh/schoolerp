@@ -62,7 +62,6 @@ export class CalendarController {
   @Get(API_ROUTES.EVENTS)
   @RequirePermission(PERMISSIONS.ACADEMICS_READ)
   @ApiOperation({ summary: "List calendar events for the current tenant" })
-  @ApiQuery({ name: "campusId", required: false, type: String })
   @ApiQuery({ name: "fromDate", required: false, type: String })
   @ApiQuery({ name: "toDate", required: false, type: String })
   @ApiQuery({ name: "page", required: false, type: Number })

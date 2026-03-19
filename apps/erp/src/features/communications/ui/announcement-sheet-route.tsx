@@ -34,7 +34,7 @@ export function AnnouncementSheetRoute({
   const { announcementId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const campuses = session?.campuses ?? [];
+  const activeCampusName = session?.activeCampus?.name;
   const announcementQuery = useAnnouncementQuery(
     mode === "edit" && Boolean(institutionId),
     announcementId,
@@ -44,21 +44,17 @@ export function AnnouncementSheetRoute({
 
   const defaultValues = useMemo<AnnouncementFormValues>(() => {
     if (mode === "create" || !announcementQuery.data) {
-      return {
-        ...DEFAULT_ANNOUNCEMENT_FORM_VALUES,
-        campusId: session?.activeCampus?.id ?? "",
-      };
+      return DEFAULT_ANNOUNCEMENT_FORM_VALUES;
     }
 
     return {
-      campusId: announcementQuery.data.campusId ?? "",
       title: announcementQuery.data.title,
       summary: announcementQuery.data.summary ?? "",
       body: announcementQuery.data.body,
       audience: announcementQuery.data.audience,
       publishNow: false,
     };
-  }, [announcementQuery.data, mode, session?.activeCampus?.id]);
+  }, [announcementQuery.data, mode]);
 
   async function handleSubmit(values: AnnouncementFormValues) {
     if (!institutionId) {
@@ -70,7 +66,6 @@ export function AnnouncementSheetRoute({
         body: {
           audience: values.audience,
           body: values.body,
-          campusId: values.campusId || undefined,
           publishNow: values.publishNow,
           summary: values.summary || undefined,
           title: values.title,
@@ -87,7 +82,6 @@ export function AnnouncementSheetRoute({
         body: {
           audience: values.audience,
           body: values.body,
-          campusId: values.campusId || undefined,
           publishNow: values.publishNow,
           summary: values.summary || undefined,
           title: values.title,
@@ -157,7 +151,11 @@ export function AnnouncementSheetRoute({
       title={mode === "create" ? "New announcement" : "Edit announcement"}
     >
       <AnnouncementForm
-        campuses={campuses}
+        campusName={
+          mode === "create"
+            ? activeCampusName ?? undefined
+            : announcementQuery.data?.campusName ?? undefined
+        }
         defaultValues={defaultValues}
         errorMessage={errorMessage}
         isPending={isPending}

@@ -58,10 +58,7 @@ export function StaffRoleAssignmentFields({
   value,
   onChange,
 }: StaffRoleAssignmentFieldsProps) {
-  const classesQuery = useClassesQuery(
-    Boolean(value.campusId),
-    value.campusId || undefined,
-  );
+  const classesQuery = useClassesQuery(Boolean(value.campusId));
 
   const classOptions = useMemo(
     () =>

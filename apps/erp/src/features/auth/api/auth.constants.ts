@@ -26,6 +26,9 @@ export const STUDENTS_API_PATHS = {
 } as const;
 
 export const ADMISSIONS_API_PATHS = {
+  LIST_FORM_FIELDS: "/admissions/form-fields",
+  CREATE_FORM_FIELD: "/admissions/form-fields",
+  UPDATE_FORM_FIELD: "/admissions/form-fields/{fieldId}",
   LIST_ENQUIRIES: "/admissions/enquiries",
   CREATE_ENQUIRY: "/admissions/enquiries",
   DETAIL_ENQUIRY: "/admissions/enquiries/{enquiryId}",

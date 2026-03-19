@@ -27,9 +27,9 @@ export const ADMISSION_APPLICATION_STATUS_OPTIONS = [
 const optionalTextSchema = z.string().trim();
 const optionalEmailSchema = z.union([z.literal(EMPTY_TEXT), z.email("Enter a valid email")]);
 const optionalEnquiryIdSchema = z.union([z.literal(EMPTY_TEXT), z.uuid("Select a valid enquiry")]);
+const customFieldValuesSchema = z.record(z.string(), z.unknown());
 
 export const admissionEnquiryFormSchema = z.object({
-  campusId: z.uuid("Select a campus"),
   studentName: z
     .string()
     .trim()
@@ -50,7 +50,6 @@ export const admissionEnquiryFormSchema = z.object({
 
 export const admissionApplicationFormSchema = z.object({
   enquiryId: optionalEnquiryIdSchema,
-  campusId: z.uuid("Select a campus"),
   studentFirstName: z
     .string()
     .trim()
@@ -69,6 +68,7 @@ export const admissionApplicationFormSchema = z.object({
   desiredSectionName: optionalTextSchema,
   status: z.enum(ADMISSION_APPLICATION_STATUS_OPTIONS),
   notes: optionalTextSchema,
+  customFieldValues: customFieldValuesSchema,
 });
 
 export type AdmissionEnquiryFormValues = z.infer<typeof admissionEnquiryFormSchema>;
@@ -87,7 +87,6 @@ export type AdmissionApplicationMutationBody =
   components["schemas"]["CreateAdmissionApplicationBodyDto"];
 
 export const ADMISSION_ENQUIRY_FORM_DEFAULT_VALUES: AdmissionEnquiryFormValues = {
-  campusId: "",
   studentName: "",
   guardianName: "",
   mobile: "",
@@ -99,7 +98,6 @@ export const ADMISSION_ENQUIRY_FORM_DEFAULT_VALUES: AdmissionEnquiryFormValues =
 
 export const ADMISSION_APPLICATION_FORM_DEFAULT_VALUES: AdmissionApplicationFormValues = {
   enquiryId: "",
-  campusId: "",
   studentFirstName: "",
   studentLastName: "",
   guardianName: "",
@@ -109,13 +107,13 @@ export const ADMISSION_APPLICATION_FORM_DEFAULT_VALUES: AdmissionApplicationForm
   desiredSectionName: "",
   status: ADMISSION_APPLICATION_STATUSES.DRAFT,
   notes: "",
+  customFieldValues: {},
 };
 
 export function toAdmissionEnquiryMutationBody(
   values: AdmissionEnquiryFormValues,
 ): AdmissionEnquiryMutationBody {
   return {
-    campusId: values.campusId,
     studentName: values.studentName,
     guardianName: values.guardianName,
     mobile: values.mobile,
@@ -131,7 +129,6 @@ export function toAdmissionApplicationMutationBody(
 ): AdmissionApplicationMutationBody {
   return {
     enquiryId: values.enquiryId || undefined,
-    campusId: values.campusId,
     studentFirstName: values.studentFirstName,
     studentLastName: values.studentLastName || undefined,
     guardianName: values.guardianName,
@@ -141,5 +138,9 @@ export function toAdmissionApplicationMutationBody(
     desiredSectionName: values.desiredSectionName || undefined,
     status: values.status,
     notes: values.notes || undefined,
+    customFieldValues:
+      Object.keys(values.customFieldValues).length > 0
+        ? values.customFieldValues
+        : undefined,
   };
 }

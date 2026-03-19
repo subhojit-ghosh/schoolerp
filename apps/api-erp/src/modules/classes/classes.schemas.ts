@@ -32,7 +32,6 @@ export const createClassSchema = z
       .string()
       .trim()
       .min(CLASS_NAME_MIN_LENGTH, "Class name is required"),
-    campusId: z.uuid(),
     sections: z.array(sectionSchema).min(1, "Add at least one section"),
   })
   .refine((value) => hasUniqueSectionNames(value.sections), {
@@ -47,7 +46,6 @@ export const setClassStatusSchema = z.object({
 });
 
 export const listClassesQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableClassColumns.name,
@@ -89,7 +87,6 @@ export function parseListClassesQuery(query: unknown): ListClassesQueryDto {
   const result = parseSchema(listClassesQuerySchema, query);
 
   return {
-    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,

@@ -18,7 +18,6 @@ export const sortableCalendarColumns = {
 
 const baseCalendarEventSchema = z
   .object({
-    campusId: z.uuid().optional(),
     title: z.string().trim().min(TITLE_MIN_LENGTH, "Event title is required"),
     description: z.string().trim().min(1).max(500).optional(),
     eventDate: z.string().date(),
@@ -58,7 +57,6 @@ export const setCalendarEventStatusSchema = z.object({
 });
 
 export const listCalendarEventsQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   fromDate: z.string().date().optional(),
   toDate: z.string().date().optional(),
   sort: z
@@ -104,7 +102,6 @@ export function parseListCalendarEventsQuery(
   const result = parseSchema(listCalendarEventsQuerySchema, query);
 
   return {
-    campusId: result.campusId,
     fromDate: result.fromDate,
     limit: result.limit,
     order: result.order,

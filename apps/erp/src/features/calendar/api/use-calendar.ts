@@ -8,7 +8,6 @@ type CalendarListSort =
   (typeof CALENDAR_LIST_SORT_FIELDS)[keyof typeof CALENDAR_LIST_SORT_FIELDS];
 
 type CalendarEventsListQuery = {
-  campusId?: string;
   fromDate?: string;
   toDate?: string;
   limit?: number;
@@ -20,13 +19,8 @@ type CalendarEventsListQuery = {
 
 export function useCalendarEventsQuery(
   enabled: boolean,
-  queryOrCampusId?: CalendarEventsListQuery | string,
+  query: CalendarEventsListQuery = {},
 ) {
-  const query =
-    typeof queryOrCampusId === "string"
-      ? { campusId: queryOrCampusId }
-      : (queryOrCampusId ?? {});
-
   return apiQueryClient.useQuery(
     "get",
     CALENDAR_API_PATHS.LIST_EVENTS,

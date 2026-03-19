@@ -1,4 +1,7 @@
 import {
+  admissionFormFieldOptionSchema,
+  admissionFormFieldScopeSchema,
+  admissionFormFieldTypeSchema,
   admissionApplicationStatusSchema,
   admissionEnquiryStatusSchema,
 } from "@repo/contracts";
@@ -17,9 +20,12 @@ const optionalStringSchema = z
   .optional()
   .or(z.literal(""))
   .transform((value) => value || undefined);
+const optionalCustomFieldValuesSchema = z
+  .record(z.string(), z.unknown())
+  .nullable()
+  .optional();
 
 export const createAdmissionEnquirySchema = z.object({
-  campusId: z.uuid(),
   studentName: z.string().trim().min(NAME_MIN_LENGTH, "Student name is required"),
   guardianName: z
     .string()
@@ -44,7 +50,6 @@ export const createAdmissionApplicationSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((value) => value || undefined),
-  campusId: z.uuid(),
   studentFirstName: z
     .string()
     .trim()
@@ -64,9 +69,31 @@ export const createAdmissionApplicationSchema = z.object({
   desiredSectionName: optionalStringSchema,
   status: admissionApplicationStatusSchema.default("draft"),
   notes: optionalStringSchema,
+  customFieldValues: optionalCustomFieldValuesSchema,
 });
 
 export const updateAdmissionApplicationSchema = createAdmissionApplicationSchema;
+
+export const admissionFormFieldIdSchema = z.object({
+  fieldId: z.uuid(),
+});
+
+export const listAdmissionFormFieldsQuerySchema = z.object({
+  scope: admissionFormFieldScopeSchema.optional(),
+});
+
+export const upsertAdmissionFormFieldSchema = z.object({
+  key: z.string().trim().min(NAME_MIN_LENGTH, "Field key is required"),
+  label: z.string().trim().min(NAME_MIN_LENGTH, "Field label is required"),
+  scope: admissionFormFieldScopeSchema,
+  fieldType: admissionFormFieldTypeSchema,
+  placeholder: optionalStringSchema,
+  helpText: optionalStringSchema,
+  required: z.boolean().default(false),
+  active: z.boolean().default(true),
+  options: z.array(admissionFormFieldOptionSchema).optional(),
+  sortOrder: z.number().int().default(0),
+});
 
 export const sortableAdmissionEnquiryColumns = {
   campus: "campus",
@@ -83,7 +110,6 @@ export const sortableAdmissionApplicationColumns = {
 } as const;
 
 export const listAdmissionEnquiriesQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableAdmissionEnquiryColumns.campus,
@@ -95,7 +121,6 @@ export const listAdmissionEnquiriesQuerySchema = baseListQuerySchema.extend({
 });
 
 export const listAdmissionApplicationsQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableAdmissionApplicationColumns.campus,
@@ -121,6 +146,12 @@ export type CreateAdmissionApplicationDto = z.infer<
 >;
 export type UpdateAdmissionApplicationDto = z.infer<
   typeof updateAdmissionApplicationSchema
+>;
+export type UpsertAdmissionFormFieldDto = z.infer<
+  typeof upsertAdmissionFormFieldSchema
+>;
+export type ListAdmissionFormFieldsQueryDto = z.infer<
+  typeof listAdmissionFormFieldsQuerySchema
 >;
 
 type ListAdmissionEnquiriesQueryInput = z.infer<
@@ -161,13 +192,20 @@ export function parseUpdateAdmissionApplication(input: unknown) {
   return updateAdmissionApplicationSchema.parse(input);
 }
 
+export function parseListAdmissionFormFieldsQuery(query: unknown) {
+  return listAdmissionFormFieldsQuerySchema.parse(query);
+}
+
+export function parseUpsertAdmissionFormField(input: unknown) {
+  return upsertAdmissionFormFieldSchema.parse(input);
+}
+
 export function parseListAdmissionEnquiriesQuery(
   query: unknown,
 ): ListAdmissionEnquiriesQueryDto {
   const result = parseListQuerySchema(listAdmissionEnquiriesQuerySchema, query);
 
   return {
-    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,
@@ -182,7 +220,6 @@ export function parseListAdmissionApplicationsQuery(
   const result = parseListQuerySchema(listAdmissionApplicationsQuerySchema, query);
 
   return {
-    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,

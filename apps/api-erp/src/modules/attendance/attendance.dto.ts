@@ -9,13 +9,10 @@ export class AttendanceClassSectionDto {
   studentCount!: number;
 }
 
-export class AttendanceClassSectionQueryParamsDto {
-  campusId!: string;
-}
+export class AttendanceClassSectionQueryParamsDto {}
 
 export class AttendanceDayQueryParamsDto {
   attendanceDate!: string;
-  campusId!: string;
   classId!: string;
   sectionId!: string;
 }
@@ -35,7 +32,6 @@ export class AttendanceDayEntryBodyDto {
 
 export class UpsertAttendanceDayBodyDto {
   attendanceDate!: string;
-  campusId!: string;
   classId!: string;
   sectionId!: string;
 
@@ -120,7 +116,6 @@ export class AttendanceOverviewItemDto {
 }
 
 export class AttendanceClassReportQueryParamsDto {
-  campusId!: string;
   classId!: string;
   sectionId!: string;
   startDate!: string;
@@ -137,7 +132,7 @@ export class AttendanceClassReportStudentDto {
   excused!: number;
   attendancePercent!: number;
 
-  @ApiProperty({ type: 'object', additionalProperties: { type: 'string' } })
+  @ApiProperty({ type: "object", additionalProperties: { type: "string" } })
   records!: Record<string, string>;
 }
 

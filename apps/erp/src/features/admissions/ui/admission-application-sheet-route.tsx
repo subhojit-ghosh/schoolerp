@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { ADMISSION_FORM_FIELD_SCOPES } from "@repo/contracts";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import {
@@ -12,6 +13,7 @@ import { ERP_ROUTES } from "@/constants/routes";
 import {
   useAdmissionApplicationQuery,
   useAdmissionEnquiriesQuery,
+  useAdmissionFormFieldsQuery,
   useCreateAdmissionApplicationMutation,
   useUpdateAdmissionApplicationMutation,
 } from "@/features/admissions/api/use-admissions";
@@ -20,9 +22,12 @@ import {
   toAdmissionApplicationMutationBody,
   type AdmissionApplicationFormValues,
 } from "@/features/admissions/model/admission-form-schema";
+import {
+  filterAdmissionFormFieldsForScope,
+  normalizeCustomFieldValues,
+} from "@/features/admissions/model/admission-custom-fields";
 import { AdmissionApplicationForm } from "@/features/admissions/ui/admission-application-form";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { useCampusesQuery } from "@/features/campuses/api/use-campuses";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -31,7 +36,6 @@ type AdmissionApplicationSheetRouteProps = {
 };
 
 type EnquiryDraft = {
-  campusId: string;
   email: string;
   guardianName: string;
   id: string;
@@ -47,7 +51,7 @@ export function AdmissionApplicationSheetRoute({
   const { applicationId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id ?? "";
+  const activeCampusName = session?.activeCampus?.name;
   const applicationQuery = useAdmissionApplicationQuery(
     institutionId,
     mode === "edit" ? applicationId : undefined,
@@ -58,26 +62,28 @@ export function AdmissionApplicationSheetRoute({
     sort: "createdAt",
     order: "desc",
   });
-  const campusesQuery = useCampusesQuery(institutionId, {
-    limit: 50,
-    page: 1,
-    sort: "name",
-    order: "asc",
-  });
+  const formFieldsQuery = useAdmissionFormFieldsQuery(
+    institutionId,
+    ADMISSION_FORM_FIELD_SCOPES.APPLICATION,
+  );
   const createMutation = useCreateAdmissionApplicationMutation(institutionId);
   const updateMutation = useUpdateAdmissionApplicationMutation(institutionId);
 
   const defaultValues = useMemo<AdmissionApplicationFormValues>(() => {
+    const scopedCustomFields = filterAdmissionFormFieldsForScope(
+      formFieldsQuery.data?.rows ?? [],
+      "application",
+    );
+
     if (mode === "create" || !applicationQuery.data) {
       return {
         ...ADMISSION_APPLICATION_FORM_DEFAULT_VALUES,
-        campusId: activeCampusId,
+        customFieldValues: normalizeCustomFieldValues(scopedCustomFields),
       };
     }
 
     return {
       enquiryId: applicationQuery.data.enquiryId ?? "",
-      campusId: applicationQuery.data.campusId,
       studentFirstName: applicationQuery.data.studentFirstName,
       studentLastName: applicationQuery.data.studentLastName ?? "",
       guardianName: applicationQuery.data.guardianName,
@@ -87,22 +93,16 @@ export function AdmissionApplicationSheetRoute({
       desiredSectionName: applicationQuery.data.desiredSectionName ?? "",
       status: applicationQuery.data.status,
       notes: applicationQuery.data.notes ?? "",
+      customFieldValues: normalizeCustomFieldValues(
+        scopedCustomFields,
+        applicationQuery.data.customFieldValues,
+      ),
     };
-  }, [activeCampusId, applicationQuery.data, mode]);
-
-  const campusOptions = useMemo(
-    () =>
-      (campusesQuery.data?.rows ?? []).map((campus) => ({
-        id: campus.id,
-        name: campus.name,
-      })),
-    [campusesQuery.data?.rows],
-  );
+  }, [applicationQuery.data, formFieldsQuery.data?.rows, mode]);
 
   const enquiryOptions = useMemo(
     () =>
       (enquiriesQuery.data?.rows ?? []).map((enquiry) => ({
-        campusId: enquiry.campusId,
         email: enquiry.email ?? "",
         guardianName: enquiry.guardianName,
         id: enquiry.id,
@@ -111,6 +111,11 @@ export function AdmissionApplicationSheetRoute({
       })),
     [enquiriesQuery.data?.rows],
   ) as EnquiryDraft[];
+  const customFields = useMemo(
+    () =>
+      filterAdmissionFormFieldsForScope(formFieldsQuery.data?.rows ?? [], "application"),
+    [formFieldsQuery.data?.rows],
+  );
 
   async function handleSubmit(values: AdmissionApplicationFormValues) {
     if (!institutionId) {
@@ -124,14 +129,16 @@ export function AdmissionApplicationSheetRoute({
       toast.success(
         ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ADMISSION_APPLICATION),
       );
-    } else if (applicationId) {
+    } else if (applicationId && applicationQuery.data) {
       await updateMutation.mutateAsync({
         params: {
           path: {
             applicationId,
           },
         },
-        body: toAdmissionApplicationMutationBody(values),
+        body: {
+          ...toAdmissionApplicationMutationBody(values),
+        },
       });
       toast.success(
         ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ADMISSION_APPLICATION),
@@ -198,7 +205,10 @@ export function AdmissionApplicationSheetRoute({
       }
     >
       <AdmissionApplicationForm
-        campuses={campusOptions}
+        campusName={
+          activeCampusName
+        }
+        customFields={customFields}
         defaultValues={defaultValues}
         enquiries={enquiryOptions}
         enableLinkedEnquiryAutofill={mode === "create"}

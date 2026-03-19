@@ -40,7 +40,6 @@ export function CalendarEventSheetRoute({ mode }: CalendarEventSheetRouteProps) 
   const { eventId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id;
   const eventQuery = useCalendarEventQuery(
     mode === "edit" && Boolean(institutionId),
     eventId,
@@ -72,7 +71,6 @@ export function CalendarEventSheetRoute({ mode }: CalendarEventSheetRouteProps) 
     if (mode === "create") {
       await createEventMutation.mutateAsync({
         body: {
-          campusId: activeCampusId,
           description: values.description || undefined,
           endTime: values.isAllDay ? undefined : values.endTime || undefined,
           eventDate: values.eventDate,
@@ -91,7 +89,6 @@ export function CalendarEventSheetRoute({ mode }: CalendarEventSheetRouteProps) 
           },
         },
         body: {
-          campusId: activeCampusId,
           description: values.description || undefined,
           endTime: values.isAllDay ? undefined : values.endTime || undefined,
           eventDate: values.eventDate,

@@ -8,7 +8,6 @@ type SubjectListSort =
   (typeof SUBJECT_LIST_SORT_FIELDS)[keyof typeof SUBJECT_LIST_SORT_FIELDS];
 
 type SubjectsListQuery = {
-  campusId?: string;
   limit?: number;
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
   page?: number;
@@ -18,13 +17,8 @@ type SubjectsListQuery = {
 
 export function useSubjectsQuery(
   enabled: boolean,
-  queryOrCampusId?: SubjectsListQuery | string,
+  query: SubjectsListQuery = {},
 ) {
-  const query =
-    typeof queryOrCampusId === "string"
-      ? { campusId: queryOrCampusId }
-      : (queryOrCampusId ?? {});
-
   return apiQueryClient.useQuery(
     "get",
     SUBJECTS_API_PATHS.LIST,

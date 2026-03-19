@@ -57,7 +57,6 @@ const REPORT_TAB_VALUES = {
 } as const;
 
 const classReportSchema = z.object({
-  campusId: z.string().min(1, "Campus is required"),
   classId: z.string().min(1, "Class is required"),
   sectionId: z.string().min(1, "Section is required"),
   startDate: z.string().min(1, "Start date is required"),
@@ -102,10 +101,10 @@ type ClassReportStudent =
 
 function ClassReportTab({
   institutionId,
-  campuses,
+  activeCampusName,
 }: {
   institutionId: string | undefined;
-  campuses: { id: string; name: string }[];
+  activeCampusName?: string;
 }) {
   const [activeFilters, setActiveFilters] = useState<ClassReportValues | null>(
     null,
@@ -114,7 +113,6 @@ function ClassReportTab({
   const form = useForm<ClassReportValues>({
     resolver: zodResolver(classReportSchema),
     defaultValues: {
-      campusId: "",
       classId: "",
       sectionId: "",
       startDate: MONTH_AGO,
@@ -122,14 +120,10 @@ function ClassReportTab({
     },
   });
 
-  const campusId = form.watch("campusId");
   const classId = form.watch("classId");
   const sectionId = form.watch("sectionId");
 
-  const classSectionsQuery = useAttendanceClassSectionsQuery(
-    institutionId,
-    campusId || undefined,
-  );
+  const classSectionsQuery = useAttendanceClassSectionsQuery(institutionId);
   const classSections = classSectionsQuery.data ?? [];
   const uniqueClasses = Array.from(
     new Map(
@@ -139,12 +133,6 @@ function ClassReportTab({
   const sectionsForClass = classSections.filter(
     (item) => item.classId === classId,
   );
-
-  useEffect(() => {
-    if (campuses.length === 1 && !campusId) {
-      form.setValue("campusId", campuses[0]!.id);
-    }
-  }, [campusId, campuses, form]);
 
   useEffect(() => {
     if (!classId) {
@@ -184,37 +172,6 @@ function ClassReportTab({
       <div className="rounded-xl border border-border/70 bg-card px-4 py-4">
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            <Controller
-              control={form.control}
-              name="campusId"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>Campus</FieldLabel>
-                  <FieldContent>
-                    <Select
-                      onValueChange={(v) => {
-                        field.onChange(v);
-                        form.setValue("classId", "");
-                        form.setValue("sectionId", "");
-                      }}
-                      value={field.value ?? ""}
-                    >
-                      <SelectTrigger aria-invalid={fieldState.invalid}>
-                        <SelectValue placeholder="Select campus" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {campuses.map((c) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FieldError>{fieldState.error?.message}</FieldError>
-                  </FieldContent>
-                </Field>
-              )}
-            />
             <Controller
               control={form.control}
               name="classId"
@@ -261,7 +218,10 @@ function ClassReportTab({
                       </SelectTrigger>
                       <SelectContent>
                         {sectionsForClass.map((item) => (
-                          <SelectItem key={item.sectionId} value={item.sectionId}>
+                          <SelectItem
+                            key={item.sectionId}
+                            value={item.sectionId}
+                          >
                             {item.sectionName}
                           </SelectItem>
                         ))}
@@ -308,6 +268,11 @@ function ClassReportTab({
               )}
             />
           </div>
+          {activeCampusName ? (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Working campus: {activeCampusName}
+            </p>
+          ) : null}
           <div className="mt-3 flex justify-end">
             <Button size="sm" type="submit">
               <IconSearch className="mr-1.5 size-3.5" />
@@ -362,7 +327,9 @@ function ClassReportTab({
                   {report.students.map((student: ClassReportStudent) => (
                     <TableRow key={student.studentId}>
                       <TableCell className="sticky left-0 bg-card">
-                        <p className="text-sm font-medium">{student.fullName}</p>
+                        <p className="text-sm font-medium">
+                          {student.fullName}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {student.admissionNumber}
                         </p>
@@ -486,7 +453,11 @@ function StudentReportTab({
                       </SelectTrigger>
                       <SelectContent>
                         {studentOptions.map(
-                          (s: { id: string; fullName: string; admissionNumber: string }) => (
+                          (s: {
+                            id: string;
+                            fullName: string;
+                            admissionNumber: string;
+                          }) => (
                             <SelectItem key={s.id} value={s.id}>
                               {s.fullName} ({s.admissionNumber})
                             </SelectItem>
@@ -640,7 +611,7 @@ export function AttendanceReportsPage() {
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const canViewReports = isStaffContext(session);
-  const campuses = session?.campuses ?? [];
+  const activeCampusName = session?.activeCampus?.name;
 
   return (
     <div className="flex flex-col gap-6">
@@ -671,8 +642,8 @@ export function AttendanceReportsPage() {
 
           <TabsContent value={REPORT_TAB_VALUES.BY_CLASS} className="mt-4">
             <ClassReportTab
+              activeCampusName={activeCampusName}
               institutionId={institutionId}
-              campuses={campuses}
             />
           </TabsContent>
 

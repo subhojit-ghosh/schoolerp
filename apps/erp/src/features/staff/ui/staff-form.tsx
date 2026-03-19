@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import type { ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Field,
   FieldContent,
@@ -10,14 +11,7 @@ import {
   FieldLabel,
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select";
 import {
   STAFF_STATUS_OPTIONS,
   staffFormSchema,
@@ -28,14 +22,9 @@ import {
   EntityFormSecondaryAction,
 } from "@/components/entities/entity-actions";
 
-type CampusOption = {
-  id: string;
-  name: string;
-};
-
 type StaffFormProps = {
   afterFields?: ReactNode;
-  campuses: CampusOption[];
+  campusName?: string;
   defaultValues: StaffFormValues;
   errorMessage?: string;
   isPending?: boolean;
@@ -50,7 +39,7 @@ function toTitleCase(value: string) {
 
 export function StaffForm({
   afterFields,
-  campuses,
+  campusName,
   defaultValues,
   errorMessage,
   isPending = false,
@@ -126,35 +115,18 @@ export function StaffForm({
               </Field>
             )}
           />
-          <Controller
-            control={control}
-            name="campusId"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Primary campus</FieldLabel>
-                <FieldContent>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value ?? ""}
-                  >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select campus" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {campuses.map((campus) => (
-                          <SelectItem key={campus.id} value={campus.id}>
-                            {campus.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
+          {campusName ? (
+            <Field>
+              <FieldLabel>Primary campus</FieldLabel>
+              <FieldContent>
+                <div className="flex h-10 items-center">
+                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                    {campusName}
+                  </Badge>
+                </div>
+              </FieldContent>
+            </Field>
+          ) : null}
           <Controller
             control={control}
             name="status"

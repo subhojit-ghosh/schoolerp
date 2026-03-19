@@ -1,27 +1,29 @@
 import { DATABASE } from "@repo/backend-core";
 import {
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
-import { campus, subjects, timetableEntries } from "@repo/database";
 import {
   and,
   asc,
+  campus,
   count,
   desc,
   eq,
   ilike,
   ne,
+  subjects,
+  timetableEntries,
   type SQL,
-} from "drizzle-orm";
+} from "@repo/database";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
-import { campusScopeFilter } from "../auth/scope-filter";
 import type {
   CreateSubjectDto,
   ListSubjectsQueryDto,
@@ -50,12 +52,9 @@ export class SubjectsService {
     scopes: ResolvedScopes,
     query: ListSubjectsQueryDto = {},
   ) {
-    const scopedCampusId =
-      query.campusId ?? authSession.activeCampusId ?? undefined;
-
-    if (scopedCampusId) {
-      await this.getCampus(institutionId, scopedCampusId);
-    }
+    const scopedCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(scopedCampusId, scopes);
+    await this.getCampus(institutionId, scopedCampusId);
 
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableSubjectColumns.name;
@@ -66,14 +65,7 @@ export class SubjectsService {
       ne(subjects.status, STATUS.SUBJECT.DELETED),
     ];
 
-    if (scopedCampusId) {
-      conditions.push(eq(subjects.campusId, scopedCampusId));
-    } else {
-      const scopeFilter = campusScopeFilter(subjects.campusId, scopes);
-      if (scopeFilter) {
-        conditions.push(scopeFilter);
-      }
-    }
+    conditions.push(eq(subjects.campusId, scopedCampusId));
 
     if (query.search) {
       conditions.push(ilike(subjects.name, `%${query.search}%`));
@@ -155,15 +147,16 @@ export class SubjectsService {
     authSession: AuthenticatedSession,
     payload: CreateSubjectDto,
   ) {
-    await this.getCampus(institutionId, payload.campusId);
-    await this.assertSubjectNameAvailable(institutionId, payload.campusId, payload.name);
+    const campusId = this.requireActiveCampusId(authSession);
+    await this.getCampus(institutionId, campusId);
+    await this.assertSubjectNameAvailable(institutionId, campusId, payload.name);
 
     const subjectId = randomUUID();
 
     await this.db.insert(subjects).values({
       id: subjectId,
       institutionId,
-      campusId: payload.campusId,
+      campusId,
       name: normalizeSubjectName(payload.name),
       code: normalizeSubjectCode(payload.code) ?? null,
       status: STATUS.SUBJECT.ACTIVE,
@@ -179,10 +172,11 @@ export class SubjectsService {
     payload: UpdateSubjectDto,
   ) {
     await this.getSubjectOrThrow(institutionId, subjectId);
-    await this.getCampus(institutionId, payload.campusId);
+    const campusId = this.requireActiveCampusId(authSession);
+    await this.getCampus(institutionId, campusId);
     await this.assertSubjectNameAvailable(
       institutionId,
-      payload.campusId,
+      campusId,
       payload.name,
       subjectId,
     );
@@ -190,7 +184,7 @@ export class SubjectsService {
     await this.db
       .update(subjects)
       .set({
-        campusId: payload.campusId,
+        campusId,
         name: normalizeSubjectName(payload.name),
         code: normalizeSubjectCode(payload.code) ?? null,
       })
@@ -339,6 +333,24 @@ export class SubjectsService {
       throw new ConflictException(
         ERROR_MESSAGES.SUBJECTS.SUBJECT_HAS_TIMETABLE_ENTRIES,
       );
+    }
+  }
+
+  private requireActiveCampusId(authSession: AuthenticatedSession) {
+    if (!authSession.activeCampusId) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return authSession.activeCampusId;
+  }
+
+  private assertCampusScopeAccess(campusId: string, scopes: ResolvedScopes) {
+    if (scopes.campusIds === "all") {
+      return;
+    }
+
+    if (!scopes.campusIds.includes(campusId)) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
     }
   }
 }

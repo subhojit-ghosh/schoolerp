@@ -1,5 +1,4 @@
-import { inArray } from "drizzle-orm";
-import type { AnyColumn, SQL } from "drizzle-orm";
+import { inArray, type AnyColumn, type SQL } from "@repo/database";
 import type { ResolvedScopes } from "./auth.types";
 
 export function campusScopeFilter(

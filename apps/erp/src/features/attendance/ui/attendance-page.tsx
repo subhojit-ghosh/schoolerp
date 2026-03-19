@@ -116,9 +116,9 @@ export function AttendancePage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
+  const activeCampusName = session?.activeCampus?.name;
   const canManageAttendance = isStaffContext(session);
   const managedInstitutionId = canManageAttendance ? institutionId : undefined;
-  const campuses = session?.campuses ?? [];
   const [activeFilters, setActiveFilters] =
     useState<AttendanceSelectionValues | null>(null);
   const [overviewDate, setOverviewDate] = useState(TODAY);
@@ -129,10 +129,7 @@ export function AttendancePage() {
 
   const selectionForm = useForm<AttendanceSelectionValues>({
     resolver: zodResolver(attendanceSelectionSchema),
-    defaultValues: {
-      ...DEFAULT_ATTENDANCE_SELECTION_VALUES,
-      campusId: session?.activeCampus?.id ?? "",
-    },
+    defaultValues: DEFAULT_ATTENDANCE_SELECTION_VALUES,
   });
   const entryForm = useForm<AttendanceEntryFormValues>({
     resolver: zodResolver(attendanceEntryFormSchema),
@@ -142,10 +139,6 @@ export function AttendancePage() {
     },
   });
 
-  const selectedCampusId = useWatch({
-    control: selectionForm.control,
-    name: "campusId",
-  });
   const selectedClassId = useWatch({
     control: selectionForm.control,
     name: "classId",
@@ -155,10 +148,8 @@ export function AttendancePage() {
     name: "sectionId",
   });
 
-  const classSectionsQuery = useAttendanceClassSectionsQuery(
-    managedInstitutionId,
-    selectedCampusId || undefined,
-  );
+  const classSectionsQuery =
+    useAttendanceClassSectionsQuery(managedInstitutionId);
   const attendanceDayQuery = useAttendanceDayQuery(
     managedInstitutionId,
     activeFilters,
@@ -177,17 +168,11 @@ export function AttendancePage() {
     | undefined;
 
   useEffect(() => {
-    if (!session?.activeCampus?.id) return;
-    selectionForm.setValue("campusId", session.activeCampus.id);
-  }, [selectionForm, session?.activeCampus?.id]);
-
-  useEffect(() => {
     const day = attendanceDayQuery.data;
     if (!day) return;
 
     entryForm.reset({
       attendanceDate: day.attendanceDate,
-      campusId: day.campusId,
       classId: day.classId,
       sectionId: day.sectionId,
       entries: day.entries.map((entry) => ({
@@ -221,13 +206,11 @@ export function AttendancePage() {
 
   function handleLoadFromOverview(item: {
     attendanceDate?: string;
-    campusId: string;
     classId: string;
     sectionId: string;
   }) {
     const record = {
       attendanceDate: item.attendanceDate ?? overviewDate,
-      campusId: item.campusId,
       classId: item.classId,
       sectionId: item.sectionId,
     };
@@ -333,39 +316,6 @@ export function AttendancePage() {
                     />
                     <Controller
                       control={selectionForm.control}
-                      name="campusId"
-                      render={({ field, fieldState }) => (
-                        <Field data-invalid={fieldState.invalid || undefined}>
-                          <FieldLabel>Campus</FieldLabel>
-                          <FieldContent>
-                            <Select
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                                selectionForm.setValue("classId", "");
-                                selectionForm.setValue("sectionId", "");
-                              }}
-                              value={field.value ?? ""}
-                            >
-                              <SelectTrigger
-                                aria-invalid={fieldState.invalid}
-                              >
-                                <SelectValue placeholder="Select campus" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {campuses.map((c) => (
-                                  <SelectItem key={c.id} value={c.id}>
-                                    {c.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FieldError>{fieldState.error?.message}</FieldError>
-                          </FieldContent>
-                        </Field>
-                      )}
-                    />
-                    <Controller
-                      control={selectionForm.control}
                       name="classId"
                       render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid || undefined}>
@@ -378,9 +328,7 @@ export function AttendancePage() {
                               }}
                               value={field.value ?? ""}
                             >
-                              <SelectTrigger
-                                aria-invalid={fieldState.invalid}
-                              >
+                              <SelectTrigger aria-invalid={fieldState.invalid}>
                                 <SelectValue placeholder="Select class" />
                               </SelectTrigger>
                               <SelectContent>
@@ -407,9 +355,7 @@ export function AttendancePage() {
                               onValueChange={field.onChange}
                               value={field.value ?? ""}
                             >
-                              <SelectTrigger
-                                aria-invalid={fieldState.invalid}
-                              >
+                              <SelectTrigger aria-invalid={fieldState.invalid}>
                                 <SelectValue placeholder="Select section" />
                               </SelectTrigger>
                               <SelectContent>
@@ -429,6 +375,11 @@ export function AttendancePage() {
                       )}
                     />
                   </div>
+                  {activeCampusName ? (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Working campus: {activeCampusName}
+                    </p>
+                  ) : null}
                   <div className="mt-3 flex justify-end">
                     <Button size="sm" type="submit">
                       Load students
@@ -444,9 +395,7 @@ export function AttendancePage() {
                     Loading students…
                   </div>
                 ) : currentDay ? (
-                  <form
-                    onSubmit={entryForm.handleSubmit(handleSaveAttendance)}
-                  >
+                  <form onSubmit={entryForm.handleSubmit(handleSaveAttendance)}>
                     {/* Header */}
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-5 py-3">
                       <div className="flex flex-wrap items-center gap-2">

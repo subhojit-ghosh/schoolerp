@@ -7,20 +7,28 @@ import {
 } from "@repo/contracts";
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
+  and,
+  asc,
   attendanceRecords,
   campus,
   classSections,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  lte,
   member,
+  ne,
   schoolClasses,
   students,
 } from "@repo/database";
-import { and, asc, eq, gte, inArray, isNull, lte, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
 import { AuditService } from "../audit/audit.service";
@@ -28,7 +36,6 @@ import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { sectionScopeFilter } from "../auth/scope-filter";
 import { AuthService } from "../auth/auth.service";
 import type {
-  AttendanceClassSectionQueryDto,
   AttendanceDayQueryDto,
   AttendanceDayViewQueryDto,
   AttendanceOverviewQueryDto,
@@ -68,9 +75,12 @@ export class AttendanceService {
     institutionId: string,
     authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
-    query: AttendanceClassSectionQueryDto,
   ) {
-    await this.getCampus(institutionId, query.campusId);
+    const selectedCampus = await this.getActiveCampus(
+      institutionId,
+      authSession,
+    );
+    this.assertCampusScopeAccess(selectedCampus.id, scopes);
 
     const rows = await this.db
       .select({
@@ -86,12 +96,17 @@ export class AttendanceService {
       .where(
         and(
           eq(students.institutionId, institutionId),
-          eq(member.primaryCampusId, query.campusId),
+          eq(member.primaryCampusId, selectedCampus.id),
           eq(member.status, STATUS.MEMBER.ACTIVE),
           sectionScopeFilter(students.sectionId, scopes),
         ),
       )
-      .orderBy(asc(schoolClasses.displayOrder), asc(schoolClasses.name), asc(classSections.displayOrder), asc(classSections.name));
+      .orderBy(
+        asc(schoolClasses.displayOrder),
+        asc(schoolClasses.name),
+        asc(classSections.displayOrder),
+        asc(classSections.name),
+      );
 
     const grouped = new Map<
       string,
@@ -130,10 +145,13 @@ export class AttendanceService {
     authSession: AuthenticatedSession,
     query: AttendanceDayQueryDto,
   ) {
-    const selectedCampus = await this.getCampus(institutionId, query.campusId);
+    const selectedCampus = await this.getActiveCampus(
+      institutionId,
+      authSession,
+    );
     const [classSection, roster] = await Promise.all([
       this.getClassSection(query.classId, query.sectionId),
-      this.listRosterForScope(institutionId, query),
+      this.listRosterForScope(institutionId, selectedCampus.id, query),
     ]);
 
     if (roster.length === 0) {
@@ -169,6 +187,10 @@ export class AttendanceService {
     authSession: AuthenticatedSession,
     payload: UpsertAttendanceDayDto,
   ) {
+    const selectedCampus = await this.getActiveCampus(
+      institutionId,
+      authSession,
+    );
     const membership = await this.authService.getMembershipForOrganization(
       authSession.user.id,
       institutionId,
@@ -179,7 +201,11 @@ export class AttendanceService {
     }
 
     const markingMembershipId = membership.id;
-    const roster = await this.listRosterForScope(institutionId, payload);
+    const roster = await this.listRosterForScope(
+      institutionId,
+      selectedCampus.id,
+      payload,
+    );
     const classSection = await this.getClassSection(
       payload.classId,
       payload.sectionId,
@@ -287,6 +313,7 @@ export class AttendanceService {
     authSession: AuthenticatedSession,
     query: AttendanceDayViewQueryDto,
   ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
     const rows = await this.db
       .select({
         campusId: attendanceRecords.campusId,
@@ -300,11 +327,15 @@ export class AttendanceService {
       .from(attendanceRecords)
       .innerJoin(campus, eq(attendanceRecords.campusId, campus.id))
       .innerJoin(schoolClasses, eq(attendanceRecords.classId, schoolClasses.id))
-      .innerJoin(classSections, eq(attendanceRecords.sectionId, classSections.id))
+      .innerJoin(
+        classSections,
+        eq(attendanceRecords.sectionId, classSections.id),
+      )
       .where(
         and(
           eq(attendanceRecords.institutionId, institutionId),
           eq(attendanceRecords.attendanceDate, query.attendanceDate),
+          eq(attendanceRecords.campusId, activeCampusId),
         ),
       )
       .orderBy(
@@ -354,8 +385,11 @@ export class AttendanceService {
 
   async getAttendanceOverview(
     institutionId: string,
+    authSession: AuthenticatedSession,
     query: AttendanceOverviewQueryDto,
   ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+
     // Get all distinct (campus, class, section) combos with active students
     const sectionRows = await this.db
       .select({
@@ -378,6 +412,7 @@ export class AttendanceService {
           eq(students.institutionId, institutionId),
           eq(member.status, STATUS.MEMBER.ACTIVE),
           ne(campus.status, STATUS.CAMPUS.DELETED),
+          eq(member.primaryCampusId, activeCampusId),
         ),
       )
       .orderBy(
@@ -433,6 +468,7 @@ export class AttendanceService {
         and(
           eq(attendanceRecords.institutionId, institutionId),
           eq(attendanceRecords.attendanceDate, query.date),
+          eq(attendanceRecords.campusId, activeCampusId),
         ),
       );
 
@@ -471,11 +507,17 @@ export class AttendanceService {
 
   async getAttendanceClassReport(
     institutionId: string,
+    authSession: AuthenticatedSession,
     query: AttendanceClassReportQueryDto,
   ) {
-    // Validate campus, class, section
-    const selectedCampus = await this.getCampus(institutionId, query.campusId);
-    const classSection = await this.getClassSection(query.classId, query.sectionId);
+    const selectedCampus = await this.getActiveCampus(
+      institutionId,
+      authSession,
+    );
+    const classSection = await this.getClassSection(
+      query.classId,
+      query.sectionId,
+    );
 
     // Get all students in the section
     const studentRows = await this.db
@@ -491,7 +533,7 @@ export class AttendanceService {
       .where(
         and(
           eq(students.institutionId, institutionId),
-          eq(member.primaryCampusId, query.campusId),
+          eq(member.primaryCampusId, selectedCampus.id),
           eq(students.classId, query.classId),
           eq(students.sectionId, query.sectionId),
           eq(member.status, STATUS.MEMBER.ACTIVE),
@@ -534,7 +576,13 @@ export class AttendanceService {
     // Build per-student data
     const studentRecordsMap = new Map<
       string,
-      { records: Record<string, string>; present: number; absent: number; late: number; excused: number }
+      {
+        records: Record<string, string>;
+        present: number;
+        absent: number;
+        late: number;
+        excused: number;
+      }
     >();
 
     for (const row of recordRows) {
@@ -561,7 +609,8 @@ export class AttendanceService {
         late: 0,
         excused: 0,
       };
-      const totalMarkedDays = data.present + data.absent + data.late + data.excused;
+      const totalMarkedDays =
+        data.present + data.absent + data.late + data.excused;
       return {
         studentId: s.studentId,
         admissionNumber: s.admissionNumber,
@@ -583,7 +632,7 @@ export class AttendanceService {
       className: classSection.className,
       sectionId: query.sectionId,
       sectionName: classSection.sectionName,
-      campusId: query.campusId,
+      campusId: selectedCampus.id,
       campusName: selectedCampus.name,
       startDate: query.startDate,
       endDate: query.endDate,
@@ -594,8 +643,13 @@ export class AttendanceService {
 
   async getAttendanceStudentReport(
     institutionId: string,
+    authSession: AuthenticatedSession,
     query: AttendanceStudentReportQueryDto,
   ) {
+    const selectedCampus = await this.getActiveCampus(
+      institutionId,
+      authSession,
+    );
     // Get student with institution check, join to class and section via campus
     const [studentRow] = await this.db
       .select({
@@ -619,6 +673,7 @@ export class AttendanceService {
         and(
           eq(students.id, query.studentId),
           eq(students.institutionId, institutionId),
+          eq(member.primaryCampusId, selectedCampus.id),
           eq(member.status, STATUS.MEMBER.ACTIVE),
           ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
@@ -663,7 +718,9 @@ export class AttendanceService {
     return {
       studentId: studentRow.studentId,
       admissionNumber: studentRow.admissionNumber,
-      fullName: [studentRow.firstName, studentRow.lastName].filter(Boolean).join(" "),
+      fullName: [studentRow.firstName, studentRow.lastName]
+        .filter(Boolean)
+        .join(" "),
       classId: studentRow.classId,
       className: studentRow.className,
       sectionId: studentRow.sectionId,
@@ -735,6 +792,7 @@ export class AttendanceService {
 
   private async listRosterForScope(
     institutionId: string,
+    campusId: string,
     scope: AttendanceDayQueryDto | UpsertAttendanceDayDto,
   ) {
     const classId = scope.classId.trim();
@@ -763,7 +821,7 @@ export class AttendanceService {
       .where(
         and(
           eq(students.institutionId, institutionId),
-          eq(member.primaryCampusId, scope.campusId),
+          eq(member.primaryCampusId, campusId),
           eq(students.classId, classId),
           eq(students.sectionId, sectionId),
           eq(member.status, STATUS.MEMBER.ACTIVE),
@@ -821,6 +879,34 @@ export class AttendanceService {
       rosterIds.some((studentId, index) => studentId !== submittedIds[index])
     ) {
       throw new BadRequestException(ERROR_MESSAGES.ATTENDANCE.ROSTER_MISMATCH);
+    }
+  }
+
+  private requireActiveCampusId(authSession: AuthenticatedSession) {
+    if (!authSession.activeCampusId) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return authSession.activeCampusId;
+  }
+
+  private async getActiveCampus(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+  ) {
+    return this.getCampus(
+      institutionId,
+      this.requireActiveCampusId(authSession),
+    );
+  }
+
+  private assertCampusScopeAccess(campusId: string, scopes: ResolvedScopes) {
+    if (scopes.campusIds === "all") {
+      return;
+    }
+
+    if (!scopes.campusIds.includes(campusId)) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
     }
   }
 }

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Field,
   FieldContent,
@@ -9,14 +10,7 @@ import {
   FieldLabel,
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
@@ -27,13 +21,8 @@ import {
   type AdmissionEnquiryFormValues,
 } from "@/features/admissions/model/admission-form-schema";
 
-type CampusOption = {
-  id: string;
-  name: string;
-};
-
 type AdmissionEnquiryFormProps = {
-  campuses: CampusOption[];
+  campusName?: string;
   defaultValues: AdmissionEnquiryFormValues;
   errorMessage?: string;
   isPending?: boolean;
@@ -50,7 +39,7 @@ function toTitleCase(value: string) {
 }
 
 export function AdmissionEnquiryForm({
-  campuses,
+  campusName,
   defaultValues,
   errorMessage,
   isPending = false,
@@ -58,7 +47,6 @@ export function AdmissionEnquiryForm({
   onSubmit,
   submitLabel,
 }: AdmissionEnquiryFormProps) {
-  const hasSingleCampus = campuses.length === 1;
   const { control, handleSubmit, reset } = useForm<AdmissionEnquiryFormValues>({
     resolver: zodResolver(admissionEnquiryFormSchema),
     defaultValues,
@@ -67,22 +55,6 @@ export function AdmissionEnquiryForm({
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
-
-  useEffect(() => {
-    if (campuses.length !== 1) {
-      return;
-    }
-
-    const defaultCampusId = campuses[0]!.id;
-    if (defaultValues.campusId === defaultCampusId) {
-      return;
-    }
-
-    reset({
-      ...defaultValues,
-      campusId: defaultCampusId,
-    });
-  }, [campuses, defaultValues, reset]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -165,39 +137,18 @@ export function AdmissionEnquiryForm({
               </Field>
             )}
           />
-          <Controller
-            control={control}
-            name="campusId"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Campus</FieldLabel>
-                <FieldContent>
-                  <Select
-                    disabled={hasSingleCampus}
-                    onValueChange={field.onChange}
-                    value={field.value ?? ""}
-                  >
-                    <SelectTrigger
-                      aria-invalid={fieldState.invalid}
-                      disabled={hasSingleCampus}
-                    >
-                      <SelectValue placeholder="Select campus" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {campuses.map((campus) => (
-                          <SelectItem key={campus.id} value={campus.id}>
-                            {campus.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
+          {campusName ? (
+            <Field>
+              <FieldLabel>Campus</FieldLabel>
+              <FieldContent>
+                <div className="flex h-10 items-center">
+                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                    {campusName}
+                  </Badge>
+                </div>
+              </FieldContent>
+            </Field>
+          ) : null}
           <Controller
             control={control}
             name="status"

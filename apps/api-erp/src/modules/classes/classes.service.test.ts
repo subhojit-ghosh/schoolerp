@@ -92,11 +92,15 @@ describe("ClassesService", () => {
     );
 
     try {
-      await service.updateClass("institution-1", "class-1", {} as never, {
-        campusId: "campus-1",
+      await service.updateClass(
+        "institution-1",
+        "class-1",
+        { activeCampusId: "campus-1" } as never,
+        {
         name: "Class 1",
         sections: [{ id: "section-1", name: "A" }],
-      });
+        },
+      );
       throw new Error("Expected section removal to be blocked");
     } catch (error) {
       expect(error).toBeInstanceOf(ConflictException);
@@ -168,9 +172,8 @@ describe("ClassesService", () => {
     const result = await service.updateClass(
       "institution-1",
       "class-1",
-      {} as never,
+      { activeCampusId: "campus-1" } as never,
       {
-        campusId: "campus-1",
         name: "Class 1",
         sections: [{ id: "section-b", name: "B" }, { name: "A" }],
       },

@@ -122,9 +122,16 @@ export class FeesController {
   @ApiOkResponse({ type: FeeStructureDetailDto })
   getFeeStructure(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeStructureId") feeStructureId: string,
   ) {
-    return this.feesService.getFeeStructure(institution.id, feeStructureId);
+    return this.feesService.getFeeStructure(
+      institution.id,
+      authSession,
+      scopes,
+      feeStructureId,
+    );
   }
 
   @Post(API_ROUTES.STRUCTURES)
@@ -152,9 +159,16 @@ export class FeesController {
   @ApiCreatedResponse({ type: FeeStructureDetailDto })
   duplicateFeeStructure(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeStructureId") feeStructureId: string,
   ) {
-    return this.feesService.duplicateFeeStructure(institution.id, feeStructureId);
+    return this.feesService.duplicateFeeStructure(
+      institution.id,
+      authSession,
+      scopes,
+      feeStructureId,
+    );
   }
 
   @Post(STRUCTURE_CREATE_NEXT_VERSION_PATH)
@@ -163,10 +177,14 @@ export class FeesController {
   @ApiCreatedResponse({ type: FeeStructureDetailDto })
   createNextFeeStructureVersion(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeStructureId") feeStructureId: string,
   ) {
     return this.feesService.createNextFeeStructureVersion(
       institution.id,
+      authSession,
+      scopes,
       feeStructureId,
     );
   }
@@ -178,11 +196,15 @@ export class FeesController {
   @ApiOkResponse({ type: FeeStructureDto })
   updateFeeStructure(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeStructureId") feeStructureId: string,
     @Body() body: UpdateFeeStructureBodyDto,
   ) {
     return this.feesService.updateFeeStructure(
       institution.id,
+      authSession,
+      scopes,
       feeStructureId,
       parseUpdateFeeStructure(body),
     );
@@ -195,11 +217,15 @@ export class FeesController {
   @ApiOkResponse({ type: FeeStructureDto })
   setFeeStructureStatus(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeStructureId") feeStructureId: string,
     @Body() body: SetFeeStructureStatusBodyDto,
   ) {
     return this.feesService.setFeeStructureStatus(
       institution.id,
+      authSession,
+      scopes,
       feeStructureId,
       parseSetFeeStructureStatus(body),
     );
@@ -212,9 +238,16 @@ export class FeesController {
   @ApiNoContentResponse()
   async deleteFeeStructure(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeStructureId") feeStructureId: string,
   ) {
-    await this.feesService.deleteFeeStructure(institution.id, feeStructureId);
+    await this.feesService.deleteFeeStructure(
+      institution.id,
+      authSession,
+      scopes,
+      feeStructureId,
+    );
   }
 
   // ── Fee Assignments ───────────────────────────────────────────────────────
@@ -243,9 +276,14 @@ export class FeesController {
   @ApiOkResponse({ type: FeeAssignmentDetailDto })
   getFeeAssignment(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeAssignmentId") feeAssignmentId: string,
   ) {
-    return this.feesService.getFeeAssignment(institution.id, feeAssignmentId);
+    return this.feesService.getFeeAssignment(
+      institution.id,
+      scopes,
+      feeAssignmentId,
+    );
   }
 
   @Post(API_ROUTES.ASSIGNMENTS)
@@ -274,11 +312,13 @@ export class FeesController {
   @ApiCreatedResponse({ type: FeeAdjustmentDto })
   createFeeAdjustment(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeAssignmentId") feeAssignmentId: string,
     @Body() body: CreateFeeAdjustmentBodyDto,
   ) {
     return this.feesService.createFeeAdjustment(
       institution.id,
+      scopes,
       feeAssignmentId,
       parseCreateFeeAdjustment({
         ...body,
@@ -313,11 +353,13 @@ export class FeesController {
   @ApiOkResponse({ type: FeeAssignmentDto })
   updateFeeAssignment(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeAssignmentId") feeAssignmentId: string,
     @Body() body: UpdateFeeAssignmentBodyDto,
   ) {
     return this.feesService.updateFeeAssignment(
       institution.id,
+      scopes,
       feeAssignmentId,
       parseUpdateFeeAssignment(body),
     );
@@ -330,9 +372,14 @@ export class FeesController {
   @ApiNoContentResponse()
   async deleteFeeAssignment(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeAssignmentId") feeAssignmentId: string,
   ) {
-    await this.feesService.deleteFeeAssignment(institution.id, feeAssignmentId);
+    await this.feesService.deleteFeeAssignment(
+      institution.id,
+      scopes,
+      feeAssignmentId,
+    );
   }
 
   // ── Fee Payments ──────────────────────────────────────────────────────────
@@ -345,11 +392,13 @@ export class FeesController {
   createFeePayment(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: CreateFeePaymentBodyDto,
   ) {
     return this.feesService.createFeePayment(
       institution.id,
       authSession,
+      scopes,
       parseCreateFeePayment(body),
     );
   }
@@ -362,12 +411,14 @@ export class FeesController {
   reverseFeePayment(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Param("feePaymentId") feePaymentId: string,
     @Body() body: ReverseFeePaymentBodyDto,
   ) {
     return this.feesService.reverseFeePayment(
       institution.id,
       authSession,
+      scopes,
       feePaymentId,
       parseReverseFeePayment(body),
     );
@@ -401,10 +452,14 @@ export class FeesController {
   @ApiOkResponse({ type: CollectionSummaryDto })
   getCollectionSummary(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Query() query: CollectionSummaryQueryDto,
   ) {
     return this.feesService.getCollectionSummary(
       institution.id,
+      authSession,
+      scopes,
       parseCollectionSummaryQuery(query),
     );
   }

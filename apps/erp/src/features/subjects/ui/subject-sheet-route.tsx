@@ -35,7 +35,6 @@ export function SubjectSheetRoute({ mode }: SubjectSheetRouteProps) {
   const { subjectId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id;
   const subjectQuery = useSubjectQuery(
     mode === "edit" && Boolean(institutionId),
     subjectId,
@@ -55,14 +54,13 @@ export function SubjectSheetRoute({ mode }: SubjectSheetRouteProps) {
   }, [mode, subjectQuery.data]);
 
   async function handleSubmit(values: SubjectFormValues) {
-    if (!institutionId || !activeCampusId) {
+    if (!institutionId) {
       return;
     }
 
     if (mode === "create") {
       await createSubjectMutation.mutateAsync({
         body: {
-          campusId: activeCampusId,
           code: values.code || undefined,
           name: values.name,
         },
@@ -76,7 +74,6 @@ export function SubjectSheetRoute({ mode }: SubjectSheetRouteProps) {
           },
         },
         body: {
-          campusId: activeCampusId,
           code: values.code || undefined,
           name: values.name,
         },

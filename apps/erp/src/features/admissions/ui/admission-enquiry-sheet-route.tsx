@@ -10,7 +10,6 @@ import {
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { useCampusesQuery } from "@/features/campuses/api/use-campuses";
 import {
   useAdmissionEnquiryQuery,
   useCreateAdmissionEnquiryMutation,
@@ -37,30 +36,20 @@ export function AdmissionEnquirySheetRoute({
   const { enquiryId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id ?? "";
+  const activeCampusName = session?.activeCampus?.name;
   const enquiryQuery = useAdmissionEnquiryQuery(
     institutionId,
     mode === "edit" ? enquiryId : undefined,
   );
-  const campusesQuery = useCampusesQuery(institutionId, {
-    limit: 50,
-    page: 1,
-    sort: "name",
-    order: "asc",
-  });
   const createMutation = useCreateAdmissionEnquiryMutation(institutionId);
   const updateMutation = useUpdateAdmissionEnquiryMutation(institutionId);
 
   const defaultValues = useMemo<AdmissionEnquiryFormValues>(() => {
     if (mode === "create" || !enquiryQuery.data) {
-      return {
-        ...ADMISSION_ENQUIRY_FORM_DEFAULT_VALUES,
-        campusId: activeCampusId,
-      };
+      return ADMISSION_ENQUIRY_FORM_DEFAULT_VALUES;
     }
 
     return {
-      campusId: enquiryQuery.data.campusId,
       studentName: enquiryQuery.data.studentName,
       guardianName: enquiryQuery.data.guardianName,
       mobile: enquiryQuery.data.mobile,
@@ -69,16 +58,7 @@ export function AdmissionEnquirySheetRoute({
       status: enquiryQuery.data.status,
       notes: enquiryQuery.data.notes ?? "",
     };
-  }, [activeCampusId, enquiryQuery.data, mode]);
-
-  const campusOptions = useMemo(
-    () =>
-      (campusesQuery.data?.rows ?? []).map((campus) => ({
-        id: campus.id,
-        name: campus.name,
-      })),
-    [campusesQuery.data?.rows],
-  );
+  }, [enquiryQuery.data, mode]);
 
   async function handleSubmit(values: AdmissionEnquiryFormValues) {
     if (!institutionId) {
@@ -90,14 +70,16 @@ export function AdmissionEnquirySheetRoute({
         body: toAdmissionEnquiryMutationBody(values),
       });
       toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ADMISSION_ENQUIRY));
-    } else if (enquiryId) {
+    } else if (enquiryId && enquiryQuery.data) {
       await updateMutation.mutateAsync({
         params: {
           path: {
             enquiryId,
           },
         },
-        body: toAdmissionEnquiryMutationBody(values),
+        body: {
+          ...toAdmissionEnquiryMutationBody(values),
+        },
       });
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ADMISSION_ENQUIRY));
     }
@@ -158,7 +140,9 @@ export function AdmissionEnquirySheetRoute({
       title={mode === "create" ? "New admission enquiry" : "Edit admission enquiry"}
     >
       <AdmissionEnquiryForm
-        campuses={campusOptions}
+        campusName={
+          activeCampusName
+        }
         defaultValues={defaultValues}
         errorMessage={errorMessage}
         isPending={isPending}

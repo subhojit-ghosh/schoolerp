@@ -8,7 +8,6 @@ export type AttendanceOverviewFilters = {
 };
 
 export type AttendanceClassReportFilters = {
-  campusId: string;
   classId: string;
   sectionId: string;
   startDate: string;
@@ -23,20 +22,13 @@ export type AttendanceStudentReportFilters = {
 
 export function useAttendanceClassSectionsQuery(
   institutionId: string | undefined,
-  campusId: string | undefined,
 ) {
   return apiQueryClient.useQuery(
     "get",
     ATTENDANCE_API_PATHS.CLASS_SECTIONS,
+    undefined,
     {
-      params: {
-        query: {
-          campusId: campusId ?? "",
-        },
-      },
-    },
-    {
-      enabled: Boolean(institutionId && campusId),
+      enabled: Boolean(institutionId),
     },
   );
 }
@@ -52,7 +44,6 @@ export function useAttendanceDayQuery(
       params: {
         query: {
           attendanceDate: filters?.attendanceDate ?? "",
-          campusId: filters?.campusId ?? "",
           classId: filters?.classId ?? "",
           sectionId: filters?.sectionId ?? "",
         },
@@ -62,7 +53,6 @@ export function useAttendanceDayQuery(
       enabled: Boolean(
         institutionId &&
         filters?.attendanceDate &&
-        filters?.campusId &&
         filters?.classId &&
         filters?.sectionId,
       ),
@@ -100,7 +90,6 @@ export function useAttendanceClassReportQuery(
     {
       params: {
         query: {
-          campusId: filters?.campusId ?? "",
           classId: filters?.classId ?? "",
           sectionId: filters?.sectionId ?? "",
           startDate: filters?.startDate ?? "",
@@ -111,11 +100,10 @@ export function useAttendanceClassReportQuery(
     {
       enabled: Boolean(
         institutionId &&
-          filters?.campusId &&
-          filters?.classId &&
-          filters?.sectionId &&
-          filters?.startDate &&
-          filters?.endDate,
+        filters?.classId &&
+        filters?.sectionId &&
+        filters?.startDate &&
+        filters?.endDate,
       ),
     },
   );
@@ -140,9 +128,9 @@ export function useAttendanceStudentReportQuery(
     {
       enabled: Boolean(
         institutionId &&
-          filters?.studentId &&
-          filters?.startDate &&
-          filters?.endDate,
+        filters?.studentId &&
+        filters?.startDate &&
+        filters?.endDate,
       ),
     },
   );
@@ -170,7 +158,6 @@ export function useUpsertAttendanceDayMutation(
               params: {
                 query: {
                   attendanceDate: activeFilters.attendanceDate,
-                  campusId: activeFilters.campusId,
                   classId: activeFilters.classId,
                   sectionId: activeFilters.sectionId,
                 },

@@ -33,7 +33,6 @@ export function ClassDetailPage() {
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
   const canManageClasses = isStaffContext(session);
-  const activeCampusId = session?.activeCampus?.id;
   const canQueryClass = canManageClasses && Boolean(institutionId);
   const classQuery = useClassQuery(canQueryClass, classId);
   const updateClassMutation = useUpdateClassMutation();
@@ -62,7 +61,7 @@ export function ClassDetailPage() {
 
     await updateClassMutation.mutateAsync({
       params: { path: { classId } },
-      body: { ...values, campusId: activeCampusId ?? "" },
+      body: values,
     });
 
     toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CLASS));

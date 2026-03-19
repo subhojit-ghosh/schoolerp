@@ -17,32 +17,30 @@ import {
 import type { AppDatabase } from "@repo/database";
 import {
   academicYears,
+  and,
+  asc,
   campus,
+  count,
+  desc,
+  eq,
   feeAssignmentAdjustments,
   feeAssignments,
   feePayments,
   feePaymentReversals,
   feeStructureInstallments,
   feeStructures,
-  member,
-  students,
-} from "@repo/database";
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
   ilike,
   inArray,
   isNotNull,
   isNull,
   lt,
+  member,
   ne,
   or,
   sql,
+  students,
   type SQL,
-} from "drizzle-orm";
+} from "@repo/database";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import {
@@ -96,6 +94,7 @@ type AssignmentRow = {
   studentAdmissionNumber: string;
   studentFirstName: string;
   studentLastName: string | null;
+  campusId: string | null;
   campusName: string | null;
   assignedAmountInPaise: number;
   dueDate: string;
@@ -122,8 +121,7 @@ export class FeesService {
     scopes: ResolvedScopes,
     query: ListFeeStructuresQueryDto = {},
   ): Promise<PaginatedResult<ReturnType<typeof this.formatFeeStructureRow>>> {
-    const scopedCampusId =
-      query.campusId ?? authSession.activeCampusId ?? undefined;
+    const scopedCampusId = authSession.activeCampusId ?? undefined;
 
     if (scopedCampusId) {
       await this.getCampusOrThrow(institutionId, scopedCampusId);
@@ -242,8 +240,15 @@ export class FeesService {
     };
   }
 
-  async getFeeStructure(institutionId: string, feeStructureId: string) {
+  async getFeeStructure(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    feeStructureId: string,
+  ) {
     const structure = await this.getFeeStructureById(feeStructureId, institutionId);
+    this.assertOptionalCampusScopeAccess(structure.campusId, scopes);
+    this.assertActiveCampusMatch(structure.campusId, authSession);
 
     const [summary] = await this.database
       .select({
@@ -315,7 +320,10 @@ export class FeesService {
     );
     const selectedCampus =
       payload.scope === FEE_STRUCTURE_SCOPES.CAMPUS
-        ? await this.getCampusOrThrow(institutionId, payload.campusId)
+        ? await this.getCampusOrThrow(
+            institutionId,
+            this.requireActiveCampusId(authSession),
+          )
         : null;
 
     const normalizedCampusId =
@@ -376,8 +384,15 @@ export class FeesService {
     return this.getFeeStructureById(createdId, institutionId);
   }
 
-  async duplicateFeeStructure(institutionId: string, feeStructureId: string) {
+  async duplicateFeeStructure(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    feeStructureId: string,
+  ) {
     const source = await this.getFeeStructureById(feeStructureId, institutionId);
+    this.assertOptionalCampusScopeAccess(source.campusId, scopes);
+    this.assertActiveCampusMatch(source.campusId, authSession);
     await this.getAcademicYearOrThrow(institutionId, source.academicYearId, {
       requireActive: true,
     });
@@ -423,14 +438,18 @@ export class FeesService {
       }
     });
 
-    return this.getFeeStructure(institutionId, newId);
+    return this.getFeeStructure(institutionId, authSession, scopes, newId);
   }
 
   async createNextFeeStructureVersion(
     institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     feeStructureId: string,
   ) {
     const source = await this.getFeeStructureById(feeStructureId, institutionId);
+    this.assertOptionalCampusScopeAccess(source.campusId, scopes);
+    this.assertActiveCampusMatch(source.campusId, authSession);
     await this.getAcademicYearOrThrow(institutionId, source.academicYearId, {
       requireActive: true,
     });
@@ -476,15 +495,19 @@ export class FeesService {
       }
     });
 
-    return this.getFeeStructure(institutionId, newId);
+    return this.getFeeStructure(institutionId, authSession, scopes, newId);
   }
 
   async updateFeeStructure(
     institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     feeStructureId: string,
     payload: UpdateFeeStructureDto,
   ) {
     const structure = await this.getFeeStructureById(feeStructureId, institutionId);
+    this.assertOptionalCampusScopeAccess(structure.campusId, scopes);
+    this.assertActiveCampusMatch(structure.campusId, authSession);
 
     if (payload.name !== undefined) {
       const trimmedName = payload.name.trim();
@@ -593,10 +616,14 @@ export class FeesService {
 
   async setFeeStructureStatus(
     institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     feeStructureId: string,
     payload: SetFeeStructureStatusDto,
   ) {
-    await this.getFeeStructureById(feeStructureId, institutionId);
+    const structure = await this.getFeeStructureById(feeStructureId, institutionId);
+    this.assertOptionalCampusScopeAccess(structure.campusId, scopes);
+    this.assertActiveCampusMatch(structure.campusId, authSession);
 
     await this.database
       .update(feeStructures)
@@ -614,8 +641,15 @@ export class FeesService {
     return this.getFeeStructureById(feeStructureId, institutionId);
   }
 
-  async deleteFeeStructure(institutionId: string, feeStructureId: string) {
-    await this.getFeeStructureById(feeStructureId, institutionId);
+  async deleteFeeStructure(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    feeStructureId: string,
+  ) {
+    const structure = await this.getFeeStructureById(feeStructureId, institutionId);
+    this.assertOptionalCampusScopeAccess(structure.campusId, scopes);
+    this.assertActiveCampusMatch(structure.campusId, authSession);
 
     const [existingAssignment] = await this.database
       .select({ id: feeAssignments.id })
@@ -664,11 +698,16 @@ export class FeesService {
     );
   }
 
-  async getFeeAssignment(institutionId: string, feeAssignmentId: string) {
+  async getFeeAssignment(
+    institutionId: string,
+    scopes: ResolvedScopes,
+    feeAssignmentId: string,
+  ) {
     const assignment = await this.getAssignmentRowOrThrow(
       institutionId,
       feeAssignmentId,
     );
+    this.assertCampusScopeAccess(assignment.campusId, scopes);
     const paymentSummary = await this.getPaymentSummaryByAssignmentIds([feeAssignmentId]);
     const adjustmentSummary = await this.getAdjustmentSummaryByAssignmentIds([
       feeAssignmentId,
@@ -836,10 +875,15 @@ export class FeesService {
 
   async updateFeeAssignment(
     institutionId: string,
+    scopes: ResolvedScopes,
     feeAssignmentId: string,
     payload: UpdateFeeAssignmentDto,
   ) {
-    await this.getAssignmentRowOrThrow(institutionId, feeAssignmentId);
+    const assignmentRow = await this.getAssignmentRowOrThrow(
+      institutionId,
+      feeAssignmentId,
+    );
+    this.assertCampusScopeAccess(assignmentRow.campusId, scopes);
     const adjustmentSummary = await this.getAdjustmentSummaryByAssignmentIds([
       feeAssignmentId,
     ]);
@@ -914,8 +958,16 @@ export class FeesService {
     });
   }
 
-  async deleteFeeAssignment(institutionId: string, feeAssignmentId: string) {
-    await this.getAssignmentRowOrThrow(institutionId, feeAssignmentId);
+  async deleteFeeAssignment(
+    institutionId: string,
+    scopes: ResolvedScopes,
+    feeAssignmentId: string,
+  ) {
+    const assignment = await this.getAssignmentRowOrThrow(
+      institutionId,
+      feeAssignmentId,
+    );
+    this.assertCampusScopeAccess(assignment.campusId, scopes);
 
     const [existingPayment] = await this.database
       .select({ id: feePayments.id })
@@ -963,6 +1015,7 @@ export class FeesService {
 
   async createFeeAdjustment(
     institutionId: string,
+    scopes: ResolvedScopes,
     feeAssignmentId: string,
     payload: CreateFeeAdjustmentDto,
   ) {
@@ -970,6 +1023,7 @@ export class FeesService {
       institutionId,
       feeAssignmentId,
     );
+    this.assertCampusScopeAccess(assignment.campusId, scopes);
     const paymentSummary = await this.getPaymentSummaryByAssignmentIds([
       feeAssignmentId,
     ]);
@@ -1142,12 +1196,14 @@ export class FeesService {
   async createFeePayment(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: CreateFeePaymentDto,
   ) {
     const assignment = await this.getAssignmentRowOrThrow(
       institutionId,
       payload.feeAssignmentId,
     );
+    this.assertCampusScopeAccess(assignment.campusId, scopes);
 
     const paymentSummary = await this.getPaymentSummaryByAssignmentIds([
       payload.feeAssignmentId,
@@ -1215,6 +1271,7 @@ export class FeesService {
   async reverseFeePayment(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     feePaymentId: string,
     payload: ReverseFeePaymentDto,
   ) {
@@ -1247,6 +1304,7 @@ export class FeesService {
       institutionId,
       payment.feeAssignmentId,
     );
+    this.assertCampusScopeAccess(assignment.campusId, scopes);
     const studentFullName = this.buildStudentFullName(
       assignment.studentFirstName,
       assignment.studentLastName,
@@ -1309,7 +1367,6 @@ export class FeesService {
   ): Promise<PaginatedResult<ReturnType<typeof this.buildAssignmentResult>>> {
     const today = new Date().toISOString().split("T")[0]!;
     const assignmentQuery: ListFeeAssignmentsQueryDto = {
-      campusId: query.campusId,
       limit: query.limit,
       order: query.order,
       page: query.page,
@@ -1333,21 +1390,54 @@ export class FeesService {
 
   async getCollectionSummary(
     institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: CollectionSummaryQueryDto = {},
   ) {
     const today = new Date().toISOString().split("T")[0]!;
+    const scopedCampusId = authSession.activeCampusId ?? undefined;
+    const structureCampusFilter = campusScopeFilter(feeStructures.campusId, scopes);
+    const assignmentCampusFilter = campusScopeFilter(member.primaryCampusId, scopes);
     const paymentSummaryByAssignment = this.buildPaymentSummarySubquery();
     const adjustmentSummaryByAssignment = this.buildAdjustmentSummarySubquery();
+    const scopedAssignments = this.database
+      .select({
+        id: feeAssignments.id,
+        feeStructureId: feeAssignments.feeStructureId,
+        assignedAmountInPaise: feeAssignments.assignedAmountInPaise,
+        dueDate: feeAssignments.dueDate,
+      })
+      .from(feeAssignments)
+      .innerJoin(students, eq(feeAssignments.studentId, students.id))
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .where(
+        and(
+          eq(feeAssignments.institutionId, institutionId),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          scopedCampusId
+            ? eq(member.primaryCampusId, scopedCampusId)
+            : assignmentCampusFilter,
+        ),
+      )
+      .as("scoped_fee_assignments");
     const conditions: SQL[] = [
       eq(feeStructures.institutionId, institutionId),
       ne(feeStructures.status, STATUS.FEE_STRUCTURE.DELETED),
     ];
 
+    if (scopedCampusId) {
+      await this.getCampusOrThrow(institutionId, scopedCampusId);
+      conditions.push(
+        or(
+          isNull(feeStructures.campusId),
+          eq(feeStructures.campusId, scopedCampusId),
+        )!,
+      );
+    } else if (structureCampusFilter) {
+      conditions.push(or(isNull(feeStructures.campusId), structureCampusFilter)!);
+    }
     if (query.academicYearId) {
       conditions.push(eq(feeStructures.academicYearId, query.academicYearId));
-    }
-    if (query.campusId) {
-      conditions.push(eq(feeStructures.campusId, query.campusId));
     }
 
     const where = and(...conditions)!;
@@ -1358,8 +1448,8 @@ export class FeesService {
         feeStructureName: feeStructures.name,
         academicYearName: academicYears.name,
         campusName: campus.name,
-        assignmentCount: sql<number>`count(${feeAssignments.id})`,
-        totalAssignedInPaise: sql<number>`coalesce(sum(${feeAssignments.assignedAmountInPaise}), 0)`,
+        assignmentCount: sql<number>`count(${scopedAssignments.id})`,
+        totalAssignedInPaise: sql<number>`coalesce(sum(${scopedAssignments.assignedAmountInPaise}), 0)`,
         totalPaidInPaise: sql<number>`coalesce(sum(coalesce(${paymentSummaryByAssignment.totalPaidAmountInPaise}, 0)), 0)`,
         totalAdjustedInPaise: sql<number>`coalesce(sum(coalesce(${adjustmentSummaryByAssignment.totalAdjustmentAmountInPaise}, 0)), 0)`,
       })
@@ -1367,19 +1457,16 @@ export class FeesService {
       .innerJoin(academicYears, eq(feeStructures.academicYearId, academicYears.id))
       .leftJoin(campus, eq(feeStructures.campusId, campus.id))
       .leftJoin(
-        feeAssignments,
-        and(
-          eq(feeAssignments.feeStructureId, feeStructures.id),
-          eq(feeAssignments.institutionId, institutionId),
-        ),
+        scopedAssignments,
+        eq(scopedAssignments.feeStructureId, feeStructures.id),
       )
       .leftJoin(
         paymentSummaryByAssignment,
-        eq(paymentSummaryByAssignment.feeAssignmentId, feeAssignments.id),
+        eq(paymentSummaryByAssignment.feeAssignmentId, scopedAssignments.id),
       )
       .leftJoin(
         adjustmentSummaryByAssignment,
-        eq(adjustmentSummaryByAssignment.feeAssignmentId, feeAssignments.id),
+        eq(adjustmentSummaryByAssignment.feeAssignmentId, scopedAssignments.id),
       )
       .where(where)
       .groupBy(
@@ -1396,6 +1483,8 @@ export class FeesService {
         overdueCount: sql<number>`count(${feeAssignments.id})`,
       })
       .from(feeAssignments)
+      .innerJoin(students, eq(feeAssignments.studentId, students.id))
+      .innerJoin(member, eq(students.membershipId, member.id))
       .innerJoin(feeStructures, eq(feeAssignments.feeStructureId, feeStructures.id))
       .leftJoin(
         paymentSummaryByAssignment,
@@ -1409,12 +1498,23 @@ export class FeesService {
         and(
           eq(feeStructures.institutionId, institutionId),
           ne(feeStructures.status, STATUS.FEE_STRUCTURE.DELETED),
+          ne(member.status, STATUS.MEMBER.DELETED),
           lt(feeAssignments.dueDate, today),
           sql`${feeAssignments.assignedAmountInPaise} > coalesce(${paymentSummaryByAssignment.totalPaidAmountInPaise}, 0) + coalesce(${adjustmentSummaryByAssignment.totalAdjustmentAmountInPaise}, 0)`,
           query.academicYearId
             ? eq(feeStructures.academicYearId, query.academicYearId)
             : undefined,
-          query.campusId ? eq(feeStructures.campusId, query.campusId) : undefined,
+          scopedCampusId
+            ? eq(member.primaryCampusId, scopedCampusId)
+            : assignmentCampusFilter,
+          scopedCampusId
+            ? or(
+                isNull(feeStructures.campusId),
+                eq(feeStructures.campusId, scopedCampusId),
+              )
+            : structureCampusFilter
+              ? or(isNull(feeStructures.campusId), structureCampusFilter)
+              : undefined,
         ),
       );
 
@@ -1463,8 +1563,7 @@ export class FeesService {
     query: ListFeeAssignmentsQueryDto,
     filters: { outstandingOnly?: boolean; overdueOnly?: string } = {},
   ): Promise<PaginatedResult<ReturnType<typeof this.buildAssignmentResult>>> {
-    const scopedCampusId =
-      query.campusId ?? authSession.activeCampusId ?? undefined;
+    const scopedCampusId = authSession.activeCampusId ?? undefined;
 
     if (scopedCampusId) {
       await this.getCampusOrThrow(institutionId, scopedCampusId);
@@ -1559,6 +1658,7 @@ export class FeesService {
         studentAdmissionNumber: students.admissionNumber,
         studentFirstName: students.firstName,
         studentLastName: students.lastName,
+        campusId: member.primaryCampusId,
         campusName: campus.name,
         assignedAmountInPaise: feeAssignments.assignedAmountInPaise,
         dueDate: feeAssignments.dueDate,
@@ -1860,6 +1960,7 @@ export class FeesService {
         studentAdmissionNumber: students.admissionNumber,
         studentFirstName: students.firstName,
         studentLastName: students.lastName,
+        campusId: member.primaryCampusId,
         campusName: campus.name,
         assignedAmountInPaise: feeAssignments.assignedAmountInPaise,
         dueDate: feeAssignments.dueDate,
@@ -1914,6 +2015,7 @@ export class FeesService {
         studentAdmissionNumber: students.admissionNumber,
         studentFirstName: students.firstName,
         studentLastName: students.lastName,
+        campusId: member.primaryCampusId,
         campusName: campus.name,
         assignedAmountInPaise: feeAssignments.assignedAmountInPaise,
         dueDate: feeAssignments.dueDate,
@@ -2141,6 +2243,40 @@ export class FeesService {
     }
 
     if (!campusId || !scopes.campusIds.includes(campusId)) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+  }
+
+  private assertOptionalCampusScopeAccess(
+    campusId: string | null | undefined,
+    scopes: ResolvedScopes,
+  ) {
+    if (!campusId) {
+      return;
+    }
+
+    this.assertCampusScopeAccess(campusId, scopes);
+  }
+
+  private requireActiveCampusId(authSession: AuthenticatedSession) {
+    if (!authSession.activeCampusId) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return authSession.activeCampusId;
+  }
+
+  private assertActiveCampusMatch(
+    campusId: string | null | undefined,
+    authSession: AuthenticatedSession,
+  ) {
+    if (!campusId) {
+      return;
+    }
+
+    const activeCampusId = this.requireActiveCampusId(authSession);
+
+    if (campusId !== activeCampusId) {
       throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
     }
   }

@@ -139,10 +139,7 @@ export function StaffRoleAssignmentsCard({
     name: "sectionId",
   });
 
-  const classesQuery = useClassesQuery(
-    Boolean(selectedCampusId),
-    selectedCampusId || undefined,
-  );
+  const classesQuery = useClassesQuery(Boolean(selectedCampusId));
 
   const classOptions = useMemo(
     () =>

@@ -109,6 +109,7 @@ export const ERP_ROUTES = {
   SETTINGS_CAMPUSES: "/settings/campuses",
   SETTINGS_CAMPUSES_CREATE: `/settings/campuses/${ERP_ROUTE_SEGMENTS.NEW}`,
   SETTINGS_BRANDING: "/settings/branding",
+  SETTINGS_ADMISSION_FIELDS: "/settings/admission-fields",
   SETTINGS_ROLES: "/settings/roles",
   SETTINGS_AUDIT: "/settings/audit",
   SETTINGS_ROLES_CREATE: `/settings/roles/${ERP_ROUTE_SEGMENTS.NEW}`,

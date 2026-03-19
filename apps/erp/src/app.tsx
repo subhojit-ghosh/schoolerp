@@ -35,6 +35,7 @@ import { CollectPaymentSheetRoute } from "@/features/fees/ui/collect-payment-she
 import { BulkFeeAssignmentSheetRoute } from "@/features/fees/ui/bulk-fee-assignment-sheet-route";
 import { FeeAdjustmentSheetRoute } from "@/features/fees/ui/fee-adjustment-sheet-route";
 import { BrandingPage } from "@/routes/settings/branding-page";
+import { AdmissionFormFieldsPage } from "@/routes/settings/admission-form-fields-page";
 import { AuditPage } from "@/routes/settings/audit-page";
 import { CampusesPage } from "@/routes/settings/campuses-page";
 import { RolesPage } from "@/routes/settings/roles-page";
@@ -293,6 +294,10 @@ const router = createBrowserRouter([
       },
       { path: ERP_ROUTES.SETTINGS_AUDIT, element: <AuditPage /> },
       { path: ERP_ROUTES.SETTINGS_BRANDING, element: <BrandingPage /> },
+      {
+        path: ERP_ROUTES.SETTINGS_ADMISSION_FIELDS,
+        element: <AdmissionFormFieldsPage />,
+      },
     ],
   },
 ]);

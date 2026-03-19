@@ -9,7 +9,6 @@ export const ANNOUNCEMENT_AUDIENCE_OPTIONS = [
 ] as const;
 
 export const announcementFormSchema = z.object({
-  campusId: z.string().trim(),
   title: z.string().trim().min(1, "Announcement title is required"),
   summary: z.string().trim(),
   body: z.string().trim().min(1, "Announcement body is required"),
@@ -25,7 +24,6 @@ export const announcementFormSchema = z.object({
 export type AnnouncementFormValues = z.infer<typeof announcementFormSchema>;
 
 export const DEFAULT_ANNOUNCEMENT_FORM_VALUES: AnnouncementFormValues = {
-  campusId: "",
   title: "",
   summary: "",
   body: "",

@@ -9,12 +9,17 @@ import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import type { AppDatabase } from "@repo/database";
 import {
   academicYears,
+  and,
+  asc,
+  eq,
   examMarks,
   examTerms,
+  inArray,
+  isNull,
   member,
+  ne,
   students,
 } from "@repo/database";
-import { and, asc, eq, inArray, isNull, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
 import { AuditService } from "../audit/audit.service";

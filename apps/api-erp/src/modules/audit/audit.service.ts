@@ -1,7 +1,18 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
-import { auditLogs, user, type AppDatabase } from "@repo/database";
-import { and, asc, count, desc, eq, ilike, or, type SQL } from "drizzle-orm";
+import {
+  and,
+  asc,
+  auditLogs,
+  count,
+  desc,
+  eq,
+  ilike,
+  or,
+  user,
+  type AppDatabase,
+  type SQL,
+} from "@repo/database";
 import { randomUUID } from "node:crypto";
 import { SORT_ORDERS } from "../../constants";
 import {

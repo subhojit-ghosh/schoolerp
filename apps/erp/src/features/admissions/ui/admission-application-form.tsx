@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Field,
   FieldContent,
@@ -10,14 +11,7 @@ import {
   FieldLabel,
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
@@ -27,14 +21,10 @@ import {
   ADMISSION_APPLICATION_STATUS_OPTIONS,
   type AdmissionApplicationFormValues,
 } from "@/features/admissions/model/admission-form-schema";
-
-type CampusOption = {
-  id: string;
-  name: string;
-};
+import type { AdmissionFormFieldRecord } from "@/features/admissions/model/admission-custom-fields";
+import { AdmissionCustomFieldsSection } from "@/features/admissions/ui/admission-custom-fields-section";
 
 type EnquiryOption = {
-  campusId: string;
   email: string;
   guardianName: string;
   id: string;
@@ -43,7 +33,8 @@ type EnquiryOption = {
 };
 
 type AdmissionApplicationFormProps = {
-  campuses: CampusOption[];
+  campusName?: string;
+  customFields: AdmissionFormFieldRecord[];
   defaultValues: AdmissionApplicationFormValues;
   enableLinkedEnquiryAutofill?: boolean;
   enquiries: EnquiryOption[];
@@ -64,7 +55,8 @@ function toTitleCase(value: string) {
 }
 
 export function AdmissionApplicationForm({
-  campuses,
+  campusName,
+  customFields,
   defaultValues,
   enableLinkedEnquiryAutofill = false,
   enquiries,
@@ -74,7 +66,6 @@ export function AdmissionApplicationForm({
   onSubmit,
   submitLabel,
 }: AdmissionApplicationFormProps) {
-  const hasSingleCampus = campuses.length === 1;
   const hasLinkedEnquiries = enquiries.length > 0;
   const { control, getValues, handleSubmit, reset, setValue } =
     useForm<AdmissionApplicationFormValues>({
@@ -96,22 +87,6 @@ export function AdmissionApplicationForm({
   }, [defaultValues, reset]);
 
   useEffect(() => {
-    if (campuses.length !== 1) {
-      return;
-    }
-
-    const defaultCampusId = campuses[0]!.id;
-    if (defaultValues.campusId === defaultCampusId) {
-      return;
-    }
-
-    reset({
-      ...defaultValues,
-      campusId: defaultCampusId,
-    });
-  }, [campuses, defaultValues, reset]);
-
-  useEffect(() => {
     if (!enableLinkedEnquiryAutofill || !selectedEnquiryId) {
       return;
     }
@@ -128,11 +103,6 @@ export function AdmissionApplicationForm({
     const nextLastName = nameParts.join(" ");
     const currentValues = getValues();
 
-    setValue("campusId", selectedEnquiry.campusId, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
     setValue("studentFirstName", nextFirstName || currentValues.studentFirstName, {
       shouldDirty: true,
       shouldTouch: true,
@@ -210,40 +180,18 @@ export function AdmissionApplicationForm({
               </Field>
             )}
           />
-
-          <Controller
-            control={control}
-            name="campusId"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Campus</FieldLabel>
-                <FieldContent>
-                  <Select
-                    disabled={hasSingleCampus}
-                    onValueChange={field.onChange}
-                    value={field.value ?? ""}
-                  >
-                    <SelectTrigger
-                      aria-invalid={fieldState.invalid}
-                      disabled={hasSingleCampus}
-                    >
-                      <SelectValue placeholder="Select campus" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {campuses.map((campus) => (
-                          <SelectItem key={campus.id} value={campus.id}>
-                            {campus.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
+          {campusName ? (
+            <Field>
+              <FieldLabel>Campus</FieldLabel>
+              <FieldContent>
+                <div className="flex h-10 items-center">
+                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                    {campusName}
+                  </Badge>
+                </div>
+              </FieldContent>
+            </Field>
+          ) : null}
 
           <Controller
             control={control}
@@ -436,6 +384,12 @@ export function AdmissionApplicationForm({
               </FieldContent>
             </Field>
           )}
+        />
+
+        <AdmissionCustomFieldsSection
+          control={control}
+          fields={customFields}
+          title="Application-specific details"
         />
 
         <FieldError>{errorMessage}</FieldError>

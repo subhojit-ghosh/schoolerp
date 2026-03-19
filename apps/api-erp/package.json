@@ -34,7 +34,6 @@
     "@scalar/nestjs-api-reference": "^1.1.4",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
-    "drizzle-orm": "^0.45.1",
     "express": "^5.1.0",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",

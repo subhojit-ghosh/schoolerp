@@ -13,6 +13,8 @@ import {
 } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import {
+  ADMISSION_FORM_FIELD_SCOPES,
+  ADMISSION_FORM_FIELD_TYPES,
   AUDIT_ACTIONS,
   AUDIT_ENTITY_TYPES,
   ANNOUNCEMENT_AUDIENCE,
@@ -56,6 +58,22 @@ const ADMISSION_APPLICATION_STATUS_ENUM = [
   "reviewed",
   "approved",
   "rejected",
+] as const;
+const ADMISSION_FORM_FIELD_SCOPE_ENUM = [
+  ADMISSION_FORM_FIELD_SCOPES.APPLICATION,
+  ADMISSION_FORM_FIELD_SCOPES.STUDENT,
+  ADMISSION_FORM_FIELD_SCOPES.BOTH,
+] as const;
+const ADMISSION_FORM_FIELD_TYPE_ENUM = [
+  ADMISSION_FORM_FIELD_TYPES.TEXT,
+  ADMISSION_FORM_FIELD_TYPES.TEXTAREA,
+  ADMISSION_FORM_FIELD_TYPES.NUMBER,
+  ADMISSION_FORM_FIELD_TYPES.DATE,
+  ADMISSION_FORM_FIELD_TYPES.SELECT,
+  ADMISSION_FORM_FIELD_TYPES.EMAIL,
+  ADMISSION_FORM_FIELD_TYPES.PHONE,
+  ADMISSION_FORM_FIELD_TYPES.URL,
+  ADMISSION_FORM_FIELD_TYPES.CHECKBOX,
 ] as const;
 const SUBJECT_STATUS_ENUM = [
   SUBJECT_STATUS.ACTIVE,
@@ -326,6 +344,7 @@ export const students = pgTable(
     sectionId: text()
       .notNull()
       .references(() => classSections.id, { onDelete: "restrict" }),
+    customFieldValues: jsonb().$type<Record<string, unknown> | null>(),
     createdAt: timestamp().notNull().defaultNow(),
     deletedAt: timestamp(),
   },
@@ -381,6 +400,47 @@ export const admissionEnquiries = pgTable(
   ],
 );
 
+export const admissionFormFields = pgTable(
+  "admission_form_fields",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    key: text().notNull(),
+    label: text().notNull(),
+    scope: text({
+      enum: ADMISSION_FORM_FIELD_SCOPE_ENUM,
+    })
+      .notNull()
+      .default(ADMISSION_FORM_FIELD_SCOPES.APPLICATION),
+    fieldType: text({
+      enum: ADMISSION_FORM_FIELD_TYPE_ENUM,
+    })
+      .notNull()
+      .default(ADMISSION_FORM_FIELD_TYPES.TEXT),
+    placeholder: text(),
+    helpText: text(),
+    required: boolean().notNull().default(false),
+    active: boolean().notNull().default(true),
+    options: jsonb().$type<Array<{ label: string; value: string }> | null>(),
+    sortOrder: integer().notNull().default(0),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+  },
+  (table) => [
+    index("admission_form_fields_institution_idx").on(table.institutionId),
+    index("admission_form_fields_scope_idx").on(table.scope),
+    uniqueIndex("admission_form_fields_key_unique_idx").on(
+      table.institutionId,
+      table.key,
+    ),
+  ],
+);
+
 export const admissionApplications = pgTable(
   "admission_applications",
   {
@@ -407,6 +467,7 @@ export const admissionApplications = pgTable(
       .notNull()
       .default("draft"),
     notes: text(),
+    customFieldValues: jsonb().$type<Record<string, unknown> | null>(),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()

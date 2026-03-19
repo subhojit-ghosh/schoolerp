@@ -17,7 +17,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
-import { Input } from "@repo/ui/components/ui/input";
 import { SidebarTrigger } from "@repo/ui/components/ui/sidebar";
 import {
   Select,
@@ -71,7 +70,7 @@ function isFullscreenSupported(doc: FullscreenDocument) {
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
   const session = useAuthStore((store) => store.session);
   const selectCampusMutation = useSelectCampusMutation();
   const [isFullscreen, setIsFullscreen] = useState(() =>
@@ -88,7 +87,6 @@ export function SiteHeader() {
     PERMISSIONS.COMMUNICATION_READ,
   );
   const notificationsQuery = useNotificationsQuery(canReadNotifications, {
-    campusId: session?.activeCampus?.id,
     limit: 3,
     unreadOnly: true,
   });
@@ -191,13 +189,17 @@ export function SiteHeader() {
           <SidebarTrigger className="-ml-1" />
         </div>
 
-        <div className="relative ml-4 hidden min-w-[260px] flex-1 md:block lg:max-w-md">
-          <IconSearch className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            className="h-10 rounded-full border-border/70 bg-card/80 pl-9 shadow-xs"
-            placeholder="Search students, guardians, admission no..."
-          />
-        </div>
+        <button
+          className="ml-4 hidden min-w-[260px] flex-1 md:flex lg:max-w-md items-center gap-3 h-10 rounded-full border border-border/70 bg-card/80 px-3 shadow-xs text-left transition-colors hover:bg-card hover:border-border cursor-pointer"
+          onClick={onOpenSearch}
+          type="button"
+        >
+          <IconSearch className="size-4 shrink-0 text-muted-foreground" />
+          <span className="flex-1 text-sm text-muted-foreground">Search or jump to…</span>
+          <kbd className="pointer-events-none hidden select-none items-center gap-0.5 rounded border border-border/60 bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground sm:flex">
+            <span className="text-[12px]">⌘</span>K
+          </kbd>
+        </button>
 
         <div className="ml-auto flex items-center gap-2">
           {showCampusSelector && campuses.length > 1 ? (

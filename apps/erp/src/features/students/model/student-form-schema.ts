@@ -23,6 +23,7 @@ export const EMPTY_CURRENT_ENROLLMENT = {
 const academicYearIdentifierSchema = z.uuid("Select an academic year");
 const classIdentifierSchema = z.uuid("Select a class");
 const sectionIdentifierSchema = z.uuid("Select a section");
+const customFieldValuesSchema = z.record(z.string(), z.unknown());
 
 export const guardianFormSchema = z.object({
   name: z
@@ -110,8 +111,8 @@ export const studentFormSchema = z
     lastName: z.string().trim().optional(),
     classId: z.uuid("Select a class"),
     sectionId: z.uuid("Select a section"),
-    campusId: z.uuid("Select a campus"),
     guardians: z.array(guardianFormSchema).min(1, "Add at least one guardian"),
+    customFieldValues: customFieldValuesSchema,
     currentEnrollment: currentEnrollmentFormSchema,
   })
   .refine(
@@ -138,6 +139,10 @@ export function toStudentMutationBody(
 
   return {
     ...values,
+    customFieldValues:
+      Object.keys(values.customFieldValues).length > 0
+        ? values.customFieldValues
+        : undefined,
     currentEnrollment: hasEnrollment
       ? {
           academicYearId: values.currentEnrollment.academicYearId,

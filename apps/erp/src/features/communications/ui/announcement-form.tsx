@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Badge } from "@repo/ui/components/ui/badge";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
@@ -20,23 +20,10 @@ import {
 } from "@repo/ui/components/ui/field";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import { Input } from "@repo/ui/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui/components/ui/select";
-
-const ALL_CAMPUSES_VALUE = "__all_campuses__";
-
-type CampusOption = {
-  id: string;
-  name: string;
-};
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select";
 
 type AnnouncementFormProps = {
-  campuses: CampusOption[];
+  campusName?: string;
   defaultValues: AnnouncementFormValues;
   errorMessage?: string;
   isPending?: boolean;
@@ -46,7 +33,7 @@ type AnnouncementFormProps = {
 };
 
 export function AnnouncementForm({
-  campuses,
+  campusName,
   defaultValues,
   errorMessage,
   isPending = false,
@@ -54,64 +41,31 @@ export function AnnouncementForm({
   onSubmit,
   submitLabel,
 }: AnnouncementFormProps) {
-  const { control, handleSubmit, reset, setValue } = useForm<AnnouncementFormValues>({
+  const { control, handleSubmit, reset } = useForm<AnnouncementFormValues>({
     resolver: zodResolver(announcementFormSchema),
     defaultValues,
-  });
-  const selectedCampusId = useWatch({
-    control,
-    name: "campusId",
   });
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  useEffect(() => {
-    if (campuses.length === 1 && !selectedCampusId) {
-      setValue("campusId", campuses[0]!.id, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
-  }, [campuses, selectedCampusId, setValue]);
-
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <FieldGroup className="gap-6">
         <div className="grid gap-4">
-          <Controller
-            control={control}
-            name="campusId"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Campus</FieldLabel>
-                <FieldContent>
-                  <Select
-                    onValueChange={(value) =>
-                      field.onChange(value === ALL_CAMPUSES_VALUE ? "" : value)
-                    }
-                    value={field.value || ALL_CAMPUSES_VALUE}
-                  >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select campus" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ALL_CAMPUSES_VALUE}>
-                        All campuses
-                      </SelectItem>
-                      {campuses.map((campus) => (
-                        <SelectItem key={campus.id} value={campus.id}>
-                          {campus.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
+          {campusName ? (
+            <Field>
+              <FieldLabel>Campus</FieldLabel>
+              <FieldContent>
+                <div className="flex h-10 items-center">
+                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                    {campusName}
+                  </Badge>
+                </div>
+              </FieldContent>
+            </Field>
+          ) : null}
 
           <Controller
             control={control}

@@ -25,9 +25,6 @@ export class ListGuardiansQueryDto {
     enum: Object.values(SORT_ORDERS),
   })
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
-
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
 }
 
 export class UpdateGuardianBodyDto {
@@ -36,7 +33,6 @@ export class UpdateGuardianBodyDto {
 
   @ApiPropertyOptional({ nullable: true })
   email?: string | null;
-  campusId!: string;
 }
 
 export class LinkGuardianStudentBodyDto {

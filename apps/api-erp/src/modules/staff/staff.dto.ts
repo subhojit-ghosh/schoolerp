@@ -27,9 +27,6 @@ export class ListStaffQueryDto {
     enum: Object.values(SORT_ORDERS),
   })
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
-
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
 }
 
 export class StaffRoleDto {
@@ -44,7 +41,6 @@ export class CreateStaffBodyDto {
 
   @ApiPropertyOptional({ nullable: true })
   email?: string | null;
-  campusId!: string;
 
   @ApiProperty({
     enum: Object.values(STATUS.MEMBER),

@@ -17,29 +17,27 @@ import { DATABASE } from "@repo/backend-core";
 import type { AppDatabase } from "@repo/database";
 import {
   academicYears,
+  and,
+  asc,
   campus,
   classSections,
+  desc,
+  eq,
   feeAssignments,
   feeStructureInstallments,
   feeStructures,
+  inArray,
+  isNull,
   member,
+  ne,
+  or,
   schoolClasses,
+  sql,
   studentCurrentEnrollments,
   studentGuardianLinks,
   students,
   user,
 } from "@repo/database";
-import {
-  and,
-  asc,
-  desc,
-  eq,
-  inArray,
-  isNull,
-  ne,
-  or,
-  sql,
-} from "drizzle-orm";
 import {
   ERROR_MESSAGES,
   MEMBER_TYPES,
@@ -77,6 +75,7 @@ type StudentImportPayload = {
   campusId: string;
   classId: string;
   sectionId: string;
+  customFieldValues?: Record<string, unknown>;
   currentEnrollment: {
     academicYearId: string;
     classId: string;
@@ -117,8 +116,14 @@ type FeeAssignmentImportPayload = {
 
 type PreviewContext = {
   campusByName: Map<string, { id: string; name: string }>;
-  academicYearByName: Map<string, { id: string; name: string; isCurrent: boolean }>;
-  studentByAdmissionNumber: Map<string, { id: string; admissionNumber: string; campusId: string }>;
+  academicYearByName: Map<
+    string,
+    { id: string; name: string; isCurrent: boolean }
+  >;
+  studentByAdmissionNumber: Map<
+    string,
+    { id: string; admissionNumber: string; campusId: string }
+  >;
   classByKey: Map<string, { id: string; campusId: string; name: string }>;
   sectionByKey: Map<string, { id: string; classId: string; name: string }>;
   feeStructureByKey: Map<
@@ -170,8 +175,14 @@ export class DataExchangeService {
     private readonly feesService: FeesService,
   ) {}
 
-  async getCapabilities(institutionId: string, authSession: AuthenticatedSession) {
-    const permissions = await this.resolvePermissions(authSession, institutionId);
+  async getCapabilities(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+  ) {
+    const permissions = await this.resolvePermissions(
+      authSession,
+      institutionId,
+    );
 
     return {
       entities: Object.values(DATA_EXCHANGE_ENTITY_TYPES)
@@ -334,7 +345,7 @@ export class DataExchangeService {
 
     return {
       fileName: `${entityType}-export.csv`,
-      content: stringifyCsv([ [...DATA_EXCHANGE_HEADERS[entityType]], ...rows ]),
+      content: stringifyCsv([[...DATA_EXCHANGE_HEADERS[entityType]], ...rows]),
     };
   }
 
@@ -348,8 +359,14 @@ export class DataExchangeService {
   ) {
     if (entityType === DATA_EXCHANGE_ENTITY_TYPES.STUDENTS) {
       const payload = this.resolveStudentPayload(row, context);
-      await this.studentsService.createStudent(institutionId, authSession, payload);
-      context.existingStudentAdmissions.add(payload.admissionNumber.toLowerCase());
+      await this.studentsService.createStudent(
+        institutionId,
+        authSession,
+        payload,
+      );
+      context.existingStudentAdmissions.add(
+        payload.admissionNumber.toLowerCase(),
+      );
       return;
     }
 
@@ -373,15 +390,19 @@ export class DataExchangeService {
           name: payload.name,
           mobile: payload.mobile,
           email: payload.email,
-          campusId: payload.campusId,
         },
       );
 
-      await this.guardiansService.linkStudent(institutionId, guardian.id, authSession, {
-        studentId: payload.studentId,
-        relationship: payload.relationship,
-        isPrimary: payload.isPrimary,
-      });
+      await this.guardiansService.linkStudent(
+        institutionId,
+        guardian.id,
+        authSession,
+        {
+          studentId: payload.studentId,
+          relationship: payload.relationship,
+          isPrimary: payload.isPrimary,
+        },
+      );
       return;
     }
 
@@ -407,7 +428,11 @@ export class DataExchangeService {
     try {
       if (entityType === DATA_EXCHANGE_ENTITY_TYPES.STUDENTS) {
         const payload = this.resolveStudentPayload(row, context);
-        if (context.existingStudentAdmissions.has(payload.admissionNumber.toLowerCase())) {
+        if (
+          context.existingStudentAdmissions.has(
+            payload.admissionNumber.toLowerCase(),
+          )
+        ) {
           messages.push(ERROR_MESSAGES.STUDENTS.ADMISSION_NUMBER_EXISTS);
         }
       } else if (entityType === DATA_EXCHANGE_ENTITY_TYPES.STAFF) {
@@ -433,39 +458,55 @@ export class DataExchangeService {
     row: Record<string, string>,
     context: PreviewContext,
   ): StudentImportPayload {
-    const admissionNumber = this.required(row.admissionNumber, "Admission number is required.");
+    const admissionNumber = this.required(
+      row.admissionNumber,
+      "Admission number is required.",
+    );
     const firstName = this.required(row.firstName, "First name is required.");
     const campus = this.resolveCampus(row.campusName, context);
     const resolvedClass = this.resolveClass(row.className, campus.id, context);
-    const resolvedSection = this.resolveSection(row.sectionName, resolvedClass.id, context);
-    const academicYear = this.resolveAcademicYear(row.academicYearName, context);
+    const resolvedSection = this.resolveSection(
+      row.sectionName,
+      resolvedClass.id,
+      context,
+    );
+    const academicYear = this.resolveAcademicYear(
+      row.academicYearName,
+      context,
+    );
     const primaryGuardianNumber = Number.parseInt(
       row.primaryGuardianNumber || "1",
       10,
     );
 
-    const guardians = Array.from({ length: GUARDIAN_COLUMN_COUNT }, (_, index) => {
-      const position = index + 1;
-      const name = row[`guardian${position}Name`];
-      const mobile = row[`guardian${position}Mobile`];
-      const email = row[`guardian${position}Email`];
-      const relationship = row[`guardian${position}Relationship`];
+    const guardians = Array.from(
+      { length: GUARDIAN_COLUMN_COUNT },
+      (_, index) => {
+        const position = index + 1;
+        const name = row[`guardian${position}Name`];
+        const mobile = row[`guardian${position}Mobile`];
+        const email = row[`guardian${position}Email`];
+        const relationship = row[`guardian${position}Relationship`];
 
-      if (!(name || mobile || email || relationship)) {
-        return null;
-      }
+        if (!(name || mobile || email || relationship)) {
+          return null;
+        }
 
-      return {
-        name: this.required(name, `Guardian ${position} name is required.`),
-        mobile: this.required(mobile, `Guardian ${position} mobile is required.`),
-        email: email || undefined,
-        relationship: this.resolveGuardianRelationship(
-          relationship,
-          `Guardian ${position} relationship is required.`,
-        ),
-        isPrimary: primaryGuardianNumber === position,
-      };
-    }).filter(Boolean) as StudentImportPayload["guardians"];
+        return {
+          name: this.required(name, `Guardian ${position} name is required.`),
+          mobile: this.required(
+            mobile,
+            `Guardian ${position} mobile is required.`,
+          ),
+          email: email || undefined,
+          relationship: this.resolveGuardianRelationship(
+            relationship,
+            `Guardian ${position} relationship is required.`,
+          ),
+          isPrimary: primaryGuardianNumber === position,
+        };
+      },
+    ).filter(Boolean) as StudentImportPayload["guardians"];
 
     if (guardians.length === 0) {
       throw new BadRequestException("At least one guardian is required.");
@@ -505,7 +546,9 @@ export class DataExchangeService {
       status !== STATUS.MEMBER.INACTIVE &&
       status !== STATUS.MEMBER.SUSPENDED
     ) {
-      throw new BadRequestException("Staff status must be active, inactive, or suspended.");
+      throw new BadRequestException(
+        "Staff status must be active, inactive, or suspended.",
+      );
     }
 
     return {
@@ -534,7 +577,10 @@ export class DataExchangeService {
         row.relationship,
         "Guardian relationship is required.",
       ),
-      isPrimary: this.parseBoolean(row.isPrimary, "Primary guardian must be true or false."),
+      isPrimary: this.parseBoolean(
+        row.isPrimary,
+        "Primary guardian must be true or false.",
+      ),
     };
   }
 
@@ -559,7 +605,9 @@ export class DataExchangeService {
       structure.scope === FEE_STRUCTURE_SCOPES.CAMPUS &&
       structure.campusId !== student.campusId
     ) {
-      throw new BadRequestException(ERROR_MESSAGES.FEES.FEE_STRUCTURE_CAMPUS_MISMATCH);
+      throw new BadRequestException(
+        ERROR_MESSAGES.FEES.FEE_STRUCTURE_CAMPUS_MISMATCH,
+      );
     }
 
     return {
@@ -579,7 +627,9 @@ export class DataExchangeService {
     const [headerRow, ...dataRows] = rows;
 
     if (!headerRow) {
-      throw new BadRequestException(ERROR_MESSAGES.DATA_EXCHANGE.CSV_HEADER_REQUIRED);
+      throw new BadRequestException(
+        ERROR_MESSAGES.DATA_EXCHANGE.CSV_HEADER_REQUIRED,
+      );
     }
 
     const expectedHeaders = [...DATA_EXCHANGE_HEADERS[entityType]];
@@ -603,7 +653,9 @@ export class DataExchangeService {
     }
 
     return dataRows.map((values) =>
-      Object.fromEntries(expectedHeaders.map((header, index) => [header, values[index] ?? ""])),
+      Object.fromEntries(
+        expectedHeaders.map((header, index) => [header, values[index] ?? ""]),
+      ),
     );
   }
 
@@ -719,11 +771,14 @@ export class DataExchangeService {
         years.map((record) => [record.name.toLowerCase(), record]),
       ),
       studentByAdmissionNumber: new Map(
-        studentRows.map((record) => [record.admissionNumber.toLowerCase(), {
-          id: record.id,
-          admissionNumber: record.admissionNumber,
-          campusId: record.campusId ?? "",
-        }]),
+        studentRows.map((record) => [
+          record.admissionNumber.toLowerCase(),
+          {
+            id: record.id,
+            admissionNumber: record.admissionNumber,
+            campusId: record.campusId ?? "",
+          },
+        ]),
       ),
       classByKey: new Map(
         classRows.map((record) => [
@@ -744,13 +799,18 @@ export class DataExchangeService {
         ]),
       ),
       existingStudentAdmissions: new Set(
-        existingAdmissions.map((record) => record.admissionNumber.toLowerCase()),
+        existingAdmissions.map((record) =>
+          record.admissionNumber.toLowerCase(),
+        ),
       ),
     };
   }
 
   private resolveCampus(campusName: string, context: PreviewContext) {
-    const normalizedName = this.required(campusName, "Campus name is required.").toLowerCase();
+    const normalizedName = this.required(
+      campusName,
+      "Campus name is required.",
+    ).toLowerCase();
     const matchedCampus = context.campusByName.get(normalizedName);
 
     if (!matchedCampus) {
@@ -771,7 +831,9 @@ export class DataExchangeService {
       );
 
       if (!currentYear) {
-        throw new BadRequestException(ERROR_MESSAGES.ACADEMIC_YEARS.YEAR_NOT_FOUND);
+        throw new BadRequestException(
+          ERROR_MESSAGES.ACADEMIC_YEARS.YEAR_NOT_FOUND,
+        );
       }
 
       return currentYear;
@@ -784,13 +846,19 @@ export class DataExchangeService {
     const matchedYear = context.academicYearByName.get(normalizedName);
 
     if (!matchedYear) {
-      throw new BadRequestException(ERROR_MESSAGES.ACADEMIC_YEARS.YEAR_NOT_FOUND);
+      throw new BadRequestException(
+        ERROR_MESSAGES.ACADEMIC_YEARS.YEAR_NOT_FOUND,
+      );
     }
 
     return matchedYear;
   }
 
-  private resolveClass(className: string, campusId: string, context: PreviewContext) {
+  private resolveClass(
+    className: string,
+    campusId: string,
+    context: PreviewContext,
+  ) {
     const matchedClass = context.classByKey.get(
       `${campusId}:${this.required(className, "Class name is required.").toLowerCase()}`,
     );
@@ -802,7 +870,11 @@ export class DataExchangeService {
     return matchedClass;
   }
 
-  private resolveSection(sectionName: string, classId: string, context: PreviewContext) {
+  private resolveSection(
+    sectionName: string,
+    classId: string,
+    context: PreviewContext,
+  ) {
     const matchedSection = context.sectionByKey.get(
       `${classId}:${this.required(sectionName, "Section name is required.").toLowerCase()}`,
     );
@@ -816,7 +888,10 @@ export class DataExchangeService {
 
   private resolveStudent(admissionNumber: string, context: PreviewContext) {
     const matchedStudent = context.studentByAdmissionNumber.get(
-      this.required(admissionNumber, "Student admission number is required.").toLowerCase(),
+      this.required(
+        admissionNumber,
+        "Student admission number is required.",
+      ).toLowerCase(),
     );
 
     if (!matchedStudent) {
@@ -845,7 +920,9 @@ export class DataExchangeService {
       context.feeStructureByKey.get(fallbackKey);
 
     if (!matchedStructure) {
-      throw new BadRequestException(ERROR_MESSAGES.FEES.FEE_STRUCTURE_NOT_FOUND);
+      throw new BadRequestException(
+        ERROR_MESSAGES.FEES.FEE_STRUCTURE_NOT_FOUND,
+      );
     }
 
     return matchedStructure;
@@ -855,7 +932,10 @@ export class DataExchangeService {
     relationship: string,
     missingMessage: string,
   ): GuardianRelationship {
-    const normalizedRelationship = this.required(relationship, missingMessage).toLowerCase();
+    const normalizedRelationship = this.required(
+      relationship,
+      missingMessage,
+    ).toLowerCase();
 
     if (
       normalizedRelationship !== GUARDIAN_RELATIONSHIPS.FATHER &&
@@ -919,7 +999,10 @@ export class DataExchangeService {
     entityType: DataExchangeEntityType,
     action: DataExchangeAction,
   ) {
-    const permissions = await this.resolvePermissions(authSession, institutionId);
+    const permissions = await this.resolvePermissions(
+      authSession,
+      institutionId,
+    );
     const requiredPermission = ENTITY_ACTION_PERMISSIONS[entityType][action];
 
     if (!permissions.has(requiredPermission)) {
@@ -931,7 +1014,10 @@ export class DataExchangeService {
     authSession: AuthenticatedSession,
     institutionId: string,
   ) {
-    return this.authService.resolvePermissions(authSession.user.id, institutionId);
+    return this.authService.resolvePermissions(
+      authSession.user.id,
+      institutionId,
+    );
   }
 
   private toErrorMessage(error: unknown) {
@@ -963,7 +1049,10 @@ export class DataExchangeService {
       .leftJoin(
         studentCurrentEnrollments,
         and(
-          eq(studentCurrentEnrollments.studentMembershipId, students.membershipId),
+          eq(
+            studentCurrentEnrollments.studentMembershipId,
+            students.membershipId,
+          ),
           isNull(studentCurrentEnrollments.deletedAt),
         ),
       )
@@ -992,7 +1081,10 @@ export class DataExchangeService {
             isPrimary: studentGuardianLinks.isPrimary,
           })
           .from(studentGuardianLinks)
-          .innerJoin(member, eq(studentGuardianLinks.parentMembershipId, member.id))
+          .innerJoin(
+            member,
+            eq(studentGuardianLinks.parentMembershipId, member.id),
+          )
           .innerJoin(user, eq(member.userId, user.id))
           .where(
             and(
@@ -1003,18 +1095,21 @@ export class DataExchangeService {
               isNull(studentGuardianLinks.deletedAt),
             ),
           )
-        : [];
+      : [];
 
     const guardiansByStudentMembership = new Map<string, typeof guardians>();
     guardians.forEach((guardian) => {
-      const current = guardiansByStudentMembership.get(guardian.studentMembershipId) ?? [];
+      const current =
+        guardiansByStudentMembership.get(guardian.studentMembershipId) ?? [];
       current.push(guardian);
       guardiansByStudentMembership.set(guardian.studentMembershipId, current);
     });
 
     return rows.map((row) => {
       const rowGuardians =
-        guardiansByStudentMembership.get(row.membershipId)?.slice(0, GUARDIAN_COLUMN_COUNT) ?? [];
+        guardiansByStudentMembership
+          .get(row.membershipId)
+          ?.slice(0, GUARDIAN_COLUMN_COUNT) ?? [];
       const primaryGuardianNumber =
         rowGuardians.findIndex((guardian) => guardian.isPrimary) + 1 || 1;
 
@@ -1115,7 +1210,7 @@ export class DataExchangeService {
               isNull(studentGuardianLinks.deletedAt),
             ),
           )
-        : [];
+      : [];
 
     const linksByGuardian = new Map<string, typeof linkedStudents>();
     linkedStudents.forEach((link) => {
@@ -1139,7 +1234,10 @@ export class DataExchangeService {
     });
   }
 
-  private async exportFeeAssignments(institutionId: string, scopes: ResolvedScopes) {
+  private async exportFeeAssignments(
+    institutionId: string,
+    scopes: ResolvedScopes,
+  ) {
     const rows = await this.db
       .select({
         feeStructureId: feeAssignments.feeStructureId,
@@ -1152,8 +1250,14 @@ export class DataExchangeService {
         createdAt: feeAssignments.createdAt,
       })
       .from(feeAssignments)
-      .innerJoin(feeStructures, eq(feeAssignments.feeStructureId, feeStructures.id))
-      .innerJoin(academicYears, eq(feeStructures.academicYearId, academicYears.id))
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
+      .innerJoin(
+        academicYears,
+        eq(feeStructures.academicYearId, academicYears.id),
+      )
       .innerJoin(students, eq(feeAssignments.studentId, students.id))
       .innerJoin(member, eq(students.membershipId, member.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))

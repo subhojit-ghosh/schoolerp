@@ -13,7 +13,6 @@ export const staffFormSchema = z.object({
   name: z.string().trim().min(1, "Staff name is required"),
   mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Staff mobile is required"),
   email: z.email().optional().or(z.literal("")),
-  campusId: z.uuid("Select a campus"),
   status: z.enum(STAFF_STATUS_OPTIONS),
 });
 

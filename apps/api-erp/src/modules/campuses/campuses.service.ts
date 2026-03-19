@@ -1,10 +1,10 @@
 import { DATABASE } from "@repo/backend-core";
 import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
-import { campus } from "@repo/database";
 import {
   and,
   asc,
+  campus,
   count,
   desc,
   eq,
@@ -12,7 +12,7 @@ import {
   ne,
   or,
   type SQL,
-} from "drizzle-orm";
+} from "@repo/database";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import {

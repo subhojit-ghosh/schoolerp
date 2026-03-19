@@ -20,7 +20,6 @@ export const guardianFormSchema = z.object({
     .trim()
     .min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
   email: z.email().optional().or(z.literal("")),
-  campusId: z.uuid("Select a campus"),
 });
 
 export const guardianStudentLinkFormSchema = z.object({

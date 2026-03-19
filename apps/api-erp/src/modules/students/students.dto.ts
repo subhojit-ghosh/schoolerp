@@ -27,9 +27,6 @@ export class ListStudentsQueryDto {
     enum: Object.values(SORT_ORDERS),
   })
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
-
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
 }
 
 export class CreateGuardianLinkBodyDto {
@@ -60,13 +57,19 @@ export class CreateStudentBodyDto {
   lastName?: string | null;
   classId!: string;
   sectionId!: string;
-  campusId!: string;
 
   @ApiProperty({
     type: () => CreateGuardianLinkBodyDto,
     isArray: true,
   })
   guardians!: CreateGuardianLinkBodyDto[];
+
+  @ApiPropertyOptional({
+    type: "object",
+    additionalProperties: true,
+    nullable: true,
+  })
+  customFieldValues?: Record<string, unknown> | null;
 
   @ApiPropertyOptional({
     type: () => CurrentStudentEnrollmentBodyDto,
@@ -83,13 +86,19 @@ export class UpdateStudentBodyDto {
   lastName?: string | null;
   classId!: string;
   sectionId!: string;
-  campusId!: string;
 
   @ApiProperty({
     type: () => CreateGuardianLinkBodyDto,
     isArray: true,
   })
   guardians!: CreateGuardianLinkBodyDto[];
+
+  @ApiPropertyOptional({
+    type: "object",
+    additionalProperties: true,
+    nullable: true,
+  })
+  customFieldValues?: Record<string, unknown> | null;
 
   @ApiPropertyOptional({
     type: () => CurrentStudentEnrollmentBodyDto,
@@ -158,6 +167,13 @@ export class StudentDto {
     nullable: true,
   })
   currentEnrollment!: CurrentStudentEnrollmentDto | null;
+
+  @ApiPropertyOptional({
+    type: "object",
+    additionalProperties: true,
+    nullable: true,
+  })
+  customFieldValues!: Record<string, unknown> | null;
 }
 
 export class StudentOptionDto {

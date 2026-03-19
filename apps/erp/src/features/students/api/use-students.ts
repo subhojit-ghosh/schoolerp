@@ -8,7 +8,6 @@ type StudentsListSort =
   (typeof STUDENT_LIST_SORT_FIELDS)[keyof typeof STUDENT_LIST_SORT_FIELDS];
 
 type StudentsListQuery = {
-  campusId?: string;
   limit?: number;
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
   page?: number;

@@ -13,25 +13,33 @@ import { ConfigService } from "@nestjs/config";
 import { DATABASE } from "@repo/backend-core";
 import type { AppDatabase } from "@repo/database";
 import {
+  alias,
+  and,
   campus,
+  eq,
+  gt,
+  inArray,
+  isNull,
+  lte,
   member,
   membershipRoles,
   membershipRoleScopes,
+  ne,
   organization,
+  or,
   passwordResetToken,
   permissions,
   rolePermissions,
   roles,
   session,
+  sql,
   studentGuardianLinks,
   students,
   user,
 } from "@repo/database";
-import { and, eq, gt, inArray, isNull, lte, ne, or, sql } from "drizzle-orm";
 import { compare, hash } from "bcryptjs";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import type { Response } from "express";
-import { alias } from "drizzle-orm/pg-core";
 import {
   AUTH_COOKIE,
   AUTH_PASSWORD_RESET,

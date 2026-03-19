@@ -35,7 +35,6 @@ const DEFAULT_VALUES: StaffFormValues = {
   name: "",
   mobile: "",
   email: "",
-  campusId: "",
   status: "active",
 };
 
@@ -47,7 +46,8 @@ export function StaffCreatePage() {
   const institutionId = session?.activeOrganization?.id;
   const canManageStaff = isStaffContext(session);
   const managedInstitutionId = canManageStaff ? institutionId : undefined;
-  const campuses = session?.campuses ?? [];
+  const campuses = session?.activeCampus ? [session.activeCampus] : [];
+  const activeCampusName = session?.activeCampus?.name;
   const createStaffMutation = useCreateStaffMutation(managedInstitutionId);
   const createAssignmentMutation =
     useCreateStaffRoleAssignmentMutation(managedInstitutionId);
@@ -259,19 +259,16 @@ export function StaffCreatePage() {
         </Button>
         <h1 className="text-2xl font-semibold tracking-tight">New staff</h1>
         <p className="text-sm text-muted-foreground">
-          Add a staff member, optionally assign the first role, and start their
-          password setup flow.
+          Add a staff member for {activeCampusName ?? "the selected campus"},
+          optionally assign the first role, and start their password setup flow.
         </p>
       </div>
 
       <Card className="max-w-4xl">
         <CardContent className="pt-6">
           <StaffForm
-            campuses={campuses}
-            defaultValues={{
-              ...DEFAULT_VALUES,
-              campusId: session?.activeCampus?.id ?? "",
-            }}
+            campusName={activeCampusName}
+            defaultValues={DEFAULT_VALUES}
             afterFields={
               staffRolesQuery.data && staffRolesQuery.data.length > 0 ? (
                 <StaffRoleAssignmentFields

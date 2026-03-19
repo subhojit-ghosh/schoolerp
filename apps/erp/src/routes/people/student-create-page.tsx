@@ -1,4 +1,7 @@
-import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
+import {
+  ADMISSION_FORM_FIELD_SCOPES,
+  GUARDIAN_RELATIONSHIPS,
+} from "@repo/contracts";
 import { Link, useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { IconChevronLeft } from "@tabler/icons-react";
@@ -17,6 +20,11 @@ import {
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { ERP_ROUTES } from "@/constants/routes";
+import { useAdmissionFormFieldsQuery } from "@/features/admissions/api/use-admissions";
+import {
+  filterAdmissionFormFieldsForScope,
+  normalizeCustomFieldValues,
+} from "@/features/admissions/model/admission-custom-fields";
 import { useCreateStudentMutation } from "@/features/students/api/use-students";
 import {
   EMPTY_CURRENT_ENROLLMENT,
@@ -43,13 +51,21 @@ export function StudentCreatePage() {
   const institutionId = authSession?.activeOrganization?.id;
   const canManageStudents = isStaffContext(authSession);
   const managedInstitutionId = canManageStudents ? institutionId : undefined;
-  const campuses = authSession?.campuses ?? [];
+  const activeCampusName = authSession?.activeCampus?.name;
   const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
+  const formFieldsQuery = useAdmissionFormFieldsQuery(
+    managedInstitutionId,
+    ADMISSION_FORM_FIELD_SCOPES.STUDENT,
+  );
   const createStudentMutation = useCreateStudentMutation(managedInstitutionId);
   const createStudentError = createStudentMutation.error as
     | Error
     | null
     | undefined;
+  const customFields = filterAdmissionFormFieldsForScope(
+    formFieldsQuery.data?.rows ?? [],
+    "student",
+  );
 
   async function handleSubmit(values: StudentFormValues) {
     if (!institutionId) {
@@ -102,7 +118,8 @@ export function StudentCreatePage() {
         </Button>
         <h1 className="text-2xl font-semibold tracking-tight">New student</h1>
         <p className="text-sm text-muted-foreground">
-          Add student details and link guardians.
+          Add student details and link guardians for{" "}
+          {activeCampusName ?? "the selected campus"}.
         </p>
       </div>
 
@@ -110,15 +127,17 @@ export function StudentCreatePage() {
         <CardContent className="pt-6">
           <StudentForm
             academicYears={academicYearsQuery.data?.rows ?? []}
-            campuses={campuses}
+            campusId={authSession?.activeCampus?.id}
+            campusName={activeCampusName}
+            customFields={customFields}
             defaultValues={{
               admissionNumber: "",
               firstName: "",
               lastName: "",
               classId: "",
               sectionId: "",
-              campusId: authSession?.activeCampus?.id ?? "",
               guardians: [DEFAULT_GUARDIAN],
+              customFieldValues: normalizeCustomFieldValues(customFields),
               currentEnrollment: EMPTY_CURRENT_ENROLLMENT,
             }}
             errorMessage={createStudentError?.message}

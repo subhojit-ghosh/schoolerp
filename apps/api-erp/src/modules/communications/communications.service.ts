@@ -1,20 +1,9 @@
 import { DATABASE } from "@repo/backend-core";
 import {
-  announcements,
-  campus,
-  notificationReads,
-  notifications,
-  type AppDatabase,
-} from "@repo/database";
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
-import {
   and,
   asc,
+  announcements,
+  campus,
   count,
   desc,
   eq,
@@ -22,9 +11,19 @@ import {
   inArray,
   isNull,
   ne,
+  notificationReads,
+  notifications,
   or,
+  type AppDatabase,
   type SQL,
-} from "drizzle-orm";
+} from "@repo/database";
+import {
+  ConflictException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import {
@@ -61,11 +60,9 @@ export class CommunicationsService {
     scopes: ResolvedScopes,
     query: ListAnnouncementsQueryDto = {},
   ) {
-    const scopedCampusId = query.campusId ?? authSession.activeCampusId ?? undefined;
-
-    if (scopedCampusId) {
-      await this.getCampus(institutionId, scopedCampusId);
-    }
+    const scopedCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(scopedCampusId, scopes);
+    await this.getCampus(institutionId, scopedCampusId);
 
     const conditions = this.buildAnnouncementConditions(
       institutionId,
@@ -166,17 +163,15 @@ export class CommunicationsService {
     payload: CreateAnnouncementDto,
   ) {
     this.ensureStaffContext(authSession);
-
-    if (payload.campusId) {
-      await this.getCampus(institutionId, payload.campusId);
-    }
+    const campusId = this.requireActiveCampusId(authSession);
+    await this.getCampus(institutionId, campusId);
 
     const announcementId = randomUUID();
 
     await this.db.insert(announcements).values({
       id: announcementId,
       institutionId,
-      campusId: payload.campusId ?? null,
+      campusId,
       createdByUserId: authSession.user.id,
       title: payload.title.trim(),
       summary: payload.summary?.trim() ?? null,
@@ -200,15 +195,13 @@ export class CommunicationsService {
     payload: UpdateAnnouncementDto,
   ) {
     const existing = await this.getAnnouncementOrThrow(institutionId, announcementId);
-
-    if (payload.campusId) {
-      await this.getCampus(institutionId, payload.campusId);
-    }
+    const campusId = this.requireActiveCampusId(authSession);
+    await this.getCampus(institutionId, campusId);
 
     await this.db
       .update(announcements)
       .set({
-        campusId: payload.campusId ?? null,
+        campusId,
         title: payload.title.trim(),
         summary: payload.summary?.trim() ?? null,
         body: payload.body.trim(),
@@ -266,11 +259,9 @@ export class CommunicationsService {
     scopes: ResolvedScopes,
     query: ListNotificationsQueryDto = {},
   ) {
-    const scopedCampusId = query.campusId ?? authSession.activeCampusId ?? undefined;
-
-    if (scopedCampusId) {
-      await this.getCampus(institutionId, scopedCampusId);
-    }
+    const scopedCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(scopedCampusId, scopes);
+    await this.getCampus(institutionId, scopedCampusId);
 
     const conditions = this.buildNotificationConditions(
       institutionId,
@@ -667,5 +658,23 @@ export class CommunicationsService {
     }
 
     return campusRecord;
+  }
+
+  private requireActiveCampusId(authSession: AuthenticatedSession) {
+    if (!authSession.activeCampusId) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return authSession.activeCampusId;
+  }
+
+  private assertCampusScopeAccess(campusId: string, scopes: ResolvedScopes) {
+    if (scopes.campusIds === "all") {
+      return;
+    }
+
+    if (!scopes.campusIds.includes(campusId)) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
   }
 }

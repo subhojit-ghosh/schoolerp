@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
   Field,
@@ -12,25 +12,12 @@ import {
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui/components/ui/select";
-import {
   guardianFormSchema,
   type GuardianFormValues,
 } from "@/features/guardians/model/guardian-form-schema";
 
-type CampusOption = {
-  id: string;
-  name: string;
-};
-
 type GuardianFormProps = {
-  campuses: CampusOption[];
+  campusName?: string;
   defaultValues: GuardianFormValues;
   errorMessage?: string;
   isPending?: boolean;
@@ -38,34 +25,20 @@ type GuardianFormProps = {
 };
 
 export function GuardianForm({
-  campuses,
+  campusName,
   defaultValues,
   errorMessage,
   isPending = false,
   onSubmit,
 }: GuardianFormProps) {
-  const hasSingleCampus = campuses.length === 1;
-  const { control, handleSubmit, reset, setValue } = useForm<GuardianFormValues>({
+  const { control, handleSubmit, reset } = useForm<GuardianFormValues>({
     resolver: zodResolver(guardianFormSchema),
     defaultValues,
-  });
-  const selectedCampusId = useWatch({
-    control,
-    name: "campusId",
   });
 
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
-
-  useEffect(() => {
-    if (campuses.length === 1 && !selectedCampusId) {
-      setValue("campusId", campuses[0]!.id, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
-  }, [campuses, selectedCampusId, setValue]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -126,39 +99,18 @@ export function GuardianForm({
               </Field>
             )}
           />
-          <Controller
-            control={control}
-            name="campusId"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Primary campus</FieldLabel>
-                <FieldContent>
-                  <Select
-                    disabled={hasSingleCampus}
-                    onValueChange={field.onChange}
-                    value={field.value ?? ""}
-                  >
-                    <SelectTrigger
-                      aria-invalid={fieldState.invalid}
-                      disabled={hasSingleCampus}
-                    >
-                      <SelectValue placeholder="Select campus" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {campuses.map((campus) => (
-                          <SelectItem key={campus.id} value={campus.id}>
-                            {campus.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
+          {campusName ? (
+            <Field>
+              <FieldLabel>Primary campus</FieldLabel>
+              <FieldContent>
+                <div className="flex h-10 items-center">
+                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                    {campusName}
+                  </Badge>
+                </div>
+              </FieldContent>
+            </Field>
+          ) : null}
         </div>
 
         <FieldError>{errorMessage}</FieldError>

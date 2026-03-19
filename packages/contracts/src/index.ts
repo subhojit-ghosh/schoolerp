@@ -325,6 +325,24 @@ export const ADMISSION_APPLICATION_STATUSES = {
   REJECTED: "rejected",
 } as const;
 
+export const ADMISSION_FORM_FIELD_SCOPES = {
+  APPLICATION: "application",
+  STUDENT: "student",
+  BOTH: "both",
+} as const;
+
+export const ADMISSION_FORM_FIELD_TYPES = {
+  TEXT: "text",
+  TEXTAREA: "textarea",
+  NUMBER: "number",
+  DATE: "date",
+  SELECT: "select",
+  EMAIL: "email",
+  PHONE: "phone",
+  URL: "url",
+  CHECKBOX: "checkbox",
+} as const;
+
 export const ACADEMIC_YEAR_NAME_MAX_LENGTH = 100;
 export const GUARDIAN_RELATIONSHIPS = {
   FATHER: "father",
@@ -407,6 +425,26 @@ export const admissionApplicationStatusSchema = z.enum([
   ADMISSION_APPLICATION_STATUSES.APPROVED,
   ADMISSION_APPLICATION_STATUSES.REJECTED,
 ]);
+export const admissionFormFieldScopeSchema = z.enum([
+  ADMISSION_FORM_FIELD_SCOPES.APPLICATION,
+  ADMISSION_FORM_FIELD_SCOPES.STUDENT,
+  ADMISSION_FORM_FIELD_SCOPES.BOTH,
+]);
+export const admissionFormFieldTypeSchema = z.enum([
+  ADMISSION_FORM_FIELD_TYPES.TEXT,
+  ADMISSION_FORM_FIELD_TYPES.TEXTAREA,
+  ADMISSION_FORM_FIELD_TYPES.NUMBER,
+  ADMISSION_FORM_FIELD_TYPES.DATE,
+  ADMISSION_FORM_FIELD_TYPES.SELECT,
+  ADMISSION_FORM_FIELD_TYPES.EMAIL,
+  ADMISSION_FORM_FIELD_TYPES.PHONE,
+  ADMISSION_FORM_FIELD_TYPES.URL,
+  ADMISSION_FORM_FIELD_TYPES.CHECKBOX,
+]);
+export const admissionFormFieldOptionSchema = z.object({
+  label: z.string().trim().min(1),
+  value: z.string().trim().min(1),
+});
 export const guardianRelationshipSchema = z.enum([
   GUARDIAN_RELATIONSHIPS.FATHER,
   GUARDIAN_RELATIONSHIPS.MOTHER,
@@ -443,6 +481,15 @@ export type SectionStatus = z.infer<typeof sectionStatusSchema>;
 export type AdmissionEnquiryStatus = z.infer<typeof admissionEnquiryStatusSchema>;
 export type AdmissionApplicationStatus = z.infer<
   typeof admissionApplicationStatusSchema
+>;
+export type AdmissionFormFieldScope = z.infer<
+  typeof admissionFormFieldScopeSchema
+>;
+export type AdmissionFormFieldType = z.infer<
+  typeof admissionFormFieldTypeSchema
+>;
+export type AdmissionFormFieldOption = z.infer<
+  typeof admissionFormFieldOptionSchema
 >;
 export type GuardianRelationship = z.infer<typeof guardianRelationshipSchema>;
 export type AttendanceStatus = z.infer<typeof attendanceStatusSchema>;

@@ -1,10 +1,22 @@
 import { DATABASE } from "@repo/backend-core";
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import type { AppDatabase } from "@repo/database";
-import { admissionApplications, admissionEnquiries, campus } from "@repo/database";
 import {
+  ADMISSION_FORM_FIELD_SCOPES,
+  type AdmissionFormFieldType,
+  type AdmissionFormFieldScope,
+} from "@repo/contracts";
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import type { AppDatabase } from "@repo/database";
+import {
+  admissionApplications,
+  admissionEnquiries,
   and,
   asc,
+  campus,
   count,
   desc,
   eq,
@@ -13,7 +25,7 @@ import {
   ne,
   or,
   type SQL,
-} from "drizzle-orm";
+} from "@repo/database";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import {
@@ -35,6 +47,7 @@ import {
   sortableAdmissionApplicationColumns,
   sortableAdmissionEnquiryColumns,
 } from "./admissions.schemas";
+import { AdmissionFormFieldsService } from "./admission-form-fields.service";
 
 const sortableEnquiryColumns = {
   campus: campus.name,
@@ -52,7 +65,63 @@ const sortableApplicationColumns = {
 
 @Injectable()
 export class AdmissionsService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly admissionFormFieldsService: AdmissionFormFieldsService,
+  ) {}
+
+  async listAdmissionFormFields(
+    institutionId: string,
+    scope?: AdmissionFormFieldScope,
+  ) {
+    const rows = await this.admissionFormFieldsService.listFields(
+      institutionId,
+      scope,
+    );
+
+    return { rows };
+  }
+
+  async createAdmissionFormField(
+    institutionId: string,
+    payload: {
+      key: string;
+      label: string;
+      scope: AdmissionFormFieldScope;
+      fieldType: AdmissionFormFieldType;
+      placeholder?: string;
+      helpText?: string;
+      required: boolean;
+      active: boolean;
+      options?: Array<{ label: string; value: string }>;
+      sortOrder: number;
+    },
+  ) {
+    return this.admissionFormFieldsService.createField(institutionId, payload);
+  }
+
+  async updateAdmissionFormField(
+    institutionId: string,
+    fieldId: string,
+    payload: {
+      key: string;
+      label: string;
+      scope: AdmissionFormFieldScope;
+      fieldType: AdmissionFormFieldType;
+      placeholder?: string;
+      helpText?: string;
+      required: boolean;
+      active: boolean;
+      options?: Array<{ label: string; value: string }>;
+      sortOrder: number;
+    },
+  ) {
+    return this.admissionFormFieldsService.updateField(
+      institutionId,
+      fieldId,
+      payload,
+    );
+  }
 
   async listAdmissionEnquiries(
     institutionId: string,
@@ -60,12 +129,8 @@ export class AdmissionsService {
     scopes: ResolvedScopes,
     query: ListAdmissionEnquiriesQueryDto = {},
   ): Promise<PaginatedResult<Awaited<ReturnType<typeof this.getAdmissionEnquiry>>>> {
-    const scopedCampusId =
-      query.campusId ?? authSession.activeCampusId ?? undefined;
-
-    if (scopedCampusId) {
-      await this.assertCampusAccess(institutionId, scopedCampusId, scopes);
-    }
+    const scopedCampusId = this.requireActiveCampusId(authSession);
+    await this.assertCampusAccess(institutionId, scopedCampusId, scopes);
 
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableAdmissionEnquiryColumns.createdAt;
@@ -76,15 +141,7 @@ export class AdmissionsService {
       ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
 
-    if (scopedCampusId) {
-      conditions.push(eq(admissionEnquiries.campusId, scopedCampusId));
-    } else {
-      const scopedCampusFilter = campusScopeFilter(
-        admissionEnquiries.campusId,
-        scopes,
-      );
-      if (scopedCampusFilter) conditions.push(scopedCampusFilter);
-    }
+    conditions.push(eq(admissionEnquiries.campusId, scopedCampusId));
 
     if (query.search) {
       conditions.push(
@@ -187,13 +244,14 @@ export class AdmissionsService {
     scopes: ResolvedScopes,
     payload: CreateAdmissionEnquiryDto,
   ) {
-    await this.assertCampusAccess(institutionId, payload.campusId, scopes);
+    const campusId = this.requireActiveCampusId(authSession);
+    await this.assertCampusAccess(institutionId, campusId, scopes);
 
     const enquiryId = randomUUID();
     await this.db.insert(admissionEnquiries).values({
       id: enquiryId,
       institutionId,
-      campusId: payload.campusId,
+      campusId,
       studentName: payload.studentName.trim(),
       guardianName: payload.guardianName.trim(),
       mobile: payload.mobile.trim(),
@@ -215,12 +273,13 @@ export class AdmissionsService {
     payload: UpdateAdmissionEnquiryDto,
   ) {
     await this.getAdmissionEnquiry(institutionId, enquiryId, authSession, scopes);
-    await this.assertCampusAccess(institutionId, payload.campusId, scopes);
+    const campusId = this.requireActiveCampusId(authSession);
+    await this.assertCampusAccess(institutionId, campusId, scopes);
 
     await this.db
       .update(admissionEnquiries)
       .set({
-        campusId: payload.campusId,
+        campusId,
         studentName: payload.studentName.trim(),
         guardianName: payload.guardianName.trim(),
         mobile: payload.mobile.trim(),
@@ -242,12 +301,8 @@ export class AdmissionsService {
   ): Promise<
     PaginatedResult<Awaited<ReturnType<typeof this.getAdmissionApplication>>>
   > {
-    const scopedCampusId =
-      query.campusId ?? authSession.activeCampusId ?? undefined;
-
-    if (scopedCampusId) {
-      await this.assertCampusAccess(institutionId, scopedCampusId, scopes);
-    }
+    const scopedCampusId = this.requireActiveCampusId(authSession);
+    await this.assertCampusAccess(institutionId, scopedCampusId, scopes);
 
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableAdmissionApplicationColumns.createdAt;
@@ -258,15 +313,7 @@ export class AdmissionsService {
       ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
 
-    if (scopedCampusId) {
-      conditions.push(eq(admissionApplications.campusId, scopedCampusId));
-    } else {
-      const scopedCampusFilter = campusScopeFilter(
-        admissionApplications.campusId,
-        scopes,
-      );
-      if (scopedCampusFilter) conditions.push(scopedCampusFilter);
-    }
+    conditions.push(eq(admissionApplications.campusId, scopedCampusId));
 
     if (query.search) {
       conditions.push(
@@ -305,6 +352,7 @@ export class AdmissionsService {
         desiredSectionName: admissionApplications.desiredSectionName,
         status: admissionApplications.status,
         notes: admissionApplications.notes,
+        customFieldValues: admissionApplications.customFieldValues,
         createdAt: admissionApplications.createdAt,
       })
       .from(admissionApplications)
@@ -348,6 +396,7 @@ export class AdmissionsService {
         desiredSectionName: admissionApplications.desiredSectionName,
         status: admissionApplications.status,
         notes: admissionApplications.notes,
+        customFieldValues: admissionApplications.customFieldValues,
         createdAt: admissionApplications.createdAt,
       })
       .from(admissionApplications)
@@ -378,18 +427,25 @@ export class AdmissionsService {
     scopes: ResolvedScopes,
     payload: CreateAdmissionApplicationDto,
   ) {
-    await this.assertCampusAccess(institutionId, payload.campusId, scopes);
+    const campusId = this.requireActiveCampusId(authSession);
+    await this.assertCampusAccess(institutionId, campusId, scopes);
 
     if (payload.enquiryId) {
       await this.assertEnquiryExists(institutionId, payload.enquiryId, scopes);
     }
+
+    const customFieldValues = await this.admissionFormFieldsService.validateValues(
+      institutionId,
+      ADMISSION_FORM_FIELD_SCOPES.APPLICATION,
+      payload.customFieldValues ?? undefined,
+    );
 
     const applicationId = randomUUID();
     await this.db.insert(admissionApplications).values({
       id: applicationId,
       institutionId,
       enquiryId: payload.enquiryId ?? null,
-      campusId: payload.campusId,
+      campusId,
       studentFirstName: payload.studentFirstName.trim(),
       studentLastName: this.normalizeOptional(payload.studentLastName),
       guardianName: payload.guardianName.trim(),
@@ -399,6 +455,7 @@ export class AdmissionsService {
       desiredSectionName: this.normalizeOptional(payload.desiredSectionName),
       status: payload.status,
       notes: this.normalizeOptional(payload.notes),
+      customFieldValues,
       deletedAt: null,
     });
 
@@ -423,17 +480,24 @@ export class AdmissionsService {
       authSession,
       scopes,
     );
-    await this.assertCampusAccess(institutionId, payload.campusId, scopes);
+    const campusId = this.requireActiveCampusId(authSession);
+    await this.assertCampusAccess(institutionId, campusId, scopes);
 
     if (payload.enquiryId) {
       await this.assertEnquiryExists(institutionId, payload.enquiryId, scopes);
     }
 
+    const customFieldValues = await this.admissionFormFieldsService.validateValues(
+      institutionId,
+      ADMISSION_FORM_FIELD_SCOPES.APPLICATION,
+      payload.customFieldValues ?? undefined,
+    );
+
     await this.db
       .update(admissionApplications)
       .set({
         enquiryId: payload.enquiryId ?? null,
-        campusId: payload.campusId,
+        campusId,
         studentFirstName: payload.studentFirstName.trim(),
         studentLastName: this.normalizeOptional(payload.studentLastName),
         guardianName: payload.guardianName.trim(),
@@ -443,6 +507,7 @@ export class AdmissionsService {
         desiredSectionName: this.normalizeOptional(payload.desiredSectionName),
         status: payload.status,
         notes: this.normalizeOptional(payload.notes),
+        customFieldValues,
       })
       .where(eq(admissionApplications.id, applicationId));
 
@@ -503,5 +568,13 @@ export class AdmissionsService {
     if (!matchedEnquiry) {
       throw new NotFoundException(ERROR_MESSAGES.ADMISSIONS.ENQUIRY_NOT_FOUND);
     }
+  }
+
+  private requireActiveCampusId(authSession: AuthenticatedSession) {
+    if (!authSession.activeCampusId) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return authSession.activeCampusId;
   }
 }

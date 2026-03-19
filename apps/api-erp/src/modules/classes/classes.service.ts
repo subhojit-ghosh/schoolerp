@@ -1,36 +1,34 @@
 import { DATABASE } from "@repo/backend-core";
 import {
   ConflictException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
-  campus,
-  classSections,
-  member,
-  schoolClasses,
-  studentCurrentEnrollments,
-  students,
-} from "@repo/database";
-import {
   and,
   asc,
+  campus,
+  classSections,
   count,
   desc,
   eq,
   ilike,
   inArray,
   isNull,
+  member,
   ne,
+  schoolClasses,
+  studentCurrentEnrollments,
+  students,
   type SQL,
-} from "drizzle-orm";
+} from "@repo/database";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
-import { campusScopeFilter } from "../auth/scope-filter";
 import type {
   CreateClassDto,
   ListClassesQueryDto,
@@ -61,12 +59,9 @@ export class ClassesService {
     scopes: ResolvedScopes,
     query: ListClassesQueryDto = {},
   ) {
-    const scopedCampusId =
-      query.campusId ?? authSession.activeCampusId ?? undefined;
-
-    if (scopedCampusId) {
-      await this.getCampus(institutionId, scopedCampusId);
-    }
+    const scopedCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(scopedCampusId, scopes);
+    await this.getCampus(institutionId, scopedCampusId);
 
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableClassColumns.name;
@@ -76,12 +71,7 @@ export class ClassesService {
       ne(schoolClasses.status, STATUS.CLASS.DELETED),
     ];
 
-    if (scopedCampusId) {
-      conditions.push(eq(schoolClasses.campusId, scopedCampusId));
-    } else {
-      const scopeFilter = campusScopeFilter(schoolClasses.campusId, scopes);
-      if (scopeFilter) conditions.push(scopeFilter);
-    }
+    conditions.push(eq(schoolClasses.campusId, scopedCampusId));
 
     if (query.search) {
       conditions.push(ilike(schoolClasses.name, `%${query.search}%`));
@@ -160,7 +150,7 @@ export class ClassesService {
   ) {
     const selectedCampus = await this.getCampus(
       institutionId,
-      payload.campusId,
+      this.requireActiveCampusId(authSession),
     );
     await this.assertClassNameAvailable(
       institutionId,
@@ -202,7 +192,7 @@ export class ClassesService {
     await this.getClassOrThrow(institutionId, classId);
     const selectedCampus = await this.getCampus(
       institutionId,
-      payload.campusId,
+      this.requireActiveCampusId(authSession),
     );
     await this.assertClassNameAvailable(
       institutionId,
@@ -623,5 +613,23 @@ export class ClassesService {
       .orderBy(asc(schoolClasses.displayOrder));
 
     return classRows.length;
+  }
+
+  private requireActiveCampusId(authSession: AuthenticatedSession) {
+    if (!authSession.activeCampusId) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return authSession.activeCampusId;
+  }
+
+  private assertCampusScopeAccess(campusId: string, scopes: ResolvedScopes) {
+    if (scopes.campusIds === "all") {
+      return;
+    }
+
+    if (!scopes.campusIds.includes(campusId)) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
   }
 }

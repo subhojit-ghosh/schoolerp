@@ -17,7 +17,6 @@ export const createStaffSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((value) => value || undefined),
-  campusId: z.uuid(),
   status: z.enum([
     STATUS.MEMBER.ACTIVE,
     STATUS.MEMBER.INACTIVE,
@@ -57,7 +56,6 @@ export const sortableStaffColumns = {
 } as const;
 
 export const listStaffQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableStaffColumns.campus,
@@ -108,7 +106,6 @@ export function parseListStaffQuery(query: unknown): ListStaffQueryDto {
   const result = parseListQuerySchema(listStaffQuerySchema, query);
 
   return {
-    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,

@@ -2,13 +2,17 @@ import { DATABASE } from "@repo/backend-core";
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
+  and,
+  asc,
   campus,
   classSections,
+  eq,
+  inArray,
+  ne,
   schoolClasses,
   subjects,
   timetableEntries,
 } from "@repo/database";
-import { and, asc, eq, inArray, ne } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";

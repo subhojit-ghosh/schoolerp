@@ -3,6 +3,7 @@ import { useEffect, useMemo } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconTrash, IconUserPlus } from "@tabler/icons-react";
+import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
@@ -14,14 +15,7 @@ import {
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import { Label } from "@repo/ui/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@repo/ui/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select";
 import {
   EMPTY_CURRENT_ENROLLMENT,
   GUARDIAN_RELATIONSHIP_OPTIONS,
@@ -33,6 +27,8 @@ import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
 } from "@/components/entities/entity-actions";
+import type { AdmissionFormFieldRecord } from "@/features/admissions/model/admission-custom-fields";
+import { AdmissionCustomFieldsSection } from "@/features/admissions/ui/admission-custom-fields-section";
 
 const DEFAULT_GUARDIAN: StudentFormValues["guardians"][number] = {
   name: "",
@@ -40,11 +36,6 @@ const DEFAULT_GUARDIAN: StudentFormValues["guardians"][number] = {
   email: "",
   relationship: GUARDIAN_RELATIONSHIPS.GUARDIAN,
   isPrimary: true,
-};
-
-type CampusOption = {
-  id: string;
-  name: string;
 };
 
 type AcademicYearOption = {
@@ -64,8 +55,10 @@ type ClassOption = {
 };
 
 type StudentFormProps = {
+  campusName?: string;
+  campusId?: string;
   academicYears: AcademicYearOption[];
-  campuses: CampusOption[];
+  customFields: AdmissionFormFieldRecord[];
   defaultValues: StudentFormValues;
   errorMessage?: string;
   isPending?: boolean;
@@ -75,8 +68,10 @@ type StudentFormProps = {
 };
 
 export function StudentForm({
+  campusName,
+  campusId,
   academicYears,
-  campuses,
+  customFields,
   defaultValues,
   errorMessage,
   isPending = false,
@@ -91,10 +86,6 @@ export function StudentForm({
     },
   );
 
-  const selectedCampusId = useWatch({
-    control,
-    name: "campusId",
-  });
   const selectedClassId = useWatch({
     control,
     name: "classId",
@@ -122,8 +113,7 @@ export function StudentForm({
   });
 
   const classesQuery = useClassesQuery(
-    Boolean(selectedCampusId),
-    selectedCampusId,
+    Boolean(campusId),
   );
   const classOptions = useMemo(
     () =>
@@ -165,15 +155,6 @@ export function StudentForm({
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
-
-  useEffect(() => {
-    if (campuses.length === 1 && !selectedCampusId) {
-      setValue("campusId", campuses[0]!.id, {
-        shouldDirty: true,
-        shouldValidate: true,
-      });
-    }
-  }, [campuses, selectedCampusId, setValue]);
 
   useEffect(() => {
     if (classesQuery.isLoading) {
@@ -218,7 +199,7 @@ export function StudentForm({
   ]);
 
   useEffect(() => {
-    if (classesQuery.isLoading || !selectedCampusId) {
+    if (classesQuery.isLoading || !campusId) {
       return;
     }
 
@@ -231,7 +212,7 @@ export function StudentForm({
   }, [
     classOptions,
     classesQuery.isLoading,
-    selectedCampusId,
+    campusId,
     selectedClassId,
     setValue,
   ]);
@@ -340,35 +321,18 @@ export function StudentForm({
               </Field>
             )}
           />
-          <Controller
-            control={control}
-            name="campusId"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Campus</FieldLabel>
-                <FieldContent>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value ?? ""}
-                  >
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select campus" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {campuses.map((campus) => (
-                          <SelectItem key={campus.id} value={campus.id}>
-                            {campus.name}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
+          {campusName ? (
+            <Field>
+              <FieldLabel>Campus</FieldLabel>
+              <FieldContent>
+                <div className="flex h-10 items-center">
+                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                    {campusName}
+                  </Badge>
+                </div>
+              </FieldContent>
+            </Field>
+          ) : null}
           <Controller
             control={control}
             name="firstName"
@@ -768,6 +732,12 @@ export function StudentForm({
         </div>
 
         <FieldError>{errorMessage}</FieldError>
+
+        <AdmissionCustomFieldsSection
+          control={control}
+          fields={customFields}
+          title="Student-specific details"
+        />
 
         <div className="flex gap-2">
           <EntityFormPrimaryAction disabled={isPending} type="submit">

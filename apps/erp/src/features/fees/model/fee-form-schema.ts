@@ -26,7 +26,6 @@ export const FEE_ADJUSTMENT_TYPE_OPTIONS = [
   FEE_ADJUSTMENT_TYPES.WAIVER,
   FEE_ADJUSTMENT_TYPES.DISCOUNT,
 ] as const;
-const FEE_STRUCTURE_CAMPUS_REQUIRED_MESSAGE = "Select a campus";
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 const optionalTextSchema = z.string().trim().optional().or(z.literal(""));
@@ -49,20 +48,10 @@ const installmentSchema = z.object({
 export const feeStructureFormSchema = z
   .object({
     academicYearId: z.uuid("Select an academic year"),
-    campusId: z.uuid().optional().or(z.literal("")),
     name: z.string().trim().min(1, "Structure name is required"),
     description: optionalTextSchema,
     scope: z.enum(FEE_STRUCTURE_SCOPE_OPTIONS),
     installments: z.array(installmentSchema).min(1, "Add at least one installment"),
-  })
-  .superRefine((value, ctx) => {
-    if (value.scope === FEE_STRUCTURE_SCOPES.CAMPUS && !value.campusId) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["campusId"],
-        message: FEE_STRUCTURE_CAMPUS_REQUIRED_MESSAGE,
-      });
-    }
   });
 
 export const feeAssignmentFormSchema = z.object({

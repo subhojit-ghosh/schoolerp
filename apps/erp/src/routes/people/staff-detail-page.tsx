@@ -49,7 +49,8 @@ export function StaffDetailPage() {
   const institutionId = session?.activeOrganization?.id;
   const canManageStaff = isStaffContext(session);
   const managedInstitutionId = canManageStaff ? institutionId : undefined;
-  const campuses = session?.campuses ?? [];
+  const campuses = session?.activeCampus ? [session.activeCampus] : [];
+  const activeCampusId = session?.activeCampus?.id;
   const staffQuery = useStaffDetailQuery(managedInstitutionId, staffId);
   const assignmentsQuery = useStaffRoleAssignmentsQuery(
     managedInstitutionId,
@@ -79,7 +80,6 @@ export function StaffDetailPage() {
         name: "",
         mobile: "",
         email: "",
-        campusId: session?.activeCampus?.id ?? "",
         status: "active",
       };
     }
@@ -88,10 +88,9 @@ export function StaffDetailPage() {
       name: staffRecord.name,
       mobile: staffRecord.mobile,
       email: staffRecord.email ?? "",
-      campusId: staffRecord.campusId,
       status: staffRecord.status as "active" | "inactive" | "suspended",
     };
-  }, [session?.activeCampus?.id, staffQuery.data]);
+  }, [staffQuery.data]);
 
   async function onSubmit(values: StaffFormValues) {
     if (!institutionId || !staffId) {
@@ -214,6 +213,28 @@ export function StaffDetailPage() {
 
   const staffRecord = staffQuery.data;
 
+  if (activeCampusId && staffRecord.campusId !== activeCampusId) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Switch back to the record campus</CardTitle>
+          <CardDescription>
+            This staff record belongs to {staffRecord.campusName}. Change the
+            active campus back before editing to avoid cross-campus updates.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild variant="outline">
+            <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
+              <IconChevronLeft data-icon="inline-start" />
+              Back to staff
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -264,13 +285,13 @@ export function StaffDetailPage() {
           <CardHeader>
             <CardTitle>Edit staff</CardTitle>
             <CardDescription>
-              Update the staff identity details, primary campus assignment, and
-              membership status.
+              Update the staff identity details and membership status for the
+              active campus.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <StaffForm
-              campuses={campuses}
+              campusName={staffRecord.campusName}
               defaultValues={defaultValues}
               errorMessage={updateError?.message}
               isPending={updateStaffMutation.isPending}

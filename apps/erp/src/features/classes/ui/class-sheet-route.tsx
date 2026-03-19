@@ -35,7 +35,6 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
   const { classId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id;
   const classQuery = useClassQuery(
     mode === "edit" && Boolean(institutionId),
     classId,
@@ -63,16 +62,13 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
   );
 
   async function handleSubmit(values: ClassFormValues) {
-    if (!institutionId || !activeCampusId) {
+    if (!institutionId) {
       return;
     }
 
     if (mode === "create") {
       await createClassMutation.mutateAsync({
-        body: {
-          ...values,
-          campusId: activeCampusId,
-        },
+        body: values,
       });
       toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CLASS));
     } else if (classId) {
@@ -84,7 +80,6 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
         },
         body: {
           ...values,
-          campusId: activeCampusId,
         },
       });
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CLASS));

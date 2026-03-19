@@ -1,4 +1,8 @@
-import { ATTENDANCE_STATUS_LABELS, ATTENDANCE_STATUSES } from "@repo/contracts";
+import {
+  ADMISSION_FORM_FIELD_SCOPES,
+  ATTENDANCE_STATUS_LABELS,
+  ATTENDANCE_STATUSES,
+} from "@repo/contracts";
 import { useMemo } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
@@ -29,16 +33,22 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/ui/tabs";
-import {
-  ERP_ROUTES,
-} from "@/constants/routes";
+import { ERP_ROUTES } from "@/constants/routes";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
+import { useAdmissionFormFieldsQuery } from "@/features/admissions/api/use-admissions";
+import {
+  filterAdmissionFormFieldsForScope,
+  normalizeCustomFieldValues,
+} from "@/features/admissions/model/admission-custom-fields";
 import {
   getActiveContext,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { formatFeeDate, formatRupees } from "@/features/fees/model/fee-formatters";
+import {
+  formatFeeDate,
+  formatRupees,
+} from "@/features/fees/model/fee-formatters";
 import {
   useStudentSummaryQuery,
   useUpdateStudentMutation,
@@ -86,11 +96,14 @@ function formatDateTime(value: string) {
 
 function formatStudentPlacement(student: {
   className: string;
-  currentEnrollment?: {
-    className: string;
-    sectionName: string;
-    academicYearName: string;
-  } | null | undefined;
+  currentEnrollment?:
+    | {
+        className: string;
+        sectionName: string;
+        academicYearName: string;
+      }
+    | null
+    | undefined;
   sectionName: string;
 }) {
   if (student.currentEnrollment) {
@@ -102,7 +115,8 @@ function formatStudentPlacement(student: {
     };
   }
 
-  const fallbackPlacement = `${student.className} ${student.sectionName}`.trim();
+  const fallbackPlacement =
+    `${student.className} ${student.sectionName}`.trim();
 
   return {
     academicYearName: null,
@@ -146,8 +160,7 @@ function MetricCard({ description, Icon, title, value }: MetricCardProps) {
           <span
             className="flex size-7 items-center justify-center rounded-lg"
             style={{
-              background:
-                "color-mix(in srgb, var(--primary) 14%, transparent)",
+              background: "color-mix(in srgb, var(--primary) 14%, transparent)",
             }}
           >
             <Icon className="size-4" style={{ color: "var(--primary)" }} />
@@ -168,16 +181,24 @@ export function StudentDetailPage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
+  const activeCampusId = session?.activeCampus?.id;
   const canManageStudents = isStaffContext(session);
   const managedInstitutionId = canManageStudents ? institutionId : undefined;
-  const campuses = session?.campuses ?? [];
   const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
+  const formFieldsQuery = useAdmissionFormFieldsQuery(
+    managedInstitutionId,
+    ADMISSION_FORM_FIELD_SCOPES.STUDENT,
+  );
   const studentSummaryQuery = useStudentSummaryQuery(
     managedInstitutionId,
     studentId,
   );
   const updateStudentMutation = useUpdateStudentMutation(managedInstitutionId);
   const updateError = updateStudentMutation.error as Error | null | undefined;
+  const customFields = filterAdmissionFormFieldsForScope(
+    formFieldsQuery.data?.rows ?? [],
+    "student",
+  );
 
   const defaultValues = useMemo<StudentFormValues>(() => {
     const student = studentSummaryQuery.data?.student;
@@ -189,8 +210,8 @@ export function StudentDetailPage() {
         lastName: "",
         classId: "",
         sectionId: "",
-        campusId: session?.activeCampus?.id ?? "",
         guardians: [],
+        customFieldValues: normalizeCustomFieldValues(customFields),
         currentEnrollment: EMPTY_CURRENT_ENROLLMENT,
       };
     }
@@ -201,7 +222,6 @@ export function StudentDetailPage() {
       lastName: student.lastName ?? "",
       classId: student.classId,
       sectionId: student.sectionId,
-      campusId: student.campusId,
       guardians: student.guardians.map((guardian) => ({
         name: guardian.name,
         mobile: guardian.mobile,
@@ -209,6 +229,10 @@ export function StudentDetailPage() {
         relationship: guardian.relationship,
         isPrimary: guardian.isPrimary,
       })),
+      customFieldValues: normalizeCustomFieldValues(
+        customFields,
+        student.customFieldValues,
+      ),
       currentEnrollment: student.currentEnrollment
         ? {
             academicYearId: student.currentEnrollment.academicYearId,
@@ -217,7 +241,7 @@ export function StudentDetailPage() {
           }
         : EMPTY_CURRENT_ENROLLMENT,
     };
-  }, [session?.activeCampus?.id, studentSummaryQuery.data?.student]);
+  }, [customFields, studentSummaryQuery.data?.student]);
 
   const studentPlacement = useMemo(() => {
     if (!studentSummaryQuery.data?.student) {
@@ -315,6 +339,28 @@ export function StudentDetailPage() {
   const summary = studentSummaryQuery.data;
   const student = summary.student;
   const latestExam = summary.exams.latestTerm;
+
+  if (activeCampusId && student.campusId !== activeCampusId) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Switch back to the record campus</CardTitle>
+          <CardDescription>
+            This student record belongs to {student.campusName}. Change the
+            active campus back before editing to avoid cross-campus updates.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button asChild variant="outline">
+            <Link to={appendSearch(ERP_ROUTES.STUDENTS, location.search)}>
+              <IconChevronLeft data-icon="inline-start" />
+              Back to students
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -484,7 +530,9 @@ export function StudentDetailPage() {
                                 Attendance entry
                               </p>
                             </div>
-                            <Badge variant={attendanceBadgeVariant(record.status)}>
+                            <Badge
+                              variant={attendanceBadgeVariant(record.status)}
+                            >
                               {
                                 ATTENDANCE_STATUS_LABELS[
                                   record.status as keyof typeof ATTENDANCE_STATUS_LABELS
@@ -516,7 +564,9 @@ export function StudentDetailPage() {
                       <p className="text-2xl font-semibold">
                         {formatRupees(summary.fees.totalOutstandingInPaise)}
                       </p>
-                      <p className="text-sm text-muted-foreground">Outstanding</p>
+                      <p className="text-sm text-muted-foreground">
+                        Outstanding
+                      </p>
                     </div>
                     <div className="rounded-xl border bg-muted/30 p-4">
                       <p className="text-2xl font-semibold">
@@ -528,7 +578,9 @@ export function StudentDetailPage() {
                       <p className="text-2xl font-semibold">
                         {summary.fees.overdueCount}
                       </p>
-                      <p className="text-sm text-muted-foreground">Overdue items</p>
+                      <p className="text-sm text-muted-foreground">
+                        Overdue items
+                      </p>
                     </div>
                     <div className="rounded-xl border bg-muted/30 p-4">
                       <p className="text-2xl font-semibold">
@@ -559,18 +611,24 @@ export function StudentDetailPage() {
                                   Due {formatFeeDate(assignment.dueDate)}
                                 </p>
                               </div>
-                              <Badge variant="secondary">{assignment.status}</Badge>
+                              <Badge variant="secondary">
+                                {assignment.status}
+                              </Badge>
                             </div>
                             <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
                               <span>
-                                Assigned {formatRupees(assignment.assignedAmountInPaise)}
+                                Assigned{" "}
+                                {formatRupees(assignment.assignedAmountInPaise)}
                               </span>
                               <span>
-                                Paid {formatRupees(assignment.paidAmountInPaise)}
+                                Paid{" "}
+                                {formatRupees(assignment.paidAmountInPaise)}
                               </span>
                               <span>
                                 Due{" "}
-                                {formatRupees(assignment.outstandingAmountInPaise)}
+                                {formatRupees(
+                                  assignment.outstandingAmountInPaise,
+                                )}
                               </span>
                             </div>
                           </div>
@@ -683,7 +741,8 @@ export function StudentDetailPage() {
                               {term.examTermName}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {term.academicYearName} • {formatDate(term.endDate)}
+                              {term.academicYearName} •{" "}
+                              {formatDate(term.endDate)}
                             </p>
                           </div>
                           <div className="text-right">
@@ -771,7 +830,9 @@ export function StudentDetailPage() {
                         <Badge
                           variant={guardian.isPrimary ? "default" : "outline"}
                         >
-                          {guardian.isPrimary ? "Primary" : guardian.relationship}
+                          {guardian.isPrimary
+                            ? "Primary"
+                            : guardian.relationship}
                         </Badge>
                       </div>
                     </div>
@@ -844,14 +905,16 @@ export function StudentDetailPage() {
               <CardHeader>
                 <CardTitle>Edit student</CardTitle>
                 <CardDescription>
-                  Update the student profile, campus assignment, and linked
-                  guardians.
+                  Update the student profile and linked guardians for the
+                  active campus.
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <StudentForm
                   academicYears={academicYearsQuery.data?.rows ?? []}
-                  campuses={campuses}
+                  campusId={student.campusId}
+                  campusName={student.campusName}
+                  customFields={customFields}
                   defaultValues={defaultValues}
                   errorMessage={updateError?.message}
                   isPending={updateStudentMutation.isPending}

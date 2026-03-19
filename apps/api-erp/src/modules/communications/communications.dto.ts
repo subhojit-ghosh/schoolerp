@@ -10,9 +10,6 @@ import {
 import { sortableAnnouncementColumns } from "./communications.schemas";
 
 export class ListAnnouncementsQueryDto {
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
-
   @ApiPropertyOptional()
   q?: string;
 
@@ -48,9 +45,6 @@ export class ListAnnouncementsQueryDto {
 }
 
 export class CreateAnnouncementBodyDto {
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
-
   @ApiProperty()
   title!: string;
 
@@ -144,9 +138,6 @@ export class ListAnnouncementsResultDto {
 }
 
 export class ListNotificationsQueryDto {
-  @ApiPropertyOptional({ nullable: true })
-  campusId?: string;
-
   @ApiPropertyOptional()
   q?: string;
 

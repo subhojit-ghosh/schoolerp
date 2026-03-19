@@ -8,6 +8,10 @@ import {
 const NAME_MIN_LENGTH = 1;
 const ADMISSION_NUMBER_MIN_LENGTH = 1;
 const MOBILE_MIN_LENGTH = 10;
+const optionalCustomFieldValuesSchema = z
+  .record(z.string(), z.unknown())
+  .nullable()
+  .optional();
 
 function hasExactlyOnePrimaryGuardian(guardians: { isPrimary: boolean }[]) {
   return guardians.filter((guardian) => guardian.isPrimary).length === 1;
@@ -44,10 +48,10 @@ export const createStudentSchema = z
     lastName: z.string().trim().optional(),
     classId: z.uuid(),
     sectionId: z.uuid(),
-    campusId: z.uuid(),
     guardians: z
       .array(createGuardianLinkSchema)
       .min(1, "At least one guardian is required"),
+    customFieldValues: optionalCustomFieldValuesSchema,
     currentEnrollment: currentEnrollmentSchema
       .nullish()
       .transform((value) => value ?? null),
@@ -66,7 +70,6 @@ export const sortableStudentColumns = {
 } as const;
 
 export const listStudentsQuerySchema = baseListQuerySchema.extend({
-  campusId: z.uuid().optional(),
   sort: z
     .enum([
       sortableStudentColumns.admissionNumber,
@@ -101,7 +104,6 @@ export function parseListStudentsQuery(query: unknown): ListStudentsQueryDto {
   const result = parseListQuerySchema(listStudentsQuerySchema, query);
 
   return {
-    campusId: result.campusId,
     limit: result.limit,
     order: result.order,
     page: result.page,
