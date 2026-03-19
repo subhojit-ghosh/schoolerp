@@ -3,7 +3,6 @@ import { ERROR_MESSAGES, SORT_ORDERS } from "../../constants";
 import {
   ANNOUNCEMENT_AUDIENCE,
   NOTIFICATION_CHANNELS,
-  NOTIFICATION_TONES,
   NOTIFICATION_TYPES,
   STATUS,
 } from "../../constants/status";
@@ -49,7 +48,10 @@ export const listAnnouncementsQuerySchema = baseListQuerySchema.extend({
 });
 
 const baseAnnouncementSchema = z.object({
-  title: z.string().trim().min(TITLE_MIN_LENGTH, "Announcement title is required"),
+  title: z
+    .string()
+    .trim()
+    .min(TITLE_MIN_LENGTH, "Announcement title is required"),
   summary: z.string().trim().min(1).max(240).optional(),
   body: z.string().trim().min(BODY_MIN_LENGTH, "Announcement body is required"),
   audience: z.enum([
@@ -65,10 +67,7 @@ export const createAnnouncementSchema = baseAnnouncementSchema;
 export const updateAnnouncementSchema = baseAnnouncementSchema;
 
 export const setAnnouncementStatusSchema = z.object({
-  status: z.enum([
-    STATUS.ANNOUNCEMENT.DRAFT,
-    STATUS.ANNOUNCEMENT.ARCHIVED,
-  ]),
+  status: z.enum([STATUS.ANNOUNCEMENT.DRAFT, STATUS.ANNOUNCEMENT.ARCHIVED]),
 });
 
 export const listNotificationsQuerySchema = baseListQuerySchema.extend({
@@ -108,7 +107,9 @@ export type ListNotificationsQueryDto = Omit<
 > & {
   search?: string;
 };
-export type MarkNotificationsReadDto = z.infer<typeof markNotificationsReadSchema>;
+export type MarkNotificationsReadDto = z.infer<
+  typeof markNotificationsReadSchema
+>;
 
 function parseSchema<T>(schema: z.ZodType<T>, input: unknown): T {
   return parseListQuerySchema(schema, input);
@@ -178,6 +179,8 @@ export const supportedNotificationTypes = [
 
 export function ensurePublishableStatus(status: string) {
   if (status === STATUS.ANNOUNCEMENT.PUBLISHED) {
-    throw new Error(ERROR_MESSAGES.COMMUNICATIONS.ANNOUNCEMENT_ALREADY_PUBLISHED);
+    throw new Error(
+      ERROR_MESSAGES.COMMUNICATIONS.ANNOUNCEMENT_ALREADY_PUBLISHED,
+    );
   }
 }

@@ -107,7 +107,9 @@ export function DashboardPage() {
     Boolean(staffDashboardInstitutionId),
   );
   const attendanceOverview = attendanceOverviewQuery.data ?? [];
-  const markedSections = attendanceOverview.filter((item) => item.marked).length;
+  const markedSections = attendanceOverview.filter(
+    (item) => item.marked,
+  ).length;
   const totalSections = attendanceOverview.length;
   const presentCount = attendanceOverview.reduce(
     (sum, item) => sum + (item.counts?.present ?? 0),
@@ -118,7 +120,9 @@ export function DashboardPage() {
     0,
   );
   const todayAttendanceValue =
-    totalSections === 0 ? "0/0 sections" : `${markedSections}/${totalSections} sections`;
+    totalSections === 0
+      ? "0/0 sections"
+      : `${markedSections}/${totalSections} sections`;
   const attendanceBadge =
     totalSections === 0
       ? "No class sections"

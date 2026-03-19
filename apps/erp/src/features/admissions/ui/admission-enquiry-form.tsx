@@ -10,7 +10,14 @@ import {
   FieldLabel,
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
@@ -105,7 +112,9 @@ export function AdmissionEnquiryForm({
             name="mobile"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-enquiry-mobile">Mobile</FieldLabel>
+                <FieldLabel htmlFor="admission-enquiry-mobile">
+                  Mobile
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -142,7 +151,10 @@ export function AdmissionEnquiryForm({
               <FieldLabel>Campus</FieldLabel>
               <FieldContent>
                 <div className="flex h-10 items-center">
-                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                  <Badge
+                    className="rounded-md px-3 py-1 font-medium"
+                    variant="secondary"
+                  >
                     {campusName}
                   </Badge>
                 </div>
@@ -180,7 +192,9 @@ export function AdmissionEnquiryForm({
             name="source"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-enquiry-source">Source</FieldLabel>
+                <FieldLabel htmlFor="admission-enquiry-source">
+                  Source
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}

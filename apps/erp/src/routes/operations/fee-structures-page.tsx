@@ -38,10 +38,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
-import {
-  buildFeeStructureEditRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
+import { buildFeeStructureEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import { isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -51,7 +48,10 @@ import {
   useFeeStructuresQuery,
   useSetFeeStructureStatusMutation,
 } from "@/features/fees/api/use-fees";
-import { formatFeeDate, formatRupees } from "@/features/fees/model/fee-formatters";
+import {
+  formatFeeDate,
+  formatRupees,
+} from "@/features/fees/model/fee-formatters";
 import {
   FEE_STRUCTURE_LIST_SORT_FIELDS,
   FEE_STRUCTURES_PAGE_COPY,
@@ -91,7 +91,9 @@ export function FeeStructuresPage() {
   const deleteMutation = useDeleteFeeStructureMutation();
   const duplicateMutation = useDuplicateFeeStructureMutation();
   const setStatusMutation = useSetFeeStructureStatusMutation();
-  const [deleteTarget, setDeleteTarget] = useState<FeeStructureRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<FeeStructureRow | null>(
+    null,
+  );
 
   const {
     queryState,
@@ -117,6 +119,33 @@ export function FeeStructuresPage() {
   const structures = useMemo(
     () => (structuresQuery.data?.rows ?? []) as FeeStructureRow[],
     [structuresQuery.data?.rows],
+  );
+
+  const handleDuplicate = useCallback(
+    async (structureId: string) => {
+      await duplicateMutation.mutateAsync({
+        params: { path: { feeStructureId: structureId } },
+      });
+      toast.success(
+        ERP_TOAST_MESSAGES.created(`${ERP_TOAST_SUBJECTS.FEE_STRUCTURE} copy`),
+      );
+    },
+    [duplicateMutation],
+  );
+
+  const handleStatusChange = useCallback(
+    async (feeStructureId: string, status: "active" | "archived") => {
+      await setStatusMutation.mutateAsync({
+        params: { path: { feeStructureId } },
+        body: { status },
+      });
+      toast.success(
+        status === "archived"
+          ? ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.FEE_STRUCTURE)
+          : ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
+      );
+    },
+    [setStatusMutation],
   );
 
   const columns = useMemo(
@@ -155,13 +184,16 @@ export function FeeStructuresPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(FEE_STRUCTURE_LIST_SORT_FIELDS.ACADEMIC_YEAR)}
+            onClick={() =>
+              setSorting(FEE_STRUCTURE_LIST_SORT_FIELDS.ACADEMIC_YEAR)
+            }
             type="button"
           >
             Academic Year
             <SortIcon
               direction={
-                queryState.sortBy === FEE_STRUCTURE_LIST_SORT_FIELDS.ACADEMIC_YEAR
+                queryState.sortBy ===
+                FEE_STRUCTURE_LIST_SORT_FIELDS.ACADEMIC_YEAR
                   ? queryState.sortOrder
                   : false
               }
@@ -288,7 +320,14 @@ export function FeeStructuresPage() {
         },
       }),
     ],
-    [location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      handleDuplicate,
+      handleStatusChange,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -303,28 +342,6 @@ export function FeeStructuresPage() {
     sortBy: queryState.sortBy,
     sortOrder: queryState.sortOrder,
   });
-
-  const handleDuplicate = useCallback(async (structureId: string) => {
-    await duplicateMutation.mutateAsync({
-      params: { path: { feeStructureId: structureId } },
-    });
-    toast.success(ERP_TOAST_MESSAGES.created(`${ERP_TOAST_SUBJECTS.FEE_STRUCTURE} copy`));
-  }, [duplicateMutation]);
-
-  const handleStatusChange = useCallback(
-    async (feeStructureId: string, status: "active" | "archived") => {
-      await setStatusMutation.mutateAsync({
-        params: { path: { feeStructureId } },
-        body: { status },
-      });
-      toast.success(
-        status === "archived"
-          ? ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.FEE_STRUCTURE)
-          : ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
-      );
-    },
-    [setStatusMutation],
-  );
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
@@ -370,7 +387,12 @@ export function FeeStructuresPage() {
       <EntityListPage
         actions={
           <EntityPagePrimaryAction asChild>
-            <Link to={appendSearch(ERP_ROUTES.FEE_STRUCTURE_CREATE, location.search)}>
+            <Link
+              to={appendSearch(
+                ERP_ROUTES.FEE_STRUCTURE_CREATE,
+                location.search,
+              )}
+            >
               <IconPlus className="size-4" />
               New fee structure
             </Link>
@@ -398,7 +420,12 @@ export function FeeStructuresPage() {
           emptyAction={
             !isFiltered ? (
               <EntityEmptyStateAction asChild>
-                <Link to={appendSearch(ERP_ROUTES.FEE_STRUCTURE_CREATE, location.search)}>
+                <Link
+                  to={appendSearch(
+                    ERP_ROUTES.FEE_STRUCTURE_CREATE,
+                    location.search,
+                  )}
+                >
                   <IconPlus className="size-4" />
                   New fee structure
                 </Link>

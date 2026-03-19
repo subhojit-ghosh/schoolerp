@@ -15,7 +15,14 @@ import {
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import { Label } from "@repo/ui/components/ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
 import {
   EMPTY_CURRENT_ENROLLMENT,
   GUARDIAN_RELATIONSHIP_OPTIONS,
@@ -112,9 +119,7 @@ export function StudentForm({
     name: "guardians",
   });
 
-  const classesQuery = useClassesQuery(
-    Boolean(campusId),
-  );
+  const classesQuery = useClassesQuery(Boolean(campusId));
   const classOptions = useMemo(
     () =>
       ((classesQuery.data?.rows ?? []) as ClassOption[]).filter(
@@ -149,7 +154,9 @@ export function StudentForm({
       return academicYears[0]!.id;
     }
 
-    return academicYears.find((academicYear) => academicYear.isCurrent)?.id ?? "";
+    return (
+      academicYears.find((academicYear) => academicYear.isCurrent)?.id ?? ""
+    );
   }, [academicYears]);
 
   useEffect(() => {
@@ -286,10 +293,14 @@ export function StudentForm({
       return;
     }
 
-    setValue("currentEnrollment.academicYearId", defaultEnrollmentAcademicYearId, {
-      shouldDirty: true,
-      shouldValidate: true,
-    });
+    setValue(
+      "currentEnrollment.academicYearId",
+      defaultEnrollmentAcademicYearId,
+      {
+        shouldDirty: true,
+        shouldValidate: true,
+      },
+    );
   }, [
     defaultEnrollmentAcademicYearId,
     selectedEnrollmentAcademicYearId,
@@ -326,7 +337,10 @@ export function StudentForm({
               <FieldLabel>Campus</FieldLabel>
               <FieldContent>
                 <div className="flex h-10 items-center">
-                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                  <Badge
+                    className="rounded-md px-3 py-1 font-medium"
+                    variant="secondary"
+                  >
                     {campusName}
                   </Badge>
                 </div>

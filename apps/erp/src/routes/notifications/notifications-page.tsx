@@ -15,7 +15,10 @@ import {
 } from "@repo/ui/components/ui/tabs";
 import { EntityToolbarSecondaryAction } from "@/components/entities/entity-actions";
 import { EntityListPage } from "@/components/entities/entity-list-page";
-import { useNotificationsQuery, useMarkNotificationsReadMutation } from "@/features/communications/api/use-communications";
+import {
+  useNotificationsQuery,
+  useMarkNotificationsReadMutation,
+} from "@/features/communications/api/use-communications";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { hasPermission } from "@/features/auth/model/auth-context";
 import {
@@ -62,13 +65,11 @@ export function NotificationsPage() {
   });
 
   const items = useMemo(
-    () => (notificationsQuery.data?.rows ?? []).map(mapNotificationRecordToItem),
+    () =>
+      (notificationsQuery.data?.rows ?? []).map(mapNotificationRecordToItem),
     [notificationsQuery.data?.rows],
   );
-  const filterMeta = useMemo(
-    () => getNotificationFilterMeta(items),
-    [items],
-  );
+  const filterMeta = useMemo(() => getNotificationFilterMeta(items), [items]);
 
   const sections = useMemo(
     () =>
@@ -78,7 +79,8 @@ export function NotificationsPage() {
     [activeFilter, items],
   );
 
-  const errorMessage = (notificationsQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (notificationsQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <EntityListPage

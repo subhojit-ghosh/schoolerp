@@ -396,7 +396,8 @@ export const academicYearStatusSchema = z.enum([
   ACADEMIC_YEAR_STATUS.DELETED,
 ]);
 
-export type SubjectStatus = (typeof SUBJECT_STATUS)[keyof typeof SUBJECT_STATUS];
+export type SubjectStatus =
+  (typeof SUBJECT_STATUS)[keyof typeof SUBJECT_STATUS];
 export type TimetableEntryStatus =
   (typeof TIMETABLE_ENTRY_STATUS)[keyof typeof TIMETABLE_ENTRY_STATUS];
 export type CalendarEventStatus =
@@ -478,7 +479,9 @@ export const attendanceStatusSchema = z.enum([
 export type AcademicYearStatus = z.infer<typeof academicYearStatusSchema>;
 export type ClassStatus = z.infer<typeof classStatusSchema>;
 export type SectionStatus = z.infer<typeof sectionStatusSchema>;
-export type AdmissionEnquiryStatus = z.infer<typeof admissionEnquiryStatusSchema>;
+export type AdmissionEnquiryStatus = z.infer<
+  typeof admissionEnquiryStatusSchema
+>;
 export type AdmissionApplicationStatus = z.infer<
   typeof admissionApplicationStatusSchema
 >;

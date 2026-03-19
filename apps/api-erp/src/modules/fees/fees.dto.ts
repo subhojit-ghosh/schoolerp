@@ -39,10 +39,7 @@ export class ListFeeStructuresQueryDto {
   academicYearId?: string;
 
   @ApiPropertyOptional({
-    enum: [
-      FEE_STRUCTURE_STATUSES.ACTIVE,
-      FEE_STRUCTURE_STATUSES.ARCHIVED,
-    ],
+    enum: [FEE_STRUCTURE_STATUSES.ACTIVE, FEE_STRUCTURE_STATUSES.ARCHIVED],
     nullable: true,
   })
   status?: FeeStructureStatus;
@@ -137,10 +134,7 @@ export class UpdateFeeStructureBodyDto {
 
 export class SetFeeStructureStatusBodyDto {
   @ApiProperty({
-    enum: [
-      FEE_STRUCTURE_STATUSES.ACTIVE,
-      FEE_STRUCTURE_STATUSES.ARCHIVED,
-    ],
+    enum: [FEE_STRUCTURE_STATUSES.ACTIVE, FEE_STRUCTURE_STATUSES.ARCHIVED],
   })
   status!: Exclude<FeeStructureStatus, "deleted">;
 }

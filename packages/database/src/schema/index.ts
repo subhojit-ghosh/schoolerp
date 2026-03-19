@@ -779,9 +779,7 @@ export const announcements = pgTable(
     audience: text({ enum: ANNOUNCEMENT_AUDIENCE_ENUM })
       .notNull()
       .default("all"),
-    status: text({ enum: ANNOUNCEMENT_STATUS_ENUM })
-      .notNull()
-      .default("draft"),
+    status: text({ enum: ANNOUNCEMENT_STATUS_ENUM }).notNull().default("draft"),
     publishedAt: timestamp(),
     publishedNotificationId: text(),
     createdAt: timestamp().notNull().defaultNow(),
@@ -872,7 +870,9 @@ export const feeStructures = pgTable(
     }).notNull(),
     status: text({
       enum: FEE_STRUCTURE_STATUS_ENUM,
-    }).notNull().default("active"),
+    })
+      .notNull()
+      .default("active"),
     amountInPaise: integer().notNull(),
     dueDate: date().notNull(),
     createdAt: timestamp().notNull().defaultNow(),
@@ -1045,7 +1045,9 @@ export const feeAssignmentAdjustments = pgTable(
   },
   (table) => [
     index("fee_assignment_adjustments_institution_idx").on(table.institutionId),
-    index("fee_assignment_adjustments_assignment_idx").on(table.feeAssignmentId),
+    index("fee_assignment_adjustments_assignment_idx").on(
+      table.feeAssignmentId,
+    ),
   ],
 );
 
@@ -1064,6 +1066,8 @@ export const feePaymentReversals = pgTable(
   },
   (table) => [
     index("fee_payment_reversals_institution_idx").on(table.institutionId),
-    uniqueIndex("fee_payment_reversals_payment_unique_idx").on(table.feePaymentId),
+    uniqueIndex("fee_payment_reversals_payment_unique_idx").on(
+      table.feePaymentId,
+    ),
   ],
 );

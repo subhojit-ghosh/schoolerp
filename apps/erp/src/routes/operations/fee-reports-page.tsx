@@ -34,7 +34,9 @@ function SummaryCard({
     <Card>
       <CardContent className="pt-6">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <p className={`mt-1 text-2xl font-bold tracking-tight ${valueClass ?? ""}`}>
+        <p
+          className={`mt-1 text-2xl font-bold tracking-tight ${valueClass ?? ""}`}
+        >
           {value}
         </p>
       </CardContent>
@@ -49,7 +51,9 @@ export function FeeReportsPage() {
   const canQuery = canManageFees && Boolean(institutionId);
   const [academicYearId, setAcademicYearId] = useState<string>("all");
 
-  const academicYearsQuery = useAcademicYearsQuery(institutionId, { limit: 50 });
+  const academicYearsQuery = useAcademicYearsQuery(institutionId, {
+    limit: 50,
+  });
 
   const summaryQuery = useCollectionSummaryQuery(canQuery, {
     academicYearId: academicYearId === "all" ? undefined : academicYearId,
@@ -191,7 +195,9 @@ export function FeeReportsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Collection by Structure</CardTitle>
+              <CardTitle className="text-base">
+                Collection by Structure
+              </CardTitle>
               <CardDescription>
                 Fee collection breakdown per fee structure.
               </CardDescription>

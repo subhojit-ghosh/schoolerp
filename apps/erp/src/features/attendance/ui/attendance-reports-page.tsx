@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -413,7 +413,10 @@ function StudentReportTab({
   });
 
   const studentOptionsQuery = useStudentOptionsQuery(institutionId);
-  const studentOptions = studentOptionsQuery.data ?? [];
+  const studentOptions = useMemo(
+    () => studentOptionsQuery.data ?? [],
+    [studentOptionsQuery.data],
+  );
 
   useEffect(() => {
     if (studentOptions.length === 1 && !form.getValues("studentId")) {

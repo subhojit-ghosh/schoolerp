@@ -11,7 +11,14 @@ import {
   FieldLabel,
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
@@ -103,11 +110,15 @@ export function AdmissionApplicationForm({
     const nextLastName = nameParts.join(" ");
     const currentValues = getValues();
 
-    setValue("studentFirstName", nextFirstName || currentValues.studentFirstName, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
+    setValue(
+      "studentFirstName",
+      nextFirstName || currentValues.studentFirstName,
+      {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      },
+    );
     setValue("studentLastName", nextLastName, {
       shouldDirty: true,
       shouldTouch: true,
@@ -185,7 +196,10 @@ export function AdmissionApplicationForm({
               <FieldLabel>Campus</FieldLabel>
               <FieldContent>
                 <div className="flex h-10 items-center">
-                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                  <Badge
+                    className="rounded-md px-3 py-1 font-medium"
+                    variant="secondary"
+                  >
                     {campusName}
                   </Badge>
                 </div>
@@ -282,7 +296,9 @@ export function AdmissionApplicationForm({
             name="email"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-application-email">Email</FieldLabel>
+                <FieldLabel htmlFor="admission-application-email">
+                  Email
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -372,7 +388,9 @@ export function AdmissionApplicationForm({
           name="notes"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel htmlFor="admission-application-notes">Notes</FieldLabel>
+              <FieldLabel htmlFor="admission-application-notes">
+                Notes
+              </FieldLabel>
               <FieldContent>
                 <Input
                   {...field}

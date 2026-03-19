@@ -34,7 +34,9 @@ type CalendarEventSheetRouteProps = {
   mode: "create" | "edit";
 };
 
-export function CalendarEventSheetRoute({ mode }: CalendarEventSheetRouteProps) {
+export function CalendarEventSheetRoute({
+  mode,
+}: CalendarEventSheetRouteProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { eventId } = useParams();
@@ -76,11 +78,15 @@ export function CalendarEventSheetRoute({ mode }: CalendarEventSheetRouteProps) 
           eventDate: values.eventDate,
           eventType: values.eventType,
           isAllDay: values.isAllDay,
-          startTime: values.isAllDay ? undefined : values.startTime || undefined,
+          startTime: values.isAllDay
+            ? undefined
+            : values.startTime || undefined,
           title: values.title,
         },
       });
-      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CALENDAR_EVENT));
+      toast.success(
+        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
+      );
     } else if (eventId) {
       await updateEventMutation.mutateAsync({
         params: {
@@ -94,11 +100,15 @@ export function CalendarEventSheetRoute({ mode }: CalendarEventSheetRouteProps) 
           eventDate: values.eventDate,
           eventType: values.eventType,
           isAllDay: values.isAllDay,
-          startTime: values.isAllDay ? undefined : values.startTime || undefined,
+          startTime: values.isAllDay
+            ? undefined
+            : values.startTime || undefined,
           title: values.title,
         },
       });
-      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CALENDAR_EVENT));
+      toast.success(
+        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
+      );
     }
 
     void navigate(appendSearch(ERP_ROUTES.CALENDAR, location.search));
@@ -169,7 +179,9 @@ export function CalendarEventSheetRoute({ mode }: CalendarEventSheetRouteProps) 
           void navigate(appendSearch(ERP_ROUTES.CALENDAR, location.search));
         }}
         onSubmit={handleSubmit}
-        submitLabel={mode === "create" ? "Create calendar event" : "Save changes"}
+        submitLabel={
+          mode === "create" ? "Create calendar event" : "Save changes"
+        }
       />
     </RouteEntitySheet>
   );

@@ -2,10 +2,11 @@
 import eslint from "@eslint/js";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import globals from "globals";
-import tseslint from "typescript-eslint";
 import unusedImports from "eslint-plugin-unused-imports";
+import tseslint from "typescript-eslint";
 
-export default tseslint.config(
+/** @type {import("eslint").Linter.Config[]} */
+const config = [
   {
     ignores: ["dist/**", "src/metadata.ts", "eslint.config.mjs"],
   },
@@ -45,4 +46,13 @@ export default tseslint.config(
       "unused-imports": unusedImports,
     },
   },
-);
+  {
+    files: ["src/modules/**/*.controller.ts"],
+    rules: {
+      "unused-imports/no-unused-imports": "off",
+      "unused-imports/no-unused-vars": "off",
+    },
+  },
+];
+
+export default config;

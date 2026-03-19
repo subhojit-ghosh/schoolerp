@@ -128,7 +128,9 @@ export class AdmissionsService {
     authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     query: ListAdmissionEnquiriesQueryDto = {},
-  ): Promise<PaginatedResult<Awaited<ReturnType<typeof this.getAdmissionEnquiry>>>> {
+  ): Promise<
+    PaginatedResult<Awaited<ReturnType<typeof this.getAdmissionEnquiry>>>
+  > {
     const scopedCampusId = this.requireActiveCampusId(authSession);
     await this.assertCampusAccess(institutionId, scopedCampusId, scopes);
 
@@ -262,7 +264,12 @@ export class AdmissionsService {
       deletedAt: null,
     });
 
-    return this.getAdmissionEnquiry(institutionId, enquiryId, authSession, scopes);
+    return this.getAdmissionEnquiry(
+      institutionId,
+      enquiryId,
+      authSession,
+      scopes,
+    );
   }
 
   async updateAdmissionEnquiry(
@@ -272,7 +279,12 @@ export class AdmissionsService {
     scopes: ResolvedScopes,
     payload: UpdateAdmissionEnquiryDto,
   ) {
-    await this.getAdmissionEnquiry(institutionId, enquiryId, authSession, scopes);
+    await this.getAdmissionEnquiry(
+      institutionId,
+      enquiryId,
+      authSession,
+      scopes,
+    );
     const campusId = this.requireActiveCampusId(authSession);
     await this.assertCampusAccess(institutionId, campusId, scopes);
 
@@ -290,7 +302,12 @@ export class AdmissionsService {
       })
       .where(eq(admissionEnquiries.id, enquiryId));
 
-    return this.getAdmissionEnquiry(institutionId, enquiryId, authSession, scopes);
+    return this.getAdmissionEnquiry(
+      institutionId,
+      enquiryId,
+      authSession,
+      scopes,
+    );
   }
 
   async listAdmissionApplications(
@@ -434,11 +451,12 @@ export class AdmissionsService {
       await this.assertEnquiryExists(institutionId, payload.enquiryId, scopes);
     }
 
-    const customFieldValues = await this.admissionFormFieldsService.validateValues(
-      institutionId,
-      ADMISSION_FORM_FIELD_SCOPES.APPLICATION,
-      payload.customFieldValues ?? undefined,
-    );
+    const customFieldValues =
+      await this.admissionFormFieldsService.validateValues(
+        institutionId,
+        ADMISSION_FORM_FIELD_SCOPES.APPLICATION,
+        payload.customFieldValues ?? undefined,
+      );
 
     const applicationId = randomUUID();
     await this.db.insert(admissionApplications).values({
@@ -487,11 +505,12 @@ export class AdmissionsService {
       await this.assertEnquiryExists(institutionId, payload.enquiryId, scopes);
     }
 
-    const customFieldValues = await this.admissionFormFieldsService.validateValues(
-      institutionId,
-      ADMISSION_FORM_FIELD_SCOPES.APPLICATION,
-      payload.customFieldValues ?? undefined,
-    );
+    const customFieldValues =
+      await this.admissionFormFieldsService.validateValues(
+        institutionId,
+        ADMISSION_FORM_FIELD_SCOPES.APPLICATION,
+        payload.customFieldValues ?? undefined,
+      );
 
     await this.db
       .update(admissionApplications)

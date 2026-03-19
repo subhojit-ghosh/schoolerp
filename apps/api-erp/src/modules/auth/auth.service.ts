@@ -784,13 +784,17 @@ export class AuthService {
           authSession.activeOrganizationId,
         )
       : [];
-    const accessibleCampusIds = new Set(campuses.map((campusOption) => campusOption.id));
+    const accessibleCampusIds = new Set(
+      campuses.map((campusOption) => campusOption.id),
+    );
     const activeCampusId =
-      authSession.activeCampusId && accessibleCampusIds.has(authSession.activeCampusId)
+      authSession.activeCampusId &&
+      accessibleCampusIds.has(authSession.activeCampusId)
         ? authSession.activeCampusId
         : null;
     const activeCampus =
-      campuses.find((campusOption) => campusOption.id === activeCampusId) ?? null;
+      campuses.find((campusOption) => campusOption.id === activeCampusId) ??
+      null;
 
     return {
       user: authSession.user,
@@ -1062,7 +1066,10 @@ export class AuthService {
     activeContextKey: AuthContextKey | null,
   ) {
     if (activeContextKey === AUTH_CONTEXT_KEYS.PARENT) {
-      const linkedStudents = await this.listLinkedStudents(userId, organizationId);
+      const linkedStudents = await this.listLinkedStudents(
+        userId,
+        organizationId,
+      );
 
       return Array.from(
         new Set(linkedStudents.map((student) => student.campusId)),
@@ -1102,7 +1109,9 @@ export class AuthService {
     const accessibleCampusIdSet = new Set(accessibleCampusIds);
     const campuses = await this.listCampusSummaries(organizationId);
 
-    return campuses.filter((campusOption) => accessibleCampusIdSet.has(campusOption.id));
+    return campuses.filter((campusOption) =>
+      accessibleCampusIdSet.has(campusOption.id),
+    );
   }
 
   private async listStudentCampusIds(userId: string, organizationId: string) {
@@ -1160,7 +1169,8 @@ export class AuthService {
 
     const memberships = await this.listMemberships(authSession.user.id);
     const organizationMemberships = memberships.filter(
-      (membership) => membership.organizationId === authSession.activeOrganizationId,
+      (membership) =>
+        membership.organizationId === authSession.activeOrganizationId,
     );
     const activeContextKey = this.resolveDefaultContextKey(
       organizationMemberships,

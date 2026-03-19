@@ -69,7 +69,9 @@ export function AdmissionEnquirySheetRoute({
       await createMutation.mutateAsync({
         body: toAdmissionEnquiryMutationBody(values),
       });
-      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ADMISSION_ENQUIRY));
+      toast.success(
+        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ADMISSION_ENQUIRY),
+      );
     } else if (enquiryId && enquiryQuery.data) {
       await updateMutation.mutateAsync({
         params: {
@@ -81,10 +83,14 @@ export function AdmissionEnquirySheetRoute({
           ...toAdmissionEnquiryMutationBody(values),
         },
       });
-      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ADMISSION_ENQUIRY));
+      toast.success(
+        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ADMISSION_ENQUIRY),
+      );
     }
 
-    void navigate(appendSearch(ERP_ROUTES.ADMISSIONS_ENQUIRIES, location.search));
+    void navigate(
+      appendSearch(ERP_ROUTES.ADMISSIONS_ENQUIRIES, location.search),
+    );
   }
 
   if (mode === "edit" && enquiryQuery.isLoading) {
@@ -124,10 +130,13 @@ export function AdmissionEnquirySheetRoute({
 
   const errorMessage =
     mode === "create"
-      ? ((createMutation.error as Error | null | undefined)?.message ?? undefined)
-      : ((updateMutation.error as Error | null | undefined)?.message ?? undefined);
+      ? ((createMutation.error as Error | null | undefined)?.message ??
+        undefined)
+      : ((updateMutation.error as Error | null | undefined)?.message ??
+        undefined);
 
-  const isPending = mode === "create" ? createMutation.isPending : updateMutation.isPending;
+  const isPending =
+    mode === "create" ? createMutation.isPending : updateMutation.isPending;
 
   return (
     <RouteEntitySheet
@@ -137,12 +146,12 @@ export function AdmissionEnquirySheetRoute({
           ? "Record a new lead in the admissions pipeline."
           : "Update this admissions enquiry."
       }
-      title={mode === "create" ? "New admission enquiry" : "Edit admission enquiry"}
+      title={
+        mode === "create" ? "New admission enquiry" : "Edit admission enquiry"
+      }
     >
       <AdmissionEnquiryForm
-        campusName={
-          activeCampusName
-        }
+        campusName={activeCampusName}
         defaultValues={defaultValues}
         errorMessage={errorMessage}
         isPending={isPending}

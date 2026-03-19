@@ -184,7 +184,9 @@ export class CommunicationsController {
 
   @Get(API_ROUTES.NOTIFICATIONS)
   @RequirePermission(PERMISSIONS.COMMUNICATION_READ)
-  @ApiOperation({ summary: "List notification feed items for the current session" })
+  @ApiOperation({
+    summary: "List notification feed items for the current session",
+  })
   @ApiQuery({ name: "q", required: false, type: String })
   @ApiQuery({ name: "page", required: false, type: Number })
   @ApiQuery({ name: "limit", required: false, type: Number })
@@ -208,7 +210,9 @@ export class CommunicationsController {
 
   @Post(`${API_ROUTES.NOTIFICATIONS}/${API_ROUTES.MARK_ALL_READ}`)
   @RequirePermission(PERMISSIONS.COMMUNICATION_READ)
-  @ApiOperation({ summary: "Mark notifications as read for the current session" })
+  @ApiOperation({
+    summary: "Mark notifications as read for the current session",
+  })
   @ApiBody({ type: MarkNotificationsReadBodyDto })
   @ApiOkResponse({
     schema: {

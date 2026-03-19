@@ -24,15 +24,12 @@ import {
   desc,
   eq,
   feeAssignments,
-  feeStructureInstallments,
   feeStructures,
   inArray,
   isNull,
   member,
   ne,
-  or,
   schoolClasses,
-  sql,
   studentCurrentEnrollments,
   studentGuardianLinks,
   students,
@@ -418,7 +415,7 @@ export class DataExchangeService {
     );
   }
 
-  private async previewRow(
+  private previewRow(
     institutionId: string,
     entityType: DataExchangeEntityType,
     context: PreviewContext,

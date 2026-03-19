@@ -49,18 +49,25 @@ export class DataExchangeController {
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
   ) {
-    return this.dataExchangeService.getCapabilities(institution.id, authSession);
+    return this.dataExchangeService.getCapabilities(
+      institution.id,
+      authSession,
+    );
   }
 
   @Get(`${API_ROUTES.TEMPLATES}/:entityType`)
-  @ApiOperation({ summary: "Download a CSV template for an import/export entity type" })
+  @ApiOperation({
+    summary: "Download a CSV template for an import/export entity type",
+  })
   async downloadTemplate(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
     @Param("entityType") entityTypeParam: string,
     @Res() response: Response,
   ) {
-    const entityType = parseDataExchangeEntityType({ entityType: entityTypeParam });
+    const entityType = parseDataExchangeEntityType({
+      entityType: entityTypeParam,
+    });
     const file = await this.dataExchangeService.getTemplate(
       institution.id,
       authSession,
@@ -120,7 +127,9 @@ export class DataExchangeController {
     @Param("entityType") entityTypeParam: string,
     @Res() response: Response,
   ) {
-    const entityType = parseDataExchangeEntityType({ entityType: entityTypeParam });
+    const entityType = parseDataExchangeEntityType({
+      entityType: entityTypeParam,
+    });
     const file = await this.dataExchangeService.exportData(
       institution.id,
       authSession,

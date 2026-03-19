@@ -7,7 +7,8 @@ export const ANNOUNCEMENT_LIST_SORT_FIELDS = {
 
 export const ANNOUNCEMENTS_PAGE_COPY = {
   TITLE: "Announcements",
-  DESCRIPTION: "Broadcast school-wide updates and keep communication inside the ERP.",
+  DESCRIPTION:
+    "Broadcast school-wide updates and keep communication inside the ERP.",
   SEARCH_PLACEHOLDER: "Search announcements…",
   EMPTY_TITLE: "No announcements yet",
   EMPTY_DESCRIPTION: "Create the first announcement for your institution.",

@@ -61,7 +61,10 @@ export class TimetableService {
           ne(timetableEntries.status, STATUS.TIMETABLE.DELETED),
         ),
       )
-      .orderBy(asc(timetableEntries.dayOfWeek), asc(timetableEntries.periodIndex));
+      .orderBy(
+        asc(timetableEntries.dayOfWeek),
+        asc(timetableEntries.periodIndex),
+      );
 
     return {
       campusId: sectionScope.campusId,
@@ -206,7 +209,9 @@ export class TimetableService {
       .limit(1);
 
     if (!row) {
-      throw new NotFoundException(ERROR_MESSAGES.TIMETABLE.CLASS_SECTION_REQUIRED);
+      throw new NotFoundException(
+        ERROR_MESSAGES.TIMETABLE.CLASS_SECTION_REQUIRED,
+      );
     }
 
     return row;

@@ -169,7 +169,12 @@ export class CommunicationsService {
       );
     }
 
-    return this.getAnnouncement(institutionId, announcementId, authSession, scopes);
+    return this.getAnnouncement(
+      institutionId,
+      announcementId,
+      authSession,
+      scopes,
+    );
   }
 
   async updateAnnouncement(
@@ -203,7 +208,10 @@ export class CommunicationsService {
         ),
       );
 
-    if (payload.publishNow && existing.status !== STATUS.ANNOUNCEMENT.PUBLISHED) {
+    if (
+      payload.publishNow &&
+      existing.status !== STATUS.ANNOUNCEMENT.PUBLISHED
+    ) {
       await this.publishAnnouncementNotification(
         institutionId,
         announcementId,
@@ -212,7 +220,12 @@ export class CommunicationsService {
       );
     }
 
-    return this.getAnnouncement(institutionId, announcementId, authSession, scopes);
+    return this.getAnnouncement(
+      institutionId,
+      announcementId,
+      authSession,
+      scopes,
+    );
   }
 
   async setAnnouncementStatus(
@@ -240,7 +253,12 @@ export class CommunicationsService {
         ),
       );
 
-    return this.getAnnouncement(institutionId, announcementId, authSession, scopes);
+    return this.getAnnouncement(
+      institutionId,
+      announcementId,
+      authSession,
+      scopes,
+    );
   }
 
   async publishAnnouncement(
@@ -259,7 +277,12 @@ export class CommunicationsService {
       scopes,
     );
 
-    return this.getAnnouncement(institutionId, announcementId, authSession, scopes);
+    return this.getAnnouncement(
+      institutionId,
+      announcementId,
+      authSession,
+      scopes,
+    );
   }
 
   async listNotifications(
@@ -340,13 +363,17 @@ export class CommunicationsService {
           eq(notificationReads.userId, authSession.user.id),
         ),
       )
-      .where(and(...this.buildNotificationConditions(
-        institutionId,
-        authSession,
-        scopes,
-        { ...query, unreadOnly: true },
-        scopedCampusId,
-      ))!);
+      .where(
+        and(
+          ...this.buildNotificationConditions(
+            institutionId,
+            authSession,
+            scopes,
+            { ...query, unreadOnly: true },
+            scopedCampusId,
+          ),
+        ),
+      );
 
     const [actionRequiredRow] = await this.db
       .select({ count: count() })
@@ -358,13 +385,17 @@ export class CommunicationsService {
           eq(notificationReads.userId, authSession.user.id),
         ),
       )
-      .where(and(...this.buildNotificationConditions(
-        institutionId,
-        authSession,
-        scopes,
-        { ...query, actionRequired: true },
-        scopedCampusId,
-      ))!);
+      .where(
+        and(
+          ...this.buildNotificationConditions(
+            institutionId,
+            authSession,
+            scopes,
+            { ...query, actionRequired: true },
+            scopedCampusId,
+          ),
+        ),
+      );
 
     return {
       rows,
@@ -391,7 +422,11 @@ export class CommunicationsService {
             scopes,
             payload.notificationIds,
           )
-        : await this.getVisibleNotificationIds(institutionId, authSession, scopes);
+        : await this.getVisibleNotificationIds(
+            institutionId,
+            authSession,
+            scopes,
+          );
 
     if (notificationIds.length === 0) {
       return { updated: 0 };
@@ -622,7 +657,10 @@ export class CommunicationsService {
   }
 
   private ensureStaffContext(authSession: AuthenticatedSession) {
-    if (authSession.activeContextKey !== "staff" || !authSession.activeOrganizationId) {
+    if (
+      authSession.activeContextKey !== "staff" ||
+      !authSession.activeOrganizationId
+    ) {
       throw new ConflictException(ERROR_MESSAGES.AUTH.PERMISSION_DENIED);
     }
   }
@@ -660,7 +698,9 @@ export class CommunicationsService {
       .limit(1);
 
     if (!row || (row.campusId && row.campusId !== activeCampusId)) {
-      throw new NotFoundException(ERROR_MESSAGES.COMMUNICATIONS.ANNOUNCEMENT_NOT_FOUND);
+      throw new NotFoundException(
+        ERROR_MESSAGES.COMMUNICATIONS.ANNOUNCEMENT_NOT_FOUND,
+      );
     }
 
     return row;

@@ -62,7 +62,9 @@ async function downloadCsv(path: string, fallbackFileName: string) {
   window.URL.revokeObjectURL(objectUrl);
 }
 
-export function downloadDataExchangeTemplate(entityType: DataExchangeEntityType) {
+export function downloadDataExchangeTemplate(
+  entityType: DataExchangeEntityType,
+) {
   return downloadCsv(
     DATA_EXCHANGE_API_PATHS.TEMPLATE.replace("{entityType}", entityType),
     `${entityType}-template.csv`,

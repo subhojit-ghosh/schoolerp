@@ -8,7 +8,10 @@ export const calendarFormSchema = z
     description: z.string().trim().max(500).optional(),
     eventDate: z.string().date(),
     isAllDay: z.boolean(),
-    startTime: z.string().regex(TIME_24H_REGEX, "Invalid time format").optional(),
+    startTime: z
+      .string()
+      .regex(TIME_24H_REGEX, "Invalid time format")
+      .optional(),
     endTime: z.string().regex(TIME_24H_REGEX, "Invalid time format").optional(),
     eventType: z.enum(["event", "holiday", "exam", "deadline"]),
   })

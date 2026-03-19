@@ -160,8 +160,7 @@ export const ERROR_MESSAGES = {
       "Payment amount cannot exceed the outstanding dues for this assignment.",
     FEE_ADJUSTMENT_EXCEEDS_DUE:
       "Adjustment amount cannot exceed the outstanding dues for this assignment.",
-    FEE_PAYMENT_ALREADY_REVERSED:
-      "That payment has already been reversed.",
+    FEE_PAYMENT_ALREADY_REVERSED: "That payment has already been reversed.",
     FEE_STRUCTURE_SCOPE_INVALID:
       "Campus-scoped fee structures must target a campus.",
     FEE_STRUCTURE_CAMPUS_MISMATCH:
@@ -183,8 +182,10 @@ export const ERROR_MESSAGES = {
   DATA_EXCHANGE: {
     CSV_EMPTY: "Upload a CSV file with a header row and at least one data row.",
     CSV_HEADER_REQUIRED: "The CSV file must include a header row.",
-    ENTITY_TYPE_UNSUPPORTED: "The selected import/export entity type is not supported.",
-    TEMPLATE_NOT_FOUND: "No template is available for the selected import/export entity type.",
+    ENTITY_TYPE_UNSUPPORTED:
+      "The selected import/export entity type is not supported.",
+    TEMPLATE_NOT_FOUND:
+      "No template is available for the selected import/export entity type.",
     NO_ROWS_TO_IMPORT: "No valid rows were found to import.",
   },
 } as const;

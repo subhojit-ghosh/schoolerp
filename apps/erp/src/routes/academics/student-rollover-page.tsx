@@ -10,7 +10,12 @@ import {
 } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/ui/card";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@repo/ui/components/ui/field";
 import {
@@ -63,16 +68,19 @@ export function StudentRolloverPage() {
   const institutionId = session?.activeOrganization?.id;
   const activeContext = getActiveContext(session);
   const canManageStudents =
-    isStaffContext(session) && hasPermission(session, PERMISSIONS.STUDENTS_MANAGE);
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.STUDENTS_MANAGE);
 
-  const academicYearsQuery = useAcademicYearsQuery(institutionId, { limit: 50 });
+  const academicYearsQuery = useAcademicYearsQuery(institutionId, {
+    limit: 50,
+  });
   const classesQuery = useClassesQuery(Boolean(institutionId), { limit: 200 });
   const previewMutation = usePreviewStudentRolloverMutation();
   const executeMutation = useExecuteStudentRolloverMutation();
   const [preview, setPreview] = useState<StudentRolloverPreview | null>(null);
-  const [lastPreviewSignature, setLastPreviewSignature] = useState<string | null>(
-    null,
-  );
+  const [lastPreviewSignature, setLastPreviewSignature] = useState<
+    string | null
+  >(null);
 
   const { control, getValues, handleSubmit, resetField, setValue, watch } =
     useForm<StudentRolloverFormValues>({
@@ -89,9 +97,14 @@ export function StudentRolloverPage() {
     [values],
   );
   const isPreviewStale = Boolean(
-    preview && lastPreviewSignature && lastPreviewSignature !== currentSignature,
+    preview &&
+    lastPreviewSignature &&
+    lastPreviewSignature !== currentSignature,
   );
-  const withdrawnStudentIds = new Set(values.withdrawnStudentIds);
+  const withdrawnStudentIds = useMemo(
+    () => new Set(values.withdrawnStudentIds),
+    [values.withdrawnStudentIds],
+  );
 
   const academicYearOptions = useMemo(
     () =>
@@ -123,9 +136,8 @@ export function StudentRolloverPage() {
   const defaultSourceAcademicYearId = useMemo(() => {
     return (
       academicYearOptions.find((year) => year.isCurrent)?.id ??
-      academicYearOptions
-        .filter((year) => year.status === "active")
-        .at(-1)?.id ??
+      academicYearOptions.filter((year) => year.status === "active").at(-1)
+        ?.id ??
       academicYearOptions.at(-1)?.id ??
       ""
     );
@@ -141,8 +153,9 @@ export function StudentRolloverPage() {
 
     return (
       activeYearIds.find((yearId) => yearId !== defaultSourceAcademicYearId) ??
-      academicYearOptions.find((year) => year.id !== defaultSourceAcademicYearId)
-        ?.id ??
+      academicYearOptions.find(
+        (year) => year.id !== defaultSourceAcademicYearId,
+      )?.id ??
       ""
     );
   }, [academicYearOptions, defaultSourceAcademicYearId]);
@@ -223,7 +236,8 @@ export function StudentRolloverPage() {
       }
 
       const targetSections =
-        classOptions.find((option) => option.id === targetClassId)?.sections ?? [];
+        classOptions.find((option) => option.id === targetClassId)?.sections ??
+        [];
 
       if (
         targetSectionId &&
@@ -234,7 +248,10 @@ export function StudentRolloverPage() {
       }
 
       if (targetSections.length === 1 && !targetSectionId) {
-        setValue(`sectionMappings.${index}.targetSectionId`, targetSections[0]!.id);
+        setValue(
+          `sectionMappings.${index}.targetSectionId`,
+          targetSections[0]!.id,
+        );
       }
     });
   }, [classOptions, fields, setValue, values.sectionMappings]);
@@ -302,7 +319,8 @@ export function StudentRolloverPage() {
           <CardTitle>Student rollover</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Sign in with an institution-backed session to run academic-year rollover.
+          Sign in with an institution-backed session to run academic-year
+          rollover.
         </CardContent>
       </Card>
     );
@@ -315,8 +333,8 @@ export function StudentRolloverPage() {
           <CardTitle>Student rollover</CardTitle>
         </CardHeader>
         <CardContent className="text-sm text-muted-foreground">
-          Student rollover is available in Staff view with student-management access.
-          You are currently in {activeContext?.label ?? "another"} view.
+          Student rollover is available in Staff view with student-management
+          access. You are currently in {activeContext?.label ?? "another"} view.
         </CardContent>
       </Card>
     );
@@ -325,7 +343,9 @@ export function StudentRolloverPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Student rollover</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Student rollover
+        </h1>
         <p className="text-sm text-muted-foreground">
           Move active students from one academic year into the next, remap their
           class and section, and mark non-continuing students as withdrawn.
@@ -448,14 +468,10 @@ export function StudentRolloverPage() {
           </div>
 
           {previewError ? (
-            <p className="text-sm text-destructive">
-              {previewError.message}
-            </p>
+            <p className="text-sm text-destructive">{previewError.message}</p>
           ) : null}
           {executeError ? (
-            <p className="text-sm text-destructive">
-              {executeError.message}
-            </p>
+            <p className="text-sm text-destructive">{executeError.message}</p>
           ) : null}
         </CardContent>
       </Card>
@@ -470,10 +486,12 @@ export function StudentRolloverPage() {
               const sourceMeta = sectionMetaBySource.get(
                 `${field.sourceClassId}:${field.sourceSectionId}`,
               );
-              const selectedTargetClassId = values.sectionMappings[index]?.targetClassId;
+              const selectedTargetClassId =
+                values.sectionMappings[index]?.targetClassId;
               const targetSections =
-                classOptions.find((option) => option.id === selectedTargetClassId)
-                  ?.sections ?? [];
+                classOptions.find(
+                  (option) => option.id === selectedTargetClassId,
+                )?.sections ?? [];
 
               return (
                 <div
@@ -482,10 +500,12 @@ export function StudentRolloverPage() {
                 >
                   <div className="space-y-1">
                     <p className="text-sm font-medium">
-                      {sourceMeta?.sourceClassName} / {sourceMeta?.sourceSectionName}
+                      {sourceMeta?.sourceClassName} /{" "}
+                      {sourceMeta?.sourceSectionName}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {sourceMeta?.sourceCampusName} · {sourceMeta?.studentCount ?? 0} students
+                      {sourceMeta?.sourceCampusName} ·{" "}
+                      {sourceMeta?.studentCount ?? 0} students
                     </p>
                   </div>
 
@@ -554,10 +574,16 @@ export function StudentRolloverPage() {
 
       {summary ? (
         <div className="grid gap-4 md:grid-cols-4">
-          <SummaryCard label="Eligible students" value={summary.eligibleStudentCount} />
+          <SummaryCard
+            label="Eligible students"
+            value={summary.eligibleStudentCount}
+          />
           <SummaryCard label="Mapped" value={summary.mappedStudentCount} />
           <SummaryCard label="Unmapped" value={summary.unmappedStudentCount} />
-          <SummaryCard label="Withdrawn" value={summary.withdrawnStudentCount} />
+          <SummaryCard
+            label="Withdrawn"
+            value={summary.withdrawnStudentCount}
+          />
         </div>
       ) : null}
 
@@ -569,14 +595,15 @@ export function StudentRolloverPage() {
           <CardContent className="space-y-4">
             {isPreviewStale ? (
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                The mapping or withdrawal selection changed after the last preview.
-                Refresh preview before running rollover.
+                The mapping or withdrawal selection changed after the last
+                preview. Refresh preview before running rollover.
               </div>
             ) : null}
 
             {preview.sections.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">
-                No active students are currently enrolled in the selected source year.
+                No active students are currently enrolled in the selected source
+                year.
               </div>
             ) : (
               <Table>
@@ -586,13 +613,17 @@ export function StudentRolloverPage() {
                     <TableHead>Current placement</TableHead>
                     <TableHead>Target placement</TableHead>
                     <TableHead>Status</TableHead>
-                    <TableHead className="w-[120px] text-right">Withdraw</TableHead>
+                    <TableHead className="w-[120px] text-right">
+                      Withdraw
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {preview.sections.flatMap((section) =>
                     section.students.map((student) => {
-                      const isWithdrawn = withdrawnStudentIds.has(student.studentId);
+                      const isWithdrawn = withdrawnStudentIds.has(
+                        student.studentId,
+                      );
                       const status = isWithdrawn
                         ? "withdrawn"
                         : student.target
@@ -612,7 +643,8 @@ export function StudentRolloverPage() {
                           <TableCell>
                             <div className="space-y-1 text-sm">
                               <p>
-                                {student.source.className} / {student.source.sectionName}
+                                {student.source.className} /{" "}
+                                {student.source.sectionName}
                               </p>
                               <p className="text-muted-foreground">
                                 {student.source.campusName}
@@ -627,7 +659,8 @@ export function StudentRolloverPage() {
                             ) : student.target ? (
                               <div className="space-y-1 text-sm">
                                 <p>
-                                  {student.target.className} / {student.target.sectionName}
+                                  {student.target.className} /{" "}
+                                  {student.target.sectionName}
                                 </p>
                                 <p className="text-muted-foreground">
                                   {student.target.campusName}
@@ -657,7 +690,10 @@ export function StudentRolloverPage() {
                               checked={isWithdrawn}
                               onCheckedChange={(checked) => {
                                 const nextValues = checked
-                                  ? [...values.withdrawnStudentIds, student.studentId]
+                                  ? [
+                                      ...values.withdrawnStudentIds,
+                                      student.studentId,
+                                    ]
                                   : values.withdrawnStudentIds.filter(
                                       (id) => id !== student.studentId,
                                     );

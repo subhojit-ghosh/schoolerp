@@ -30,8 +30,12 @@ const timetableEntryBodySchema = z
     path: ["endTime"],
   });
 
-function hasUniqueSlots(entries: Array<z.infer<typeof timetableEntryBodySchema>>) {
-  const keys = entries.map((entry) => `${entry.dayOfWeek}:${entry.periodIndex}`);
+function hasUniqueSlots(
+  entries: Array<z.infer<typeof timetableEntryBodySchema>>,
+) {
+  const keys = entries.map(
+    (entry) => `${entry.dayOfWeek}:${entry.periodIndex}`,
+  );
   return new Set(keys).size === keys.length;
 }
 
@@ -55,13 +59,17 @@ export const timetableEntryIdSchema = z.object({
 });
 
 export type TimetableScopeQueryDto = z.infer<typeof timetableScopeQuerySchema>;
-export type ReplaceSectionTimetableDto = z.infer<typeof replaceSectionTimetableSchema>;
+export type ReplaceSectionTimetableDto = z.infer<
+  typeof replaceSectionTimetableSchema
+>;
 
 function parseSchema<T>(schema: z.ZodType<T>, input: unknown): T {
   return parseListQuerySchema(schema, input);
 }
 
-export function parseTimetableScopeQuery(query: unknown): TimetableScopeQueryDto {
+export function parseTimetableScopeQuery(
+  query: unknown,
+): TimetableScopeQueryDto {
   return parseSchema(timetableScopeQuerySchema, query);
 }
 

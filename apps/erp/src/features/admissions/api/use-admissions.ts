@@ -171,17 +171,21 @@ export function useCreateAdmissionEnquiryMutation(
 ) {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("post", ADMISSIONS_API_PATHS.CREATE_ENQUIRY, {
-    onSuccess: () => {
-      if (!institutionId) {
-        return;
-      }
+  return apiQueryClient.useMutation(
+    "post",
+    ADMISSIONS_API_PATHS.CREATE_ENQUIRY,
+    {
+      onSuccess: () => {
+        if (!institutionId) {
+          return;
+        }
 
-      void queryClient.invalidateQueries({
-        queryKey: getEnquiriesListQueryKey(institutionId),
-      });
+        void queryClient.invalidateQueries({
+          queryKey: getEnquiriesListQueryKey(institutionId),
+        });
+      },
     },
-  });
+  );
 }
 
 export function useUpdateAdmissionEnquiryMutation(
@@ -189,31 +193,35 @@ export function useUpdateAdmissionEnquiryMutation(
 ) {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("patch", ADMISSIONS_API_PATHS.UPDATE_ENQUIRY, {
-    onSuccess: (_, variables) => {
-      if (!institutionId) {
-        return;
-      }
+  return apiQueryClient.useMutation(
+    "patch",
+    ADMISSIONS_API_PATHS.UPDATE_ENQUIRY,
+    {
+      onSuccess: (_, variables) => {
+        if (!institutionId) {
+          return;
+        }
 
-      void queryClient.invalidateQueries({
-        queryKey: getEnquiriesListQueryKey(institutionId),
-      });
+        void queryClient.invalidateQueries({
+          queryKey: getEnquiriesListQueryKey(institutionId),
+        });
 
-      void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          ADMISSIONS_API_PATHS.DETAIL_ENQUIRY,
-          {
-            params: {
-              path: {
-                enquiryId: variables.params.path.enquiryId,
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            ADMISSIONS_API_PATHS.DETAIL_ENQUIRY,
+            {
+              params: {
+                path: {
+                  enquiryId: variables.params.path.enquiryId,
+                },
               },
             },
-          },
-        ).queryKey,
-      });
+          ).queryKey,
+        });
+      },
     },
-  });
+  );
 }
 
 export function useCreateAdmissionApplicationMutation(
@@ -279,20 +287,24 @@ export function useCreateAdmissionFormFieldMutation(
 ) {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("post", ADMISSIONS_API_PATHS.CREATE_FORM_FIELD, {
-    onSuccess: () => {
-      if (!institutionId) {
-        return;
-      }
+  return apiQueryClient.useMutation(
+    "post",
+    ADMISSIONS_API_PATHS.CREATE_FORM_FIELD,
+    {
+      onSuccess: () => {
+        if (!institutionId) {
+          return;
+        }
 
-      void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          ADMISSIONS_API_PATHS.LIST_FORM_FIELDS,
-        ).queryKey,
-      });
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            ADMISSIONS_API_PATHS.LIST_FORM_FIELDS,
+          ).queryKey,
+        });
+      },
     },
-  });
+  );
 }
 
 export function useUpdateAdmissionFormFieldMutation(
@@ -300,18 +312,22 @@ export function useUpdateAdmissionFormFieldMutation(
 ) {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("patch", ADMISSIONS_API_PATHS.UPDATE_FORM_FIELD, {
-    onSuccess: () => {
-      if (!institutionId) {
-        return;
-      }
+  return apiQueryClient.useMutation(
+    "patch",
+    ADMISSIONS_API_PATHS.UPDATE_FORM_FIELD,
+    {
+      onSuccess: () => {
+        if (!institutionId) {
+          return;
+        }
 
-      void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          ADMISSIONS_API_PATHS.LIST_FORM_FIELDS,
-        ).queryKey,
-      });
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            ADMISSIONS_API_PATHS.LIST_FORM_FIELDS,
+          ).queryKey,
+        });
+      },
     },
-  });
+  );
 }

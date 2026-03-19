@@ -383,7 +383,10 @@ export function StaffRoleAssignmentsCard({
                       }
                       value={field.value || ALL_SCOPE_VALUE}
                     >
-                      <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                      <SelectTrigger
+                        aria-invalid={fieldState.invalid}
+                        className="w-full"
+                      >
                         <SelectValue placeholder="Institution-wide" />
                       </SelectTrigger>
                       <SelectContent>
@@ -419,7 +422,10 @@ export function StaffRoleAssignmentsCard({
                       }
                       value={field.value || ALL_SCOPE_VALUE}
                     >
-                      <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                      <SelectTrigger
+                        aria-invalid={fieldState.invalid}
+                        className="w-full"
+                      >
                         <SelectValue
                           placeholder={
                             selectedCampusId
@@ -464,7 +470,10 @@ export function StaffRoleAssignmentsCard({
                       }
                       value={field.value || ALL_SCOPE_VALUE}
                     >
-                      <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                      <SelectTrigger
+                        aria-invalid={fieldState.invalid}
+                        className="w-full"
+                      >
                         <SelectValue
                           placeholder={
                             selectedClassId

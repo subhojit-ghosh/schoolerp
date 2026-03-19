@@ -22,7 +22,6 @@ import {
   eq,
   gte,
   inArray,
-  isNull,
   lte,
   member,
   ne,
@@ -495,7 +494,7 @@ export class AttendanceService {
     for (const row of attendanceRows) {
       const key = `${row.campusId}::${row.classId}::${row.sectionId}`;
       const current = countsMap.get(key) ?? { ...EMPTY_ATTENDANCE_COUNTS };
-      current[row.status as keyof AttendanceCounts] += 1;
+      current[row.status] += 1;
       countsMap.set(key, current);
     }
 
@@ -945,10 +944,7 @@ export class AttendanceService {
       throw new ForbiddenException(ERROR_MESSAGES.AUTH.PERMISSION_DENIED);
     }
 
-    if (
-      scopes.sectionIds !== "all" &&
-      !scopes.sectionIds.includes(sectionId)
-    ) {
+    if (scopes.sectionIds !== "all" && !scopes.sectionIds.includes(sectionId)) {
       throw new ForbiddenException(ERROR_MESSAGES.AUTH.PERMISSION_DENIED);
     }
   }

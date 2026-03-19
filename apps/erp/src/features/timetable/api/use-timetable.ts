@@ -7,7 +7,10 @@ type TimetableScopeQuery = {
   sectionId: string;
 };
 
-export function useTimetableQuery(enabled: boolean, query: TimetableScopeQuery) {
+export function useTimetableQuery(
+  enabled: boolean,
+  query: TimetableScopeQuery,
+) {
   return apiQueryClient.useQuery(
     "get",
     TIMETABLE_API_PATHS.VIEW,
@@ -25,19 +28,27 @@ export function useTimetableQuery(enabled: boolean, query: TimetableScopeQuery) 
 export function useReplaceTimetableMutation() {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("put", TIMETABLE_API_PATHS.REPLACE_SECTION, {
-    onSuccess: () => {
-      void queryClient.invalidateQueries();
+  return apiQueryClient.useMutation(
+    "put",
+    TIMETABLE_API_PATHS.REPLACE_SECTION,
+    {
+      onSuccess: () => {
+        void queryClient.invalidateQueries();
+      },
     },
-  });
+  );
 }
 
 export function useDeleteTimetableEntryMutation() {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("delete", TIMETABLE_API_PATHS.DELETE_ENTRY, {
-    onSuccess: () => {
-      void queryClient.invalidateQueries();
+  return apiQueryClient.useMutation(
+    "delete",
+    TIMETABLE_API_PATHS.DELETE_ENTRY,
+    {
+      onSuccess: () => {
+        void queryClient.invalidateQueries();
+      },
     },
-  });
+  );
 }

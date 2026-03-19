@@ -29,10 +29,7 @@ import {
   SortIcon,
 } from "@/components/data-display/server-data-table";
 import { PERMISSIONS } from "@repo/contracts";
-import {
-  ERP_ROUTES,
-  buildAnnouncementEditRoute,
-} from "@/constants/routes";
+import { ERP_ROUTES, buildAnnouncementEditRoute } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import { hasPermission } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -217,7 +214,9 @@ export function AnnouncementsPage() {
         ),
         cell: ({ row }) => (
           <div className="space-y-1">
-            <Badge variant="outline">{formatAudience(row.original.audience)}</Badge>
+            <Badge variant="outline">
+              {formatAudience(row.original.audience)}
+            </Badge>
             <p className="text-xs text-muted-foreground">
               {row.original.campusName ?? "All campuses"}
             </p>
@@ -257,7 +256,9 @@ export function AnnouncementsPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(ANNOUNCEMENT_LIST_SORT_FIELDS.PUBLISHED_AT)}
+            onClick={() =>
+              setSorting(ANNOUNCEMENT_LIST_SORT_FIELDS.PUBLISHED_AT)
+            }
             type="button"
           >
             Published
@@ -358,7 +359,8 @@ export function AnnouncementsPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (announcementsQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (announcementsQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <EntityListPage
@@ -367,7 +369,9 @@ export function AnnouncementsPage() {
       actions={
         canManageAnnouncements ? (
           <EntityPagePrimaryAction asChild>
-            <Link to={appendSearch(ERP_ROUTES.ANNOUNCEMENT_CREATE, location.search)}>
+            <Link
+              to={appendSearch(ERP_ROUTES.ANNOUNCEMENT_CREATE, location.search)}
+            >
               <IconPlus className="size-4" />
               New announcement
             </Link>
@@ -393,7 +397,10 @@ export function AnnouncementsPage() {
           !queryState.search && canManageAnnouncements ? (
             <EntityEmptyStateAction asChild>
               <Link
-                to={appendSearch(ERP_ROUTES.ANNOUNCEMENT_CREATE, location.search)}
+                to={appendSearch(
+                  ERP_ROUTES.ANNOUNCEMENT_CREATE,
+                  location.search,
+                )}
               >
                 <IconPlus className="size-4" />
                 New announcement

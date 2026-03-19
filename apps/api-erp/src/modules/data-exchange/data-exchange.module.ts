@@ -8,7 +8,13 @@ import { DataExchangeController } from "./data-exchange.controller";
 import { DataExchangeService } from "./data-exchange.service";
 
 @Module({
-  imports: [AuthModule, StudentsModule, StaffModule, GuardiansModule, FeesModule],
+  imports: [
+    AuthModule,
+    StudentsModule,
+    StaffModule,
+    GuardiansModule,
+    FeesModule,
+  ],
   controllers: [DataExchangeController],
   providers: [DataExchangeService],
 })

@@ -225,7 +225,10 @@ const router = createBrowserRouter([
         ],
       },
       { path: ERP_ROUTES.ATTENDANCE, element: <AttendancePage /> },
-      { path: ERP_ROUTES.REPORTS_ATTENDANCE, element: <AttendanceReportsPage /> },
+      {
+        path: ERP_ROUTES.REPORTS_ATTENDANCE,
+        element: <AttendanceReportsPage />,
+      },
       { path: ERP_ROUTES.EXAMS, element: <ExamsPage /> },
       {
         path: ERP_ROUTES.FEES,

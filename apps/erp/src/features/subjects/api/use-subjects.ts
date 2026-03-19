@@ -33,7 +33,10 @@ export function useSubjectsQuery(
   );
 }
 
-export function useSubjectQuery(enabled: boolean, subjectId: string | undefined) {
+export function useSubjectQuery(
+  enabled: boolean,
+  subjectId: string | undefined,
+) {
   return apiQueryClient.useQuery(
     "get",
     SUBJECTS_API_PATHS.DETAIL,
@@ -74,13 +77,17 @@ export function useUpdateSubjectMutation() {
       });
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", SUBJECTS_API_PATHS.DETAIL, {
-          params: {
-            path: {
-              subjectId: variables.params.path.subjectId,
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          SUBJECTS_API_PATHS.DETAIL,
+          {
+            params: {
+              path: {
+                subjectId: variables.params.path.subjectId,
+              },
             },
           },
-        }).queryKey,
+        ).queryKey,
       });
     },
   });

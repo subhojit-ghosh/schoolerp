@@ -21,7 +21,6 @@ import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   AttendanceClassSectionDto,
   AttendanceDayDto,
-  AttendanceClassSectionQueryParamsDto,
   AttendanceDayQueryParamsDto,
   AttendanceDayViewItemDto,
   AttendanceDayViewQueryParamsDto,

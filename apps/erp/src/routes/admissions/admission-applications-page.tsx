@@ -86,13 +86,16 @@ export function AdmissionApplicationsPage() {
     validSorts: VALID_SORT_FIELDS,
   });
 
-  const applicationsQuery = useAdmissionApplicationsQuery(managedInstitutionId, {
-    limit: queryState.pageSize,
-    order: queryState.sortOrder,
-    page: queryState.page,
-    q: queryState.search || undefined,
-    sort: queryState.sortBy,
-  });
+  const applicationsQuery = useAdmissionApplicationsQuery(
+    managedInstitutionId,
+    {
+      limit: queryState.pageSize,
+      order: queryState.sortOrder,
+      page: queryState.page,
+      q: queryState.search || undefined,
+      sort: queryState.sortBy,
+    },
+  );
 
   const rows = useMemo(
     () => (applicationsQuery.data?.rows ?? []) as AdmissionApplicationRow[],
@@ -150,7 +153,8 @@ export function AdmissionApplicationsPage() {
             Campus
             <SortIcon
               direction={
-                queryState.sortBy === ADMISSION_APPLICATION_LIST_SORT_FIELDS.CAMPUS
+                queryState.sortBy ===
+                ADMISSION_APPLICATION_LIST_SORT_FIELDS.CAMPUS
                   ? queryState.sortOrder
                   : false
               }
@@ -169,9 +173,7 @@ export function AdmissionApplicationsPage() {
           }
 
           return (
-            <span>
-              {[className, sectionName].filter(Boolean).join(" ")}
-            </span>
+            <span>{[className, sectionName].filter(Boolean).join(" ")}</span>
           );
         },
       }),
@@ -179,13 +181,16 @@ export function AdmissionApplicationsPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(ADMISSION_APPLICATION_LIST_SORT_FIELDS.STATUS)}
+            onClick={() =>
+              setSorting(ADMISSION_APPLICATION_LIST_SORT_FIELDS.STATUS)
+            }
             type="button"
           >
             Status
             <SortIcon
               direction={
-                queryState.sortBy === ADMISSION_APPLICATION_LIST_SORT_FIELDS.STATUS
+                queryState.sortBy ===
+                ADMISSION_APPLICATION_LIST_SORT_FIELDS.STATUS
                   ? queryState.sortOrder
                   : false
               }
@@ -239,7 +244,8 @@ export function AdmissionApplicationsPage() {
         <CardHeader>
           <CardTitle>{ADMISSION_APPLICATIONS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage admission applications.
+            Sign in with an institution-backed session to manage admission
+            applications.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -252,8 +258,8 @@ export function AdmissionApplicationsPage() {
         <CardHeader>
           <CardTitle>{ADMISSION_APPLICATIONS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Admission management is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            Admission management is available in Staff view. You are currently
+            in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -287,7 +293,9 @@ export function AdmissionApplicationsPage() {
                 <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   className="h-11 w-full max-w-md rounded-lg border-border/70 bg-background pl-10 shadow-none"
-                  placeholder={ADMISSION_APPLICATIONS_PAGE_COPY.SEARCH_PLACEHOLDER}
+                  placeholder={
+                    ADMISSION_APPLICATIONS_PAGE_COPY.SEARCH_PLACEHOLDER
+                  }
                   value={searchInput}
                   onChange={(event) => setSearchInput(event.target.value)}
                 />
@@ -327,7 +335,9 @@ export function AdmissionApplicationsPage() {
           isError={applicationsQuery.isError}
           isLoading={applicationsQuery.isLoading}
           onSearchChange={setSearchInput}
-          searchPlaceholder={ADMISSION_APPLICATIONS_PAGE_COPY.SEARCH_PLACEHOLDER}
+          searchPlaceholder={
+            ADMISSION_APPLICATIONS_PAGE_COPY.SEARCH_PLACEHOLDER
+          }
           searchValue={searchInput}
           showSearch={false}
           table={table}

@@ -80,7 +80,9 @@ export function FeeAssignmentForm({
     FeeAssignmentFormValues | FeeAssignmentUpdateFormValues
   >({
     resolver: zodResolver(
-      mode === "create" ? feeAssignmentFormSchema : feeAssignmentUpdateFormSchema,
+      mode === "create"
+        ? feeAssignmentFormSchema
+        : feeAssignmentUpdateFormSchema,
     ),
     defaultValues,
   });
@@ -108,7 +110,10 @@ export function FeeAssignmentForm({
                     }}
                     value={field.value ?? ""}
                   >
-                    <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                    <SelectTrigger
+                      aria-invalid={fieldState.invalid}
+                      className="w-full"
+                    >
                       <SelectValue placeholder="Select fee structure" />
                     </SelectTrigger>
                     <SelectContent>
@@ -135,7 +140,10 @@ export function FeeAssignmentForm({
               {installmentPreview.length !== 1 ? "s" : ""})
             </p>
             {installmentPreview.map((inst, i) => (
-              <div key={i} className="flex items-center justify-between text-sm">
+              <div
+                key={i}
+                className="flex items-center justify-between text-sm"
+              >
                 <span>{inst.label}</span>
                 <span className="text-muted-foreground">
                   {formatRupees(inst.amountInPaise)} · due{" "}
@@ -159,7 +167,10 @@ export function FeeAssignmentForm({
                     onValueChange={field.onChange}
                     value={field.value ?? ""}
                   >
-                    <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                    <SelectTrigger
+                      aria-invalid={fieldState.invalid}
+                      className="w-full"
+                    >
                       <SelectValue placeholder="Select student" />
                     </SelectTrigger>
                     <SelectContent>
@@ -187,7 +198,11 @@ export function FeeAssignmentForm({
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Due date</FieldLabel>
                 <FieldContent>
-                  <Input {...field} aria-invalid={fieldState.invalid} type="date" />
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    type="date"
+                  />
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>
               </Field>

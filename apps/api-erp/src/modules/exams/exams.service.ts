@@ -178,7 +178,10 @@ export class ExamsService {
     authSession: AuthenticatedSession,
     payload: UpsertExamMarksDto,
   ): Promise<ExamMarkDto[]> {
-    const examTerm = await this.getExamTermWithYearOrThrow(institutionId, examTermId);
+    const examTerm = await this.getExamTermWithYearOrThrow(
+      institutionId,
+      examTermId,
+    );
     await this.assertStudentsBelongToInstitution(
       institutionId,
       payload.entries.map((entry) => entry.studentId),

@@ -113,7 +113,10 @@ export function AdmissionApplicationSheetRoute({
   ) as EnquiryDraft[];
   const customFields = useMemo(
     () =>
-      filterAdmissionFormFieldsForScope(formFieldsQuery.data?.rows ?? [], "application"),
+      filterAdmissionFormFieldsForScope(
+        formFieldsQuery.data?.rows ?? [],
+        "application",
+      ),
     [formFieldsQuery.data?.rows],
   );
 
@@ -145,7 +148,9 @@ export function AdmissionApplicationSheetRoute({
       );
     }
 
-    void navigate(appendSearch(ERP_ROUTES.ADMISSIONS_APPLICATIONS, location.search));
+    void navigate(
+      appendSearch(ERP_ROUTES.ADMISSIONS_APPLICATIONS, location.search),
+    );
   }
 
   if (mode === "edit" && applicationQuery.isLoading) {
@@ -185,10 +190,13 @@ export function AdmissionApplicationSheetRoute({
 
   const errorMessage =
     mode === "create"
-      ? ((createMutation.error as Error | null | undefined)?.message ?? undefined)
-      : ((updateMutation.error as Error | null | undefined)?.message ?? undefined);
+      ? ((createMutation.error as Error | null | undefined)?.message ??
+        undefined)
+      : ((updateMutation.error as Error | null | undefined)?.message ??
+        undefined);
 
-  const isPending = mode === "create" ? createMutation.isPending : updateMutation.isPending;
+  const isPending =
+    mode === "create" ? createMutation.isPending : updateMutation.isPending;
 
   return (
     <RouteEntitySheet
@@ -205,9 +213,7 @@ export function AdmissionApplicationSheetRoute({
       }
     >
       <AdmissionApplicationForm
-        campusName={
-          activeCampusName
-        }
+        campusName={activeCampusName}
         customFields={customFields}
         defaultValues={defaultValues}
         enquiries={enquiryOptions}
@@ -220,9 +226,7 @@ export function AdmissionApplicationSheetRoute({
           );
         }}
         onSubmit={handleSubmit}
-        submitLabel={
-          mode === "create" ? "Create application" : "Save changes"
-        }
+        submitLabel={mode === "create" ? "Create application" : "Save changes"}
       />
     </RouteEntitySheet>
   );

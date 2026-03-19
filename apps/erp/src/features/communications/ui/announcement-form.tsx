@@ -20,7 +20,13 @@ import {
 } from "@repo/ui/components/ui/field";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import { Input } from "@repo/ui/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@repo/ui/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
 
 type AnnouncementFormProps = {
   campusName?: string;
@@ -59,7 +65,10 @@ export function AnnouncementForm({
               <FieldLabel>Campus</FieldLabel>
               <FieldContent>
                 <div className="flex h-10 items-center">
-                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                  <Badge
+                    className="rounded-md px-3 py-1 font-medium"
+                    variant="secondary"
+                  >
                     {campusName}
                   </Badge>
                 </div>

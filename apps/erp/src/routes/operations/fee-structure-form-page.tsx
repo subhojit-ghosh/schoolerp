@@ -49,7 +49,9 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
   const institutionId = session?.activeOrganization?.id;
   const activeCampusLabel = session?.activeCampus?.name;
 
-  const academicYearsQuery = useAcademicYearsQuery(institutionId, { limit: 50 });
+  const academicYearsQuery = useAcademicYearsQuery(institutionId, {
+    limit: 50,
+  });
   const feeStructureQuery = useFeeStructureQuery(
     mode === "edit" && Boolean(institutionId),
     feeStructureId,
@@ -76,7 +78,8 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
         (academicYear) => academicYear.status === "active",
       );
       const defaultAcademicYearId =
-        activeAcademicYears.find((academicYear) => academicYear.isCurrent)?.id ??
+        activeAcademicYears.find((academicYear) => academicYear.isCurrent)
+          ?.id ??
         activeAcademicYears[0]?.id ??
         EMPTY_ACADEMIC_YEAR_ID;
 
@@ -104,7 +107,9 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
   async function handleSubmit(values: FeeStructureFormValues) {
     if (!institutionId) return;
 
-    const isInstallmentLocked = Boolean(feeStructureQuery.data?.isInstallmentLocked);
+    const isInstallmentLocked = Boolean(
+      feeStructureQuery.data?.isInstallmentLocked,
+    );
     const installments = values.installments.map((i) => ({
       label: i.label,
       amount: Number(i.amount),
@@ -121,13 +126,17 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
           installments,
         },
       });
-      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_STRUCTURE));
+      toast.success(
+        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
+      );
     } else if (feeStructureId) {
       if (isInstallmentLocked) {
         const nextVersion = await createNextVersionMutation.mutateAsync({
           params: { path: { feeStructureId } },
         });
-        toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_STRUCTURE));
+        toast.success(
+          ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
+        );
         void navigate(
           appendSearch(
             buildFeeStructureEditRoute(nextVersion.id),
@@ -145,7 +154,9 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
           installments,
         },
       });
-      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_STRUCTURE));
+      toast.success(
+        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
+      );
     }
 
     void navigate(appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search));
@@ -182,17 +193,20 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
 
   const errorMessage =
     mode === "create"
-      ? ((createMutation.error as Error | null | undefined)?.message ?? undefined)
-      : ((feeStructureQuery.data?.isInstallmentLocked
-          ? createNextVersionMutation.error
-          : updateMutation.error) as Error | null | undefined)?.message ??
-        undefined;
+      ? ((createMutation.error as Error | null | undefined)?.message ??
+        undefined)
+      : ((
+          (feeStructureQuery.data?.isInstallmentLocked
+            ? createNextVersionMutation.error
+            : updateMutation.error) as Error | null | undefined
+        )?.message ?? undefined);
 
-  const isPending = mode === "create"
-    ? createMutation.isPending
-    : feeStructureQuery.data?.isInstallmentLocked
-      ? createNextVersionMutation.isPending
-      : updateMutation.isPending;
+  const isPending =
+    mode === "create"
+      ? createMutation.isPending
+      : feeStructureQuery.data?.isInstallmentLocked
+        ? createNextVersionMutation.isPending
+        : updateMutation.isPending;
 
   return (
     <div className="flex flex-col gap-6">
@@ -224,10 +238,14 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
             isReadOnly={Boolean(feeStructureQuery.data?.isInstallmentLocked)}
             lockScope={mode === "edit"}
             lockReason={
-              mode === "edit" ? (feeStructureQuery.data?.lockReason ?? undefined) : undefined
+              mode === "edit"
+                ? (feeStructureQuery.data?.lockReason ?? undefined)
+                : undefined
             }
             onCancel={() => {
-              void navigate(appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search));
+              void navigate(
+                appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search),
+              );
             }}
             onSubmit={handleSubmit}
             submitLabel={

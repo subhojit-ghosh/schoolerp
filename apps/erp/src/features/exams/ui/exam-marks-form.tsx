@@ -58,10 +58,11 @@ export function ExamMarksForm({
   students,
   onSubmit,
 }: ExamMarksFormProps) {
-  const { control, handleSubmit, reset, setValue } = useForm<ExamMarksFormValues>({
-    resolver: zodResolver(examMarksFormSchema),
-    defaultValues,
-  });
+  const { control, handleSubmit, reset, setValue } =
+    useForm<ExamMarksFormValues>({
+      resolver: zodResolver(examMarksFormSchema),
+      defaultValues,
+    });
 
   const fieldArray = useFieldArray({
     control,
@@ -139,7 +140,10 @@ export function ExamMarksForm({
                       onValueChange={field.onChange}
                       value={field.value ?? ""}
                     >
-                      <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                      <SelectTrigger
+                        aria-invalid={fieldState.invalid}
+                        className="w-full"
+                      >
                         <SelectValue placeholder="Select student" />
                       </SelectTrigger>
                       <SelectContent>

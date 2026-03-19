@@ -269,7 +269,12 @@ export class GuardiansService {
       );
     });
 
-    return this.getGuardian(institutionId, createdGuardianId, authSession, scopes);
+    return this.getGuardian(
+      institutionId,
+      createdGuardianId,
+      authSession,
+      scopes,
+    );
   }
 
   async updateGuardian(
@@ -824,7 +829,7 @@ export class GuardiansService {
       })
       .from(member)
       .innerJoin(user, eq(member.userId, user.id))
-      .where(and(...conditions)!)
+      .where(and(...conditions))
       .limit(1);
 
     return matchedGuardian ?? null;

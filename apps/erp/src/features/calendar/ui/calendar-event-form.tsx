@@ -21,9 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
-import {
-  CALENDAR_EVENT_TYPE_OPTIONS,
-} from "@/features/calendar/model/calendar-list.constants";
+import { CALENDAR_EVENT_TYPE_OPTIONS } from "@/features/calendar/model/calendar-list.constants";
 import {
   calendarFormSchema,
   type CalendarFormValues,
@@ -129,7 +127,9 @@ export function CalendarEventForm({
             name="isAllDay"
             render={({ field }) => (
               <Field>
-                <FieldLabel htmlFor="calendar-all-day">All-day event</FieldLabel>
+                <FieldLabel htmlFor="calendar-all-day">
+                  All-day event
+                </FieldLabel>
                 <FieldContent>
                   <div className="flex items-center gap-2">
                     <Checkbox
@@ -155,7 +155,9 @@ export function CalendarEventForm({
                 name="startTime"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel htmlFor="calendar-start-time">Start time</FieldLabel>
+                    <FieldLabel htmlFor="calendar-start-time">
+                      Start time
+                    </FieldLabel>
                     <FieldContent>
                       <Input
                         {...field}
@@ -175,7 +177,9 @@ export function CalendarEventForm({
                 name="endTime"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel htmlFor="calendar-end-time">End time</FieldLabel>
+                    <FieldLabel htmlFor="calendar-end-time">
+                      End time
+                    </FieldLabel>
                     <FieldContent>
                       <Input
                         {...field}
@@ -197,7 +201,9 @@ export function CalendarEventForm({
             name="description"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="calendar-description">Description</FieldLabel>
+                <FieldLabel htmlFor="calendar-description">
+                  Description
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}

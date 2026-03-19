@@ -19,7 +19,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/ui/card";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import {
   EntityFormPrimaryAction,
@@ -37,7 +42,10 @@ import {
   feeBulkAssignmentFormSchema,
   type FeeBulkAssignmentFormValues,
 } from "@/features/fees/model/fee-form-schema";
-import { formatFeeDate, formatRupees } from "@/features/fees/model/fee-formatters";
+import {
+  formatFeeDate,
+  formatRupees,
+} from "@/features/fees/model/fee-formatters";
 import { appendSearch } from "@/lib/routes";
 
 const DEFAULT_VALUES: FeeBulkAssignmentFormValues = {
@@ -64,10 +72,12 @@ export function BulkFeeAssignmentSheetRoute() {
   );
   const bulkAssignMutation = useBulkFeeAssignmentMutation();
 
-  const { control, handleSubmit, reset } = useForm<FeeBulkAssignmentFormValues>({
-    resolver: zodResolver(feeBulkAssignmentFormSchema),
-    defaultValues: DEFAULT_VALUES,
-  });
+  const { control, handleSubmit, reset } = useForm<FeeBulkAssignmentFormValues>(
+    {
+      resolver: zodResolver(feeBulkAssignmentFormSchema),
+      defaultValues: DEFAULT_VALUES,
+    },
+  );
 
   const structureOptions = useMemo(
     () =>
@@ -109,7 +119,9 @@ export function BulkFeeAssignmentSheetRoute() {
       },
     });
 
-    toast.success(`Created ${result.created} assignments, skipped ${result.skipped}`);
+    toast.success(
+      `Created ${result.created} assignments, skipped ${result.skipped}`,
+    );
     void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
   }
 
@@ -135,7 +147,10 @@ export function BulkFeeAssignmentSheetRoute() {
                     }}
                     value={field.value ?? ""}
                   >
-                    <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                    <SelectTrigger
+                      aria-invalid={fieldState.invalid}
+                      className="w-full"
+                    >
                       <SelectValue placeholder="Select fee structure" />
                     </SelectTrigger>
                     <SelectContent>
@@ -161,14 +176,23 @@ export function BulkFeeAssignmentSheetRoute() {
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>Class</FieldLabel>
                 <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value ?? ""}>
-                    <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value ?? ""}
+                  >
+                    <SelectTrigger
+                      aria-invalid={fieldState.invalid}
+                      className="w-full"
+                    >
                       <SelectValue placeholder="Select class" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
                         {classOptions.map((schoolClass) => (
-                          <SelectItem key={schoolClass.id} value={schoolClass.id}>
+                          <SelectItem
+                            key={schoolClass.id}
+                            value={schoolClass.id}
+                          >
                             {schoolClass.label}
                           </SelectItem>
                         ))}
@@ -188,7 +212,10 @@ export function BulkFeeAssignmentSheetRoute() {
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 {selectedStructureQuery.data.installments.map((installment) => (
-                  <div key={installment.id} className="flex items-center justify-between">
+                  <div
+                    key={installment.id}
+                    className="flex items-center justify-between"
+                  >
                     <span>{installment.label}</span>
                     <span className="text-muted-foreground">
                       {formatRupees(installment.amountInPaise)} · due{" "}
@@ -219,13 +246,18 @@ export function BulkFeeAssignmentSheetRoute() {
           />
 
           <div className="flex items-center gap-3">
-            <EntityFormPrimaryAction disabled={bulkAssignMutation.isPending} type="submit">
+            <EntityFormPrimaryAction
+              disabled={bulkAssignMutation.isPending}
+              type="submit"
+            >
               {bulkAssignMutation.isPending ? "Assigning..." : "Assign fees"}
             </EntityFormPrimaryAction>
             <EntityFormSecondaryAction
               disabled={bulkAssignMutation.isPending}
               onClick={() =>
-                void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search))
+                void navigate(
+                  appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search),
+                )
               }
               type="button"
             >

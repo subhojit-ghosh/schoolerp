@@ -58,7 +58,9 @@ function toMethodLabel(value: (typeof FEE_PAYMENT_METHOD_OPTIONS)[number]) {
     .join(" ");
 }
 
-function statusVariant(status: string): "default" | "secondary" | "destructive" {
+function statusVariant(
+  status: string,
+): "default" | "secondary" | "destructive" {
   if (status === "paid") return "default";
   return "secondary";
 }
@@ -83,9 +85,7 @@ function CollectPaymentForm({
   const today = new Date().toISOString().split("T")[0];
 
   const { control, handleSubmit } = useForm<FeePaymentFormValues>({
-    resolver: zodResolver(
-      createFeePaymentFormSchema(outstandingAmountInPaise),
-    ),
+    resolver: zodResolver(createFeePaymentFormSchema(outstandingAmountInPaise)),
     defaultValues: {
       feeAssignmentId: assignmentId,
       amount: String(outstandingAmountInPaise / 100),
@@ -411,7 +411,8 @@ export function CollectPaymentSheetRoute() {
                     </p>
                     {payment.reversedAt ? (
                       <p className="text-destructive">
-                        Reversed on {formatFeeDate(payment.reversedAt.slice(0, 10))}
+                        Reversed on{" "}
+                        {formatFeeDate(payment.reversedAt.slice(0, 10))}
                       </p>
                     ) : null}
                   </div>
@@ -442,7 +443,10 @@ export function CollectPaymentSheetRoute() {
               </p>
             ) : (
               assignment.adjustments.map((adjustment) => (
-                <div key={adjustment.id} className="rounded-lg border p-3 text-sm">
+                <div
+                  key={adjustment.id}
+                  className="rounded-lg border p-3 text-sm"
+                >
                   <p className="font-medium">
                     {formatRupees(adjustment.amountInPaise)} ·{" "}
                     {formatFeeStatusLabel(adjustment.adjustmentType)}

@@ -30,55 +30,60 @@ export const ADMISSION_FORM_FIELD_TYPE_OPTIONS = [
   ADMISSION_FORM_FIELD_TYPES.CHECKBOX,
 ] as const;
 
-export const admissionFormFieldBuilderSchema = z.object({
-  key: z
-    .string()
-    .trim()
-    .min(REQUIRED_TEXT_MIN_LENGTH, "Field key is required")
-    .regex(
-      /^[a-z][a-z0-9_]*$/,
-      "Use lowercase letters, numbers, and underscores only",
-    ),
-  label: z.string().trim().min(REQUIRED_TEXT_MIN_LENGTH, "Field label is required"),
-  scope: z.enum(ADMISSION_FORM_FIELD_SCOPE_OPTIONS),
-  fieldType: z.enum(ADMISSION_FORM_FIELD_TYPE_OPTIONS),
-  placeholder: z.string().trim(),
-  helpText: z.string().trim(),
-  required: z.boolean(),
-  active: z.boolean(),
-  optionsText: z.string().trim(),
-  sortOrder: z.number().int(),
-}).superRefine((value, ctx) => {
-  if (value.fieldType !== ADMISSION_FORM_FIELD_TYPES.SELECT) {
-    return;
-  }
+export const admissionFormFieldBuilderSchema = z
+  .object({
+    key: z
+      .string()
+      .trim()
+      .min(REQUIRED_TEXT_MIN_LENGTH, "Field key is required")
+      .regex(
+        /^[a-z][a-z0-9_]*$/,
+        "Use lowercase letters, numbers, and underscores only",
+      ),
+    label: z
+      .string()
+      .trim()
+      .min(REQUIRED_TEXT_MIN_LENGTH, "Field label is required"),
+    scope: z.enum(ADMISSION_FORM_FIELD_SCOPE_OPTIONS),
+    fieldType: z.enum(ADMISSION_FORM_FIELD_TYPE_OPTIONS),
+    placeholder: z.string().trim(),
+    helpText: z.string().trim(),
+    required: z.boolean(),
+    active: z.boolean(),
+    optionsText: z.string().trim(),
+    sortOrder: z.number().int(),
+  })
+  .superRefine((value, ctx) => {
+    if (value.fieldType !== ADMISSION_FORM_FIELD_TYPES.SELECT) {
+      return;
+    }
 
-  const options = parseOptionsText(value.optionsText);
+    const options = parseOptionsText(value.optionsText);
 
-  if (options.length === 0) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Add at least one option",
-      path: ["optionsText"],
-    });
-    return;
-  }
-
-  const seenValues = new Set<string>();
-
-  for (const option of options) {
-    if (seenValues.has(option.value)) {
+    if (options.length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `Duplicate option "${option.label}" is not allowed`,
+        message: "Add at least one option",
         path: ["optionsText"],
       });
       return;
     }
 
-    seenValues.add(option.value);
-  }
-});
+    const seenValues = new Set<string>();
+
+    for (const option of options) {
+      if (seenValues.has(option.value)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `Duplicate option "${option.label}" is not allowed`,
+          path: ["optionsText"],
+        });
+        return;
+      }
+
+      seenValues.add(option.value);
+    }
+  });
 
 export type AdmissionFormFieldBuilderValues = z.infer<
   typeof admissionFormFieldBuilderSchema
@@ -146,7 +151,10 @@ export function normalizeCustomFieldValues(
   const normalized = { ...(values ?? {}) } as Record<string, unknown>;
 
   for (const field of fields) {
-    if (!(field.key in normalized) && field.fieldType === ADMISSION_FORM_FIELD_TYPES.CHECKBOX) {
+    if (
+      !(field.key in normalized) &&
+      field.fieldType === ADMISSION_FORM_FIELD_TYPES.CHECKBOX
+    ) {
       normalized[field.key] = false;
     }
   }
@@ -161,7 +169,8 @@ export function filterAdmissionFormFieldsForScope(
   return fields.filter(
     (field) =>
       field.active &&
-      (field.scope === scope || field.scope === ADMISSION_FORM_FIELD_SCOPES.BOTH),
+      (field.scope === scope ||
+        field.scope === ADMISSION_FORM_FIELD_SCOPES.BOTH),
   );
 }
 

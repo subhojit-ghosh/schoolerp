@@ -55,7 +55,9 @@ export class TimetableController {
 
   @Get()
   @RequirePermission(PERMISSIONS.ACADEMICS_READ)
-  @ApiOperation({ summary: "Get class-section timetable for the current tenant" })
+  @ApiOperation({
+    summary: "Get class-section timetable for the current tenant",
+  })
   @ApiQuery({ name: "classId", required: true, type: String })
   @ApiQuery({ name: "sectionId", required: true, type: String })
   @ApiOkResponse({ type: TimetableViewDto })
@@ -76,7 +78,8 @@ export class TimetableController {
   @Put(`sections/:sectionId`)
   @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
   @ApiOperation({
-    summary: "Replace the full timetable for a class section in the current tenant",
+    summary:
+      "Replace the full timetable for a class section in the current tenant",
   })
   @ApiBody({ type: ReplaceSectionTimetableBodyDto })
   @ApiOkResponse({ type: TimetableViewDto })
@@ -106,6 +109,10 @@ export class TimetableController {
     @CurrentSession() authSession: AuthenticatedSession,
     @Param("entryId") entryId: string,
   ) {
-    return this.timetableService.deleteEntry(institution.id, entryId, authSession);
+    return this.timetableService.deleteEntry(
+      institution.id,
+      entryId,
+      authSession,
+    );
   }
 }

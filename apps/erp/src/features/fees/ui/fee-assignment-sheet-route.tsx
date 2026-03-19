@@ -35,7 +35,9 @@ type FeeAssignmentSheetRouteProps = {
   mode: "create" | "edit";
 };
 
-export function FeeAssignmentSheetRoute({ mode }: FeeAssignmentSheetRouteProps) {
+export function FeeAssignmentSheetRoute({
+  mode,
+}: FeeAssignmentSheetRouteProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { feeAssignmentId } = useParams();
@@ -67,9 +69,10 @@ export function FeeAssignmentSheetRoute({ mode }: FeeAssignmentSheetRouteProps) 
     () =>
       (structuresQuery.data?.rows ?? []).map((s) => ({
         id: s.id,
-        label: s.installmentCount > 1
-          ? `${s.name} (${s.installmentCount} installments)`
-          : s.name,
+        label:
+          s.installmentCount > 1
+            ? `${s.name} (${s.installmentCount} installments)`
+            : s.name,
       })),
     [structuresQuery.data?.rows],
   );
@@ -93,7 +96,8 @@ export function FeeAssignmentSheetRoute({ mode }: FeeAssignmentSheetRouteProps) 
   >(() => {
     if (mode === "create") {
       return {
-        feeStructureId: structureOptions.length === 1 ? structureOptions[0]!.id : "",
+        feeStructureId:
+          structureOptions.length === 1 ? structureOptions[0]!.id : "",
         studentId: studentOptions.length === 1 ? studentOptions[0]!.id : "",
         notes: "",
       };
@@ -135,7 +139,9 @@ export function FeeAssignmentSheetRoute({ mode }: FeeAssignmentSheetRouteProps) 
           notes: formValues.notes || null,
         },
       });
-      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT));
+      toast.success(
+        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
+      );
     } else if (feeAssignmentId) {
       const formValues = values as FeeAssignmentUpdateFormValues;
       await updateMutation.mutateAsync({
@@ -145,7 +151,9 @@ export function FeeAssignmentSheetRoute({ mode }: FeeAssignmentSheetRouteProps) 
           notes: formValues.notes || null,
         },
       });
-      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT));
+      toast.success(
+        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
+      );
     }
 
     void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
@@ -188,8 +196,10 @@ export function FeeAssignmentSheetRoute({ mode }: FeeAssignmentSheetRouteProps) 
 
   const errorMessage =
     mode === "create"
-      ? ((createMutation.error as Error | null | undefined)?.message ?? undefined)
-      : ((updateMutation.error as Error | null | undefined)?.message ?? undefined);
+      ? ((createMutation.error as Error | null | undefined)?.message ??
+        undefined)
+      : ((updateMutation.error as Error | null | undefined)?.message ??
+        undefined);
 
   const isPending =
     mode === "create" ? createMutation.isPending : updateMutation.isPending;
@@ -215,7 +225,9 @@ export function FeeAssignmentSheetRoute({ mode }: FeeAssignmentSheetRouteProps) 
         lockStructure={mode === "edit"}
         lockStudent={mode === "edit"}
         onCancel={() => {
-          void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
+          void navigate(
+            appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search),
+          );
         }}
         onStructureChange={setSelectedStructureId}
         onSubmit={handleSubmit}

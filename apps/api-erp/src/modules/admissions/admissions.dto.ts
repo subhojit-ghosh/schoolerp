@@ -33,7 +33,6 @@ export class ListAdmissionEnquiriesQueryDto {
     enum: Object.values(SORT_ORDERS),
   })
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
-
 }
 
 export class ListAdmissionApplicationsQueryDto {
@@ -53,7 +52,6 @@ export class ListAdmissionApplicationsQueryDto {
     enum: Object.values(SORT_ORDERS),
   })
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
-
 }
 
 export class CreateAdmissionEnquiryBodyDto {

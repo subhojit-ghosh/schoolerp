@@ -1,12 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { SORT_ORDERS } from "@/constants/query";
 import { FEES_API_PATHS } from "@/features/auth/api/auth.constants";
-import {
-  FEE_STRUCTURE_LIST_SORT_FIELDS,
-} from "@/features/fees/model/fee-structure-list.constants";
-import {
-  FEE_ASSIGNMENT_LIST_SORT_FIELDS,
-} from "@/features/fees/model/fee-assignment-list.constants";
+import { FEE_STRUCTURE_LIST_SORT_FIELDS } from "@/features/fees/model/fee-structure-list.constants";
+import { FEE_ASSIGNMENT_LIST_SORT_FIELDS } from "@/features/fees/model/fee-assignment-list.constants";
 import { apiQueryClient } from "@/lib/api/client";
 
 type FeeStructureSortField =
@@ -52,16 +48,24 @@ export type CollectionSummaryQuery = {
 
 function invalidateFeesLists(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_STRUCTURES).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_STRUCTURES)
+      .queryKey,
   });
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_ASSIGNMENTS).queryKey,
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      FEES_API_PATHS.LIST_ASSIGNMENTS,
+    ).queryKey,
   });
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_DUES).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.LIST_DUES)
+      .queryKey,
   });
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", FEES_API_PATHS.COLLECTION_SUMMARY).queryKey,
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      FEES_API_PATHS.COLLECTION_SUMMARY,
+    ).queryKey,
   });
 }
 
@@ -125,22 +129,26 @@ export function useUpdateFeeStructureMutation() {
 export function useSetFeeStructureStatusMutation() {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("patch", FEES_API_PATHS.SET_STRUCTURE_STATUS, {
-    onSuccess: (_, variables) => {
-      invalidateFeesLists(queryClient);
-      void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions(
-          "get",
-          FEES_API_PATHS.GET_STRUCTURE,
-          {
-            params: {
-              path: { feeStructureId: variables.params.path.feeStructureId },
+  return apiQueryClient.useMutation(
+    "patch",
+    FEES_API_PATHS.SET_STRUCTURE_STATUS,
+    {
+      onSuccess: (_, variables) => {
+        invalidateFeesLists(queryClient);
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            FEES_API_PATHS.GET_STRUCTURE,
+            {
+              params: {
+                path: { feeStructureId: variables.params.path.feeStructureId },
+              },
             },
-          },
-        ).queryKey,
-      });
+          ).queryKey,
+        });
+      },
     },
-  });
+  );
 }
 
 export function useDeleteFeeStructureMutation() {
@@ -156,11 +164,15 @@ export function useDeleteFeeStructureMutation() {
 export function useDuplicateFeeStructureMutation() {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("post", FEES_API_PATHS.DUPLICATE_STRUCTURE, {
-    onSuccess: () => {
-      invalidateFeesLists(queryClient);
+  return apiQueryClient.useMutation(
+    "post",
+    FEES_API_PATHS.DUPLICATE_STRUCTURE,
+    {
+      onSuccess: () => {
+        invalidateFeesLists(queryClient);
+      },
     },
-  });
+  );
 }
 
 export function useCreateNextFeeStructureVersionMutation() {
@@ -272,11 +284,15 @@ export function useCreateFeeAdjustmentMutation() {
 export function useDeleteFeeAssignmentMutation() {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("delete", FEES_API_PATHS.DELETE_ASSIGNMENT, {
-    onSuccess: () => {
-      invalidateFeesLists(queryClient);
+  return apiQueryClient.useMutation(
+    "delete",
+    FEES_API_PATHS.DELETE_ASSIGNMENT,
+    {
+      onSuccess: () => {
+        invalidateFeesLists(queryClient);
+      },
     },
-  });
+  );
 }
 
 // ── Fee Payments ───────────────────────────────────────────────────────────
@@ -316,7 +332,10 @@ export function useReverseFeePaymentMutation() {
 
 // ── Dues ───────────────────────────────────────────────────────────────────
 
-export function useFeeDuesQuery(enabled: boolean, query: FeeDuesListQuery = {}) {
+export function useFeeDuesQuery(
+  enabled: boolean,
+  query: FeeDuesListQuery = {},
+) {
   return apiQueryClient.useQuery(
     "get",
     FEES_API_PATHS.LIST_DUES,

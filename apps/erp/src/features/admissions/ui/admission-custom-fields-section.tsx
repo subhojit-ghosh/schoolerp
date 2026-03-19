@@ -17,10 +17,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
+import type {
+  AdmissionApplicationFormValues,
+  AdmissionEnquiryFormValues,
+} from "@/features/admissions/model/admission-form-schema";
 import type { AdmissionFormFieldRecord } from "@/features/admissions/model/admission-custom-fields";
 
 type AdmissionCustomFieldsSectionProps = {
-  control: Control<any>;
+  control: Control<AdmissionApplicationFormValues | AdmissionEnquiryFormValues>;
   fields: AdmissionFormFieldRecord[];
   title?: string;
 };
@@ -41,7 +45,8 @@ export function AdmissionCustomFieldsSection({
       <div className="space-y-1">
         <h3 className="text-base font-medium">{title}</h3>
         <p className="text-sm text-muted-foreground">
-          Capture school-specific information without changing the core record structure.
+          Capture school-specific information without changing the core record
+          structure.
         </p>
       </div>
 
@@ -73,12 +78,16 @@ export function AdmissionCustomFieldsSection({
                       }
                     >
                       <SelectTrigger aria-invalid={fieldState.invalid}>
-                        <SelectValue placeholder={field.placeholder ?? "Select"} />
+                        <SelectValue
+                          placeholder={field.placeholder ?? "Select"}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
                           {field.required ? null : (
-                            <SelectItem value={EMPTY_SELECT_VALUE}>None</SelectItem>
+                            <SelectItem value={EMPTY_SELECT_VALUE}>
+                              None
+                            </SelectItem>
                           )}
                           {(field.options ?? []).map((option) => (
                             <SelectItem key={option.value} value={option.value}>
@@ -88,7 +97,8 @@ export function AdmissionCustomFieldsSection({
                         </SelectGroup>
                       </SelectContent>
                     </Select>
-                  ) : field.fieldType === ADMISSION_FORM_FIELD_TYPES.CHECKBOX ? (
+                  ) : field.fieldType ===
+                    ADMISSION_FORM_FIELD_TYPES.CHECKBOX ? (
                     <label className="flex items-center gap-3 rounded-lg border border-border/70 px-3 py-3">
                       <Checkbox
                         checked={Boolean(controllerField.value)}
@@ -100,7 +110,8 @@ export function AdmissionCustomFieldsSection({
                         {field.helpText ?? "Mark as applicable"}
                       </span>
                     </label>
-                  ) : field.fieldType === ADMISSION_FORM_FIELD_TYPES.TEXTAREA ? (
+                  ) : field.fieldType ===
+                    ADMISSION_FORM_FIELD_TYPES.TEXTAREA ? (
                     <textarea
                       className="min-h-24 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                       name={controllerField.name}
@@ -138,7 +149,9 @@ export function AdmissionCustomFieldsSection({
                   )}
                   {field.helpText &&
                   field.fieldType !== ADMISSION_FORM_FIELD_TYPES.CHECKBOX ? (
-                    <p className="text-xs text-muted-foreground">{field.helpText}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {field.helpText}
+                    </p>
                   ) : null}
                   <FieldError>{fieldState.error?.message}</FieldError>
                 </FieldContent>

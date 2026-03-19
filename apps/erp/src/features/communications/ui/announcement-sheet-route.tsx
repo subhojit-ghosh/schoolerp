@@ -26,9 +26,7 @@ type AnnouncementSheetRouteProps = {
   mode: "create" | "edit";
 };
 
-export function AnnouncementSheetRoute({
-  mode,
-}: AnnouncementSheetRouteProps) {
+export function AnnouncementSheetRoute({ mode }: AnnouncementSheetRouteProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { announcementId } = useParams();
@@ -130,10 +128,10 @@ export function AnnouncementSheetRoute({
 
   const errorMessage =
     mode === "create"
-      ? ((createAnnouncementMutation.error as Error | null | undefined)?.message ??
-        undefined)
-      : ((updateAnnouncementMutation.error as Error | null | undefined)?.message ??
-        undefined);
+      ? ((createAnnouncementMutation.error as Error | null | undefined)
+          ?.message ?? undefined)
+      : ((updateAnnouncementMutation.error as Error | null | undefined)
+          ?.message ?? undefined);
 
   const isPending =
     mode === "create"
@@ -153,14 +151,16 @@ export function AnnouncementSheetRoute({
       <AnnouncementForm
         campusName={
           mode === "create"
-            ? activeCampusName ?? undefined
-            : announcementQuery.data?.campusName ?? undefined
+            ? (activeCampusName ?? undefined)
+            : (announcementQuery.data?.campusName ?? undefined)
         }
         defaultValues={defaultValues}
         errorMessage={errorMessage}
         isPending={isPending}
         onCancel={() => {
-          void navigate(appendSearch(ERP_ROUTES.ANNOUNCEMENTS, location.search));
+          void navigate(
+            appendSearch(ERP_ROUTES.ANNOUNCEMENTS, location.search),
+          );
         }}
         onSubmit={handleSubmit}
         submitLabel={mode === "create" ? "Create announcement" : "Save changes"}

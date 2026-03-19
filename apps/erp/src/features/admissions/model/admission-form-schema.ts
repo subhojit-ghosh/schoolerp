@@ -25,8 +25,14 @@ export const ADMISSION_APPLICATION_STATUS_OPTIONS = [
 ] as const;
 
 const optionalTextSchema = z.string().trim();
-const optionalEmailSchema = z.union([z.literal(EMPTY_TEXT), z.email("Enter a valid email")]);
-const optionalEnquiryIdSchema = z.union([z.literal(EMPTY_TEXT), z.uuid("Select a valid enquiry")]);
+const optionalEmailSchema = z.union([
+  z.literal(EMPTY_TEXT),
+  z.email("Enter a valid email"),
+]);
+const optionalEnquiryIdSchema = z.union([
+  z.literal(EMPTY_TEXT),
+  z.uuid("Select a valid enquiry"),
+]);
 const customFieldValuesSchema = z.record(z.string(), z.unknown());
 
 export const admissionEnquiryFormSchema = z.object({
@@ -71,7 +77,9 @@ export const admissionApplicationFormSchema = z.object({
   customFieldValues: customFieldValuesSchema,
 });
 
-export type AdmissionEnquiryFormValues = z.infer<typeof admissionEnquiryFormSchema>;
+export type AdmissionEnquiryFormValues = z.infer<
+  typeof admissionEnquiryFormSchema
+>;
 export type AdmissionApplicationFormValues = z.infer<
   typeof admissionApplicationFormSchema
 >;
@@ -86,29 +94,31 @@ export type AdmissionEnquiryMutationBody =
 export type AdmissionApplicationMutationBody =
   components["schemas"]["CreateAdmissionApplicationBodyDto"];
 
-export const ADMISSION_ENQUIRY_FORM_DEFAULT_VALUES: AdmissionEnquiryFormValues = {
-  studentName: "",
-  guardianName: "",
-  mobile: "",
-  email: "",
-  source: "",
-  status: ADMISSION_ENQUIRY_STATUSES.NEW,
-  notes: "",
-};
+export const ADMISSION_ENQUIRY_FORM_DEFAULT_VALUES: AdmissionEnquiryFormValues =
+  {
+    studentName: "",
+    guardianName: "",
+    mobile: "",
+    email: "",
+    source: "",
+    status: ADMISSION_ENQUIRY_STATUSES.NEW,
+    notes: "",
+  };
 
-export const ADMISSION_APPLICATION_FORM_DEFAULT_VALUES: AdmissionApplicationFormValues = {
-  enquiryId: "",
-  studentFirstName: "",
-  studentLastName: "",
-  guardianName: "",
-  mobile: "",
-  email: "",
-  desiredClassName: "",
-  desiredSectionName: "",
-  status: ADMISSION_APPLICATION_STATUSES.DRAFT,
-  notes: "",
-  customFieldValues: {},
-};
+export const ADMISSION_APPLICATION_FORM_DEFAULT_VALUES: AdmissionApplicationFormValues =
+  {
+    enquiryId: "",
+    studentFirstName: "",
+    studentLastName: "",
+    guardianName: "",
+    mobile: "",
+    email: "",
+    desiredClassName: "",
+    desiredSectionName: "",
+    status: ADMISSION_APPLICATION_STATUSES.DRAFT,
+    notes: "",
+    customFieldValues: {},
+  };
 
 export function toAdmissionEnquiryMutationBody(
   values: AdmissionEnquiryFormValues,

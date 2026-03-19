@@ -17,14 +17,14 @@ import type {
 export class DisabledEmailDeliveryProvider implements EmailDeliveryProvider {
   private readonly logger = new Logger(DisabledEmailDeliveryProvider.name);
 
-  async send(message: EmailDeliveryMessage): Promise<DeliveryResult> {
+  send(message: EmailDeliveryMessage): Promise<DeliveryResult> {
     this.logger.warn(`Email delivery disabled for ${message.to}`);
 
-    return {
+    return Promise.resolve({
       provider: DELIVERY_PROVIDER_TYPES.DISABLED,
       accepted: false,
       externalId: null,
-    };
+    });
   }
 }
 
@@ -32,14 +32,14 @@ export class DisabledEmailDeliveryProvider implements EmailDeliveryProvider {
 export class DisabledSmsDeliveryProvider implements SmsDeliveryProvider {
   private readonly logger = new Logger(DisabledSmsDeliveryProvider.name);
 
-  async send(message: SmsDeliveryMessage): Promise<DeliveryResult> {
+  send(message: SmsDeliveryMessage): Promise<DeliveryResult> {
     this.logger.warn(`SMS delivery disabled for ${message.to}`);
 
-    return {
+    return Promise.resolve({
       provider: DELIVERY_PROVIDER_TYPES.DISABLED,
       accepted: false,
       externalId: null,
-    };
+    });
   }
 }
 
@@ -47,17 +47,17 @@ export class DisabledSmsDeliveryProvider implements SmsDeliveryProvider {
 export class LogEmailDeliveryProvider implements EmailDeliveryProvider {
   private readonly logger = new Logger(LogEmailDeliveryProvider.name);
 
-  async send(message: EmailDeliveryMessage): Promise<DeliveryResult> {
+  send(message: EmailDeliveryMessage): Promise<DeliveryResult> {
     this.logger.log(
       `Email delivery queued for ${message.to} with subject "${message.subject}"`,
     );
     this.logger.debug(message.text);
 
-    return {
+    return Promise.resolve({
       provider: DELIVERY_PROVIDER_TYPES.LOG,
       accepted: true,
       externalId: null,
-    };
+    });
   }
 }
 
@@ -65,15 +65,15 @@ export class LogEmailDeliveryProvider implements EmailDeliveryProvider {
 export class LogSmsDeliveryProvider implements SmsDeliveryProvider {
   private readonly logger = new Logger(LogSmsDeliveryProvider.name);
 
-  async send(message: SmsDeliveryMessage): Promise<DeliveryResult> {
+  send(message: SmsDeliveryMessage): Promise<DeliveryResult> {
     this.logger.log(`SMS delivery queued for ${message.to}`);
     this.logger.debug(message.text);
 
-    return {
+    return Promise.resolve({
       provider: DELIVERY_PROVIDER_TYPES.LOG,
       accepted: true,
       externalId: null,
-    };
+    });
   }
 }
 
@@ -81,7 +81,7 @@ export class LogSmsDeliveryProvider implements SmsDeliveryProvider {
 export class WebhookEmailDeliveryProvider implements EmailDeliveryProvider {
   constructor(private readonly configService: ConfigService) {}
 
-  async send(message: EmailDeliveryMessage): Promise<DeliveryResult> {
+  send(message: EmailDeliveryMessage): Promise<DeliveryResult> {
     return postWebhook(
       resolveWebhookUrl(
         this.configService,
@@ -100,7 +100,7 @@ export class WebhookEmailDeliveryProvider implements EmailDeliveryProvider {
 export class WebhookSmsDeliveryProvider implements SmsDeliveryProvider {
   constructor(private readonly configService: ConfigService) {}
 
-  async send(message: SmsDeliveryMessage): Promise<DeliveryResult> {
+  send(message: SmsDeliveryMessage): Promise<DeliveryResult> {
     return postWebhook(
       resolveWebhookUrl(
         this.configService,

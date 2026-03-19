@@ -251,7 +251,9 @@ export const NAV_HR: readonly NavItem[] = [
   },
 ];
 
-export const NAV_SETTINGS: readonly (NavItem & { permission: PermissionSlug })[] = [
+export const NAV_SETTINGS: readonly (NavItem & {
+  permission: PermissionSlug;
+})[] = [
   {
     icon: IconBuildingEstate,
     permission: PERMISSIONS.CAMPUS_MANAGE,

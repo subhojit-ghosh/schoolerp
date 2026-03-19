@@ -21,7 +21,9 @@ export type NotificationsListQuery = {
   channel?: "system" | "academics" | "operations" | "finance" | "community";
 };
 
-function invalidateAnnouncementQueries(queryClient: ReturnType<typeof useQueryClient>) {
+function invalidateAnnouncementQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
   void queryClient.invalidateQueries({
     queryKey: apiQueryClient.queryOptions(
       "get",

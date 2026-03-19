@@ -7,7 +7,10 @@ import {
   FEE_STRUCTURE_STATUSES,
 } from "@repo/contracts";
 import { z } from "zod";
-import { baseListQuerySchema, parseListQuerySchema } from "../../lib/list-query";
+import {
+  baseListQuerySchema,
+  parseListQuerySchema,
+} from "../../lib/list-query";
 
 const MONEY_MIN_AMOUNT = 0;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -29,19 +32,18 @@ const installmentSchema = z.object({
   dueDate: dateStringSchema,
 });
 
-export const createFeeStructureSchema = z
-  .object({
-    academicYearId: z.uuid(),
-    name: z.string().trim().min(1, "Fee structure name is required"),
-    description: optionalTextSchema,
-    scope: z.enum([
-      FEE_STRUCTURE_SCOPES.INSTITUTION,
-      FEE_STRUCTURE_SCOPES.CAMPUS,
-    ]),
-    installments: z
-      .array(installmentSchema)
-      .min(1, "At least one installment is required"),
-  });
+export const createFeeStructureSchema = z.object({
+  academicYearId: z.uuid(),
+  name: z.string().trim().min(1, "Fee structure name is required"),
+  description: optionalTextSchema,
+  scope: z.enum([
+    FEE_STRUCTURE_SCOPES.INSTITUTION,
+    FEE_STRUCTURE_SCOPES.CAMPUS,
+  ]),
+  installments: z
+    .array(installmentSchema)
+    .min(1, "At least one installment is required"),
+});
 
 export const updateFeeStructureSchema = z.object({
   name: z.string().trim().min(1, "Fee structure name is required").optional(),
@@ -127,10 +129,7 @@ export const listFeeStructuresQuerySchema = baseListQuerySchema.extend({
     .optional(),
   academicYearId: z.uuid().optional(),
   status: z
-    .enum([
-      FEE_STRUCTURE_STATUSES.ACTIVE,
-      FEE_STRUCTURE_STATUSES.ARCHIVED,
-    ])
+    .enum([FEE_STRUCTURE_STATUSES.ACTIVE, FEE_STRUCTURE_STATUSES.ARCHIVED])
     .optional(),
 });
 
@@ -174,17 +173,27 @@ export type CreateFeeAssignmentDto = z.infer<typeof createFeeAssignmentSchema>;
 export type UpdateFeeAssignmentDto = z.infer<typeof updateFeeAssignmentSchema>;
 export type CreateFeePaymentDto = z.infer<typeof createFeePaymentSchema>;
 export type BulkFeeAssignmentDto = z.infer<typeof bulkFeeAssignmentSchema>;
-export type SetFeeStructureStatusDto = z.infer<typeof setFeeStructureStatusSchema>;
+export type SetFeeStructureStatusDto = z.infer<
+  typeof setFeeStructureStatusSchema
+>;
 export type CreateFeeAdjustmentDto = z.infer<typeof createFeeAdjustmentSchema>;
 export type ReverseFeePaymentDto = z.infer<typeof reverseFeePaymentSchema>;
 
 type ListFeeStructuresQueryInput = z.infer<typeof listFeeStructuresQuerySchema>;
-export type ListFeeStructuresQueryDto = Omit<ListFeeStructuresQueryInput, "q"> & {
+export type ListFeeStructuresQueryDto = Omit<
+  ListFeeStructuresQueryInput,
+  "q"
+> & {
   search?: string;
 };
 
-type ListFeeAssignmentsQueryInput = z.infer<typeof listFeeAssignmentsQuerySchema>;
-export type ListFeeAssignmentsQueryDto = Omit<ListFeeAssignmentsQueryInput, "q"> & {
+type ListFeeAssignmentsQueryInput = z.infer<
+  typeof listFeeAssignmentsQuerySchema
+>;
+export type ListFeeAssignmentsQueryDto = Omit<
+  ListFeeAssignmentsQueryInput,
+  "q"
+> & {
   search?: string;
 };
 
@@ -193,7 +202,9 @@ export type ListFeeDuesQueryDto = Omit<ListFeeDuesQueryInput, "q"> & {
   search?: string;
 };
 
-export type CollectionSummaryQueryDto = z.infer<typeof collectionSummaryQuerySchema>;
+export type CollectionSummaryQueryDto = z.infer<
+  typeof collectionSummaryQuerySchema
+>;
 
 function parseWithBadRequest<T>(schema: z.ZodType<T>, input: unknown) {
   const result = schema.safeParse(input);
@@ -241,7 +252,9 @@ export function parseReverseFeePayment(input: unknown) {
   return parseWithBadRequest(reverseFeePaymentSchema, input);
 }
 
-export function parseListFeeStructuresQuery(query: unknown): ListFeeStructuresQueryDto {
+export function parseListFeeStructuresQuery(
+  query: unknown,
+): ListFeeStructuresQueryDto {
   const result = parseListQuerySchema(listFeeStructuresQuerySchema, query);
 
   return {
@@ -255,7 +268,9 @@ export function parseListFeeStructuresQuery(query: unknown): ListFeeStructuresQu
   };
 }
 
-export function parseListFeeAssignmentsQuery(query: unknown): ListFeeAssignmentsQueryDto {
+export function parseListFeeAssignmentsQuery(
+  query: unknown,
+): ListFeeAssignmentsQueryDto {
   const result = parseListQuerySchema(listFeeAssignmentsQuerySchema, query);
 
   return {
@@ -282,6 +297,8 @@ export function parseListFeeDuesQuery(query: unknown): ListFeeDuesQueryDto {
   };
 }
 
-export function parseCollectionSummaryQuery(query: unknown): CollectionSummaryQueryDto {
+export function parseCollectionSummaryQuery(
+  query: unknown,
+): CollectionSummaryQueryDto {
   return parseWithBadRequest(collectionSummaryQuerySchema, query);
 }

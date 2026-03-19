@@ -25,9 +25,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/ui/tabs";
-import {
-  EntityToolbarSecondaryAction,
-} from "@/components/entities/entity-actions";
+import { EntityToolbarSecondaryAction } from "@/components/entities/entity-actions";
 import { EntitySheet } from "@/components/entities/entity-sheet";
 import {
   downloadDataExchangeExport,
@@ -81,10 +79,16 @@ export function DataExchangeEntityActions({
   entityType,
 }: DataExchangeEntityActionsProps) {
   const [open, setOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>(DATA_EXCHANGE_TAB_VALUES.IMPORT);
+  const [activeTab, setActiveTab] = useState<string>(
+    DATA_EXCHANGE_TAB_VALUES.IMPORT,
+  );
   const [csvContent, setCsvContent] = useState("");
-  const [previewResult, setPreviewResult] = useState<PreviewResult | null>(null);
-  const [executeResult, setExecuteResult] = useState<ExecuteResult | null>(null);
+  const [previewResult, setPreviewResult] = useState<PreviewResult | null>(
+    null,
+  );
+  const [executeResult, setExecuteResult] = useState<ExecuteResult | null>(
+    null,
+  );
   const previewMutation = usePreviewDataExchangeImportMutation();
   const executeMutation = useExecuteDataExchangeImportMutation();
 
@@ -141,7 +145,9 @@ export function DataExchangeEntityActions({
     try {
       await downloadDataExchangeTemplate(entityType);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Template download failed.");
+      toast.error(
+        error instanceof Error ? error.message : "Template download failed.",
+      );
     }
   }
 
@@ -149,7 +155,9 @@ export function DataExchangeEntityActions({
     try {
       await downloadDataExchangeExport(entityType);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Export download failed.");
+      toast.error(
+        error instanceof Error ? error.message : "Export download failed.",
+      );
     }
   }
 
@@ -157,12 +165,18 @@ export function DataExchangeEntityActions({
     <>
       <div className="flex items-center gap-3">
         <EntityToolbarSecondaryAction asChild>
-          <button onClick={() => openFor(DATA_EXCHANGE_TAB_VALUES.IMPORT)} type="button">
+          <button
+            onClick={() => openFor(DATA_EXCHANGE_TAB_VALUES.IMPORT)}
+            type="button"
+          >
             Import
           </button>
         </EntityToolbarSecondaryAction>
         <EntityToolbarSecondaryAction asChild>
-          <button onClick={() => openFor(DATA_EXCHANGE_TAB_VALUES.EXPORT)} type="button">
+          <button
+            onClick={() => openFor(DATA_EXCHANGE_TAB_VALUES.EXPORT)}
+            type="button"
+          >
             Export
           </button>
         </EntityToolbarSecondaryAction>
@@ -176,23 +190,42 @@ export function DataExchangeEntityActions({
       >
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="h-auto rounded-2xl bg-muted/70 p-1">
-            <TabsTrigger value={DATA_EXCHANGE_TAB_VALUES.IMPORT}>Import</TabsTrigger>
-            <TabsTrigger value={DATA_EXCHANGE_TAB_VALUES.EXPORT}>Export</TabsTrigger>
+            <TabsTrigger value={DATA_EXCHANGE_TAB_VALUES.IMPORT}>
+              Import
+            </TabsTrigger>
+            <TabsTrigger value={DATA_EXCHANGE_TAB_VALUES.EXPORT}>
+              Export
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent className="mt-5 space-y-5" value={DATA_EXCHANGE_TAB_VALUES.IMPORT}>
+          <TabsContent
+            className="mt-5 space-y-5"
+            value={DATA_EXCHANGE_TAB_VALUES.IMPORT}
+          >
             <div className="space-y-2">
-              <p className="text-sm font-medium">{DATA_EXCHANGE_ENTITY_LABELS[entityType]}</p>
+              <p className="text-sm font-medium">
+                {DATA_EXCHANGE_ENTITY_LABELS[entityType]}
+              </p>
               <p className="text-sm text-muted-foreground">
-                Download the template, review validation results, then execute the import.
+                Download the template, review validation results, then execute
+                the import.
               </p>
               <div className="flex gap-2">
-                <Badge variant="secondary">{DATA_EXCHANGE_ACTIONS.IMPORT}</Badge>
-                <Badge variant="secondary">{DATA_EXCHANGE_ACTIONS.EXPORT}</Badge>
+                <Badge variant="secondary">
+                  {DATA_EXCHANGE_ACTIONS.IMPORT}
+                </Badge>
+                <Badge variant="secondary">
+                  {DATA_EXCHANGE_ACTIONS.EXPORT}
+                </Badge>
               </div>
             </div>
 
-            <form className="space-y-4" onSubmit={form.handleSubmit((values) => void handlePreview(values))}>
+            <form
+              className="space-y-4"
+              onSubmit={form.handleSubmit(
+                (values) => void handlePreview(values),
+              )}
+            >
               <Controller
                 control={form.control}
                 name="file"
@@ -204,7 +237,9 @@ export function DataExchangeEntityActions({
                       className="h-10 rounded-lg"
                       onChange={(event) => {
                         const file = event.target.files?.[0];
-                        form.setValue("file", file as File, { shouldValidate: true });
+                        form.setValue("file", file as File, {
+                          shouldValidate: true,
+                        });
                       }}
                       type="file"
                     />
@@ -214,11 +249,20 @@ export function DataExchangeEntityActions({
               />
 
               <div className="flex flex-wrap gap-3">
-                <Button className="h-10 rounded-lg" onClick={handleTemplateDownload} type="button" variant="outline">
+                <Button
+                  className="h-10 rounded-lg"
+                  onClick={handleTemplateDownload}
+                  type="button"
+                  variant="outline"
+                >
                   <IconDownload className="size-4" />
                   Template
                 </Button>
-                <Button className="h-10 rounded-lg" disabled={previewMutation.isPending} type="submit">
+                <Button
+                  className="h-10 rounded-lg"
+                  disabled={previewMutation.isPending}
+                  type="submit"
+                >
                   <IconFileImport className="size-4" />
                   Preview import
                 </Button>
@@ -228,11 +272,18 @@ export function DataExchangeEntityActions({
             {previewResult ? (
               <div className="space-y-4 rounded-2xl border border-border/70 p-4">
                 <div className="flex flex-wrap items-center gap-3">
-                  <Badge variant="secondary">Valid {previewResult.summary.validRows}</Badge>
-                  <Badge variant="secondary">Invalid {previewResult.summary.invalidRows}</Badge>
+                  <Badge variant="secondary">
+                    Valid {previewResult.summary.validRows}
+                  </Badge>
+                  <Badge variant="secondary">
+                    Invalid {previewResult.summary.invalidRows}
+                  </Badge>
                   <Button
                     className="h-10 rounded-lg"
-                    disabled={executeMutation.isPending || previewResult.summary.validRows === 0}
+                    disabled={
+                      executeMutation.isPending ||
+                      previewResult.summary.validRows === 0
+                    }
                     onClick={() => void handleExecute()}
                     type="button"
                   >
@@ -256,12 +307,20 @@ export function DataExchangeEntityActions({
                         <TableCell>{row.rowNumber}</TableCell>
                         <TableCell>{row.identifier}</TableCell>
                         <TableCell>
-                          <Badge variant={row.status === "valid" ? "secondary" : "destructive"}>
+                          <Badge
+                            variant={
+                              row.status === "valid"
+                                ? "secondary"
+                                : "destructive"
+                            }
+                          >
                             {row.status}
                           </Badge>
                         </TableCell>
                         <TableCell className="whitespace-normal text-sm text-muted-foreground">
-                          {row.messages.length > 0 ? row.messages.join(" ") : "Ready to import."}
+                          {row.messages.length > 0
+                            ? row.messages.join(" ")
+                            : "Ready to import."}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -273,8 +332,12 @@ export function DataExchangeEntityActions({
             {executeResult ? (
               <div className="space-y-4 rounded-2xl border border-border/70 p-4">
                 <div className="flex flex-wrap items-center gap-3">
-                  <Badge variant="secondary">Imported {executeResult.summary.importedRows}</Badge>
-                  <Badge variant="secondary">Failed {executeResult.summary.failedRows}</Badge>
+                  <Badge variant="secondary">
+                    Imported {executeResult.summary.importedRows}
+                  </Badge>
+                  <Badge variant="secondary">
+                    Failed {executeResult.summary.failedRows}
+                  </Badge>
                 </div>
                 <Table>
                   <TableHeader>
@@ -287,11 +350,19 @@ export function DataExchangeEntityActions({
                   </TableHeader>
                   <TableBody>
                     {executeResult.rows.map((row) => (
-                      <TableRow key={`${row.rowNumber}-${row.identifier}-result`}>
+                      <TableRow
+                        key={`${row.rowNumber}-${row.identifier}-result`}
+                      >
                         <TableCell>{row.rowNumber}</TableCell>
                         <TableCell>{row.identifier}</TableCell>
                         <TableCell>
-                          <Badge variant={row.status === "imported" ? "secondary" : "destructive"}>
+                          <Badge
+                            variant={
+                              row.status === "imported"
+                                ? "secondary"
+                                : "destructive"
+                            }
+                          >
                             {row.status}
                           </Badge>
                         </TableCell>
@@ -306,7 +377,10 @@ export function DataExchangeEntityActions({
             ) : null}
           </TabsContent>
 
-          <TabsContent className="mt-5 space-y-4" value={DATA_EXCHANGE_TAB_VALUES.EXPORT}>
+          <TabsContent
+            className="mt-5 space-y-4"
+            value={DATA_EXCHANGE_TAB_VALUES.EXPORT}
+          >
             <div className="space-y-2">
               <p className="text-sm font-medium">
                 Export {DATA_EXCHANGE_ENTITY_LABELS[entityType].toLowerCase()}
@@ -315,7 +389,12 @@ export function DataExchangeEntityActions({
                 Download the current institution-scoped CSV for this entity.
               </p>
             </div>
-            <Button className="h-10 rounded-lg" onClick={handleExportDownload} type="button" variant="outline">
+            <Button
+              className="h-10 rounded-lg"
+              onClick={handleExportDownload}
+              type="button"
+              variant="outline"
+            >
               <IconDownload className="size-4" />
               Export CSV
             </Button>

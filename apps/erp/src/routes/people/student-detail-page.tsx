@@ -882,8 +882,8 @@ export function StudentDetailPage() {
               <CardHeader>
                 <CardTitle>Edit student</CardTitle>
                 <CardDescription>
-                  Update the student profile and linked guardians for the
-                  active campus.
+                  Update the student profile and linked guardians for the active
+                  campus.
                 </CardDescription>
               </CardHeader>
               <CardContent>

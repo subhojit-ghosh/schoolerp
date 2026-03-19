@@ -117,12 +117,7 @@ export class RolesService {
     const existing = await this.db
       .select({ id: roles.id })
       .from(roles)
-      .where(
-        and(
-          eq(roles.slug, slug),
-          eq(roles.institutionId, institutionId),
-        ),
-      )
+      .where(and(eq(roles.slug, slug), eq(roles.institutionId, institutionId)))
       .limit(1);
 
     if (existing.length > 0) {
@@ -212,7 +207,8 @@ export class RolesService {
 
     const nextRoleName = data.name ?? existingRole.name;
     const nextPermissionIds =
-      data.permissionIds ?? existingRole.permissions.map((permission) => permission.id);
+      data.permissionIds ??
+      existingRole.permissions.map((permission) => permission.id);
 
     await this.db.transaction(async (tx) => {
       if (data.name !== undefined) {
@@ -279,11 +275,7 @@ export class RolesService {
     const [{ activeCount }] = await this.db
       .select({ activeCount: count() })
       .from(membershipRoles)
-      .where(
-        and(
-          eq(membershipRoles.roleId, roleId),
-        ),
-      );
+      .where(and(eq(membershipRoles.roleId, roleId)));
 
     if (activeCount > 0) {
       throw new ConflictException(

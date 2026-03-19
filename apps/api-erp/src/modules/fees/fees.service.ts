@@ -10,7 +10,6 @@ import { DATABASE } from "@repo/backend-core";
 import {
   AUDIT_ACTIONS,
   AUDIT_ENTITY_TYPES,
-  FEE_ADJUSTMENT_TYPES,
   FEE_ASSIGNMENT_STATUSES,
   FEE_STRUCTURE_SCOPES,
 } from "@repo/contracts";
@@ -148,9 +147,11 @@ export class FeesService {
         conditions.push(or(isNull(feeStructures.campusId), scopeFilter)!);
       }
     }
-    if (query.academicYearId) conditions.push(eq(feeStructures.academicYearId, query.academicYearId));
+    if (query.academicYearId)
+      conditions.push(eq(feeStructures.academicYearId, query.academicYearId));
     if (query.status) conditions.push(eq(feeStructures.status, query.status));
-    if (query.search) conditions.push(ilike(feeStructures.name, `%${query.search}%`));
+    if (query.search)
+      conditions.push(ilike(feeStructures.name, `%${query.search}%`));
 
     const where = and(...conditions)!;
 
@@ -164,7 +165,10 @@ export class FeesService {
     const [totalRow] = await this.database
       .select({ count: count() })
       .from(feeStructures)
-      .innerJoin(academicYears, eq(feeStructures.academicYearId, academicYears.id))
+      .innerJoin(
+        academicYears,
+        eq(feeStructures.academicYearId, academicYears.id),
+      )
       .leftJoin(campus, eq(feeStructures.campusId, campus.id))
       .where(where);
 
@@ -188,7 +192,10 @@ export class FeesService {
         createdAt: feeStructures.createdAt,
       })
       .from(feeStructures)
-      .innerJoin(academicYears, eq(feeStructures.academicYearId, academicYears.id))
+      .innerJoin(
+        academicYears,
+        eq(feeStructures.academicYearId, academicYears.id),
+      )
       .leftJoin(campus, eq(feeStructures.campusId, campus.id))
       .where(where)
       .orderBy(sortDirection(sortableColumns[sortKey]), asc(feeStructures.name))
@@ -209,7 +216,9 @@ export class FeesService {
               dueDate: feeStructureInstallments.dueDate,
             })
             .from(feeStructureInstallments)
-            .where(inArray(feeStructureInstallments.feeStructureId, structureIds))
+            .where(
+              inArray(feeStructureInstallments.feeStructureId, structureIds),
+            )
             .orderBy(asc(feeStructureInstallments.sortOrder))
         : [];
 
@@ -231,7 +240,10 @@ export class FeesService {
 
     return {
       rows: rows.map((row) =>
-        this.formatFeeStructureRow(row, installmentsByStructure.get(row.id) ?? []),
+        this.formatFeeStructureRow(
+          row,
+          installmentsByStructure.get(row.id) ?? [],
+        ),
       ),
       total,
       page: pagination.page,
@@ -246,7 +258,10 @@ export class FeesService {
     scopes: ResolvedScopes,
     feeStructureId: string,
   ) {
-    const structure = await this.getFeeStructureById(feeStructureId, institutionId);
+    const structure = await this.getFeeStructureById(
+      feeStructureId,
+      institutionId,
+    );
     this.assertOptionalCampusScopeAccess(structure.campusId, scopes);
     this.assertActiveCampusMatch(structure.campusId, authSession);
 
@@ -345,12 +360,13 @@ export class FeesService {
     const totalAmountInPaise = installments.reduce(
       (acc, i) =>
         acc +
-        this.toPaise(i.amount, ERROR_MESSAGES.FEES.FEE_STRUCTURE_AMOUNT_INVALID),
+        this.toPaise(
+          i.amount,
+          ERROR_MESSAGES.FEES.FEE_STRUCTURE_AMOUNT_INVALID,
+        ),
       0,
     );
-    const earliestDueDate = installments
-      .map((i) => i.dueDate)
-      .sort()[0]!;
+    const earliestDueDate = installments.map((i) => i.dueDate).sort()[0];
 
     await this.database.transaction(async (tx) => {
       await tx.insert(feeStructures).values({
@@ -390,7 +406,10 @@ export class FeesService {
     scopes: ResolvedScopes,
     feeStructureId: string,
   ) {
-    const source = await this.getFeeStructureById(feeStructureId, institutionId);
+    const source = await this.getFeeStructureById(
+      feeStructureId,
+      institutionId,
+    );
     this.assertOptionalCampusScopeAccess(source.campusId, scopes);
     this.assertActiveCampusMatch(source.campusId, authSession);
     await this.getAcademicYearOrThrow(institutionId, source.academicYearId, {
@@ -447,7 +466,10 @@ export class FeesService {
     scopes: ResolvedScopes,
     feeStructureId: string,
   ) {
-    const source = await this.getFeeStructureById(feeStructureId, institutionId);
+    const source = await this.getFeeStructureById(
+      feeStructureId,
+      institutionId,
+    );
     this.assertOptionalCampusScopeAccess(source.campusId, scopes);
     this.assertActiveCampusMatch(source.campusId, authSession);
     await this.getAcademicYearOrThrow(institutionId, source.academicYearId, {
@@ -505,7 +527,10 @@ export class FeesService {
     feeStructureId: string,
     payload: UpdateFeeStructureDto,
   ) {
-    const structure = await this.getFeeStructureById(feeStructureId, institutionId);
+    const structure = await this.getFeeStructureById(
+      feeStructureId,
+      institutionId,
+    );
     this.assertOptionalCampusScopeAccess(structure.campusId, scopes);
     this.assertActiveCampusMatch(structure.campusId, authSession);
 
@@ -525,8 +550,7 @@ export class FeesService {
       const [assignmentUsageSummary] = await this.database
         .select({
           blockingAssignmentCount: count(),
-          historicalAssignmentCount:
-            sql<number>`count(*) filter (where ${feeAssignments.deletedAt} is not null)`,
+          historicalAssignmentCount: sql<number>`count(*) filter (where ${feeAssignments.deletedAt} is not null)`,
         })
         .from(feeAssignments)
         .where(
@@ -563,7 +587,8 @@ export class FeesService {
         dueDate: string;
       }> = {};
 
-      if (payload.name !== undefined) structureUpdates.name = payload.name.trim();
+      if (payload.name !== undefined)
+        structureUpdates.name = payload.name.trim();
       if (payload.description !== undefined)
         structureUpdates.description = payload.description ?? null;
 
@@ -571,7 +596,10 @@ export class FeesService {
         const totalAmountInPaise = payload.installments.reduce(
           (acc, i) =>
             acc +
-            this.toPaise(i.amount, ERROR_MESSAGES.FEES.FEE_STRUCTURE_AMOUNT_INVALID),
+            this.toPaise(
+              i.amount,
+              ERROR_MESSAGES.FEES.FEE_STRUCTURE_AMOUNT_INVALID,
+            ),
           0,
         );
         structureUpdates.amountInPaise = totalAmountInPaise;
@@ -621,7 +649,10 @@ export class FeesService {
     feeStructureId: string,
     payload: SetFeeStructureStatusDto,
   ) {
-    const structure = await this.getFeeStructureById(feeStructureId, institutionId);
+    const structure = await this.getFeeStructureById(
+      feeStructureId,
+      institutionId,
+    );
     this.assertOptionalCampusScopeAccess(structure.campusId, scopes);
     this.assertActiveCampusMatch(structure.campusId, authSession);
 
@@ -647,7 +678,10 @@ export class FeesService {
     scopes: ResolvedScopes,
     feeStructureId: string,
   ) {
-    const structure = await this.getFeeStructureById(feeStructureId, institutionId);
+    const structure = await this.getFeeStructureById(
+      feeStructureId,
+      institutionId,
+    );
     this.assertOptionalCampusScopeAccess(structure.campusId, scopes);
     this.assertActiveCampusMatch(structure.campusId, authSession);
 
@@ -710,7 +744,9 @@ export class FeesService {
     );
     this.assertCampusScopeAccess(assignment.campusId, scopes);
     this.assertActiveCampusMatch(assignment.campusId, authSession);
-    const paymentSummary = await this.getPaymentSummaryByAssignmentIds([feeAssignmentId]);
+    const paymentSummary = await this.getPaymentSummaryByAssignmentIds([
+      feeAssignmentId,
+    ]);
     const adjustmentSummary = await this.getAdjustmentSummaryByAssignmentIds([
       feeAssignmentId,
     ]);
@@ -850,7 +886,7 @@ export class FeesService {
 
     await this.database.insert(feeAssignments).values(
       installments.map((installment, idx) => ({
-        id: createdIds[idx]!,
+        id: createdIds[idx],
         institutionId,
         feeStructureId: feeStructure.id,
         installmentId: installment.id,
@@ -950,9 +986,17 @@ export class FeesService {
         );
     }
 
-    const assignment = await this.getAssignmentRowOrThrow(institutionId, feeAssignmentId);
-    const paymentSummary = await this.getPaymentSummaryByAssignmentIds([feeAssignmentId]);
-    const ps = paymentSummary.get(feeAssignmentId) ?? { totalPaidAmountInPaise: 0, paymentCount: 0 };
+    const assignment = await this.getAssignmentRowOrThrow(
+      institutionId,
+      feeAssignmentId,
+    );
+    const paymentSummary = await this.getPaymentSummaryByAssignmentIds([
+      feeAssignmentId,
+    ]);
+    const ps = paymentSummary.get(feeAssignmentId) ?? {
+      totalPaidAmountInPaise: 0,
+      paymentCount: 0,
+    };
     const adjustment = adjustmentSummary.get(feeAssignmentId) ?? {
       totalAdjustmentAmountInPaise: 0,
       adjustmentCount: 0,
@@ -1288,7 +1332,10 @@ export class FeesService {
     feePaymentId: string,
     payload: ReverseFeePaymentDto,
   ) {
-    const payment = await this.getActivePaymentRowOrThrow(feePaymentId, institutionId);
+    const payment = await this.getActivePaymentRowOrThrow(
+      feePaymentId,
+      institutionId,
+    );
 
     const [existingReversal] = await this.database
       .select({ id: feePaymentReversals.id })
@@ -1312,7 +1359,8 @@ export class FeesService {
     const currentPaidAmountInPaise =
       paymentSummary.get(payment.feeAssignmentId)?.totalPaidAmountInPaise ?? 0;
     const currentAdjustedAmountInPaise =
-      adjustmentSummary.get(payment.feeAssignmentId)?.totalAdjustmentAmountInPaise ?? 0;
+      adjustmentSummary.get(payment.feeAssignmentId)
+        ?.totalAdjustmentAmountInPaise ?? 0;
     const assignment = await this.getAssignmentRowOrThrow(
       institutionId,
       payment.feeAssignmentId,
@@ -1379,7 +1427,7 @@ export class FeesService {
     scopes: ResolvedScopes,
     query: ListFeeDuesQueryDto = {},
   ): Promise<PaginatedResult<ReturnType<typeof this.buildAssignmentResult>>> {
-    const today = new Date().toISOString().split("T")[0]!;
+    const today = new Date().toISOString().split("T")[0];
     const assignmentQuery: ListFeeAssignmentsQueryDto = {
       limit: query.limit,
       order: query.order,
@@ -1408,10 +1456,16 @@ export class FeesService {
     scopes: ResolvedScopes,
     query: CollectionSummaryQueryDto = {},
   ) {
-    const today = new Date().toISOString().split("T")[0]!;
+    const today = new Date().toISOString().split("T")[0];
     const scopedCampusId = authSession.activeCampusId ?? undefined;
-    const structureCampusFilter = campusScopeFilter(feeStructures.campusId, scopes);
-    const assignmentCampusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+    const structureCampusFilter = campusScopeFilter(
+      feeStructures.campusId,
+      scopes,
+    );
+    const assignmentCampusFilter = campusScopeFilter(
+      member.primaryCampusId,
+      scopes,
+    );
     const paymentSummaryByAssignment = this.buildPaymentSummarySubquery();
     const adjustmentSummaryByAssignment = this.buildAdjustmentSummarySubquery();
     const scopedAssignments = this.database
@@ -1448,7 +1502,9 @@ export class FeesService {
         )!,
       );
     } else if (structureCampusFilter) {
-      conditions.push(or(isNull(feeStructures.campusId), structureCampusFilter)!);
+      conditions.push(
+        or(isNull(feeStructures.campusId), structureCampusFilter)!,
+      );
     }
     if (query.academicYearId) {
       conditions.push(eq(feeStructures.academicYearId, query.academicYearId));
@@ -1468,7 +1524,10 @@ export class FeesService {
         totalAdjustedInPaise: sql<number>`coalesce(sum(coalesce(${adjustmentSummaryByAssignment.totalAdjustmentAmountInPaise}, 0)), 0)`,
       })
       .from(feeStructures)
-      .innerJoin(academicYears, eq(feeStructures.academicYearId, academicYears.id))
+      .innerJoin(
+        academicYears,
+        eq(feeStructures.academicYearId, academicYears.id),
+      )
       .leftJoin(campus, eq(feeStructures.campusId, campus.id))
       .leftJoin(
         scopedAssignments,
@@ -1499,7 +1558,10 @@ export class FeesService {
       .from(feeAssignments)
       .innerJoin(students, eq(feeAssignments.studentId, students.id))
       .innerJoin(member, eq(students.membershipId, member.id))
-      .innerJoin(feeStructures, eq(feeAssignments.feeStructureId, feeStructures.id))
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
       .leftJoin(
         paymentSummaryByAssignment,
         eq(paymentSummaryByAssignment.feeAssignmentId, feeAssignments.id),
@@ -1594,7 +1656,8 @@ export class FeesService {
       [sortableFeeAssignmentColumns.studentName]: students.firstName,
       [sortableFeeAssignmentColumns.dueDate]: feeAssignments.dueDate,
       [sortableFeeAssignmentColumns.status]: feeAssignments.status,
-      [sortableFeeAssignmentColumns.amount]: feeAssignments.assignedAmountInPaise,
+      [sortableFeeAssignmentColumns.amount]:
+        feeAssignments.assignedAmountInPaise,
     };
 
     const conditions: SQL[] = [
@@ -1638,7 +1701,10 @@ export class FeesService {
     const [totalRow] = await this.database
       .select({ count: count() })
       .from(feeAssignments)
-      .innerJoin(feeStructures, eq(feeAssignments.feeStructureId, feeStructures.id))
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
       .innerJoin(students, eq(feeAssignments.studentId, students.id))
       .innerJoin(member, eq(students.membershipId, member.id))
       .leftJoin(campus, eq(member.primaryCampusId, campus.id))
@@ -1679,13 +1745,17 @@ export class FeesService {
         status: feeAssignments.status,
         notes: feeAssignments.notes,
         createdAt: feeAssignments.createdAt,
-        totalPaidAmountInPaise: paymentSummaryByAssignment.totalPaidAmountInPaise,
+        totalPaidAmountInPaise:
+          paymentSummaryByAssignment.totalPaidAmountInPaise,
         paymentCount: paymentSummaryByAssignment.paymentCount,
         totalAdjustmentAmountInPaise:
           adjustmentSummaryByAssignment.totalAdjustmentAmountInPaise,
       })
       .from(feeAssignments)
-      .innerJoin(feeStructures, eq(feeAssignments.feeStructureId, feeStructures.id))
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
       .innerJoin(students, eq(feeAssignments.studentId, students.id))
       .innerJoin(member, eq(students.membershipId, member.id))
       .leftJoin(campus, eq(member.primaryCampusId, campus.id))
@@ -1714,7 +1784,9 @@ export class FeesService {
         this.buildAssignmentResult(row, {
           totalPaidAmountInPaise: Number(row.totalPaidAmountInPaise ?? 0),
           paymentCount: Number(row.paymentCount ?? 0),
-          totalAdjustmentAmountInPaise: Number(row.totalAdjustmentAmountInPaise ?? 0),
+          totalAdjustmentAmountInPaise: Number(
+            row.totalAdjustmentAmountInPaise ?? 0,
+          ),
         }),
       ),
       total: rawTotal,
@@ -1727,7 +1799,9 @@ export class FeesService {
   private buildAssignmentResult(row: AssignmentRow, ps: PaymentSummary) {
     const adjustedAmountInPaise = ps.totalAdjustmentAmountInPaise ?? 0;
     const outstandingAmountInPaise =
-      row.assignedAmountInPaise - ps.totalPaidAmountInPaise - adjustedAmountInPaise;
+      row.assignedAmountInPaise -
+      ps.totalPaidAmountInPaise -
+      adjustedAmountInPaise;
 
     return {
       id: row.id,
@@ -1844,12 +1918,7 @@ export class FeesService {
         feePaymentReversals,
         eq(feePaymentReversals.feePaymentId, feePayments.id),
       )
-      .where(
-        and(
-          isNull(feePayments.deletedAt),
-          isNull(feePaymentReversals.id),
-        ),
-      )
+      .where(and(isNull(feePayments.deletedAt), isNull(feePaymentReversals.id)))
       .groupBy(feePayments.feeAssignmentId)
       .as("fee_assignment_payment_summary");
   }
@@ -1866,10 +1935,9 @@ export class FeesService {
           sql<number>`coalesce(sum(${feeAssignmentAdjustments.amountInPaise}), 0)`.as(
             "total_adjustment_amount_in_paise",
           ),
-        adjustmentCount:
-          sql<number>`count(${feeAssignmentAdjustments.id})`.as(
-            "adjustment_count",
-          ),
+        adjustmentCount: sql<number>`count(${feeAssignmentAdjustments.id})`.as(
+          "adjustment_count",
+        ),
       })
       .from(feeAssignmentAdjustments)
       .where(inArray(feeAssignmentAdjustments.feeAssignmentId, assignmentIds))
@@ -1896,10 +1964,9 @@ export class FeesService {
           sql<number>`coalesce(sum(${feeAssignmentAdjustments.amountInPaise}), 0)`.as(
             "total_adjustment_amount_in_paise",
           ),
-        adjustmentCount:
-          sql<number>`count(${feeAssignmentAdjustments.id})`.as(
-            "adjustment_count",
-          ),
+        adjustmentCount: sql<number>`count(${feeAssignmentAdjustments.id})`.as(
+          "adjustment_count",
+        ),
       })
       .from(feeAssignmentAdjustments)
       .groupBy(feeAssignmentAdjustments.feeAssignmentId)
@@ -1983,7 +2050,10 @@ export class FeesService {
         createdAt: feeAssignments.createdAt,
       })
       .from(feeAssignments)
-      .innerJoin(feeStructures, eq(feeAssignments.feeStructureId, feeStructures.id))
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
       .innerJoin(students, eq(feeAssignments.studentId, students.id))
       .innerJoin(member, eq(students.membershipId, member.id))
       .leftJoin(campus, eq(member.primaryCampusId, campus.id))
@@ -2038,7 +2108,10 @@ export class FeesService {
         createdAt: feeAssignments.createdAt,
       })
       .from(feeAssignments)
-      .innerJoin(feeStructures, eq(feeAssignments.feeStructureId, feeStructures.id))
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
       .innerJoin(students, eq(feeAssignments.studentId, students.id))
       .innerJoin(member, eq(students.membershipId, member.id))
       .leftJoin(campus, eq(member.primaryCampusId, campus.id))
@@ -2382,11 +2455,12 @@ export class FeesService {
     sourceName: string,
   ) {
     const normalizedSourceName = sourceName.trim();
-    const match = FEE_STRUCTURE_VERSION_SUFFIX_PATTERN.exec(normalizedSourceName);
+    const match =
+      FEE_STRUCTURE_VERSION_SUFFIX_PATTERN.exec(normalizedSourceName);
     const baseName = (
       match
-      ? normalizedSourceName.replace(FEE_STRUCTURE_VERSION_SUFFIX_PATTERN, "")
-      : normalizedSourceName
+        ? normalizedSourceName.replace(FEE_STRUCTURE_VERSION_SUFFIX_PATTERN, "")
+        : normalizedSourceName
     ).trim();
     let nextVersion = match
       ? Number(match[1]) + 1

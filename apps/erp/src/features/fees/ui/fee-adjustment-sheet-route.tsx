@@ -18,7 +18,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/ui/card";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import {
   EntityFormPrimaryAction,
@@ -45,7 +50,9 @@ const DEFAULT_VALUES: FeeAdjustmentFormValues = {
   reason: "",
 };
 
-function toAdjustmentLabel(value: (typeof FEE_ADJUSTMENT_TYPE_OPTIONS)[number]) {
+function toAdjustmentLabel(
+  value: (typeof FEE_ADJUSTMENT_TYPE_OPTIONS)[number],
+) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
@@ -84,7 +91,9 @@ export function FeeAdjustmentSheetRoute() {
       },
     });
 
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT));
+    toast.success(
+      ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
+    );
     void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
   }
 
@@ -98,7 +107,9 @@ export function FeeAdjustmentSheetRoute() {
         {assignmentQuery.data ? (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">{assignmentQuery.data.studentFullName}</CardTitle>
+              <CardTitle className="text-base">
+                {assignmentQuery.data.studentFullName}
+              </CardTitle>
             </CardHeader>
             <CardContent className="text-sm">
               Outstanding: {formatRupees(outstandingAmountInPaise)}
@@ -123,8 +134,14 @@ export function FeeAdjustmentSheetRoute() {
                   <Field data-invalid={fieldState.invalid || undefined}>
                     <FieldLabel>Type</FieldLabel>
                     <FieldContent>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger
+                          aria-invalid={fieldState.invalid}
+                          className="w-full"
+                        >
                           <SelectValue placeholder="Select adjustment type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -182,13 +199,20 @@ export function FeeAdjustmentSheetRoute() {
               />
 
               <div className="flex items-center gap-3">
-                <EntityFormPrimaryAction disabled={adjustmentMutation.isPending} type="submit">
-                  {adjustmentMutation.isPending ? "Saving..." : "Apply concession"}
+                <EntityFormPrimaryAction
+                  disabled={adjustmentMutation.isPending}
+                  type="submit"
+                >
+                  {adjustmentMutation.isPending
+                    ? "Saving..."
+                    : "Apply concession"}
                 </EntityFormPrimaryAction>
                 <EntityFormSecondaryAction
                   disabled={adjustmentMutation.isPending}
                   onClick={() =>
-                    void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search))
+                    void navigate(
+                      appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search),
+                    )
                   }
                   type="button"
                 >

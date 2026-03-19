@@ -115,7 +115,8 @@ export class StudentsController {
   @Get(`:studentId/${API_ROUTES.SUMMARY}`)
   @RequirePermission(PERMISSIONS.STUDENTS_READ)
   @ApiOperation({
-    summary: "Get an operational Student 360 summary for the current tenant institution",
+    summary:
+      "Get an operational Student 360 summary for the current tenant institution",
   })
   @ApiOkResponse({ type: StudentSummaryDto })
   getStudentSummary(

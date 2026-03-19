@@ -15,7 +15,10 @@ type ClassesListQuery = {
   sort?: ClassesListSort;
 };
 
-export function useClassesQuery(enabled: boolean, query: ClassesListQuery = {}) {
+export function useClassesQuery(
+  enabled: boolean,
+  query: ClassesListQuery = {},
+) {
   return apiQueryClient.useQuery(
     "get",
     CLASSES_API_PATHS.LIST,

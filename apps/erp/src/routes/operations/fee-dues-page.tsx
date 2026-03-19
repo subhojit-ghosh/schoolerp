@@ -3,7 +3,12 @@ import { Link } from "react-router";
 import { IconCurrencyRupee, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
-import { Card, CardDescription, CardHeader, CardTitle } from "@repo/ui/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/ui/card";
 import { Input } from "@repo/ui/components/ui/input";
 import {
   EntityRowAction,
@@ -14,10 +19,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
-import {
-  buildFeeAssignmentCollectRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
+import { buildFeeAssignmentCollectRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import { isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -87,13 +89,16 @@ export function FeeDuesPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(FEE_ASSIGNMENT_LIST_SORT_FIELDS.STUDENT_NAME)}
+            onClick={() =>
+              setSorting(FEE_ASSIGNMENT_LIST_SORT_FIELDS.STUDENT_NAME)
+            }
             type="button"
           >
             Student
             <SortIcon
               direction={
-                queryState.sortBy === FEE_ASSIGNMENT_LIST_SORT_FIELDS.STUDENT_NAME
+                queryState.sortBy ===
+                FEE_ASSIGNMENT_LIST_SORT_FIELDS.STUDENT_NAME
                   ? queryState.sortOrder
                   : false
               }
@@ -206,7 +211,9 @@ export function FeeDuesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Fee Dues</CardTitle>
-          <CardDescription>Fee dues are available in Staff view.</CardDescription>
+          <CardDescription>
+            Fee dues are available in Staff view.
+          </CardDescription>
         </CardHeader>
       </Card>
     );
@@ -240,7 +247,9 @@ export function FeeDuesPage() {
       <ServerDataTable
         emptyDescription="No overdue dues match the current filters."
         emptyTitle="No overdue dues"
-        errorDescription={(duesQuery.error as Error | null | undefined)?.message}
+        errorDescription={
+          (duesQuery.error as Error | null | undefined)?.message
+        }
         errorTitle="Could not load fee dues"
         isError={duesQuery.isError}
         isLoading={duesQuery.isLoading}

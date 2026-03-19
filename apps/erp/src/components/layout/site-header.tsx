@@ -35,9 +35,7 @@ import {
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { ERP_ROUTES } from "@/constants/routes";
-import {
-  mapNotificationRecordToItem,
-} from "@/features/notifications/model/notification-feed";
+import { mapNotificationRecordToItem } from "@/features/notifications/model/notification-feed";
 import { useNotificationsQuery } from "@/features/communications/api/use-communications";
 import { ThemeDrawer } from "@/features/settings/ui/theme-drawer";
 import { ERP_TOAST_MESSAGES } from "@/lib/toast-messages";
@@ -195,7 +193,9 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
           type="button"
         >
           <IconSearch className="size-4 shrink-0 text-muted-foreground" />
-          <span className="flex-1 text-sm text-muted-foreground">Search or jump to…</span>
+          <span className="flex-1 text-sm text-muted-foreground">
+            Search or jump to…
+          </span>
           <kbd className="pointer-events-none hidden select-none items-center gap-0.5 rounded border border-border/60 bg-muted/60 px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground sm:flex">
             <span className="text-[12px]">⌘</span>K
           </kbd>
@@ -265,9 +265,7 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
                       Quick look at new updates across academics and operations.
                     </p>
                   </div>
-                  <Badge variant="outline">
-                    {unreadCount} new
-                  </Badge>
+                  <Badge variant="outline">{unreadCount} new</Badge>
                 </div>
               </div>
 

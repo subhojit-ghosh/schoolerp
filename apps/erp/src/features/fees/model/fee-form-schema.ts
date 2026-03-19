@@ -45,14 +45,15 @@ const installmentSchema = z.object({
   dueDate: dateFieldSchema,
 });
 
-export const feeStructureFormSchema = z
-  .object({
-    academicYearId: z.uuid("Select an academic year"),
-    name: z.string().trim().min(1, "Structure name is required"),
-    description: optionalTextSchema,
-    scope: z.enum(FEE_STRUCTURE_SCOPE_OPTIONS),
-    installments: z.array(installmentSchema).min(1, "Add at least one installment"),
-  });
+export const feeStructureFormSchema = z.object({
+  academicYearId: z.uuid("Select an academic year"),
+  name: z.string().trim().min(1, "Structure name is required"),
+  description: optionalTextSchema,
+  scope: z.enum(FEE_STRUCTURE_SCOPE_OPTIONS),
+  installments: z
+    .array(installmentSchema)
+    .min(1, "Add at least one installment"),
+});
 
 export const feeAssignmentFormSchema = z.object({
   feeStructureId: z.uuid("Select a fee structure"),
@@ -82,7 +83,9 @@ export function createFeePaymentFormSchema(outstandingAmountInPaise: number) {
 export const feeStructureUpdateFormSchema = z.object({
   name: z.string().trim().min(1, "Structure name is required"),
   description: optionalTextSchema,
-  installments: z.array(installmentSchema).min(1, "Add at least one installment"),
+  installments: z
+    .array(installmentSchema)
+    .min(1, "Add at least one installment"),
 });
 
 export const feeAssignmentUpdateFormSchema = z.object({
@@ -103,11 +106,17 @@ export const feeAdjustmentFormSchema = z.object({
 });
 
 export type FeeStructureFormValues = z.infer<typeof feeStructureFormSchema>;
-export type FeeStructureUpdateFormValues = z.infer<typeof feeStructureUpdateFormSchema>;
+export type FeeStructureUpdateFormValues = z.infer<
+  typeof feeStructureUpdateFormSchema
+>;
 export type FeeAssignmentFormValues = z.infer<typeof feeAssignmentFormSchema>;
-export type FeeAssignmentUpdateFormValues = z.infer<typeof feeAssignmentUpdateFormSchema>;
+export type FeeAssignmentUpdateFormValues = z.infer<
+  typeof feeAssignmentUpdateFormSchema
+>;
 export type FeePaymentFormValues = z.infer<typeof feePaymentFormSchema>;
-export type FeeBulkAssignmentFormValues = z.infer<typeof feeBulkAssignmentFormSchema>;
+export type FeeBulkAssignmentFormValues = z.infer<
+  typeof feeBulkAssignmentFormSchema
+>;
 export type FeeAdjustmentFormValues = z.infer<typeof feeAdjustmentFormSchema>;
 
 export type FeeStructureRecord = components["schemas"]["FeeStructureDto"];

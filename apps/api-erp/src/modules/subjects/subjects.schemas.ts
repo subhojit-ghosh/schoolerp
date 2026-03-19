@@ -13,7 +13,10 @@ export const sortableSubjectColumns = {
 } as const;
 
 export const createSubjectSchema = z.object({
-  name: z.string().trim().min(SUBJECT_NAME_MIN_LENGTH, "Subject name is required"),
+  name: z
+    .string()
+    .trim()
+    .min(SUBJECT_NAME_MIN_LENGTH, "Subject name is required"),
   code: z.string().trim().min(1).max(20).optional(),
 });
 

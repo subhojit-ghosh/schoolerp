@@ -192,7 +192,9 @@ export class AdmissionsController {
 
   @Get(API_ROUTES.APPLICATIONS)
   @RequirePermission(PERMISSIONS.ADMISSIONS_READ)
-  @ApiOperation({ summary: "List admission applications for the current tenant" })
+  @ApiOperation({
+    summary: "List admission applications for the current tenant",
+  })
   @ApiOkResponse({ type: ListAdmissionApplicationsResultDto })
   listAdmissionApplications(
     @CurrentInstitution() institution: TenantInstitution,

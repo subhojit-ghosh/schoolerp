@@ -14,13 +14,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
-import {
-  admissionFormFields,
-  and,
-  asc,
-  eq,
-  inArray,
-} from "@repo/database";
+import { admissionFormFields, and, asc, eq, inArray } from "@repo/database";
 import { randomUUID } from "node:crypto";
 
 const FIELD_KEY_PATTERN = /^[a-z][a-z0-9_]*$/;
@@ -219,7 +213,10 @@ export class AdmissionFormFieldsService {
           scopes ? inArray(admissionFormFields.scope, scopes) : undefined,
         ),
       )
-      .orderBy(asc(admissionFormFields.sortOrder), asc(admissionFormFields.label));
+      .orderBy(
+        asc(admissionFormFields.sortOrder),
+        asc(admissionFormFields.label),
+      );
   }
 
   private async getFieldById(institutionId: string, fieldId: string) {
@@ -303,13 +300,17 @@ export class AdmissionFormFieldsService {
     }));
 
     if (normalizedOptions.length === 0) {
-      throw new BadRequestException("Select fields require at least one option.");
+      throw new BadRequestException(
+        "Select fields require at least one option.",
+      );
     }
 
     const seenValues = new Set<string>();
     for (const option of normalizedOptions) {
       if (!option.label || !option.value) {
-        throw new BadRequestException("Select field options must include label and value.");
+        throw new BadRequestException(
+          "Select field options must include label and value.",
+        );
       }
 
       if (seenValues.has(option.value)) {
@@ -341,7 +342,9 @@ export class AdmissionFormFieldsService {
       }
 
       if (typeof value !== "boolean") {
-        throw new BadRequestException(`"${field.label}" must be true or false.`);
+        throw new BadRequestException(
+          `"${field.label}" must be true or false.`,
+        );
       }
 
       if (field.required && value !== true) {
@@ -352,7 +355,13 @@ export class AdmissionFormFieldsService {
     }
 
     const stringValue =
-      typeof value === "string" ? value.trim() : value == null ? "" : String(value).trim();
+      typeof value === "string"
+        ? value.trim()
+        : value == null
+          ? ""
+          : typeof value === "number" || typeof value === "boolean"
+            ? String(value).trim()
+            : "";
 
     if (!stringValue) {
       if (field.required) {
@@ -366,7 +375,9 @@ export class AdmissionFormFieldsService {
       const parsed = Number(stringValue);
 
       if (!Number.isFinite(parsed)) {
-        throw new BadRequestException(`"${field.label}" must be a valid number.`);
+        throw new BadRequestException(
+          `"${field.label}" must be a valid number.`,
+        );
       }
 
       return parsed;
@@ -374,7 +385,9 @@ export class AdmissionFormFieldsService {
 
     if (field.fieldType === ADMISSION_FORM_FIELD_TYPES.EMAIL) {
       if (!EMAIL_PATTERN.test(stringValue)) {
-        throw new BadRequestException(`"${field.label}" must be a valid email.`);
+        throw new BadRequestException(
+          `"${field.label}" must be a valid email.`,
+        );
       }
     }
 
@@ -389,7 +402,9 @@ export class AdmissionFormFieldsService {
     if (field.fieldType === ADMISSION_FORM_FIELD_TYPES.PHONE) {
       const digits = stringValue.replace(/\D/g, "");
       if (digits.length < PHONE_MIN_LENGTH) {
-        throw new BadRequestException(`"${field.label}" must be a valid phone number.`);
+        throw new BadRequestException(
+          `"${field.label}" must be a valid phone number.`,
+        );
       }
     }
 
@@ -400,9 +415,13 @@ export class AdmissionFormFieldsService {
     }
 
     if (field.fieldType === ADMISSION_FORM_FIELD_TYPES.SELECT) {
-      const allowedValues = new Set((field.options ?? []).map((option) => option.value));
+      const allowedValues = new Set(
+        (field.options ?? []).map((option) => option.value),
+      );
       if (!allowedValues.has(stringValue)) {
-        throw new BadRequestException(`"${field.label}" has an invalid option.`);
+        throw new BadRequestException(
+          `"${field.label}" has an invalid option.`,
+        );
       }
     }
 

@@ -76,7 +76,10 @@ export function ExamTermForm({
                   onValueChange={field.onChange}
                   value={field.value ?? ""}
                 >
-                  <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                  <SelectTrigger
+                    aria-invalid={fieldState.invalid}
+                    className="w-full"
+                  >
                     <SelectValue placeholder="Select academic year" />
                   </SelectTrigger>
                   <SelectContent>

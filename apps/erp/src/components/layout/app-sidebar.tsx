@@ -1,8 +1,5 @@
 import * as React from "react";
-import {
-  AUTH_CONTEXT_KEYS,
-  type AuthContextKey,
-} from "@repo/contracts";
+import { AUTH_CONTEXT_KEYS, type AuthContextKey } from "@repo/contracts";
 import {
   IconAdjustments,
   IconBook2,
@@ -278,7 +275,6 @@ const NAV_STUDENT_SERVICES = [
 const HEADER_CLASS =
   "flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-white/8 bg-white/4 px-3 py-3 text-left transition-[width,height,padding] hover:bg-white/8 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-2";
 
-
 function InstitutionLogo({
   logoUrl,
   institutionName,
@@ -442,8 +438,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         className={cn(
                           "flex size-8 shrink-0 items-center justify-center rounded-2xl border",
                           isActive
-                            ? "border-transparent bg-[var(--primary)] text-primary-foreground"
-                            : "border-border/70 bg-muted/50 text-[var(--primary)]",
+                            ? "border-transparent bg-primary text-primary-foreground"
+                            : "border-border/70 bg-muted/50 text-primary",
                         )}
                       >
                         <meta.Icon className="size-[18px]" />
@@ -459,7 +455,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         ) : null}
                       </span>
                       {isActive ? (
-                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background/95 text-[var(--primary)]">
+                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background/95 text-primary">
                           <IconCheck className="size-3.5" />
                         </span>
                       ) : (
@@ -483,34 +479,84 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <>
             <NavMain items={homeItems} />
             {coreItems.length > 0 ? (
-              <NavMain collapsible icon={IconUsers} items={coreItems} label="People" />
+              <NavMain
+                collapsible
+                icon={IconUsers}
+                items={coreItems}
+                label="People"
+              />
             ) : null}
             {admissionsItems.length > 0 ? (
-              <NavMain collapsible icon={IconFileDescription} items={admissionsItems} label="Admissions" />
+              <NavMain
+                collapsible
+                icon={IconFileDescription}
+                items={admissionsItems}
+                label="Admissions"
+              />
             ) : null}
             {academicManagementItems.length > 0 ? (
-              <NavMain collapsible icon={IconBook2} items={academicManagementItems} label="Academics" />
+              <NavMain
+                collapsible
+                icon={IconBook2}
+                items={academicManagementItems}
+                label="Academics"
+              />
             ) : null}
             {recordItems.length > 0 ? (
-              <NavMain collapsible icon={IconFolder} items={recordItems} label="Records" />
+              <NavMain
+                collapsible
+                icon={IconFolder}
+                items={recordItems}
+                label="Records"
+              />
             ) : null}
             {financeItems.length > 0 ? (
-              <NavMain collapsible icon={IconCurrencyRupee} items={financeItems} label="Finance" />
+              <NavMain
+                collapsible
+                icon={IconCurrencyRupee}
+                items={financeItems}
+                label="Finance"
+              />
             ) : null}
             {communicationItems.length > 0 ? (
-              <NavMain collapsible icon={IconSpeakerphone} items={communicationItems} label="Communication" />
+              <NavMain
+                collapsible
+                icon={IconSpeakerphone}
+                items={communicationItems}
+                label="Communication"
+              />
             ) : null}
             {servicesItems.length > 0 ? (
-              <NavMain collapsible icon={IconLayoutGrid} items={servicesItems} label="Services" />
+              <NavMain
+                collapsible
+                icon={IconLayoutGrid}
+                items={servicesItems}
+                label="Services"
+              />
             ) : null}
             {hrItems.length > 0 ? (
-              <NavMain collapsible icon={IconUsersGroup} items={hrItems} label="HR & Payroll" />
+              <NavMain
+                collapsible
+                icon={IconUsersGroup}
+                items={hrItems}
+                label="HR & Payroll"
+              />
             ) : null}
             {reportItems.length > 0 ? (
-              <NavMain collapsible icon={IconChartBar} items={reportItems} label="Reports" />
+              <NavMain
+                collapsible
+                icon={IconChartBar}
+                items={reportItems}
+                label="Reports"
+              />
             ) : null}
             {settingsItems.length > 0 ? (
-              <NavMain collapsible icon={IconAdjustments} items={settingsItems} label="Settings" />
+              <NavMain
+                collapsible
+                icon={IconAdjustments}
+                items={settingsItems}
+                label="Settings"
+              />
             ) : null}
           </>
         ) : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT ? (

@@ -37,10 +37,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
-import {
-  buildSubjectEditRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
+import { buildSubjectEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
   getActiveContext,
@@ -193,7 +190,9 @@ export function SubjectsPage() {
           </button>
         ),
         cell: ({ getValue }) => (
-          <span className="text-sm text-muted-foreground">{getValue() || "—"}</span>
+          <span className="text-sm text-muted-foreground">
+            {getValue() || "—"}
+          </span>
         ),
       }),
       columnHelper.accessor("status", {
@@ -215,7 +214,10 @@ export function SubjectsPage() {
         ),
         cell: ({ getValue }) =>
           getValue() === "active" ? (
-            <Badge variant="secondary" className="text-green-700 dark:text-green-400">
+            <Badge
+              variant="secondary"
+              className="text-green-700 dark:text-green-400"
+            >
               Active
             </Badge>
           ) : (
@@ -254,7 +256,9 @@ export function SubjectsPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem onSelect={() => void handleToggleStatus(subject)}>
+                  <DropdownMenuItem
+                    onSelect={() => void handleToggleStatus(subject)}
+                  >
                     <IconPower className="mr-2 size-4" />
                     {subject.status === "active" ? "Disable" : "Enable"}
                   </DropdownMenuItem>
@@ -318,7 +322,8 @@ export function SubjectsPage() {
         <CardHeader>
           <CardTitle>{SUBJECTS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage subject records.
+            Sign in with an institution-backed session to manage subject
+            records.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -331,8 +336,8 @@ export function SubjectsPage() {
         <CardHeader>
           <CardTitle>{SUBJECTS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Subject administration is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            Subject administration is available in Staff view. You are currently
+            in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -374,7 +379,9 @@ export function SubjectsPage() {
           emptyAction={
             !isFiltered ? (
               <EntityEmptyStateAction asChild>
-                <Link to={appendSearch(ERP_ROUTES.SUBJECT_CREATE, location.search)}>
+                <Link
+                  to={appendSearch(ERP_ROUTES.SUBJECT_CREATE, location.search)}
+                >
                   <IconPlus className="size-4" />
                   New subject
                 </Link>

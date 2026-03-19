@@ -187,7 +187,9 @@ export function AuditPage() {
               {row.original.actor.contextKey ? (
                 <>
                   <span className="hidden h-1 w-1 rounded-full bg-border sm:block" />
-                  <span className="capitalize">{row.original.actor.contextKey}</span>
+                  <span className="capitalize">
+                    {row.original.actor.contextKey}
+                  </span>
                 </>
               ) : null}
             </div>
@@ -297,7 +299,8 @@ export function AuditPage() {
         <CardHeader>
           <CardTitle>{AUDIT_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to review the audit trail.
+            Sign in with an institution-backed session to review the audit
+            trail.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -324,7 +327,8 @@ export function AuditPage() {
     filters.action !== "all" ||
     filters.entityType !== "all";
 
-  const hasActiveFilters = filters.action !== "all" || filters.entityType !== "all";
+  const hasActiveFilters =
+    filters.action !== "all" || filters.entityType !== "all";
 
   return (
     <EntityListPage
@@ -411,7 +415,9 @@ export function AuditPage() {
             ? AUDIT_PAGE_COPY.EMPTY_FILTERED_TITLE
             : AUDIT_PAGE_COPY.EMPTY_TITLE
         }
-        errorDescription={(auditQuery.error as Error | null | undefined)?.message}
+        errorDescription={
+          (auditQuery.error as Error | null | undefined)?.message
+        }
         errorTitle={AUDIT_PAGE_COPY.ERROR_TITLE}
         isError={auditQuery.isError}
         isLoading={auditQuery.isLoading}

@@ -111,8 +111,7 @@ export const COMMUNICATIONS_API_PATHS = {
   PUBLISH_ANNOUNCEMENT:
     "/communications/announcements/{announcementId}/publish",
   LIST_NOTIFICATIONS: "/communications/notifications",
-  MARK_ALL_NOTIFICATIONS_READ:
-    "/communications/notifications/mark-all-read",
+  MARK_ALL_NOTIFICATIONS_READ: "/communications/notifications/mark-all-read",
 } as const;
 
 export const CAMPUSES_API_PATHS = {

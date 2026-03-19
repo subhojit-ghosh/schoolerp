@@ -156,7 +156,11 @@ export class SubjectsService {
     const campusId = this.requireActiveCampusId(authSession);
     this.assertCampusScopeAccess(campusId, scopes);
     await this.getCampus(institutionId, campusId);
-    await this.assertSubjectNameAvailable(institutionId, campusId, payload.name);
+    await this.assertSubjectNameAvailable(
+      institutionId,
+      campusId,
+      payload.name,
+    );
 
     const subjectId = randomUUID();
 

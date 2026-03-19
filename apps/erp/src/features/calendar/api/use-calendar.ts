@@ -35,7 +35,10 @@ export function useCalendarEventsQuery(
   );
 }
 
-export function useCalendarEventQuery(enabled: boolean, eventId: string | undefined) {
+export function useCalendarEventQuery(
+  enabled: boolean,
+  eventId: string | undefined,
+) {
   return apiQueryClient.useQuery(
     "get",
     CALENDAR_API_PATHS.DETAIL_EVENT,
@@ -58,8 +61,10 @@ export function useCreateCalendarEventMutation() {
   return apiQueryClient.useMutation("post", CALENDAR_API_PATHS.CREATE_EVENT, {
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", CALENDAR_API_PATHS.LIST_EVENTS)
-          .queryKey,
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          CALENDAR_API_PATHS.LIST_EVENTS,
+        ).queryKey,
       });
     },
   });
@@ -71,18 +76,24 @@ export function useUpdateCalendarEventMutation() {
   return apiQueryClient.useMutation("patch", CALENDAR_API_PATHS.UPDATE_EVENT, {
     onSuccess: (_, variables) => {
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", CALENDAR_API_PATHS.LIST_EVENTS)
-          .queryKey,
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          CALENDAR_API_PATHS.LIST_EVENTS,
+        ).queryKey,
       });
 
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", CALENDAR_API_PATHS.DETAIL_EVENT, {
-          params: {
-            path: {
-              eventId: variables.params.path.eventId,
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          CALENDAR_API_PATHS.DETAIL_EVENT,
+          {
+            params: {
+              path: {
+                eventId: variables.params.path.eventId,
+              },
             },
           },
-        }).queryKey,
+        ).queryKey,
       });
     },
   });
@@ -91,14 +102,20 @@ export function useUpdateCalendarEventMutation() {
 export function useSetCalendarEventStatusMutation() {
   const queryClient = useQueryClient();
 
-  return apiQueryClient.useMutation("patch", CALENDAR_API_PATHS.SET_EVENT_STATUS, {
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", CALENDAR_API_PATHS.LIST_EVENTS)
-          .queryKey,
-      });
+  return apiQueryClient.useMutation(
+    "patch",
+    CALENDAR_API_PATHS.SET_EVENT_STATUS,
+    {
+      onSuccess: () => {
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            CALENDAR_API_PATHS.LIST_EVENTS,
+          ).queryKey,
+        });
+      },
     },
-  });
+  );
 }
 
 export function useDeleteCalendarEventMutation() {
@@ -107,8 +124,10 @@ export function useDeleteCalendarEventMutation() {
   return apiQueryClient.useMutation("delete", CALENDAR_API_PATHS.DELETE_EVENT, {
     onSuccess: () => {
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", CALENDAR_API_PATHS.LIST_EVENTS)
-          .queryKey,
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          CALENDAR_API_PATHS.LIST_EVENTS,
+        ).queryKey,
       });
     },
   });

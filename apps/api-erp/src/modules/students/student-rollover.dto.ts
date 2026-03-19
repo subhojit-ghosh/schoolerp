@@ -1,7 +1,6 @@
 import {
   STUDENT_ROLLOVER_ACTIONS,
   STUDENT_ROLLOVER_PREVIEW_STATUS,
-  type PermissionSlug,
 } from "@repo/contracts";
 import { ApiProperty } from "@nestjs/swagger";
 

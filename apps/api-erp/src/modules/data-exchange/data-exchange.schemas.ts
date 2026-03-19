@@ -22,6 +22,8 @@ export function parseDataExchangeBody(input: unknown) {
   return dataExchangeBodySchema.parse(input);
 }
 
-export function parseDataExchangeEntityType(input: unknown): DataExchangeEntityType {
+export function parseDataExchangeEntityType(
+  input: unknown,
+): DataExchangeEntityType {
   return dataExchangeEntityParamsSchema.parse(input).entityType;
 }

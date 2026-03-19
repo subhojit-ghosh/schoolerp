@@ -29,7 +29,9 @@ export const timetableEditorFormSchema = z.object({
   entries: z.array(timetableEntryFormSchema),
 });
 
-export type TimetableEditorFormValues = z.infer<typeof timetableEditorFormSchema>;
+export type TimetableEditorFormValues = z.infer<
+  typeof timetableEditorFormSchema
+>;
 
 export const WEEKDAY_OPTIONS = [
   { label: "Monday", value: WEEKDAY_KEYS.MONDAY },

@@ -50,11 +50,7 @@ export class CreateCalendarEventBodyDto {
   isAllDay!: boolean;
 
   @ApiProperty({ enum: Object.values(CALENDAR_EVENT_TYPES) })
-  eventType!:
-    | "holiday"
-    | "exam"
-    | "event"
-    | "deadline";
+  eventType!: "holiday" | "exam" | "event" | "deadline";
 }
 
 export class UpdateCalendarEventBodyDto {
@@ -77,11 +73,7 @@ export class UpdateCalendarEventBodyDto {
   isAllDay!: boolean;
 
   @ApiProperty({ enum: Object.values(CALENDAR_EVENT_TYPES) })
-  eventType!:
-    | "holiday"
-    | "exam"
-    | "event"
-    | "deadline";
+  eventType!: "holiday" | "exam" | "event" | "deadline";
 }
 
 export class SetCalendarEventStatusBodyDto {
@@ -121,11 +113,7 @@ export class CalendarEventDto {
   isAllDay!: boolean;
 
   @ApiProperty({ enum: Object.values(CALENDAR_EVENT_TYPES) })
-  eventType!:
-    | "holiday"
-    | "exam"
-    | "event"
-    | "deadline";
+  eventType!: "holiday" | "exam" | "event" | "deadline";
 
   @ApiProperty({ enum: ["active", "inactive", "deleted"] })
   status!: "active" | "inactive" | "deleted";

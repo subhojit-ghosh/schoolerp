@@ -78,14 +78,16 @@ export function AdmissionFormFieldsPage() {
     isStaffContext(session) &&
     hasPermission(session, PERMISSIONS.ADMISSIONS_MANAGE);
   const fieldsQuery = useAdmissionFormFieldsQuery(institutionId);
-  const createFieldMutation = useCreateAdmissionFormFieldMutation(institutionId);
-  const updateFieldMutation = useUpdateAdmissionFormFieldMutation(institutionId);
-  const [editingField, setEditingField] = useState<AdmissionFormFieldRecord | null>(
-    null,
-  );
-  const fields = fieldsQuery.data?.rows ?? [];
-  const groupedFields = useMemo(
-    () => ({
+  const createFieldMutation =
+    useCreateAdmissionFormFieldMutation(institutionId);
+  const updateFieldMutation =
+    useUpdateAdmissionFormFieldMutation(institutionId);
+  const [editingField, setEditingField] =
+    useState<AdmissionFormFieldRecord | null>(null);
+  const groupedFields = useMemo(() => {
+    const fields = fieldsQuery.data?.rows ?? [];
+
+    return {
       application: fields.filter(
         (field) =>
           field.scope === ADMISSION_FORM_FIELD_SCOPES.APPLICATION ||
@@ -96,19 +98,13 @@ export function AdmissionFormFieldsPage() {
           field.scope === ADMISSION_FORM_FIELD_SCOPES.STUDENT ||
           field.scope === ADMISSION_FORM_FIELD_SCOPES.BOTH,
       ),
-    }),
-    [fields],
-  );
-  const {
-    control,
-    formState,
-    handleSubmit,
-    reset,
-    setValue,
-  } = useForm<AdmissionFormFieldBuilderValues>({
-    resolver: zodResolver(admissionFormFieldBuilderSchema),
-    defaultValues: ADMISSION_FORM_FIELD_BUILDER_DEFAULT_VALUES,
-  });
+    };
+  }, [fieldsQuery.data?.rows]);
+  const { control, formState, handleSubmit, reset, setValue } =
+    useForm<AdmissionFormFieldBuilderValues>({
+      resolver: zodResolver(admissionFormFieldBuilderSchema),
+      defaultValues: ADMISSION_FORM_FIELD_BUILDER_DEFAULT_VALUES,
+    });
   const labelValue = useWatch({ control, name: "label" });
   const fieldType = useWatch({ control, name: "fieldType" });
 
@@ -125,7 +121,10 @@ export function AdmissionFormFieldsPage() {
 
   useEffect(() => {
     if (fieldType !== ADMISSION_FORM_FIELD_TYPES.SELECT) {
-      setValue("optionsText", "", { shouldDirty: false, shouldValidate: false });
+      setValue("optionsText", "", {
+        shouldDirty: false,
+        shouldValidate: false,
+      });
     }
   }, [fieldType, setValue]);
 
@@ -160,7 +159,8 @@ export function AdmissionFormFieldsPage() {
         title="Admission Fields"
       >
         <div className="p-5 text-sm text-muted-foreground">
-          Sign in with an institution-backed session to manage configurable admission fields.
+          Sign in with an institution-backed session to manage configurable
+          admission fields.
         </div>
       </EntityListPage>
     );
@@ -181,7 +181,8 @@ export function AdmissionFormFieldsPage() {
     );
   }
 
-  const isPending = createFieldMutation.isPending || updateFieldMutation.isPending;
+  const isPending =
+    createFieldMutation.isPending || updateFieldMutation.isPending;
   const errorMessage =
     (fieldsQuery.error as Error | null | undefined)?.message ??
     (createFieldMutation.error as Error | null | undefined)?.message ??
@@ -221,7 +222,8 @@ export function AdmissionFormFieldsPage() {
       toolbar={
         <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
           <p className="text-sm text-muted-foreground">
-            Keep operational fields in the core schema. Use custom fields for school-specific details only.
+            Keep operational fields in the core schema. Use custom fields for
+            school-specific details only.
           </p>
         </div>
       }
@@ -233,7 +235,8 @@ export function AdmissionFormFieldsPage() {
               {editingField ? "Edit custom field" : "New custom field"}
             </CardTitle>
             <CardDescription>
-              Define additional fields for applications, student profiles, or both.
+              Define additional fields for applications, student profiles, or
+              both.
               {editingField
                 ? " Field key and type stay locked after creation so saved records remain readable."
                 : ""}
@@ -282,17 +285,22 @@ export function AdmissionFormFieldsPage() {
                       <Field data-invalid={fieldState.invalid || undefined}>
                         <FieldLabel>Scope</FieldLabel>
                         <FieldContent>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
                             <SelectTrigger aria-invalid={fieldState.invalid}>
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                {ADMISSION_FORM_FIELD_SCOPE_OPTIONS.map((scope) => (
-                                  <SelectItem key={scope} value={scope}>
-                                    {toTitleCase(scope)}
-                                  </SelectItem>
-                                ))}
+                                {ADMISSION_FORM_FIELD_SCOPE_OPTIONS.map(
+                                  (scope) => (
+                                    <SelectItem key={scope} value={scope}>
+                                      {toTitleCase(scope)}
+                                    </SelectItem>
+                                  ),
+                                )}
                               </SelectGroup>
                             </SelectContent>
                           </Select>
@@ -309,7 +317,10 @@ export function AdmissionFormFieldsPage() {
                       <Field data-invalid={fieldState.invalid || undefined}>
                         <FieldLabel>Field type</FieldLabel>
                         <FieldContent>
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
                             <SelectTrigger
                               aria-invalid={fieldState.invalid}
                               disabled={Boolean(editingField)}
@@ -318,11 +329,13 @@ export function AdmissionFormFieldsPage() {
                             </SelectTrigger>
                             <SelectContent>
                               <SelectGroup>
-                                {ADMISSION_FORM_FIELD_TYPE_OPTIONS.map((type) => (
-                                  <SelectItem key={type} value={type}>
-                                    {toTitleCase(type)}
-                                  </SelectItem>
-                                ))}
+                                {ADMISSION_FORM_FIELD_TYPE_OPTIONS.map(
+                                  (type) => (
+                                    <SelectItem key={type} value={type}>
+                                      {toTitleCase(type)}
+                                    </SelectItem>
+                                  ),
+                                )}
                               </SelectGroup>
                             </SelectContent>
                           </Select>
@@ -386,7 +399,8 @@ export function AdmissionFormFieldsPage() {
 
                 {fieldType === ADMISSION_FORM_FIELD_TYPES.CHECKBOX ? (
                   <p className="text-xs text-muted-foreground">
-                    Required checkbox fields must be checked before a form can be submitted.
+                    Required checkbox fields must be checked before a form can
+                    be submitted.
                   </p>
                 ) : null}
 
@@ -556,16 +570,25 @@ function FieldListCard({
                       </span>
                     ) : null}
                   </div>
-                  <p className="text-xs text-muted-foreground">Key: {field.key}</p>
                   <p className="text-xs text-muted-foreground">
-                    Order: {field.sortOrder} {field.required ? "• Required" : "• Optional"}
+                    Key: {field.key}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Order: {field.sortOrder}{" "}
+                    {field.required ? "• Required" : "• Optional"}
                   </p>
                   {field.helpText ? (
-                    <p className="text-sm text-muted-foreground">{field.helpText}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {field.helpText}
+                    </p>
                   ) : null}
                 </div>
 
-                <Button onClick={() => onEdit(field)} size="sm" variant="outline">
+                <Button
+                  onClick={() => onEdit(field)}
+                  size="sm"
+                  variant="outline"
+                >
                   <IconPencil className="size-4" />
                   Edit
                 </Button>

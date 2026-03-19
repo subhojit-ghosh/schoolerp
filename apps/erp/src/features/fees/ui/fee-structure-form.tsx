@@ -11,7 +11,10 @@ import {
   useSensors,
   type DragEndEvent,
 } from "@dnd-kit/core";
-import { restrictToVerticalAxis, restrictToParentElement } from "@dnd-kit/modifiers";
+import {
+  restrictToVerticalAxis,
+  restrictToParentElement,
+} from "@dnd-kit/modifiers";
 import {
   SortableContext,
   sortableKeyboardCoordinates,
@@ -96,7 +99,14 @@ function SortableInstallmentRow({
   isReadOnly,
   onRemove,
 }: SortableRowProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
     id,
     disabled: isReadOnly,
   });
@@ -119,7 +129,9 @@ function SortableInstallmentRow({
       </button>
 
       {/* Row number */}
-      <span className="text-xs text-muted-foreground pt-2.5 tabular-nums">{index + 1}</span>
+      <span className="text-xs text-muted-foreground pt-2.5 tabular-nums">
+        {index + 1}
+      </span>
 
       <Controller
         control={control}
@@ -242,7 +254,9 @@ export function FeeStructureForm({
 
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
   );
 
   function handleDragEnd(event: DragEndEvent) {
@@ -293,13 +307,18 @@ export function FeeStructureForm({
                         onValueChange={field.onChange}
                         value={field.value ?? ""}
                       >
-                        <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                        <SelectTrigger
+                          aria-invalid={fieldState.invalid}
+                          className="w-full"
+                        >
                           <SelectValue placeholder="Select year" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
                             {academicYears.map((ay) => (
-                              <SelectItem key={ay.id} value={ay.id}>{ay.name}</SelectItem>
+                              <SelectItem key={ay.id} value={ay.id}>
+                                {ay.name}
+                              </SelectItem>
                             ))}
                           </SelectGroup>
                         </SelectContent>
@@ -322,7 +341,10 @@ export function FeeStructureForm({
                         onValueChange={field.onChange}
                         value={field.value}
                       >
-                        <SelectTrigger aria-invalid={fieldState.invalid} className="w-full">
+                        <SelectTrigger
+                          aria-invalid={fieldState.invalid}
+                          className="w-full"
+                        >
                           <SelectValue placeholder="Select scope" />
                         </SelectTrigger>
                         <SelectContent>
@@ -351,8 +373,8 @@ export function FeeStructureForm({
 
             {!canUseCampusScope ? (
               <p className="text-sm text-muted-foreground">
-                Select an active campus in the header to create a campus-scoped fee
-                structure.
+                Select an active campus in the header to create a campus-scoped
+                fee structure.
               </p>
             ) : null}
 
@@ -361,7 +383,11 @@ export function FeeStructureForm({
                 <Field>
                   <FieldLabel>Campus</FieldLabel>
                   <FieldContent>
-                    <Input disabled readOnly value={campusLabel ?? "Active campus"} />
+                    <Input
+                      disabled
+                      readOnly
+                      value={campusLabel ?? "Active campus"}
+                    />
                   </FieldContent>
                 </Field>
               ) : null}
@@ -399,7 +425,11 @@ export function FeeStructureForm({
             </SectionLabel>
             <Button
               onClick={() =>
-                append({ label: `Installment ${fields.length + 1}`, amount: "", dueDate: "" })
+                append({
+                  label: `Installment ${fields.length + 1}`,
+                  amount: "",
+                  dueDate: "",
+                })
               }
               size="sm"
               type="button"
@@ -430,7 +460,10 @@ export function FeeStructureForm({
               modifiers={[restrictToVerticalAxis, restrictToParentElement]}
               onDragEnd={handleDragEnd}
             >
-              <SortableContext items={fields.map((f) => f.id)} strategy={verticalListSortingStrategy}>
+              <SortableContext
+                items={fields.map((f) => f.id)}
+                strategy={verticalListSortingStrategy}
+              >
                 {fields.map((fieldItem, index) => (
                   <SortableInstallmentRow
                     key={fieldItem.id}
@@ -453,7 +486,11 @@ export function FeeStructureForm({
             {isPending ? "Saving..." : submitLabel}
           </EntityFormPrimaryAction>
           {onCancel ? (
-            <EntityFormSecondaryAction disabled={isPending} onClick={onCancel} type="button">
+            <EntityFormSecondaryAction
+              disabled={isPending}
+              onClick={onCancel}
+              type="button"
+            >
               Cancel
             </EntityFormSecondaryAction>
           ) : null}

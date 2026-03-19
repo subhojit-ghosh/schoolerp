@@ -104,7 +104,10 @@ export function GuardianForm({
               <FieldLabel>Primary campus</FieldLabel>
               <FieldContent>
                 <div className="flex h-10 items-center">
-                  <Badge className="rounded-md px-3 py-1 font-medium" variant="secondary">
+                  <Badge
+                    className="rounded-md px-3 py-1 font-medium"
+                    variant="secondary"
+                  >
                     {campusName}
                   </Badge>
                 </div>

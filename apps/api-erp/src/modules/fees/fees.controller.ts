@@ -234,7 +234,9 @@ export class FeesController {
   @Delete(STRUCTURE_DETAIL_PATH)
   @RequirePermission(PERMISSIONS.FEES_MANAGE)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Delete a fee structure (only if no assignments exist)" })
+  @ApiOperation({
+    summary: "Delete a fee structure (only if no assignments exist)",
+  })
   @ApiNoContentResponse()
   async deleteFeeStructure(
     @CurrentInstitution() institution: TenantInstitution,
@@ -333,7 +335,9 @@ export class FeesController {
 
   @Post(BULK_ASSIGNMENTS_PATH)
   @RequirePermission(PERMISSIONS.FEES_MANAGE)
-  @ApiOperation({ summary: "Bulk-assign a fee structure to all students in a class" })
+  @ApiOperation({
+    summary: "Bulk-assign a fee structure to all students in a class",
+  })
   @ApiBody({ type: BulkFeeAssignmentBodyDto })
   @ApiCreatedResponse({ type: BulkFeeAssignmentResultDto })
   createBulkFeeAssignment(
@@ -374,7 +378,9 @@ export class FeesController {
   @Delete(ASSIGNMENT_DETAIL_PATH)
   @RequirePermission(PERMISSIONS.FEES_MANAGE)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Delete a fee assignment (only if no payments recorded)" })
+  @ApiOperation({
+    summary: "Delete a fee assignment (only if no payments recorded)",
+  })
   @ApiNoContentResponse()
   async deleteFeeAssignment(
     @CurrentInstitution() institution: TenantInstitution,

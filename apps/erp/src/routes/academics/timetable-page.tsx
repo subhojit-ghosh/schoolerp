@@ -161,10 +161,11 @@ export function TimetablePage() {
   const replaceMutation = useReplaceTimetableMutation();
   const deleteMutation = useDeleteTimetableEntryMutation();
 
-  const { control, handleSubmit, reset, formState } = useForm<TimetableEditorFormValues>({
-    resolver: zodResolver(timetableEditorFormSchema),
-    defaultValues: DEFAULT_TIMETABLE_VALUES,
-  });
+  const { control, handleSubmit, reset, formState } =
+    useForm<TimetableEditorFormValues>({
+      resolver: zodResolver(timetableEditorFormSchema),
+      defaultValues: DEFAULT_TIMETABLE_VALUES,
+    });
 
   const entryFieldArray = useFieldArray({
     control,
@@ -235,7 +236,8 @@ export function TimetablePage() {
         <CardHeader>
           <CardTitle>Timetable</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage timetable records.
+            Sign in with an institution-backed session to manage timetable
+            records.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -248,8 +250,8 @@ export function TimetablePage() {
         <CardHeader>
           <CardTitle>Timetable</CardTitle>
           <CardDescription>
-            Timetable administration is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            Timetable administration is available in Staff view. You are
+            currently in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -332,7 +334,9 @@ export function TimetablePage() {
               <EntityToolbarSecondaryAction
                 type="button"
                 onClick={() =>
-                  entryFieldArray.append(buildEmptyTimetableEntry(defaultSubjectId))
+                  entryFieldArray.append(
+                    buildEmptyTimetableEntry(defaultSubjectId),
+                  )
                 }
               >
                 <IconPlus data-icon="inline-start" />
@@ -382,7 +386,10 @@ export function TimetablePage() {
                         control={control}
                         name={`entries.${index}.dayOfWeek`}
                         render={({ field }) => (
-                          <Select onValueChange={field.onChange} value={field.value}>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
                             <SelectTrigger>
                               <SelectValue placeholder="Day" />
                             </SelectTrigger>
@@ -409,10 +416,14 @@ export function TimetablePage() {
                                 min={1}
                                 value={String(field.value ?? 1)}
                                 onChange={(event) =>
-                                  field.onChange(event.target.valueAsNumber || 1)
+                                  field.onChange(
+                                    event.target.valueAsNumber || 1,
+                                  )
                                 }
                               />
-                              <FieldError>{fieldState.error?.message}</FieldError>
+                              <FieldError>
+                                {fieldState.error?.message}
+                              </FieldError>
                             </FieldContent>
                           </Field>
                         )}
@@ -425,7 +436,9 @@ export function TimetablePage() {
                           <Field data-invalid={fieldState.invalid || undefined}>
                             <FieldContent>
                               <Input {...field} type="time" />
-                              <FieldError>{fieldState.error?.message}</FieldError>
+                              <FieldError>
+                                {fieldState.error?.message}
+                              </FieldError>
                             </FieldContent>
                           </Field>
                         )}
@@ -438,7 +451,9 @@ export function TimetablePage() {
                           <Field data-invalid={fieldState.invalid || undefined}>
                             <FieldContent>
                               <Input {...field} type="time" />
-                              <FieldError>{fieldState.error?.message}</FieldError>
+                              <FieldError>
+                                {fieldState.error?.message}
+                              </FieldError>
                             </FieldContent>
                           </Field>
                         )}
@@ -450,19 +465,27 @@ export function TimetablePage() {
                         render={({ field, fieldState }) => (
                           <Field data-invalid={fieldState.invalid || undefined}>
                             <FieldContent>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select
+                                onValueChange={field.onChange}
+                                value={field.value}
+                              >
                                 <SelectTrigger>
                                   <SelectValue placeholder="Select subject" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   {activeSubjects.map((subject) => (
-                                    <SelectItem key={subject.id} value={subject.id}>
+                                    <SelectItem
+                                      key={subject.id}
+                                      value={subject.id}
+                                    >
                                       {subject.name}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
                               </Select>
-                              <FieldError>{fieldState.error?.message}</FieldError>
+                              <FieldError>
+                                {fieldState.error?.message}
+                              </FieldError>
                             </FieldContent>
                           </Field>
                         )}
@@ -474,8 +497,14 @@ export function TimetablePage() {
                         render={({ field, fieldState }) => (
                           <Field data-invalid={fieldState.invalid || undefined}>
                             <FieldContent>
-                              <Input {...field} placeholder="Room (optional)" value={field.value ?? ""} />
-                              <FieldError>{fieldState.error?.message}</FieldError>
+                              <Input
+                                {...field}
+                                placeholder="Room (optional)"
+                                value={field.value ?? ""}
+                              />
+                              <FieldError>
+                                {fieldState.error?.message}
+                              </FieldError>
                             </FieldContent>
                           </Field>
                         )}
@@ -485,7 +514,10 @@ export function TimetablePage() {
                         type="button"
                         onClick={() => entryFieldArray.remove(index)}
                       >
-                        <IconTrash data-icon="inline-start" className="size-3.5" />
+                        <IconTrash
+                          data-icon="inline-start"
+                          className="size-3.5"
+                        />
                         Remove
                       </EntityRowAction>
                     </div>
@@ -527,8 +559,12 @@ export function TimetablePage() {
                 className="flex flex-wrap items-center justify-between gap-3 rounded-lg border px-3 py-2"
               >
                 <p className="text-sm text-muted-foreground">
-                  {WEEKDAY_OPTIONS.find((day) => day.value === entry.dayOfWeek)?.label},{" "}
-                  Period {entry.periodIndex} • {entry.startTime} - {entry.endTime} • {entry.subjectName}
+                  {
+                    WEEKDAY_OPTIONS.find((day) => day.value === entry.dayOfWeek)
+                      ?.label
+                  }
+                  , Period {entry.periodIndex} • {entry.startTime} -{" "}
+                  {entry.endTime} • {entry.subjectName}
                   {entry.room ? ` • ${entry.room}` : ""}
                 </p>
                 <Button

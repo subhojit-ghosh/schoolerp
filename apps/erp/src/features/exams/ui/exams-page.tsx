@@ -108,7 +108,8 @@ export function ExamsPage() {
     }
 
     setSelectedReportStudentId((currentStudentId) =>
-      currentStudentId && students.some((student) => student.id === currentStudentId)
+      currentStudentId &&
+      students.some((student) => student.id === currentStudentId)
         ? currentStudentId
         : students[0]?.id,
     );
@@ -372,8 +373,8 @@ export function ExamsPage() {
           <CardHeader>
             <CardTitle>Report card</CardTitle>
             <CardDescription>
-              Subject-wise marks, grade bands, and overall grade for one
-              student in the selected term.
+              Subject-wise marks, grade bands, and overall grade for one student
+              in the selected term.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -435,7 +436,9 @@ export function ExamsPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge>{examReportCardQuery.data.summary.overallGrade}</Badge>
+                        <Badge>
+                          {examReportCardQuery.data.summary.overallGrade}
+                        </Badge>
                         <Button
                           type="button"
                           size="sm"
@@ -495,29 +498,33 @@ export function ExamsPage() {
                             </tr>
                           </thead>
                           <tbody className="divide-y">
-                            {examReportCardQuery.data.subjects.map((subject) => (
-                              <tr key={subject.subjectName}>
-                                <td className="px-3 py-2">
-                                  <p className="font-medium text-foreground">
-                                    {subject.subjectName}
-                                  </p>
-                                  {subject.remarks ? (
-                                    <p className="text-xs text-muted-foreground">
-                                      {subject.remarks}
+                            {examReportCardQuery.data.subjects.map(
+                              (subject) => (
+                                <tr key={subject.subjectName}>
+                                  <td className="px-3 py-2">
+                                    <p className="font-medium text-foreground">
+                                      {subject.subjectName}
                                     </p>
-                                  ) : null}
-                                </td>
-                                <td className="px-3 py-2 text-right tabular-nums">
-                                  {subject.obtainedMarks}/{subject.maxMarks}
-                                </td>
-                                <td className="px-3 py-2 text-right tabular-nums">
-                                  {subject.percent}%
-                                </td>
-                                <td className="px-3 py-2 text-right">
-                                  <Badge variant="outline">{subject.grade}</Badge>
-                                </td>
-                              </tr>
-                            ))}
+                                    {subject.remarks ? (
+                                      <p className="text-xs text-muted-foreground">
+                                        {subject.remarks}
+                                      </p>
+                                    ) : null}
+                                  </td>
+                                  <td className="px-3 py-2 text-right tabular-nums">
+                                    {subject.obtainedMarks}/{subject.maxMarks}
+                                  </td>
+                                  <td className="px-3 py-2 text-right tabular-nums">
+                                    {subject.percent}%
+                                  </td>
+                                  <td className="px-3 py-2 text-right">
+                                    <Badge variant="outline">
+                                      {subject.grade}
+                                    </Badge>
+                                  </td>
+                                </tr>
+                              ),
+                            )}
                           </tbody>
                         </table>
                       </div>

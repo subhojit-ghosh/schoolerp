@@ -196,9 +196,7 @@ export function FeeAssignmentsPage() {
         cell: ({ getValue }) => {
           const amount = getValue();
           return (
-            <span
-              className={amount > 0 ? "font-medium text-destructive" : ""}
-            >
+            <span className={amount > 0 ? "font-medium text-destructive" : ""}>
               {formatRupees(amount)}
             </span>
           );

@@ -21,13 +21,8 @@ import {
   SortIcon,
 } from "@/components/data-display/server-data-table";
 import { SORT_ORDERS } from "@/constants/query";
-import {
-  buildAdmissionEnquiryEditRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
-import {
-  useAdmissionEnquiriesQuery,
-} from "@/features/admissions/api/use-admissions";
+import { buildAdmissionEnquiryEditRoute, ERP_ROUTES } from "@/constants/routes";
+import { useAdmissionEnquiriesQuery } from "@/features/admissions/api/use-admissions";
 import {
   ADMISSION_ENQUIRIES_PAGE_COPY,
   ADMISSION_ENQUIRY_LIST_SORT_FIELDS,
@@ -114,7 +109,8 @@ export function AdmissionEnquiriesPage() {
             Student
             <SortIcon
               direction={
-                queryState.sortBy === ADMISSION_ENQUIRY_LIST_SORT_FIELDS.STUDENT_NAME
+                queryState.sortBy ===
+                ADMISSION_ENQUIRY_LIST_SORT_FIELDS.STUDENT_NAME
                   ? queryState.sortOrder
                   : false
               }
@@ -137,7 +133,9 @@ export function AdmissionEnquiriesPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(ADMISSION_ENQUIRY_LIST_SORT_FIELDS.CAMPUS)}
+            onClick={() =>
+              setSorting(ADMISSION_ENQUIRY_LIST_SORT_FIELDS.CAMPUS)
+            }
             type="button"
           >
             Campus
@@ -155,7 +153,9 @@ export function AdmissionEnquiriesPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() => setSorting(ADMISSION_ENQUIRY_LIST_SORT_FIELDS.STATUS)}
+            onClick={() =>
+              setSorting(ADMISSION_ENQUIRY_LIST_SORT_FIELDS.STATUS)
+            }
             type="button"
           >
             Status
@@ -215,7 +215,8 @@ export function AdmissionEnquiriesPage() {
         <CardHeader>
           <CardTitle>{ADMISSION_ENQUIRIES_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage admission enquiries.
+            Sign in with an institution-backed session to manage admission
+            enquiries.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -228,8 +229,8 @@ export function AdmissionEnquiriesPage() {
         <CardHeader>
           <CardTitle>{ADMISSION_ENQUIRIES_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Admission management is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            Admission management is available in Staff view. You are currently
+            in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>

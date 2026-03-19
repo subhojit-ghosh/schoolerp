@@ -83,10 +83,24 @@ export const DATA_EXCHANGE_TEMPLATE_ROWS = {
     ["Meera Singh", "9876543212", "meera@example.com", "Main Campus", "active"],
   ],
   [DATA_EXCHANGE_ENTITY_TYPES.GUARDIANS]: [
-    ["Rohit Sharma", "9876543210", "rohit@example.com", "Main Campus", "ADM-001", "father", "true"],
+    [
+      "Rohit Sharma",
+      "9876543210",
+      "rohit@example.com",
+      "Main Campus",
+      "ADM-001",
+      "father",
+      "true",
+    ],
   ],
   [DATA_EXCHANGE_ENTITY_TYPES.FEE_ASSIGNMENTS]: [
-    ["2026-2027", "Main Campus", "Tuition Fee", "ADM-001", "Imported from April onboarding sheet"],
+    [
+      "2026-2027",
+      "Main Campus",
+      "Tuition Fee",
+      "ADM-001",
+      "Imported from April onboarding sheet",
+    ],
   ],
 } as const satisfies Record<DataExchangeEntityType, readonly string[][]>;
 
@@ -97,12 +111,12 @@ export function parseCsv(csvContent: string) {
   let inQuotes = false;
 
   for (let index = 0; index < csvContent.length; index += 1) {
-    const character = csvContent[index]!;
+    const character = csvContent[index];
     const nextCharacter = csvContent[index + 1];
 
-    if (character === "\"") {
-      if (inQuotes && nextCharacter === "\"") {
-        currentCell += "\"";
+    if (character === '"') {
+      if (inQuotes && nextCharacter === '"') {
+        currentCell += '"';
         index += 1;
       } else {
         inQuotes = !inQuotes;
@@ -148,10 +162,10 @@ export function stringifyCsv(rows: readonly string[][]) {
         .map((value) => {
           if (
             value.includes(CSV_SEPARATOR) ||
-            value.includes("\"") ||
+            value.includes('"') ||
             value.includes("\n")
           ) {
-            return `"${value.replaceAll("\"", "\"\"")}"`;
+            return `"${value.replaceAll('"', '""')}"`;
           }
 
           return value;

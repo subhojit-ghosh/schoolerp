@@ -5,11 +5,7 @@ import {
   STUDENT_ROLLOVER_ACTIONS,
   STUDENT_ROLLOVER_PREVIEW_STATUS,
 } from "@repo/contracts";
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-} from "@nestjs/common";
+import { BadRequestException, Inject, Injectable } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
   academicYears,
@@ -44,24 +40,6 @@ import type {
   StudentRolloverRequestDto,
   StudentRolloverSectionMappingDto,
 } from "./student-rollover.schemas";
-
-type AcademicYearRecord = StudentRolloverAcademicYearDto & {
-  status: string;
-};
-
-type RolloverSourceStudentRow = {
-  studentId: string;
-  membershipId: string;
-  admissionNumber: string;
-  firstName: string;
-  lastName: string | null;
-  sourceClassId: string;
-  sourceClassName: string;
-  sourceSectionId: string;
-  sourceSectionName: string;
-  sourceCampusId: string;
-  sourceCampusName: string;
-};
 
 type StudentRolloverWriter = Pick<
   AppDatabase,
@@ -222,7 +200,10 @@ export class StudentRolloverService {
     );
     const withdrawnStudentIds = new Set(payload.withdrawnStudentIds);
 
-    const sectionsBySource = new Map<string, StudentRolloverPreviewSectionDto>();
+    const sectionsBySource = new Map<
+      string,
+      StudentRolloverPreviewSectionDto
+    >();
 
     for (const student of sourceStudents) {
       const sourceKey = this.getSourceKey(
@@ -258,7 +239,9 @@ export class StudentRolloverService {
         studentId: student.studentId,
         membershipId: student.membershipId,
         admissionNumber: student.admissionNumber,
-        fullName: [student.firstName, student.lastName].filter(Boolean).join(" "),
+        fullName: [student.firstName, student.lastName]
+          .filter(Boolean)
+          .join(" "),
         action,
         status,
         source: {
@@ -332,7 +315,8 @@ export class StudentRolloverService {
           0,
         ),
         sourceSectionCount: sections.length,
-        mappedSectionCount: sections.filter((section) => section.mapping).length,
+        mappedSectionCount: sections.filter((section) => section.mapping)
+          .length,
       },
       sections,
       generatedAt: new Date().toISOString(),

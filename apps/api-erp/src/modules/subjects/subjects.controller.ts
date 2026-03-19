@@ -142,7 +142,9 @@ export class SubjectsController {
 
   @Patch(":subjectId/status")
   @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
-  @ApiOperation({ summary: "Enable or disable a subject for the current tenant" })
+  @ApiOperation({
+    summary: "Enable or disable a subject for the current tenant",
+  })
   @ApiBody({ type: SetSubjectStatusBodyDto })
   @ApiOkResponse({ type: SubjectDto })
   setSubjectStatus(

@@ -26,12 +26,18 @@ const optionalCustomFieldValuesSchema = z
   .optional();
 
 export const createAdmissionEnquirySchema = z.object({
-  studentName: z.string().trim().min(NAME_MIN_LENGTH, "Student name is required"),
+  studentName: z
+    .string()
+    .trim()
+    .min(NAME_MIN_LENGTH, "Student name is required"),
   guardianName: z
     .string()
     .trim()
     .min(NAME_MIN_LENGTH, "Guardian name is required"),
-  mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
+  mobile: z
+    .string()
+    .trim()
+    .min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
   email: z
     .email()
     .optional()
@@ -59,7 +65,10 @@ export const createAdmissionApplicationSchema = z.object({
     .string()
     .trim()
     .min(NAME_MIN_LENGTH, "Guardian name is required"),
-  mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
+  mobile: z
+    .string()
+    .trim()
+    .min(MOBILE_MIN_LENGTH, "Guardian mobile is required"),
   email: z
     .email()
     .optional()
@@ -72,7 +81,8 @@ export const createAdmissionApplicationSchema = z.object({
   customFieldValues: optionalCustomFieldValuesSchema,
 });
 
-export const updateAdmissionApplicationSchema = createAdmissionApplicationSchema;
+export const updateAdmissionApplicationSchema =
+  createAdmissionApplicationSchema;
 
 export const admissionFormFieldIdSchema = z.object({
   fieldId: z.uuid(),
@@ -139,8 +149,12 @@ export const admissionApplicationIdSchema = z.object({
   applicationId: z.uuid(),
 });
 
-export type CreateAdmissionEnquiryDto = z.infer<typeof createAdmissionEnquirySchema>;
-export type UpdateAdmissionEnquiryDto = z.infer<typeof updateAdmissionEnquirySchema>;
+export type CreateAdmissionEnquiryDto = z.infer<
+  typeof createAdmissionEnquirySchema
+>;
+export type UpdateAdmissionEnquiryDto = z.infer<
+  typeof updateAdmissionEnquirySchema
+>;
 export type CreateAdmissionApplicationDto = z.infer<
   typeof createAdmissionApplicationSchema
 >;
@@ -217,7 +231,10 @@ export function parseListAdmissionEnquiriesQuery(
 export function parseListAdmissionApplicationsQuery(
   query: unknown,
 ): ListAdmissionApplicationsQueryDto {
-  const result = parseListQuerySchema(listAdmissionApplicationsQuerySchema, query);
+  const result = parseListQuerySchema(
+    listAdmissionApplicationsQuerySchema,
+    query,
+  );
 
   return {
     limit: result.limit,

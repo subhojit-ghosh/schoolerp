@@ -108,7 +108,10 @@ export class CalendarService {
       .from(calendarEvents)
       .leftJoin(campus, eq(calendarEvents.campusId, campus.id))
       .where(where)
-      .orderBy(sortDirection(sortableColumns[sortKey]), asc(calendarEvents.title))
+      .orderBy(
+        sortDirection(sortableColumns[sortKey]),
+        asc(calendarEvents.title),
+      )
       .limit(pageSize)
       .offset(pagination.offset);
 
@@ -184,8 +187,8 @@ export class CalendarService {
       title: normalizeCalendarValue(payload.title)!,
       description: normalizeCalendarValue(payload.description) ?? null,
       eventDate: payload.eventDate,
-      startTime: payload.isAllDay ? null : payload.startTime ?? null,
-      endTime: payload.isAllDay ? null : payload.endTime ?? null,
+      startTime: payload.isAllDay ? null : (payload.startTime ?? null),
+      endTime: payload.isAllDay ? null : (payload.endTime ?? null),
       isAllDay: payload.isAllDay,
       eventType: payload.eventType,
       status: STATUS.CALENDAR_EVENT.ACTIVE,
@@ -211,8 +214,8 @@ export class CalendarService {
         title: normalizeCalendarValue(payload.title)!,
         description: normalizeCalendarValue(payload.description) ?? null,
         eventDate: payload.eventDate,
-        startTime: payload.isAllDay ? null : payload.startTime ?? null,
-        endTime: payload.isAllDay ? null : payload.endTime ?? null,
+        startTime: payload.isAllDay ? null : (payload.startTime ?? null),
+        endTime: payload.isAllDay ? null : (payload.endTime ?? null),
         isAllDay: payload.isAllDay,
         eventType: payload.eventType,
       })

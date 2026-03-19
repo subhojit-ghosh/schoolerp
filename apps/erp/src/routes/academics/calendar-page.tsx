@@ -37,10 +37,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
-import {
-  buildCalendarEventEditRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
+import { buildCalendarEventEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
   getActiveContext,
@@ -90,7 +87,9 @@ export function CalendarPage() {
   const canQueryCalendar = canManageCalendar && Boolean(institutionId);
   const setStatusMutation = useSetCalendarEventStatusMutation();
   const deleteMutation = useDeleteCalendarEventMutation();
-  const [deleteTarget, setDeleteTarget] = useState<CalendarEventRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CalendarEventRow | null>(
+    null,
+  );
 
   const {
     queryState,
@@ -200,8 +199,9 @@ export function CalendarPage() {
         ),
         cell: ({ getValue }) => (
           <Badge variant="outline" className="capitalize">
-            {CALENDAR_EVENT_TYPE_OPTIONS.find((option) => option.value === getValue())
-              ?.label ?? getValue()}
+            {CALENDAR_EVENT_TYPE_OPTIONS.find(
+              (option) => option.value === getValue(),
+            )?.label ?? getValue()}
           </Badge>
         ),
       }),
@@ -259,7 +259,10 @@ export function CalendarPage() {
         ),
         cell: ({ getValue }) =>
           getValue() === "active" ? (
-            <Badge variant="secondary" className="text-green-700 dark:text-green-400">
+            <Badge
+              variant="secondary"
+              className="text-green-700 dark:text-green-400"
+            >
               Active
             </Badge>
           ) : (
@@ -298,7 +301,9 @@ export function CalendarPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
-                  <DropdownMenuItem onSelect={() => void handleToggleStatus(event)}>
+                  <DropdownMenuItem
+                    onSelect={() => void handleToggleStatus(event)}
+                  >
                     <IconPower className="mr-2 size-4" />
                     {event.status === "active" ? "Disable" : "Enable"}
                   </DropdownMenuItem>
@@ -352,7 +357,9 @@ export function CalendarPage() {
       },
     });
 
-    toast.success(ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.CALENDAR_EVENT));
+    toast.success(
+      ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
+    );
     setDeleteTarget(null);
   }
 
@@ -362,7 +369,8 @@ export function CalendarPage() {
         <CardHeader>
           <CardTitle>{CALENDAR_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage calendar events.
+            Sign in with an institution-backed session to manage calendar
+            events.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -375,8 +383,8 @@ export function CalendarPage() {
         <CardHeader>
           <CardTitle>{CALENDAR_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Calendar administration is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            Calendar administration is available in Staff view. You are
+            currently in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -391,7 +399,10 @@ export function CalendarPage() {
         actions={
           <EntityPagePrimaryAction asChild>
             <Link
-              to={appendSearch(ERP_ROUTES.CALENDAR_EVENT_CREATE, location.search)}
+              to={appendSearch(
+                ERP_ROUTES.CALENDAR_EVENT_CREATE,
+                location.search,
+              )}
             >
               <IconPlus className="size-4" />
               New calendar event
@@ -421,7 +432,10 @@ export function CalendarPage() {
             !isFiltered ? (
               <EntityEmptyStateAction asChild>
                 <Link
-                  to={appendSearch(ERP_ROUTES.CALENDAR_EVENT_CREATE, location.search)}
+                  to={appendSearch(
+                    ERP_ROUTES.CALENDAR_EVENT_CREATE,
+                    location.search,
+                  )}
                 >
                   <IconPlus className="size-4" />
                   New calendar event
