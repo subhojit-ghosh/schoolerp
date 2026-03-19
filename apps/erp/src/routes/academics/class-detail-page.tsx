@@ -32,7 +32,6 @@ export function ClassDetailPage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id;
   const canManageClasses = isStaffContext(session);
   const canQueryClass = canManageClasses && Boolean(institutionId);
   const classQuery = useClassQuery(canQueryClass, classId);
@@ -132,28 +131,6 @@ export function ClassDetailPage() {
   }
 
   const schoolClass = classQuery.data;
-
-  if (activeCampusId && schoolClass.campusId !== activeCampusId) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Switch back to the record campus</CardTitle>
-          <CardDescription>
-            This class belongs to {schoolClass.campusName}. Change the active
-            campus back before editing to avoid cross-campus updates.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button asChild variant="outline">
-            <Link to={ERP_ROUTES.CLASSES}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to classes
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-6">

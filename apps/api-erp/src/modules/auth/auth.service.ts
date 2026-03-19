@@ -388,6 +388,8 @@ export class AuthService {
       );
     }
 
+    await this.assertActiveCampusSelectionAllowed(authSession, campusId);
+
     await this.database
       .update(session)
       .set({
@@ -995,6 +997,44 @@ export class AuthService {
       .limit(1);
 
     return defaultCampus?.id ?? null;
+  }
+
+  private async assertActiveCampusSelectionAllowed(
+    authSession: AuthenticatedSession,
+    campusId: string,
+  ) {
+    if (!authSession.activeOrganizationId) {
+      return;
+    }
+
+    if (
+      authSession.activeContextKey === AUTH_CONTEXT_KEYS.PARENT ||
+      authSession.activeContextKey === AUTH_CONTEXT_KEYS.STUDENT
+    ) {
+      const linkedStudents = await this.listLinkedStudents(
+        authSession.user.id,
+        authSession.activeOrganizationId,
+      );
+
+      if (!linkedStudents.some((student) => student.campusId === campusId)) {
+        throw new UnauthorizedException(
+          ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED,
+        );
+      }
+
+      return;
+    }
+
+    const scopes = await this.resolveScopes(
+      authSession.user.id,
+      authSession.activeOrganizationId,
+    );
+
+    if (scopes.campusIds === "all" || scopes.campusIds.includes(campusId)) {
+      return;
+    }
+
+    throw new UnauthorizedException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
   }
 
   async assertUserIdentityAvailable(mobile: string, email: string | null) {

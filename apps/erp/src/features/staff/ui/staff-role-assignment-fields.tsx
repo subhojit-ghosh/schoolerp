@@ -215,29 +215,25 @@ export function StaffRoleAssignmentFields({
         {value.roleId ? (
           <div className="grid gap-4 sm:grid-cols-3">
             <Field>
-              <FieldLabel>Campus scope</FieldLabel>
+              <FieldLabel>Campus</FieldLabel>
               <FieldContent>
                 <Select
                   disabled={disabled}
                   onValueChange={(nextCampusId) =>
                     onChange({
                       ...value,
-                      campusId:
-                        nextCampusId === ALL_SCOPE_VALUE ? "" : nextCampusId,
+                      campusId: nextCampusId,
                       classId: "",
                       sectionId: "",
                     })
                   }
-                  value={value.campusId || ALL_SCOPE_VALUE}
+                  value={value.campusId || undefined}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Institution-wide" />
+                    <SelectValue placeholder="Select campus" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value={ALL_SCOPE_VALUE}>
-                        Institution-wide
-                      </SelectItem>
                       {campuses.map((campus) => (
                         <SelectItem key={campus.id} value={campus.id}>
                           {campus.name}

@@ -362,6 +362,7 @@ export class DataExchangeService {
       await this.studentsService.createStudent(
         institutionId,
         authSession,
+        scopes,
         payload,
       );
       context.existingStudentAdmissions.add(
@@ -386,6 +387,7 @@ export class DataExchangeService {
       const guardian = await this.guardiansService.upsertGuardian(
         institutionId,
         authSession,
+        scopes,
         {
           name: payload.name,
           mobile: payload.mobile,
@@ -397,6 +399,7 @@ export class DataExchangeService {
         institutionId,
         guardian.id,
         authSession,
+        scopes,
         {
           studentId: payload.studentId,
           relationship: payload.relationship,

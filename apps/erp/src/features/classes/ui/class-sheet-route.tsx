@@ -35,7 +35,6 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
   const { classId } = useParams();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id;
   const classQuery = useClassQuery(
     mode === "edit" && Boolean(institutionId),
     classId,
@@ -118,31 +117,6 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             Try returning to the classes list and opening the record again.
-          </CardContent>
-        </Card>
-      </RouteEntitySheet>
-    );
-  }
-
-  if (
-    mode === "edit" &&
-    classQuery.data &&
-    activeCampusId &&
-    classQuery.data.campusId !== activeCampusId
-  ) {
-    return (
-      <RouteEntitySheet
-        closeTo={ERP_ROUTES.CLASSES}
-        description="This class belongs to a different campus than the one currently active."
-        title="Switch back to the record campus"
-      >
-        <Card>
-          <CardHeader>
-            <CardTitle>Switch back to the record campus</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            This class belongs to {classQuery.data.campusName}. Change the
-            active campus back before editing to avoid cross-campus updates.
           </CardContent>
         </Card>
       </RouteEntitySheet>

@@ -82,11 +82,13 @@ export class AttendanceController {
   listAttendanceDay(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Query() query: AttendanceDayQueryParamsDto,
   ) {
     return this.attendanceService.getAttendanceDay(
       institution.id,
       authSession,
+      scopes,
       parseAttendanceDayQuery(query),
     );
   }
@@ -101,11 +103,13 @@ export class AttendanceController {
   upsertAttendanceDay(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: UpsertAttendanceDayBodyDto,
   ) {
     return this.attendanceService.upsertAttendanceDay(
       institution.id,
       authSession,
+      scopes,
       parseUpsertAttendanceDay(body),
     );
   }
@@ -118,11 +122,13 @@ export class AttendanceController {
   listAttendanceDayView(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Query() query: AttendanceDayViewQueryParamsDto,
   ) {
     return this.attendanceService.listAttendanceDayView(
       institution.id,
       authSession,
+      scopes,
       parseAttendanceDayViewQuery(query),
     );
   }
@@ -137,11 +143,13 @@ export class AttendanceController {
   getAttendanceOverview(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Query() query: AttendanceOverviewQueryParamsDto,
   ) {
     return this.attendanceService.getAttendanceOverview(
       institution.id,
       authSession,
+      scopes,
       parseAttendanceOverviewQuery(query),
     );
   }
@@ -156,11 +164,13 @@ export class AttendanceController {
   getAttendanceClassReport(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Query() query: AttendanceClassReportQueryParamsDto,
   ) {
     return this.attendanceService.getAttendanceClassReport(
       institution.id,
       authSession,
+      scopes,
       parseAttendanceClassReportQuery(query),
     );
   }
@@ -174,11 +184,13 @@ export class AttendanceController {
   getAttendanceStudentReport(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Query() query: AttendanceStudentReportQueryParamsDto,
   ) {
     return this.attendanceService.getAttendanceStudentReport(
       institution.id,
       authSession,
+      scopes,
       parseAttendanceStudentReportQuery(query),
     );
   }

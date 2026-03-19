@@ -181,7 +181,6 @@ export function StudentDetailPage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id;
   const canManageStudents = isStaffContext(session);
   const managedInstitutionId = canManageStudents ? institutionId : undefined;
   const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
@@ -339,28 +338,6 @@ export function StudentDetailPage() {
   const summary = studentSummaryQuery.data;
   const student = summary.student;
   const latestExam = summary.exams.latestTerm;
-
-  if (activeCampusId && student.campusId !== activeCampusId) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Switch back to the record campus</CardTitle>
-          <CardDescription>
-            This student record belongs to {student.campusName}. Change the
-            active campus back before editing to avoid cross-campus updates.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button asChild variant="outline">
-            <Link to={appendSearch(ERP_ROUTES.STUDENTS, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to students
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-4">

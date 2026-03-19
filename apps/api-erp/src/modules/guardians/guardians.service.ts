@@ -168,8 +168,10 @@ export class GuardiansService {
     institutionId: string,
     guardianId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
     const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
     const [guardianRecord] = await this.listGuardiansForInstitution(
       institutionId,
       activeCampusId,
@@ -186,9 +188,11 @@ export class GuardiansService {
   async upsertGuardian(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: UpdateGuardianDto,
   ) {
     const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
     const selectedCampus = await this.getCampus(institutionId, activeCampusId);
     const normalizedMobile = normalizeMobile(payload.mobile);
     const normalizedEmail = normalizeOptionalEmail(payload.email);
@@ -229,7 +233,12 @@ export class GuardiansService {
         );
       });
 
-      return this.getGuardian(institutionId, existingGuardian.id, authSession);
+      return this.getGuardian(
+        institutionId,
+        existingGuardian.id,
+        authSession,
+        scopes,
+      );
     }
 
     const createdGuardianId = randomUUID();
@@ -260,16 +269,18 @@ export class GuardiansService {
       );
     });
 
-    return this.getGuardian(institutionId, createdGuardianId, authSession);
+    return this.getGuardian(institutionId, createdGuardianId, authSession, scopes);
   }
 
   async updateGuardian(
     institutionId: string,
     guardianId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: UpdateGuardianDto,
   ) {
     const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
     const guardianMembership = await this.getGuardianMembership(
       institutionId,
       guardianId,
@@ -310,16 +321,18 @@ export class GuardiansService {
       );
     });
 
-    return this.getGuardian(institutionId, guardianId, authSession);
+    return this.getGuardian(institutionId, guardianId, authSession, scopes);
   }
 
   async linkStudent(
     institutionId: string,
     guardianId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: LinkGuardianStudentDto,
   ) {
     const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
     const guardianMembership = await this.getGuardianMembership(
       institutionId,
       guardianId,
@@ -403,7 +416,7 @@ export class GuardiansService {
       );
     });
 
-    return this.getGuardian(institutionId, guardianId, authSession);
+    return this.getGuardian(institutionId, guardianId, authSession, scopes);
   }
 
   async updateStudentLink(
@@ -411,9 +424,11 @@ export class GuardiansService {
     guardianId: string,
     studentId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: UpdateGuardianStudentLinkDto,
   ) {
     const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
     await this.getGuardianMembership(institutionId, guardianId, activeCampusId);
     const studentMembership = await this.getStudentMembership(
       institutionId,
@@ -458,7 +473,7 @@ export class GuardiansService {
       );
     });
 
-    return this.getGuardian(institutionId, guardianId, authSession);
+    return this.getGuardian(institutionId, guardianId, authSession, scopes);
   }
 
   async unlinkStudent(
@@ -466,8 +481,10 @@ export class GuardiansService {
     guardianId: string,
     studentId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
   ) {
     const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
     await this.getGuardianMembership(institutionId, guardianId, activeCampusId);
     const studentMembership = await this.getStudentMembership(
       institutionId,
@@ -510,7 +527,7 @@ export class GuardiansService {
       );
     });
 
-    return this.getGuardian(institutionId, guardianId, authSession);
+    return this.getGuardian(institutionId, guardianId, authSession, scopes);
   }
 
   private async listGuardiansForInstitution(

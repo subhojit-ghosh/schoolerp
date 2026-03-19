@@ -101,11 +101,13 @@ export class StudentsController {
   createStudent(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: CreateStudentBodyDto,
   ) {
     return this.studentsService.createStudent(
       institution.id,
       authSession,
+      scopes,
       parseCreateStudent(body),
     );
   }
@@ -161,12 +163,14 @@ export class StudentsController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("studentId") studentId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: UpdateStudentBodyDto,
   ) {
     return this.studentsService.updateStudent(
       institution.id,
       studentId,
       authSession,
+      scopes,
       parseUpdateStudent(body),
     );
   }

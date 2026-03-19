@@ -50,7 +50,6 @@ export function StaffDetailPage() {
   const canManageStaff = isStaffContext(session);
   const managedInstitutionId = canManageStaff ? institutionId : undefined;
   const campuses = session?.activeCampus ? [session.activeCampus] : [];
-  const activeCampusId = session?.activeCampus?.id;
   const staffQuery = useStaffDetailQuery(managedInstitutionId, staffId);
   const assignmentsQuery = useStaffRoleAssignmentsQuery(
     managedInstitutionId,
@@ -212,28 +211,6 @@ export function StaffDetailPage() {
   }
 
   const staffRecord = staffQuery.data;
-
-  if (activeCampusId && staffRecord.campusId !== activeCampusId) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Switch back to the record campus</CardTitle>
-          <CardDescription>
-            This staff record belongs to {staffRecord.campusName}. Change the
-            active campus back before editing to avoid cross-campus updates.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button asChild variant="outline">
-            <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to staff
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-6">

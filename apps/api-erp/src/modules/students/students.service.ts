@@ -407,9 +407,15 @@ export class StudentsService {
     institutionId: string,
     studentId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes = {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    },
     payload: UpdateStudentDto,
   ) {
     const activeCampusId = this.requireActiveCampusId(authSession);
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     const existingStudent = await this.getStudentMembership(
       institutionId,
       studentId,
@@ -565,7 +571,12 @@ export class StudentsService {
       );
     });
 
-    return this.getStudent(institutionId, studentId, authSession);
+    return this.getStudent(
+      institutionId,
+      studentId,
+      authSession,
+      activeCampusScopes,
+    );
   }
 
   private async listStudentsForInstitution(
@@ -1124,9 +1135,15 @@ export class StudentsService {
   async createStudent(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes = {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    },
     payload: CreateStudentDto,
   ) {
     const activeCampusId = this.requireActiveCampusId(authSession);
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     const selectedCampus = await this.getCampus(institutionId, activeCampusId);
     const nextCurrentEnrollment = payload.currentEnrollment ?? null;
 
@@ -1236,11 +1253,7 @@ export class StudentsService {
     });
 
     const [studentRecord] = (
-      await this.listStudentsForInstitution(institutionId, {
-        campusIds: "all",
-        classIds: "all",
-        sectionIds: "all",
-      })
+      await this.listStudentsForInstitution(institutionId, activeCampusScopes)
     ).filter((row) => row.id === createdStudent.id);
 
     if (!studentRecord) {

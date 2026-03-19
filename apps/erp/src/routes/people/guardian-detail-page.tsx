@@ -51,7 +51,6 @@ export function GuardianDetailPage() {
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const activeCampusId = session?.activeCampus?.id;
   const canManageGuardians = isStaffContext(session);
   const managedInstitutionId = canManageGuardians ? institutionId : undefined;
   const guardianQuery = useGuardianQuery(managedInstitutionId, guardianId);
@@ -224,28 +223,6 @@ export function GuardianDetailPage() {
   }
 
   const guardian = guardianQuery.data;
-
-  if (activeCampusId && guardian.campusId !== activeCampusId) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Switch back to the record campus</CardTitle>
-          <CardDescription>
-            This guardian record belongs to {guardian.campusName}. Change the
-            active campus back before editing to avoid cross-campus updates.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button asChild variant="outline">
-            <Link to={appendSearch(ERP_ROUTES.GUARDIANS, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to guardians
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
   const updateGuardianError = updateGuardianMutation.error as
     | Error
     | null

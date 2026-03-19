@@ -83,11 +83,13 @@ export class GuardiansController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("guardianId") guardianId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
   ) {
     return this.guardiansService.getGuardian(
       institution.id,
       guardianId,
       authSession,
+      scopes,
     );
   }
 
@@ -100,12 +102,14 @@ export class GuardiansController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("guardianId") guardianId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: UpdateGuardianBodyDto,
   ) {
     return this.guardiansService.updateGuardian(
       institution.id,
       guardianId,
       authSession,
+      scopes,
       parseUpdateGuardian(body),
     );
   }
@@ -119,12 +123,14 @@ export class GuardiansController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("guardianId") guardianId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: LinkGuardianStudentBodyDto,
   ) {
     return this.guardiansService.linkStudent(
       institution.id,
       guardianId,
       authSession,
+      scopes,
       parseLinkGuardianStudent(body),
     );
   }
@@ -139,6 +145,7 @@ export class GuardiansController {
     @Param("guardianId") guardianId: string,
     @Param("studentId") studentId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: UpdateGuardianStudentLinkBodyDto,
   ) {
     return this.guardiansService.updateStudentLink(
@@ -146,6 +153,7 @@ export class GuardiansController {
       guardianId,
       studentId,
       authSession,
+      scopes,
       parseUpdateGuardianStudentLink(body),
     );
   }
@@ -159,12 +167,14 @@ export class GuardiansController {
     @Param("guardianId") guardianId: string,
     @Param("studentId") studentId: string,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
   ) {
     return this.guardiansService.unlinkStudent(
       institution.id,
       guardianId,
       studentId,
       authSession,
+      scopes,
     );
   }
 }

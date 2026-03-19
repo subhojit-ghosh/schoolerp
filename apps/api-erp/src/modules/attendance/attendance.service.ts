@@ -143,15 +143,18 @@ export class AttendanceService {
   async getAttendanceDay(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: AttendanceDayQueryDto,
   ) {
     const selectedCampus = await this.getActiveCampus(
       institutionId,
       authSession,
     );
+    this.assertCampusScopeAccess(selectedCampus.id, scopes);
+    this.assertClassSectionScopeAccess(query.classId, query.sectionId, scopes);
     const [classSection, roster] = await Promise.all([
       this.getClassSection(query.classId, query.sectionId),
-      this.listRosterForScope(institutionId, selectedCampus.id, query),
+      this.listRosterForScope(institutionId, selectedCampus.id, scopes, query),
     ]);
 
     if (roster.length === 0) {
@@ -185,11 +188,18 @@ export class AttendanceService {
   async upsertAttendanceDay(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: UpsertAttendanceDayDto,
   ) {
     const selectedCampus = await this.getActiveCampus(
       institutionId,
       authSession,
+    );
+    this.assertCampusScopeAccess(selectedCampus.id, scopes);
+    this.assertClassSectionScopeAccess(
+      payload.classId,
+      payload.sectionId,
+      scopes,
     );
     const membership = await this.authService.getMembershipForOrganization(
       authSession.user.id,
@@ -204,6 +214,7 @@ export class AttendanceService {
     const roster = await this.listRosterForScope(
       institutionId,
       selectedCampus.id,
+      scopes,
       payload,
     );
     const classSection = await this.getClassSection(
@@ -305,15 +316,17 @@ export class AttendanceService {
       });
     });
 
-    return this.getAttendanceDay(institutionId, authSession, payload);
+    return this.getAttendanceDay(institutionId, authSession, scopes, payload);
   }
 
   async listAttendanceDayView(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: AttendanceDayViewQueryDto,
   ) {
     const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
     const rows = await this.db
       .select({
         campusId: attendanceRecords.campusId,
@@ -336,6 +349,7 @@ export class AttendanceService {
           eq(attendanceRecords.institutionId, institutionId),
           eq(attendanceRecords.attendanceDate, query.attendanceDate),
           eq(attendanceRecords.campusId, activeCampusId),
+          sectionScopeFilter(attendanceRecords.sectionId, scopes),
         ),
       )
       .orderBy(
@@ -386,9 +400,11 @@ export class AttendanceService {
   async getAttendanceOverview(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: AttendanceOverviewQueryDto,
   ) {
     const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
 
     // Get all distinct (campus, class, section) combos with active students
     const sectionRows = await this.db
@@ -413,6 +429,7 @@ export class AttendanceService {
           eq(member.status, STATUS.MEMBER.ACTIVE),
           ne(campus.status, STATUS.CAMPUS.DELETED),
           eq(member.primaryCampusId, activeCampusId),
+          sectionScopeFilter(students.sectionId, scopes),
         ),
       )
       .orderBy(
@@ -469,6 +486,7 @@ export class AttendanceService {
           eq(attendanceRecords.institutionId, institutionId),
           eq(attendanceRecords.attendanceDate, query.date),
           eq(attendanceRecords.campusId, activeCampusId),
+          sectionScopeFilter(attendanceRecords.sectionId, scopes),
         ),
       );
 
@@ -508,12 +526,15 @@ export class AttendanceService {
   async getAttendanceClassReport(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: AttendanceClassReportQueryDto,
   ) {
     const selectedCampus = await this.getActiveCampus(
       institutionId,
       authSession,
     );
+    this.assertCampusScopeAccess(selectedCampus.id, scopes);
+    this.assertClassSectionScopeAccess(query.classId, query.sectionId, scopes);
     const classSection = await this.getClassSection(
       query.classId,
       query.sectionId,
@@ -644,12 +665,14 @@ export class AttendanceService {
   async getAttendanceStudentReport(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     query: AttendanceStudentReportQueryDto,
   ) {
     const selectedCampus = await this.getActiveCampus(
       institutionId,
       authSession,
     );
+    this.assertCampusScopeAccess(selectedCampus.id, scopes);
     // Get student with institution check, join to class and section via campus
     const [studentRow] = await this.db
       .select({
@@ -675,6 +698,7 @@ export class AttendanceService {
           eq(students.institutionId, institutionId),
           eq(member.primaryCampusId, selectedCampus.id),
           eq(member.status, STATUS.MEMBER.ACTIVE),
+          sectionScopeFilter(students.sectionId, scopes),
           ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
@@ -793,6 +817,7 @@ export class AttendanceService {
   private async listRosterForScope(
     institutionId: string,
     campusId: string,
+    scopes: ResolvedScopes,
     scope: AttendanceDayQueryDto | UpsertAttendanceDayDto,
   ) {
     const classId = scope.classId.trim();
@@ -825,6 +850,7 @@ export class AttendanceService {
           eq(students.classId, classId),
           eq(students.sectionId, sectionId),
           eq(member.status, STATUS.MEMBER.ACTIVE),
+          sectionScopeFilter(students.sectionId, scopes),
           ne(campus.status, STATUS.CAMPUS.DELETED),
         ),
       )
@@ -907,6 +933,23 @@ export class AttendanceService {
 
     if (!scopes.campusIds.includes(campusId)) {
       throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+  }
+
+  private assertClassSectionScopeAccess(
+    classId: string,
+    sectionId: string,
+    scopes: ResolvedScopes,
+  ) {
+    if (scopes.classIds !== "all" && !scopes.classIds.includes(classId)) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.PERMISSION_DENIED);
+    }
+
+    if (
+      scopes.sectionIds !== "all" &&
+      !scopes.sectionIds.includes(sectionId)
+    ) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.PERMISSION_DENIED);
     }
   }
 }
