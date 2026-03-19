@@ -700,6 +700,7 @@ export class FeesService {
 
   async getFeeAssignment(
     institutionId: string,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     feeAssignmentId: string,
   ) {
@@ -708,6 +709,7 @@ export class FeesService {
       feeAssignmentId,
     );
     this.assertCampusScopeAccess(assignment.campusId, scopes);
+    this.assertActiveCampusMatch(assignment.campusId, authSession);
     const paymentSummary = await this.getPaymentSummaryByAssignmentIds([feeAssignmentId]);
     const adjustmentSummary = await this.getAdjustmentSummaryByAssignmentIds([
       feeAssignmentId,
@@ -785,7 +787,7 @@ export class FeesService {
 
   async createFeeAssignment(
     institutionId: string,
-    _authSession: AuthenticatedSession,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     payload: CreateFeeAssignmentDto,
   ) {
@@ -800,6 +802,8 @@ export class FeesService {
     );
 
     this.assertCampusScopeAccess(student.campusId, scopes);
+    this.assertActiveCampusMatch(student.campusId, authSession);
+    this.assertActiveCampusMatch(feeStructure.campusId, authSession);
 
     if (
       feeStructure.scope === FEE_STRUCTURE_SCOPES.CAMPUS &&
@@ -875,6 +879,7 @@ export class FeesService {
 
   async updateFeeAssignment(
     institutionId: string,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     feeAssignmentId: string,
     payload: UpdateFeeAssignmentDto,
@@ -884,6 +889,7 @@ export class FeesService {
       feeAssignmentId,
     );
     this.assertCampusScopeAccess(assignmentRow.campusId, scopes);
+    this.assertActiveCampusMatch(assignmentRow.campusId, authSession);
     const adjustmentSummary = await this.getAdjustmentSummaryByAssignmentIds([
       feeAssignmentId,
     ]);
@@ -960,6 +966,7 @@ export class FeesService {
 
   async deleteFeeAssignment(
     institutionId: string,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     feeAssignmentId: string,
   ) {
@@ -968,6 +975,7 @@ export class FeesService {
       feeAssignmentId,
     );
     this.assertCampusScopeAccess(assignment.campusId, scopes);
+    this.assertActiveCampusMatch(assignment.campusId, authSession);
 
     const [existingPayment] = await this.database
       .select({ id: feePayments.id })
@@ -1015,6 +1023,7 @@ export class FeesService {
 
   async createFeeAdjustment(
     institutionId: string,
+    authSession: AuthenticatedSession,
     scopes: ResolvedScopes,
     feeAssignmentId: string,
     payload: CreateFeeAdjustmentDto,
@@ -1024,6 +1033,7 @@ export class FeesService {
       feeAssignmentId,
     );
     this.assertCampusScopeAccess(assignment.campusId, scopes);
+    this.assertActiveCampusMatch(assignment.campusId, authSession);
     const paymentSummary = await this.getPaymentSummaryByAssignmentIds([
       feeAssignmentId,
     ]);
@@ -1094,6 +1104,7 @@ export class FeesService {
       payload.feeStructureId,
       { requireActive: true },
     );
+    this.assertActiveCampusMatch(feeStructure.campusId, authSession);
 
     return this.database.transaction(async (tx) => {
       const studentsInClass = await tx
@@ -1117,6 +1128,7 @@ export class FeesService {
 
       for (const student of studentsInClass) {
         this.assertCampusScopeAccess(student.campusId, scopes);
+        this.assertActiveCampusMatch(student.campusId, authSession);
       }
 
       if (feeStructure.scope === FEE_STRUCTURE_SCOPES.CAMPUS) {
@@ -1204,6 +1216,7 @@ export class FeesService {
       payload.feeAssignmentId,
     );
     this.assertCampusScopeAccess(assignment.campusId, scopes);
+    this.assertActiveCampusMatch(assignment.campusId, authSession);
 
     const paymentSummary = await this.getPaymentSummaryByAssignmentIds([
       payload.feeAssignmentId,
@@ -1305,6 +1318,7 @@ export class FeesService {
       payment.feeAssignmentId,
     );
     this.assertCampusScopeAccess(assignment.campusId, scopes);
+    this.assertActiveCampusMatch(assignment.campusId, authSession);
     const studentFullName = this.buildStudentFullName(
       assignment.studentFirstName,
       assignment.studentLastName,

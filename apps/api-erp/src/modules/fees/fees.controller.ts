@@ -276,11 +276,13 @@ export class FeesController {
   @ApiOkResponse({ type: FeeAssignmentDetailDto })
   getFeeAssignment(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
     @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeAssignmentId") feeAssignmentId: string,
   ) {
     return this.feesService.getFeeAssignment(
       institution.id,
+      authSession,
       scopes,
       feeAssignmentId,
     );
@@ -312,12 +314,14 @@ export class FeesController {
   @ApiCreatedResponse({ type: FeeAdjustmentDto })
   createFeeAdjustment(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
     @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeAssignmentId") feeAssignmentId: string,
     @Body() body: CreateFeeAdjustmentBodyDto,
   ) {
     return this.feesService.createFeeAdjustment(
       institution.id,
+      authSession,
       scopes,
       feeAssignmentId,
       parseCreateFeeAdjustment({
@@ -353,12 +357,14 @@ export class FeesController {
   @ApiOkResponse({ type: FeeAssignmentDto })
   updateFeeAssignment(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
     @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeAssignmentId") feeAssignmentId: string,
     @Body() body: UpdateFeeAssignmentBodyDto,
   ) {
     return this.feesService.updateFeeAssignment(
       institution.id,
+      authSession,
       scopes,
       feeAssignmentId,
       parseUpdateFeeAssignment(body),
@@ -372,11 +378,13 @@ export class FeesController {
   @ApiNoContentResponse()
   async deleteFeeAssignment(
     @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
     @CurrentScopes() scopes: ResolvedScopes,
     @Param("feeAssignmentId") feeAssignmentId: string,
   ) {
     await this.feesService.deleteFeeAssignment(
       institution.id,
+      authSession,
       scopes,
       feeAssignmentId,
     );
