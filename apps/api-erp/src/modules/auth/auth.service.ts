@@ -414,9 +414,27 @@ export class AuthService {
       );
     }
 
+    const contextMemberships = authContext.memberships.filter(
+      (membership) =>
+        membership.organizationId === authSession.activeOrganizationId &&
+        this.memberTypeToContextKey(membership.memberType) === nextContext.key,
+    );
+    const activeCampusId = authSession.activeOrganizationId
+      ? await this.resolveDefaultCampusId(
+          authSession.user.id,
+          authSession.activeOrganizationId,
+          nextContext.key,
+          contextMemberships,
+          authSession.activeCampusId,
+        )
+      : null;
+
     await this.database
       .update(session)
-      .set({ activeContextKey: nextContext.key })
+      .set({
+        activeContextKey: nextContext.key,
+        activeCampusId,
+      })
       .where(eq(session.token, token));
 
     await this.database
@@ -466,35 +484,42 @@ export class AuthService {
         );
       }
 
+      const organizationMemberships = memberships.filter(
+        (item) => item.organizationId === matchedMembership.organizationId,
+      );
+      const activeContextKey = this.resolveDefaultContextKey(
+        organizationMemberships,
+        preferredContextKey,
+      );
       const activeCampusId = await this.resolveDefaultCampusId(
+        userId,
         matchedMembership.organizationId,
-        matchedMembership.primaryCampusId,
+        activeContextKey,
+        organizationMemberships,
       );
 
       return {
         activeOrganizationId: matchedMembership.organizationId,
-        activeContextKey: this.resolveDefaultContextKey(
-          memberships.filter(
-            (item) => item.organizationId === matchedMembership.organizationId,
-          ),
-          preferredContextKey,
-        ),
+        activeContextKey,
         activeCampusId,
       };
     }
 
     if (memberships.length === 1) {
       const [singleMembership] = memberships;
+      const activeContextKey = this.resolveDefaultContextKey(
+        [singleMembership],
+        preferredContextKey,
+      );
 
       return {
         activeOrganizationId: singleMembership.organizationId,
-        activeContextKey: this.resolveDefaultContextKey(
-          [singleMembership],
-          preferredContextKey,
-        ),
+        activeContextKey,
         activeCampusId: await this.resolveDefaultCampusId(
+          userId,
           singleMembership.organizationId,
-          singleMembership.primaryCampusId,
+          activeContextKey,
+          [singleMembership],
         ),
       };
     }
@@ -977,11 +1002,33 @@ export class AuthService {
   }
 
   private async resolveDefaultCampusId(
+    userId: string,
     organizationId: string,
-    primaryCampusId: string | null,
+    activeContextKey: AuthContextKey | null,
+    memberships: AuthenticatedMembership[],
+    preferredCampusId?: string | null,
   ) {
-    if (primaryCampusId) {
-      return primaryCampusId;
+    const accessibleCampusIds = await this.resolveAccessibleCampusIds(
+      userId,
+      organizationId,
+      activeContextKey,
+    );
+
+    if (accessibleCampusIds.length === 0) {
+      return null;
+    }
+
+    const prioritizedCampusIds = [
+      preferredCampusId ?? null,
+      ...memberships
+        .map((membership) => membership.primaryCampusId)
+        .filter((campusId): campusId is string => Boolean(campusId)),
+    ];
+
+    for (const campusId of prioritizedCampusIds) {
+      if (campusId && accessibleCampusIds.includes(campusId)) {
+        return campusId;
+      }
     }
 
     const [defaultCampus] = await this.database
@@ -992,11 +1039,39 @@ export class AuthService {
           eq(campus.organizationId, organizationId),
           eq(campus.isDefault, true),
           ne(campus.status, STATUS.CAMPUS.DELETED),
+          inArray(campus.id, accessibleCampusIds),
         ),
       )
       .limit(1);
 
-    return defaultCampus?.id ?? null;
+    return defaultCampus?.id ?? accessibleCampusIds[0] ?? null;
+  }
+
+  private async resolveAccessibleCampusIds(
+    userId: string,
+    organizationId: string,
+    activeContextKey: AuthContextKey | null,
+  ) {
+    if (
+      activeContextKey === AUTH_CONTEXT_KEYS.PARENT ||
+      activeContextKey === AUTH_CONTEXT_KEYS.STUDENT
+    ) {
+      const linkedStudents = await this.listLinkedStudents(userId, organizationId);
+
+      return Array.from(
+        new Set(linkedStudents.map((student) => student.campusId)),
+      );
+    }
+
+    const scopes = await this.resolveScopes(userId, organizationId);
+
+    if (scopes.campusIds === "all") {
+      const campuses = await this.listCampusSummaries(organizationId);
+
+      return campuses.map((campusOption) => campusOption.id);
+    }
+
+    return scopes.campusIds;
   }
 
   private async assertActiveCampusSelectionAllowed(

@@ -150,12 +150,12 @@ export class ClassesService {
   async createClass(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: CreateClassDto,
   ) {
-    const selectedCampus = await this.getCampus(
-      institutionId,
-      this.requireActiveCampusId(authSession),
-    );
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    const selectedCampus = await this.getCampus(institutionId, activeCampusId);
     await this.assertClassNameAvailable(
       institutionId,
       selectedCampus.id,
@@ -184,11 +184,7 @@ export class ClassesService {
       );
     });
 
-    return this.getClass(institutionId, createdClassId, authSession, {
-      campusIds: "all",
-      classIds: "all",
-      sectionIds: "all",
-    });
+    return this.getClass(institutionId, createdClassId, authSession, scopes);
   }
 
   async updateClass(

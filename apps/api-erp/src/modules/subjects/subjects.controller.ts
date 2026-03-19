@@ -90,11 +90,13 @@ export class SubjectsController {
   createSubject(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: CreateSubjectBodyDto,
   ) {
     return this.subjectsService.createSubject(
       institution.id,
       authSession,
+      scopes,
       parseCreateSubject(body),
     );
   }

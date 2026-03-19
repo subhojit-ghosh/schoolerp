@@ -94,11 +94,13 @@ export class ClassesController {
   createClass(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: CreateClassBodyDto,
   ) {
     return this.classesService.createClass(
       institution.id,
       authSession,
+      scopes,
       parseCreateClass(body),
     );
   }

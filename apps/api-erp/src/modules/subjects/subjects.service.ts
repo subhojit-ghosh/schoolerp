@@ -150,9 +150,11 @@ export class SubjectsService {
   async createSubject(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: CreateSubjectDto,
   ) {
     const campusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(campusId, scopes);
     await this.getCampus(institutionId, campusId);
     await this.assertSubjectNameAvailable(institutionId, campusId, payload.name);
 
@@ -167,11 +169,7 @@ export class SubjectsService {
       status: STATUS.SUBJECT.ACTIVE,
     });
 
-    return this.getSubject(institutionId, subjectId, authSession, {
-      campusIds: "all",
-      classIds: "all",
-      sectionIds: "all",
-    });
+    return this.getSubject(institutionId, subjectId, authSession, scopes);
   }
 
   async updateSubject(

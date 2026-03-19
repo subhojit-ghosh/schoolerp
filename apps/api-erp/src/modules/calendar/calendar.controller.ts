@@ -92,11 +92,13 @@ export class CalendarController {
   createEvent(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
     @Body() body: CreateCalendarEventBodyDto,
   ) {
     return this.calendarService.createEvent(
       institution.id,
       authSession,
+      scopes,
       parseCreateCalendarEvent(body),
     );
   }

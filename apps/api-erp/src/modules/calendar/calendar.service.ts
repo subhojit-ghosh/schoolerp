@@ -168,9 +168,11 @@ export class CalendarService {
   async createEvent(
     institutionId: string,
     authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
     payload: CreateCalendarEventDto,
   ) {
     const campusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(campusId, scopes);
     await this.getCampus(institutionId, campusId);
 
     const eventId = randomUUID();
@@ -189,11 +191,7 @@ export class CalendarService {
       status: STATUS.CALENDAR_EVENT.ACTIVE,
     });
 
-    return this.getEvent(institutionId, eventId, authSession, {
-      campusIds: "all",
-      classIds: "all",
-      sectionIds: "all",
-    });
+    return this.getEvent(institutionId, eventId, authSession, scopes);
   }
 
   async updateEvent(

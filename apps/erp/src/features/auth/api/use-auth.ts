@@ -109,6 +109,7 @@ export function useSelectContextMutation() {
         apiQueryClient.queryOptions("get", AUTH_API_PATHS.ME).queryKey,
         session,
       );
+      void queryClient.invalidateQueries();
     },
   });
 }
