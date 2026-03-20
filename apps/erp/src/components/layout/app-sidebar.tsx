@@ -38,7 +38,7 @@ import { NavUser } from "@/components/navigation/nav-user";
 import {
   getActionableNavItems,
   NAV_HOME,
-  NAV_CORE,
+  NAV_PEOPLE,
   NAV_ADMISSIONS,
   NAV_ACADEMIC_MANAGEMENT,
   NAV_RECORDS,
@@ -65,6 +65,7 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
+  SidebarSeparator,
 } from "@repo/ui/components/ui/sidebar";
 
 const CONTEXT_META: Record<
@@ -87,11 +88,23 @@ const CONTEXT_META: Record<
 
 const CONTEXT_SWITCHER_WIDTH_CLASS = "w-(--radix-dropdown-menu-trigger-width)";
 const CONTEXT_SWITCHER_ITEM_CLASS =
-  "group flex w-full items-center gap-3 rounded-2xl border px-3 py-2 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+  "group flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 const CONTEXT_SWITCHER_ACTIVE_ITEM_CLASS =
   "border-transparent bg-[color-mix(in_srgb,var(--primary)_12%,white)] text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]";
 const CONTEXT_SWITCHER_INACTIVE_ITEM_CLASS =
   "border-border/70 bg-card text-foreground hover:border-primary/20 hover:bg-muted/40";
+const STAFF_NAV_GROUP_LABELS = {
+  DIRECTORY: "Directory",
+  ADMISSIONS: "Admissions",
+  ACADEMICS: "Academics",
+  RECORDS: "Records",
+  FINANCE: "Finance",
+  COMMUNICATION: "Communication",
+  SERVICES: "Services",
+  HR: "HR & Payroll",
+  REPORTS: "Reports",
+  SETTINGS: "Settings",
+} as const;
 
 const NAV_FAMILY = [
   {
@@ -273,7 +286,7 @@ const NAV_STUDENT_SERVICES = [
 ] as const;
 
 const HEADER_CLASS =
-  "flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-white/8 bg-white/4 px-3 py-3 text-left transition-[width,height,padding] hover:bg-white/8 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-2";
+  "flex w-full items-center gap-3 overflow-hidden rounded-xl border border-white/8 bg-white/4 px-3 py-3 text-left transition-[width,height,padding] hover:bg-white/8 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-2";
 
 function InstitutionLogo({
   logoUrl,
@@ -326,7 +339,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const logoProps = { logoUrl, institutionName, initial };
   const homeItems = getActionableNavItems(NAV_HOME);
-  const coreItems = getActionableNavItems(NAV_CORE);
+  const peopleItems = getActionableNavItems(NAV_PEOPLE);
   const admissionsItems = getActionableNavItems(NAV_ADMISSIONS);
   const academicManagementItems = getActionableNavItems(
     NAV_ACADEMIC_MANAGEMENT,
@@ -377,9 +390,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     </>
   );
 
+  function renderStandaloneTopLevelItems(
+    items: {
+      badgeLabel?: string;
+      title: string;
+      url: string;
+      icon?: React.ComponentProps<typeof NavMain>["icon"];
+      disabled?: boolean;
+    }[],
+  ) {
+    return items.map((item) => <NavMain key={item.title} items={[item]} />);
+  }
+
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="overflow-hidden">
+      <SidebarHeader className="overflow-hidden pb-4">
         {availableContexts.length > 1 && activeContext ? (
           <DropdownMenu
             onOpenChange={setIsContextSwitcherOpen}
@@ -395,7 +420,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               align="start"
               className={cn(
                 CONTEXT_SWITCHER_WIDTH_CLASS,
-                "rounded-[20px] border border-border/70 bg-popover p-1 text-popover-foreground shadow-xl",
+                "rounded-xl border border-border/70 bg-popover p-1 text-popover-foreground shadow-xl",
               )}
               side="bottom"
               sideOffset={8}
@@ -434,12 +459,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       }}
                       type="button"
                     >
-                      <span
-                        className={cn(
-                          "flex size-8 shrink-0 items-center justify-center rounded-2xl border",
-                          isActive
-                            ? "border-transparent bg-primary text-primary-foreground"
-                            : "border-border/70 bg-muted/50 text-primary",
+                        <span
+                          className={cn(
+                            "flex size-8 shrink-0 items-center justify-center rounded-xl border",
+                            isActive
+                              ? "border-transparent bg-primary text-primary-foreground"
+                              : "border-border/70 bg-muted/50 text-primary",
                         )}
                       >
                         <meta.Icon className="size-[18px]" />
@@ -474,16 +499,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         )}
       </SidebarHeader>
 
-      <SidebarContent>
+      <div className="px-4">
+        <SidebarSeparator className="mx-0 w-full bg-white/8" />
+      </div>
+
+      <SidebarContent className="pt-3">
         {showStaffNavigation ? (
           <>
-            <NavMain items={homeItems} />
-            {coreItems.length > 0 ? (
+            {renderStandaloneTopLevelItems(homeItems)}
+            {peopleItems.length > 0 ? (
               <NavMain
                 collapsible
                 icon={IconUsers}
-                items={coreItems}
-                label="People"
+                items={peopleItems}
+                label={STAFF_NAV_GROUP_LABELS.DIRECTORY}
               />
             ) : null}
             {admissionsItems.length > 0 ? (
@@ -491,7 +520,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 collapsible
                 icon={IconFileDescription}
                 items={admissionsItems}
-                label="Admissions"
+                label={STAFF_NAV_GROUP_LABELS.ADMISSIONS}
               />
             ) : null}
             {academicManagementItems.length > 0 ? (
@@ -499,15 +528,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 collapsible
                 icon={IconBook2}
                 items={academicManagementItems}
-                label="Academics"
-              />
-            ) : null}
-            {recordItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconFolder}
-                items={recordItems}
-                label="Records"
+                label={STAFF_NAV_GROUP_LABELS.ACADEMICS}
               />
             ) : null}
             {financeItems.length > 0 ? (
@@ -515,23 +536,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 collapsible
                 icon={IconCurrencyRupee}
                 items={financeItems}
-                label="Finance"
+                label={STAFF_NAV_GROUP_LABELS.FINANCE}
               />
             ) : null}
             {communicationItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconSpeakerphone}
-                items={communicationItems}
-                label="Communication"
-              />
+              renderStandaloneTopLevelItems(communicationItems)
             ) : null}
             {servicesItems.length > 0 ? (
               <NavMain
                 collapsible
                 icon={IconLayoutGrid}
                 items={servicesItems}
-                label="Services"
+                label={STAFF_NAV_GROUP_LABELS.SERVICES}
               />
             ) : null}
             {hrItems.length > 0 ? (
@@ -539,7 +555,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 collapsible
                 icon={IconUsersGroup}
                 items={hrItems}
-                label="HR & Payroll"
+                label={STAFF_NAV_GROUP_LABELS.HR}
               />
             ) : null}
             {reportItems.length > 0 ? (
@@ -547,7 +563,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 collapsible
                 icon={IconChartBar}
                 items={reportItems}
-                label="Reports"
+                label={STAFF_NAV_GROUP_LABELS.REPORTS}
+              />
+            ) : null}
+            {recordItems.length > 0 ? (
+              <NavMain
+                collapsible
+                icon={IconFolder}
+                items={recordItems}
+                label={STAFF_NAV_GROUP_LABELS.RECORDS}
               />
             ) : null}
             {settingsItems.length > 0 ? (
@@ -555,13 +579,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 collapsible
                 icon={IconAdjustments}
                 items={settingsItems}
-                label="Settings"
+                label={STAFF_NAV_GROUP_LABELS.SETTINGS}
               />
             ) : null}
           </>
         ) : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT ? (
           <>
-            <NavMain items={homeItems} />
+            {renderStandaloneTopLevelItems(homeItems)}
             {familyItems.length > 0 ? (
               <NavMain
                 collapsible
@@ -592,7 +616,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </>
         ) : activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT ? (
           <>
-            <NavMain items={homeItems} />
+            {renderStandaloneTopLevelItems(homeItems)}
             {studentAcademicItems.length > 0 ? (
               <NavMain
                 collapsible

@@ -415,7 +415,7 @@ export class DataExchangeService {
     );
   }
 
-  private previewRow(
+  private async previewRow(
     institutionId: string,
     entityType: DataExchangeEntityType,
     context: PreviewContext,

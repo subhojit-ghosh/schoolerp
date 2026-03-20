@@ -9,7 +9,19 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@repo/ui/components/ui/sidebar";
+
+const TOP_LEVEL_ROW_CLASS =
+  "group/nav-section flex w-full items-center gap-3 rounded-lg px-2 py-1.5 text-sidebar-foreground/76 transition-all duration-150 hover:bg-white/[0.04] hover:text-sidebar-foreground";
+
+const TOP_LEVEL_ICON_CLASS =
+  "flex size-[26px] shrink-0 items-center justify-center rounded-md border transition-colors duration-150";
+
+const TOP_LEVEL_TITLE_CLASS =
+  "flex-1 text-left text-[13px] font-medium leading-none";
 
 export function NavMain({
   collapsible = false,
@@ -33,16 +45,32 @@ export function NavMain({
   const GroupIcon = icon;
   const location = useLocation();
 
-  function isActivePath(itemUrl: string) {
+  function matchesPath(itemUrl: string) {
     return (
       location.pathname === itemUrl ||
       (itemUrl !== "/" && location.pathname.startsWith(`${itemUrl}/`))
     );
   }
 
+  const activeItemUrl = items.reduce<string | null>((bestMatch, item) => {
+    if (!matchesPath(item.url)) {
+      return bestMatch;
+    }
+
+    if (bestMatch === null || item.url.length > bestMatch.length) {
+      return item.url;
+    }
+
+    return bestMatch;
+  }, null);
+
+  function isActivePath(itemUrl: string) {
+    return activeItemUrl === itemUrl;
+  }
+
   const storageKey = label ? `sidebar-group-${label}` : null;
 
-  const hasActiveItem = items.some((item) => isActivePath(item.url));
+  const hasActiveItem = activeItemUrl !== null;
   const [isExpanded, setIsExpanded] = useState(() => {
     if (!collapsible) return true;
     if (storageKey) {
@@ -72,10 +100,10 @@ export function NavMain({
         collapsible ? (
           <button
             className={cn(
-              "flex w-full items-center gap-3 rounded-xl px-2 py-1.5 transition-all duration-150",
+              TOP_LEVEL_ROW_CLASS,
               isExpanded
-                ? "text-sidebar-foreground hover:bg-white/5"
-                : "text-sidebar-foreground/80 hover:bg-white/5 hover:text-sidebar-foreground",
+                ? "bg-white/[0.03] text-sidebar-foreground hover:bg-white/[0.055]"
+                : undefined,
             )}
             onClick={handleToggle}
             type="button"
@@ -83,7 +111,7 @@ export function NavMain({
             {GroupIcon ? (
               <span
                 className={cn(
-                  "flex size-[26px] shrink-0 items-center justify-center rounded-lg border transition-colors duration-150",
+                  TOP_LEVEL_ICON_CLASS,
                   hasActiveItem
                     ? "border-[var(--accent)]/25 bg-[var(--accent)]/20 text-[var(--accent)]"
                     : isExpanded
@@ -94,12 +122,10 @@ export function NavMain({
                 <GroupIcon className="size-[14px]" />
               </span>
             ) : null}
-            <span className="flex-1 text-left text-[13px] font-medium leading-none">
-              {label}
-            </span>
+            <span className={TOP_LEVEL_TITLE_CLASS}>{label}</span>
             <IconChevronDown
               className={cn(
-                "size-3 shrink-0 opacity-40 transition-transform duration-200",
+                "size-3 shrink-0 opacity-40 transition-transform duration-200 group-hover/nav-section:opacity-70",
                 !isExpanded && "-rotate-90",
               )}
             />
@@ -112,40 +138,111 @@ export function NavMain({
         )
       ) : null}
       <SidebarGroupContent
-        className={cn(collapsible && !isExpanded ? "hidden" : undefined)}
+        className={cn(
+          collapsible
+            ? "grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none"
+            : undefined,
+          collapsible && isExpanded ? "grid-rows-[1fr] opacity-100" : undefined,
+          collapsible && !isExpanded ? "grid-rows-[0fr] opacity-0" : undefined,
+        )}
       >
-        <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton
-                asChild={!item.disabled}
-                isActive={isActivePath(item.url)}
-                tooltip={item.title}
-                className={cn(
-                  "rounded-xl px-3 py-2.5 data-[active=true]:bg-white/10 data-[active=true]:font-medium data-[active=true]:shadow-[inset_2px_0_0_var(--accent)] hover:bg-white/6",
-                  item.disabled
-                    ? "cursor-not-allowed pointer-events-none text-muted-foreground/60"
-                    : undefined,
-                )}
-              >
-                {item.disabled ? (
-                  <>
-                    {item.icon ? <item.icon className="shrink-0" /> : null}
-                    <span className="flex-1 truncate">{item.title}</span>
-                    <span className="ml-auto text-[10px] font-medium tracking-wide text-muted-foreground/60 uppercase">
-                      {item.badgeLabel ?? "Soon"}
-                    </span>
-                  </>
+        <div
+          className={cn(
+            collapsible ? "overflow-hidden" : undefined,
+            collapsible
+              ? "transition-[transform,opacity] duration-200 ease-out motion-reduce:transition-none"
+              : undefined,
+            collapsible && isExpanded ? "translate-y-0 opacity-100" : undefined,
+            collapsible && !isExpanded
+              ? "-translate-y-1 opacity-0 pointer-events-none"
+              : undefined,
+          )}
+        >
+          <SidebarMenu>
+            {items.map((item) => (
+              <SidebarMenuItem key={item.title}>
+                {label ? (
+                  <SidebarMenuSub className="mt-0.5 ml-5 mr-1 gap-0.5 border-l border-white/10 py-0.5 pl-2.5 pr-0">
+                    <SidebarMenuSubItem>
+                      <SidebarMenuSubButton
+                        asChild={!item.disabled}
+                        isActive={isActivePath(item.url)}
+                        className={cn(
+                          "h-8 rounded-lg px-2.5 text-[13px] font-medium text-sidebar-foreground/72 transition-[background,color] duration-150 hover:bg-white/[0.04] hover:text-sidebar-foreground data-[active=true]:bg-white/[0.07] data-[active=true]:text-sidebar-foreground data-[active=true]:shadow-[inset_2px_0_0_var(--accent)] [&>svg]:size-[15px] [&>svg]:text-sidebar-foreground/55 data-[active=true]:[&>svg]:text-[var(--accent)]",
+                          item.disabled
+                            ? "cursor-not-allowed pointer-events-none text-muted-foreground/60"
+                            : undefined,
+                        )}
+                      >
+                        {item.disabled ? (
+                          <>
+                            {item.icon ? (
+                              <item.icon className="shrink-0" />
+                            ) : null}
+                            <span className="flex-1 truncate">
+                              {item.title}
+                            </span>
+                            <span className="ml-auto rounded-md border border-white/8 bg-white/[0.05] px-1.5 py-0.5 text-[9px] font-semibold tracking-[0.14em] text-muted-foreground/65 uppercase">
+                              {item.badgeLabel ?? "Soon"}
+                            </span>
+                          </>
+                        ) : (
+                          <Link to={item.url}>
+                            {item.icon ? <item.icon /> : null}
+                            <span>{item.title}</span>
+                          </Link>
+                        )}
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  </SidebarMenuSub>
                 ) : (
-                  <Link to={item.url}>
-                    {item.icon ? <item.icon /> : null}
-                    <span>{item.title}</span>
-                  </Link>
+                  <SidebarMenuButton
+                    asChild={!item.disabled}
+                    isActive={isActivePath(item.url)}
+                    tooltip={item.title}
+                    className={cn(
+                      TOP_LEVEL_ROW_CLASS,
+                      "h-auto data-[active=true]:bg-white/[0.03] data-[active=true]:font-medium data-[active=true]:text-sidebar-foreground data-[active=true]:shadow-none [&>svg]:hidden [&>a>svg]:hidden",
+                      item.disabled
+                        ? "cursor-not-allowed pointer-events-none text-muted-foreground/60"
+                        : undefined,
+                    )}
+                  >
+                    {item.disabled ? (
+                      <>
+                        {item.icon ? <item.icon className="shrink-0" /> : null}
+                        <span className="flex-1 truncate">{item.title}</span>
+                        <span className="ml-auto text-[10px] font-medium tracking-wide text-muted-foreground/60 uppercase">
+                          {item.badgeLabel ?? "Soon"}
+                        </span>
+                      </>
+                    ) : (
+                      <Link
+                        className="flex w-full items-center gap-3"
+                        to={item.url}
+                      >
+                        {item.icon ? (
+                          <span
+                            className={cn(
+                              TOP_LEVEL_ICON_CLASS,
+                              isActivePath(item.url)
+                                ? "border-[var(--accent)]/25 bg-[var(--accent)]/20 text-[var(--accent)]"
+                                : "border-white/10 bg-white/[0.07] text-sidebar-foreground/70",
+                            )}
+                          >
+                            <item.icon className="size-[14px]" />
+                          </span>
+                        ) : null}
+                        <span className={TOP_LEVEL_TITLE_CLASS}>{item.title}</span>
+                        <span className="size-3 shrink-0 opacity-0" />
+                      </Link>
+                    )}
+                  </SidebarMenuButton>
                 )}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </div>
       </SidebarGroupContent>
     </SidebarGroup>
   );

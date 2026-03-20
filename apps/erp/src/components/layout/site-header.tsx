@@ -188,7 +188,7 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
         </div>
 
         <button
-          className="ml-4 hidden min-w-[260px] flex-1 md:flex lg:max-w-md items-center gap-3 h-10 rounded-full border border-border/70 bg-card/80 px-3 shadow-xs text-left transition-colors hover:bg-card hover:border-border cursor-pointer"
+          className="ml-4 hidden h-10 min-w-[260px] flex-1 items-center gap-3 rounded-lg border border-border/70 bg-card/80 px-3 text-left shadow-xs transition-colors hover:border-border hover:bg-card md:flex lg:max-w-md"
           onClick={onOpenSearch}
           type="button"
         >
@@ -208,7 +208,7 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
               onValueChange={(value) => void handleCampusChange(value)}
               value={session?.activeCampus?.id}
             >
-              <SelectTrigger className="h-9 min-w-44 rounded-full border-border/70 bg-background/90 shadow-xs">
+              <SelectTrigger className="h-9 min-w-44 rounded-lg border-border/70 bg-background/90 shadow-xs">
                 <div className="flex items-center gap-2">
                   <IconBuildingEstate className="size-4 text-muted-foreground" />
                   <SelectValue placeholder={campusName} />
@@ -226,7 +226,7 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
             </Select>
           ) : showCampusSelector ? (
             <Badge
-              className="h-9 rounded-full border-border/70 px-3 text-sm"
+              className="h-9 rounded-lg border-border/70 px-3 text-sm"
               variant="outline"
             >
               <IconBuildingEstate className="mr-1.5 size-3.5" />
@@ -238,15 +238,15 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
             <DropdownMenuTrigger asChild>
               <Button
                 aria-label={`Open notifications (${unreadCount} unread)`}
-                className="relative hidden h-10 w-10 rounded-full border border-border/70 bg-card/80 shadow-xs md:inline-flex"
+                className="relative hidden h-10 w-10 rounded-lg md:inline-flex"
                 size="icon"
                 variant="ghost"
               >
                 <IconBell className="size-4" />
                 {unreadCount > 0 ? (
-                  <Badge className="absolute -top-1 -right-1 min-w-5 justify-center px-1 text-[10px]">
+                  <span className="absolute top-0.5 right-0.5 inline-flex size-4 translate-x-1/4 -translate-y-1/4 items-center justify-center rounded-full bg-primary text-[9px] font-medium leading-none text-primary-foreground ring-2 ring-background shadow-sm">
                     {unreadCount}
-                  </Badge>
+                  </span>
                 ) : null}
               </Button>
             </DropdownMenuTrigger>

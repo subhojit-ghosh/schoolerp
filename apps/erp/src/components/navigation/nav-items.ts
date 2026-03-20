@@ -45,14 +45,13 @@ export function getActionableNavItems(items: readonly NavItem[]): NavItem[] {
 
 export const NAV_HOME: readonly NavItem[] = [
   { icon: IconDashboard, title: "Dashboard", url: ERP_ROUTES.DASHBOARD },
+  { icon: IconCalendar, title: "Calendar", url: ERP_ROUTES.CALENDAR },
 ];
 
-export const NAV_CORE: readonly NavItem[] = [
+export const NAV_PEOPLE: readonly NavItem[] = [
   { icon: IconUsers, title: "Students", url: ERP_ROUTES.STUDENTS },
   { icon: IconUsersGroup, title: "Staff", url: ERP_ROUTES.STAFF },
-  { icon: IconCalendarStats, title: "Attendance", url: ERP_ROUTES.ATTENDANCE },
-  { icon: IconCertificate, title: "Exams", url: ERP_ROUTES.EXAMS },
-  { icon: IconCurrencyRupee, title: "Fees", url: ERP_ROUTES.FEES },
+  { icon: IconUserSearch, title: "Guardians", url: ERP_ROUTES.GUARDIANS },
 ];
 
 export const NAV_ADMISSIONS: readonly NavItem[] = [
@@ -71,6 +70,8 @@ export const NAV_ADMISSIONS: readonly NavItem[] = [
 export const NAV_ACADEMIC_MANAGEMENT: readonly NavItem[] = [
   { icon: IconBook2, title: "Academic Years", url: ERP_ROUTES.ACADEMIC_YEARS },
   { icon: IconBook2, title: "Classes", url: ERP_ROUTES.CLASSES },
+  { icon: IconCalendarStats, title: "Attendance", url: ERP_ROUTES.ATTENDANCE },
+  { icon: IconCertificate, title: "Exams", url: ERP_ROUTES.EXAMS },
   {
     icon: IconChevronsUp,
     title: "Rollover",
@@ -78,7 +79,6 @@ export const NAV_ACADEMIC_MANAGEMENT: readonly NavItem[] = [
   },
   { icon: IconBooks, title: "Subjects", url: ERP_ROUTES.SUBJECTS },
   { icon: IconLayoutGrid, title: "Timetable", url: ERP_ROUTES.TIMETABLE },
-  { icon: IconCalendar, title: "Calendar", url: ERP_ROUTES.CALENDAR },
   {
     badgeLabel: "Planned",
     disabled: true,
@@ -89,7 +89,6 @@ export const NAV_ACADEMIC_MANAGEMENT: readonly NavItem[] = [
 ];
 
 export const NAV_RECORDS: readonly NavItem[] = [
-  { icon: IconUsers, title: "Guardians", url: ERP_ROUTES.GUARDIANS },
   {
     badgeLabel: "Planned",
     disabled: true,
@@ -128,11 +127,6 @@ export const NAV_FINANCE: readonly NavItem[] = [
     icon: IconReportMoney,
     title: "Fee Dues",
     url: ERP_ROUTES.FEE_DUES,
-  },
-  {
-    icon: IconChartBar,
-    title: "Fee Reports",
-    url: ERP_ROUTES.FEE_REPORTS,
   },
   {
     badgeLabel: "Later",

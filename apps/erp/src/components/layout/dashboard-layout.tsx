@@ -19,7 +19,7 @@ import { NavSearch } from "@/components/navigation/nav-search";
 import {
   getActionableNavItems,
   NAV_HOME,
-  NAV_CORE,
+  NAV_PEOPLE,
   NAV_ADMISSIONS,
   NAV_ACADEMIC_MANAGEMENT,
   NAV_RECORDS,
@@ -101,16 +101,16 @@ export function DashboardLayout() {
   const staffNavGroups = showStaffNav
     ? [
         { label: "Home", items: getActionableNavItems(NAV_HOME) },
-        { label: "Core", items: getActionableNavItems(NAV_CORE) },
+        { label: "Directory", items: getActionableNavItems(NAV_PEOPLE) },
         { label: "Admissions", items: getActionableNavItems(NAV_ADMISSIONS) },
         {
-          label: "Academic Management",
+          label: "Academics",
           items: getActionableNavItems(NAV_ACADEMIC_MANAGEMENT),
         },
-        { label: "Records", items: getActionableNavItems(NAV_RECORDS) },
         { label: "Finance", items: getActionableNavItems(NAV_FINANCE) },
         { label: "Communication", items: communicationItems },
         { label: "Reports", items: getActionableNavItems(NAV_REPORTS) },
+        { label: "Records", items: getActionableNavItems(NAV_RECORDS) },
         { label: "Settings", items: settingsItems },
       ].filter((g) => g.items.length > 0)
     : [];
