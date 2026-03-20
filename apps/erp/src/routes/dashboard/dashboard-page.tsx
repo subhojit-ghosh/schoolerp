@@ -9,12 +9,6 @@ import {
 } from "@tabler/icons-react";
 import { Link } from "react-router";
 import { Badge } from "@repo/ui/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@repo/ui/components/ui/card";
 import { EntityPageShell } from "@/components/entities/entity-page-shell";
 import { SectionCards } from "@/components/data-display/section-cards";
 import {
@@ -29,6 +23,7 @@ import { useAttendanceOverviewQuery } from "@/features/attendance/api/use-attend
 import { useCollectionSummaryQuery } from "@/features/fees/api/use-fees";
 import { formatRupees } from "@/features/fees/model/fee-formatters";
 import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
+import { StudentPortalPage } from "@/features/student-portal/ui/student-portal-page";
 
 const QUICK_ACTIONS = [
   {
@@ -136,19 +131,7 @@ export function DashboardPage() {
   }
 
   if (activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT) {
-    return (
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">Student view</Badge>
-            <CardTitle>Student dashboard</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent className="text-sm text-muted-foreground">
-          Student tools will appear here.
-        </CardContent>
-      </Card>
-    );
+    return <StudentPortalPage view="overview" />;
   }
 
   return (

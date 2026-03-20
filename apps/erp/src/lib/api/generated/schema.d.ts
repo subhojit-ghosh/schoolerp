@@ -1259,6 +1259,76 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/student-portal/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the student portal overview for the current tenant */
+        get: operations["StudentPortalController_getOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exams/terms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List exam terms for the current tenant institution */
+        get: operations["ExamsController_listExamTerms"];
+        put?: never;
+        /** Create an exam term for the current tenant */
+        post: operations["ExamsController_createExamTerm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exams/terms/{examTermId}/marks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List marks for an exam term */
+        get: operations["ExamsController_listExamMarks"];
+        /** Replace the marks list for an exam term */
+        put: operations["ExamsController_replaceExamMarks"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exams/terms/{examTermId}/report-card": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get subject-wise report card with grading for one student */
+        get: operations["ExamsController_getExamReportCard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/academic-years": {
         parameters: {
             query?: never;
@@ -1390,59 +1460,6 @@ export interface paths {
         };
         /** Get attendance history for a single student over a date range */
         get: operations["AttendanceController_getAttendanceStudentReport"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exams/terms": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List exam terms for the current tenant institution */
-        get: operations["ExamsController_listExamTerms"];
-        put?: never;
-        /** Create an exam term for the current tenant */
-        post: operations["ExamsController_createExamTerm"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exams/terms/{examTermId}/marks": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List marks for an exam term */
-        get: operations["ExamsController_listExamMarks"];
-        /** Replace the marks list for an exam term */
-        put: operations["ExamsController_replaceExamMarks"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/exams/terms/{examTermId}/report-card": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get subject-wise report card with grading for one student */
-        get: operations["ExamsController_getExamReportCard"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2789,6 +2806,85 @@ export interface components {
             announcements: components["schemas"]["AnnouncementDto"][];
             calendarEvents: components["schemas"]["CalendarEventDto"][];
         };
+        ExamReportCardSummaryDto: {
+            totalMaxMarks: number;
+            totalObtainedMarks: number;
+            overallPercent: number;
+            overallGrade: string;
+        };
+        ExamReportCardSubjectDto: {
+            remarks?: string | null;
+            subjectName: string;
+            maxMarks: number;
+            obtainedMarks: number;
+            percent: number;
+            grade: string;
+        };
+        ExamGradeBandDto: {
+            grade: string;
+            minPercent: number;
+            label: string;
+        };
+        ExamReportCardDto: {
+            summary: components["schemas"]["ExamReportCardSummaryDto"];
+            subjects: components["schemas"]["ExamReportCardSubjectDto"][];
+            gradingScheme: components["schemas"]["ExamGradeBandDto"][];
+            examTermId: string;
+            examTermName: string;
+            academicYearId: string;
+            academicYearName: string;
+            studentId: string;
+            studentFullName: string;
+            admissionNumber: string;
+        };
+        StudentPortalOverviewDto: {
+            studentSummary: components["schemas"]["StudentSummaryDto"];
+            timetable?: components["schemas"]["TimetableViewDto"] | null;
+            announcements: components["schemas"]["AnnouncementDto"][];
+            calendarEvents: components["schemas"]["CalendarEventDto"][];
+            selectedReportCardTermId?: string | null;
+            selectedReportCard?: components["schemas"]["ExamReportCardDto"] | null;
+        };
+        ExamTermDto: {
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            institutionId: string;
+            academicYearId: string;
+            academicYearName: string;
+            name: string;
+            startDate: string;
+            endDate: string;
+        };
+        CreateExamTermBodyDto: {
+            academicYearId: string;
+            name: string;
+            startDate: string;
+            endDate: string;
+        };
+        ExamMarkDto: {
+            remarks?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            examTermId: string;
+            studentId: string;
+            studentFullName: string;
+            admissionNumber: string;
+            subjectName: string;
+            maxMarks: number;
+            obtainedMarks: number;
+        };
+        UpsertExamMarkEntryBodyDto: {
+            remarks?: string | null;
+            studentId: string;
+            subjectName: string;
+            maxMarks: number;
+            obtainedMarks: number;
+        };
+        UpsertExamMarksBodyDto: {
+            entries: components["schemas"]["UpsertExamMarkEntryBodyDto"][];
+        };
         /** @enum {string} */
         AcademicYearStatus: "active" | "archived" | "deleted";
         AcademicYearDto: {
@@ -2932,77 +3028,6 @@ export interface components {
             late: number;
             excused: number;
             attendancePercent: number;
-        };
-        ExamTermDto: {
-            /** Format: date-time */
-            createdAt: string;
-            id: string;
-            institutionId: string;
-            academicYearId: string;
-            academicYearName: string;
-            name: string;
-            startDate: string;
-            endDate: string;
-        };
-        CreateExamTermBodyDto: {
-            academicYearId: string;
-            name: string;
-            startDate: string;
-            endDate: string;
-        };
-        ExamMarkDto: {
-            remarks?: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            id: string;
-            examTermId: string;
-            studentId: string;
-            studentFullName: string;
-            admissionNumber: string;
-            subjectName: string;
-            maxMarks: number;
-            obtainedMarks: number;
-        };
-        UpsertExamMarkEntryBodyDto: {
-            remarks?: string | null;
-            studentId: string;
-            subjectName: string;
-            maxMarks: number;
-            obtainedMarks: number;
-        };
-        UpsertExamMarksBodyDto: {
-            entries: components["schemas"]["UpsertExamMarkEntryBodyDto"][];
-        };
-        ExamReportCardSummaryDto: {
-            totalMaxMarks: number;
-            totalObtainedMarks: number;
-            overallPercent: number;
-            overallGrade: string;
-        };
-        ExamReportCardSubjectDto: {
-            remarks?: string | null;
-            subjectName: string;
-            maxMarks: number;
-            obtainedMarks: number;
-            percent: number;
-            grade: string;
-        };
-        ExamGradeBandDto: {
-            grade: string;
-            minPercent: number;
-            label: string;
-        };
-        ExamReportCardDto: {
-            summary: components["schemas"]["ExamReportCardSummaryDto"];
-            subjects: components["schemas"]["ExamReportCardSubjectDto"][];
-            gradingScheme: components["schemas"]["ExamGradeBandDto"][];
-            examTermId: string;
-            examTermName: string;
-            academicYearId: string;
-            academicYearName: string;
-            studentId: string;
-            studentFullName: string;
-            admissionNumber: string;
         };
         RolePermissionDto: {
             id: string;
@@ -5471,6 +5496,138 @@ export interface operations {
             };
         };
     };
+    StudentPortalController_getOverview: {
+        parameters: {
+            query?: {
+                examTermId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentPortalOverviewDto"];
+                };
+            };
+        };
+    };
+    ExamsController_listExamTerms: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamTermDto"][];
+                };
+            };
+        };
+    };
+    ExamsController_createExamTerm: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateExamTermBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamTermDto"];
+                };
+            };
+        };
+    };
+    ExamsController_listExamMarks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamMarkDto"][];
+                };
+            };
+        };
+    };
+    ExamsController_replaceExamMarks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertExamMarksBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamMarkDto"][];
+                };
+            };
+        };
+    };
+    ExamsController_getExamReportCard: {
+        parameters: {
+            query: {
+                studentId: string;
+            };
+            header?: never;
+            path: {
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamReportCardDto"];
+                };
+            };
+        };
+    };
     AcademicYearsController_listAcademicYears: {
         parameters: {
             query?: {
@@ -5719,117 +5876,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AttendanceStudentReportDto"];
-                };
-            };
-        };
-    };
-    ExamsController_listExamTerms: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamTermDto"][];
-                };
-            };
-        };
-    };
-    ExamsController_createExamTerm: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateExamTermBodyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamTermDto"];
-                };
-            };
-        };
-    };
-    ExamsController_listExamMarks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                examTermId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamMarkDto"][];
-                };
-            };
-        };
-    };
-    ExamsController_replaceExamMarks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                examTermId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpsertExamMarksBodyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamMarkDto"][];
-                };
-            };
-        };
-    };
-    ExamsController_getExamReportCard: {
-        parameters: {
-            query: {
-                studentId: string;
-            };
-            header?: never;
-            path: {
-                examTermId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ExamReportCardDto"];
                 };
             };
         };

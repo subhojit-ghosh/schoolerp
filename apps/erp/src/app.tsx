@@ -67,6 +67,7 @@ import { SubjectSheetRoute } from "@/features/subjects/ui/subject-sheet-route";
 import { CalendarEventSheetRoute } from "@/features/calendar/ui/calendar-event-sheet-route";
 import { AnnouncementSheetRoute } from "@/features/communications/ui/announcement-sheet-route";
 import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
+import { StudentPortalPage } from "@/features/student-portal/ui/student-portal-page";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -140,6 +141,30 @@ const router = createBrowserRouter([
       {
         path: ERP_ROUTES.FAMILY_CALENDAR,
         element: <FamilyPortalPage view="calendar" />,
+      },
+      {
+        path: ERP_ROUTES.STUDENT_TIMETABLE,
+        element: <StudentPortalPage view="timetable" />,
+      },
+      {
+        path: ERP_ROUTES.STUDENT_ATTENDANCE,
+        element: <StudentPortalPage view="attendance" />,
+      },
+      {
+        path: ERP_ROUTES.STUDENT_EXAMS,
+        element: <StudentPortalPage view="exams" />,
+      },
+      {
+        path: ERP_ROUTES.STUDENT_RESULTS,
+        element: <StudentPortalPage view="results" />,
+      },
+      {
+        path: ERP_ROUTES.STUDENT_ANNOUNCEMENTS,
+        element: <StudentPortalPage view="announcements" />,
+      },
+      {
+        path: ERP_ROUTES.STUDENT_CALENDAR,
+        element: <StudentPortalPage view="calendar" />,
       },
       { path: ERP_ROUTES.NOTIFICATIONS, element: <NotificationsPage /> },
       {

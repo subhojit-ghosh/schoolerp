@@ -26,6 +26,7 @@ export function createOpenApiDocument(app: INestApplication) {
     .addTag(API_DOCS.TAGS.ATTENDANCE)
     .addTag(API_DOCS.TAGS.EXAMS)
     .addTag(API_DOCS.TAGS.ATTENDANCE)
+    .addTag(API_DOCS.TAGS.STUDENT_PORTAL)
     .addTag(API_DOCS.TAGS.INSTITUTIONS)
     .build();
 

@@ -8,5 +8,6 @@ import { ExamsService } from "./exams.service";
   imports: [AuthModule, AuditModule],
   controllers: [ExamsController],
   providers: [ExamsService],
+  exports: [ExamsService],
 })
 export class ExamsModule {}

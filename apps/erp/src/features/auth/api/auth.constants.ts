@@ -118,6 +118,10 @@ export const FAMILY_API_PATHS = {
   OVERVIEW: "/family/overview",
 } as const;
 
+export const STUDENT_PORTAL_API_PATHS = {
+  OVERVIEW: "/student-portal/overview",
+} as const;
+
 export const CAMPUSES_API_PATHS = {
   LIST: "/campuses",
   CREATE: "/campuses",

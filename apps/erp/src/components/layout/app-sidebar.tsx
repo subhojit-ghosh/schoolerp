@@ -188,15 +188,11 @@ const NAV_FAMILY_SERVICES = [
 
 const NAV_STUDENT_ACADEMICS = [
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconLayoutGrid,
     title: "Timetable",
     url: ERP_ROUTES.STUDENT_TIMETABLE,
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconCalendarStats,
     title: "Attendance",
     url: ERP_ROUTES.STUDENT_ATTENDANCE,
@@ -209,22 +205,16 @@ const NAV_STUDENT_ACADEMICS = [
     url: ERP_ROUTES.STUDENT_HOMEWORK,
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconCertificate,
     title: "Exams",
     url: ERP_ROUTES.STUDENT_EXAMS,
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconChartBar,
     title: "Results",
     url: ERP_ROUTES.STUDENT_RESULTS,
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconCalendar,
     title: "Calendar",
     url: ERP_ROUTES.STUDENT_CALENDAR,
@@ -233,8 +223,6 @@ const NAV_STUDENT_ACADEMICS = [
 
 const NAV_STUDENT_COMMUNICATION = [
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconSpeakerphone,
     title: "Announcements",
     url: ERP_ROUTES.STUDENT_ANNOUNCEMENTS,

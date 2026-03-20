@@ -4585,6 +4585,237 @@
         ]
       }
     },
+    "/student-portal/overview": {
+      "get": {
+        "operationId": "StudentPortalController_getOverview",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentPortalOverviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get the student portal overview for the current tenant",
+        "tags": [
+          "student-portal"
+        ]
+      }
+    },
+    "/exams/terms": {
+      "get": {
+        "operationId": "ExamsController_listExamTerms",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamTermDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List exam terms for the current tenant institution",
+        "tags": [
+          "exams"
+        ]
+      },
+      "post": {
+        "operationId": "ExamsController_createExamTerm",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateExamTermBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamTermDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an exam term for the current tenant",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/exams/terms/{examTermId}/marks": {
+      "get": {
+        "operationId": "ExamsController_listExamMarks",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamMarkDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List marks for an exam term",
+        "tags": [
+          "exams"
+        ]
+      },
+      "put": {
+        "operationId": "ExamsController_replaceExamMarks",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertExamMarksBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamMarkDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Replace the marks list for an exam term",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/exams/terms/{examTermId}/report-card": {
+      "get": {
+        "operationId": "ExamsController_getExamReportCard",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamReportCardDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get subject-wise report card with grading for one student",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/academic-years": {
       "get": {
         "operationId": "AcademicYearsController_listAcademicYears",
@@ -5086,201 +5317,6 @@
         ]
       }
     },
-    "/exams/terms": {
-      "get": {
-        "operationId": "ExamsController_listExamTerms",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExamTermDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "List exam terms for the current tenant institution",
-        "tags": [
-          "exams"
-        ]
-      },
-      "post": {
-        "operationId": "ExamsController_createExamTerm",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateExamTermBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExamTermDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Create an exam term for the current tenant",
-        "tags": [
-          "exams"
-        ]
-      }
-    },
-    "/exams/terms/{examTermId}/marks": {
-      "get": {
-        "operationId": "ExamsController_listExamMarks",
-        "parameters": [
-          {
-            "name": "examTermId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExamMarkDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "List marks for an exam term",
-        "tags": [
-          "exams"
-        ]
-      },
-      "put": {
-        "operationId": "ExamsController_replaceExamMarks",
-        "parameters": [
-          {
-            "name": "examTermId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpsertExamMarksBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExamMarkDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Replace the marks list for an exam term",
-        "tags": [
-          "exams"
-        ]
-      }
-    },
-    "/exams/terms/{examTermId}/report-card": {
-      "get": {
-        "operationId": "ExamsController_getExamReportCard",
-        "parameters": [
-          {
-            "name": "examTermId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "studentId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExamReportCardDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Get subject-wise report card with grading for one student",
-        "tags": [
-          "exams"
-        ]
-      }
-    },
     "/roles": {
       "get": {
         "operationId": "RolesController_listRoles",
@@ -5739,6 +5775,10 @@
     },
     {
       "name": "attendance",
+      "description": ""
+    },
+    {
+      "name": "student-portal",
       "description": ""
     },
     {
@@ -10680,6 +10720,329 @@
           "calendarEvents"
         ]
       },
+      "ExamReportCardSummaryDto": {
+        "type": "object",
+        "properties": {
+          "totalMaxMarks": {
+            "type": "number"
+          },
+          "totalObtainedMarks": {
+            "type": "number"
+          },
+          "overallPercent": {
+            "type": "number"
+          },
+          "overallGrade": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "totalMaxMarks",
+          "totalObtainedMarks",
+          "overallPercent",
+          "overallGrade"
+        ]
+      },
+      "ExamReportCardSubjectDto": {
+        "type": "object",
+        "properties": {
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          },
+          "percent": {
+            "type": "number"
+          },
+          "grade": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks",
+          "percent",
+          "grade"
+        ]
+      },
+      "ExamGradeBandDto": {
+        "type": "object",
+        "properties": {
+          "grade": {
+            "type": "string"
+          },
+          "minPercent": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "grade",
+          "minPercent",
+          "label"
+        ]
+      },
+      "ExamReportCardDto": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/ExamReportCardSummaryDto"
+          },
+          "subjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamReportCardSubjectDto"
+            }
+          },
+          "gradingScheme": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExamGradeBandDto"
+            }
+          },
+          "examTermId": {
+            "type": "string"
+          },
+          "examTermName": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentFullName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "summary",
+          "subjects",
+          "gradingScheme",
+          "examTermId",
+          "examTermName",
+          "academicYearId",
+          "academicYearName",
+          "studentId",
+          "studentFullName",
+          "admissionNumber"
+        ]
+      },
+      "StudentPortalOverviewDto": {
+        "type": "object",
+        "properties": {
+          "studentSummary": {
+            "$ref": "#/components/schemas/StudentSummaryDto"
+          },
+          "timetable": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TimetableViewDto"
+              }
+            ]
+          },
+          "announcements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnnouncementDto"
+            }
+          },
+          "calendarEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarEventDto"
+            }
+          },
+          "selectedReportCardTermId": {
+            "type": "string",
+            "nullable": true
+          },
+          "selectedReportCard": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ExamReportCardDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "studentSummary",
+          "announcements",
+          "calendarEvents"
+        ]
+      },
+      "ExamTermDto": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "academicYearName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "createdAt",
+          "id",
+          "institutionId",
+          "academicYearId",
+          "academicYearName",
+          "name",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "CreateExamTermBodyDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId",
+          "name",
+          "startDate",
+          "endDate"
+        ]
+      },
+      "ExamMarkDto": {
+        "type": "object",
+        "properties": {
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "examTermId": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentFullName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "createdAt",
+          "id",
+          "examTermId",
+          "studentId",
+          "studentFullName",
+          "admissionNumber",
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks"
+        ]
+      },
+      "UpsertExamMarkEntryBodyDto": {
+        "type": "object",
+        "properties": {
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "maxMarks": {
+            "type": "number"
+          },
+          "obtainedMarks": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "studentId",
+          "subjectName",
+          "maxMarks",
+          "obtainedMarks"
+        ]
+      },
+      "UpsertExamMarksBodyDto": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UpsertExamMarkEntryBodyDto"
+            }
+          }
+        },
+        "required": [
+          "entries"
+        ]
+      },
       "AcademicYearStatus": {
         "type": "string",
         "enum": [
@@ -11262,284 +11625,6 @@
           "late",
           "excused",
           "attendancePercent"
-        ]
-      },
-      "ExamTermDto": {
-        "type": "object",
-        "properties": {
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "id": {
-            "type": "string"
-          },
-          "institutionId": {
-            "type": "string"
-          },
-          "academicYearId": {
-            "type": "string"
-          },
-          "academicYearName": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "createdAt",
-          "id",
-          "institutionId",
-          "academicYearId",
-          "academicYearName",
-          "name",
-          "startDate",
-          "endDate"
-        ]
-      },
-      "CreateExamTermBodyDto": {
-        "type": "object",
-        "properties": {
-          "academicYearId": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "startDate": {
-            "type": "string"
-          },
-          "endDate": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "academicYearId",
-          "name",
-          "startDate",
-          "endDate"
-        ]
-      },
-      "ExamMarkDto": {
-        "type": "object",
-        "properties": {
-          "remarks": {
-            "type": "string",
-            "nullable": true
-          },
-          "createdAt": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "id": {
-            "type": "string"
-          },
-          "examTermId": {
-            "type": "string"
-          },
-          "studentId": {
-            "type": "string"
-          },
-          "studentFullName": {
-            "type": "string"
-          },
-          "admissionNumber": {
-            "type": "string"
-          },
-          "subjectName": {
-            "type": "string"
-          },
-          "maxMarks": {
-            "type": "number"
-          },
-          "obtainedMarks": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "createdAt",
-          "id",
-          "examTermId",
-          "studentId",
-          "studentFullName",
-          "admissionNumber",
-          "subjectName",
-          "maxMarks",
-          "obtainedMarks"
-        ]
-      },
-      "UpsertExamMarkEntryBodyDto": {
-        "type": "object",
-        "properties": {
-          "remarks": {
-            "type": "string",
-            "nullable": true
-          },
-          "studentId": {
-            "type": "string"
-          },
-          "subjectName": {
-            "type": "string"
-          },
-          "maxMarks": {
-            "type": "number"
-          },
-          "obtainedMarks": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "studentId",
-          "subjectName",
-          "maxMarks",
-          "obtainedMarks"
-        ]
-      },
-      "UpsertExamMarksBodyDto": {
-        "type": "object",
-        "properties": {
-          "entries": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/UpsertExamMarkEntryBodyDto"
-            }
-          }
-        },
-        "required": [
-          "entries"
-        ]
-      },
-      "ExamReportCardSummaryDto": {
-        "type": "object",
-        "properties": {
-          "totalMaxMarks": {
-            "type": "number"
-          },
-          "totalObtainedMarks": {
-            "type": "number"
-          },
-          "overallPercent": {
-            "type": "number"
-          },
-          "overallGrade": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "totalMaxMarks",
-          "totalObtainedMarks",
-          "overallPercent",
-          "overallGrade"
-        ]
-      },
-      "ExamReportCardSubjectDto": {
-        "type": "object",
-        "properties": {
-          "remarks": {
-            "type": "string",
-            "nullable": true
-          },
-          "subjectName": {
-            "type": "string"
-          },
-          "maxMarks": {
-            "type": "number"
-          },
-          "obtainedMarks": {
-            "type": "number"
-          },
-          "percent": {
-            "type": "number"
-          },
-          "grade": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "subjectName",
-          "maxMarks",
-          "obtainedMarks",
-          "percent",
-          "grade"
-        ]
-      },
-      "ExamGradeBandDto": {
-        "type": "object",
-        "properties": {
-          "grade": {
-            "type": "string"
-          },
-          "minPercent": {
-            "type": "number"
-          },
-          "label": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "grade",
-          "minPercent",
-          "label"
-        ]
-      },
-      "ExamReportCardDto": {
-        "type": "object",
-        "properties": {
-          "summary": {
-            "$ref": "#/components/schemas/ExamReportCardSummaryDto"
-          },
-          "subjects": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ExamReportCardSubjectDto"
-            }
-          },
-          "gradingScheme": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ExamGradeBandDto"
-            }
-          },
-          "examTermId": {
-            "type": "string"
-          },
-          "examTermName": {
-            "type": "string"
-          },
-          "academicYearId": {
-            "type": "string"
-          },
-          "academicYearName": {
-            "type": "string"
-          },
-          "studentId": {
-            "type": "string"
-          },
-          "studentFullName": {
-            "type": "string"
-          },
-          "admissionNumber": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "summary",
-          "subjects",
-          "gradingScheme",
-          "examTermId",
-          "examTermName",
-          "academicYearId",
-          "academicYearName",
-          "studentId",
-          "studentFullName",
-          "admissionNumber"
         ]
       },
       "RolePermissionDto": {

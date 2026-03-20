@@ -24,6 +24,7 @@ import { OnboardingModule } from "./modules/onboarding/onboarding.module";
 import { PublicModule } from "./modules/public/public.module";
 import { RolesModule } from "./modules/roles/roles.module";
 import { StaffModule } from "./modules/staff/staff.module";
+import { StudentPortalModule } from "./modules/student-portal/student-portal.module";
 import { SubjectsModule } from "./modules/subjects/subjects.module";
 import { TenantContextModule } from "./modules/tenant-context/tenant-context.module";
 import { TimetableModule } from "./modules/timetable/timetable.module";
@@ -53,6 +54,7 @@ import { StudentsModule } from "./modules/students/students.module";
     DataExchangeModule,
     StudentsModule,
     FamilyModule,
+    StudentPortalModule,
     StaffModule,
     GuardiansModule,
     AcademicYearsModule,

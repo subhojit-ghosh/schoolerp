@@ -49,12 +49,11 @@ These items still block full day-to-day v1 readiness:
 ## Then — Add the common breadth schools expect in a feature-rich ERP
 
 1. **Parent portal completion** — dues, attendance, report cards, notices, and student-centric actions must work outside the staff dashboard.
-2. **Student portal completion** — student view is still placeholder-grade and must become useful for timetable, attendance, exams, and notices.
-3. **Library** — catalog, issue/return, member history, and fine tracking are common school ERP expectations.
-4. **Transport** — routes, stops, vehicle mapping, and student transport assignment are common operational requirements.
-5. **Staff leave management** — leave requests, balances, approvals, and calendar visibility should land before payroll.
-6. **Cross-module polish** — consistency pass across student/staff/fees/exams/attendance/admissions flows for copy, empty states, and action hierarchy.
-7. **Operational quality** — eliminate rough UX edges that create support burden during pilot rollouts.
+2. **Library** — catalog, issue/return, member history, and fine tracking are common school ERP expectations.
+3. **Transport** — routes, stops, vehicle mapping, and student transport assignment are common operational requirements.
+4. **Staff leave management** — leave requests, balances, approvals, and calendar visibility should land before payroll.
+5. **Cross-module polish** — consistency pass across student/staff/fees/exams/attendance/admissions flows for copy, empty states, and action hierarchy.
+6. **Operational quality** — eliminate rough UX edges that create support burden during pilot rollouts.
 
 ## Later — Post-v1 depth
 
@@ -69,7 +68,7 @@ These items still block full day-to-day v1 readiness:
 ## Risks And Dependencies
 
 - Password reset and staff password-setup links are broken for production use until a real SMS/email provider is wired.
-- Parent and student dashboards are still placeholder-grade.
+- Parent dashboard is still placeholder-grade.
 - A broader, feature-rich ERP direction increases surface area; sequencing discipline is required so common breadth modules do not derail core v1 blockers.
 - Onboarding still needs UX hardening for fully self-serve institution setup.
 - Business rules must stay in NestJS; any shortcut that pushes authorization or domain logic into the frontend creates a security gap.
