@@ -4549,6 +4549,42 @@
         ]
       }
     },
+    "/family/overview": {
+      "get": {
+        "operationId": "FamilyController_getOverview",
+        "parameters": [
+          {
+            "name": "studentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FamilyOverviewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get the parent portal overview for the current tenant",
+        "tags": [
+          "family"
+        ]
+      }
+    },
     "/academic-years": {
       "get": {
         "operationId": "AcademicYearsController_listAcademicYears",
@@ -10587,6 +10623,61 @@
           "totalPaidInPaise",
           "totalOutstandingInPaise",
           "overdueCount"
+        ]
+      },
+      "FamilyOverviewDto": {
+        "type": "object",
+        "properties": {
+          "linkedStudents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AuthLinkedStudentDto"
+            }
+          },
+          "studentSummaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentSummaryDto"
+            }
+          },
+          "selectedStudentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "selectedStudentSummary": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StudentSummaryDto"
+              }
+            ]
+          },
+          "selectedTimetable": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/TimetableViewDto"
+              }
+            ]
+          },
+          "announcements": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnnouncementDto"
+            }
+          },
+          "calendarEvents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CalendarEventDto"
+            }
+          }
+        },
+        "required": [
+          "linkedStudents",
+          "studentSummaries",
+          "announcements",
+          "calendarEvents"
         ]
       },
       "AcademicYearStatus": {

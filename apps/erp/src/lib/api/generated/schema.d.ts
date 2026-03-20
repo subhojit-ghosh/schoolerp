@@ -1242,6 +1242,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/family/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the parent portal overview for the current tenant */
+        get: operations["FamilyController_getOverview"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/academic-years": {
         parameters: {
             query?: never;
@@ -2762,6 +2779,15 @@ export interface components {
             totalPaidInPaise: number;
             totalOutstandingInPaise: number;
             overdueCount: number;
+        };
+        FamilyOverviewDto: {
+            linkedStudents: components["schemas"]["AuthLinkedStudentDto"][];
+            studentSummaries: components["schemas"]["StudentSummaryDto"][];
+            selectedStudentId?: string | null;
+            selectedStudentSummary?: components["schemas"]["StudentSummaryDto"] | null;
+            selectedTimetable?: components["schemas"]["TimetableViewDto"] | null;
+            announcements: components["schemas"]["AnnouncementDto"][];
+            calendarEvents: components["schemas"]["CalendarEventDto"][];
         };
         /** @enum {string} */
         AcademicYearStatus: "active" | "archived" | "deleted";
@@ -5420,6 +5446,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CollectionSummaryDto"];
+                };
+            };
+        };
+    };
+    FamilyController_getOverview: {
+        parameters: {
+            query?: {
+                studentId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FamilyOverviewDto"];
                 };
             };
         };

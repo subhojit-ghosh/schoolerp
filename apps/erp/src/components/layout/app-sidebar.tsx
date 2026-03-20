@@ -12,6 +12,7 @@ import {
   IconChevronDown,
   IconChevronRight,
   IconCurrencyRupee,
+  IconDashboard,
   IconFileDescription,
   IconFolder,
   IconHome,
@@ -111,19 +112,13 @@ const NAV_FAMILY = [
     icon: IconUsers,
     title: "Children",
     url: ERP_ROUTES.FAMILY_CHILDREN,
-    disabled: true,
-    badgeLabel: "Planned",
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconCalendarStats,
     title: "Attendance",
     url: ERP_ROUTES.FAMILY_ATTENDANCE,
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconLayoutGrid,
     title: "Timetable",
     url: ERP_ROUTES.FAMILY_TIMETABLE,
@@ -136,15 +131,11 @@ const NAV_FAMILY = [
     url: ERP_ROUTES.FAMILY_HOMEWORK,
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconCertificate,
     title: "Exams",
     url: ERP_ROUTES.FAMILY_EXAMS,
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconCurrencyRupee,
     title: "Fees",
     url: ERP_ROUTES.FAMILY_FEES,
@@ -160,8 +151,6 @@ const NAV_FAMILY = [
 
 const NAV_FAMILY_COMMUNICATION = [
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconSpeakerphone,
     title: "Announcements",
     url: ERP_ROUTES.FAMILY_ANNOUNCEMENTS,
@@ -174,8 +163,6 @@ const NAV_FAMILY_COMMUNICATION = [
     url: ERP_ROUTES.FAMILY_MESSAGES,
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconCalendar,
     title: "Calendar",
     url: ERP_ROUTES.FAMILY_CALENDAR,
@@ -387,11 +374,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const settingsItems = getActionableNavItems(NAV_SETTINGS).filter(
     (item) => item.permission && hasPermission(session, item.permission),
   );
-  const familyItems = getActionableNavItems(NAV_FAMILY);
-  const familyCommunicationItems = getActionableNavItems(
-    NAV_FAMILY_COMMUNICATION,
-  );
-  const familyServicesItems = getActionableNavItems(NAV_FAMILY_SERVICES);
+  const familyHomeItems = [
+    {
+      icon: IconDashboard,
+      title: "Dashboard",
+      url: ERP_ROUTES.DASHBOARD,
+    },
+  ];
+  const familyItems = [...NAV_FAMILY];
+  const familyCommunicationItems = [...NAV_FAMILY_COMMUNICATION];
+  const familyServicesItems = [...NAV_FAMILY_SERVICES];
   const studentAcademicItems = getActionableNavItems(NAV_STUDENT_ACADEMICS);
   const studentCommunicationItems = getActionableNavItems(
     NAV_STUDENT_COMMUNICATION,
@@ -692,7 +684,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </>
         ) : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT ? (
           <>
-            {renderStandaloneTopLevelItems(homeItems)}
+            {renderStandaloneTopLevelItems(familyHomeItems)}
             {familyItems.length > 0 ? (
               <NavMain
                 collapsible

@@ -114,6 +114,10 @@ export const COMMUNICATIONS_API_PATHS = {
   MARK_ALL_NOTIFICATIONS_READ: "/communications/notifications/mark-all-read",
 } as const;
 
+export const FAMILY_API_PATHS = {
+  OVERVIEW: "/family/overview",
+} as const;
+
 export const CAMPUSES_API_PATHS = {
   LIST: "/campuses",
   CREATE: "/campuses",

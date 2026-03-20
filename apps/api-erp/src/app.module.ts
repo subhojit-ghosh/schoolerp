@@ -18,6 +18,7 @@ import { validateEnvironment } from "./config/env.validation";
 import { DataExchangeModule } from "./modules/data-exchange/data-exchange.module";
 import { FeesModule } from "./modules/fees/fees.module";
 import { ExamsModule } from "./modules/exams/exams.module";
+import { FamilyModule } from "./modules/family/family.module";
 import { InstitutionsModule } from "./modules/institutions/institutions.module";
 import { OnboardingModule } from "./modules/onboarding/onboarding.module";
 import { PublicModule } from "./modules/public/public.module";
@@ -51,6 +52,7 @@ import { StudentsModule } from "./modules/students/students.module";
     CommunicationsModule,
     DataExchangeModule,
     StudentsModule,
+    FamilyModule,
     StaffModule,
     GuardiansModule,
     AcademicYearsModule,

@@ -40,6 +40,7 @@ export const API_ROUTES = {
   NOTIFICATIONS: "notifications",
   MARK_ALL_READ: "mark-all-read",
   PUBLISH: "publish",
+  FAMILY: "family",
   ATTENDANCE: "attendance",
   CLASS_SECTIONS: "class-sections",
   DAY: "day",

@@ -66,6 +66,7 @@ import { AdmissionEnquirySheetRoute } from "@/features/admissions/ui/admission-e
 import { SubjectSheetRoute } from "@/features/subjects/ui/subject-sheet-route";
 import { CalendarEventSheetRoute } from "@/features/calendar/ui/calendar-event-sheet-route";
 import { AnnouncementSheetRoute } from "@/features/communications/ui/announcement-sheet-route";
+import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -115,6 +116,31 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
     children: [
       { path: ERP_ROUTES.DASHBOARD, element: <DashboardPage /> },
+      {
+        path: ERP_ROUTES.FAMILY_CHILDREN,
+        element: <FamilyPortalPage view="children" />,
+      },
+      {
+        path: ERP_ROUTES.FAMILY_ATTENDANCE,
+        element: <FamilyPortalPage view="attendance" />,
+      },
+      {
+        path: ERP_ROUTES.FAMILY_TIMETABLE,
+        element: <FamilyPortalPage view="timetable" />,
+      },
+      {
+        path: ERP_ROUTES.FAMILY_EXAMS,
+        element: <FamilyPortalPage view="exams" />,
+      },
+      { path: ERP_ROUTES.FAMILY_FEES, element: <FamilyPortalPage view="fees" /> },
+      {
+        path: ERP_ROUTES.FAMILY_ANNOUNCEMENTS,
+        element: <FamilyPortalPage view="announcements" />,
+      },
+      {
+        path: ERP_ROUTES.FAMILY_CALENDAR,
+        element: <FamilyPortalPage view="calendar" />,
+      },
       { path: ERP_ROUTES.NOTIFICATIONS, element: <NotificationsPage /> },
       {
         path: ERP_ROUTES.ANNOUNCEMENTS,

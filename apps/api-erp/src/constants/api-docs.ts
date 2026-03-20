@@ -24,6 +24,7 @@ export const API_DOCS = {
     TIMETABLE: "timetable",
     CALENDAR: "calendar",
     COMMUNICATIONS: "communications",
+    FAMILY: "family",
     ATTENDANCE: "attendance",
     EXAMS: "exams",
     FEES: "fees",

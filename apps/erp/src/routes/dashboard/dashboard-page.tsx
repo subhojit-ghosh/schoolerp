@@ -5,7 +5,6 @@ import {
   IconCalendarStats,
   IconCertificate,
   IconCurrencyRupee,
-  IconMoodKid,
   IconUsers,
 } from "@tabler/icons-react";
 import { Link } from "react-router";
@@ -29,6 +28,7 @@ import { useStaffQuery } from "@/features/staff/api/use-staff";
 import { useAttendanceOverviewQuery } from "@/features/attendance/api/use-attendance";
 import { useCollectionSummaryQuery } from "@/features/fees/api/use-fees";
 import { formatRupees } from "@/features/fees/model/fee-formatters";
+import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
 
 const QUICK_ACTIONS = [
   {
@@ -90,7 +90,6 @@ export function DashboardPage() {
   const staffDashboardInstitutionId = isStaffContext(session)
     ? institutionId
     : undefined;
-  const linkedStudents = session?.linkedStudents ?? [];
   const studentsQuery = useStudentsQuery(staffDashboardInstitutionId);
   const studentCount = studentsQuery.data?.total ?? 0;
   const staffQuery = useStaffQuery(staffDashboardInstitutionId, {
@@ -133,84 +132,7 @@ export function DashboardPage() {
   );
 
   if (activeContext?.key === AUTH_CONTEXT_KEYS.PARENT) {
-    return (
-      <EntityPageShell width="full">
-        <div className="px-0.5">
-          <div className="mb-1.5 flex items-center gap-2">
-            <div
-              className="h-0.5 w-5 rounded-full"
-              style={{ background: "var(--primary)" }}
-            />
-            <Badge variant="secondary">Parent view</Badge>
-          </div>
-          <h2
-            className="text-3xl font-bold text-foreground"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
-            {getGreeting()}, {firstName(name)}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            View linked students and family updates.
-          </p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {linkedStudents.map((student) => (
-            <Card
-              key={student.studentId}
-              className="overflow-hidden border-primary/15 bg-card"
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <CardTitle className="text-lg">
-                      {student.fullName}
-                    </CardTitle>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {student.campusName}
-                    </p>
-                  </div>
-                  <div
-                    className="flex size-11 items-center justify-center rounded-2xl"
-                    style={{
-                      background:
-                        "color-mix(in srgb, var(--primary) 14%, transparent)",
-                    }}
-                  >
-                    <IconMoodKid
-                      className="size-5"
-                      style={{ color: "var(--primary)" }}
-                    />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="outline" className="font-mono">
-                    {student.admissionNumber}
-                  </Badge>
-                  {student.relationship ? (
-                    <Badge className="capitalize" variant="secondary">
-                      {student.relationship}
-                    </Badge>
-                  ) : null}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Parent tools for this student will appear here.
-                </p>
-              </CardContent>
-            </Card>
-          ))}
-          {linkedStudents.length === 0 ? (
-            <Card className="border-dashed bg-muted/25 md:col-span-2 xl:col-span-3">
-              <CardContent className="py-12 text-center text-sm text-muted-foreground">
-                No linked students are visible in this tenant yet.
-              </CardContent>
-            </Card>
-          ) : null}
-        </div>
-      </EntityPageShell>
-    );
+    return <FamilyPortalPage view="overview" />;
   }
 
   if (activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT) {
