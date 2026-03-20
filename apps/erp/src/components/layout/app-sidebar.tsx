@@ -26,7 +26,7 @@ import {
   IconUsers,
   IconUsersGroup,
 } from "@tabler/icons-react";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -288,6 +288,31 @@ const NAV_STUDENT_SERVICES = [
 const HEADER_CLASS =
   "flex w-full items-center gap-3 overflow-hidden rounded-xl border border-white/8 bg-white/4 px-3 py-3 text-left transition-[width,height,padding] hover:bg-white/8 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-2";
 
+type SidebarNavItem = {
+  badgeLabel?: string;
+  disabled?: boolean;
+  title: string;
+  url: string;
+};
+
+function matchesPath(pathname: string, itemUrl: string) {
+  return (
+    pathname === itemUrl ||
+    (itemUrl !== "/" && pathname.startsWith(`${itemUrl}/`))
+  );
+}
+
+function getActiveGroupLabel(
+  pathname: string,
+  groups: Array<{ items: SidebarNavItem[]; label: string }>,
+) {
+  const matchingGroup = groups.find((group) =>
+    group.items.some((item) => matchesPath(pathname, item.url)),
+  );
+
+  return matchingGroup?.label ?? null;
+}
+
 function InstitutionLogo({
   logoUrl,
   institutionName,
@@ -318,6 +343,7 @@ function InstitutionLogo({
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const location = useLocation();
   const navigate = useNavigate();
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
@@ -375,6 +401,69 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     (left, right) =>
       CONTEXT_META[left.key].order - CONTEXT_META[right.key].order,
   );
+
+  const activeGroupLabel = React.useMemo(() => {
+    if (showStaffNavigation) {
+      return getActiveGroupLabel(location.pathname, [
+        { items: peopleItems, label: STAFF_NAV_GROUP_LABELS.DIRECTORY },
+        { items: admissionsItems, label: STAFF_NAV_GROUP_LABELS.ADMISSIONS },
+        {
+          items: academicManagementItems,
+          label: STAFF_NAV_GROUP_LABELS.ACADEMICS,
+        },
+        { items: financeItems, label: STAFF_NAV_GROUP_LABELS.FINANCE },
+        { items: servicesItems, label: STAFF_NAV_GROUP_LABELS.SERVICES },
+        { items: hrItems, label: STAFF_NAV_GROUP_LABELS.HR },
+        { items: reportItems, label: STAFF_NAV_GROUP_LABELS.REPORTS },
+        { items: recordItems, label: STAFF_NAV_GROUP_LABELS.RECORDS },
+        { items: settingsItems, label: STAFF_NAV_GROUP_LABELS.SETTINGS },
+      ]);
+    }
+
+    if (activeContext?.key === AUTH_CONTEXT_KEYS.PARENT) {
+      return getActiveGroupLabel(location.pathname, [
+        { items: familyItems, label: "Family" },
+        { items: familyCommunicationItems, label: "Communication" },
+        { items: familyServicesItems, label: "Services" },
+      ]);
+    }
+
+    if (activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT) {
+      return getActiveGroupLabel(location.pathname, [
+        { items: studentAcademicItems, label: "Academics" },
+        { items: studentCommunicationItems, label: "Communication" },
+        { items: studentServicesItems, label: "Services" },
+      ]);
+    }
+
+    return null;
+  }, [
+    activeContext?.key,
+    admissionsItems,
+    academicManagementItems,
+    familyCommunicationItems,
+    familyItems,
+    familyServicesItems,
+    financeItems,
+    hrItems,
+    location.pathname,
+    peopleItems,
+    recordItems,
+    reportItems,
+    servicesItems,
+    settingsItems,
+    showStaffNavigation,
+    studentAcademicItems,
+    studentCommunicationItems,
+    studentServicesItems,
+  ]);
+  const [openGroupLabel, setOpenGroupLabel] = React.useState<string | null>(
+    activeGroupLabel,
+  );
+
+  React.useEffect(() => {
+    setOpenGroupLabel(activeGroupLabel);
+  }, [activeGroupLabel]);
 
   const headerInner = (
     <>
@@ -513,6 +602,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconUsers}
                 items={peopleItems}
                 label={STAFF_NAV_GROUP_LABELS.DIRECTORY}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {admissionsItems.length > 0 ? (
@@ -521,6 +612,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconFileDescription}
                 items={admissionsItems}
                 label={STAFF_NAV_GROUP_LABELS.ADMISSIONS}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {academicManagementItems.length > 0 ? (
@@ -529,6 +622,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconBook2}
                 items={academicManagementItems}
                 label={STAFF_NAV_GROUP_LABELS.ACADEMICS}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {financeItems.length > 0 ? (
@@ -537,6 +632,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconCurrencyRupee}
                 items={financeItems}
                 label={STAFF_NAV_GROUP_LABELS.FINANCE}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {communicationItems.length > 0 ? (
@@ -548,6 +645,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconLayoutGrid}
                 items={servicesItems}
                 label={STAFF_NAV_GROUP_LABELS.SERVICES}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {hrItems.length > 0 ? (
@@ -556,6 +655,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconUsersGroup}
                 items={hrItems}
                 label={STAFF_NAV_GROUP_LABELS.HR}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {reportItems.length > 0 ? (
@@ -564,6 +665,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconChartBar}
                 items={reportItems}
                 label={STAFF_NAV_GROUP_LABELS.REPORTS}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {recordItems.length > 0 ? (
@@ -572,6 +675,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconFolder}
                 items={recordItems}
                 label={STAFF_NAV_GROUP_LABELS.RECORDS}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {settingsItems.length > 0 ? (
@@ -580,6 +685,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconAdjustments}
                 items={settingsItems}
                 label={STAFF_NAV_GROUP_LABELS.SETTINGS}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
           </>
@@ -589,28 +696,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {familyItems.length > 0 ? (
               <NavMain
                 collapsible
-                defaultExpanded
                 icon={IconUserHeart}
                 items={familyItems}
                 label="Family"
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {familyCommunicationItems.length > 0 ? (
               <NavMain
                 collapsible
-                defaultExpanded
                 icon={IconSpeakerphone}
                 items={familyCommunicationItems}
                 label="Communication"
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {familyServicesItems.length > 0 ? (
               <NavMain
                 collapsible
-                defaultExpanded
                 icon={IconLayoutGrid}
                 items={familyServicesItems}
                 label="Services"
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
           </>
@@ -620,28 +730,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {studentAcademicItems.length > 0 ? (
               <NavMain
                 collapsible
-                defaultExpanded
                 icon={IconBook2}
                 items={studentAcademicItems}
                 label="Academics"
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {studentCommunicationItems.length > 0 ? (
               <NavMain
                 collapsible
-                defaultExpanded
                 icon={IconSpeakerphone}
                 items={studentCommunicationItems}
                 label="Communication"
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
             {studentServicesItems.length > 0 ? (
               <NavMain
                 collapsible
-                defaultExpanded
                 icon={IconLayoutGrid}
                 items={studentServicesItems}
                 label="Services"
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
               />
             ) : null}
           </>

@@ -23,12 +23,23 @@ const TOP_LEVEL_ICON_CLASS =
 const TOP_LEVEL_TITLE_CLASS =
   "flex-1 text-left text-[13px] font-medium leading-none";
 
+const ACTIVE_ROW_CLASS =
+  "data-[active=true]:bg-white/[0.05] data-[active=true]:font-medium data-[active=true]:text-sidebar-foreground";
+
+const ACTIVE_ICON_CLASS =
+  "border-[var(--accent)]/25 bg-[var(--accent)]/20 text-[var(--accent)]";
+
+const IDLE_ICON_CLASS =
+  "border-white/10 bg-white/[0.07] text-sidebar-foreground/70";
+
 export function NavMain({
   collapsible = false,
   defaultExpanded = false,
   icon,
   items,
   label,
+  onOpenGroupChange,
+  openGroupLabel,
 }: {
   collapsible?: boolean;
   defaultExpanded?: boolean;
@@ -41,6 +52,8 @@ export function NavMain({
     disabled?: boolean;
   }[];
   label?: string;
+  onOpenGroupChange?: (label: string | null) => void;
+  openGroupLabel?: string | null;
 }) {
   const GroupIcon = icon;
   const location = useLocation();
@@ -68,30 +81,30 @@ export function NavMain({
     return activeItemUrl === itemUrl;
   }
 
-  const storageKey = label ? `sidebar-group-${label}` : null;
-
   const hasActiveItem = activeItemUrl !== null;
-  const [isExpanded, setIsExpanded] = useState(() => {
-    if (!collapsible) return true;
-    if (storageKey) {
-      const stored = localStorage.getItem(storageKey);
-      if (stored !== null) return stored === "true";
-    }
-    return defaultExpanded || hasActiveItem;
-  });
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded || hasActiveItem);
+  const isAccordionGroup = collapsible && Boolean(label) && onOpenGroupChange;
+  const accordionExpanded = Boolean(label) && openGroupLabel === label;
+  const resolvedExpanded = isAccordionGroup ? accordionExpanded : isExpanded;
 
   useEffect(() => {
-    if (hasActiveItem) {
+    if (activeItemUrl) {
+      if (label && onOpenGroupChange) {
+        onOpenGroupChange(label);
+        return;
+      }
+
       setIsExpanded(true);
     }
-  }, [hasActiveItem]);
+  }, [activeItemUrl, label, onOpenGroupChange]);
 
   function handleToggle() {
-    setIsExpanded((prev) => {
-      const next = !prev;
-      if (storageKey) localStorage.setItem(storageKey, String(next));
-      return next;
-    });
+    if (label && onOpenGroupChange) {
+      onOpenGroupChange(resolvedExpanded ? null : label);
+      return;
+    }
+
+    setIsExpanded((prev) => !prev);
   }
 
   return (
@@ -101,9 +114,7 @@ export function NavMain({
           <button
             className={cn(
               TOP_LEVEL_ROW_CLASS,
-              isExpanded
-                ? "bg-white/[0.03] text-sidebar-foreground hover:bg-white/[0.055]"
-                : undefined,
+              resolvedExpanded ? "text-sidebar-foreground" : undefined,
             )}
             onClick={handleToggle}
             type="button"
@@ -113,10 +124,10 @@ export function NavMain({
                 className={cn(
                   TOP_LEVEL_ICON_CLASS,
                   hasActiveItem
-                    ? "border-[var(--accent)]/25 bg-[var(--accent)]/20 text-[var(--accent)]"
-                    : isExpanded
+                    ? ACTIVE_ICON_CLASS
+                    : resolvedExpanded
                       ? "border-white/10 bg-white/10 text-sidebar-foreground/80"
-                      : "border-white/10 bg-white/[0.07] text-sidebar-foreground/70",
+                      : IDLE_ICON_CLASS,
                 )}
               >
                 <GroupIcon className="size-[14px]" />
@@ -126,7 +137,7 @@ export function NavMain({
             <IconChevronDown
               className={cn(
                 "size-3 shrink-0 opacity-40 transition-transform duration-200 group-hover/nav-section:opacity-70",
-                !isExpanded && "-rotate-90",
+                !resolvedExpanded && "-rotate-90",
               )}
             />
           </button>
@@ -142,8 +153,12 @@ export function NavMain({
           collapsible
             ? "grid transition-[grid-template-rows,opacity] duration-200 ease-out motion-reduce:transition-none"
             : undefined,
-          collapsible && isExpanded ? "grid-rows-[1fr] opacity-100" : undefined,
-          collapsible && !isExpanded ? "grid-rows-[0fr] opacity-0" : undefined,
+          collapsible && resolvedExpanded
+            ? "grid-rows-[1fr] opacity-100"
+            : undefined,
+          collapsible && !resolvedExpanded
+            ? "grid-rows-[0fr] opacity-0"
+            : undefined,
         )}
       >
         <div
@@ -152,8 +167,10 @@ export function NavMain({
             collapsible
               ? "transition-[transform,opacity] duration-200 ease-out motion-reduce:transition-none"
               : undefined,
-            collapsible && isExpanded ? "translate-y-0 opacity-100" : undefined,
-            collapsible && !isExpanded
+            collapsible && resolvedExpanded
+              ? "translate-y-0 opacity-100"
+              : undefined,
+            collapsible && !resolvedExpanded
               ? "-translate-y-1 opacity-0 pointer-events-none"
               : undefined,
           )}
@@ -168,7 +185,8 @@ export function NavMain({
                         asChild={!item.disabled}
                         isActive={isActivePath(item.url)}
                         className={cn(
-                          "h-8 rounded-lg px-2.5 text-[13px] font-medium text-sidebar-foreground/72 transition-[background,color] duration-150 hover:bg-white/[0.04] hover:text-sidebar-foreground data-[active=true]:bg-white/[0.07] data-[active=true]:text-sidebar-foreground data-[active=true]:shadow-[inset_2px_0_0_var(--accent)] [&>svg]:size-[15px] [&>svg]:text-sidebar-foreground/55 data-[active=true]:[&>svg]:text-[var(--accent)]",
+                          "h-8 rounded-lg px-2.5 text-[13px] font-medium text-sidebar-foreground/72 transition-[background,color] duration-150 hover:bg-white/[0.04] hover:text-sidebar-foreground [&>svg]:size-[15px] [&>svg]:text-sidebar-foreground/55 data-[active=true]:[&>svg]:text-[var(--accent)]",
+                          ACTIVE_ROW_CLASS,
                           item.disabled
                             ? "cursor-not-allowed pointer-events-none text-muted-foreground/60"
                             : undefined,
@@ -202,7 +220,8 @@ export function NavMain({
                     tooltip={item.title}
                     className={cn(
                       TOP_LEVEL_ROW_CLASS,
-                      "h-auto data-[active=true]:bg-white/[0.03] data-[active=true]:font-medium data-[active=true]:text-sidebar-foreground data-[active=true]:shadow-none [&>svg]:hidden [&>a>svg]:hidden",
+                      "h-auto [&>svg]:hidden [&>a>svg]:hidden",
+                      ACTIVE_ROW_CLASS,
                       item.disabled
                         ? "cursor-not-allowed pointer-events-none text-muted-foreground/60"
                         : undefined,
@@ -226,8 +245,8 @@ export function NavMain({
                             className={cn(
                               TOP_LEVEL_ICON_CLASS,
                               isActivePath(item.url)
-                                ? "border-[var(--accent)]/25 bg-[var(--accent)]/20 text-[var(--accent)]"
-                                : "border-white/10 bg-white/[0.07] text-sidebar-foreground/70",
+                                ? ACTIVE_ICON_CLASS
+                                : IDLE_ICON_CLASS,
                             )}
                           >
                             <item.icon className="size-[14px]" />
