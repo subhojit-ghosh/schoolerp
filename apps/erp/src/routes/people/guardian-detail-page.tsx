@@ -12,6 +12,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
+import {
+  EntityDetailPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
 import { Separator } from "@repo/ui/components/ui/separator";
 import {
   getActiveContext,
@@ -233,32 +237,30 @@ export function GuardianDetailPage() {
     | undefined;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-start gap-4">
+    <EntityPageShell width="full">
+      <EntityDetailPageHeader
+        avatar={
           <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-lg font-semibold text-muted-foreground">
             {toInitials(guardian.name)}
           </div>
-          <div className="space-y-1">
-            <Button asChild className="-ml-3" size="sm" variant="ghost">
-              <Link to={appendSearch(ERP_ROUTES.GUARDIANS, location.search)}>
-                <IconChevronLeft data-icon="inline-start" />
-                Back to guardians
-              </Link>
-            </Button>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-semibold text-foreground">
-                {guardian.name}
-              </h2>
-              <Badge variant="outline">{guardian.status}</Badge>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {guardian.mobile}
-              {guardian.email ? ` • ${guardian.email}` : ""}
-            </p>
-          </div>
-        </div>
-      </div>
+        }
+        backAction={
+          <Button asChild className="-ml-3" size="sm" variant="ghost">
+            <Link to={appendSearch(ERP_ROUTES.GUARDIANS, location.search)}>
+              <IconChevronLeft data-icon="inline-start" />
+              Back to guardians
+            </Link>
+          </Button>
+        }
+        badges={<Badge variant="outline">{guardian.status}</Badge>}
+        meta={
+          <>
+            {guardian.mobile}
+            {guardian.email ? ` • ${guardian.email}` : ""}
+          </>
+        }
+        title={guardian.name}
+      />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <Card>
@@ -408,6 +410,6 @@ export function GuardianDetailPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+    </EntityPageShell>
   );
 }

@@ -9,6 +9,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
+import {
+  EntityPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
 import { buildFeeStructureEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
@@ -164,22 +168,22 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
 
   if (mode === "edit" && feeStructureQuery.isLoading) {
     return (
-      <div className="flex flex-col gap-6">
+      <EntityPageShell width="form">
         <BackLink location={location} />
-        <Card className="max-w-5xl">
+        <Card className="w-full">
           <CardContent className="py-12 text-center text-sm text-muted-foreground">
             Loading...
           </CardContent>
         </Card>
-      </div>
+      </EntityPageShell>
     );
   }
 
   if (mode === "edit" && !feeStructureQuery.data) {
     return (
-      <div className="flex flex-col gap-6">
+      <EntityPageShell width="form">
         <BackLink location={location} />
-        <Card className="max-w-5xl">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Not found</CardTitle>
           </CardHeader>
@@ -187,7 +191,7 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
             Return to fee structures and try again.
           </CardContent>
         </Card>
-      </div>
+      </EntityPageShell>
     );
   }
 
@@ -209,20 +213,18 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
         : updateMutation.isPending;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <BackLink location={location} />
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {mode === "create" ? "New fee structure" : "Edit fee structure"}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {mode === "create"
+    <EntityPageShell width="form">
+      <EntityPageHeader
+        backAction={<BackLink location={location} />}
+        description={
+          mode === "create"
             ? "Define a fee category for an academic year."
-            : "Update the fee structure details."}
-        </p>
-      </div>
+            : "Update the fee structure details."
+        }
+        title={mode === "create" ? "New fee structure" : "Edit fee structure"}
+      />
 
-      <Card className="max-w-5xl">
+      <Card className="w-full">
         <CardContent className="pt-6">
           <FeeStructureForm
             academicYears={academicYearOptions}
@@ -258,7 +260,7 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
           />
         </CardContent>
       </Card>
-    </div>
+    </EntityPageShell>
   );
 }
 

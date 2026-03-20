@@ -26,6 +26,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
+import {
+  EntityDetailPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
 import { Separator } from "@repo/ui/components/ui/separator";
 import {
   Tabs,
@@ -339,57 +343,52 @@ export function StudentDetailPage() {
   const student = summary.student;
   const latestExam = summary.exams.latestTerm;
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-start gap-4">
+    <EntityPageShell width="full">
+      <EntityDetailPageHeader
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline">
+              <Link to={ERP_ROUTES.REPORTS_ATTENDANCE}>Attendance report</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to={ERP_ROUTES.FEE_DUES}>Fee dues</Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link to={ERP_ROUTES.EXAMS}>Exam records</Link>
+            </Button>
+            <Button
+              onClick={() =>
+                void navigate(appendSearch(ERP_ROUTES.STUDENTS, location.search))
+              }
+              variant="outline"
+            >
+              Done
+            </Button>
+          </div>
+        }
+        avatar={
           <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-lg font-semibold text-muted-foreground">
             {toInitials(student.fullName)}
           </div>
-          <div className="space-y-1">
-            <Button asChild className="-ml-3" size="sm" variant="ghost">
-              <Link to={appendSearch(ERP_ROUTES.STUDENTS, location.search)}>
-                <IconChevronLeft data-icon="inline-start" />
-                Back to students
-              </Link>
-            </Button>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-2xl font-semibold text-foreground">
-                {student.fullName}
-              </h2>
-              <Badge
-                variant={student.status === "active" ? "default" : "secondary"}
-              >
-                {student.status}
-              </Badge>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Admission {student.admissionNumber} •{" "}
-              {studentPlacement.placementLabel || "Placement not assigned"} •{" "}
-              {student.campusName}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline">
-            <Link to={ERP_ROUTES.REPORTS_ATTENDANCE}>Attendance report</Link>
+        }
+        backAction={
+          <Button asChild className="-ml-3" size="sm" variant="ghost">
+            <Link to={appendSearch(ERP_ROUTES.STUDENTS, location.search)}>
+              <IconChevronLeft data-icon="inline-start" />
+              Back to students
+            </Link>
           </Button>
-          <Button asChild variant="outline">
-            <Link to={ERP_ROUTES.FEE_DUES}>Fee dues</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link to={ERP_ROUTES.EXAMS}>Exam records</Link>
-          </Button>
-          <Button
-            onClick={() =>
-              void navigate(appendSearch(ERP_ROUTES.STUDENTS, location.search))
-            }
-            variant="outline"
-          >
-            Done
-          </Button>
-        </div>
-      </div>
+        }
+        badges={
+          <Badge variant={student.status === "active" ? "default" : "secondary"}>
+            {student.status}
+          </Badge>
+        }
+        meta={`Admission ${student.admissionNumber} • ${
+          studentPlacement.placementLabel || "Placement not assigned"
+        } • ${student.campusName}`}
+        title={student.fullName}
+      />
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard
@@ -996,6 +995,6 @@ export function StudentDetailPage() {
           </div>
         </TabsContent>
       </Tabs>
-    </div>
+    </EntityPageShell>
   );
 }

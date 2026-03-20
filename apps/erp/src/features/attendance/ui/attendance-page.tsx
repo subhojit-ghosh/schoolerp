@@ -29,6 +29,10 @@ import {
 import { cn } from "@repo/ui/lib/utils";
 
 import {
+  EntityPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
+import {
   getActiveContext,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
@@ -263,16 +267,11 @@ export function AttendancePage() {
   const totalCount = overviewItems.length;
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Page header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {ATTENDANCE_PAGE_COPY.TITLE}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {ATTENDANCE_PAGE_COPY.DESCRIPTION}
-        </p>
-      </div>
+    <EntityPageShell width="full">
+      <EntityPageHeader
+        description={ATTENDANCE_PAGE_COPY.DESCRIPTION}
+        title={ATTENDANCE_PAGE_COPY.TITLE}
+      />
 
       {!institutionId || !canManageAttendance ? (
         <div className="rounded-xl border border-dashed bg-muted/20 px-6 py-16 text-center text-sm text-muted-foreground">
@@ -569,6 +568,6 @@ export function AttendancePage() {
           </TabsContent>
         </Tabs>
       )}
-    </div>
+    </EntityPageShell>
   );
 }

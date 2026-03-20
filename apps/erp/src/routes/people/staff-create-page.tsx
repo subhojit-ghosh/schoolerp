@@ -28,6 +28,10 @@ import {
 import { StaffForm } from "@/features/staff/ui/staff-form";
 import { StaffRoleAssignmentFields } from "@/features/staff/ui/staff-role-assignment-fields";
 import { buildStaffDetailRoute, ERP_ROUTES } from "@/constants/routes";
+import {
+  EntityPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -151,23 +155,21 @@ export function StaffCreatePage() {
 
   if (createdResult) {
     return (
-      <div className="flex flex-col gap-6">
-        <div className="space-y-1">
-          <Button asChild className="-ml-3" size="sm" variant="ghost">
-            <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to staff
-            </Link>
-          </Button>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Staff created
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {createdResult.staffName} has been added to this institution.
-          </p>
-        </div>
+      <EntityPageShell width="compact">
+        <EntityPageHeader
+          backAction={
+            <Button asChild className="-ml-3" size="sm" variant="ghost">
+              <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
+                <IconChevronLeft data-icon="inline-start" />
+                Back to staff
+              </Link>
+            </Button>
+          }
+          description={`${createdResult.staffName} has been added to this institution.`}
+          title="Staff created"
+        />
 
-        <Card className="max-w-4xl">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Login setup</CardTitle>
             <CardDescription>
@@ -244,27 +246,28 @@ export function StaffCreatePage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </EntityPageShell>
     );
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <Button asChild className="-ml-3" size="sm" variant="ghost">
-          <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
-            <IconChevronLeft data-icon="inline-start" />
-            Back to staff
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-semibold tracking-tight">New staff</h1>
-        <p className="text-sm text-muted-foreground">
-          Add a staff member for {activeCampusName ?? "the selected campus"},
-          optionally assign the first role, and start their password setup flow.
-        </p>
-      </div>
+    <EntityPageShell width="compact">
+      <EntityPageHeader
+        backAction={
+          <Button asChild className="-ml-3" size="sm" variant="ghost">
+            <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
+              <IconChevronLeft data-icon="inline-start" />
+              Back to staff
+            </Link>
+          </Button>
+        }
+        description={`Add a staff member for ${
+          activeCampusName ?? "the selected campus"
+        }, optionally assign the first role, and start their password setup flow.`}
+        title="New staff"
+      />
 
-      <Card className="max-w-4xl">
+      <Card className="w-full">
         <CardContent className="pt-6">
           <StaffForm
             campusName={activeCampusName}
@@ -297,6 +300,6 @@ export function StaffCreatePage() {
           />
         </CardContent>
       </Card>
-    </div>
+    </EntityPageShell>
   );
 }

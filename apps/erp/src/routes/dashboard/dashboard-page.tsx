@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
+import { EntityPageShell } from "@/components/entities/entity-page-shell";
 import { SectionCards } from "@/components/data-display/section-cards";
 import {
   getActiveContext,
@@ -133,7 +134,7 @@ export function DashboardPage() {
 
   if (activeContext?.key === AUTH_CONTEXT_KEYS.PARENT) {
     return (
-      <div className="flex flex-col gap-6">
+      <EntityPageShell width="full">
         <div className="px-0.5">
           <div className="mb-1.5 flex items-center gap-2">
             <div
@@ -208,7 +209,7 @@ export function DashboardPage() {
             </Card>
           ) : null}
         </div>
-      </div>
+      </EntityPageShell>
     );
   }
 
@@ -229,7 +230,7 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <EntityPageShell width="full">
       {/* Greeting */}
       <div className="px-0.5">
         <div className="mb-1.5 flex items-center gap-2">
@@ -330,6 +331,6 @@ export function DashboardPage() {
           )}
         </div>
       </div>
-    </div>
+    </EntityPageShell>
   );
 }

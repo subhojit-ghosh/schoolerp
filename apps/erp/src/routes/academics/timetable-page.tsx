@@ -31,6 +31,10 @@ import {
   EntityToolbarSecondaryAction,
 } from "@/components/entities/entity-actions";
 import {
+  EntityPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
+import {
   getActiveContext,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
@@ -259,13 +263,11 @@ export function TimetablePage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Timetable</h1>
-        <p className="text-sm text-muted-foreground">
-          Build weekly class schedules by section.
-        </p>
-      </div>
+    <EntityPageShell width="full">
+      <EntityPageHeader
+        description="Build weekly class schedules by section."
+        title="Timetable"
+      />
 
       <Card>
         <CardHeader>
@@ -582,6 +584,6 @@ export function TimetablePage() {
           </CardContent>
         </Card>
       ) : null}
-    </div>
+    </EntityPageShell>
   );
 }

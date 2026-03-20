@@ -12,6 +12,10 @@ import {
   CardTitle,
 } from "@repo/ui/components/ui/card";
 import {
+  EntityDetailPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
+import {
   getActiveContext,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
@@ -213,49 +217,51 @@ export function StaffDetailPage() {
   const staffRecord = staffQuery.data;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="flex items-start gap-4">
+    <EntityPageShell width="full">
+      <EntityDetailPageHeader
+        actions={
+          <Button
+            onClick={() =>
+              void navigate(appendSearch(ERP_ROUTES.STAFF, location.search))
+            }
+            variant="outline"
+          >
+            Done
+          </Button>
+        }
+        avatar={
           <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-lg font-semibold text-muted-foreground">
             {toInitials(staffRecord.name)}
           </div>
-          <div className="space-y-1">
-            <Button asChild className="-ml-3" size="sm" variant="ghost">
-              <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
-                <IconChevronLeft data-icon="inline-start" />
-                Back to staff
-              </Link>
-            </Button>
-            <div className="flex flex-wrap items-center gap-2">
-              <h2 className="text-xl font-semibold text-foreground">
-                {staffRecord.name}
-              </h2>
-              <Badge
-                variant={
-                  staffRecord.status === "active" ? "default" : "secondary"
-                }
-              >
-                {staffRecord.status}
-              </Badge>
-              {staffRecord.role ? (
-                <Badge variant="outline">{staffRecord.role.name}</Badge>
-              ) : null}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {staffRecord.mobile}
-              {staffRecord.email ? ` • ${staffRecord.email}` : ""}
-            </p>
-          </div>
-        </div>
-        <Button
-          onClick={() =>
-            void navigate(appendSearch(ERP_ROUTES.STAFF, location.search))
-          }
-          variant="outline"
-        >
-          Done
-        </Button>
-      </div>
+        }
+        backAction={
+          <Button asChild className="-ml-3" size="sm" variant="ghost">
+            <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
+              <IconChevronLeft data-icon="inline-start" />
+              Back to staff
+            </Link>
+          </Button>
+        }
+        badges={
+          <>
+            <Badge
+              variant={staffRecord.status === "active" ? "default" : "secondary"}
+            >
+              {staffRecord.status}
+            </Badge>
+            {staffRecord.role ? (
+              <Badge variant="outline">{staffRecord.role.name}</Badge>
+            ) : null}
+          </>
+        }
+        meta={
+          <>
+            {staffRecord.mobile}
+            {staffRecord.email ? ` • ${staffRecord.email}` : ""}
+          </>
+        }
+        title={staffRecord.name}
+      />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <Card>
@@ -334,6 +340,6 @@ export function StaffDetailPage() {
           />
         </div>
       </div>
-    </div>
+    </EntityPageShell>
   );
 }

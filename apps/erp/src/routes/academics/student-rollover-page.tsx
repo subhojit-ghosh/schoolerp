@@ -34,6 +34,10 @@ import {
   TableRow,
 } from "@repo/ui/components/ui/table";
 import { cn } from "@repo/ui/lib/utils";
+import {
+  EntityPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
@@ -341,16 +345,11 @@ export function StudentRolloverPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Student rollover
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Move active students from one academic year into the next, remap their
-          class and section, and mark non-continuing students as withdrawn.
-        </p>
-      </div>
+    <EntityPageShell width="full">
+      <EntityPageHeader
+        description="Move active students from one academic year into the next, remap their class and section, and mark non-continuing students as withdrawn."
+        title="Student rollover"
+      />
 
       <Card>
         <CardHeader>
@@ -713,7 +712,7 @@ export function StudentRolloverPage() {
           </CardContent>
         </Card>
       ) : null}
-    </div>
+    </EntityPageShell>
   );
 }
 

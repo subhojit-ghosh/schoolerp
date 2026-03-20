@@ -32,6 +32,10 @@ import {
   type StudentFormValues,
 } from "@/features/students/model/student-form-schema";
 import { StudentForm } from "@/features/students/ui/student-form";
+import {
+  EntityPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -108,22 +112,23 @@ export function StudentCreatePage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="space-y-1">
-        <Button asChild className="-ml-3" size="sm" variant="ghost">
-          <Link to={appendSearch(ERP_ROUTES.STUDENTS, location.search)}>
-            <IconChevronLeft data-icon="inline-start" />
-            Back to students
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-semibold tracking-tight">New student</h1>
-        <p className="text-sm text-muted-foreground">
-          Add student details and link guardians for{" "}
-          {activeCampusName ?? "the selected campus"}.
-        </p>
-      </div>
+    <EntityPageShell width="form">
+      <EntityPageHeader
+        backAction={
+          <Button asChild className="-ml-3" size="sm" variant="ghost">
+            <Link to={appendSearch(ERP_ROUTES.STUDENTS, location.search)}>
+              <IconChevronLeft data-icon="inline-start" />
+              Back to students
+            </Link>
+          </Button>
+        }
+        description={`Add student details and link guardians for ${
+          activeCampusName ?? "the selected campus"
+        }.`}
+        title="New student"
+      />
 
-      <Card className="max-w-5xl">
+      <Card className="w-full">
         <CardContent className="pt-6">
           <StudentForm
             academicYears={academicYearsQuery.data?.rows ?? []}
@@ -150,6 +155,6 @@ export function StudentCreatePage() {
           />
         </CardContent>
       </Card>
-    </div>
+    </EntityPageShell>
   );
 }

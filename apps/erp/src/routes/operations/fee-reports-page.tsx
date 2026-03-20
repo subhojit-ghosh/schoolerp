@@ -15,6 +15,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
+import {
+  EntityPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
 import { isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useCollectionSummaryQuery } from "@/features/fees/api/use-fees";
@@ -105,13 +109,11 @@ export function FeeReportsPage() {
   const data = summaryQuery.data;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Fee Reports</h1>
-        <p className="text-sm text-muted-foreground">
-          Overview of fee collection across all structures.
-        </p>
-      </div>
+    <EntityPageShell className="space-y-6" width="full">
+      <EntityPageHeader
+        description="Overview of fee collection across all structures."
+        title="Fee Reports"
+      />
 
       <div className="grid gap-4 rounded-xl border border-border/70 bg-card px-4 py-3">
         <div className="space-y-2">
@@ -272,6 +274,6 @@ export function FeeReportsPage() {
           </Card>
         </>
       ) : null}
-    </div>
+    </EntityPageShell>
   );
 }

@@ -11,6 +11,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
+import {
+  EntityDetailPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
 import { Separator } from "@repo/ui/components/ui/separator";
 import {
   getActiveContext,
@@ -133,33 +137,28 @@ export function ClassDetailPage() {
   const schoolClass = classQuery.data;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-1">
+    <EntityPageShell width="full">
+      <EntityDetailPageHeader
+        actions={
+          <Button
+            onClick={() => void navigate(ERP_ROUTES.CLASSES)}
+            variant="outline"
+          >
+            Done
+          </Button>
+        }
+        backAction={
           <Button asChild className="-ml-3" size="sm" variant="ghost">
             <Link to={ERP_ROUTES.CLASSES}>
               <IconChevronLeft data-icon="inline-start" />
               Back to classes
             </Link>
           </Button>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-xl font-semibold text-foreground">
-              {schoolClass.name}
-            </h2>
-            <Badge>{schoolClass.campusName}</Badge>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Update the class record and reconcile its section list for this
-            campus.
-          </p>
-        </div>
-        <Button
-          onClick={() => void navigate(ERP_ROUTES.CLASSES)}
-          variant="outline"
-        >
-          Done
-        </Button>
-      </div>
+        }
+        badges={<Badge>{schoolClass.campusName}</Badge>}
+        meta="Update the class record and reconcile its section list for this campus."
+        title={schoolClass.name}
+      />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
         <Card>
@@ -201,6 +200,6 @@ export function ClassDetailPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </EntityPageShell>
   );
 }

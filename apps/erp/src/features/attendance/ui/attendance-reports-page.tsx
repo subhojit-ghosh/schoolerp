@@ -36,6 +36,10 @@ import {
 } from "@repo/ui/components/ui/tabs";
 import { cn } from "@repo/ui/lib/utils";
 
+import {
+  EntityPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
 import { isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
@@ -617,16 +621,11 @@ export function AttendanceReportsPage() {
   const activeCampusName = session?.activeCampus?.name;
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Page header */}
-      <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Attendance Reports
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Analyse class and student attendance over any date range.
-        </p>
-      </div>
+    <EntityPageShell width="full">
+      <EntityPageHeader
+        description="Analyse class and student attendance over any date range."
+        title="Attendance Reports"
+      />
 
       {!institutionId || !canViewReports ? (
         <div className="rounded-xl border border-dashed bg-muted/20 px-6 py-16 text-center text-sm text-muted-foreground">
@@ -655,6 +654,6 @@ export function AttendanceReportsPage() {
           </TabsContent>
         </Tabs>
       )}
-    </div>
+    </EntityPageShell>
   );
 }

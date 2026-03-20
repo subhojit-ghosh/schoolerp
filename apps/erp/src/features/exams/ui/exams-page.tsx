@@ -15,6 +15,10 @@ import {
   CardTitle,
 } from "@repo/ui/components/ui/card";
 import {
+  EntityPageHeader,
+  EntityPageShell,
+} from "@/components/entities/entity-page-shell";
+import {
   Select,
   SelectContent,
   SelectGroup,
@@ -201,8 +205,14 @@ export function ExamsPage() {
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
-      <div className="flex flex-col gap-6">
+    <EntityPageShell width="full">
+      <EntityPageHeader
+        description="Create exam terms, choose a term, and batch-save marks for the selected cohort."
+        title="Exams"
+      />
+
+      <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+        <div className="flex flex-col gap-6">
         <Card className="border-border/70 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -284,7 +294,7 @@ export function ExamsPage() {
         </Card>
       </div>
 
-      <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6">
         <Card className="border-border/70 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -552,7 +562,8 @@ export function ExamsPage() {
             )}
           </CardContent>
         </Card>
+        </div>
       </div>
-    </div>
+    </EntityPageShell>
   );
 }
