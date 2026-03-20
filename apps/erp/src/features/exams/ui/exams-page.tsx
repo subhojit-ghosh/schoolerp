@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router";
 import { toast } from "sonner";
 import {
   IconCertificate,
@@ -32,6 +33,8 @@ import {
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
+import { ERP_ROUTES } from "@/constants/routes";
+import { DOCUMENT_QUERY_PARAMS } from "@/features/documents/model/document.constants";
 import {
   useCreateExamTermMutation,
   useExamMarksQuery,
@@ -55,6 +58,25 @@ const EMPTY_MARKS_ENTRY: ExamMarksFormValues["entries"][number] = {
   obtainedMarks: 0,
   remarks: "",
 };
+
+function buildExamReportCardHref(
+  examTermId: string | undefined,
+  studentId: string | undefined,
+) {
+  const params = new URLSearchParams();
+
+  if (examTermId) {
+    params.set(DOCUMENT_QUERY_PARAMS.EXAM_TERM_ID, examTermId);
+  }
+
+  if (studentId) {
+    params.set(DOCUMENT_QUERY_PARAMS.STUDENT_ID, studentId);
+  }
+
+  const query = params.toString();
+
+  return query ? `${ERP_ROUTES.EXAM_REPORT_CARD}?${query}` : ERP_ROUTES.EXAM_REPORT_CARD;
+}
 
 export function ExamsPage() {
   const session = useAuthStore((store) => store.session);
@@ -449,13 +471,16 @@ export function ExamsPage() {
                         <Badge>
                           {examReportCardQuery.data.summary.overallGrade}
                         </Badge>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => window.print()}
-                        >
-                          Print
+                        <Button asChild size="sm" variant="outline">
+                          <Link
+                            target="_blank"
+                            to={buildExamReportCardHref(
+                              selectedExamTermId,
+                              selectedReportStudentId,
+                            )}
+                          >
+                            Printable view
+                          </Link>
                         </Button>
                       </div>
                     </div>

@@ -4,6 +4,7 @@ import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
   IconDotsVertical,
+  IconPrinter,
   IconPencil,
   IconPlus,
   IconSearch,
@@ -43,6 +44,7 @@ import {
   buildFeeAssignmentCollectRoute,
   buildFeeAssignmentAdjustmentRoute,
   buildFeeAssignmentEditRoute,
+  buildFeeAssignmentReceiptRoute,
   ERP_ROUTES,
 } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
@@ -302,6 +304,17 @@ export function FeeAssignmentsPage() {
                       Edit
                     </Link>
                   </DropdownMenuItem>
+                  {assignment.paymentCount > 0 ? (
+                    <DropdownMenuItem asChild>
+                      <Link
+                        target="_blank"
+                        to={buildFeeAssignmentReceiptRoute(assignment.id)}
+                      >
+                        <IconPrinter className="mr-2 size-4" />
+                        Receipt
+                      </Link>
+                    </DropdownMenuItem>
+                  ) : null}
                   {canDelete ? (
                     <DropdownMenuItem
                       variant="destructive"

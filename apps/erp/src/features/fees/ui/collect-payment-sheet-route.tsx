@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useLocation, useNavigate, useParams } from "react-router";
+import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import {
   Card,
@@ -13,8 +13,12 @@ import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
 } from "@/components/entities/entity-actions";
-import { ERP_ROUTES } from "@/constants/routes";
+import {
+  buildFeeAssignmentReceiptRoute,
+  ERP_ROUTES,
+} from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { DOCUMENT_QUERY_PARAMS } from "@/features/documents/model/document.constants";
 import {
   useFeeAssignmentQuery,
   useCreateFeePaymentMutation,
@@ -244,8 +248,27 @@ export function CollectPaymentSheetRoute() {
     [location.search],
   );
 
+  const buildReceiptHref = useMemo(
+    () => (paymentId?: string) => {
+      if (!feeAssignmentId) {
+        return ERP_ROUTES.FEE_ASSIGNMENTS;
+      }
+
+      if (!paymentId) {
+        return buildFeeAssignmentReceiptRoute(feeAssignmentId);
+      }
+
+      const params = new URLSearchParams({
+        [DOCUMENT_QUERY_PARAMS.PAYMENT_ID]: paymentId,
+      });
+
+      return `${buildFeeAssignmentReceiptRoute(feeAssignmentId)}?${params.toString()}`;
+    },
+    [feeAssignmentId],
+  );
+
   async function handleSubmit(values: FeePaymentFormValues) {
-    await paymentMutation.mutateAsync({
+    const createdPayment = await paymentMutation.mutateAsync({
       body: {
         feeAssignmentId: values.feeAssignmentId,
         amount: Number(values.amount),
@@ -256,7 +279,7 @@ export function CollectPaymentSheetRoute() {
       },
     });
     toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_PAYMENT));
-    void navigate(closeTo);
+    void navigate(buildReceiptHref(createdPayment.id));
   }
 
   async function handleReversePayment(feePaymentId: string) {
@@ -417,14 +440,21 @@ export function CollectPaymentSheetRoute() {
                     ) : null}
                   </div>
                   {!payment.reversedAt ? (
-                    <EntityFormSecondaryAction
-                      className="h-8"
-                      disabled={reversePaymentMutation.isPending}
-                      onClick={() => void handleReversePayment(payment.id)}
-                      type="button"
-                    >
-                      Reverse
-                    </EntityFormSecondaryAction>
+                    <div className="flex items-center gap-2">
+                      <EntityFormSecondaryAction asChild className="h-8">
+                        <Link target="_blank" to={buildReceiptHref(payment.id)}>
+                          Receipt
+                        </Link>
+                      </EntityFormSecondaryAction>
+                      <EntityFormSecondaryAction
+                        className="h-8"
+                        disabled={reversePaymentMutation.isPending}
+                        onClick={() => void handleReversePayment(payment.id)}
+                        type="button"
+                      >
+                        Reverse
+                      </EntityFormSecondaryAction>
+                    </div>
                   ) : null}
                 </div>
               ))

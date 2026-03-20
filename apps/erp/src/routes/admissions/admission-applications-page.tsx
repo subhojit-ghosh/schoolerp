@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
-import { IconPencil, IconPlus, IconSearch } from "@tabler/icons-react";
+import { IconPencil, IconPlus, IconPrinter, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Input } from "@repo/ui/components/ui/input";
@@ -22,6 +22,7 @@ import {
 } from "@/components/data-display/server-data-table";
 import { SORT_ORDERS } from "@/constants/query";
 import {
+  buildAdmissionApplicationAcknowledgementRoute,
   buildAdmissionApplicationEditRoute,
   ERP_ROUTES,
 } from "@/constants/routes";
@@ -206,7 +207,18 @@ export function AdmissionApplicationsPage() {
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => (
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <EntityRowAction asChild>
+              <Link
+                target="_blank"
+                to={buildAdmissionApplicationAcknowledgementRoute(
+                  row.original.id,
+                )}
+              >
+                <IconPrinter className="size-3" />
+                Acknowledgement
+              </Link>
+            </EntityRowAction>
             <EntityRowAction asChild>
               <Link
                 to={appendSearch(

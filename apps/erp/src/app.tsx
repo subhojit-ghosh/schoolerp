@@ -68,6 +68,9 @@ import { CalendarEventSheetRoute } from "@/features/calendar/ui/calendar-event-s
 import { AnnouncementSheetRoute } from "@/features/communications/ui/announcement-sheet-route";
 import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
 import { StudentPortalPage } from "@/features/student-portal/ui/student-portal-page";
+import { AdmissionAcknowledgementPage } from "@/routes/documents/admission-acknowledgement-page";
+import { ExamReportCardPage } from "@/routes/documents/exam-report-card-page";
+import { FeeReceiptPage } from "@/routes/documents/fee-receipt-page";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -105,6 +108,33 @@ const router = createBrowserRouter([
       <RedirectIfAuthenticated>
         <ResetPasswordPage />
       </RedirectIfAuthenticated>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.FEE_ASSIGNMENT_RECEIPT,
+    element: (
+      <RequireSession>
+        <FeeReceiptPage />
+      </RequireSession>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.ADMISSIONS_APPLICATION_ACKNOWLEDGEMENT,
+    element: (
+      <RequireSession>
+        <AdmissionAcknowledgementPage />
+      </RequireSession>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.EXAM_REPORT_CARD,
+    element: (
+      <RequireSession>
+        <ExamReportCardPage />
+      </RequireSession>
     ),
     errorElement: <RouteErrorBoundary />,
   },

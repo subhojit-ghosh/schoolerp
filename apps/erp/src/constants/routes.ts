@@ -4,6 +4,9 @@ export const ERP_ROUTE_SEGMENTS = {
   BULK: "bulk",
   COLLECT: "collect",
   ADJUSTMENT: "adjustment",
+  RECEIPT: "receipt",
+  ACKNOWLEDGEMENT: "acknowledgement",
+  REPORT_CARD: "report-card",
 } as const;
 
 export const ERP_ROUTES = {
@@ -17,6 +20,7 @@ export const ERP_ROUTES = {
   ADMISSIONS_APPLICATIONS: "/admissions/applications",
   ADMISSIONS_APPLICATION_CREATE: `/admissions/applications/${ERP_ROUTE_SEGMENTS.NEW}`,
   ADMISSIONS_APPLICATION_EDIT: `/admissions/applications/:applicationId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  ADMISSIONS_APPLICATION_ACKNOWLEDGEMENT: `/admissions/applications/:applicationId/${ERP_ROUTE_SEGMENTS.ACKNOWLEDGEMENT}`,
   // People
   STUDENTS: "/students",
   STUDENT_CREATE: `/students/${ERP_ROUTE_SEGMENTS.NEW}`,
@@ -43,6 +47,7 @@ export const ERP_ROUTES = {
   CALENDAR_EVENT_EDIT: `/calendar/:eventId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   ATTENDANCE: "/attendance",
   EXAMS: "/exams",
+  EXAM_REPORT_CARD: `/exams/${ERP_ROUTE_SEGMENTS.REPORT_CARD}`,
   HOMEWORK: "/homework",
   DISCIPLINE: "/discipline",
   // Finance
@@ -56,6 +61,7 @@ export const ERP_ROUTES = {
   FEE_ASSIGNMENT_EDIT: `/fees/assignments/:feeAssignmentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   FEE_ASSIGNMENT_COLLECT: `/fees/assignments/:feeAssignmentId/${ERP_ROUTE_SEGMENTS.COLLECT}`,
   FEE_ASSIGNMENT_ADJUSTMENT: `/fees/assignments/:feeAssignmentId/${ERP_ROUTE_SEGMENTS.ADJUSTMENT}`,
+  FEE_ASSIGNMENT_RECEIPT: `/fees/assignments/:feeAssignmentId/${ERP_ROUTE_SEGMENTS.RECEIPT}`,
   FEE_DUES: "/fees/dues",
   FEE_REPORTS: "/fees/reports",
   FEE_LEDGER: "/fees/ledger",
@@ -145,6 +151,12 @@ export function buildAdmissionApplicationEditRoute(applicationId: string) {
   return `${ERP_ROUTES.ADMISSIONS_APPLICATIONS}/${applicationId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
 }
 
+export function buildAdmissionApplicationAcknowledgementRoute(
+  applicationId: string,
+) {
+  return `${ERP_ROUTES.ADMISSIONS_APPLICATIONS}/${applicationId}/${ERP_ROUTE_SEGMENTS.ACKNOWLEDGEMENT}`;
+}
+
 export function buildGuardianDetailRoute(guardianId: string) {
   return `${ERP_ROUTES.GUARDIANS}/${guardianId}`;
 }
@@ -171,6 +183,10 @@ export function buildFeeAssignmentCollectRoute(feeAssignmentId: string) {
 
 export function buildFeeAssignmentAdjustmentRoute(feeAssignmentId: string) {
   return `/fees/assignments/${feeAssignmentId}/${ERP_ROUTE_SEGMENTS.ADJUSTMENT}`;
+}
+
+export function buildFeeAssignmentReceiptRoute(feeAssignmentId: string) {
+  return `/fees/assignments/${feeAssignmentId}/${ERP_ROUTE_SEGMENTS.RECEIPT}`;
 }
 
 export function buildSubjectEditRoute(subjectId: string) {

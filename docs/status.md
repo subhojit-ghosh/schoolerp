@@ -41,15 +41,15 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Staff** — list, create, edit, detail; campus assignment; role assignment; active/inactive toggle; password-setup issuance on create
 - **Guardians** — list, detail, edit; linked-student relationship management
 - **Roles** — list, create, edit, delete; grouped permission picker; system role display
-- **Fees** — fee structures list/create/edit/archive/delete, single and bulk assignment, dues view, payment collection, concessions, payment reversal, and filtered collection reporting
+- **Fees** — fee structures list/create/edit/archive/delete, single and bulk assignment, dues view, payment collection, concessions, payment reversal, filtered collection reporting, and printable fee receipts from live payment data
   - Fee assignments now use hard delete guardrails (blocked when payments/adjustments exist) to avoid hidden soft-deleted blockers during installment/version workflows
 - **Dashboard** — live tiles for enrolled students, staff count, today's attendance coverage, and total outstanding fees; quick links for attendance/exams/fees are enabled
 - **Attendance** — daily class-wise marking flow with class/section names, day overview, and class/student attendance reports
-- **Exams** — term management, marks entry, saved marks, and student report card view with grading scheme + printable output
+- **Exams** — term management, marks entry, saved marks, and student report card view with grading scheme + dedicated printable report-card output
 - **Subjects** — list, create, edit, active/inactive toggle, and delete guardrails when timetable dependencies exist
 - **Timetable** — class/section weekly schedule editor with replace flow and per-entry deletion
 - **Calendar** — event list/create/edit, active/inactive toggle, and tenant-scoped calendar events
-- **Admissions** — enquiry and application pipelines with list/create/edit flows, status tracking, and tenant-scoped APIs
+- **Admissions** — enquiry and application pipelines with list/create/edit flows, status tracking, tenant-scoped APIs, and printable application acknowledgements
 - **Configurable admission fields** — tenant admins can define additional application/student fields, and the ERP renders and validates them without schema forks per school
 - **Announcements / communication** — announcement list/create/edit/publish flows plus backend-driven in-app notification feed and mark-all-read support
 - **Bulk import/export** — staff-facing CSV templates, preview, execute, and export flows for students, staff, guardians, and fee assignments
@@ -70,7 +70,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **SMS/email delivery** for password reset and staff onboarding links
 - **Notifications depth** — expand the feed beyond announcement-publish events into fee due, absent streak, password-setup, admissions, and approval workflows
 - **Audit trail completion** — ERP UI and broader sensitive-action coverage are still missing beyond the first backend hooks
-- **Document outputs** such as fee receipts, acknowledgements, and certificate/report-card-ready exports
+- **Broader document outputs** beyond current fee receipts, admission acknowledgements, and report cards, such as certificate-ready exports and additional formal documents
 - **Onboarding polish** — public school signup flow usable without assistance
 
 ## Planned Next — Feature-rich ERP breadth not yet implemented
