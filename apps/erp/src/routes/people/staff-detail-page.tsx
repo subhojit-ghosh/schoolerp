@@ -245,7 +245,9 @@ export function StaffDetailPage() {
         badges={
           <>
             <Badge
-              variant={staffRecord.status === "active" ? "default" : "secondary"}
+              variant={
+                staffRecord.status === "active" ? "default" : "secondary"
+              }
             >
               {staffRecord.status}
             </Badge>

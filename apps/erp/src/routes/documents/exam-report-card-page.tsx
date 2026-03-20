@@ -10,7 +10,10 @@ import {
 } from "@repo/ui/components/ui/table";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { DOCUMENT_QUERY_PARAMS, DOCUMENT_TITLES } from "@/features/documents/model/document.constants";
+import {
+  DOCUMENT_QUERY_PARAMS,
+  DOCUMENT_TITLES,
+} from "@/features/documents/model/document.constants";
 import {
   PrintDetailItem,
   PrintDocumentShell,
@@ -19,9 +22,13 @@ import { useExamReportCardQuery } from "@/features/exams/api/use-exams";
 
 export function ExamReportCardPage() {
   const [searchParams] = useSearchParams();
-  const examTermId = searchParams.get(DOCUMENT_QUERY_PARAMS.EXAM_TERM_ID) ?? undefined;
-  const studentId = searchParams.get(DOCUMENT_QUERY_PARAMS.STUDENT_ID) ?? undefined;
-  const institutionId = useAuthStore((store) => store.session?.activeOrganization?.id);
+  const examTermId =
+    searchParams.get(DOCUMENT_QUERY_PARAMS.EXAM_TERM_ID) ?? undefined;
+  const studentId =
+    searchParams.get(DOCUMENT_QUERY_PARAMS.STUDENT_ID) ?? undefined;
+  const institutionId = useAuthStore(
+    (store) => store.session?.activeOrganization?.id,
+  );
 
   const reportCardQuery = useExamReportCardQuery(
     institutionId,
@@ -82,7 +89,9 @@ export function ExamReportCardPage() {
           <PrintDetailItem label="Student" value={reportCard.studentFullName} />
           <PrintDetailItem
             label="Admission No."
-            value={<span className="font-mono">{reportCard.admissionNumber}</span>}
+            value={
+              <span className="font-mono">{reportCard.admissionNumber}</span>
+            }
           />
           <PrintDetailItem
             label="Percentage"
@@ -148,9 +157,9 @@ export function ExamReportCardPage() {
               </div>
             ) : (
               <div className="mt-4 rounded-2xl border border-dashed border-border/80 bg-muted/10 px-4 py-10 text-center text-sm text-muted-foreground">
-                No subject marks are saved for this student in the selected
-                exam term yet. The printable layout still shows the grading
-                scale and summary so staff can confirm term setup during a demo.
+                No subject marks are saved for this student in the selected exam
+                term yet. The printable layout still shows the grading scale and
+                summary so staff can confirm term setup during a demo.
               </div>
             )}
           </div>

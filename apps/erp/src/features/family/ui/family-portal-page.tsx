@@ -40,7 +40,10 @@ import type {
   FamilyStudentSummary,
   FamilyTimetable,
 } from "@/features/family/model/family.types";
-import { formatFeeDate, formatRupees } from "@/features/fees/model/fee-formatters";
+import {
+  formatFeeDate,
+  formatRupees,
+} from "@/features/fees/model/fee-formatters";
 import { appendSearch } from "@/lib/routes";
 import { cn } from "@repo/ui/lib/utils";
 
@@ -199,7 +202,12 @@ function QuickLinkRow({
   return (
     <div className="flex flex-wrap gap-2">
       {FAMILY_WORKING_LINKS.map((item) => (
-        <Button key={item.href} asChild className="h-9 rounded-lg" variant="outline">
+        <Button
+          key={item.href}
+          asChild
+          className="h-9 rounded-lg"
+          variant="outline"
+        >
           <Link to={appendSearch(item.href, locationSearch)}>
             <item.icon className="size-4" />
             {item.label}
@@ -230,7 +238,10 @@ function StudentSwitcher({
           <Button
             key={summary.student.id}
             asChild
-            className={cn("h-9 rounded-lg", !isActive && "text-muted-foreground")}
+            className={cn(
+              "h-9 rounded-lg",
+              !isActive && "text-muted-foreground",
+            )}
             variant={isActive ? "default" : "outline"}
           >
             <Link to={buildStudentSearch(summary.student.id)}>
@@ -251,7 +262,9 @@ function ChildrenGrid({ students }: { students: FamilyStudentSummary[] }) {
           <CardHeader className="space-y-2">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <CardTitle className="text-lg">{summary.student.fullName}</CardTitle>
+                <CardTitle className="text-lg">
+                  {summary.student.fullName}
+                </CardTitle>
                 <CardDescription>
                   {summary.student.className} • {summary.student.sectionName}
                 </CardDescription>
@@ -336,7 +349,9 @@ function AttendancePanel({ summary }: { summary: FamilyStudentSummary }) {
                 className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2"
               >
                 <div>
-                  <p className="text-sm font-medium">{formatDate(record.date)}</p>
+                  <p className="text-sm font-medium">
+                    {formatDate(record.date)}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {summary.student.className} • {summary.student.sectionName}
                   </p>
@@ -396,7 +411,9 @@ function TimetablePanel({ timetable }: { timetable: FamilyTimetable | null }) {
                         {entry.startTime} - {entry.endTime}
                       </span>
                     </div>
-                    {entry.room ? <p className="mt-1">Room {entry.room}</p> : null}
+                    {entry.room ? (
+                      <p className="mt-1">Room {entry.room}</p>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -415,7 +432,9 @@ function ExamsPanel({ summary }: { summary: FamilyStudentSummary }) {
         <SummaryStat
           label="Latest Grade"
           value={summary.exams.latestTerm?.overallGrade ?? "NA"}
-          description={summary.exams.latestTerm?.examTermName ?? "No term published yet"}
+          description={
+            summary.exams.latestTerm?.examTermName ?? "No term published yet"
+          }
         />
         <SummaryStat
           label="Overall Percent"
@@ -439,7 +458,8 @@ function ExamsPanel({ summary }: { summary: FamilyStudentSummary }) {
         <CardHeader>
           <CardTitle>Recent exam terms</CardTitle>
           <CardDescription>
-            Latest published performance summaries for {summary.student.fullName}.
+            Latest published performance summaries for{" "}
+            {summary.student.fullName}.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -690,7 +710,9 @@ function OverviewPanels({
         <SummaryStat
           label="Latest Grade"
           value={summary.exams.latestTerm?.overallGrade ?? "NA"}
-          description={summary.exams.latestTerm?.examTermName ?? "No exam summary yet"}
+          description={
+            summary.exams.latestTerm?.examTermName ?? "No exam summary yet"
+          }
         />
         <SummaryStat
           label="Updates"
@@ -722,7 +744,10 @@ export function FamilyPortalPage({ view }: { view: FamilyPortalView }) {
     selectedStudentIdFromSearch,
   );
   const overview = familyOverviewQuery.data;
-  const studentSummaries = overview?.studentSummaries ?? [];
+  const studentSummaries = useMemo(
+    () => overview?.studentSummaries ?? [],
+    [overview?.studentSummaries],
+  );
   const selectedStudentSummary = useMemo(() => {
     if (!overview?.selectedStudentId) {
       return studentSummaries[0] ?? null;
@@ -731,14 +756,17 @@ export function FamilyPortalPage({ view }: { view: FamilyPortalView }) {
     return (
       studentSummaries.find(
         (summary) => summary.student.id === overview.selectedStudentId,
-      ) ?? studentSummaries[0] ?? null
+      ) ??
+      studentSummaries[0] ??
+      null
     );
   }, [overview?.selectedStudentId, studentSummaries]);
 
   useEffect(() => {
     if (
       !overview?.selectedStudentId ||
-      searchParams.get(FAMILY_QUERY_PARAMS.STUDENT_ID) === overview.selectedStudentId
+      searchParams.get(FAMILY_QUERY_PARAMS.STUDENT_ID) ===
+        overview.selectedStudentId
     ) {
       return;
     }
@@ -784,7 +812,8 @@ export function FamilyPortalPage({ view }: { view: FamilyPortalView }) {
           <CardHeader>
             <CardTitle>Family information could not be loaded</CardTitle>
             <CardDescription>
-              Refresh the page or switch context again to retry the parent portal.
+              Refresh the page or switch context again to retry the parent
+              portal.
             </CardDescription>
           </CardHeader>
         </Card>

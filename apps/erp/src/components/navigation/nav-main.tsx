@@ -82,7 +82,9 @@ export function NavMain({
   }
 
   const hasActiveItem = activeItemUrl !== null;
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded || hasActiveItem);
+  const [isExpanded, setIsExpanded] = useState(
+    defaultExpanded || hasActiveItem,
+  );
   const isAccordionGroup = collapsible && Boolean(label) && onOpenGroupChange;
   const accordionExpanded = Boolean(label) && openGroupLabel === label;
   const resolvedExpanded = isAccordionGroup ? accordionExpanded : isExpanded;
@@ -252,7 +254,9 @@ export function NavMain({
                             <item.icon className="size-[14px]" />
                           </span>
                         ) : null}
-                        <span className={TOP_LEVEL_TITLE_CLASS}>{item.title}</span>
+                        <span className={TOP_LEVEL_TITLE_CLASS}>
+                          {item.title}
+                        </span>
                         <span className="size-3 shrink-0 opacity-0" />
                       </Link>
                     )}

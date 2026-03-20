@@ -35,8 +35,7 @@ export const FAMILY_PAGE_COPY = {
   },
   announcements: {
     title: "Announcements",
-    description:
-      "Read the latest campus announcements visible to guardians.",
+    description: "Read the latest campus announcements visible to guardians.",
   },
   calendar: {
     title: "Calendar",

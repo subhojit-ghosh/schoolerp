@@ -1,4 +1,4 @@
-import { Controller, type Control } from "react-hook-form";
+import { Controller, type Control, type FieldValues, type Path } from "react-hook-form";
 import { ADMISSION_FORM_FIELD_TYPES } from "@repo/contracts";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
@@ -22,20 +22,28 @@ import type {
   AdmissionEnquiryFormValues,
 } from "@/features/admissions/model/admission-form-schema";
 import type { AdmissionFormFieldRecord } from "@/features/admissions/model/admission-custom-fields";
+import type { StudentFormValues } from "@/features/students/model/student-form-schema";
 
-type AdmissionCustomFieldsSectionProps = {
-  control: Control<AdmissionApplicationFormValues | AdmissionEnquiryFormValues>;
+type CustomFieldFormValues =
+  | AdmissionApplicationFormValues
+  | AdmissionEnquiryFormValues
+  | StudentFormValues;
+
+type AdmissionCustomFieldsSectionProps<TFormValues extends FieldValues> = {
+  control: Control<TFormValues>;
   fields: AdmissionFormFieldRecord[];
   title?: string;
 };
 
 const EMPTY_SELECT_VALUE = "__empty__";
 
-export function AdmissionCustomFieldsSection({
+export function AdmissionCustomFieldsSection<
+  TFormValues extends CustomFieldFormValues,
+>({
   control,
   fields,
   title = "Additional information",
-}: AdmissionCustomFieldsSectionProps) {
+}: AdmissionCustomFieldsSectionProps<TFormValues>) {
   if (fields.length === 0) {
     return null;
   }
@@ -55,7 +63,7 @@ export function AdmissionCustomFieldsSection({
           <Controller
             key={field.id}
             control={control}
-            name={`customFieldValues.${field.key}`}
+            name={`customFieldValues.${field.key}` as Path<TFormValues>}
             render={({ field: controllerField, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
                 <FieldLabel>

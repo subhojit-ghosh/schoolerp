@@ -10,8 +10,7 @@ export const STUDENT_PORTAL_PAGE_COPY = {
   },
   timetable: {
     title: "Timetable",
-    description:
-      "Review your current class timetable for the active campus.",
+    description: "Review your current class timetable for the active campus.",
   },
   attendance: {
     title: "Attendance",
@@ -20,8 +19,7 @@ export const STUDENT_PORTAL_PAGE_COPY = {
   },
   exams: {
     title: "Exams",
-    description:
-      "Review recent exam terms and overall performance trends.",
+    description: "Review recent exam terms and overall performance trends.",
   },
   results: {
     title: "Results",
@@ -30,8 +28,7 @@ export const STUDENT_PORTAL_PAGE_COPY = {
   },
   announcements: {
     title: "Announcements",
-    description:
-      "Read the latest published updates visible to students.",
+    description: "Read the latest published updates visible to students.",
   },
   calendar: {
     title: "Calendar",

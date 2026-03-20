@@ -226,15 +226,13 @@ export class DataExchangeService {
 
     const context = await this.buildPreviewContext(institutionId, scopes);
     const rows = this.parseCsvRows(payload.entityType, payload.csvContent);
-    const previewRows = await Promise.all(
-      rows.map((row, index) =>
-        this.previewRow(
-          institutionId,
-          payload.entityType,
-          context,
-          row,
-          index + 2,
-        ),
+    const previewRows = rows.map((row, index) =>
+      this.previewRow(
+        institutionId,
+        payload.entityType,
+        context,
+        row,
+        index + 2,
       ),
     );
 
@@ -268,7 +266,7 @@ export class DataExchangeService {
 
     for (const [index, row] of rows.entries()) {
       const rowNumber = index + 2;
-      const preview = await this.previewRow(
+      const preview = this.previewRow(
         institutionId,
         payload.entityType,
         context,
@@ -415,13 +413,13 @@ export class DataExchangeService {
     );
   }
 
-  private async previewRow(
-    institutionId: string,
+  private previewRow(
+    _institutionId: string,
     entityType: DataExchangeEntityType,
     context: PreviewContext,
     row: Record<string, string>,
     rowNumber: number,
-  ): Promise<RowResult> {
+  ): RowResult {
     const identifier = this.resolveIdentifier(entityType, row);
     const messages: string[] = [];
 

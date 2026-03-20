@@ -77,7 +77,8 @@ export class FamilyService {
 
     const activeCampusId = this.requireActiveCampusId(authSession);
     const linkedStudents = linkedStudentContext.filter(
-      (student: AuthenticatedLinkedStudent) => student.campusId === activeCampusId,
+      (student: AuthenticatedLinkedStudent) =>
+        student.campusId === activeCampusId,
     );
     const selectedStudentId = this.resolveSelectedStudentId(
       linkedStudents,
@@ -105,15 +106,21 @@ export class FamilyService {
           summary: Awaited<ReturnType<StudentsService["getStudentSummary"]>>;
         }> => result.status === "fulfilled",
       )
-      .map((result: PromiseFulfilledResult<{
-        linkedStudent: AuthenticatedLinkedStudent;
-        summary: Awaited<ReturnType<StudentsService["getStudentSummary"]>>;
-      }>) => result.value.summary);
+      .map(
+        (
+          result: PromiseFulfilledResult<{
+            linkedStudent: AuthenticatedLinkedStudent;
+            summary: Awaited<ReturnType<StudentsService["getStudentSummary"]>>;
+          }>,
+        ) => result.value.summary,
+      );
 
     const selectedStudentSummary =
       studentSummaries.find(
         (summary) => summary.student.id === selectedStudentId,
-      ) ?? studentSummaries[0] ?? null;
+      ) ??
+      studentSummaries[0] ??
+      null;
 
     const [announcements, calendarEvents] = await Promise.all([
       this.listFamilyAnnouncements(institutionId, activeCampusId),
@@ -230,7 +237,10 @@ export class FamilyService {
           ne(timetableEntries.status, STATUS.TIMETABLE.DELETED),
         ),
       )
-      .orderBy(asc(timetableEntries.dayOfWeek), asc(timetableEntries.periodIndex));
+      .orderBy(
+        asc(timetableEntries.dayOfWeek),
+        asc(timetableEntries.periodIndex),
+      );
 
     return {
       ...scope,

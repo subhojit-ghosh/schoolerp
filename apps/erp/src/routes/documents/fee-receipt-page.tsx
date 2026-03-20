@@ -11,11 +11,16 @@ import {
 } from "@repo/ui/components/ui/table";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { DOCUMENT_QUERY_PARAMS, DOCUMENT_TITLES } from "@/features/documents/model/document.constants";
+import {
+  DOCUMENT_QUERY_PARAMS,
+  DOCUMENT_TITLES,
+} from "@/features/documents/model/document.constants";
 import {
   formatDocumentDate,
   formatDocumentDateTime,
   formatDocumentReference,
+} from "@/features/documents/ui/print-document-formatters";
+import {
   PrintDetailItem,
   PrintDocumentShell,
 } from "@/features/documents/ui/print-document-shell";
@@ -37,7 +42,9 @@ export function FeeReceiptPage() {
   const { feeAssignmentId } = useParams();
   const [searchParams] = useSearchParams();
   const paymentId = searchParams.get(DOCUMENT_QUERY_PARAMS.PAYMENT_ID);
-  const institutionId = useAuthStore((store) => store.session?.activeOrganization?.id);
+  const institutionId = useAuthStore(
+    (store) => store.session?.activeOrganization?.id,
+  );
 
   const assignmentQuery = useFeeAssignmentQuery(
     Boolean(institutionId),
@@ -128,25 +135,41 @@ export function FeeReceiptPage() {
               <h2 className="font-[family:var(--font-heading)] text-xl font-semibold">
                 Student and fee details
               </h2>
-              <Badge variant="outline">{formatFeeStatusLabel(assignment.status)}</Badge>
+              <Badge variant="outline">
+                {formatFeeStatusLabel(assignment.status)}
+              </Badge>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <PrintDetailItem label="Student" value={assignment.studentFullName} />
+              <PrintDetailItem
+                label="Student"
+                value={assignment.studentFullName}
+              />
               <PrintDetailItem
                 label="Admission No."
-                value={<span className="font-mono">{assignment.studentAdmissionNumber}</span>}
-              />
-              <PrintDetailItem label="Campus" value={assignment.campusName ?? "Not assigned"} />
-              <PrintDetailItem
-                label="Fee Structure"
                 value={
-                  [assignment.feeStructureName, assignment.installmentLabel]
-                    .filter(Boolean)
-                    .join(" · ")
+                  <span className="font-mono">
+                    {assignment.studentAdmissionNumber}
+                  </span>
                 }
               />
-              <PrintDetailItem label="Due Date" value={formatFeeDate(assignment.dueDate)} />
+              <PrintDetailItem
+                label="Campus"
+                value={assignment.campusName ?? "Not assigned"}
+              />
+              <PrintDetailItem
+                label="Fee Structure"
+                value={[
+                  assignment.feeStructureName,
+                  assignment.installmentLabel,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              />
+              <PrintDetailItem
+                label="Due Date"
+                value={formatFeeDate(assignment.dueDate)}
+              />
               <PrintDetailItem
                 label="Reference"
                 value={selectedPayment.referenceNumber ?? "Not provided"}
@@ -184,18 +207,26 @@ export function FeeReceiptPage() {
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex items-center justify-between gap-3">
                 <dt className="text-muted-foreground">Assigned amount</dt>
-                <dd className="font-medium">{formatRupees(assignment.assignedAmountInPaise)}</dd>
+                <dd className="font-medium">
+                  {formatRupees(assignment.assignedAmountInPaise)}
+                </dd>
               </div>
               <div className="flex items-center justify-between gap-3">
                 <dt className="text-muted-foreground">Concessions</dt>
-                <dd className="font-medium">{formatRupees(assignment.adjustedAmountInPaise)}</dd>
+                <dd className="font-medium">
+                  {formatRupees(assignment.adjustedAmountInPaise)}
+                </dd>
               </div>
               <div className="flex items-center justify-between gap-3">
                 <dt className="text-muted-foreground">Total collected</dt>
-                <dd className="font-medium">{formatRupees(assignment.paidAmountInPaise)}</dd>
+                <dd className="font-medium">
+                  {formatRupees(assignment.paidAmountInPaise)}
+                </dd>
               </div>
               <div className="flex items-center justify-between gap-3 border-t border-border/70 pt-3">
-                <dt className="font-medium text-foreground">Outstanding balance</dt>
+                <dt className="font-medium text-foreground">
+                  Outstanding balance
+                </dt>
                 <dd className="text-base font-semibold text-[var(--primary)]">
                   {formatRupees(assignment.outstandingAmountInPaise)}
                 </dd>
@@ -227,10 +258,15 @@ export function FeeReceiptPage() {
               <TableBody>
                 {assignment.payments.map((payment) => (
                   <TableRow key={payment.id}>
-                    <TableCell>{formatDocumentDate(payment.paymentDate)}</TableCell>
-                    <TableCell>{toMethodLabel(payment.paymentMethod)}</TableCell>
+                    <TableCell>
+                      {formatDocumentDate(payment.paymentDate)}
+                    </TableCell>
+                    <TableCell>
+                      {toMethodLabel(payment.paymentMethod)}
+                    </TableCell>
                     <TableCell className="font-mono text-xs">
-                      {payment.referenceNumber ?? formatDocumentReference("RCT", payment.id)}
+                      {payment.referenceNumber ??
+                        formatDocumentReference("RCT", payment.id)}
                     </TableCell>
                     <TableCell className="text-right font-medium">
                       {formatRupees(payment.amountInPaise)}

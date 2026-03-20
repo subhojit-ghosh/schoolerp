@@ -229,7 +229,10 @@ export class StudentPortalService {
           ne(timetableEntries.status, STATUS.TIMETABLE.DELETED),
         ),
       )
-      .orderBy(asc(timetableEntries.dayOfWeek), asc(timetableEntries.periodIndex));
+      .orderBy(
+        asc(timetableEntries.dayOfWeek),
+        asc(timetableEntries.periodIndex),
+      );
 
     return {
       ...scope,

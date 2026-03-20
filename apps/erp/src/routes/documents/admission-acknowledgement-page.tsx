@@ -3,7 +3,10 @@ import { Badge } from "@repo/ui/components/ui/badge";
 import { useParams } from "react-router";
 import { ADMISSION_FORM_FIELD_TYPES } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
-import { useAdmissionApplicationQuery, useAdmissionFormFieldsQuery } from "@/features/admissions/api/use-admissions";
+import {
+  useAdmissionApplicationQuery,
+  useAdmissionFormFieldsQuery,
+} from "@/features/admissions/api/use-admissions";
 import {
   filterAdmissionFormFieldsForScope,
   type AdmissionFormFieldRecord,
@@ -13,6 +16,8 @@ import { DOCUMENT_TITLES } from "@/features/documents/model/document.constants";
 import {
   formatDocumentDate,
   formatDocumentReference,
+} from "@/features/documents/ui/print-document-formatters";
+import {
   PrintDetailItem,
   PrintDocumentShell,
 } from "@/features/documents/ui/print-document-shell";
@@ -49,7 +54,9 @@ function formatCustomFieldValue(
   }
 
   if (field?.fieldType === ADMISSION_FORM_FIELD_TYPES.SELECT) {
-    const optionLabel = field.options?.find((option) => option.value === value)?.label;
+    const optionLabel = field.options?.find(
+      (option) => option.value === value,
+    )?.label;
     return optionLabel ?? value;
   }
 
@@ -58,7 +65,9 @@ function formatCustomFieldValue(
 
 export function AdmissionAcknowledgementPage() {
   const { applicationId } = useParams();
-  const institutionId = useAuthStore((store) => store.session?.activeOrganization?.id);
+  const institutionId = useAuthStore(
+    (store) => store.session?.activeOrganization?.id,
+  );
 
   const applicationQuery = useAdmissionApplicationQuery(
     institutionId,
@@ -68,7 +77,10 @@ export function AdmissionAcknowledgementPage() {
 
   const customFields = useMemo(
     () =>
-      filterAdmissionFormFieldsForScope(formFieldsQuery.data?.rows ?? [], "application"),
+      filterAdmissionFormFieldsForScope(
+        formFieldsQuery.data?.rows ?? [],
+        "application",
+      ),
     [formFieldsQuery.data?.rows],
   );
 
@@ -117,7 +129,10 @@ export function AdmissionAcknowledgementPage() {
   }
 
   const application = applicationQuery.data;
-  const studentFullName = [application.studentFirstName, application.studentLastName]
+  const studentFullName = [
+    application.studentFirstName,
+    application.studentLastName,
+  ]
     .filter(Boolean)
     .join(" ");
 
@@ -140,7 +155,11 @@ export function AdmissionAcknowledgementPage() {
           <PrintDetailItem label="Campus" value={application.campusName} />
           <PrintDetailItem
             label="Status"
-            value={<Badge variant="outline">{formatStatus(application.status)}</Badge>}
+            value={
+              <Badge variant="outline">
+                {formatStatus(application.status)}
+              </Badge>
+            }
           />
         </section>
 
@@ -151,9 +170,15 @@ export function AdmissionAcknowledgementPage() {
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
               <PrintDetailItem label="Student Name" value={studentFullName} />
-              <PrintDetailItem label="Guardian Name" value={application.guardianName} />
+              <PrintDetailItem
+                label="Guardian Name"
+                value={application.guardianName}
+              />
               <PrintDetailItem label="Mobile" value={application.mobile} />
-              <PrintDetailItem label="Email" value={application.email ?? "Not provided"} />
+              <PrintDetailItem
+                label="Email"
+                value={application.email ?? "Not provided"}
+              />
               <PrintDetailItem
                 label="Desired Class"
                 value={application.desiredClassName ?? "Not specified"}

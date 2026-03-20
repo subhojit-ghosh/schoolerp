@@ -152,7 +152,12 @@ function QuickLinkRow({ locationSearch }: { locationSearch: string }) {
   return (
     <div className="flex flex-wrap gap-2">
       {STUDENT_WORKING_LINKS.map((item) => (
-        <Button key={item.href} asChild className="h-9 rounded-lg" variant="outline">
+        <Button
+          key={item.href}
+          asChild
+          className="h-9 rounded-lg"
+          variant="outline"
+        >
           <Link to={appendSearch(item.href, locationSearch)}>
             <item.icon className="size-4" />
             {item.label}
@@ -187,7 +192,11 @@ function groupTimetableEntries(timetable: StudentPortalTimetable | null) {
   });
 }
 
-function AttendancePanel({ summary }: { summary: StudentPortalStudentSummary }) {
+function AttendancePanel({
+  summary,
+}: {
+  summary: StudentPortalStudentSummary;
+}) {
   return (
     <div className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -223,7 +232,9 @@ function AttendancePanel({ summary }: { summary: StudentPortalStudentSummary }) 
                 className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2"
               >
                 <div>
-                  <p className="text-sm font-medium">{formatDate(record.date)}</p>
+                  <p className="text-sm font-medium">
+                    {formatDate(record.date)}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {summary.student.className} • {summary.student.sectionName}
                   </p>
@@ -240,7 +251,11 @@ function AttendancePanel({ summary }: { summary: StudentPortalStudentSummary }) 
   );
 }
 
-function TimetablePanel({ timetable }: { timetable: StudentPortalTimetable | null }) {
+function TimetablePanel({
+  timetable,
+}: {
+  timetable: StudentPortalTimetable | null;
+}) {
   if (!timetable || timetable.entries.length === 0) {
     return (
       <Card className="border-dashed bg-muted/25">
@@ -283,7 +298,9 @@ function TimetablePanel({ timetable }: { timetable: StudentPortalTimetable | nul
                         {entry.startTime} - {entry.endTime}
                       </span>
                     </div>
-                    {entry.room ? <p className="mt-1">Room {entry.room}</p> : null}
+                    {entry.room ? (
+                      <p className="mt-1">Room {entry.room}</p>
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -302,7 +319,9 @@ function ExamsPanel({ summary }: { summary: StudentPortalStudentSummary }) {
         <SummaryStat
           label="Latest Grade"
           value={summary.exams.latestTerm?.overallGrade ?? "NA"}
-          description={summary.exams.latestTerm?.examTermName ?? "No term published yet"}
+          description={
+            summary.exams.latestTerm?.examTermName ?? "No term published yet"
+          }
         />
         <SummaryStat
           label="Overall Percent"
@@ -326,7 +345,8 @@ function ExamsPanel({ summary }: { summary: StudentPortalStudentSummary }) {
         <CardHeader>
           <CardTitle>Recent exam terms</CardTitle>
           <CardDescription>
-            Latest published performance summaries for {summary.student.fullName}.
+            Latest published performance summaries for{" "}
+            {summary.student.fullName}.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -378,7 +398,10 @@ function ResultsPanel({
         {summary.exams.recentTerms.map((term) => {
           const isActive = term.examTermId === selectedTermId;
           const nextSearch = new URLSearchParams();
-          nextSearch.set(STUDENT_PORTAL_QUERY_PARAMS.EXAM_TERM_ID, term.examTermId);
+          nextSearch.set(
+            STUDENT_PORTAL_QUERY_PARAMS.EXAM_TERM_ID,
+            term.examTermId,
+          );
 
           return (
             <Button
@@ -438,7 +461,9 @@ function ResultsPanel({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-medium">{subject.subjectName}</p>
+                        <p className="text-sm font-medium">
+                          {subject.subjectName}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {subject.obtainedMarks}/{subject.maxMarks} marks
                         </p>
@@ -475,7 +500,9 @@ function ResultsPanel({
                   >
                     <div>
                       <p className="text-sm font-medium">{grade.grade}</p>
-                      <p className="text-xs text-muted-foreground">{grade.label}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {grade.label}
+                      </p>
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {grade.minPercent}% and above
@@ -613,7 +640,9 @@ function OverviewPanels({
         <SummaryStat
           label="Latest Grade"
           value={summary.exams.latestTerm?.overallGrade ?? "NA"}
-          description={summary.exams.latestTerm?.examTermName ?? "No exam summary yet"}
+          description={
+            summary.exams.latestTerm?.examTermName ?? "No exam summary yet"
+          }
         />
         <SummaryStat
           label="Current Class"
@@ -704,7 +733,8 @@ export function StudentPortalPage({ view }: { view: StudentPortalView }) {
           <CardHeader>
             <CardTitle>Student information could not be loaded</CardTitle>
             <CardDescription>
-              Refresh the page or switch context again to retry the student portal.
+              Refresh the page or switch context again to retry the student
+              portal.
             </CardDescription>
           </CardHeader>
         </Card>

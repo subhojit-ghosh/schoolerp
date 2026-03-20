@@ -75,7 +75,9 @@ function buildExamReportCardHref(
 
   const query = params.toString();
 
-  return query ? `${ERP_ROUTES.EXAM_REPORT_CARD}?${query}` : ERP_ROUTES.EXAM_REPORT_CARD;
+  return query
+    ? `${ERP_ROUTES.EXAM_REPORT_CARD}?${query}`
+    : ERP_ROUTES.EXAM_REPORT_CARD;
 }
 
 export function ExamsPage() {
@@ -235,358 +237,363 @@ export function ExamsPage() {
 
       <div className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
         <div className="flex flex-col gap-6">
-        <Card className="border-border/70 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <IconPlus className="size-4 text-[var(--primary)]" />
-              New exam term
-            </CardTitle>
-            <CardDescription>
-              Keep exam planning shallow for now: one term linked to one
-              academic year.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ExamTermForm
-              academicYears={academicYears.map((academicYear) => ({
-                id: academicYear.id,
-                name: academicYear.name,
-              }))}
-              defaultValues={termDefaultValues}
-              errorMessage={
-                (createExamTermMutation.error as Error | null | undefined)
-                  ?.message
-              }
-              isPending={createExamTermMutation.isPending}
-              onSubmit={handleCreateTerm}
-            />
-          </CardContent>
-        </Card>
-
-        <Card className="border-border/70 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <IconClipboardList className="size-4 text-[var(--primary)]" />
-              Exam terms
-            </CardTitle>
-            <CardDescription>
-              Pick a term to review or replace its marks sheet.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            {examTermsQuery.isLoading ? (
-              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-                Loading exam terms...
-              </div>
-            ) : examTerms.length > 0 ? (
-              examTerms.map((term) => {
-                const isSelected = term.id === selectedExamTermId;
-
-                return (
-                  <button
-                    key={term.id}
-                    className="rounded-xl border px-4 py-4 text-left transition-colors hover:border-primary/35"
-                    data-selected={isSelected || undefined}
-                    onClick={() => setSelectedExamTermId(term.id)}
-                    type="button"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <p className="font-medium text-foreground">
-                          {term.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {term.academicYearName}
-                        </p>
-                      </div>
-                      {isSelected ? <Badge>Selected</Badge> : null}
-                    </div>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {term.startDate} to {term.endDate}
-                    </p>
-                  </button>
-                );
-              })
-            ) : (
-              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-                Create the first exam term after adding an academic year.
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-        <div className="flex flex-col gap-6">
-        <Card className="border-border/70 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <IconCertificate className="size-4 text-[var(--primary)]" />
-              Marks entry
-            </CardTitle>
-            <CardDescription>
-              Batch-save subject scores for the selected term. Business rules
-              stay in the API.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {!selectedExamTermId ? (
-              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-                Select an exam term to enter marks.
-              </div>
-            ) : studentOptionsQuery.data?.length ? (
-              <ExamMarksForm
-                defaultValues={marksDefaultValues}
+          <Card className="border-border/70 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <IconPlus className="size-4 text-[var(--primary)]" />
+                New exam term
+              </CardTitle>
+              <CardDescription>
+                Keep exam planning shallow for now: one term linked to one
+                academic year.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ExamTermForm
+                academicYears={academicYears.map((academicYear) => ({
+                  id: academicYear.id,
+                  name: academicYear.name,
+                }))}
+                defaultValues={termDefaultValues}
                 errorMessage={
-                  (replaceMarksMutation.error as Error | null | undefined)
+                  (createExamTermMutation.error as Error | null | undefined)
                     ?.message
                 }
-                isPending={replaceMarksMutation.isPending}
-                onSubmit={handleSaveMarks}
-                students={(studentOptionsQuery.data ?? []).map((student) => ({
-                  id: student.id,
-                  fullName: student.fullName,
-                  admissionNumber: student.admissionNumber,
-                }))}
+                isPending={createExamTermMutation.isPending}
+                onSubmit={handleCreateTerm}
               />
-            ) : (
-              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-                Add students before entering marks.
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="border-border/70 shadow-sm">
-          <CardHeader>
-            <CardTitle>Saved marks</CardTitle>
-            <CardDescription>
-              The saved list reflects the latest batch persisted for the
-              selected term.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            {!selectedExamTermId ? (
-              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-                Select an exam term to review saved marks.
-              </div>
-            ) : examMarksQuery.isLoading ? (
-              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-                Loading marks...
-              </div>
-            ) : (examMarksQuery.data?.length ?? 0) > 0 ? (
-              examMarksQuery.data?.map((mark) => (
-                <div
-                  key={mark.id}
-                  className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4"
-                >
-                  <div className="space-y-1">
-                    <p className="font-medium text-foreground">
-                      {mark.studentFullName} · {mark.subjectName}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {mark.admissionNumber}
-                      {mark.remarks ? ` · ${mark.remarks}` : ""}
-                    </p>
-                  </div>
-                  <Badge variant="outline">
-                    {mark.obtainedMarks}/{mark.maxMarks}
-                  </Badge>
+          <Card className="border-border/70 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <IconClipboardList className="size-4 text-[var(--primary)]" />
+                Exam terms
+              </CardTitle>
+              <CardDescription>
+                Pick a term to review or replace its marks sheet.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              {examTermsQuery.isLoading ? (
+                <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                  Loading exam terms...
                 </div>
-              ))
-            ) : (
-              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-                No marks saved for this term yet.
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              ) : examTerms.length > 0 ? (
+                examTerms.map((term) => {
+                  const isSelected = term.id === selectedExamTermId;
 
-        <Card className="border-border/70 shadow-sm">
-          <CardHeader>
-            <CardTitle>Report card</CardTitle>
-            <CardDescription>
-              Subject-wise marks, grade bands, and overall grade for one student
-              in the selected term.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            {!selectedExamTermId ? (
-              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-                Select an exam term to view report cards.
-              </div>
-            ) : (studentOptionsQuery.data?.length ?? 0) === 0 ? (
-              <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-                Add students before generating report cards.
-              </div>
-            ) : (
-              <>
-                <div className="grid gap-3 md:grid-cols-[280px_minmax(0,1fr)] md:items-end">
-                  <div className="space-y-2">
-                    <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                      Student
-                    </p>
-                    <Select
-                      onValueChange={setSelectedReportStudentId}
-                      value={selectedReportStudentId}
+                  return (
+                    <button
+                      key={term.id}
+                      className="rounded-xl border px-4 py-4 text-left transition-colors hover:border-primary/35"
+                      data-selected={isSelected || undefined}
+                      onClick={() => setSelectedExamTermId(term.id)}
+                      type="button"
                     >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select student" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          {(studentOptionsQuery.data ?? []).map((student) => (
-                            <SelectItem key={student.id} value={student.id}>
-                              {student.fullName} ({student.admissionNumber})
-                            </SelectItem>
-                          ))}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                {examReportCardQuery.isLoading ? (
-                  <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
-                    Loading report card...
-                  </div>
-                ) : examReportCardQuery.isError ? (
-                  <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-destructive">
-                    {(examReportCardQuery.error as Error | null | undefined)
-                      ?.message ?? "Could not load report card."}
-                  </div>
-                ) : examReportCardQuery.data ? (
-                  <div className="space-y-4 rounded-xl border bg-card p-4">
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div>
-                        <p className="text-base font-semibold text-foreground">
-                          {examReportCardQuery.data.studentFullName}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {examReportCardQuery.data.examTermName} ·{" "}
-                          {examReportCardQuery.data.academicYearName} ·{" "}
-                          {examReportCardQuery.data.admissionNumber}
-                        </p>
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {term.name}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {term.academicYearName}
+                          </p>
+                        </div>
+                        {isSelected ? <Badge>Selected</Badge> : null}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge>
-                          {examReportCardQuery.data.summary.overallGrade}
-                        </Badge>
-                        <Button asChild size="sm" variant="outline">
-                          <Link
-                            target="_blank"
-                            to={buildExamReportCardHref(
-                              selectedExamTermId,
-                              selectedReportStudentId,
-                            )}
-                          >
-                            Printable view
-                          </Link>
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <div className="rounded-lg border bg-muted/20 px-3 py-2">
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                          Total marks
-                        </p>
-                        <p className="text-base font-semibold tabular-nums">
-                          {examReportCardQuery.data.summary.totalObtainedMarks}/
-                          {examReportCardQuery.data.summary.totalMaxMarks}
-                        </p>
-                      </div>
-                      <div className="rounded-lg border bg-muted/20 px-3 py-2">
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                          Percentage
-                        </p>
-                        <p className="text-base font-semibold tabular-nums">
-                          {examReportCardQuery.data.summary.overallPercent}%
-                        </p>
-                      </div>
-                      <div className="rounded-lg border bg-muted/20 px-3 py-2">
-                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                          Overall grade
-                        </p>
-                        <p className="text-base font-semibold">
-                          {examReportCardQuery.data.summary.overallGrade}
-                        </p>
-                      </div>
-                    </div>
-
-                    {examReportCardQuery.data.subjects.length > 0 ? (
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
-                          <thead>
-                            <tr className="border-b bg-muted/30">
-                              <th className="px-3 py-2 text-left font-medium text-muted-foreground">
-                                Subject
-                              </th>
-                              <th className="px-3 py-2 text-right font-medium text-muted-foreground">
-                                Score
-                              </th>
-                              <th className="px-3 py-2 text-right font-medium text-muted-foreground">
-                                %
-                              </th>
-                              <th className="px-3 py-2 text-right font-medium text-muted-foreground">
-                                Grade
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y">
-                            {examReportCardQuery.data.subjects.map(
-                              (subject) => (
-                                <tr key={subject.subjectName}>
-                                  <td className="px-3 py-2">
-                                    <p className="font-medium text-foreground">
-                                      {subject.subjectName}
-                                    </p>
-                                    {subject.remarks ? (
-                                      <p className="text-xs text-muted-foreground">
-                                        {subject.remarks}
-                                      </p>
-                                    ) : null}
-                                  </td>
-                                  <td className="px-3 py-2 text-right tabular-nums">
-                                    {subject.obtainedMarks}/{subject.maxMarks}
-                                  </td>
-                                  <td className="px-3 py-2 text-right tabular-nums">
-                                    {subject.percent}%
-                                  </td>
-                                  <td className="px-3 py-2 text-right">
-                                    <Badge variant="outline">
-                                      {subject.grade}
-                                    </Badge>
-                                  </td>
-                                </tr>
-                              ),
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
-                    ) : (
-                      <div className="rounded-xl border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
-                        No marks saved for this student in the selected term.
-                      </div>
-                    )}
-
-                    <div className="rounded-lg border bg-muted/20 px-3 py-3">
-                      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                        Grading scheme
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {term.startDate} to {term.endDate}
                       </p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {examReportCardQuery.data.gradingScheme.map((band) => (
-                          <Badge key={band.grade} variant="outline">
-                            {band.grade}: {band.minPercent}%+ ({band.label})
-                          </Badge>
-                        ))}
-                      </div>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                  Create the first exam term after adding an academic year.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <Card className="border-border/70 shadow-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <IconCertificate className="size-4 text-[var(--primary)]" />
+                Marks entry
+              </CardTitle>
+              <CardDescription>
+                Batch-save subject scores for the selected term. Business rules
+                stay in the API.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!selectedExamTermId ? (
+                <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                  Select an exam term to enter marks.
+                </div>
+              ) : studentOptionsQuery.data?.length ? (
+                <ExamMarksForm
+                  defaultValues={marksDefaultValues}
+                  errorMessage={
+                    (replaceMarksMutation.error as Error | null | undefined)
+                      ?.message
+                  }
+                  isPending={replaceMarksMutation.isPending}
+                  onSubmit={handleSaveMarks}
+                  students={(studentOptionsQuery.data ?? []).map((student) => ({
+                    id: student.id,
+                    fullName: student.fullName,
+                    admissionNumber: student.admissionNumber,
+                  }))}
+                />
+              ) : (
+                <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                  Add students before entering marks.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/70 shadow-sm">
+            <CardHeader>
+              <CardTitle>Saved marks</CardTitle>
+              <CardDescription>
+                The saved list reflects the latest batch persisted for the
+                selected term.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              {!selectedExamTermId ? (
+                <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                  Select an exam term to review saved marks.
+                </div>
+              ) : examMarksQuery.isLoading ? (
+                <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                  Loading marks...
+                </div>
+              ) : (examMarksQuery.data?.length ?? 0) > 0 ? (
+                examMarksQuery.data?.map((mark) => (
+                  <div
+                    key={mark.id}
+                    className="flex flex-wrap items-center justify-between gap-4 rounded-xl border bg-card p-4"
+                  >
+                    <div className="space-y-1">
+                      <p className="font-medium text-foreground">
+                        {mark.studentFullName} · {mark.subjectName}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {mark.admissionNumber}
+                        {mark.remarks ? ` · ${mark.remarks}` : ""}
+                      </p>
+                    </div>
+                    <Badge variant="outline">
+                      {mark.obtainedMarks}/{mark.maxMarks}
+                    </Badge>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                  No marks saved for this term yet.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/70 shadow-sm">
+            <CardHeader>
+              <CardTitle>Report card</CardTitle>
+              <CardDescription>
+                Subject-wise marks, grade bands, and overall grade for one
+                student in the selected term.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              {!selectedExamTermId ? (
+                <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                  Select an exam term to view report cards.
+                </div>
+              ) : (studentOptionsQuery.data?.length ?? 0) === 0 ? (
+                <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                  Add students before generating report cards.
+                </div>
+              ) : (
+                <>
+                  <div className="grid gap-3 md:grid-cols-[280px_minmax(0,1fr)] md:items-end">
+                    <div className="space-y-2">
+                      <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                        Student
+                      </p>
+                      <Select
+                        onValueChange={setSelectedReportStudentId}
+                        value={selectedReportStudentId}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select student" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {(studentOptionsQuery.data ?? []).map((student) => (
+                              <SelectItem key={student.id} value={student.id}>
+                                {student.fullName} ({student.admissionNumber})
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
-                ) : null}
-              </>
-            )}
-          </CardContent>
-        </Card>
+
+                  {examReportCardQuery.isLoading ? (
+                    <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-muted-foreground">
+                      Loading report card...
+                    </div>
+                  ) : examReportCardQuery.isError ? (
+                    <div className="rounded-xl border border-dashed px-4 py-10 text-center text-sm text-destructive">
+                      {(examReportCardQuery.error as Error | null | undefined)
+                        ?.message ?? "Could not load report card."}
+                    </div>
+                  ) : examReportCardQuery.data ? (
+                    <div className="space-y-4 rounded-xl border bg-card p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="text-base font-semibold text-foreground">
+                            {examReportCardQuery.data.studentFullName}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {examReportCardQuery.data.examTermName} ·{" "}
+                            {examReportCardQuery.data.academicYearName} ·{" "}
+                            {examReportCardQuery.data.admissionNumber}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge>
+                            {examReportCardQuery.data.summary.overallGrade}
+                          </Badge>
+                          <Button asChild size="sm" variant="outline">
+                            <Link
+                              target="_blank"
+                              to={buildExamReportCardHref(
+                                selectedExamTermId,
+                                selectedReportStudentId,
+                              )}
+                            >
+                              Printable view
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        <div className="rounded-lg border bg-muted/20 px-3 py-2">
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Total marks
+                          </p>
+                          <p className="text-base font-semibold tabular-nums">
+                            {
+                              examReportCardQuery.data.summary
+                                .totalObtainedMarks
+                            }
+                            /{examReportCardQuery.data.summary.totalMaxMarks}
+                          </p>
+                        </div>
+                        <div className="rounded-lg border bg-muted/20 px-3 py-2">
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Percentage
+                          </p>
+                          <p className="text-base font-semibold tabular-nums">
+                            {examReportCardQuery.data.summary.overallPercent}%
+                          </p>
+                        </div>
+                        <div className="rounded-lg border bg-muted/20 px-3 py-2">
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                            Overall grade
+                          </p>
+                          <p className="text-base font-semibold">
+                            {examReportCardQuery.data.summary.overallGrade}
+                          </p>
+                        </div>
+                      </div>
+
+                      {examReportCardQuery.data.subjects.length > 0 ? (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="border-b bg-muted/30">
+                                <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                                  Subject
+                                </th>
+                                <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                                  Score
+                                </th>
+                                <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                                  %
+                                </th>
+                                <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                                  Grade
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y">
+                              {examReportCardQuery.data.subjects.map(
+                                (subject) => (
+                                  <tr key={subject.subjectName}>
+                                    <td className="px-3 py-2">
+                                      <p className="font-medium text-foreground">
+                                        {subject.subjectName}
+                                      </p>
+                                      {subject.remarks ? (
+                                        <p className="text-xs text-muted-foreground">
+                                          {subject.remarks}
+                                        </p>
+                                      ) : null}
+                                    </td>
+                                    <td className="px-3 py-2 text-right tabular-nums">
+                                      {subject.obtainedMarks}/{subject.maxMarks}
+                                    </td>
+                                    <td className="px-3 py-2 text-right tabular-nums">
+                                      {subject.percent}%
+                                    </td>
+                                    <td className="px-3 py-2 text-right">
+                                      <Badge variant="outline">
+                                        {subject.grade}
+                                      </Badge>
+                                    </td>
+                                  </tr>
+                                ),
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-dashed px-4 py-8 text-center text-sm text-muted-foreground">
+                          No marks saved for this student in the selected term.
+                        </div>
+                      )}
+
+                      <div className="rounded-lg border bg-muted/20 px-3 py-3">
+                        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                          Grading scheme
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {examReportCardQuery.data.gradingScheme.map(
+                            (band) => (
+                              <Badge key={band.grade} variant="outline">
+                                {band.grade}: {band.minPercent}%+ ({band.label})
+                              </Badge>
+                            ),
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                </>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </EntityPageShell>

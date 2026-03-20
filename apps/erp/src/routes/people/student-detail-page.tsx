@@ -358,7 +358,9 @@ export function StudentDetailPage() {
             </Button>
             <Button
               onClick={() =>
-                void navigate(appendSearch(ERP_ROUTES.STUDENTS, location.search))
+                void navigate(
+                  appendSearch(ERP_ROUTES.STUDENTS, location.search),
+                )
               }
               variant="outline"
             >
@@ -380,7 +382,9 @@ export function StudentDetailPage() {
           </Button>
         }
         badges={
-          <Badge variant={student.status === "active" ? "default" : "secondary"}>
+          <Badge
+            variant={student.status === "active" ? "default" : "secondary"}
+          >
             {student.status}
           </Badge>
         }

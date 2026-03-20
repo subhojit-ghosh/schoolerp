@@ -163,7 +163,10 @@ const router = createBrowserRouter([
         path: ERP_ROUTES.FAMILY_EXAMS,
         element: <FamilyPortalPage view="exams" />,
       },
-      { path: ERP_ROUTES.FAMILY_FEES, element: <FamilyPortalPage view="fees" /> },
+      {
+        path: ERP_ROUTES.FAMILY_FEES,
+        element: <FamilyPortalPage view="fees" />,
+      },
       {
         path: ERP_ROUTES.FAMILY_ANNOUNCEMENTS,
         element: <FamilyPortalPage view="announcements" />,

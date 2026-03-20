@@ -13,10 +13,7 @@ import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
 } from "@/components/entities/entity-actions";
-import {
-  buildFeeAssignmentReceiptRoute,
-  ERP_ROUTES,
-} from "@/constants/routes";
+import { buildFeeAssignmentReceiptRoute, ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { DOCUMENT_QUERY_PARAMS } from "@/features/documents/model/document.constants";
 import {

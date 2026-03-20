@@ -60,7 +60,10 @@ export function EntityPageHeader({
 }: EntityPageHeaderProps) {
   return (
     <div
-      className={cn("flex flex-wrap items-start justify-between gap-4", className)}
+      className={cn(
+        "flex flex-wrap items-start justify-between gap-4",
+        className,
+      )}
     >
       <div className="space-y-1">
         {backAction}
@@ -85,7 +88,10 @@ export function EntityDetailPageHeader({
 }: EntityDetailPageHeaderProps) {
   return (
     <div
-      className={cn("flex flex-wrap items-start justify-between gap-4", className)}
+      className={cn(
+        "flex flex-wrap items-start justify-between gap-4",
+        className,
+      )}
     >
       <div className="flex items-start gap-4">
         {avatar}
@@ -95,7 +101,9 @@ export function EntityDetailPageHeader({
             <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
             {badges}
           </div>
-          {meta ? <div className="text-sm text-muted-foreground">{meta}</div> : null}
+          {meta ? (
+            <div className="text-sm text-muted-foreground">{meta}</div>
+          ) : null}
         </div>
       </div>
       {actions}

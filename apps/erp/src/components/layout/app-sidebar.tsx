@@ -369,9 +369,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: ERP_ROUTES.DASHBOARD,
     },
   ];
-  const familyItems = [...NAV_FAMILY];
-  const familyCommunicationItems = [...NAV_FAMILY_COMMUNICATION];
-  const familyServicesItems = [...NAV_FAMILY_SERVICES];
+  const familyItems = React.useMemo(() => [...NAV_FAMILY], []);
+  const familyCommunicationItems = React.useMemo(
+    () => [...NAV_FAMILY_COMMUNICATION],
+    [],
+  );
+  const familyServicesItems = React.useMemo(() => [...NAV_FAMILY_SERVICES], []);
   const studentAcademicItems = getActionableNavItems(NAV_STUDENT_ACADEMICS);
   const studentCommunicationItems = getActionableNavItems(
     NAV_STUDENT_COMMUNICATION,
@@ -528,12 +531,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       }}
                       type="button"
                     >
-                        <span
-                          className={cn(
-                            "flex size-8 shrink-0 items-center justify-center rounded-xl border",
-                            isActive
-                              ? "border-transparent bg-primary text-primary-foreground"
-                              : "border-border/70 bg-muted/50 text-primary",
+                      <span
+                        className={cn(
+                          "flex size-8 shrink-0 items-center justify-center rounded-xl border",
+                          isActive
+                            ? "border-transparent bg-primary text-primary-foreground"
+                            : "border-border/70 bg-muted/50 text-primary",
                         )}
                       >
                         <meta.Icon className="size-[18px]" />
@@ -616,9 +619,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
-            {communicationItems.length > 0 ? (
-              renderStandaloneTopLevelItems(communicationItems)
-            ) : null}
+            {communicationItems.length > 0
+              ? renderStandaloneTopLevelItems(communicationItems)
+              : null}
             {servicesItems.length > 0 ? (
               <NavMain
                 collapsible
