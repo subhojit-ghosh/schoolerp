@@ -1,4 +1,9 @@
-import { Controller, type Control, type FieldValues, type Path } from "react-hook-form";
+import {
+  Controller,
+  type Control,
+  type FieldValues,
+  type Path,
+} from "react-hook-form";
 import { ADMISSION_FORM_FIELD_TYPES } from "@repo/contracts";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
