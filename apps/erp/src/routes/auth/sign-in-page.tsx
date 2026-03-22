@@ -22,6 +22,17 @@ export function SignInPage() {
       body: values,
     });
 
+    const maybeSetup = session as unknown as {
+      mustChangePassword?: boolean;
+      setupToken?: string;
+    };
+    if (maybeSetup.mustChangePassword && maybeSetup.setupToken) {
+      void navigate(
+        `${ERP_ROUTES.RESET_PASSWORD}?token=${encodeURIComponent(maybeSetup.setupToken)}&setup=1`,
+      );
+      return;
+    }
+
     const activeTenantSlug = session?.activeOrganization?.slug;
 
     if (activeTenantSlug) {

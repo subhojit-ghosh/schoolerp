@@ -132,7 +132,7 @@ export function FeeAdjustmentSheetRoute() {
                 name="adjustmentType"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>Type</FieldLabel>
+                    <FieldLabel required>Type</FieldLabel>
                     <FieldContent>
                       <Select
                         onValueChange={field.onChange}
@@ -165,7 +165,7 @@ export function FeeAdjustmentSheetRoute() {
                 name="amount"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>Amount (₹)</FieldLabel>
+                    <FieldLabel required>Amount (₹)</FieldLabel>
                     <FieldContent>
                       <Input
                         {...field}

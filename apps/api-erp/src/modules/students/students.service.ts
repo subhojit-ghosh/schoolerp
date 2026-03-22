@@ -542,7 +542,6 @@ export class StudentsService {
           parentMembershipId: guardianMembershipId,
           relationship: guardianPayload.relationship,
           isPrimary: guardianPayload.isPrimary,
-          acceptedAt: null,
           deletedAt: null,
         });
       }
@@ -989,7 +988,7 @@ export class StudentsService {
           .limit(1),
         this.db
           .select({
-            invitedAt: studentGuardianLinks.invitedAt,
+            linkedAt: member.createdAt,
             name: user.name,
             relationship: studentGuardianLinks.relationship,
           })
@@ -1006,7 +1005,7 @@ export class StudentsService {
               ne(member.status, STATUS.MEMBER.DELETED),
             ),
           )
-          .orderBy(desc(studentGuardianLinks.invitedAt))
+          .orderBy(desc(member.createdAt))
           .limit(3),
         this.db
           .select({
@@ -1089,7 +1088,7 @@ export class StudentsService {
         type: STUDENT_TIMELINE_EVENT_TYPES.GUARDIAN,
         title: "Guardian linked",
         description: `${row.name} was linked as ${row.relationship}.`,
-        occurredAt: row.invitedAt.toISOString(),
+        occurredAt: row.linkedAt.toISOString(),
       });
     }
 
@@ -1233,7 +1232,6 @@ export class StudentsService {
           parentMembershipId: guardianMembershipId,
           relationship: guardianPayload.relationship,
           isPrimary: guardianPayload.isPrimary,
-          acceptedAt: null,
           deletedAt: null,
         });
       }
@@ -1438,9 +1436,9 @@ export class StudentsService {
     const normalizedEmail = normalizeOptionalEmail(guardianPayload.email);
     const matchedUser = await this.findUserByIdentity(
       tx,
+      institutionId,
       normalizedMobile,
       normalizedEmail,
-      guardianPayload.name.trim(),
     );
     let guardianUserId = matchedUser?.id ?? null;
 
@@ -1449,10 +1447,12 @@ export class StudentsService {
 
       await tx.insert(user).values({
         id: guardianUserId,
+        institutionId,
         name: guardianPayload.name.trim(),
         mobile: normalizedMobile,
         email: normalizedEmail,
-        passwordHash: await hash(randomUUID(), 12),
+        passwordHash: await hash(normalizedMobile, 12),
+        mustChangePassword: true,
       });
     }
 
@@ -1628,9 +1628,9 @@ export class StudentsService {
 
   private async findUserByIdentity(
     tx: StudentsWriter,
+    institutionId: string,
     mobile: string,
     email: string | null,
-    name: string,
   ) {
     const [matchedMobileUser] = await tx
       .select({
@@ -1639,51 +1639,28 @@ export class StudentsService {
         email: user.email,
       })
       .from(user)
-      .where(eq(user.mobile, mobile))
+      .where(and(eq(user.institutionId, institutionId), eq(user.mobile, mobile)))
       .limit(1);
 
-    const [matchedEmailUser] = email
-      ? await tx
-          .select({
-            id: user.id,
-            mobile: user.mobile,
-            email: user.email,
-          })
-          .from(user)
-          .where(eq(user.email, email))
-          .limit(1)
-      : [];
-
-    if (
-      matchedMobileUser &&
-      matchedEmailUser &&
-      matchedMobileUser.id !== matchedEmailUser.id
-    ) {
-      throw new ConflictException(ERROR_MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
-    }
-
     if (matchedMobileUser) {
-      if (email && matchedMobileUser.email === null) {
-        await tx
-          .update(user)
-          .set({
-            email,
-            name,
-          })
-          .where(eq(user.id, matchedMobileUser.id));
-      }
-
-      return {
-        ...matchedMobileUser,
-        email: matchedMobileUser.email ?? email,
-      };
+      return matchedMobileUser;
     }
 
-    if (matchedEmailUser) {
-      throw new ConflictException(ERROR_MESSAGES.AUTH.EMAIL_ALREADY_EXISTS);
+    if (!email) {
+      return null;
     }
 
-    return null;
+    const [matchedEmailUser] = await tx
+      .select({
+        id: user.id,
+        mobile: user.mobile,
+        email: user.email,
+      })
+      .from(user)
+      .where(and(eq(user.institutionId, institutionId), eq(user.email, email)))
+      .limit(1);
+
+    return matchedEmailUser ?? null;
   }
 
   private async getResolvedClassSection(

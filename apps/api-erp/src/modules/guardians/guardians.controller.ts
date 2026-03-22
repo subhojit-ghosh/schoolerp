@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -12,6 +14,7 @@ import {
 import {
   ApiBody,
   ApiCookieAuth,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -86,6 +89,25 @@ export class GuardiansController {
     @CurrentScopes() scopes: ResolvedScopes,
   ) {
     return this.guardiansService.getGuardian(
+      institution.id,
+      guardianId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Post(":guardianId/reset-password")
+  @RequirePermission(PERMISSIONS.GUARDIANS_MANAGE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Reset a guardian's password to their mobile number" })
+  @ApiNoContentResponse()
+  resetPassword(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("guardianId") guardianId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.guardiansService.resetMemberPassword(
       institution.id,
       guardianId,
       authSession,

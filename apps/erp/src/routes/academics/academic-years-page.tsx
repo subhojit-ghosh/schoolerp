@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { PERMISSIONS } from "@repo/contracts";
 import { Link, Outlet, useLocation } from "react-router";
 import { IconPencil, IconPlus, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -24,7 +25,7 @@ import {
 import { buildAcademicYearEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
-  getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -61,12 +62,8 @@ function formatDateRange(startDate: string, endDate: string) {
 export function AcademicYearsPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
-  const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageAcademicYears = isStaffContext(session);
-  const managedInstitutionId = canManageAcademicYears
-    ? institutionId
-    : undefined;
+  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.ACADEMICS_READ) ? institutionId : undefined;
   const {
     queryState,
     searchInput,
@@ -251,14 +248,13 @@ export function AcademicYearsPage() {
     );
   }
 
-  if (!canManageAcademicYears) {
+  if (!managedInstitutionId) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>{ACADEMIC_YEARS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Academic-year administration is available in Staff view. You are
-            currently in {activeContext?.label ?? "another"} view.
+            You don't have access to this section.
           </CardDescription>
         </CardHeader>
       </Card>

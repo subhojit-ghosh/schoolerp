@@ -250,7 +250,7 @@ export function AdmissionFormFieldsPage() {
                   name="label"
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid || undefined}>
-                      <FieldLabel>Field label</FieldLabel>
+                      <FieldLabel required>Field label</FieldLabel>
                       <FieldContent>
                         <Input {...field} aria-invalid={fieldState.invalid} />
                         <FieldError>{fieldState.error?.message}</FieldError>
@@ -264,7 +264,7 @@ export function AdmissionFormFieldsPage() {
                   name="key"
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid || undefined}>
-                      <FieldLabel>Field key</FieldLabel>
+                      <FieldLabel required>Field key</FieldLabel>
                       <FieldContent>
                         <Input
                           {...field}
@@ -283,7 +283,7 @@ export function AdmissionFormFieldsPage() {
                     name="scope"
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid || undefined}>
-                        <FieldLabel>Scope</FieldLabel>
+                        <FieldLabel required>Scope</FieldLabel>
                         <FieldContent>
                           <Select
                             onValueChange={field.onChange}
@@ -315,7 +315,7 @@ export function AdmissionFormFieldsPage() {
                     name="fieldType"
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid || undefined}>
-                        <FieldLabel>Field type</FieldLabel>
+                        <FieldLabel required>Field type</FieldLabel>
                         <FieldContent>
                           <Select
                             onValueChange={field.onChange}
@@ -380,7 +380,7 @@ export function AdmissionFormFieldsPage() {
                     name="optionsText"
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid || undefined}>
-                        <FieldLabel>Options</FieldLabel>
+                        <FieldLabel required>Options</FieldLabel>
                         <FieldContent>
                           <textarea
                             className="min-h-28 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
@@ -410,7 +410,7 @@ export function AdmissionFormFieldsPage() {
                     name="sortOrder"
                     render={({ field, fieldState }) => (
                       <Field data-invalid={fieldState.invalid || undefined}>
-                        <FieldLabel>Order</FieldLabel>
+                        <FieldLabel required>Order</FieldLabel>
                         <FieldContent>
                           <Input
                             aria-invalid={fieldState.invalid}

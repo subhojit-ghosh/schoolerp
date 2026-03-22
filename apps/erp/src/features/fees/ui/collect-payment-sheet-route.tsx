@@ -106,7 +106,7 @@ function CollectPaymentForm({
             name="amount"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Payment amount (₹)</FieldLabel>
+                <FieldLabel required>Payment amount (₹)</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -128,7 +128,7 @@ function CollectPaymentForm({
             name="paymentDate"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Payment date</FieldLabel>
+                <FieldLabel required>Payment date</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -146,7 +146,7 @@ function CollectPaymentForm({
             name="paymentMethod"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Payment method</FieldLabel>
+                <FieldLabel required>Payment method</FieldLabel>
                 <FieldContent>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger aria-invalid={fieldState.invalid}>

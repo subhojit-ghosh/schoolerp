@@ -2,29 +2,12 @@ import { relations, sql } from "drizzle-orm";
 import {
   boolean,
   index,
+  integer,
   pgTable,
   text,
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-
-export const user = pgTable("user", {
-  id: text().primaryKey(),
-  name: text().notNull(),
-  mobile: text().notNull().unique(),
-  email: text().unique(),
-  passwordHash: text().notNull(),
-  preferredContextKey: text({
-    enum: ["staff", "parent", "student"],
-  }),
-  mobileVerifiedAt: timestamp(),
-  emailVerifiedAt: timestamp(),
-  createdAt: timestamp().defaultNow().notNull(),
-  updatedAt: timestamp()
-    .defaultNow()
-    .$onUpdate(() => /* @__PURE__ */ new Date())
-    .notNull(),
-});
 
 export const organization = pgTable("organization", {
   id: text().primaryKey(),
@@ -46,12 +29,50 @@ export const organization = pgTable("organization", {
   uiDensity: text({
     enum: ["compact", "default", "comfortable"],
   }),
+  brandingVersion: integer().notNull().default(0),
+  customDomain: text().unique(),
   status: text({ enum: ["active", "suspended", "deleted"] })
     .notNull()
     .default("active"),
   createdAt: timestamp().defaultNow().notNull(),
   deletedAt: timestamp(), // audit timestamp — set when status = deleted
 });
+
+export const user = pgTable(
+  "user",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    mobile: text().notNull(),
+    email: text(),
+    passwordHash: text().notNull(),
+    mustChangePassword: boolean().notNull().default(false),
+    avatarUrl: text(),
+    preferredContextKey: text({
+      enum: ["staff", "parent", "student"],
+    }),
+    mobileVerifiedAt: timestamp(),
+    emailVerifiedAt: timestamp(),
+    createdAt: timestamp().defaultNow().notNull(),
+    updatedAt: timestamp()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date())
+      .notNull(),
+  },
+  (table) => [
+    index("user_institution_idx").on(table.institutionId),
+    uniqueIndex("user_institution_mobile_unique_idx").on(
+      table.institutionId,
+      table.mobile,
+    ),
+    uniqueIndex("user_institution_email_unique_idx")
+      .on(table.institutionId, table.email)
+      .where(sql`${table.email} IS NOT NULL`),
+  ],
+);
 
 export const campus = pgTable(
   "campus",
@@ -182,13 +203,30 @@ export const member = pgTable(
   ],
 );
 
-export const userRelations = relations(user, ({ many }) => ({
-  sessions: many(session),
-  memberships: many(member),
-}));
+export const platformAdmin = pgTable("platform_admin", {
+  id: text().primaryKey(),
+  email: text().notNull().unique(),
+  passwordHash: text().notNull(),
+  totpSecret: text(),
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp()
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
 
 export const organizationRelations = relations(organization, ({ many }) => ({
   campuses: many(campus),
+  memberships: many(member),
+  users: many(user),
+}));
+
+export const userRelations = relations(user, ({ one, many }) => ({
+  institution: one(organization, {
+    fields: [user.institutionId],
+    references: [organization.id],
+  }),
+  sessions: many(session),
   memberships: many(member),
 }));
 

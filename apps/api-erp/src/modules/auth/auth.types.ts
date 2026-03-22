@@ -12,6 +12,11 @@ export type AuthenticatedUser = {
   name: string;
   mobile: string;
   email: string | null;
+  institutionId: string | null;
+};
+
+export type ValidatedUser = AuthenticatedUser & {
+  mustChangePassword: boolean;
 };
 
 export type AuthenticatedMembership = {

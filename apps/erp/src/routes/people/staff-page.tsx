@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { DATA_EXCHANGE_ENTITY_TYPES } from "@repo/contracts";
+import { DATA_EXCHANGE_ENTITY_TYPES, PERMISSIONS } from "@repo/contracts";
 import { Link, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
@@ -41,7 +41,7 @@ import {
 import { SORT_ORDERS } from "@/constants/query";
 import { buildStaffDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {
-  getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -86,10 +86,9 @@ const STAFF_CREATE_LABEL = "New staff";
 export function StaffPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
-  const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageStaff = isStaffContext(session);
-  const managedInstitutionId = canManageStaff ? institutionId : undefined;
+  const canManageStaff = isStaffContext(session) && hasPermission(session, PERMISSIONS.STAFF_MANAGE);
+  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.STAFF_READ) ? institutionId : undefined;
   const setStatusMutation = useSetStaffStatusMutation(managedInstitutionId);
   const deleteMutation = useDeleteStaffMutation(managedInstitutionId);
   const [deleteTarget, setDeleteTarget] = useState<StaffRow | null>(null);
@@ -207,16 +206,13 @@ export function StaffPage() {
       }),
       columnHelper.accessor("role", {
         header: "Role",
-        cell: ({ getValue, row }) => (
+        cell: ({ getValue }) => (
           <div className="flex flex-wrap gap-1">
             {getValue() ? (
               <Badge variant="outline">{getValue()?.name}</Badge>
             ) : (
               <span className="text-sm text-muted-foreground">No role</span>
             )}
-            <Badge variant="outline" className="capitalize">
-              {row.original.memberType}
-            </Badge>
           </div>
         ),
       }),
@@ -333,14 +329,13 @@ export function StaffPage() {
     );
   }
 
-  if (!canManageStaff) {
+  if (!managedInstitutionId) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>{STAFF_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Staff management is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            You don't have access to this section.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -371,9 +366,9 @@ export function StaffPage() {
       <EntityListPage
         actions={
           <div className="flex items-center gap-3">
-            <DataExchangeEntityActions
+            {canManageStaff && <DataExchangeEntityActions
               entityType={DATA_EXCHANGE_ENTITY_TYPES.STAFF}
-            />
+            />}
             <EntityPagePrimaryAction asChild>
               <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
                 <IconPlus className="size-4" />

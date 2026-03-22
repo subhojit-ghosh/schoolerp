@@ -138,7 +138,7 @@ export function BulkFeeAssignmentSheetRoute() {
             name="feeStructureId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Fee structure</FieldLabel>
+                <FieldLabel required>Fee structure</FieldLabel>
                 <FieldContent>
                   <Select
                     onValueChange={(value) => {
@@ -174,7 +174,7 @@ export function BulkFeeAssignmentSheetRoute() {
             name="classId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Class</FieldLabel>
+                <FieldLabel required>Class</FieldLabel>
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}

@@ -181,7 +181,7 @@ function ClassReportTab({
               name="classId"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>Class</FieldLabel>
+                  <FieldLabel required>Class</FieldLabel>
                   <FieldContent>
                     <Select
                       onValueChange={(v) => {
@@ -211,7 +211,7 @@ function ClassReportTab({
               name="sectionId"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>Section</FieldLabel>
+                  <FieldLabel required>Section</FieldLabel>
                   <FieldContent>
                     <Select
                       onValueChange={field.onChange}
@@ -241,7 +241,7 @@ function ClassReportTab({
               name="startDate"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>From</FieldLabel>
+                  <FieldLabel required>From</FieldLabel>
                   <FieldContent>
                     <Input
                       {...field}
@@ -258,7 +258,7 @@ function ClassReportTab({
               name="endDate"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>To</FieldLabel>
+                  <FieldLabel required>To</FieldLabel>
                   <FieldContent>
                     <Input
                       {...field}
@@ -449,7 +449,7 @@ function StudentReportTab({
               name="studentId"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>Student</FieldLabel>
+                  <FieldLabel required>Student</FieldLabel>
                   <FieldContent>
                     <Select
                       onValueChange={field.onChange}
@@ -482,7 +482,7 @@ function StudentReportTab({
               name="startDate"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>From</FieldLabel>
+                  <FieldLabel required>From</FieldLabel>
                   <FieldContent>
                     <Input
                       {...field}
@@ -499,7 +499,7 @@ function StudentReportTab({
               name="endDate"
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid || undefined}>
-                  <FieldLabel>To</FieldLabel>
+                  <FieldLabel required>To</FieldLabel>
                   <FieldContent>
                     <Input
                       {...field}

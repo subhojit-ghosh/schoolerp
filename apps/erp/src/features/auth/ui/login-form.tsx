@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@repo/ui/components/ui/button";
 import { FieldError } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
+import { PasswordInput } from "@repo/ui/components/ui/password-input";
 import { Label } from "@repo/ui/components/ui/label";
 import { cn } from "@repo/ui/lib/utils";
 import { Controller, useForm } from "react-hook-form";
@@ -95,14 +96,13 @@ export function LoginForm({
                   Forgot password?
                 </Link>
               </div>
-              <Input
+              <PasswordInput
                 {...field}
                 aria-invalid={fieldState.invalid}
                 autoComplete="current-password"
                 className="h-11 bg-white border-border/80 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1"
                 id="password"
                 placeholder="Enter your password"
-                type="password"
               />
               <FieldError>{fieldState.error?.message}</FieldError>
             </div>

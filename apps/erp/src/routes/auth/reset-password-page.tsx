@@ -5,6 +5,7 @@ import { Link, useNavigate, useSearchParams } from "react-router";
 import { Button } from "@repo/ui/components/ui/button";
 import { FieldError } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
+import { PasswordInput } from "@repo/ui/components/ui/password-input";
 import { Label } from "@repo/ui/components/ui/label";
 import {
   useAuthErrorMessage,
@@ -26,6 +27,7 @@ export function ResetPasswordPage() {
     "Unable to reset the password right now.",
   );
   const initialToken = searchParams.get("token") ?? "";
+  const isSetupFlow = searchParams.get("setup") === "1";
   const { control, handleSubmit, setValue } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordFormSchema),
     defaultValues: {
@@ -53,66 +55,93 @@ export function ResetPasswordPage() {
   return (
     <AuthLayout>
       <div className="w-full max-w-[360px]">
-        {/* Back link */}
-        <Link
-          className="inline-flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors mb-8"
-          to={ERP_ROUTES.FORGOT_PASSWORD}
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        {/* Back link — only shown in the normal forgot-password flow */}
+        {!isSetupFlow && (
+          <Link
+            className="inline-flex items-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors mb-8"
+            to={ERP_ROUTES.FORGOT_PASSWORD}
           >
-            <path d="M19 12H5M12 5l-7 7 7 7" />
-          </svg>
-          Back to recovery
-        </Link>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M19 12H5M12 5l-7 7 7 7" />
+            </svg>
+            Back to recovery
+          </Link>
+        )}
 
         {/* Heading */}
         <div className="mb-8">
+          {isSetupFlow && (
+            <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200">
+              <svg
+                className="shrink-0 text-amber-600"
+                fill="none"
+                height="16"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                width="16"
+              >
+                <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+              </svg>
+              <p className="text-[13px] text-amber-800 leading-snug">
+                You're using a temporary password. Please set a permanent one
+                to continue.
+              </p>
+            </div>
+          )}
           <h2
             className="text-2xl text-foreground mb-1.5"
             style={{ fontFamily: "'Lora', serif", fontWeight: 500 }}
           >
-            Set new password
+            {isSetupFlow ? "Create your password" : "Set new password"}
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Paste the reset token from your delivery channel and choose a strong
-            new password.
+            {isSetupFlow
+              ? "Choose a strong password to secure your account."
+              : "Paste the reset token from your delivery channel and choose a strong new password."}
           </p>
         </div>
 
         <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
-          <Controller
-            control={control}
-            name="token"
-            render={({ field, fieldState }) => (
-              <div className="flex flex-col gap-1.5">
-                <Label
-                  className="text-[13px] font-medium text-foreground/80"
-                  htmlFor="reset-token"
-                >
-                  Reset token
-                </Label>
-                <Input
-                  {...field}
-                  aria-invalid={fieldState.invalid}
-                  className="h-11 bg-white border-border/80 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1 font-mono"
-                  id="reset-token"
-                  placeholder="Paste reset token"
-                />
-                <FieldError>{fieldState.error?.message}</FieldError>
-              </div>
-            )}
-          />
+          {/* Token field — hidden in setup flow since it's pre-filled from the URL */}
+          {!isSetupFlow && (
+            <Controller
+              control={control}
+              name="token"
+              render={({ field, fieldState }) => (
+                <div className="flex flex-col gap-1.5">
+                  <Label
+                    className="text-[13px] font-medium text-foreground/80"
+                    htmlFor="reset-token"
+                  >
+                    Reset token
+                  </Label>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    className="h-11 bg-white border-border/80 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1 font-mono"
+                    id="reset-token"
+                    placeholder="Paste reset token"
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </div>
+              )}
+            />
+          )}
 
-          {/* Divider */}
-          <div className="h-px bg-border/50" />
+          {/* Divider — only between token and password fields in normal flow */}
+          {!isSetupFlow && <div className="h-px bg-border/50" />}
 
           <Controller
             control={control}
@@ -125,13 +154,13 @@ export function ResetPasswordPage() {
                 >
                   New password
                 </Label>
-                <Input
+                <PasswordInput
                   {...field}
                   aria-invalid={fieldState.invalid}
+                  autoComplete="new-password"
                   className="h-11 bg-white border-border/80 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1"
                   id="reset-password"
                   placeholder="Enter a new password"
-                  type="password"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </div>
@@ -149,13 +178,13 @@ export function ResetPasswordPage() {
                 >
                   Confirm password
                 </Label>
-                <Input
+                <PasswordInput
                   {...field}
                   aria-invalid={fieldState.invalid}
+                  autoComplete="new-password"
                   className="h-11 bg-white border-border/80 text-sm placeholder:text-muted-foreground/60 focus-visible:ring-1"
                   id="confirm-password"
                   placeholder="Confirm the new password"
-                  type="password"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </div>
@@ -171,7 +200,11 @@ export function ResetPasswordPage() {
             disabled={resetPasswordMutation.isPending}
             type="submit"
           >
-            {resetPasswordMutation.isPending ? "Resetting…" : "Reset password"}
+            {resetPasswordMutation.isPending
+              ? "Saving…"
+              : isSetupFlow
+                ? "Set password"
+                : "Reset password"}
           </Button>
         </form>
       </div>

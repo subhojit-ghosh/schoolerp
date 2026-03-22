@@ -137,7 +137,7 @@ export function ClassForm({
             name="name"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="class-name">Class name</FieldLabel>
+                <FieldLabel htmlFor="class-name" required>Class name</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -197,7 +197,7 @@ export function ClassForm({
                           aria-invalid={fieldState.invalid}
                           id={`section-name-${index}`}
                           placeholder="Section name"
-                          className="h-8 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
+                          className="h-8"
                         />
                         <FieldError>{fieldState.error?.message}</FieldError>
                       </FieldContent>

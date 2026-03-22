@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { DATA_EXCHANGE_ENTITY_TYPES } from "@repo/contracts";
+import { DATA_EXCHANGE_ENTITY_TYPES, PERMISSIONS } from "@repo/contracts";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
@@ -48,7 +48,7 @@ import {
   ERP_ROUTES,
 } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
-import { isStaffContext } from "@/features/auth/model/auth-context";
+import { hasPermission, isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { DataExchangeEntityActions } from "@/features/data-exchange/ui/data-exchange-entity-actions";
 import {
@@ -102,8 +102,8 @@ export function FeeAssignmentsPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageFees = isStaffContext(session);
-  const canQueryFees = canManageFees && Boolean(institutionId);
+  const canManageFees = isStaffContext(session) && hasPermission(session, PERMISSIONS.FEES_MANAGE);
+  const canQueryFees = isStaffContext(session) && hasPermission(session, PERMISSIONS.FEES_READ) && Boolean(institutionId);
 
   const deleteMutation = useDeleteFeeAssignmentMutation();
   const [deleteTarget, setDeleteTarget] = useState<FeeAssignmentRow | null>(
@@ -374,13 +374,13 @@ export function FeeAssignmentsPage() {
     );
   }
 
-  if (!canManageFees) {
+  if (!canQueryFees) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>{FEE_ASSIGNMENTS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Fee management is available in Staff view.
+            You don't have access to this section.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -394,9 +394,9 @@ export function FeeAssignmentsPage() {
       <EntityListPage
         actions={
           <div className="flex items-center gap-3">
-            <DataExchangeEntityActions
+            {canManageFees && <DataExchangeEntityActions
               entityType={DATA_EXCHANGE_ENTITY_TYPES.FEE_ASSIGNMENTS}
-            />
+            />}
             <EntityToolbarSecondaryAction asChild>
               <Link
                 to={appendSearch(

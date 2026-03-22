@@ -72,7 +72,7 @@ export function AdmissionEnquiryForm({
             name="studentName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-enquiry-student-name">
+                <FieldLabel htmlFor="admission-enquiry-student-name" required>
                   Student name
                 </FieldLabel>
                 <FieldContent>
@@ -92,7 +92,7 @@ export function AdmissionEnquiryForm({
             name="guardianName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-enquiry-guardian-name">
+                <FieldLabel htmlFor="admission-enquiry-guardian-name" required>
                   Guardian name
                 </FieldLabel>
                 <FieldContent>
@@ -112,7 +112,7 @@ export function AdmissionEnquiryForm({
             name="mobile"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-enquiry-mobile">
+                <FieldLabel htmlFor="admission-enquiry-mobile" required>
                   Mobile
                 </FieldLabel>
                 <FieldContent>
@@ -166,7 +166,7 @@ export function AdmissionEnquiryForm({
             name="status"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Status</FieldLabel>
+                <FieldLabel required>Status</FieldLabel>
                 <FieldContent>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger aria-invalid={fieldState.invalid}>

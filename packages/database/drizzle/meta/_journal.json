@@ -176,6 +176,20 @@
       "when": 1773843213282,
       "tag": "0024_wealthy_prowler",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1774082361333,
+      "tag": "0025_fantastic_marten_broadcloak",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1774113352202,
+      "tag": "0026_clear_james_howlett",
+      "breakpoints": true
     }
   ]
 }

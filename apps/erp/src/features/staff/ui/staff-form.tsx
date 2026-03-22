@@ -72,7 +72,7 @@ export function StaffForm({
             name="name"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="staff-name">Full name</FieldLabel>
+                <FieldLabel htmlFor="staff-name" required>Full name</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -90,7 +90,7 @@ export function StaffForm({
             name="mobile"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="staff-mobile">Mobile</FieldLabel>
+                <FieldLabel htmlFor="staff-mobile" required>Mobile</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -142,7 +142,7 @@ export function StaffForm({
             name="status"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Status</FieldLabel>
+                <FieldLabel required>Status</FieldLabel>
                 <FieldContent>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger aria-invalid={fieldState.invalid}>

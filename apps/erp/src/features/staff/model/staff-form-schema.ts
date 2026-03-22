@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { components } from "@/lib/api/generated/schema";
 
 const MOBILE_MIN_LENGTH = 10;
+const PASSWORD_MIN_LENGTH = 8;
 
 export const STAFF_STATUS_OPTIONS = [
   "active",
@@ -9,14 +10,23 @@ export const STAFF_STATUS_OPTIONS = [
   "suspended",
 ] as const;
 
-export const staffFormSchema = z.object({
+const staffBaseSchema = z.object({
   name: z.string().trim().min(1, "Staff name is required"),
   mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Staff mobile is required"),
   email: z.email().optional().or(z.literal("")),
   status: z.enum(STAFF_STATUS_OPTIONS),
 });
 
+export const staffFormSchema = staffBaseSchema;
+
+export const staffCreateFormSchema = staffBaseSchema.extend({
+  temporaryPassword: z
+    .string()
+    .min(PASSWORD_MIN_LENGTH, `Password must be at least ${PASSWORD_MIN_LENGTH} characters`),
+});
+
 export type StaffFormValues = z.infer<typeof staffFormSchema>;
+export type StaffCreateFormValues = z.infer<typeof staffCreateFormSchema>;
 export type StaffRecord = components["schemas"]["StaffDto"];
 export type StaffRoleOption = components["schemas"]["StaffRoleDto"];
 export type StaffRoleAssignment =

@@ -13,6 +13,7 @@ import {
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import { cn } from "@repo/ui/lib/utils";
+import { ImageUpload } from "@/components/image-upload";
 import { COLOR_PRESETS } from "@/lib/color-presets";
 import {
   buildPreviewFontsUrl,
@@ -37,7 +38,7 @@ export function BrandingIdentitySection({
         name="name"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
-            <FieldLabel>Display Name</FieldLabel>
+            <FieldLabel required>Display Name</FieldLabel>
             <FieldContent>
               <Input {...field} aria-invalid={fieldState.invalid} />
               <FieldError>{fieldState.error?.message}</FieldError>
@@ -51,7 +52,7 @@ export function BrandingIdentitySection({
         name="shortName"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
-            <FieldLabel>Short Name</FieldLabel>
+            <FieldLabel required>Short Name</FieldLabel>
             <FieldContent>
               <Input {...field} aria-invalid={fieldState.invalid} />
               <FieldError>{fieldState.error?.message}</FieldError>
@@ -63,17 +64,17 @@ export function BrandingIdentitySection({
       <Controller
         control={control}
         name="logoUrl"
-        render={({ field, fieldState }) => (
-          <Field data-invalid={fieldState.invalid || undefined}>
-            <FieldLabel>Logo URL</FieldLabel>
+        render={({ field }) => (
+          <Field>
+            <FieldLabel>Logo</FieldLabel>
             <FieldContent>
-              <Input
-                {...field}
-                aria-invalid={fieldState.invalid}
-                placeholder="Paste the hosted logo URL"
-                type="url"
+              <ImageUpload
+                folder="branding/logo"
+                label="Logo"
+                onChange={field.onChange}
+                previewClassName="h-24"
+                value={field.value}
               />
-              <FieldError>{fieldState.error?.message}</FieldError>
             </FieldContent>
           </Field>
         )}
@@ -82,17 +83,17 @@ export function BrandingIdentitySection({
       <Controller
         control={control}
         name="faviconUrl"
-        render={({ field, fieldState }) => (
-          <Field data-invalid={fieldState.invalid || undefined}>
-            <FieldLabel>Favicon URL</FieldLabel>
+        render={({ field }) => (
+          <Field>
+            <FieldLabel>Favicon</FieldLabel>
             <FieldContent>
-              <Input
-                {...field}
-                aria-invalid={fieldState.invalid}
-                placeholder="Paste the hosted favicon URL"
-                type="url"
+              <ImageUpload
+                folder="branding/favicon"
+                label="Favicon"
+                onChange={field.onChange}
+                previewClassName="h-16"
+                value={field.value}
               />
-              <FieldError>{fieldState.error?.message}</FieldError>
             </FieldContent>
           </Field>
         )}
@@ -170,7 +171,7 @@ export function BrandingColorSection({
           name="primaryColor"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel>Primary</FieldLabel>
+              <FieldLabel required>Primary</FieldLabel>
               <FieldContent>
                 <ColorInput value={field.value} onChange={field.onChange} />
                 <FieldError>{fieldState.error?.message}</FieldError>
@@ -184,7 +185,7 @@ export function BrandingColorSection({
           name="accentColor"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel>Accent</FieldLabel>
+              <FieldLabel required>Accent</FieldLabel>
               <FieldContent>
                 <ColorInput value={field.value} onChange={field.onChange} />
                 <FieldError>{fieldState.error?.message}</FieldError>
@@ -198,7 +199,7 @@ export function BrandingColorSection({
           name="sidebarColor"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel>Sidebar</FieldLabel>
+              <FieldLabel required>Sidebar</FieldLabel>
               <FieldContent>
                 <ColorInput value={field.value} onChange={field.onChange} />
                 <FieldError>{fieldState.error?.message}</FieldError>

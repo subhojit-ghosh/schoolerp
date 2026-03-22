@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { ATTENDANCE_STATUS_LABELS, ATTENDANCE_STATUSES } from "@repo/contracts";
+import { ATTENDANCE_STATUS_LABELS, ATTENDANCE_STATUSES, PERMISSIONS } from "@repo/contracts";
 import { IconCheck, IconRefresh } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
@@ -34,6 +34,7 @@ import {
 } from "@/components/entities/entity-page-shell";
 import {
   getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -121,8 +122,8 @@ export function AttendancePage() {
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
   const activeCampusName = session?.activeCampus?.name;
-  const canManageAttendance = isStaffContext(session);
-  const managedInstitutionId = canManageAttendance ? institutionId : undefined;
+  const canManageAttendance = isStaffContext(session) && hasPermission(session, PERMISSIONS.ATTENDANCE_WRITE);
+  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.ATTENDANCE_READ) ? institutionId : undefined;
   const [activeFilters, setActiveFilters] =
     useState<AttendanceSelectionValues | null>(null);
   const [overviewDate, setOverviewDate] = useState(TODAY);
@@ -300,7 +301,7 @@ export function AttendancePage() {
                       name="attendanceDate"
                       render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid || undefined}>
-                          <FieldLabel>Date</FieldLabel>
+                          <FieldLabel required>Date</FieldLabel>
                           <FieldContent>
                             <Input
                               {...field}
@@ -318,7 +319,7 @@ export function AttendancePage() {
                       name="classId"
                       render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid || undefined}>
-                          <FieldLabel>Class</FieldLabel>
+                          <FieldLabel required>Class</FieldLabel>
                           <FieldContent>
                             <Select
                               onValueChange={(value) => {
@@ -348,7 +349,7 @@ export function AttendancePage() {
                       name="sectionId"
                       render={({ field, fieldState }) => (
                         <Field data-invalid={fieldState.invalid || undefined}>
-                          <FieldLabel>Section</FieldLabel>
+                          <FieldLabel required>Section</FieldLabel>
                           <FieldContent>
                             <Select
                               onValueChange={field.onChange}

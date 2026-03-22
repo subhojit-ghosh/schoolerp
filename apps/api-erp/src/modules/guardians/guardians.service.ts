@@ -32,6 +32,7 @@ import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
+import { AuthService } from "../auth/auth.service";
 import {
   ERROR_MESSAGES,
   MEMBER_TYPES,
@@ -92,7 +93,10 @@ const sortableColumns = {
 
 @Injectable()
 export class GuardiansService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly authService: AuthService,
+  ) {}
 
   async listGuardians(
     institutionId: string,
@@ -204,6 +208,7 @@ export class GuardiansService {
 
     if (existingGuardian) {
       await this.assertGuardianIdentityAvailable(
+        institutionId,
         existingGuardian.userId,
         normalizedMobile,
         normalizedEmail,
@@ -242,21 +247,43 @@ export class GuardiansService {
     }
 
     const createdGuardianId = randomUUID();
-    const createdUserId = randomUUID();
 
     await this.db.transaction(async (tx) => {
-      await tx.insert(user).values({
-        id: createdUserId,
-        name: payload.name.trim(),
-        mobile: normalizedMobile,
-        email: normalizedEmail,
-        passwordHash: await hash(randomUUID(), 12),
-      });
+      // Check if a user already exists in this institution with this mobile
+      const [existingUser] = await tx
+        .select({ id: user.id })
+        .from(user)
+        .where(
+          and(
+            eq(user.institutionId, institutionId),
+            eq(user.mobile, normalizedMobile),
+          ),
+        )
+        .limit(1);
+
+      let userId: string;
+
+      if (existingUser) {
+        // User exists (different role) — link to existing user, don't overwrite user data
+        userId = existingUser.id;
+      } else {
+        const newUserId = randomUUID();
+        await tx.insert(user).values({
+          id: newUserId,
+          institutionId,
+          name: payload.name.trim(),
+          mobile: normalizedMobile,
+          email: normalizedEmail,
+          passwordHash: await hash(normalizedMobile, 12),
+          mustChangePassword: true,
+        });
+        userId = newUserId;
+      }
 
       await tx.insert(member).values({
         id: createdGuardianId,
         organizationId: institutionId,
-        userId: createdUserId,
+        userId,
         primaryCampusId: selectedCampus.id,
         memberType: MEMBER_TYPES.GUARDIAN,
         status: STATUS.MEMBER.ACTIVE,
@@ -297,6 +324,7 @@ export class GuardiansService {
     const normalizedEmail = normalizeOptionalEmail(payload.email);
 
     await this.assertGuardianIdentityAvailable(
+      institutionId,
       guardianUserId,
       normalizedMobile,
       normalizedEmail,
@@ -408,7 +436,6 @@ export class GuardiansService {
             parentMembershipId: guardianMembership.id,
             relationship: payload.relationship,
             isPrimary: payload.isPrimary,
-            acceptedAt: null,
             deletedAt: null,
           });
         }
@@ -781,6 +808,7 @@ export class GuardiansService {
   }
 
   private async assertGuardianIdentityAvailable(
+    institutionId: string,
     currentUserId: string,
     mobile: string,
     email: string | null,
@@ -788,7 +816,9 @@ export class GuardiansService {
     const [matchedMobileUser] = await this.db
       .select({ id: user.id })
       .from(user)
-      .where(eq(user.mobile, mobile))
+      .where(
+        and(eq(user.mobile, mobile), eq(user.institutionId, institutionId)),
+      )
       .limit(1);
 
     if (matchedMobileUser && matchedMobileUser.id !== currentUserId) {
@@ -802,7 +832,9 @@ export class GuardiansService {
     const [matchedEmailUser] = await this.db
       .select({ id: user.id })
       .from(user)
-      .where(eq(user.email, email))
+      .where(
+        and(eq(user.email, email), eq(user.institutionId, institutionId)),
+      )
       .limit(1);
 
     if (matchedEmailUser && matchedEmailUser.id !== currentUserId) {
@@ -889,5 +921,25 @@ export class GuardiansService {
     if (!scopes.campusIds.includes(campusId)) {
       throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
     }
+  }
+
+  async resetMemberPassword(
+    institutionId: string,
+    guardianId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): Promise<void> {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    const guardianMembership = await this.getGuardianMembership(
+      institutionId,
+      guardianId,
+      activeCampusId,
+    );
+
+    await this.authService.adminResetMemberPassword(
+      guardianMembership.userId,
+      institutionId,
+    );
   }
 }

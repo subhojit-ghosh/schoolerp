@@ -64,7 +64,7 @@ export function CalendarEventForm({
             name="title"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="calendar-title">Title</FieldLabel>
+                <FieldLabel htmlFor="calendar-title" required>Title</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -83,7 +83,7 @@ export function CalendarEventForm({
             name="eventType"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Type</FieldLabel>
+                <FieldLabel required>Type</FieldLabel>
                 <FieldContent>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger aria-invalid={fieldState.invalid}>
@@ -108,7 +108,7 @@ export function CalendarEventForm({
             name="eventDate"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="calendar-date">Date</FieldLabel>
+                <FieldLabel htmlFor="calendar-date" required>Date</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -155,7 +155,7 @@ export function CalendarEventForm({
                 name="startTime"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel htmlFor="calendar-start-time">
+                    <FieldLabel htmlFor="calendar-start-time" required>
                       Start time
                     </FieldLabel>
                     <FieldContent>
@@ -177,7 +177,7 @@ export function CalendarEventForm({
                 name="endTime"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel htmlFor="calendar-end-time">
+                    <FieldLabel htmlFor="calendar-end-time" required>
                       End time
                     </FieldLabel>
                     <FieldContent>

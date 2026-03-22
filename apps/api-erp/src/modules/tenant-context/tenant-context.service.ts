@@ -1,5 +1,5 @@
 import { DATABASE } from "@repo/backend-core";
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import { and, campus, eq, ne, organization } from "@repo/database";
 import { APP_FALLBACKS, tenantBrandingSchema } from "@repo/contracts";
@@ -21,6 +21,7 @@ export const DEFAULT_TENANT_BRANDING = tenantBrandingSchema.parse({
   fontMono: "IBM Plex Mono",
   borderRadius: "default",
   uiDensity: "default",
+  brandingVersion: 0,
 });
 
 @Injectable()
@@ -70,10 +71,63 @@ export class TenantContextService {
         fontMono: organization.fontMono,
         borderRadius: organization.borderRadius,
         uiDensity: organization.uiDensity,
+        brandingVersion: organization.brandingVersion,
         status: organization.status,
       })
       .from(organization)
       .where(eq(organization.slug, slug))
+      .limit(1);
+
+    if (!row || row.status === STATUS.ORG.DELETED) {
+      return null;
+    }
+
+    return row;
+  }
+
+  async resolveInstitutionFromHost(host: string | undefined) {
+    if (!host) {
+      return null;
+    }
+
+    const hostname = host.split(":")[0].toLowerCase();
+
+    if (LOCAL_HOSTS.has(hostname) || hostname === APP_FALLBACKS.ROOT_HOST) {
+      return null;
+    }
+
+    const tenantSuffix = `.${APP_FALLBACKS.ROOT_DOMAIN}`;
+    const isSubdomain = hostname.endsWith(tenantSuffix);
+
+    if (isSubdomain) {
+      const slug = hostname.slice(0, -tenantSuffix.length);
+      if (!slug) return null;
+      return this.getOrganizationBySlug(slug);
+    }
+
+    // Custom domain: check customDomain column
+    const [row] = await this.db
+      .select({
+        id: organization.id,
+        name: organization.name,
+        shortName: organization.shortName,
+        slug: organization.slug,
+        institutionType: organization.institutionType,
+        logoUrl: organization.logoUrl,
+        faviconUrl: organization.faviconUrl,
+        primaryColor: organization.primaryColor,
+        accentColor: organization.accentColor,
+        sidebarColor: organization.sidebarColor,
+        fontHeading: organization.fontHeading,
+        fontBody: organization.fontBody,
+        fontMono: organization.fontMono,
+        borderRadius: organization.borderRadius,
+        uiDensity: organization.uiDensity,
+        brandingVersion: organization.brandingVersion,
+        status: organization.status,
+      })
+      .from(organization)
+      .where(eq(organization.customDomain, hostname))
       .limit(1);
 
     if (!row || row.status === STATUS.ORG.DELETED) {
@@ -131,16 +185,16 @@ export class TenantContextService {
     host: string | undefined,
     tenantQuery: string | undefined,
   ) {
-    const tenantSlug = this.resolveTenantSlug(host, tenantQuery);
+    let tenant = null;
 
-    if (!tenantSlug) {
-      return DEFAULT_TENANT_BRANDING;
+    if (tenantQuery) {
+      tenant = await this.getOrganizationBySlug(tenantQuery);
+    } else {
+      tenant = await this.resolveInstitutionFromHost(host);
     }
 
-    const tenant = await this.getOrganizationBySlug(tenantSlug);
-
     if (!tenant) {
-      throw new NotFoundException(`Organization not found for subdomain.`);
+      return DEFAULT_TENANT_BRANDING;
     }
 
     return tenantBrandingSchema.parse({
@@ -157,6 +211,7 @@ export class TenantContextService {
       fontMono: tenant.fontMono,
       borderRadius: tenant.borderRadius,
       uiDensity: tenant.uiDensity,
+      brandingVersion: tenant.brandingVersion,
     });
   }
 }

@@ -134,7 +134,7 @@ export function ExamMarksForm({
                   className="col-span-12 min-w-0 md:col-span-6"
                   data-invalid={fieldState.invalid || undefined}
                 >
-                  <FieldLabel>Student</FieldLabel>
+                  <FieldLabel required>Student</FieldLabel>
                   <FieldContent>
                     <Select
                       onValueChange={field.onChange}
@@ -170,7 +170,7 @@ export function ExamMarksForm({
                   className="col-span-12 min-w-0 md:col-span-6"
                   data-invalid={fieldState.invalid || undefined}
                 >
-                  <FieldLabel>Subject</FieldLabel>
+                  <FieldLabel required>Subject</FieldLabel>
                   <FieldContent>
                     <Input
                       {...field}
@@ -191,7 +191,7 @@ export function ExamMarksForm({
                   className="col-span-6 md:col-span-3"
                   data-invalid={fieldState.invalid || undefined}
                 >
-                  <FieldLabel>Max</FieldLabel>
+                  <FieldLabel required>Max</FieldLabel>
                   <FieldContent>
                     <Input
                       aria-invalid={fieldState.invalid}
@@ -218,7 +218,7 @@ export function ExamMarksForm({
                   className="col-span-6 md:col-span-3"
                   data-invalid={fieldState.invalid || undefined}
                 >
-                  <FieldLabel>Score</FieldLabel>
+                  <FieldLabel required>Score</FieldLabel>
                   <FieldContent>
                     <Input
                       aria-invalid={fieldState.invalid}

@@ -317,7 +317,7 @@ export function StudentForm({
             name="admissionNumber"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-number">
+                <FieldLabel htmlFor="admission-number" required>
                   Admission number
                 </FieldLabel>
                 <FieldContent>
@@ -352,7 +352,7 @@ export function StudentForm({
             name="firstName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="first-name">First name</FieldLabel>
+                <FieldLabel htmlFor="first-name" required>First name</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -370,7 +370,7 @@ export function StudentForm({
             name="classId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Class</FieldLabel>
+                <FieldLabel required>Class</FieldLabel>
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
@@ -408,7 +408,7 @@ export function StudentForm({
             name="sectionId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Section</FieldLabel>
+                <FieldLabel required>Section</FieldLabel>
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
@@ -631,7 +631,7 @@ export function StudentForm({
                 name={`guardians.${index}.name`}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>Name</FieldLabel>
+                    <FieldLabel required>Name</FieldLabel>
                     <FieldContent>
                       <Input
                         {...field}
@@ -648,7 +648,7 @@ export function StudentForm({
                 name={`guardians.${index}.mobile`}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>Mobile</FieldLabel>
+                    <FieldLabel required>Mobile</FieldLabel>
                     <FieldContent>
                       <Input
                         {...field}
@@ -683,7 +683,7 @@ export function StudentForm({
                 name={`guardians.${index}.relationship`}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>Relationship</FieldLabel>
+                    <FieldLabel required>Relationship</FieldLabel>
                     <FieldContent>
                       <Select
                         onValueChange={field.onChange}

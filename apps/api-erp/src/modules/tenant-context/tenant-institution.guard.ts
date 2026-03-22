@@ -15,17 +15,10 @@ export class TenantInstitutionGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<TenantRequest>();
-    const tenantSlug = this.tenantContextService.resolveTenantSlug(
+
+    const tenantInstitution = await this.tenantContextService.resolveInstitutionFromHost(
       request.headers.host,
-      undefined,
     );
-
-    if (!tenantSlug) {
-      throw new NotFoundException(ERROR_MESSAGES.TENANT.SUBDOMAIN_REQUIRED);
-    }
-
-    const tenantInstitution =
-      await this.tenantContextService.getOrganizationBySlug(tenantSlug);
 
     if (!tenantInstitution) {
       throw new NotFoundException(ERROR_MESSAGES.TENANT.INSTITUTION_NOT_FOUND);

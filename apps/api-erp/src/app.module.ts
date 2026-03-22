@@ -5,6 +5,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { authConfig } from "./config/auth.config";
 import { deliveryConfig } from "./config/delivery.config";
+import { storageConfig } from "./config/storage.config";
 import { AcademicYearsModule } from "./modules/academic-years/academic-years.module";
 import { AttendanceModule } from "./modules/attendance/attendance.module";
 import { AdmissionsModule } from "./modules/admissions/admissions.module";
@@ -30,13 +31,14 @@ import { TenantContextModule } from "./modules/tenant-context/tenant-context.mod
 import { TimetableModule } from "./modules/timetable/timetable.module";
 import { GuardiansModule } from "./modules/guardians/guardians.module";
 import { StudentsModule } from "./modules/students/students.module";
+import { UploadsModule } from "./modules/uploads/uploads.module";
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
       envFilePath: [".env.local", ".env"],
-      load: [databaseConfig, authConfig, deliveryConfig],
+      load: [databaseConfig, authConfig, deliveryConfig, storageConfig],
       validate: validateEnvironment,
     }),
     DatabaseModule,
@@ -63,6 +65,7 @@ import { StudentsModule } from "./modules/students/students.module";
     FeesModule,
     RolesModule,
     InstitutionsModule,
+    UploadsModule,
     PublicModule,
   ],
   controllers: [AppController],

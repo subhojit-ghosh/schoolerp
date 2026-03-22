@@ -1,7 +1,10 @@
 import type { UseFormSetValue } from "react-hook-form";
 import type { TenantBranding } from "@repo/contracts";
 import { z } from "zod";
-import type { UpdateBrandingBody } from "@/features/settings/api/use-settings";
+import type {
+  UpdateBrandingBody,
+  UpdateBrandingResponse,
+} from "@/features/settings/api/use-settings";
 import { DEFAULT_FONT_PAIRING, type FontPairing } from "@/lib/font-pairings";
 import type { DensityPreset, RadiusPreset } from "@/lib/theme-presets";
 
@@ -73,14 +76,14 @@ export function getBrandingInitialValues(
 
 export function createBrandingMutationBody(
   values: BrandingFormValues,
-  cached: TenantBranding | null,
+  _cached: TenantBranding | null,
   _organization: BrandingOrganizationDefaults,
 ): UpdateBrandingBody {
   return {
     name: values.name,
     shortName: values.shortName,
-    logoUrl: values.logoUrl || cached?.logoUrl || undefined,
-    faviconUrl: values.faviconUrl || cached?.faviconUrl || undefined,
+    logoUrl: values.logoUrl || undefined,
+    faviconUrl: values.faviconUrl || undefined,
     primaryColor: values.primaryColor,
     accentColor: values.accentColor,
     sidebarColor: values.sidebarColor,
@@ -92,25 +95,26 @@ export function createBrandingMutationBody(
   };
 }
 
-export function createUpdatedBranding(
-  values: BrandingFormValues,
+export function createUpdatedBrandingFromResponse(
+  response: UpdateBrandingResponse,
   cached: TenantBranding | null,
   organization: BrandingOrganizationDefaults,
 ): TenantBranding {
   return {
     tenantSlug: cached?.tenantSlug ?? organization.slug ?? "",
-    institutionName: values.name,
-    shortName: values.shortName,
-    logoUrl: values.logoUrl || null,
-    faviconUrl: values.faviconUrl || null,
-    primaryColor: values.primaryColor,
-    accentColor: values.accentColor,
-    sidebarColor: values.sidebarColor,
-    fontHeading: values.fontHeading ?? null,
-    fontBody: values.fontBody ?? null,
-    fontMono: values.fontMono ?? null,
-    borderRadius: values.borderRadius ?? null,
-    uiDensity: values.uiDensity ?? null,
+    institutionName: response.name,
+    shortName: response.shortName,
+    logoUrl: response.logoUrl ?? null,
+    faviconUrl: response.faviconUrl ?? null,
+    primaryColor: response.primaryColor,
+    accentColor: response.accentColor,
+    sidebarColor: response.sidebarColor,
+    fontHeading: response.fontHeading ?? null,
+    fontBody: response.fontBody ?? null,
+    fontMono: response.fontMono ?? null,
+    borderRadius: (response.borderRadius as RadiusPreset | null) ?? null,
+    uiDensity: (response.uiDensity as DensityPreset | null) ?? null,
+    brandingVersion: response.brandingVersion,
   };
 }
 

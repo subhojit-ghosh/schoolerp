@@ -6,6 +6,7 @@ export const AUTH_API_PATHS = {
   SIGN_UP: "/auth/sign-up",
   FORGOT_PASSWORD: "/auth/forgot-password",
   RESET_PASSWORD: "/auth/reset-password",
+  CHANGE_PASSWORD: "/auth/change-password",
   SELECT_CONTEXT: "/auth/context/select",
   SELECT_CAMPUS: "/auth/context/campus",
 } as const;

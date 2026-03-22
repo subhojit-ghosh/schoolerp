@@ -36,6 +36,8 @@ import { randomUUID } from "node:crypto";
 import {
   ERROR_MESSAGES,
   MEMBER_TYPES,
+  ROLE_SLUGS,
+  ROLE_TYPES,
   SORT_ORDERS,
   STATUS,
   SCOPE_TYPES,
@@ -47,7 +49,6 @@ import {
 } from "../../lib/list-query";
 import type {
   AuthenticatedSession,
-  IssuedPasswordSetupResult,
   ResolvedScopes,
 } from "../auth/auth.types";
 import { campusScopeFilter } from "../auth/scope-filter";
@@ -229,7 +230,7 @@ export class StaffService {
     const selectedCampus = await this.getCampus(institutionId, activeCampusId);
 
     const createResult = await this.db.transaction(async (tx) => {
-      const resolvedUser = await this.findOrCreateUser(tx, payload);
+      const resolvedUser = await this.findOrCreateUser(tx, institutionId, payload);
 
       const [existingStaffMembership] = await tx
         .select({ id: member.id })
@@ -281,17 +282,9 @@ export class StaffService {
       activeCampusScopes,
     );
 
-    let passwordSetup: IssuedPasswordSetupResult | null = null;
-
-    if (createResult.createdNewUser) {
-      passwordSetup = await this.authService.issuePasswordSetupForUser(
-        createResult.userId,
-      );
-    }
-
     return {
       staff,
-      passwordSetup,
+      passwordSetup: null,
     };
   }
 
@@ -320,6 +313,7 @@ export class StaffService {
     await this.db.transaction(async (tx) => {
       const resolvedUserId = await this.reconcileUserIdentity(
         tx,
+        institutionId,
         existingStaff.userId,
         payload,
       );
@@ -410,37 +404,49 @@ export class StaffService {
     await this.assertStaffRemovable(institutionId, staffMembership.id);
 
     await this.db.transaction(async (tx) => {
+      // Hard-delete role scopes and assignments (restrict FKs — must go first)
       const activeAssignments = await tx
         .select({ id: membershipRoles.id })
         .from(membershipRoles)
         .where(and(eq(membershipRoles.membershipId, staffMembership.id)));
 
       if (activeAssignments.length > 0) {
-        const assignmentIds = activeAssignments.map(
-          (assignment) => assignment.id,
-        );
-
+        const assignmentIds = activeAssignments.map((a) => a.id);
         await tx
           .delete(membershipRoleScopes)
           .where(inArray(membershipRoleScopes.membershipRoleId, assignmentIds));
-
         await tx
           .delete(membershipRoles)
           .where(inArray(membershipRoles.id, assignmentIds));
       }
 
-      await tx
-        .update(campusMemberships)
-        .set({ deletedAt: new Date() })
-        .where(eq(campusMemberships.membershipId, staffMembership.id));
+      // Check if user has other active memberships (e.g. also a guardian)
+      const [otherMembership] = await tx
+        .select({ id: member.id })
+        .from(member)
+        .where(
+          and(
+            eq(member.userId, staffMembership.userId),
+            ne(member.id, staffMembership.id),
+            ne(member.status, STATUS.MEMBER.DELETED),
+          ),
+        )
+        .limit(1);
 
-      await tx
-        .update(member)
-        .set({
-          status: STATUS.MEMBER.DELETED,
-          deletedAt: new Date(),
-        })
-        .where(eq(member.id, staffMembership.id));
+      if (!otherMembership) {
+        // No other memberships — hard delete user (cascades to member, campusMemberships, sessions, tokens)
+        await tx.delete(user).where(eq(user.id, staffMembership.userId));
+      } else {
+        // User has other roles — soft delete this membership only
+        await tx
+          .update(campusMemberships)
+          .set({ deletedAt: new Date() })
+          .where(eq(campusMemberships.membershipId, staffMembership.id));
+        await tx
+          .update(member)
+          .set({ status: STATUS.MEMBER.DELETED, deletedAt: new Date() })
+          .where(eq(member.id, staffMembership.id));
+      }
     });
   }
 
@@ -604,6 +610,8 @@ export class StaffService {
       .from(roles)
       .where(
         and(
+          ne(roles.roleType, ROLE_TYPES.PLATFORM),
+          ne(roles.slug, ROLE_SLUGS.INSTITUTION_ADMIN),
           or(
             isNull(roles.institutionId),
             eq(roles.institutionId, institutionId),
@@ -1143,25 +1151,18 @@ export class StaffService {
     return rows;
   }
 
-  private async findOrCreateUser(tx: StaffWriter, payload: CreateStaffDto) {
+  private async findOrCreateUser(tx: StaffWriter, institutionId: string, payload: CreateStaffDto) {
     const normalizedMobile = normalizeMobile(payload.mobile);
     const normalizedEmail = normalizeOptionalEmail(payload.email);
     const matchedUser = await this.findUserByIdentity(
       tx,
+      institutionId,
       normalizedMobile,
       normalizedEmail,
     );
 
     if (matchedUser) {
-      await tx
-        .update(user)
-        .set({
-          name: payload.name.trim(),
-          mobile: normalizedMobile,
-          email: normalizedEmail,
-        })
-        .where(eq(user.id, matchedUser.id));
-
+      // Do NOT overwrite name/email/mobile — admin can update from profile screen
       return { id: matchedUser.id, createdNewUser: false };
     }
 
@@ -1169,10 +1170,12 @@ export class StaffService {
 
     await tx.insert(user).values({
       id: userId,
+      institutionId,
       name: payload.name.trim(),
       mobile: normalizedMobile,
       email: normalizedEmail,
-      passwordHash: await hash(randomUUID(), 12),
+      passwordHash: await hash(payload.temporaryPassword, 12),
+      mustChangePassword: true,
     });
 
     return { id: userId, createdNewUser: true };
@@ -1180,6 +1183,7 @@ export class StaffService {
 
   private async reconcileUserIdentity(
     tx: StaffWriter,
+    institutionId: string,
     currentUserId: string,
     payload: UpdateStaffDto,
   ) {
@@ -1187,21 +1191,13 @@ export class StaffService {
     const normalizedEmail = normalizeOptionalEmail(payload.email);
     const matchedUser = await this.findUserByIdentity(
       tx,
+      institutionId,
       normalizedMobile,
       normalizedEmail,
     );
 
     if (matchedUser && matchedUser.id !== currentUserId) {
-      await tx
-        .update(user)
-        .set({
-          name: payload.name.trim(),
-          mobile: normalizedMobile,
-          email: normalizedEmail,
-        })
-        .where(eq(user.id, matchedUser.id));
-
-      return matchedUser.id;
+      throw new ConflictException(ERROR_MESSAGES.AUTH.MOBILE_ALREADY_EXISTS);
     }
 
     await tx
@@ -1218,6 +1214,7 @@ export class StaffService {
 
   private async findUserByIdentity(
     tx: StaffWriter,
+    institutionId: string,
     mobile: string,
     email: string | null,
   ) {
@@ -1229,9 +1226,12 @@ export class StaffService {
       })
       .from(user)
       .where(
-        email
-          ? or(eq(user.mobile, mobile), eq(user.email, email))
-          : eq(user.mobile, mobile),
+        and(
+          eq(user.institutionId, institutionId),
+          email
+            ? or(eq(user.mobile, mobile), eq(user.email, email))
+            : eq(user.mobile, mobile),
+        ),
       );
 
     const matchedByMobile =
@@ -1283,6 +1283,29 @@ export class StaffService {
     }
 
     return authSession.activeCampusId;
+  }
+
+  async resetMemberPassword(
+    institutionId: string,
+    staffId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): Promise<void> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    const staffMembership = await this.getStaffMembership(
+      institutionId,
+      staffId,
+      activeCampusScopes,
+    );
+
+    if (!staffMembership.userId) {
+      throw new NotFoundException(ERROR_MESSAGES.STAFF.STAFF_NOT_FOUND);
+    }
+
+    await this.authService.adminResetMemberPassword(
+      staffMembership.userId,
+      institutionId,
+    );
   }
 
   private scopeToActiveCampus(

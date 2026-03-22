@@ -38,7 +38,23 @@ export const signUpFormSchema = z.object({
     .min(PASSWORD_MIN_LENGTH, "Password must be at least 8 characters"),
 });
 
+export const changePasswordFormSchema = z
+  .object({
+    currentPassword: z.string().min(1, "Current password is required"),
+    newPassword: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, "Password must be at least 8 characters"),
+    confirmPassword: z
+      .string()
+      .min(PASSWORD_MIN_LENGTH, "Confirm your new password"),
+  })
+  .refine((value) => value.newPassword === value.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match",
+  });
+
 export type SignInFormValues = z.infer<typeof signInFormSchema>;
 export type ForgotPasswordFormValues = z.infer<typeof forgotPasswordFormSchema>;
 export type ResetPasswordFormValues = z.infer<typeof resetPasswordFormSchema>;
 export type SignUpFormValues = z.infer<typeof signUpFormSchema>;
+export type ChangePasswordFormValues = z.infer<typeof changePasswordFormSchema>;

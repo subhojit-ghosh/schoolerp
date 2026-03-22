@@ -86,7 +86,7 @@ export function RoleForm({
           name="name"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel htmlFor="role-name">Role name</FieldLabel>
+              <FieldLabel htmlFor="role-name" required>Role name</FieldLabel>
               <FieldContent>
                 <Input
                   {...field}
@@ -106,7 +106,7 @@ export function RoleForm({
           name="permissionIds"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel>Permissions</FieldLabel>
+              <FieldLabel required>Permissions</FieldLabel>
               <FieldContent>
                 {permissionsLoading ? (
                   <div className="space-y-2">

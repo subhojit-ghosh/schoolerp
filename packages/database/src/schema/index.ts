@@ -587,8 +587,6 @@ export const studentGuardianLinks = pgTable(
       enum: ["father", "mother", "guardian"],
     }).notNull(),
     isPrimary: boolean().notNull().default(false),
-    invitedAt: timestamp().notNull().defaultNow(),
-    acceptedAt: timestamp(),
     deletedAt: timestamp(),
   },
   (t) => [

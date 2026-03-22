@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { PERMISSIONS } from "@repo/contracts";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
@@ -40,7 +41,7 @@ import {
 import { buildClassEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
-  getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -76,10 +77,8 @@ const VALID_CLASS_SORT_FIELDS = [
 export function ClassesPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
-  const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageClasses = isStaffContext(session);
-  const canQueryClasses = canManageClasses && Boolean(institutionId);
+  const canQueryClasses = isStaffContext(session) && hasPermission(session, PERMISSIONS.ACADEMICS_READ) && Boolean(institutionId);
   const setStatusMutation = useSetClassStatusMutation();
   const deleteMutation = useDeleteClassMutation();
   const [deleteTarget, setDeleteTarget] = useState<ClassRow | null>(null);
@@ -334,14 +333,13 @@ export function ClassesPage() {
     );
   }
 
-  if (!canManageClasses) {
+  if (!canQueryClasses) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>{CLASSES_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Class administration is available in Staff view. You are currently
-            in {activeContext?.label ?? "another"} view.
+            You don't have access to this section.
           </CardDescription>
         </CardHeader>
       </Card>

@@ -83,3 +83,25 @@ export function parseSwitchCampus(value: unknown): SwitchCampusDto {
 export function parseSwitchContext(value: unknown): SwitchContextDto {
   return parseSchema(switchContextSchema, value);
 }
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(PASSWORD_MIN_LENGTH),
+});
+
+export type ChangePasswordDto = z.infer<typeof changePasswordSchema>;
+
+export function parseChangePassword(value: unknown): ChangePasswordDto {
+  return parseSchema(changePasswordSchema, value);
+}
+
+export const completeSetupSchema = z.object({
+  token: z.string().trim().min(1, "Setup token is required"),
+  password: z.string().min(PASSWORD_MIN_LENGTH),
+});
+
+export type CompleteSetupDto = z.infer<typeof completeSetupSchema>;
+
+export function parseCompleteSetup(value: unknown): CompleteSetupDto {
+  return parseSchema(completeSetupSchema, value);
+}

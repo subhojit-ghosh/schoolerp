@@ -32,6 +32,7 @@ export const API_DOCS = {
     DATA_EXCHANGE: "data-exchange",
     ROLES: "roles",
     AUDIT: "audit",
+    UPLOADS: "uploads",
   },
   THEMES: {
     NEST: "nest",

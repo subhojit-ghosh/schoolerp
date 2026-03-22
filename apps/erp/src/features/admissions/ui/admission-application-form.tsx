@@ -212,7 +212,7 @@ export function AdmissionApplicationForm({
             name="studentFirstName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-application-student-first-name">
+                <FieldLabel htmlFor="admission-application-student-first-name" required>
                   Student first name
                 </FieldLabel>
                 <FieldContent>
@@ -254,7 +254,7 @@ export function AdmissionApplicationForm({
             name="guardianName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-application-guardian-name">
+                <FieldLabel htmlFor="admission-application-guardian-name" required>
                   Guardian name
                 </FieldLabel>
                 <FieldContent>
@@ -275,7 +275,7 @@ export function AdmissionApplicationForm({
             name="mobile"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-application-mobile">
+                <FieldLabel htmlFor="admission-application-mobile" required>
                   Mobile
                 </FieldLabel>
                 <FieldContent>
@@ -360,7 +360,7 @@ export function AdmissionApplicationForm({
             name="status"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Status</FieldLabel>
+                <FieldLabel required>Status</FieldLabel>
                 <FieldContent>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger aria-invalid={fieldState.invalid}>

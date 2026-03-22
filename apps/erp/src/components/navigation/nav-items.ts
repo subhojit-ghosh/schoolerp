@@ -49,42 +49,93 @@ export const NAV_HOME: readonly NavItem[] = [
 ];
 
 export const NAV_PEOPLE: readonly NavItem[] = [
-  { icon: IconUsers, title: "Students", url: ERP_ROUTES.STUDENTS },
-  { icon: IconUsersGroup, title: "Staff", url: ERP_ROUTES.STAFF },
-  { icon: IconUserSearch, title: "Guardians", url: ERP_ROUTES.GUARDIANS },
+  {
+    icon: IconUsers,
+    permission: PERMISSIONS.STUDENTS_READ,
+    title: "Students",
+    url: ERP_ROUTES.STUDENTS,
+  },
+  {
+    icon: IconUsersGroup,
+    permission: PERMISSIONS.STAFF_READ,
+    title: "Staff",
+    url: ERP_ROUTES.STAFF,
+  },
+  {
+    icon: IconUserSearch,
+    permission: PERMISSIONS.GUARDIANS_READ,
+    title: "Guardians",
+    url: ERP_ROUTES.GUARDIANS,
+  },
 ];
 
 export const NAV_ADMISSIONS: readonly NavItem[] = [
   {
     icon: IconUserSearch,
+    permission: PERMISSIONS.ADMISSIONS_READ,
     title: "Enquiries",
     url: ERP_ROUTES.ADMISSIONS_ENQUIRIES,
   },
   {
     icon: IconFileDescription,
+    permission: PERMISSIONS.ADMISSIONS_READ,
     title: "Applications",
     url: ERP_ROUTES.ADMISSIONS_APPLICATIONS,
   },
 ];
 
-export const NAV_ACADEMIC_MANAGEMENT: readonly NavItem[] = [
-  { icon: IconBook2, title: "Academic Years", url: ERP_ROUTES.ACADEMIC_YEARS },
-  { icon: IconBook2, title: "Classes", url: ERP_ROUTES.CLASSES },
-  { icon: IconCalendarStats, title: "Attendance", url: ERP_ROUTES.ATTENDANCE },
-  { icon: IconCertificate, title: "Exams", url: ERP_ROUTES.EXAMS },
+export const NAV_TEACHING: readonly NavItem[] = [
   {
-    icon: IconChevronsUp,
-    title: "Rollover",
-    url: ERP_ROUTES.STUDENT_ROLLOVER,
+    icon: IconCalendarStats,
+    permission: PERMISSIONS.ATTENDANCE_READ,
+    title: "Attendance",
+    url: ERP_ROUTES.ATTENDANCE,
   },
-  { icon: IconBooks, title: "Subjects", url: ERP_ROUTES.SUBJECTS },
-  { icon: IconLayoutGrid, title: "Timetable", url: ERP_ROUTES.TIMETABLE },
+  {
+    icon: IconLayoutGrid,
+    permission: PERMISSIONS.ACADEMICS_READ,
+    title: "Timetable",
+    url: ERP_ROUTES.TIMETABLE,
+  },
+  {
+    icon: IconCertificate,
+    permission: PERMISSIONS.EXAMS_READ,
+    title: "Exams",
+    url: ERP_ROUTES.EXAMS,
+  },
   {
     badgeLabel: "Planned",
     disabled: true,
     icon: IconNotebook,
     title: "Homework",
     url: ERP_ROUTES.HOMEWORK,
+  },
+];
+
+export const NAV_ACADEMIC_SETUP: readonly NavItem[] = [
+  {
+    icon: IconBook2,
+    permission: PERMISSIONS.ACADEMICS_READ,
+    title: "Academic Years",
+    url: ERP_ROUTES.ACADEMIC_YEARS,
+  },
+  {
+    icon: IconBook2,
+    permission: PERMISSIONS.ACADEMICS_READ,
+    title: "Classes",
+    url: ERP_ROUTES.CLASSES,
+  },
+  {
+    icon: IconBooks,
+    permission: PERMISSIONS.ACADEMICS_READ,
+    title: "Subjects",
+    url: ERP_ROUTES.SUBJECTS,
+  },
+  {
+    icon: IconChevronsUp,
+    permission: PERMISSIONS.ACADEMICS_MANAGE,
+    title: "Rollover",
+    url: ERP_ROUTES.STUDENT_ROLLOVER,
   },
 ];
 
@@ -115,16 +166,19 @@ export const NAV_RECORDS: readonly NavItem[] = [
 export const NAV_FINANCE: readonly NavItem[] = [
   {
     icon: IconCurrencyRupee,
+    permission: PERMISSIONS.FEES_READ,
     title: "Fee Structures",
     url: ERP_ROUTES.FEE_STRUCTURES,
   },
   {
     icon: IconReportMoney,
+    permission: PERMISSIONS.FEES_READ,
     title: "Fee Assignments",
     url: ERP_ROUTES.FEE_ASSIGNMENTS,
   },
   {
     icon: IconReportMoney,
+    permission: PERMISSIONS.FEES_READ,
     title: "Fee Dues",
     url: ERP_ROUTES.FEE_DUES,
   },
@@ -141,6 +195,7 @@ export const NAV_REPORTS: readonly NavItem[] = [
   {
     badgeLabel: "Now",
     icon: IconCalendarStats,
+    permission: PERMISSIONS.ATTENDANCE_READ,
     title: "Attendance",
     url: ERP_ROUTES.REPORTS_ATTENDANCE,
   },
@@ -154,6 +209,7 @@ export const NAV_REPORTS: readonly NavItem[] = [
   {
     badgeLabel: "Now",
     icon: IconReportMoney,
+    permission: PERMISSIONS.FEES_READ,
     title: "Fees",
     url: ERP_ROUTES.FEE_REPORTS,
   },

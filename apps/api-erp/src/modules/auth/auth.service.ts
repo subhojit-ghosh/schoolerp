@@ -76,6 +76,7 @@ import type {
   ResolvedScopes,
   SessionAccessContext,
   SessionRequestContext,
+  ValidatedUser,
 } from "./auth.types";
 import {
   isEmailIdentifier,
@@ -103,13 +104,28 @@ export class AuthService {
     const normalizedEmail = normalizeOptionalEmail(payload.email);
     const normalizedMobile = normalizeMobile(payload.mobile);
 
-    await this.assertUserIdentityAvailable(normalizedMobile, normalizedEmail);
+    if (!payload.tenantSlug) {
+      throw new UnauthorizedException(ERROR_MESSAGES.AUTH.MEMBERSHIP_REQUIRED);
+    }
+
+    const [resolvedOrg] = await this.database
+      .select({ id: organization.id })
+      .from(organization)
+      .where(eq(organization.slug, payload.tenantSlug))
+      .limit(1);
+
+    if (!resolvedOrg) {
+      throw new UnauthorizedException(ERROR_MESSAGES.AUTH.MEMBERSHIP_REQUIRED);
+    }
+
+    await this.assertUserIdentityAvailable(normalizedMobile, normalizedEmail, resolvedOrg.id);
 
     const passwordHash = await hash(payload.password, 12);
     const userId = randomUUID();
 
     await this.database.insert(user).values({
       id: userId,
+      institutionId: resolvedOrg.id,
       name: payload.name.trim(),
       mobile: normalizedMobile,
       email: normalizedEmail,
@@ -127,6 +143,7 @@ export class AuthService {
         name: payload.name.trim(),
         mobile: normalizedMobile,
         email: normalizedEmail,
+        institutionId: resolvedOrg.id,
       },
       requestContext,
       accessContext,
@@ -136,8 +153,9 @@ export class AuthService {
   async validateUser(
     identifier: string,
     password: string,
-  ): Promise<AuthenticatedUser | null> {
-    const matchedUser = await this.findUserByIdentifier(identifier);
+    institutionId: string | null,
+  ): Promise<ValidatedUser | null> {
+    const matchedUser = await this.findUserByIdentifier(identifier, institutionId);
 
     if (!matchedUser) {
       return null;
@@ -154,6 +172,8 @@ export class AuthService {
       name: matchedUser.name,
       mobile: matchedUser.mobile,
       email: matchedUser.email,
+      institutionId: matchedUser.institutionId,
+      mustChangePassword: matchedUser.mustChangePassword,
     };
   }
 
@@ -168,7 +188,7 @@ export class AuthService {
       requestContext.ipAddress,
     );
 
-    const matchedUser = await this.findUserByIdentifier(normalizedIdentifier);
+    const matchedUser = await this.findUserByIdentifier(normalizedIdentifier, null);
     const token = this.createPasswordResetToken();
     const tokenHash = this.hashPasswordResetToken(token);
 
@@ -227,6 +247,175 @@ export class AuthService {
     );
   }
 
+  async issueMustChangePasswordToken(userId: string): Promise<string> {
+    const token = this.createPasswordResetToken();
+    const tokenHash = this.hashPasswordResetToken(token);
+
+    await this.database
+      .delete(passwordResetToken)
+      .where(
+        and(
+          eq(passwordResetToken.userId, userId),
+          isNull(passwordResetToken.consumedAt),
+        ),
+      );
+
+    const expiresAt = new Date(Date.now() + AUTH_PASSWORD_RESET.TOKEN_TTL_MS);
+
+    await this.database.insert(passwordResetToken).values({
+      id: randomUUID(),
+      userId,
+      tokenHash,
+      expiresAt,
+      consumedAt: null,
+    });
+
+    return token;
+  }
+
+  async completeSetup(
+    token: string,
+    nextPassword: string,
+    requestContext: SessionRequestContext,
+  ): Promise<AuthenticatedSession> {
+    const now = new Date();
+    const tokenHash = this.hashPasswordResetToken(token);
+    const [matchedToken] = await this.database
+      .select({
+        id: passwordResetToken.id,
+        userId: passwordResetToken.userId,
+        expiresAt: passwordResetToken.expiresAt,
+        consumedAt: passwordResetToken.consumedAt,
+      })
+      .from(passwordResetToken)
+      .where(eq(passwordResetToken.tokenHash, tokenHash))
+      .limit(1);
+
+    if (!matchedToken || matchedToken.consumedAt !== null) {
+      throw new UnauthorizedException(
+        ERROR_MESSAGES.AUTH.PASSWORD_RESET_TOKEN_INVALID,
+      );
+    }
+
+    if (matchedToken.expiresAt <= now) {
+      throw new UnauthorizedException(
+        ERROR_MESSAGES.AUTH.PASSWORD_RESET_TOKEN_EXPIRED,
+      );
+    }
+
+    const [matchedUser] = await this.database
+      .select({
+        id: user.id,
+        name: user.name,
+        mobile: user.mobile,
+        email: user.email,
+        institutionId: user.institutionId,
+      })
+      .from(user)
+      .where(eq(user.id, matchedToken.userId))
+      .limit(1);
+
+    if (!matchedUser) {
+      throw new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+    }
+
+    const passwordHash = await hash(nextPassword, 12);
+
+    await this.database.transaction(async (tx) => {
+      await tx
+        .update(user)
+        .set({
+          passwordHash,
+          mustChangePassword: false,
+          updatedAt: now,
+        })
+        .where(eq(user.id, matchedToken.userId));
+
+      await tx
+        .update(passwordResetToken)
+        .set({ consumedAt: now })
+        .where(eq(passwordResetToken.id, matchedToken.id));
+    });
+
+    const accessContext = await this.resolveSessionAccessContext(matchedUser.id);
+
+    return this.createSession(
+      {
+        id: matchedUser.id,
+        name: matchedUser.name,
+        mobile: matchedUser.mobile,
+        email: matchedUser.email,
+        institutionId: matchedUser.institutionId,
+      },
+      requestContext,
+      accessContext,
+    );
+  }
+
+  async changePassword(
+    userId: string,
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<void> {
+    const [matchedUser] = await this.database
+      .select({ id: user.id, passwordHash: user.passwordHash })
+      .from(user)
+      .where(eq(user.id, userId))
+      .limit(1);
+
+    if (!matchedUser) {
+      throw new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+    }
+
+    const isCurrentPasswordValid = await compare(
+      currentPassword,
+      matchedUser.passwordHash,
+    );
+
+    if (!isCurrentPasswordValid) {
+      throw new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+    }
+
+    const passwordHash = await hash(newPassword, 12);
+
+    await this.database
+      .update(user)
+      .set({ passwordHash, updatedAt: new Date() })
+      .where(eq(user.id, matchedUser.id));
+  }
+
+  async adminResetMemberPassword(
+    userId: string,
+    institutionId: string,
+  ): Promise<void> {
+    const [matchedUser] = await this.database
+      .select({
+        id: user.id,
+        mobile: user.mobile,
+        institutionId: user.institutionId,
+      })
+      .from(user)
+      .where(
+        and(eq(user.id, userId), eq(user.institutionId, institutionId)),
+      )
+      .limit(1);
+
+    if (!matchedUser) {
+      throw new UnauthorizedException(ERROR_MESSAGES.AUTH.INVALID_CREDENTIALS);
+    }
+
+    const passwordHash = await hash(matchedUser.mobile, 12);
+
+    await this.database
+      .update(user)
+      .set({
+        passwordHash,
+        mustChangePassword: true,
+        updatedAt: new Date(),
+      })
+      .where(eq(user.id, matchedUser.id));
+  }
+
   async resetPassword(token: string, nextPassword: string) {
     const now = new Date();
     const tokenHash = this.hashPasswordResetToken(token);
@@ -260,6 +449,7 @@ export class AuthService {
         .update(user)
         .set({
           passwordHash,
+          mustChangePassword: false,
           updatedAt: now,
         })
         .where(eq(user.id, matchedToken.userId));
@@ -322,6 +512,7 @@ export class AuthService {
         name: user.name,
         mobile: user.mobile,
         email: user.email,
+        institutionId: user.institutionId,
       })
       .from(session)
       .innerJoin(user, eq(session.userId, user.id))
@@ -343,6 +534,7 @@ export class AuthService {
         name: matchedSession.name,
         mobile: matchedSession.mobile,
         email: matchedSession.email,
+        institutionId: matchedSession.institutionId,
       },
     });
   }
@@ -712,19 +904,24 @@ export class AuthService {
     return authContext;
   }
 
-  writeSessionCookie(response: Response, token: string, expiresAt: Date) {
+  writeSessionCookie(
+    response: Response,
+    token: string,
+    expiresAt: Date,
+    hostname?: string,
+  ) {
     response.cookie(AUTH_COOKIE.NAME, token, {
       ...AUTH_COOKIE_OPTIONS,
-      domain: this.getAuthCookieDomain(),
+      domain: this.resolveAuthCookieDomain(hostname),
       expires: expiresAt,
       secure: this.isAuthCookieSecure(),
     });
   }
 
-  clearSessionCookie(response: Response) {
+  clearSessionCookie(response: Response, hostname?: string) {
     response.clearCookie(AUTH_COOKIE.NAME, {
       ...AUTH_COOKIE_OPTIONS,
-      domain: this.getAuthCookieDomain(),
+      domain: this.resolveAuthCookieDomain(hostname),
       secure: this.isAuthCookieSecure(),
     });
   }
@@ -1214,18 +1411,22 @@ export class AuthService {
     };
   }
 
-  async assertUserIdentityAvailable(mobile: string, email: string | null) {
+  async assertUserIdentityAvailable(
+    mobile: string,
+    email: string | null,
+    institutionId: string,
+  ) {
+    const identifierCondition = email
+      ? or(eq(user.mobile, mobile), eq(user.email, email))
+      : eq(user.mobile, mobile);
+
     const [existingUser] = await this.database
       .select({
         mobile: user.mobile,
         email: user.email,
       })
       .from(user)
-      .where(
-        email
-          ? or(eq(user.mobile, mobile), eq(user.email, email))
-          : eq(user.mobile, mobile),
-      )
+      .where(and(identifierCondition, eq(user.institutionId, institutionId)))
       .limit(1);
 
     if (existingUser?.mobile === mobile) {
@@ -1237,8 +1438,15 @@ export class AuthService {
     }
   }
 
-  private async findUserByIdentifier(identifier: string) {
+  private async findUserByIdentifier(
+    identifier: string,
+    institutionId: string | null,
+  ) {
     const normalizedIdentifier = this.normalizeIdentifier(identifier);
+    const identifierCondition = isEmailIdentifier(normalizedIdentifier)
+      ? eq(user.email, normalizeEmail(normalizedIdentifier))
+      : eq(user.mobile, normalizeMobile(normalizedIdentifier));
+
     const [matchedUser] = await this.database
       .select({
         id: user.id,
@@ -1246,12 +1454,14 @@ export class AuthService {
         mobile: user.mobile,
         email: user.email,
         passwordHash: user.passwordHash,
+        institutionId: user.institutionId,
+        mustChangePassword: user.mustChangePassword,
       })
       .from(user)
       .where(
-        isEmailIdentifier(normalizedIdentifier)
-          ? eq(user.email, normalizeEmail(normalizedIdentifier))
-          : eq(user.mobile, normalizeMobile(normalizedIdentifier)),
+        institutionId
+          ? and(identifierCondition, eq(user.institutionId, institutionId))
+          : identifierCondition,
       )
       .limit(1);
 
@@ -1311,8 +1521,11 @@ export class AuthService {
     };
   }
 
-  private getAuthCookieDomain() {
-    return this.configService.get<string>("auth.cookieDomain", ".erp.test");
+  private resolveAuthCookieDomain(hostname?: string) {
+    if (hostname) {
+      return hostname.split(":")[0].toLowerCase();
+    }
+    return this.configService.get<string>("auth.cookieDomain", "erp.test");
   }
 
   private isAuthCookieSecure() {

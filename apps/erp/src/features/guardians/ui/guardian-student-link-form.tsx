@@ -90,7 +90,7 @@ export function GuardianStudentLinkForm({
             name="studentId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Student</FieldLabel>
+                <FieldLabel required>Student</FieldLabel>
                 <FieldContent>
                   <Select
                     onValueChange={field.onChange}
@@ -129,7 +129,7 @@ export function GuardianStudentLinkForm({
             name="relationship"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Relationship</FieldLabel>
+                <FieldLabel required>Relationship</FieldLabel>
                 <FieldContent>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger aria-invalid={fieldState.invalid}>

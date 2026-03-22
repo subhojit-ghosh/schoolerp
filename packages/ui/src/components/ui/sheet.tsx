@@ -47,11 +47,16 @@ function SheetContent({
   children,
   side = "right",
   showCloseButton = true,
+  onExitComplete,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
   showCloseButton?: boolean;
+  onExitComplete?: () => void;
 }) {
+  const onExitCompleteRef = React.useRef(onExitComplete);
+  onExitCompleteRef.current = onExitComplete;
+
   return (
     <SheetPortal>
       <SheetOverlay />
@@ -69,6 +74,14 @@ function SheetContent({
             "inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
           className,
         )}
+        onAnimationEnd={(e) => {
+          if (
+            e.target === e.currentTarget &&
+            (e.currentTarget as HTMLElement).dataset.state === "closed"
+          ) {
+            onExitCompleteRef.current?.();
+          }
+        }}
         {...props}
       >
         {children}

@@ -141,6 +141,9 @@ export class UpdateBrandingResponseDto {
 
   @ApiProperty({ nullable: true, enum: ["compact", "default", "comfortable"] })
   uiDensity!: string | null;
+
+  @ApiProperty()
+  brandingVersion!: number;
 }
 
 export class ListInstitutionsResultDto {

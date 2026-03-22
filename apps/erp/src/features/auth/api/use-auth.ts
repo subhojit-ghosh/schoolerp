@@ -32,6 +32,10 @@ export function useSignInMutation() {
 
   return apiQueryClient.useMutation("post", AUTH_API_PATHS.SIGN_IN, {
     onSuccess: (session) => {
+      const maybeSetup = session as unknown as {
+        mustChangePassword?: boolean;
+      };
+      if (maybeSetup.mustChangePassword) return;
       setSession(session);
       queryClient.setQueryData(
         apiQueryClient.queryOptions("get", AUTH_API_PATHS.ME).queryKey,
@@ -76,6 +80,10 @@ export function useSignOutMutation() {
 
 export function useForgotPasswordMutation() {
   return apiQueryClient.useMutation("post", AUTH_API_PATHS.FORGOT_PASSWORD);
+}
+
+export function useChangePasswordMutation() {
+  return apiQueryClient.useMutation("post", AUTH_API_PATHS.CHANGE_PASSWORD);
 }
 
 export function useResetPasswordMutation() {

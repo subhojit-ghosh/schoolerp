@@ -369,6 +369,7 @@ describe("AuthService.assertUserIdentityAvailable", () => {
       await service.assertUserIdentityAvailable(
         "8888888888",
         "admin@example.com",
+        "institution-id",
       );
       throw new Error("Expected duplicate email conflict");
     } catch (error) {

@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { PERMISSIONS } from "@repo/contracts";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
@@ -40,7 +41,7 @@ import {
 import { buildSubjectEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
-  getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -75,10 +76,8 @@ const VALID_SUBJECT_SORT_FIELDS = [
 export function SubjectsPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
-  const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageSubjects = isStaffContext(session);
-  const canQuerySubjects = canManageSubjects && Boolean(institutionId);
+  const canQuerySubjects = isStaffContext(session) && hasPermission(session, PERMISSIONS.ACADEMICS_READ) && Boolean(institutionId);
   const setStatusMutation = useSetSubjectStatusMutation();
   const deleteMutation = useDeleteSubjectMutation();
   const [deleteTarget, setDeleteTarget] = useState<SubjectRow | null>(null);
@@ -330,14 +329,13 @@ export function SubjectsPage() {
     );
   }
 
-  if (!canManageSubjects) {
+  if (!canQuerySubjects) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>{SUBJECTS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Subject administration is available in Staff view. You are currently
-            in {activeContext?.label ?? "another"} view.
+            You don't have access to this section.
           </CardDescription>
         </CardHeader>
       </Card>

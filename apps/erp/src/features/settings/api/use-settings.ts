@@ -32,6 +32,7 @@ export type UpdateBrandingResponse = {
   fontMono: string | null;
   borderRadius: string | null;
   uiDensity: string | null;
+  brandingVersion: number;
 };
 
 export function useUpdateBrandingMutation(institutionId: string | undefined) {

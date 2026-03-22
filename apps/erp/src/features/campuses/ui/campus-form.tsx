@@ -81,7 +81,7 @@ export function CampusForm({
           name="name"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel htmlFor="campus-name">Campus name</FieldLabel>
+              <FieldLabel htmlFor="campus-name" required>Campus name</FieldLabel>
               <FieldContent>
                 <Input
                   {...field}

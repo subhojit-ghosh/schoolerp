@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { PERMISSIONS } from "@repo/contracts";
 import { Link } from "react-router";
 import { IconCurrencyRupee, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -21,7 +22,7 @@ import {
 } from "@/components/data-display/server-data-table";
 import { buildFeeAssignmentCollectRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
-import { isStaffContext } from "@/features/auth/model/auth-context";
+import { hasPermission, isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useFeeDuesQuery } from "@/features/fees/api/use-fees";
 import {
@@ -53,8 +54,7 @@ const VALID_SORT_FIELDS = [
 export function FeeDuesPage() {
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageFees = isStaffContext(session);
-  const canQueryFees = canManageFees && Boolean(institutionId);
+  const canQueryFees = isStaffContext(session) && hasPermission(session, PERMISSIONS.FEES_READ) && Boolean(institutionId);
 
   const {
     queryState,
@@ -206,13 +206,13 @@ export function FeeDuesPage() {
     );
   }
 
-  if (!canManageFees) {
+  if (!canQueryFees) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Fee Dues</CardTitle>
           <CardDescription>
-            Fee dues are available in Staff view.
+            You don't have access to this section.
           </CardDescription>
         </CardHeader>
       </Card>

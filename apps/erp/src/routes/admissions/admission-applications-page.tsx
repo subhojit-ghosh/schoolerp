@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { PERMISSIONS } from "@repo/contracts";
 import { Link, Outlet, useLocation } from "react-router";
 import {
   IconPencil,
@@ -37,7 +38,7 @@ import {
   ADMISSION_APPLICATIONS_PAGE_COPY,
 } from "@/features/admissions/model/admission-list.constants";
 import {
-  getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -75,10 +76,8 @@ function toTitleCase(value: string) {
 export function AdmissionApplicationsPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
-  const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageAdmissions = isStaffContext(session);
-  const managedInstitutionId = canManageAdmissions ? institutionId : undefined;
+  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.ADMISSIONS_READ) ? institutionId : undefined;
   const {
     queryState,
     searchInput,
@@ -269,14 +268,13 @@ export function AdmissionApplicationsPage() {
     );
   }
 
-  if (!canManageAdmissions) {
+  if (!managedInstitutionId) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>{ADMISSION_APPLICATIONS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Admission management is available in Staff view. You are currently
-            in {activeContext?.label ?? "another"} view.
+            You don't have access to this section.
           </CardDescription>
         </CardHeader>
       </Card>

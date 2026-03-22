@@ -79,29 +79,8 @@ export class OnboardingService {
     }
 
     const created = await this.db.transaction(async (tx) => {
-      // Find existing user by mobile, or create a new one
-      const [existingUser] = await tx
-        .select({ id: user.id })
-        .from(user)
-        .where(eq(user.mobile, normalizedMobile))
-        .limit(1);
-
-      let userId: string;
-      if (existingUser) {
-        userId = existingUser.id;
-      } else {
-        userId = randomUUID();
-        const passwordHash = await hash(payload.password, 12);
-        await tx.insert(user).values({
-          id: userId,
-          name: payload.adminName.trim(),
-          mobile: normalizedMobile,
-          email: normalizedEmail,
-          passwordHash,
-        });
-      }
-
       const organizationId = randomUUID();
+      const userId = randomUUID();
       const campusId = randomUUID();
       const membershipId = randomUUID();
       const membershipRoleId = randomUUID();
@@ -120,6 +99,17 @@ export class OnboardingService {
         accentColor: DEFAULT_PRESET.accentColor,
         sidebarColor: DEFAULT_PRESET.sidebarColor,
         status: STATUS.ORG.ACTIVE,
+      });
+
+      const passwordHash = await hash(payload.password, 12);
+      await tx.insert(user).values({
+        id: userId,
+        institutionId: organizationId,
+        name: payload.adminName.trim(),
+        mobile: normalizedMobile,
+        email: normalizedEmail,
+        passwordHash,
+        mustChangePassword: false,
       });
 
       await tx.insert(campus).values({
@@ -162,6 +152,7 @@ export class OnboardingService {
           name: payload.adminName.trim(),
           mobile: normalizedMobile,
           email: normalizedEmail,
+          institutionId: organizationId,
         },
         organizationId,
         campusId,

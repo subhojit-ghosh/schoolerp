@@ -100,7 +100,7 @@ export function FeeAssignmentForm({
             name="feeStructureId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Fee structure</FieldLabel>
+                <FieldLabel required>Fee structure</FieldLabel>
                 <FieldContent>
                   <Select
                     disabled={lockStructure}
@@ -160,7 +160,7 @@ export function FeeAssignmentForm({
             name="studentId"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Student</FieldLabel>
+                <FieldLabel required>Student</FieldLabel>
                 <FieldContent>
                   <Select
                     disabled={lockStudent}
@@ -196,7 +196,7 @@ export function FeeAssignmentForm({
             name="dueDate"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Due date</FieldLabel>
+                <FieldLabel required>Due date</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}

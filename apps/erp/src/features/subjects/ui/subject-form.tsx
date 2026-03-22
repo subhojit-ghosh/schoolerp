@@ -53,7 +53,7 @@ export function SubjectForm({
             name="name"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="subject-name">Subject name</FieldLabel>
+                <FieldLabel htmlFor="subject-name" required>Subject name</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}

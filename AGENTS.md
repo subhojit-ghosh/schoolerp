@@ -3,7 +3,7 @@
 A modular, multi-tenant ERP platform for Indian schools.
 
 The product target is school-first SaaS:
-- one institution tenant per subdomain
+- one institution tenant per subdomain or custom domain
 - support for multi-campus inside a tenant
 - one human can have multiple contexts, such as staff and parent
 - consistent product structure for every institution
@@ -41,29 +41,47 @@ These are not open questions anymore. Build to these defaults unless the user ex
 
 ### Tenant model
 - One institution = one tenant.
-- Tenant is resolved from the subdomain.
+- Tenant is resolved from the request hostname. Check custom domain first, then fall back to slug extraction from `*.erp.test`.
+- Schools can point their own domain at the platform (CNAME). Store `customDomain` on the institution record.
 - Do not build institution switching as a normal session feature.
 - If an institution has multiple campuses, allow campus switching inside that tenant.
 
 ### Identity and auth
 - Do **not** use Better Auth for new work.
 - Use NestJS Passport-based auth in `apps/api-erp`.
-- Primary login identifier is mobile number.
-- Secondary identifier is email.
-- Auth method for v1 is password-based login.
-- Do **not** build OTP-first or passwordless auth in v1.
+- Auth is password-based. Do not build OTP-first or passwordless auth until DLT registration is complete.
 - Use HTTP-only cookies for the web frontend. Do not store auth tokens in `localStorage`.
+- Cookie domain must be set to the **exact request hostname** — not a wildcard. A session from `school1.erp.test` must never be valid at `school2.erp.test`.
+
+#### Login per user type
+- **Guardian** — Mobile + Password. Mobile is the identifier. Every parent in India knows their mobile number.
+- **Staff / School Admin** — Mobile + Password. Email is an alternative identifier for tech-savvy staff.
+- **Student** — Deferred. Guardian portal covers all student-facing data. Do not build student auth until there is explicit demand.
+- **Platform Admin** — Email + Password + TOTP (2FA). Separate `platform_admins` table and Passport strategy. No overlap with school-facing auth.
+
+#### First login for admin-added users
+- When admin adds a guardian or staff member, backend creates a user with default password = their mobile number and `mustChangePassword = true`.
+- On first login, force a password change before issuing a full session.
+- Self-serve school signup sets `mustChangePassword = false` — admin goes directly to dashboard.
+- Admin can reset any member's password from the ERP, which sets `mustChangePassword = true` again.
+
+#### OTP — deferred, keep the door open
+- DLT template approval takes 2–3 weeks. Do not block on it now.
+- Keep a clean OTP service interface abstraction so it can be plugged in later without structural rewrites.
+- `mobileVerifiedAt` and `emailVerifiedAt` exist on `user` for when OTP verification is added.
 
 ### User model
-- Model one `user` per human identity.
-- Do **not** model staff, parent, or admin as separate login identities.
-- A user can be both staff and parent at the same time.
-- Parent access must support one guardian linked to multiple students.
+- User records are **per-tenant**. The `user` table has `institutionId`. Mobile is unique per institution, not globally.
+- Same person at two schools = two separate user records, two separate passwords. This is intentional.
+- Do **not** model staff, parent, or admin as separate login identities. Roles come from `member` records.
+- A user can be both staff and guardian at the same institution via separate `member` records.
+- Guardian access must support one guardian linked to multiple students.
 - Student access must support multiple guardians for the same student.
+- `member.userId` is nullable by design — students without login accounts have a `member` record but no `user` record. Do not make it not null.
 
 ### Scope
 - Focus on ERP first.
-- Do **not** build a dedicated platform admin app in v1.
+- Platform admin exists as a separate `platform_admins` table and auth path, but there is no platform admin UI app yet. Build it when needed.
 - Use self-serve school signup to create institutions for testing and onboarding.
 - Signup should create:
   - institution
@@ -192,6 +210,18 @@ Package `exports` use conditional exports: `types` points at `.ts` source (for I
 
 ### Forms
 **All forms must use `react-hook-form` + `zod`.** No exceptions.
+
+#### Required field indicators
+
+All required fields must show a red asterisk (`*`) next to their label. Use the `required` prop on `FieldLabel`:
+
+```tsx
+<FieldLabel required>Mobile Number</FieldLabel>
+```
+
+- Add `required` to every `FieldLabel` whose backing Zod schema field is not `.optional()`, `.nullish()`, or effectively optional via `.or(z.literal(""))`.
+- Do **not** add `required` to display-only labels (e.g. campus Badge readouts), boolean checkboxes, or fields that are part of an all-or-nothing optional group where the whole group can be left blank.
+- For fields that are conditionally required (only shown when another field is a certain value), add `required` since the field is always required when visible.
 
 #### Placeholder text rules
 - **Never use a realistic-looking value as a placeholder** (e.g. `placeholder="3500"` on a number field, `placeholder="9876543210"` on a phone field). It looks like pre-filled data and confuses users.
@@ -328,9 +358,9 @@ export function ExampleForm() {
 ### Auth
 - Use NestJS Passport for auth.
 - Primary web auth transport is HTTP-only cookie-based session/auth cookies.
-- Mobile number is the canonical login identifier for v1.
-- Email is secondary and may be optional depending on role.
-- Design the schema so `mobileVerifiedAt` and `emailVerifiedAt` can be added later without painful refactors.
+- Cookie domain must be the exact request hostname. Never use a wildcard domain.
+- Mobile number is the primary login identifier. Email is an alternative for staff.
+- On every authenticated request, verify `user.institutionId === resolvedTenant.id`. Reject if mismatched.
 
 ### API boundaries
 - Keep onboarding/provisioning isolated as its own backend module.
@@ -338,26 +368,33 @@ export function ExampleForm() {
 - Route namespaces and guards should make tenant scope explicit.
 
 ### Tenant resolution
-- Resolve the active institution from the request hostname/subdomain.
+- Resolve the active institution from the request hostname. Check `customDomain` first, then extract slug from `*.erp.test`.
 - The session identifies the user.
-- Authorization checks whether that user can access the resolved tenant.
+- After session deserialization, verify `user.institutionId` matches the resolved tenant. Reject if not.
 - Campus context can be stored in session or preference after tenant resolution.
 
 ## Domain Modeling Rules
 
 ### Identity
-- Use a single user identity table for authentication.
-- Roles and access should be modeled through memberships and relationships, not separate user tables per persona.
+- User records are institution-scoped. Mobile is unique per institution, not globally.
+- Roles and access are modeled through `member` records, not separate user tables per persona.
 
 ### Memberships
-- Staff/admin access should come from institution memberships and roles.
-- Parent access should come from guardian relationships to students.
-- The same user can have both membership-based and guardian-based access in the same institution.
+- Staff/admin access comes from institution memberships and roles.
+- Guardian access comes from guardian relationships to students.
+- The same user can have both staff and guardian `member` records within the same institution.
 
 ### Data modeling
-- Mobile number should be globally unique at the user identity level.
-- Keep institution ownership explicit in tenant-scoped entities.
+- Mobile number is unique per institution, not globally.
+- Keep institution ownership explicit in all tenant-scoped entities.
 - Do not rely on frontend state to define tenant or campus ownership.
+
+### Guardian and staff data entry
+- Admin-led entry only. Do not build invite flows.
+- On submit, backend looks up user by `(institutionId, mobile)`.
+- If found with same role: return a clear error before hitting the DB constraint.
+- If found with different role: create a new `member` record only. Do not overwrite name or email.
+- If not found: create user with default password = mobile number, `mustChangePassword = true`, then create `member` record.
 
 ## Framework Discoveries
 
@@ -394,7 +431,9 @@ export function ExampleForm() {
 - Homebrew `caddy` can fail if its service account cannot read the local PKI files for `local_certs`; if that happens, check the service user, PKI path permissions, or run Caddy manually while debugging.
 
 ### Cookie auth + local domains
-- Local HTTPS cookie auth is now tested successfully with cookie domain `.erp.test`.
+- Cookie domain must be the **exact request hostname**, not a wildcard. Set it dynamically from the incoming request.
+- Local dev: `demo.erp.test` → cookie domain `demo.erp.test`. Do not use `.erp.test`.
+- Custom domains: `portal.school.com` → cookie domain `portal.school.com`.
 - With same-host `/api` routing, auth/session persistence works across redirects and hard reloads on `https://<tenant>.erp.test`.
 - For local HTTPS, backend cookie defaults should stay `Secure=true`; if local auth breaks, verify the request is actually coming through Caddy over HTTPS and not directly over plain HTTP.
 

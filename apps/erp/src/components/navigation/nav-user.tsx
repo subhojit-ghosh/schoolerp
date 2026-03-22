@@ -1,6 +1,5 @@
-import { IconDotsVertical, IconLogout } from "@tabler/icons-react";
+import { IconDotsVertical, IconLogout, IconSettings } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
-import { Badge } from "@repo/ui/components/ui/badge";
 import {
   Avatar,
   AvatarFallback,
@@ -21,11 +20,8 @@ import {
   useSidebar,
 } from "@repo/ui/components/ui/sidebar";
 import { useSignOutMutation } from "@/features/auth/api/use-auth";
-import {
-  getActiveContext,
-  getActiveRoleDisplayLabel,
-} from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { ERP_ROUTES } from "@/constants/routes";
 
 function toInitials(name: string) {
   return name
@@ -52,17 +48,8 @@ export function NavUser() {
     return null;
   }
 
-  const secondaryLabel = user.email ?? user.mobile;
+  const secondaryLabel = user.mobile ?? user.email;
   const initials = toInitials(user.name);
-  const institutionName = session?.activeOrganization?.name ?? "Institution";
-  const campusName = session?.activeCampus?.name ?? "Campus";
-  const activeContext = getActiveContext(session);
-  const activeRoleLabel = getActiveRoleDisplayLabel(session);
-  const memberTypes = Array.from(
-    new Set(
-      session?.memberships.map((membership) => membership.memberType) ?? [],
-    ),
-  );
 
   return (
     <SidebarMenu>
@@ -81,7 +68,7 @@ export function NavUser() {
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs text-muted-foreground">
+                <span className="truncate text-xs text-sidebar-foreground/60">
                   {secondaryLabel}
                 </span>
               </div>
@@ -111,34 +98,10 @@ export function NavUser() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <div className="flex flex-col gap-2 px-2 py-2">
-              <div>
-                <p className="text-xs font-medium text-foreground">
-                  {institutionName}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {activeRoleLabel
-                    ? `${activeRoleLabel} view`
-                    : activeContext
-                      ? `${activeContext.label} view`
-                      : campusName}
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-1">
-                {activeRoleLabel ? (
-                  <Badge variant="secondary">{activeRoleLabel}</Badge>
-                ) : null}
-                {memberTypes.map((memberType) => (
-                  <Badge
-                    key={memberType}
-                    className="capitalize"
-                    variant="outline"
-                  >
-                    {memberType}
-                  </Badge>
-                ))}
-              </div>
-            </div>
+            <DropdownMenuItem onClick={() => void navigate(ERP_ROUTES.ACCOUNT)}>
+              <IconSettings />
+              Account
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               disabled={signOutMutation.isPending}

@@ -20,6 +20,9 @@ import { API_DOCS, API_ROUTES, AUTH_COOKIE } from "../../constants";
 import { CurrentSession } from "./current-session.decorator";
 import {
   AuthContextDto,
+  ChangePasswordBodyDto,
+  ChangePasswordResponseDto,
+  CompleteSetupBodyDto,
   ForgotPasswordBodyDto,
   ForgotPasswordResponseDto,
   ResetPasswordBodyDto,
@@ -35,13 +38,15 @@ import { SessionAuthGuard } from "./session-auth.guard";
 import { TenantContextService } from "../tenant-context/tenant-context.service";
 import { AuthService } from "./auth.service";
 import {
+  parseChangePassword,
+  parseCompleteSetup,
   parseForgotPassword,
   parseResetPassword,
   parseSignUp,
   parseSwitchCampus,
   parseSwitchContext,
 } from "./auth.schemas";
-import type { AuthenticatedSession, AuthenticatedUser } from "./auth.types";
+import type { AuthenticatedSession, AuthenticatedUser, ValidatedUser } from "./auth.types";
 import { readCookieValue } from "./auth.utils";
 
 @ApiTags(API_DOCS.TAGS.AUTH)
@@ -70,6 +75,7 @@ export class AuthController {
       response,
       authSession.token,
       authSession.expiresAt,
+      request.headers.host,
     );
 
     const authContext = this.authService.requireSession(
@@ -88,20 +94,28 @@ export class AuthController {
   @ApiOkResponse({ type: AuthContextDto })
   async signIn(
     @Body() body: SignInBodyDto,
-    @Req() request: Request & { user: AuthenticatedUser },
+    @Req() request: Request & { user: ValidatedUser },
     @Res({ passthrough: true }) response: Response,
   ) {
-    const authenticatedUser = request.user;
+    const validatedUser = request.user;
+
+    if (validatedUser.mustChangePassword) {
+      const setupToken = await this.authService.issueMustChangePasswordToken(
+        validatedUser.id,
+      );
+      return { mustChangePassword: true as const, setupToken };
+    }
+
     const tenantSlug = this.tenantContextService.resolveTenantSlug(
       request.headers.host,
       body.tenantSlug,
     );
     const accessContext = await this.authService.resolveSessionAccessContext(
-      authenticatedUser.id,
+      validatedUser.id,
       tenantSlug,
     );
     const authSession = await this.authService.createSession(
-      authenticatedUser,
+      validatedUser,
       this.getSessionRequestContext(request),
       accessContext,
     );
@@ -110,6 +124,37 @@ export class AuthController {
       response,
       authSession.token,
       authSession.expiresAt,
+      request.headers.host,
+    );
+
+    const authContext = this.authService.requireSession(
+      await this.authService.getAuthContext(authSession.token),
+    );
+
+    return this.authService.toContextDto(authContext);
+  }
+
+  @Post(AUTH_ROUTES.COMPLETE_SETUP)
+  @ApiOperation({ summary: "Complete first-login password setup and start a session" })
+  @ApiBody({ type: CompleteSetupBodyDto })
+  @ApiOkResponse({ type: AuthContextDto })
+  async completeSetup(
+    @Body() body: CompleteSetupBodyDto,
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const parsed = parseCompleteSetup(body);
+    const authSession = await this.authService.completeSetup(
+      parsed.token,
+      parsed.password,
+      this.getSessionRequestContext(request),
+    );
+
+    this.authService.writeSessionCookie(
+      response,
+      authSession.token,
+      authSession.expiresAt,
+      request.headers.host,
     );
 
     const authContext = this.authService.requireSession(
@@ -214,6 +259,25 @@ export class AuthController {
     return this.authService.toContextDto(nextContext);
   }
 
+  @UseGuards(SessionAuthGuard)
+  @Post(AUTH_ROUTES.CHANGE_PASSWORD)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: "Change password for the authenticated user" })
+  @ApiBody({ type: ChangePasswordBodyDto })
+  @ApiOkResponse({ type: ChangePasswordResponseDto })
+  async changePassword(
+    @CurrentSession() authSession: AuthenticatedSession,
+    @Body() body: ChangePasswordBodyDto,
+  ) {
+    const parsed = parseChangePassword(body);
+    await this.authService.changePassword(
+      authSession.user.id,
+      parsed.currentPassword,
+      parsed.newPassword,
+    );
+    return { success: true };
+  }
+
   @Post(AUTH_ROUTES.SIGN_OUT)
   @ApiOperation({ summary: "Delete the current session and clear the cookie" })
   @ApiOkResponse({
@@ -226,7 +290,7 @@ export class AuthController {
     await this.authService.signOut(
       readCookieValue(request.cookies, AUTH_COOKIE.NAME),
     );
-    this.authService.clearSessionCookie(response);
+    this.authService.clearSessionCookie(response, request.headers.host);
 
     return { success: true };
   }

@@ -70,7 +70,7 @@ export function ExamTermForm({
           name="academicYearId"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel>Academic year</FieldLabel>
+              <FieldLabel required>Academic year</FieldLabel>
               <FieldContent>
                 <Select
                   onValueChange={field.onChange}
@@ -106,7 +106,7 @@ export function ExamTermForm({
           name="name"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel>Term name</FieldLabel>
+              <FieldLabel required>Term name</FieldLabel>
               <FieldContent>
                 <Input
                   {...field}
@@ -125,7 +125,7 @@ export function ExamTermForm({
             name="startDate"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>Start date</FieldLabel>
+                <FieldLabel required>Start date</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -143,7 +143,7 @@ export function ExamTermForm({
             name="endDate"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel>End date</FieldLabel>
+                <FieldLabel required>End date</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}

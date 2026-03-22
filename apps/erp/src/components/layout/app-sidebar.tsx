@@ -1,5 +1,9 @@
 import * as React from "react";
-import { AUTH_CONTEXT_KEYS, type AuthContextKey } from "@repo/contracts";
+import {
+  AUTH_CONTEXT_KEYS,
+  type AuthContextKey,
+  type PermissionSlug,
+} from "@repo/contracts";
 import {
   IconAdjustments,
   IconBook2,
@@ -41,7 +45,8 @@ import {
   NAV_HOME,
   NAV_PEOPLE,
   NAV_ADMISSIONS,
-  NAV_ACADEMIC_MANAGEMENT,
+  NAV_TEACHING,
+  NAV_ACADEMIC_SETUP,
   NAV_RECORDS,
   NAV_FINANCE,
   NAV_COMMUNICATION,
@@ -97,7 +102,8 @@ const CONTEXT_SWITCHER_INACTIVE_ITEM_CLASS =
 const STAFF_NAV_GROUP_LABELS = {
   DIRECTORY: "Directory",
   ADMISSIONS: "Admissions",
-  ACADEMICS: "Academics",
+  TEACHING: "Teaching",
+  ACADEMIC_SETUP: "Academic Setup",
   RECORDS: "Records",
   FINANCE: "Finance",
   COMMUNICATION: "Communication",
@@ -339,29 +345,34 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     .toUpperCase();
 
   const logoProps = { logoUrl, institutionName, initial };
+  function filterByPermission<T extends { permission?: PermissionSlug }>(
+    items: T[],
+  ): T[] {
+    return items.filter(
+      (item) => !item.permission || hasPermission(session, item.permission),
+    );
+  }
+
   const homeItems = getActionableNavItems(NAV_HOME);
-  const peopleItems = getActionableNavItems(NAV_PEOPLE);
-  const admissionsItems = getActionableNavItems(NAV_ADMISSIONS);
-  const academicManagementItems = getActionableNavItems(
-    NAV_ACADEMIC_MANAGEMENT,
+  const peopleItems = filterByPermission(getActionableNavItems(NAV_PEOPLE));
+  const admissionsItems = filterByPermission(
+    getActionableNavItems(NAV_ADMISSIONS),
+  );
+  const teachingItems = filterByPermission(
+    getActionableNavItems(NAV_TEACHING),
+  );
+  const academicSetupItems = filterByPermission(
+    getActionableNavItems(NAV_ACADEMIC_SETUP),
   );
   const recordItems = getActionableNavItems(NAV_RECORDS);
-  const financeItems = getActionableNavItems(NAV_FINANCE);
-  const communicationItems = getActionableNavItems(NAV_COMMUNICATION).filter(
-    (item) => {
-      if (!item.permission) {
-        return true;
-      }
-
-      return hasPermission(session, item.permission);
-    },
+  const financeItems = filterByPermission(getActionableNavItems(NAV_FINANCE));
+  const communicationItems = filterByPermission(
+    getActionableNavItems(NAV_COMMUNICATION),
   );
   const servicesItems = getActionableNavItems(NAV_SERVICES);
   const hrItems = getActionableNavItems(NAV_HR);
-  const reportItems = getActionableNavItems(NAV_REPORTS);
-  const settingsItems = getActionableNavItems(NAV_SETTINGS).filter(
-    (item) => item.permission && hasPermission(session, item.permission),
-  );
+  const reportItems = filterByPermission(getActionableNavItems(NAV_REPORTS));
+  const settingsItems = filterByPermission(getActionableNavItems(NAV_SETTINGS));
   const familyHomeItems = [
     {
       icon: IconDashboard,
@@ -391,8 +402,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         { items: peopleItems, label: STAFF_NAV_GROUP_LABELS.DIRECTORY },
         { items: admissionsItems, label: STAFF_NAV_GROUP_LABELS.ADMISSIONS },
         {
-          items: academicManagementItems,
-          label: STAFF_NAV_GROUP_LABELS.ACADEMICS,
+          items: teachingItems,
+          label: STAFF_NAV_GROUP_LABELS.TEACHING,
+        },
+        {
+          items: academicSetupItems,
+          label: STAFF_NAV_GROUP_LABELS.ACADEMIC_SETUP,
         },
         { items: financeItems, label: STAFF_NAV_GROUP_LABELS.FINANCE },
         { items: servicesItems, label: STAFF_NAV_GROUP_LABELS.SERVICES },
@@ -423,7 +438,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [
     activeContext?.key,
     admissionsItems,
-    academicManagementItems,
+    teachingItems,
+    academicSetupItems,
     familyCommunicationItems,
     familyItems,
     familyServicesItems,
@@ -455,7 +471,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <p className="truncate text-sm font-semibold tracking-tight">
           {institutionName}
         </p>
-        <p className="truncate text-[11px] uppercase tracking-[0.18em] text-sidebar-foreground/55">
+        <p className="truncate text-[11px] tracking-wide text-sidebar-foreground/55">
           {activeRoleLabel ?? "Workspace"}
         </p>
       </div>
@@ -599,12 +615,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
-            {academicManagementItems.length > 0 ? (
+            {teachingItems.length > 0 ? (
               <NavMain
                 collapsible
-                icon={IconBook2}
-                items={academicManagementItems}
-                label={STAFF_NAV_GROUP_LABELS.ACADEMICS}
+                icon={IconCalendarStats}
+                items={teachingItems}
+                label={STAFF_NAV_GROUP_LABELS.TEACHING}
                 onOpenGroupChange={setOpenGroupLabel}
                 openGroupLabel={openGroupLabel}
               />
@@ -658,6 +674,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconFolder}
                 items={recordItems}
                 label={STAFF_NAV_GROUP_LABELS.RECORDS}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
+              />
+            ) : null}
+            {academicSetupItems.length > 0 ? (
+              <NavMain
+                collapsible
+                icon={IconBook2}
+                items={academicSetupItems}
+                label={STAFF_NAV_GROUP_LABELS.ACADEMIC_SETUP}
                 onOpenGroupChange={setOpenGroupLabel}
                 openGroupLabel={openGroupLabel}
               />

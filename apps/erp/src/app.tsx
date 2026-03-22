@@ -71,6 +71,7 @@ import { StudentPortalPage } from "@/features/student-portal/ui/student-portal-p
 import { AdmissionAcknowledgementPage } from "@/routes/documents/admission-acknowledgement-page";
 import { ExamReportCardPage } from "@/routes/documents/exam-report-card-page";
 import { FeeReceiptPage } from "@/routes/documents/fee-receipt-page";
+import { AccountPage } from "@/routes/account/account-page";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -147,6 +148,7 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
     children: [
       { path: ERP_ROUTES.DASHBOARD, element: <DashboardPage /> },
+      { path: ERP_ROUTES.ACCOUNT, element: <AccountPage /> },
       {
         path: ERP_ROUTES.FAMILY_CHILDREN,
         element: <FamilyPortalPage view="children" />,

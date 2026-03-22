@@ -231,7 +231,7 @@ export function DataExchangeEntityActions({
                 name="file"
                 render={({ fieldState }) => (
                   <Field>
-                    <FieldLabel>CSV File</FieldLabel>
+                    <FieldLabel required>CSV File</FieldLabel>
                     <Input
                       accept=".csv,text/csv"
                       className="h-10 rounded-lg"

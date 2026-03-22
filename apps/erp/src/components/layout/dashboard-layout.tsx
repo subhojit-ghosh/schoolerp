@@ -21,13 +21,15 @@ import {
   NAV_HOME,
   NAV_PEOPLE,
   NAV_ADMISSIONS,
-  NAV_ACADEMIC_MANAGEMENT,
+  NAV_TEACHING,
+  NAV_ACADEMIC_SETUP,
   NAV_RECORDS,
   NAV_FINANCE,
   NAV_COMMUNICATION,
   NAV_REPORTS,
   NAV_SETTINGS,
 } from "@/components/navigation/nav-items";
+import { PERMISSIONS } from "@repo/contracts";
 import {
   hasPermission,
   isStaffContext,
@@ -36,53 +38,73 @@ import { useAuthStore } from "@/features/auth/model/auth-store";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/ui/sidebar";
 import { ERP_ROUTES } from "@/constants/routes";
 
-const QUICK_ACTIONS = [
-  { icon: IconUsers, title: "New student", url: ERP_ROUTES.STUDENT_CREATE },
-  { icon: IconUsersGroup, title: "New staff", url: ERP_ROUTES.STAFF_CREATE },
+
+const ALL_QUICK_ACTIONS = [
+  {
+    icon: IconUsers,
+    title: "New student",
+    url: ERP_ROUTES.STUDENT_CREATE,
+    permission: PERMISSIONS.STUDENTS_MANAGE,
+  },
+  {
+    icon: IconUsersGroup,
+    title: "New staff",
+    url: ERP_ROUTES.STAFF_CREATE,
+    permission: PERMISSIONS.STAFF_MANAGE,
+  },
   {
     icon: IconUserSearch,
     title: "New enquiry",
     url: ERP_ROUTES.ADMISSIONS_ENQUIRY_CREATE,
+    permission: PERMISSIONS.ADMISSIONS_MANAGE,
   },
   {
     icon: IconFileDescription,
     title: "New application",
     url: ERP_ROUTES.ADMISSIONS_APPLICATION_CREATE,
+    permission: PERMISSIONS.ADMISSIONS_MANAGE,
   },
   {
     icon: IconBook2,
     title: "New academic year",
     url: ERP_ROUTES.ACADEMIC_YEAR_CREATE,
+    permission: PERMISSIONS.ACADEMICS_MANAGE,
   },
   {
     icon: IconBooks,
     title: "New class",
     url: ERP_ROUTES.CLASS_CREATE,
+    permission: PERMISSIONS.ACADEMICS_MANAGE,
   },
   {
     icon: IconCurrencyRupee,
     title: "New fee structure",
     url: ERP_ROUTES.FEE_STRUCTURE_CREATE,
+    permission: PERMISSIONS.FEES_MANAGE,
   },
   {
     icon: IconReportMoney,
     title: "New fee assignment",
     url: ERP_ROUTES.FEE_ASSIGNMENT_CREATE,
+    permission: PERMISSIONS.FEES_MANAGE,
   },
   {
     icon: IconSpeakerphone,
     title: "New announcement",
     url: ERP_ROUTES.ANNOUNCEMENT_CREATE,
+    permission: PERMISSIONS.COMMUNICATION_MANAGE,
   },
   {
     icon: IconCalendar,
     title: "New calendar event",
     url: ERP_ROUTES.CALENDAR_EVENT_CREATE,
+    permission: PERMISSIONS.ACADEMICS_MANAGE,
   },
   {
     icon: IconLayoutGrid,
     title: "New subject",
     url: ERP_ROUTES.SUBJECT_CREATE,
+    permission: PERMISSIONS.ACADEMICS_MANAGE,
   },
 ];
 
@@ -91,32 +113,69 @@ export function DashboardLayout() {
   const session = useAuthStore((store) => store.session);
   const showStaffNav = isStaffContext(session);
 
-  const communicationItems = getActionableNavItems(NAV_COMMUNICATION).filter(
-    (item) => !item.permission || hasPermission(session, item.permission),
-  );
-  const settingsItems = getActionableNavItems(NAV_SETTINGS).filter(
-    (item) => item.permission && hasPermission(session, item.permission),
-  );
+  function filterByPermission(items: ReturnType<typeof getActionableNavItems>) {
+    return items.filter(
+      (item) => !item.permission || hasPermission(session, item.permission),
+    );
+  }
 
   const staffNavGroups = showStaffNav
     ? [
-        { label: "Home", items: getActionableNavItems(NAV_HOME) },
-        { label: "Directory", items: getActionableNavItems(NAV_PEOPLE) },
-        { label: "Admissions", items: getActionableNavItems(NAV_ADMISSIONS) },
         {
-          label: "Academics",
-          items: getActionableNavItems(NAV_ACADEMIC_MANAGEMENT),
+          label: "Home",
+          items: filterByPermission(getActionableNavItems(NAV_HOME)),
         },
-        { label: "Finance", items: getActionableNavItems(NAV_FINANCE) },
-        { label: "Communication", items: communicationItems },
-        { label: "Reports", items: getActionableNavItems(NAV_REPORTS) },
-        { label: "Records", items: getActionableNavItems(NAV_RECORDS) },
-        { label: "Settings", items: settingsItems },
+        {
+          label: "Directory",
+          items: filterByPermission(getActionableNavItems(NAV_PEOPLE)),
+        },
+        {
+          label: "Admissions",
+          items: filterByPermission(getActionableNavItems(NAV_ADMISSIONS)),
+        },
+        {
+          label: "Teaching",
+          items: filterByPermission(
+            getActionableNavItems(NAV_TEACHING),
+          ),
+        },
+        {
+          label: "Academic Setup",
+          items: filterByPermission(
+            getActionableNavItems(NAV_ACADEMIC_SETUP),
+          ),
+        },
+        {
+          label: "Finance",
+          items: filterByPermission(getActionableNavItems(NAV_FINANCE)),
+        },
+        {
+          label: "Communication",
+          items: filterByPermission(getActionableNavItems(NAV_COMMUNICATION)),
+        },
+        {
+          label: "Reports",
+          items: filterByPermission(getActionableNavItems(NAV_REPORTS)),
+        },
+        {
+          label: "Records",
+          items: filterByPermission(getActionableNavItems(NAV_RECORDS)),
+        },
+        {
+          label: "Settings",
+          items: filterByPermission(getActionableNavItems(NAV_SETTINGS)),
+        },
       ].filter((g) => g.items.length > 0)
     : [];
 
+  const quickActions = ALL_QUICK_ACTIONS.filter((item) =>
+    hasPermission(session, item.permission),
+  );
+
   const commandGroups = [
-    { label: "Quick Actions", items: QUICK_ACTIONS },
+    ...(quickActions.length > 0
+      ? [{ label: "Quick Actions", items: quickActions }]
+      : []),
     ...staffNavGroups,
   ];
 

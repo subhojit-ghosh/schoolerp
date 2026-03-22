@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { DATA_EXCHANGE_ENTITY_TYPES } from "@repo/contracts";
+import { DATA_EXCHANGE_ENTITY_TYPES, PERMISSIONS } from "@repo/contracts";
 import { Link, useLocation } from "react-router";
 import { IconArrowRight, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -24,7 +24,7 @@ import {
 import { SORT_ORDERS } from "@/constants/query";
 import { buildGuardianDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {
-  getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -58,10 +58,9 @@ const VALID_SORT_FIELDS = [
 export function GuardiansPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
-  const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageGuardians = isStaffContext(session);
-  const managedInstitutionId = canManageGuardians ? institutionId : undefined;
+  const canManageGuardians = isStaffContext(session) && hasPermission(session, PERMISSIONS.GUARDIANS_MANAGE);
+  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.GUARDIANS_READ) ? institutionId : undefined;
   const {
     queryState,
     searchInput,
@@ -225,14 +224,13 @@ export function GuardiansPage() {
     );
   }
 
-  if (!canManageGuardians) {
+  if (!managedInstitutionId) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>{GUARDIANS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Guardian management is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            You don't have access to this section.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -260,9 +258,9 @@ export function GuardiansPage() {
             <EntityToolbarSecondaryAction asChild>
               <Link to={ERP_ROUTES.STUDENTS}>Go to students</Link>
             </EntityToolbarSecondaryAction>
-            <DataExchangeEntityActions
+            {canManageGuardians && <DataExchangeEntityActions
               entityType={DATA_EXCHANGE_ENTITY_TYPES.GUARDIANS}
-            />
+            />}
           </div>
         </div>
       }

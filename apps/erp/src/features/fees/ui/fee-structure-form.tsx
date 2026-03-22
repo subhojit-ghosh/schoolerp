@@ -281,7 +281,7 @@ export function FeeStructureForm({
                 name="name"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>Name</FieldLabel>
+                    <FieldLabel required>Name</FieldLabel>
                     <FieldContent>
                       <Input
                         {...field}
@@ -300,7 +300,7 @@ export function FeeStructureForm({
                 name="academicYearId"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>Academic year</FieldLabel>
+                    <FieldLabel required>Academic year</FieldLabel>
                     <FieldContent>
                       <Select
                         disabled={lockScope || isReadOnly}
@@ -334,7 +334,7 @@ export function FeeStructureForm({
                 name="scope"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel>Scope</FieldLabel>
+                    <FieldLabel required>Scope</FieldLabel>
                     <FieldContent>
                       <Select
                         disabled={lockScope || isReadOnly}

@@ -20,7 +20,7 @@ import {
   brandingSchema,
   createBrandingMutationBody,
   createThemeOnlyBrandingValues,
-  createUpdatedBranding,
+  createUpdatedBrandingFromResponse,
   getBrandingInitialValues,
   type BrandingFormValues,
 } from "@/features/settings/model/branding-form";
@@ -118,9 +118,9 @@ export function ThemeDrawer() {
     updateBranding.mutate(
       createBrandingMutationBody(mergedValues, cachedBranding, organization),
       {
-        onSuccess: () => {
-          const updated = createUpdatedBranding(
-            mergedValues,
+        onSuccess: (response) => {
+          const updated = createUpdatedBrandingFromResponse(
+            response,
             cachedBranding,
             organization,
           );

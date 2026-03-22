@@ -90,7 +90,7 @@ export function AcademicYearForm({
             name="startDate"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="academic-year-start-date">
+                <FieldLabel htmlFor="academic-year-start-date" required>
                   Start date
                 </FieldLabel>
                 <FieldContent>
@@ -111,7 +111,7 @@ export function AcademicYearForm({
             name="endDate"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="academic-year-end-date">
+                <FieldLabel htmlFor="academic-year-end-date" required>
                   End date
                 </FieldLabel>
                 <FieldContent>
@@ -133,7 +133,7 @@ export function AcademicYearForm({
           name="name"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel htmlFor="academic-year-name">Name</FieldLabel>
+              <FieldLabel htmlFor="academic-year-name" required>Name</FieldLabel>
               <FieldContent>
                 <Input
                   aria-invalid={fieldState.invalid}

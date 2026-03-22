@@ -53,6 +53,33 @@ export class ResetPasswordResponseDto {
   success!: boolean;
 }
 
+export class ChangePasswordBodyDto {
+  currentPassword!: string;
+  newPassword!: string;
+}
+
+export class ChangePasswordResponseDto {
+  success!: boolean;
+}
+
+export class MustChangePasswordResponseDto {
+  mustChangePassword!: true;
+  setupToken!: string;
+}
+
+export class CompleteSetupBodyDto {
+  token!: string;
+  password!: string;
+}
+
+export class SignInResponseDto {
+  @ApiPropertyOptional({ nullable: true })
+  mustChangePassword?: true;
+
+  @ApiPropertyOptional({ nullable: true })
+  setupToken?: string;
+}
+
 export class SwitchCampusBodyDto {
   campusId!: string;
 }

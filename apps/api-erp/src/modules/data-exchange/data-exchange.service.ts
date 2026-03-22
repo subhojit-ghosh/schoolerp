@@ -91,6 +91,7 @@ type StaffImportPayload = {
   name: string;
   mobile: string;
   email: string | undefined;
+  temporaryPassword: string;
   campusId: string;
   status: "active" | "inactive" | "suspended";
 };
@@ -549,10 +550,12 @@ export class DataExchangeService {
       );
     }
 
+    const mobile = this.required(row.mobile, "Staff mobile is required.");
     return {
       name: this.required(row.name, "Staff name is required."),
-      mobile: this.required(row.mobile, "Staff mobile is required."),
+      mobile,
       email: row.email || undefined,
+      temporaryPassword: mobile,
       campusId: campus.id,
       status,
     };

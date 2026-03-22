@@ -1,9 +1,7 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { EntitySheet } from "@/components/entities/entity-sheet";
 import { appendSearch } from "@/lib/routes";
-
-const SHEET_CLOSE_NAVIGATION_DELAY_MS = 300;
 
 type RouteEntitySheetProps = {
   children: ReactNode;
@@ -21,36 +19,29 @@ export function RouteEntitySheet({
   const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
-  const closeTimeoutRef = useRef<number | null>(null);
+  const pendingCloseRef = useRef(false);
 
-  useEffect(() => {
-    return () => {
-      if (closeTimeoutRef.current !== null) {
-        window.clearTimeout(closeTimeoutRef.current);
-      }
-    };
-  }, []);
+  const handleExitComplete = useCallback(() => {
+    if (!pendingCloseRef.current) {
+      return;
+    }
+    pendingCloseRef.current = false;
+    void navigate(appendSearch(closeTo, location.search));
+  }, [closeTo, location.search, navigate]);
 
   return (
     <EntitySheet
       open={open}
-      onOpenChange={(open) => {
-        if (open) {
+      onOpenChange={(nextOpen) => {
+        if (nextOpen) {
           setOpen(true);
           return;
         }
 
         setOpen(false);
-
-        if (closeTimeoutRef.current !== null) {
-          return;
-        }
-
-        closeTimeoutRef.current = window.setTimeout(() => {
-          closeTimeoutRef.current = null;
-          void navigate(appendSearch(closeTo, location.search));
-        }, SHEET_CLOSE_NAVIGATION_DELAY_MS);
+        pendingCloseRef.current = true;
       }}
+      onExitComplete={handleExitComplete}
       title={title}
       description={description}
     >

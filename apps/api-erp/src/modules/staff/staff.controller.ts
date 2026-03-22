@@ -237,6 +237,25 @@ export class StaffController {
     );
   }
 
+  @Post(":staffId/reset-password")
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Reset a staff member's password to their mobile number" })
+  @ApiNoContentResponse()
+  resetPassword(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("staffId") staffId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.staffService.resetMemberPassword(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+    );
+  }
+
   @Delete(`:staffId/${API_ROUTES.ROLES}/:assignmentId`)
   @RequirePermission(PERMISSIONS.INSTITUTION_USERS_MANAGE)
   @ApiOperation({

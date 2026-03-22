@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { DATA_EXCHANGE_ENTITY_TYPES } from "@repo/contracts";
+import { DATA_EXCHANGE_ENTITY_TYPES, PERMISSIONS } from "@repo/contracts";
 import { Link, useLocation, useSearchParams } from "react-router";
 import { IconArrowRight, IconPlus, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
@@ -26,7 +26,7 @@ import {
 import { SORT_ORDERS } from "@/constants/query";
 import { buildStudentDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {
-  getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -75,10 +75,9 @@ export function StudentsPage() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const authSession = useAuthStore((store) => store.session);
-  const activeContext = getActiveContext(authSession);
   const institutionId = authSession?.activeOrganization?.id;
-  const canManageStudents = isStaffContext(authSession);
-  const managedInstitutionId = canManageStudents ? institutionId : undefined;
+  const canManageStudents = isStaffContext(authSession) && hasPermission(authSession, PERMISSIONS.STUDENTS_MANAGE);
+  const managedInstitutionId = isStaffContext(authSession) && hasPermission(authSession, PERMISSIONS.STUDENTS_READ) ? institutionId : undefined;
   const {
     queryState,
     searchInput,
@@ -264,14 +263,13 @@ export function StudentsPage() {
     );
   }
 
-  if (!canManageStudents) {
+  if (!managedInstitutionId) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>{STUDENTS_PAGE_COPY.TITLE}</CardTitle>
           <CardDescription>
-            Student management is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            You don't have access to this section.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -284,9 +282,9 @@ export function StudentsPage() {
     <EntityListPage
       actions={
         <div className="flex items-center gap-3">
-          <DataExchangeEntityActions
+          {canManageStudents && <DataExchangeEntityActions
             entityType={DATA_EXCHANGE_ENTITY_TYPES.STUDENTS}
-          />
+          />}
           <EntityPagePrimaryAction asChild>
             <Link to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}>
               <IconPlus className="size-4" />

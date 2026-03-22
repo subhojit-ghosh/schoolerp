@@ -30,7 +30,7 @@ import {
   BRANDING_TABS,
   brandingSchema,
   createBrandingMutationBody,
-  createUpdatedBranding,
+  createUpdatedBrandingFromResponse,
   getBrandingInitialValues,
   type BrandingFormValues,
 } from "@/features/settings/model/branding-form";
@@ -146,9 +146,9 @@ export function BrandingPage() {
     updateBranding.mutate(
       createBrandingMutationBody(values, cachedBranding, organization),
       {
-        onSuccess: () => {
-          const updated = createUpdatedBranding(
-            values,
+        onSuccess: (response) => {
+          const updated = createUpdatedBrandingFromResponse(
+            response,
             cachedBranding,
             organization,
           );

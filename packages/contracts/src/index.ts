@@ -517,6 +517,7 @@ export const tenantBrandingSchema = z.object({
   fontMono: z.string().nullable(),
   borderRadius: z.enum(["sharp", "default", "rounded", "pill"]).nullable(),
   uiDensity: z.enum(["compact", "default", "comfortable"]).nullable(),
+  brandingVersion: z.number().int().default(0),
 });
 
 export type TenantBranding = z.infer<typeof tenantBrandingSchema>;

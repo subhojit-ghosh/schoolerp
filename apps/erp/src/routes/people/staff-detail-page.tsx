@@ -79,12 +79,7 @@ export function StaffDetailPage() {
     const staffRecord = staffQuery.data;
 
     if (!staffRecord) {
-      return {
-        name: "",
-        mobile: "",
-        email: "",
-        status: "active",
-      };
+      return { name: "", mobile: "", email: "", status: "active" as const };
     }
 
     return {

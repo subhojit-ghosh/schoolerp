@@ -21,11 +21,11 @@ import {
   useStaffRolesQuery,
 } from "@/features/staff/api/use-staff";
 import {
-  type StaffFormValues,
+  type StaffCreateFormValues,
   EMPTY_STAFF_ROLE_ASSIGNMENT_DRAFT,
   type StaffRoleAssignmentDraft,
 } from "@/features/staff/model/staff-form-schema";
-import { StaffForm } from "@/features/staff/ui/staff-form";
+import { StaffCreateForm } from "@/features/staff/ui/staff-create-form";
 import { StaffRoleAssignmentFields } from "@/features/staff/ui/staff-role-assignment-fields";
 import { buildStaffDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {
@@ -35,10 +35,11 @@ import {
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
-const DEFAULT_VALUES: StaffFormValues = {
+const DEFAULT_VALUES: StaffCreateFormValues = {
   name: "",
   mobile: "",
   email: "",
+  temporaryPassword: "",
   status: "active",
 };
 
@@ -60,19 +61,8 @@ export function StaffCreatePage() {
   const [roleAssignmentDraft, setRoleAssignmentDraft] =
     useState<StaffRoleAssignmentDraft>(EMPTY_STAFF_ROLE_ASSIGNMENT_DRAFT);
   const [roleAssignmentError, setRoleAssignmentError] = useState<string>();
-  const [createdResult, setCreatedResult] = useState<{
-    passwordSetup: {
-      channel: string;
-      recipient: string;
-      resetTokenPreview?: string | null;
-    } | null;
-    roleAssignmentError?: string;
-    roleAssignmentName?: string;
-    staffId: string;
-    staffName: string;
-  } | null>(null);
 
-  async function handleSubmit(values: StaffFormValues) {
+  async function handleSubmit(values: StaffCreateFormValues) {
     if (!institutionId) {
       return;
     }
@@ -83,15 +73,7 @@ export function StaffCreatePage() {
       body: values,
     });
 
-    let nextRoleAssignmentError: string | undefined;
-    let roleAssignmentName: string | undefined;
-
     if (roleAssignmentDraft.roleId) {
-      roleAssignmentName =
-        staffRolesQuery.data?.find(
-          (role) => role.id === roleAssignmentDraft.roleId,
-        )?.name ?? undefined;
-
       try {
         await createAssignmentMutation.mutateAsync({
           params: {
@@ -107,23 +89,21 @@ export function StaffCreatePage() {
           },
         });
       } catch (error) {
-        nextRoleAssignmentError =
+        setRoleAssignmentError(
           error instanceof Error
             ? error.message
-            : "The staff record was created, but the role assignment could not be saved.";
-        setRoleAssignmentError(nextRoleAssignmentError);
+            : "The staff record was created, but the role assignment could not be saved.",
+        );
       }
     }
 
     toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.STAFF_RECORD));
-    setCreatedResult({
-      passwordSetup: createResult.passwordSetup ?? null,
-      roleAssignmentError: nextRoleAssignmentError,
-      roleAssignmentName,
-      staffId: createResult.staff.id,
-      staffName: createResult.staff.name,
-    });
-    setRoleAssignmentDraft(EMPTY_STAFF_ROLE_ASSIGNMENT_DRAFT);
+    void navigate(
+      appendSearch(
+        buildStaffDetailRoute(createResult.staff.id),
+        location.search,
+      ),
+    );
   }
 
   if (!institutionId) {
@@ -153,103 +133,6 @@ export function StaffCreatePage() {
     );
   }
 
-  if (createdResult) {
-    return (
-      <EntityPageShell width="compact">
-        <EntityPageHeader
-          backAction={
-            <Button asChild className="-ml-3" size="sm" variant="ghost">
-              <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
-                <IconChevronLeft data-icon="inline-start" />
-                Back to staff
-              </Link>
-            </Button>
-          }
-          description={`${createdResult.staffName} has been added to this institution.`}
-          title="Staff created"
-        />
-
-        <Card className="w-full">
-          <CardHeader>
-            <CardTitle>Login setup</CardTitle>
-            <CardDescription>
-              New staff identities now start with password setup instead of an
-              admin-entered password.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {createdResult.passwordSetup ? (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  Password setup was started through{" "}
-                  <span className="font-medium text-foreground">
-                    {createdResult.passwordSetup.channel}
-                  </span>{" "}
-                  for{" "}
-                  <span className="font-medium text-foreground">
-                    {createdResult.passwordSetup.recipient}
-                  </span>
-                  .
-                </p>
-
-                <div className="rounded-lg border border-dashed bg-muted/30 p-4">
-                  <p className="text-sm text-muted-foreground">
-                    Complete password setup through the configured delivery
-                    provider. In local development, check the backend delivery
-                    logs instead of surfacing the token in the ERP.
-                  </p>
-                </div>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                This staff record was linked to an existing user identity, so no
-                new password setup was started.
-              </p>
-            )}
-
-            {createdResult.roleAssignmentName ? (
-              <p className="text-sm text-muted-foreground">
-                Initial role:{" "}
-                <span className="font-medium text-foreground">
-                  {createdResult.roleAssignmentName}
-                </span>
-              </p>
-            ) : null}
-
-            {createdResult.roleAssignmentError ? (
-              <p className="text-sm text-destructive">
-                Staff was created, but the initial role assignment failed:{" "}
-                {createdResult.roleAssignmentError}
-              </p>
-            ) : null}
-
-            <div className="flex flex-wrap gap-2">
-              <Button asChild>
-                <Link
-                  to={appendSearch(
-                    buildStaffDetailRoute(createdResult.staffId),
-                    location.search,
-                  )}
-                >
-                  Open staff record
-                </Link>
-              </Button>
-              <Button
-                onClick={() => {
-                  setCreatedResult(null);
-                }}
-                type="button"
-                variant="outline"
-              >
-                Create another staff
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </EntityPageShell>
-    );
-  }
-
   return (
     <EntityPageShell width="compact">
       <EntityPageHeader
@@ -263,13 +146,13 @@ export function StaffCreatePage() {
         }
         description={`Add a staff member for ${
           activeCampusName ?? "the selected campus"
-        }, optionally assign the first role, and start their password setup flow.`}
+        } and optionally assign an initial role.`}
         title="New staff"
       />
 
       <Card className="w-full">
         <CardContent className="pt-6">
-          <StaffForm
+          <StaffCreateForm
             campusName={activeCampusName}
             defaultValues={DEFAULT_VALUES}
             afterFields={

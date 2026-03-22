@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { PERMISSIONS } from "@repo/contracts";
 import { Link } from "react-router";
 import { toast } from "sonner";
 import {
@@ -28,7 +29,7 @@ import {
   SelectValue,
 } from "@repo/ui/components/ui/select";
 import {
-  getActiveContext,
+  hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -82,10 +83,8 @@ function buildExamReportCardHref(
 
 export function ExamsPage() {
   const session = useAuthStore((store) => store.session);
-  const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageExams = isStaffContext(session);
-  const managedInstitutionId = canManageExams ? institutionId : undefined;
+  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.EXAMS_READ) ? institutionId : undefined;
   const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
   const studentOptionsQuery = useStudentOptionsQuery(managedInstitutionId);
   const examTermsQuery = useExamTermsQuery(managedInstitutionId);
@@ -214,14 +213,13 @@ export function ExamsPage() {
     );
   }
 
-  if (!canManageExams) {
+  if (!managedInstitutionId) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Exams</CardTitle>
           <CardDescription>
-            Exams administration is available in Staff view. You are currently
-            in {activeContext?.label ?? "another"} view.
+            You don't have access to this section.
           </CardDescription>
         </CardHeader>
       </Card>

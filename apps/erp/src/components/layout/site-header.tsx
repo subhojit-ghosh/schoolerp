@@ -84,6 +84,10 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
     session,
     PERMISSIONS.COMMUNICATION_READ,
   );
+  const canManageTheme = hasPermission(
+    session,
+    PERMISSIONS.INSTITUTION_SETTINGS_MANAGE,
+  );
   const notificationsQuery = useNotificationsQuery(canReadNotifications, {
     limit: 3,
     unreadOnly: true,
@@ -333,7 +337,7 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
               <IconMaximize className="size-4" />
             )}
           </Button>
-          <ThemeDrawer />
+          {canManageTheme && <ThemeDrawer />}
         </div>
       </div>
     </header>

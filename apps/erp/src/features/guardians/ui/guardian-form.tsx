@@ -49,7 +49,7 @@ export function GuardianForm({
             name="name"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="guardian-name">Name</FieldLabel>
+                <FieldLabel htmlFor="guardian-name" required>Name</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -67,7 +67,7 @@ export function GuardianForm({
             name="mobile"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="guardian-mobile">Mobile</FieldLabel>
+                <FieldLabel htmlFor="guardian-mobile" required>Mobile</FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}

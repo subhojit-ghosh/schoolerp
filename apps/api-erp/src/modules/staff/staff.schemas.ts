@@ -8,8 +8,9 @@ import {
 
 const NAME_MIN_LENGTH = 1;
 const MOBILE_MIN_LENGTH = 10;
+const PASSWORD_MIN_LENGTH = 8;
 
-export const createStaffSchema = z.object({
+const staffBaseSchema = z.object({
   name: z.string().trim().min(NAME_MIN_LENGTH, "Staff name is required"),
   mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Staff mobile is required"),
   email: z
@@ -24,7 +25,13 @@ export const createStaffSchema = z.object({
   ]),
 });
 
-export const updateStaffSchema = createStaffSchema;
+export const createStaffSchema = staffBaseSchema.extend({
+  temporaryPassword: z
+    .string()
+    .min(PASSWORD_MIN_LENGTH, `Password must be at least ${PASSWORD_MIN_LENGTH} characters`),
+});
+
+export const updateStaffSchema = staffBaseSchema;
 
 export const setStaffStatusSchema = z.object({
   status: z.enum([STATUS.MEMBER.ACTIVE, STATUS.MEMBER.INACTIVE]),

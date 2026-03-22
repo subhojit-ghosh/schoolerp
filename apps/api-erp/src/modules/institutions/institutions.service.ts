@@ -15,6 +15,7 @@ import {
 } from "@repo/database";
 import { STATUS, SORT_ORDERS } from "../../constants";
 import { resolvePagination } from "../../lib/list-query";
+import { UploadsService } from "../uploads/uploads.service";
 import {
   resolveInstitutionPageSize,
   sortableInstitutionColumns,
@@ -37,7 +38,10 @@ const sortableColumns = {
 
 @Injectable()
 export class InstitutionsService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly uploadsService: UploadsService,
+  ) {}
 
   async listInstitutions(
     params: ListInstitutionsQuery = {},
@@ -116,6 +120,19 @@ export class InstitutionsService {
     id: string,
     data: UpdateBranding,
   ): Promise<UpdateBrandingResponseDto> {
+    const [existing] = await this.db
+      .select({
+        logoUrl: organization.logoUrl,
+        faviconUrl: organization.faviconUrl,
+      })
+      .from(organization)
+      .where(eq(organization.id, id))
+      .limit(1);
+
+    if (!existing) {
+      throw new NotFoundException("Institution not found");
+    }
+
     const [updated] = await this.db
       .update(organization)
       .set({
@@ -131,6 +148,7 @@ export class InstitutionsService {
         fontMono: data.fontMono ?? null,
         borderRadius: data.borderRadius ?? null,
         uiDensity: data.uiDensity ?? null,
+        brandingVersion: sql`${organization.brandingVersion} + 1`,
       })
       .where(eq(organization.id, id))
       .returning({
@@ -146,11 +164,18 @@ export class InstitutionsService {
         fontMono: organization.fontMono,
         borderRadius: organization.borderRadius,
         uiDensity: organization.uiDensity,
+        brandingVersion: organization.brandingVersion,
       });
 
     if (!updated) {
       throw new NotFoundException("Institution not found");
     }
+
+    await this.deleteReplacedBrandingAsset(existing.logoUrl, updated.logoUrl);
+    await this.deleteReplacedBrandingAsset(
+      existing.faviconUrl,
+      updated.faviconUrl,
+    );
 
     return updated;
   }
@@ -181,5 +206,16 @@ export class InstitutionsService {
       status: row.status,
       createdAt: row.createdAt.toISOString(),
     };
+  }
+
+  private async deleteReplacedBrandingAsset(
+    previousUrl: string | null,
+    nextUrl: string | null,
+  ) {
+    if (!previousUrl || previousUrl === nextUrl) {
+      return;
+    }
+
+    await this.uploadsService.deleteObjectByPublicUrl(previousUrl);
   }
 }

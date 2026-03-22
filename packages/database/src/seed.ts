@@ -60,6 +60,7 @@ const ALL_PERMISSIONS: PermissionSlug[] = [
 type SystemRoleDef = {
   slug: string;
   name: string;
+  roleType?: (typeof ROLE_TYPES)[keyof typeof ROLE_TYPES];
   permissions: PermissionSlug[];
 };
 
@@ -67,6 +68,7 @@ const SYSTEM_ROLES: SystemRoleDef[] = [
   {
     slug: ROLE_SLUGS.INSTITUTION_ADMIN,
     name: ROLE_NAMES.INSTITUTION_ADMIN,
+    roleType: ROLE_TYPES.PLATFORM,
     permissions: ALL_PERMISSIONS,
   },
   {
@@ -175,7 +177,7 @@ async function seed() {
           id: roleId,
           name: role.name,
           slug: role.slug,
-          roleType: ROLE_TYPES.SYSTEM,
+          roleType: role.roleType ?? ROLE_TYPES.SYSTEM,
           institutionId: null,
           isSystem: true,
           isConfigurable: false,
