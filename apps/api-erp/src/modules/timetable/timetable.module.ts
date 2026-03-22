@@ -7,5 +7,6 @@ import { TimetableService } from "./timetable.service";
   imports: [AuthModule],
   controllers: [TimetableController],
   providers: [TimetableService],
+  exports: [TimetableService],
 })
 export class TimetableModule {}

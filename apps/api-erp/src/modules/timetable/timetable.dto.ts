@@ -33,6 +33,12 @@ export class ReplaceTimetableEntryBodyDto {
   subjectId!: string;
 
   @ApiPropertyOptional({ nullable: true })
+  bellSchedulePeriodId?: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  staffId?: string;
+
+  @ApiPropertyOptional({ nullable: true })
   room?: string;
 }
 
@@ -45,6 +51,46 @@ export class ReplaceSectionTimetableBodyDto {
     isArray: true,
   })
   entries!: ReplaceTimetableEntryBodyDto[];
+}
+
+export class TimetableStaffOptionsQueryDto {
+  @ApiPropertyOptional()
+  classId?: string;
+
+  @ApiProperty()
+  subjectId!: string;
+}
+
+export class TeacherTimetableQueryDto {
+  @ApiProperty()
+  staffId!: string;
+}
+
+export class CopySectionTimetableBodyDto {
+  @ApiProperty()
+  classId!: string;
+
+  @ApiProperty()
+  sourceClassId!: string;
+
+  @ApiProperty()
+  sourceSectionId!: string;
+}
+
+export class StaffOptionDto {
+  @ApiProperty()
+  id!: string;
+
+  @ApiProperty()
+  name!: string;
+}
+
+export class TimetableStaffOptionsDto {
+  @ApiProperty({ type: () => StaffOptionDto, isArray: true })
+  preferred!: StaffOptionDto[];
+
+  @ApiProperty({ type: () => StaffOptionDto, isArray: true })
+  others!: StaffOptionDto[];
 }
 
 export class TimetableEntryDto {
@@ -77,7 +123,41 @@ export class TimetableEntryDto {
   subjectName!: string;
 
   @ApiPropertyOptional({ nullable: true })
+  bellSchedulePeriodId?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  staffId?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  staffName?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
   room?: string | null;
+}
+
+export class TeacherTimetableEntryDto extends TimetableEntryDto {
+  @ApiProperty()
+  classId!: string;
+
+  @ApiProperty()
+  className!: string;
+
+  @ApiProperty()
+  sectionId!: string;
+
+  @ApiProperty()
+  sectionName!: string;
+}
+
+export class TeacherTimetableViewDto {
+  @ApiProperty()
+  staffId!: string;
+
+  @ApiProperty()
+  staffName!: string;
+
+  @ApiProperty({ type: () => TeacherTimetableEntryDto, isArray: true })
+  entries!: TeacherTimetableEntryDto[];
 }
 
 export class TimetableViewDto {

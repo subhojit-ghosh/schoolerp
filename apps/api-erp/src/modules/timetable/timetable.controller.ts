@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Post,
   Put,
   Query,
   UseGuards,
@@ -31,12 +32,20 @@ import { CurrentInstitution } from "../tenant-context/current-institution.decora
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
+  CopySectionTimetableBodyDto,
   ReplaceSectionTimetableBodyDto,
+  TeacherTimetableQueryDto,
+  TeacherTimetableViewDto,
+  TimetableStaffOptionsDto,
+  TimetableStaffOptionsQueryDto,
   TimetableScopeQueryDto,
   TimetableViewDto,
 } from "./timetable.dto";
 import {
+  parseCopySectionTimetable,
   parseReplaceSectionTimetable,
+  parseTeacherTimetableQuery,
+  parseTimetableStaffOptionsQuery,
   parseTimetableScopeQuery,
 } from "./timetable.schemas";
 import { TimetableService } from "./timetable.service";
@@ -75,6 +84,45 @@ export class TimetableController {
     );
   }
 
+  @Get(API_ROUTES.OPTIONS)
+  @RequirePermission(PERMISSIONS.ACADEMICS_READ)
+  @ApiOperation({ summary: "List timetable staff options for the current tenant" })
+  @ApiQuery({ name: "subjectId", required: true, type: String })
+  @ApiQuery({ name: "classId", required: false, type: String })
+  @ApiOkResponse({ type: TimetableStaffOptionsDto })
+  listStaffOptions(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Query() query: TimetableStaffOptionsQueryDto,
+  ) {
+    return this.timetableService.listStaffOptions(
+      institution.id,
+      authSession,
+      scopes,
+      parseTimetableStaffOptionsQuery(query),
+    );
+  }
+
+  @Get(API_ROUTES.TEACHER)
+  @RequirePermission(PERMISSIONS.ACADEMICS_READ)
+  @ApiOperation({ summary: "Get teacher timetable for the current tenant" })
+  @ApiQuery({ name: "staffId", required: true, type: String })
+  @ApiOkResponse({ type: TeacherTimetableViewDto })
+  getTeacherTimetable(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Query() query: TeacherTimetableQueryDto,
+  ) {
+    return this.timetableService.getTeacherTimetable(
+      institution.id,
+      authSession,
+      scopes,
+      parseTeacherTimetableQuery(query),
+    );
+  }
+
   @Put(`sections/:sectionId`)
   @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
   @ApiOperation({
@@ -96,6 +144,29 @@ export class TimetableController {
       authSession,
       scopes,
       parseReplaceSectionTimetable(body),
+    );
+  }
+
+  @Post(`sections/:sectionId/${API_ROUTES.COPY_FROM}`)
+  @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
+  @ApiOperation({
+    summary: "Copy timetable into a section for the current tenant",
+  })
+  @ApiBody({ type: CopySectionTimetableBodyDto })
+  @ApiOkResponse({ type: TimetableViewDto })
+  copySectionTimetable(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("sectionId") sectionId: string,
+    @Body() body: CopySectionTimetableBodyDto,
+  ) {
+    return this.timetableService.copySectionTimetable(
+      institution.id,
+      sectionId,
+      authSession,
+      scopes,
+      parseCopySectionTimetable(body),
     );
   }
 

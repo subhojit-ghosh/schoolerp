@@ -41,7 +41,9 @@ import { CampusesPage } from "@/routes/settings/campuses-page";
 import { RolesPage } from "@/routes/settings/roles-page";
 import { ClassesPage } from "@/routes/academics/classes-page";
 import { SubjectsPage } from "@/routes/academics/subjects-page";
+import { BellSchedulesPage } from "@/routes/academics/bell-schedules-page";
 import { TimetablePage } from "@/routes/academics/timetable-page";
+import { TeacherTimetablePage } from "@/routes/academics/teacher-timetable-page";
 import { CalendarPage } from "@/routes/academics/calendar-page";
 import { StudentRolloverPage } from "@/routes/academics/student-rollover-page";
 import { GuardianDetailPage } from "@/routes/people/guardian-detail-page";
@@ -64,6 +66,7 @@ import { AttendanceReportsPage } from "@/routes/reports/attendance-report-page";
 import { AdmissionApplicationSheetRoute } from "@/features/admissions/ui/admission-application-sheet-route";
 import { AdmissionEnquirySheetRoute } from "@/features/admissions/ui/admission-enquiry-sheet-route";
 import { SubjectSheetRoute } from "@/features/subjects/ui/subject-sheet-route";
+import { BellScheduleSheetRoute } from "@/features/bell-schedules/ui/bell-schedule-sheet-route";
 import { CalendarEventSheetRoute } from "@/features/calendar/ui/calendar-event-sheet-route";
 import { AnnouncementSheetRoute } from "@/features/communications/ui/announcement-sheet-route";
 import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
@@ -295,7 +298,25 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: ERP_ROUTES.BELL_SCHEDULES,
+        element: <BellSchedulesPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <BellScheduleSheetRoute mode="create" />,
+          },
+          {
+            path: `:scheduleId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <BellScheduleSheetRoute mode="edit" />,
+          },
+        ],
+      },
       { path: ERP_ROUTES.TIMETABLE, element: <TimetablePage /> },
+      {
+        path: ERP_ROUTES.TIMETABLE_TEACHER,
+        element: <TeacherTimetablePage />,
+      },
       {
         path: ERP_ROUTES.CALENDAR,
         element: <CalendarPage />,

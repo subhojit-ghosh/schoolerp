@@ -8,6 +8,7 @@ type RouteEntitySheetProps = {
   closeTo: string;
   description?: string;
   title: string;
+  contentClassName?: string;
 };
 
 export function RouteEntitySheet({
@@ -15,6 +16,7 @@ export function RouteEntitySheet({
   closeTo,
   description,
   title,
+  contentClassName,
 }: RouteEntitySheetProps) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -44,6 +46,7 @@ export function RouteEntitySheet({
       onExitComplete={handleExitComplete}
       title={title}
       description={description}
+      contentClassName={contentClassName}
     >
       {children}
     </EntitySheet>

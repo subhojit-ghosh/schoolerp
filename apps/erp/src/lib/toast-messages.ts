@@ -3,6 +3,7 @@ export const ERP_TOAST_SUBJECTS = {
   ADMISSION_APPLICATION: "Admission application",
   ADMISSION_ENQUIRY: "Admission enquiry",
   ATTENDANCE: "Attendance",
+  BELL_SCHEDULE: "Bell schedule",
   CAMPUS: "Campus",
   CLASS: "Class",
   SUBJECT: "Subject",

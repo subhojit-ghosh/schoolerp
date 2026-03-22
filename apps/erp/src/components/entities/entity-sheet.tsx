@@ -6,6 +6,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@repo/ui/components/ui/sheet";
+import { cn } from "@repo/ui/lib/utils";
 
 type EntitySheetProps = {
   open: boolean;
@@ -14,6 +15,7 @@ type EntitySheetProps = {
   title: string;
   description?: string;
   children: ReactNode;
+  contentClassName?: string;
 };
 
 export function EntitySheet({
@@ -23,11 +25,15 @@ export function EntitySheet({
   title,
   description,
   children,
+  contentClassName,
 }: EntitySheetProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
-        className="flex w-full flex-col gap-0 overflow-y-auto sm:max-w-lg"
+        className={cn(
+          "flex w-full flex-col gap-0 overflow-y-auto sm:max-w-lg",
+          contentClassName,
+        )}
         onExitComplete={onExitComplete}
       >
         <SheetHeader className="border-b px-6 pb-4 pt-6">

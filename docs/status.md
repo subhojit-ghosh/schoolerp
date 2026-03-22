@@ -47,7 +47,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Attendance** — daily class-wise marking flow with class/section names, day overview, and class/student attendance reports
 - **Exams** — term management, marks entry, saved marks, and student report card view with grading scheme + dedicated printable report-card output
 - **Subjects** — list, create, edit, active/inactive toggle, and delete guardrails when timetable dependencies exist
-- **Timetable** — class/section weekly schedule editor with replace flow and per-entry deletion
+- **Timetable** — bell schedules, class/section grid editor, teacher assignment, backend conflict checks, section copy flow, teacher schedule view, and shared read models for family/student portals
 - **Calendar** — event list/create/edit, active/inactive toggle, and tenant-scoped calendar events
 - **Admissions** — enquiry and application pipelines with list/create/edit flows, status tracking, tenant-scoped APIs, and printable application acknowledgements
 - **Configurable admission fields** — tenant admins can define additional application/student fields, and the ERP renders and validates them without schema forks per school

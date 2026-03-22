@@ -254,6 +254,17 @@ export const TIMETABLE_ENTRY_STATUS = {
   DELETED: "deleted",
 } as const;
 
+export const BELL_SCHEDULE_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  DELETED: "deleted",
+} as const;
+
+export const BELL_SCHEDULE_PERIOD_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+} as const;
+
 export const WEEKDAY_KEYS = {
   MONDAY: "monday",
   TUESDAY: "tuesday",
@@ -400,6 +411,10 @@ export type SubjectStatus =
   (typeof SUBJECT_STATUS)[keyof typeof SUBJECT_STATUS];
 export type TimetableEntryStatus =
   (typeof TIMETABLE_ENTRY_STATUS)[keyof typeof TIMETABLE_ENTRY_STATUS];
+export type BellScheduleStatus =
+  (typeof BELL_SCHEDULE_STATUS)[keyof typeof BELL_SCHEDULE_STATUS];
+export type BellSchedulePeriodStatus =
+  (typeof BELL_SCHEDULE_PERIOD_STATUS)[keyof typeof BELL_SCHEDULE_PERIOD_STATUS];
 export type CalendarEventStatus =
   (typeof CALENDAR_EVENT_STATUS)[keyof typeof CALENDAR_EVENT_STATUS];
 

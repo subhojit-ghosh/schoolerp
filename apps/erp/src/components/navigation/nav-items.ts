@@ -1,6 +1,7 @@
 import {
   IconBook2,
   IconBooks,
+  IconClockHour4,
   IconBuildingEstate,
   IconCalendar,
   IconCalendarStats,
@@ -98,6 +99,12 @@ export const NAV_TEACHING: readonly NavItem[] = [
     url: ERP_ROUTES.TIMETABLE,
   },
   {
+    icon: IconUsersGroup,
+    permission: PERMISSIONS.ACADEMICS_READ,
+    title: "Teacher Schedule",
+    url: ERP_ROUTES.TIMETABLE_TEACHER,
+  },
+  {
     icon: IconCertificate,
     permission: PERMISSIONS.EXAMS_READ,
     title: "Exams",
@@ -130,6 +137,12 @@ export const NAV_ACADEMIC_SETUP: readonly NavItem[] = [
     permission: PERMISSIONS.ACADEMICS_READ,
     title: "Subjects",
     url: ERP_ROUTES.SUBJECTS,
+  },
+  {
+    icon: IconClockHour4,
+    permission: PERMISSIONS.ACADEMICS_READ,
+    title: "Bell Schedules",
+    url: ERP_ROUTES.BELL_SCHEDULES,
   },
   {
     icon: IconChevronsUp,

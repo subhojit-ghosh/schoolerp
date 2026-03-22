@@ -100,12 +100,34 @@ export const ERROR_MESSAGES = {
     SUBJECT_HAS_TIMETABLE_ENTRIES:
       "Cannot disable or delete a subject that is used in the timetable. Update the timetable first.",
   },
+  BELL_SCHEDULES: {
+    SCHEDULE_NOT_FOUND: "The selected bell schedule was not found.",
+    SCHEDULE_NAME_EXISTS:
+      "That bell schedule name is already in use for the selected campus.",
+    SCHEDULE_HAS_TIMETABLE_ENTRIES:
+      "Cannot delete a bell schedule that is already used in the timetable.",
+    PERIOD_INVALID_TIME_RANGE:
+      "Every bell schedule period must end after it starts.",
+    PERIOD_DUPLICATE_INDEX:
+      "Bell schedule periods must use unique contiguous period numbers.",
+    DEFAULT_SCHEDULE_REQUIRED:
+      "Each campus must keep one active default bell schedule.",
+  },
   TIMETABLE: {
     CLASS_SECTION_REQUIRED: "Class and section are required for timetable.",
     INVALID_TIME_RANGE: "End time must be after the start time.",
     DUPLICATE_PERIOD:
       "Each timetable period must be unique for the selected day.",
     ENTRY_NOT_FOUND: "The selected timetable entry was not found.",
+    STAFF_NOT_FOUND: "The selected staff member was not found.",
+    TEACHER_CONFLICT:
+      "The selected teacher is already assigned to another section for that slot.",
+    ROOM_CONFLICT:
+      "The selected room is already assigned to another section for that slot.",
+    COPY_SOURCE_EMPTY: "The source section does not have a timetable yet.",
+    COPY_SOURCE_NOT_FOUND: "The source class and section were not found.",
+    COPY_SAME_SECTION:
+      "Choose a different source section before copying the timetable.",
   },
   CALENDAR: {
     EVENT_NOT_FOUND: "The selected calendar event was not found.",

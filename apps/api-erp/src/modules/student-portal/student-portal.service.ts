@@ -29,6 +29,7 @@ import type {
 } from "../auth/auth.types";
 import { ExamsService } from "../exams/exams.service";
 import { StudentsService } from "../students/students.service";
+import { TimetableService } from "../timetable/timetable.service";
 import type { StudentPortalOverviewQueryDto } from "./student-portal.schemas";
 
 const STUDENT_PORTAL_ITEM_LIMIT = 8;
@@ -50,6 +51,7 @@ export class StudentPortalService {
     @Inject(DATABASE) private readonly db: AppDatabase,
     private readonly studentsService: StudentsService,
     private readonly examsService: ExamsService,
+    private readonly timetableService: TimetableService,
   ) {}
 
   async getOverview(
@@ -177,67 +179,12 @@ export class StudentPortalService {
     classId: string,
     sectionId: string,
   ) {
-    const [scope] = await this.db
-      .select({
-        campusId: campus.id,
-        campusName: campus.name,
-        classId: schoolClasses.id,
-        className: schoolClasses.name,
-        sectionId: classSections.id,
-        sectionName: classSections.name,
-      })
-      .from(classSections)
-      .innerJoin(schoolClasses, eq(classSections.classId, schoolClasses.id))
-      .innerJoin(campus, eq(schoolClasses.campusId, campus.id))
-      .where(
-        and(
-          eq(classSections.id, sectionId),
-          eq(schoolClasses.id, classId),
-          eq(schoolClasses.campusId, campusId),
-          eq(classSections.institutionId, institutionId),
-          eq(schoolClasses.institutionId, institutionId),
-          ne(schoolClasses.status, STATUS.CLASS.DELETED),
-          eq(classSections.status, STATUS.SECTION.ACTIVE),
-          ne(campus.status, STATUS.CAMPUS.DELETED),
-        ),
-      )
-      .limit(1);
-
-    if (!scope) {
-      return null;
-    }
-
-    const entries = await this.db
-      .select({
-        id: timetableEntries.id,
-        dayOfWeek: timetableEntries.dayOfWeek,
-        periodIndex: timetableEntries.periodIndex,
-        startTime: timetableEntries.startTime,
-        endTime: timetableEntries.endTime,
-        subjectId: timetableEntries.subjectId,
-        subjectName: subjects.name,
-        room: timetableEntries.room,
-      })
-      .from(timetableEntries)
-      .innerJoin(subjects, eq(timetableEntries.subjectId, subjects.id))
-      .where(
-        and(
-          eq(timetableEntries.institutionId, institutionId),
-          eq(timetableEntries.campusId, campusId),
-          eq(timetableEntries.classId, classId),
-          eq(timetableEntries.sectionId, sectionId),
-          ne(timetableEntries.status, STATUS.TIMETABLE.DELETED),
-        ),
-      )
-      .orderBy(
-        asc(timetableEntries.dayOfWeek),
-        asc(timetableEntries.periodIndex),
-      );
-
-    return {
-      ...scope,
-      entries,
-    };
+    return this.timetableService.getSectionTimetableSnapshot(
+      institutionId,
+      campusId,
+      classId,
+      sectionId,
+    );
   }
 
   private async listAnnouncements(institutionId: string, campusId: string) {

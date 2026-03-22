@@ -55,6 +55,7 @@ import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { campusScopeFilter } from "../auth/scope-filter";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import { AuthService } from "../auth/auth.service";
+import { TimetableService } from "../timetable/timetable.service";
 import type {
   CreateStaffResultDto,
   StaffDto,
@@ -109,6 +110,7 @@ export class StaffService {
   constructor(
     @Inject(DATABASE) private readonly db: AppDatabase,
     private readonly authService: AuthService,
+    private readonly timetableService: TimetableService,
   ) {}
 
   async listStaff(
@@ -461,6 +463,10 @@ export class StaffService {
     );
 
     await this.assertStaffRemovable(institutionId, staffMembership.id);
+    await this.timetableService.assertStaffMemberRemovable(
+      institutionId,
+      staffMembership.id,
+    );
 
     await this.db.transaction(async (tx) => {
       // Hard-delete role scopes and assignments (restrict FKs — must go first)

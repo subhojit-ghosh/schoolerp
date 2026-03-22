@@ -91,9 +91,21 @@ export const SUBJECTS_API_PATHS = {
   DELETE: "/subjects/{subjectId}",
 } as const;
 
+export const BELL_SCHEDULES_API_PATHS = {
+  LIST: "/bell-schedules",
+  CREATE: "/bell-schedules",
+  DETAIL: "/bell-schedules/{scheduleId}",
+  UPDATE: "/bell-schedules/{scheduleId}",
+  SET_STATUS: "/bell-schedules/{scheduleId}/status",
+  REPLACE_PERIODS: "/bell-schedules/{scheduleId}/periods",
+} as const;
+
 export const TIMETABLE_API_PATHS = {
   VIEW: "/timetable",
+  STAFF_OPTIONS: "/timetable/options",
+  TEACHER_VIEW: "/timetable/teacher",
   REPLACE_SECTION: "/timetable/sections/{sectionId}",
+  COPY_SECTION: "/timetable/sections/{sectionId}/copy-from",
   DELETE_ENTRY: "/timetable/{entryId}",
 } as const;
 

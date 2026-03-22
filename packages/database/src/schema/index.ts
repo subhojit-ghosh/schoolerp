@@ -19,6 +19,8 @@ import {
   AUDIT_ENTITY_TYPES,
   ANNOUNCEMENT_AUDIENCE,
   ANNOUNCEMENT_STATUS,
+  BELL_SCHEDULE_PERIOD_STATUS,
+  BELL_SCHEDULE_STATUS,
   CALENDAR_EVENT_STATUS,
   CALENDAR_EVENT_TYPES,
   NOTIFICATION_CHANNELS,
@@ -84,6 +86,15 @@ const TIMETABLE_ENTRY_STATUS_ENUM = [
   TIMETABLE_ENTRY_STATUS.ACTIVE,
   TIMETABLE_ENTRY_STATUS.INACTIVE,
   TIMETABLE_ENTRY_STATUS.DELETED,
+] as const;
+const BELL_SCHEDULE_STATUS_ENUM = [
+  BELL_SCHEDULE_STATUS.ACTIVE,
+  BELL_SCHEDULE_STATUS.INACTIVE,
+  BELL_SCHEDULE_STATUS.DELETED,
+] as const;
+const BELL_SCHEDULE_PERIOD_STATUS_ENUM = [
+  BELL_SCHEDULE_PERIOD_STATUS.ACTIVE,
+  BELL_SCHEDULE_PERIOD_STATUS.INACTIVE,
 ] as const;
 const CALENDAR_EVENT_TYPE_ENUM = [
   CALENDAR_EVENT_TYPES.HOLIDAY,
@@ -677,6 +688,74 @@ export const subjects = pgTable(
   ],
 );
 
+export const bellSchedules = pgTable(
+  "bell_schedules",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text()
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    name: text().notNull(),
+    isDefault: boolean().notNull().default(false),
+    status: text({ enum: BELL_SCHEDULE_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+    deletedAt: timestamp(),
+  },
+  (table) => [
+    index("bell_schedules_institution_idx").on(table.institutionId),
+    index("bell_schedules_campus_idx").on(table.campusId),
+    uniqueIndex("bell_schedules_default_per_campus_idx")
+      .on(table.campusId)
+      .where(
+        sql`${table.isDefault} IS TRUE AND ${table.status} != 'deleted'`,
+      ),
+    uniqueIndex("bell_schedules_name_per_campus_unique_idx")
+      .on(table.campusId, table.name)
+      .where(sql`${table.status} != 'deleted'`),
+  ],
+);
+
+export const bellSchedulePeriods = pgTable(
+  "bell_schedule_periods",
+  {
+    id: text().primaryKey(),
+    bellScheduleId: text()
+      .notNull()
+      .references(() => bellSchedules.id, { onDelete: "cascade" }),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    periodIndex: integer().notNull(),
+    label: text(),
+    startTime: text().notNull(),
+    endTime: text().notNull(),
+    isBreak: boolean().notNull().default(false),
+    status: text({ enum: BELL_SCHEDULE_PERIOD_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+  },
+  (table) => [
+    index("bell_schedule_periods_schedule_idx").on(table.bellScheduleId),
+    uniqueIndex("bell_schedule_periods_slot_unique_idx")
+      .on(table.bellScheduleId, table.periodIndex)
+      .where(sql`${table.status} = 'active'`),
+  ],
+);
+
 export const timetableEntries = pgTable(
   "timetable_entries",
   {
@@ -696,6 +775,10 @@ export const timetableEntries = pgTable(
     subjectId: text()
       .notNull()
       .references(() => subjects.id, { onDelete: "restrict" }),
+    bellSchedulePeriodId: text().references(() => bellSchedulePeriods.id, {
+      onDelete: "set null",
+    }),
+    staffId: text().references(() => member.id, { onDelete: "restrict" }),
     dayOfWeek: text({ enum: WEEKDAY_ENUM }).notNull(),
     periodIndex: integer().notNull(),
     startTime: text().notNull(),
@@ -719,6 +802,7 @@ export const timetableEntries = pgTable(
       table.sectionId,
     ),
     index("timetable_entries_subject_idx").on(table.subjectId),
+    index("timetable_entries_staff_idx").on(table.staffId),
     uniqueIndex("timetable_entries_section_slot_unique_idx")
       .on(table.sectionId, table.dayOfWeek, table.periodIndex)
       .where(sql`${table.status} != 'deleted'`),

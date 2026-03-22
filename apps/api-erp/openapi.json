@@ -1682,6 +1682,291 @@
         ]
       }
     },
+    "/bell-schedules": {
+      "get": {
+        "operationId": "BellSchedulesController_listBellSchedules",
+        "parameters": [
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "status",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListBellSchedulesResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List bell schedules for the current tenant campus",
+        "tags": [
+          "bell-schedules"
+        ]
+      },
+      "post": {
+        "operationId": "BellSchedulesController_createBellSchedule",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBellScheduleBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BellScheduleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a bell schedule for the current tenant",
+        "tags": [
+          "bell-schedules"
+        ]
+      }
+    },
+    "/bell-schedules/{scheduleId}": {
+      "get": {
+        "operationId": "BellSchedulesController_getBellSchedule",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BellScheduleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a bell schedule for the current tenant",
+        "tags": [
+          "bell-schedules"
+        ]
+      },
+      "put": {
+        "operationId": "BellSchedulesController_updateBellSchedule",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBellScheduleBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BellScheduleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a bell schedule for the current tenant",
+        "tags": [
+          "bell-schedules"
+        ]
+      }
+    },
+    "/bell-schedules/{scheduleId}/status": {
+      "patch": {
+        "operationId": "BellSchedulesController_setBellScheduleStatus",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetBellScheduleStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BellScheduleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Set bell schedule status for the current tenant",
+        "tags": [
+          "bell-schedules"
+        ]
+      }
+    },
+    "/bell-schedules/{scheduleId}/periods": {
+      "put": {
+        "operationId": "BellSchedulesController_replaceBellSchedulePeriods",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReplaceBellSchedulePeriodsBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BellScheduleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Replace the full period list for a bell schedule in the current tenant",
+        "tags": [
+          "bell-schedules"
+        ]
+      }
+    },
     "/timetable": {
       "get": {
         "operationId": "TimetableController_getTimetable",
@@ -1721,6 +2006,86 @@
           }
         ],
         "summary": "Get class-section timetable for the current tenant",
+        "tags": [
+          "timetable"
+        ]
+      }
+    },
+    "/timetable/options": {
+      "get": {
+        "operationId": "TimetableController_listStaffOptions",
+        "parameters": [
+          {
+            "name": "classId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subjectId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimetableStaffOptionsDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List timetable staff options for the current tenant",
+        "tags": [
+          "timetable"
+        ]
+      }
+    },
+    "/timetable/teacher": {
+      "get": {
+        "operationId": "TimetableController_getTeacherTimetable",
+        "parameters": [
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TeacherTimetableViewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get teacher timetable for the current tenant",
         "tags": [
           "timetable"
         ]
@@ -1767,6 +2132,52 @@
           }
         ],
         "summary": "Replace the full timetable for a class section in the current tenant",
+        "tags": [
+          "timetable"
+        ]
+      }
+    },
+    "/timetable/sections/{sectionId}/copy-from": {
+      "post": {
+        "operationId": "TimetableController_copySectionTimetable",
+        "parameters": [
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CopySectionTimetableBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimetableViewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Copy timetable into a section for the current tenant",
         "tags": [
           "timetable"
         ]
@@ -7776,6 +8187,268 @@
           "status"
         ]
       },
+      "BellScheduleListRowDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "deleted"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "periodCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "institutionId",
+          "campusId",
+          "campusName",
+          "name",
+          "isDefault",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "periodCount"
+        ]
+      },
+      "ListBellSchedulesResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BellScheduleListRowDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateBellScheduleBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "BellSchedulePeriodDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "periodIndex": {
+            "type": "number"
+          },
+          "label": {
+            "type": "string",
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "isBreak": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "periodIndex",
+          "startTime",
+          "endTime",
+          "isBreak",
+          "status"
+        ]
+      },
+      "BellScheduleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "deleted"
+            ]
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "periodCount": {
+            "type": "number"
+          },
+          "periods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BellSchedulePeriodDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "institutionId",
+          "campusId",
+          "campusName",
+          "name",
+          "isDefault",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "periodCount",
+          "periods"
+        ]
+      },
+      "UpdateBellScheduleBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SetBellScheduleStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "deleted"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "BellSchedulePeriodBodyDto": {
+        "type": "object",
+        "properties": {
+          "periodIndex": {
+            "type": "number",
+            "minimum": 1
+          },
+          "label": {
+            "type": "string",
+            "nullable": true
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "isBreak": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "periodIndex",
+          "startTime",
+          "endTime"
+        ]
+      },
+      "ReplaceBellSchedulePeriodsBodyDto": {
+        "type": "object",
+        "properties": {
+          "periods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BellSchedulePeriodBodyDto"
+            }
+          }
+        },
+        "required": [
+          "periods"
+        ]
+      },
       "TimetableEntryDto": {
         "type": "object",
         "properties": {
@@ -7808,6 +8481,18 @@
           },
           "subjectName": {
             "type": "string"
+          },
+          "bellSchedulePeriodId": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffId": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffName": {
+            "type": "string",
+            "nullable": true
           },
           "room": {
             "type": "string",
@@ -7862,6 +8547,140 @@
           "entries"
         ]
       },
+      "StaffOptionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "TimetableStaffOptionsDto": {
+        "type": "object",
+        "properties": {
+          "preferred": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffOptionDto"
+            }
+          },
+          "others": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffOptionDto"
+            }
+          }
+        },
+        "required": [
+          "preferred",
+          "others"
+        ]
+      },
+      "TeacherTimetableEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "dayOfWeek": {
+            "type": "string",
+            "enum": [
+              "monday",
+              "tuesday",
+              "wednesday",
+              "thursday",
+              "friday",
+              "saturday",
+              "sunday"
+            ]
+          },
+          "periodIndex": {
+            "type": "number"
+          },
+          "startTime": {
+            "type": "string"
+          },
+          "endTime": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "bellSchedulePeriodId": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffId": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffName": {
+            "type": "string",
+            "nullable": true
+          },
+          "room": {
+            "type": "string",
+            "nullable": true
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "dayOfWeek",
+          "periodIndex",
+          "startTime",
+          "endTime",
+          "subjectId",
+          "subjectName",
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName"
+        ]
+      },
+      "TeacherTimetableViewDto": {
+        "type": "object",
+        "properties": {
+          "staffId": {
+            "type": "string"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeacherTimetableEntryDto"
+            }
+          }
+        },
+        "required": [
+          "staffId",
+          "staffName",
+          "entries"
+        ]
+      },
       "ReplaceTimetableEntryBodyDto": {
         "type": "object",
         "properties": {
@@ -7889,6 +8708,14 @@
           },
           "subjectId": {
             "type": "string"
+          },
+          "bellSchedulePeriodId": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffId": {
+            "type": "string",
+            "nullable": true
           },
           "room": {
             "type": "string",
@@ -7919,6 +8746,25 @@
         "required": [
           "classId",
           "entries"
+        ]
+      },
+      "CopySectionTimetableBodyDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string"
+          },
+          "sourceClassId": {
+            "type": "string"
+          },
+          "sourceSectionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "classId",
+          "sourceClassId",
+          "sourceSectionId"
         ]
       },
       "CalendarEventDto": {

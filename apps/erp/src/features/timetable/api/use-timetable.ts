@@ -39,6 +39,60 @@ export function useReplaceTimetableMutation() {
   );
 }
 
+type TimetableStaffOptionsQuery = {
+  classId?: string;
+  subjectId: string;
+};
+
+export function useTimetableStaffOptionsQuery(
+  enabled: boolean,
+  query: TimetableStaffOptionsQuery,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    TIMETABLE_API_PATHS.STAFF_OPTIONS,
+    {
+      params: {
+        query,
+      },
+    },
+    {
+      enabled: enabled && Boolean(query.subjectId),
+      staleTime: 60_000,
+    },
+  );
+}
+
+export function useTeacherTimetableQuery(
+  enabled: boolean,
+  staffId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    TIMETABLE_API_PATHS.TEACHER_VIEW,
+    {
+      params: {
+        query: {
+          staffId: staffId ?? "",
+        },
+      },
+    },
+    {
+      enabled: enabled && Boolean(staffId),
+    },
+  );
+}
+
+export function useCopySectionTimetableMutation() {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("post", TIMETABLE_API_PATHS.COPY_SECTION, {
+    onSuccess: () => {
+      void queryClient.invalidateQueries();
+    },
+  });
+}
+
 export function useDeleteTimetableEntryMutation() {
   const queryClient = useQueryClient();
 

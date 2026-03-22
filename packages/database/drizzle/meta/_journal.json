@@ -197,6 +197,13 @@
       "when": 1774152607029,
       "tag": "0027_round_shard",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1774158899553,
+      "tag": "0028_petite_squirrel_girl",
+      "breakpoints": true
     }
   ]
 }

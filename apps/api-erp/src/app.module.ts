@@ -11,6 +11,7 @@ import { AttendanceModule } from "./modules/attendance/attendance.module";
 import { AdmissionsModule } from "./modules/admissions/admissions.module";
 import { AuditModule } from "./modules/audit/audit.module";
 import { AuthModule } from "./modules/auth/auth.module";
+import { BellSchedulesModule } from "./modules/bell-schedules/bell-schedules.module";
 import { CalendarModule } from "./modules/calendar/calendar.module";
 import { CampusesModule } from "./modules/campuses/campuses.module";
 import { ClassesModule } from "./modules/classes/classes.module";
@@ -50,6 +51,7 @@ import { UploadsModule } from "./modules/uploads/uploads.module";
     AdmissionsModule,
     ClassesModule,
     SubjectsModule,
+    BellSchedulesModule,
     TimetableModule,
     CalendarModule,
     CommunicationsModule,

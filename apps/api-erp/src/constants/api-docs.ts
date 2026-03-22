@@ -21,6 +21,7 @@ export const API_DOCS = {
     ACADEMIC_YEARS: "academic-years",
     CLASSES: "classes",
     SUBJECTS: "subjects",
+    BELL_SCHEDULES: "bell-schedules",
     TIMETABLE: "timetable",
     CALENDAR: "calendar",
     COMMUNICATIONS: "communications",

@@ -475,6 +475,76 @@ export interface paths {
         patch: operations["SubjectsController_setSubjectStatus"];
         trace?: never;
     };
+    "/bell-schedules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List bell schedules for the current tenant campus */
+        get: operations["BellSchedulesController_listBellSchedules"];
+        put?: never;
+        /** Create a bell schedule for the current tenant */
+        post: operations["BellSchedulesController_createBellSchedule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bell-schedules/{scheduleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a bell schedule for the current tenant */
+        get: operations["BellSchedulesController_getBellSchedule"];
+        /** Update a bell schedule for the current tenant */
+        put: operations["BellSchedulesController_updateBellSchedule"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bell-schedules/{scheduleId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Set bell schedule status for the current tenant */
+        patch: operations["BellSchedulesController_setBellScheduleStatus"];
+        trace?: never;
+    };
+    "/bell-schedules/{scheduleId}/periods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Replace the full period list for a bell schedule in the current tenant */
+        put: operations["BellSchedulesController_replaceBellSchedulePeriods"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/timetable": {
         parameters: {
             query?: never;
@@ -484,6 +554,40 @@ export interface paths {
         };
         /** Get class-section timetable for the current tenant */
         get: operations["TimetableController_getTimetable"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/timetable/options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List timetable staff options for the current tenant */
+        get: operations["TimetableController_listStaffOptions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/timetable/teacher": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get teacher timetable for the current tenant */
+        get: operations["TimetableController_getTeacherTimetable"];
         put?: never;
         post?: never;
         delete?: never;
@@ -503,6 +607,23 @@ export interface paths {
         /** Replace the full timetable for a class section in the current tenant */
         put: operations["TimetableController_replaceSectionTimetable"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/timetable/sections/{sectionId}/copy-from": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Copy timetable into a section for the current tenant */
+        post: operations["TimetableController_copySectionTimetable"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2134,6 +2255,72 @@ export interface components {
             /** @enum {string} */
             status: "active" | "inactive";
         };
+        BellScheduleListRowDto: {
+            id: string;
+            institutionId: string;
+            campusId: string;
+            campusName: string;
+            name: string;
+            isDefault: boolean;
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
+            createdAt: string;
+            updatedAt: string;
+            periodCount: number;
+        };
+        ListBellSchedulesResultDto: {
+            rows: components["schemas"]["BellScheduleListRowDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateBellScheduleBodyDto: {
+            name: string;
+            isDefault?: boolean;
+        };
+        BellSchedulePeriodDto: {
+            id: string;
+            periodIndex: number;
+            label?: string | null;
+            startTime: string;
+            endTime: string;
+            isBreak: boolean;
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        BellScheduleDto: {
+            id: string;
+            institutionId: string;
+            campusId: string;
+            campusName: string;
+            name: string;
+            isDefault: boolean;
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
+            createdAt: string;
+            updatedAt: string;
+            periodCount: number;
+            periods: components["schemas"]["BellSchedulePeriodDto"][];
+        };
+        UpdateBellScheduleBodyDto: {
+            name?: string;
+            isDefault?: boolean;
+        };
+        SetBellScheduleStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
+        };
+        BellSchedulePeriodBodyDto: {
+            periodIndex: number;
+            label?: string | null;
+            startTime: string;
+            endTime: string;
+            isBreak?: boolean;
+        };
+        ReplaceBellSchedulePeriodsBodyDto: {
+            periods: components["schemas"]["BellSchedulePeriodBodyDto"][];
+        };
         TimetableEntryDto: {
             id: string;
             /** @enum {string} */
@@ -2143,6 +2330,9 @@ export interface components {
             endTime: string;
             subjectId: string;
             subjectName: string;
+            bellSchedulePeriodId?: string | null;
+            staffId?: string | null;
+            staffName?: string | null;
             room?: string | null;
         };
         TimetableViewDto: {
@@ -2154,6 +2344,37 @@ export interface components {
             sectionName: string;
             entries: components["schemas"]["TimetableEntryDto"][];
         };
+        StaffOptionDto: {
+            id: string;
+            name: string;
+        };
+        TimetableStaffOptionsDto: {
+            preferred: components["schemas"]["StaffOptionDto"][];
+            others: components["schemas"]["StaffOptionDto"][];
+        };
+        TeacherTimetableEntryDto: {
+            id: string;
+            /** @enum {string} */
+            dayOfWeek: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+            periodIndex: number;
+            startTime: string;
+            endTime: string;
+            subjectId: string;
+            subjectName: string;
+            bellSchedulePeriodId?: string | null;
+            staffId?: string | null;
+            staffName?: string | null;
+            room?: string | null;
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+        };
+        TeacherTimetableViewDto: {
+            staffId: string;
+            staffName: string;
+            entries: components["schemas"]["TeacherTimetableEntryDto"][];
+        };
         ReplaceTimetableEntryBodyDto: {
             /** @enum {string} */
             dayOfWeek: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
@@ -2161,11 +2382,18 @@ export interface components {
             startTime: string;
             endTime: string;
             subjectId: string;
+            bellSchedulePeriodId?: string | null;
+            staffId?: string | null;
             room?: string | null;
         };
         ReplaceSectionTimetableBodyDto: {
             classId: string;
             entries: components["schemas"]["ReplaceTimetableEntryBodyDto"][];
+        };
+        CopySectionTimetableBodyDto: {
+            classId: string;
+            sourceClassId: string;
+            sourceSectionId: string;
         };
         CalendarEventDto: {
             id: string;
@@ -4228,6 +4456,150 @@ export interface operations {
             };
         };
     };
+    BellSchedulesController_listBellSchedules: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                q?: string;
+                sort?: "name" | "status" | "createdAt";
+                order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListBellSchedulesResultDto"];
+                };
+            };
+        };
+    };
+    BellSchedulesController_createBellSchedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBellScheduleBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BellScheduleDto"];
+                };
+            };
+        };
+    };
+    BellSchedulesController_getBellSchedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scheduleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BellScheduleDto"];
+                };
+            };
+        };
+    };
+    BellSchedulesController_updateBellSchedule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scheduleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBellScheduleBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BellScheduleDto"];
+                };
+            };
+        };
+    };
+    BellSchedulesController_setBellScheduleStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scheduleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetBellScheduleStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BellScheduleDto"];
+                };
+            };
+        };
+    };
+    BellSchedulesController_replaceBellSchedulePeriods: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scheduleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplaceBellSchedulePeriodsBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BellScheduleDto"];
+                };
+            };
+        };
+    };
     TimetableController_getTimetable: {
         parameters: {
             query: {
@@ -4250,6 +4622,49 @@ export interface operations {
             };
         };
     };
+    TimetableController_listStaffOptions: {
+        parameters: {
+            query: {
+                classId?: string;
+                subjectId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableStaffOptionsDto"];
+                };
+            };
+        };
+    };
+    TimetableController_getTeacherTimetable: {
+        parameters: {
+            query: {
+                staffId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeacherTimetableViewDto"];
+                };
+            };
+        };
+    };
     TimetableController_replaceSectionTimetable: {
         parameters: {
             query?: never;
@@ -4262,6 +4677,31 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["ReplaceSectionTimetableBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableViewDto"];
+                };
+            };
+        };
+    };
+    TimetableController_copySectionTimetable: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sectionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CopySectionTimetableBodyDto"];
             };
         };
         responses: {

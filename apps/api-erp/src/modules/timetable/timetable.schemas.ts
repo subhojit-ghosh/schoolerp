@@ -23,6 +23,8 @@ const timetableEntryBodySchema = z
     startTime: z.string().regex(TIME_24H_REGEX, "Invalid time format"),
     endTime: z.string().regex(TIME_24H_REGEX, "Invalid time format"),
     subjectId: z.uuid(),
+    bellSchedulePeriodId: z.uuid().optional(),
+    staffId: z.uuid().optional(),
     room: z.string().trim().min(1).max(100).optional(),
   })
   .refine((value) => value.endTime > value.startTime, {
@@ -58,9 +60,33 @@ export const timetableEntryIdSchema = z.object({
   entryId: z.uuid(),
 });
 
+export const timetableStaffOptionsQuerySchema = z.object({
+  classId: z.uuid().optional(),
+  subjectId: z.uuid(),
+});
+
+export const teacherTimetableQuerySchema = z.object({
+  staffId: z.uuid(),
+});
+
+export const copySectionTimetableSchema = z.object({
+  classId: z.uuid(),
+  sourceClassId: z.uuid(),
+  sourceSectionId: z.uuid(),
+});
+
 export type TimetableScopeQueryDto = z.infer<typeof timetableScopeQuerySchema>;
 export type ReplaceSectionTimetableDto = z.infer<
   typeof replaceSectionTimetableSchema
+>;
+export type TimetableStaffOptionsQueryDto = z.infer<
+  typeof timetableStaffOptionsQuerySchema
+>;
+export type TeacherTimetableQueryDto = z.infer<
+  typeof teacherTimetableQuerySchema
+>;
+export type CopySectionTimetableDto = z.infer<
+  typeof copySectionTimetableSchema
 >;
 
 function parseSchema<T>(schema: z.ZodType<T>, input: unknown): T {
@@ -77,4 +103,22 @@ export function parseReplaceSectionTimetable(
   body: unknown,
 ): ReplaceSectionTimetableDto {
   return parseSchema(replaceSectionTimetableSchema, body);
+}
+
+export function parseTimetableStaffOptionsQuery(
+  query: unknown,
+): TimetableStaffOptionsQueryDto {
+  return parseSchema(timetableStaffOptionsQuerySchema, query);
+}
+
+export function parseTeacherTimetableQuery(
+  query: unknown,
+): TeacherTimetableQueryDto {
+  return parseSchema(teacherTimetableQuerySchema, query);
+}
+
+export function parseCopySectionTimetable(
+  body: unknown,
+): CopySectionTimetableDto {
+  return parseSchema(copySectionTimetableSchema, body);
 }

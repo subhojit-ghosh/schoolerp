@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Link } from "react-router";
 import { toast } from "sonner";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconCopy } from "@tabler/icons-react";
 import { Button } from "@repo/ui/components/ui/button";
 import {
   Card,
@@ -12,12 +11,18 @@ import {
   CardTitle,
 } from "@repo/ui/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@repo/ui/components/ui/dialog";
+import {
   Field,
   FieldContent,
-  FieldError,
   FieldLabel,
 } from "@repo/ui/components/ui/field";
-import { Input } from "@repo/ui/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -25,46 +30,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/ui/toggle-group";
 import {
   EntityFormPrimaryAction,
-  EntityRowAction,
+  EntityFormSecondaryAction,
   EntityToolbarSecondaryAction,
 } from "@/components/entities/entity-actions";
 import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { ERP_ROUTES } from "@/constants/routes";
 import {
   getActiveContext,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import {
+  BELL_SCHEDULE_LIST_SORT_FIELDS,
+  useBellScheduleQuery,
+  useBellSchedulesQuery,
+} from "@/features/bell-schedules/api/use-bell-schedules";
 import { useClassesQuery } from "@/features/classes/api/use-classes";
 import { useSubjectsQuery } from "@/features/subjects/api/use-subjects";
 import {
-  useDeleteTimetableEntryMutation,
+  useCopySectionTimetableMutation,
   useReplaceTimetableMutation,
   useTimetableQuery,
 } from "@/features/timetable/api/use-timetable";
+import { TimetableGrid } from "@/features/timetable/components/timetable-grid";
 import {
-  timetableEditorFormSchema,
-  type TimetableEditorFormValues,
+  DEFAULT_SCHOOL_DAY_VALUES,
+  type TimetableCellValue,
+  type TimetableWeekday,
   WEEKDAY_OPTIONS,
 } from "@/features/timetable/model/timetable-editor-schema";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
-
-const DEFAULT_TIMETABLE_VALUES: TimetableEditorFormValues = {
-  entries: [],
-};
-
-const EMPTY_TIMETABLE_ENTRY: TimetableEditorFormValues["entries"][number] = {
-  dayOfWeek: WEEKDAY_OPTIONS[0].value,
-  periodIndex: 1,
-  startTime: "09:00",
-  endTime: "09:45",
-  subjectId: "",
-  room: "",
-};
 
 type ClassWithSections = {
   id: string;
@@ -78,11 +79,32 @@ type SubjectOption = {
   status: "active" | "inactive" | "deleted";
 };
 
-function buildEmptyTimetableEntry(defaultSubjectId = "") {
-  return {
-    ...EMPTY_TIMETABLE_ENTRY,
-    subjectId: defaultSubjectId,
-  };
+type BellScheduleSummary = {
+  id: string;
+  isDefault: boolean;
+  status: "active" | "inactive" | "deleted";
+};
+
+function buildConflictKeys(entries: Record<string, TimetableCellValue>) {
+  const groupedBySlot = new Map<string, string[]>();
+
+  for (const [key, entry] of Object.entries(entries)) {
+    if (!entry.staffId) {
+      continue;
+    }
+
+    const [dayOfWeek, periodIndex] = key.split(":");
+    const staffSlotKey = `${entry.staffId}:${dayOfWeek}:${periodIndex}`;
+    const keys = groupedBySlot.get(staffSlotKey) ?? [];
+    keys.push(key);
+    groupedBySlot.set(staffSlotKey, keys);
+  }
+
+  return new Set(
+    Array.from(groupedBySlot.values())
+      .filter((keys) => keys.length > 1)
+      .flat(),
+  );
 }
 
 export function TimetablePage() {
@@ -99,10 +121,16 @@ export function TimetablePage() {
     order: "asc",
   });
   const subjectsQuery = useSubjectsQuery(canQuery, {
-    limit: 50,
+    limit: 100,
     page: 1,
     sort: "name",
     order: "asc",
+  });
+  const bellSchedulesQuery = useBellSchedulesQuery(canQuery, {
+    limit: 50,
+    order: "asc",
+    page: 1,
+    sort: BELL_SCHEDULE_LIST_SORT_FIELDS.NAME,
   });
 
   const classes = useMemo(
@@ -110,21 +138,32 @@ export function TimetablePage() {
     [classesQuery.data?.rows],
   );
   const subjects = useMemo(
-    () => (subjectsQuery.data?.rows ?? []) as SubjectOption[],
+    () =>
+      ((subjectsQuery.data?.rows ?? []) as SubjectOption[]).filter(
+        (subject) => subject.status === "active",
+      ),
     [subjectsQuery.data?.rows],
   );
-  const activeSubjects = useMemo(
-    () => subjects.filter((subject) => subject.status === "active"),
-    [subjects],
+  const defaultBellSchedule = useMemo(
+    () =>
+      ((bellSchedulesQuery.data?.rows ?? []) as BellScheduleSummary[]).find(
+        (schedule) => schedule.isDefault && schedule.status === "active",
+      ),
+    [bellSchedulesQuery.data?.rows],
   );
-  const defaultSubjectId =
-    activeSubjects.length === 1 ? activeSubjects[0]!.id : "";
 
-  const [classId, setClassId] = useState<string>("");
-  const [sectionId, setSectionId] = useState<string>("");
+  const [classId, setClassId] = useState("");
+  const [sectionId, setSectionId] = useState("");
+  const [visibleDays, setVisibleDays] = useState<string[]>(
+    [...DEFAULT_SCHOOL_DAY_VALUES],
+  );
+  const [entries, setEntries] = useState<Record<string, TimetableCellValue>>({});
+  const [copyDialogOpen, setCopyDialogOpen] = useState(false);
+  const [copySourceClassId, setCopySourceClassId] = useState("");
+  const [copySourceSectionId, setCopySourceSectionId] = useState("");
 
   useEffect(() => {
-    if (classId) {
+    if (classId || classes.length === 0) {
       return;
     }
 
@@ -137,7 +176,7 @@ export function TimetablePage() {
 
   const selectedClass = useMemo(
     () => classes.find((schoolClass) => schoolClass.id === classId),
-    [classes, classId],
+    [classId, classes],
   );
 
   useEffect(() => {
@@ -145,93 +184,129 @@ export function TimetablePage() {
       return;
     }
 
-    const hasSection = selectedClass.sections.some(
-      (section) => section.id === sectionId,
-    );
-
-    if (!hasSection) {
+    if (!selectedClass.sections.some((section) => section.id === sectionId)) {
       setSectionId(selectedClass.sections[0]?.id ?? "");
     }
   }, [sectionId, selectedClass]);
 
+  const bellScheduleDetailQuery = useBellScheduleQuery(
+    canQuery && Boolean(defaultBellSchedule?.id),
+    defaultBellSchedule?.id,
+  );
   const timetableQuery = useTimetableQuery(
     canQuery && Boolean(classId && sectionId),
-    {
-      classId,
-      sectionId,
-    },
+    { classId, sectionId },
   );
-
   const replaceMutation = useReplaceTimetableMutation();
-  const deleteMutation = useDeleteTimetableEntryMutation();
-
-  const { control, handleSubmit, reset, formState } =
-    useForm<TimetableEditorFormValues>({
-      resolver: zodResolver(timetableEditorFormSchema),
-      defaultValues: DEFAULT_TIMETABLE_VALUES,
-    });
-
-  const entryFieldArray = useFieldArray({
-    control,
-    name: "entries",
-    keyName: "fieldKey",
-  });
+  const copyMutation = useCopySectionTimetableMutation();
 
   useEffect(() => {
     if (!timetableQuery.data) {
-      reset(DEFAULT_TIMETABLE_VALUES);
+      setEntries({});
       return;
     }
 
-    reset({
-      entries: timetableQuery.data.entries.map((entry) => ({
-        dayOfWeek: entry.dayOfWeek,
-        periodIndex: entry.periodIndex,
-        startTime: entry.startTime,
-        endTime: entry.endTime,
-        subjectId: entry.subjectId,
-        room: entry.room ?? "",
-      })),
-    });
-  }, [reset, timetableQuery.data]);
+    const nextEntries = Object.fromEntries(
+      timetableQuery.data.entries.map((entry) => [
+        `${entry.dayOfWeek}:${entry.periodIndex}`,
+        {
+          bellSchedulePeriodId: entry.bellSchedulePeriodId ?? null,
+          id: entry.id,
+          room: entry.room ?? "",
+          staffId: entry.staffId ?? null,
+          staffName: entry.staffName ?? null,
+          subjectId: entry.subjectId,
+          subjectName: entry.subjectName,
+        } satisfies TimetableCellValue,
+      ]),
+    );
 
-  async function handleDeleteEntry(entryId: string) {
-    await deleteMutation.mutateAsync({
-      params: {
-        path: {
-          entryId,
+    setEntries(nextEntries);
+  }, [timetableQuery.data]);
+
+  const selectedCopyClass = useMemo(
+    () => classes.find((schoolClass) => schoolClass.id === copySourceClassId),
+    [classes, copySourceClassId],
+  );
+
+  const conflictKeys = useMemo(() => buildConflictKeys(entries), [entries]);
+  const isBellSchedulePending =
+    bellSchedulesQuery.isLoading ||
+    (Boolean(defaultBellSchedule?.id) && bellScheduleDetailQuery.isLoading);
+  const isPageLoading =
+    classesQuery.isLoading || subjectsQuery.isLoading || isBellSchedulePending;
+
+  async function handleSave() {
+    if (!classId || !sectionId || !bellScheduleDetailQuery.data) {
+      return;
+    }
+
+    const periodById = new Map(
+      bellScheduleDetailQuery.data.periods.map((period) => [period.id, period]),
+    );
+    const periodByIndex = new Map(
+      bellScheduleDetailQuery.data.periods.map((period) => [period.periodIndex, period]),
+    );
+
+    try {
+      await replaceMutation.mutateAsync({
+        params: { path: { sectionId } },
+        body: {
+          classId,
+          entries: Object.entries(entries).flatMap(([key, entry]) => {
+            const [dayOfWeek, periodIndexValue] = key.split(":");
+            const periodIndex = Number(periodIndexValue);
+            const period =
+              (entry.bellSchedulePeriodId
+                ? periodById.get(entry.bellSchedulePeriodId)
+                : undefined) ?? periodByIndex.get(periodIndex);
+
+            if (!period || period.isBreak) {
+              return [];
+            }
+
+            return [
+              {
+                bellSchedulePeriodId: period.id,
+                dayOfWeek: dayOfWeek as TimetableWeekday,
+                endTime: period.endTime,
+                periodIndex,
+                room: entry.room || undefined,
+                staffId: entry.staffId || undefined,
+                startTime: period.startTime,
+                subjectId: entry.subjectId,
+              },
+            ];
+          }),
         },
-      },
-    });
+      });
 
-    toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.TIMETABLE));
+      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.TIMETABLE));
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
   }
 
-  async function handleSave(values: TimetableEditorFormValues) {
-    if (!classId || !sectionId) {
+  async function handleCopy() {
+    if (!classId || !sectionId || !copySourceClassId || !copySourceSectionId) {
       return;
     }
 
-    await replaceMutation.mutateAsync({
-      params: {
-        path: {
-          sectionId,
+    try {
+      await copyMutation.mutateAsync({
+        params: { path: { sectionId } },
+        body: {
+          classId,
+          sourceClassId: copySourceClassId,
+          sourceSectionId: copySourceSectionId,
         },
-      },
-      body: {
-        classId,
-        entries: values.entries.map((entry) => ({
-          dayOfWeek: entry.dayOfWeek,
-          periodIndex: entry.periodIndex,
-          startTime: entry.startTime,
-          endTime: entry.endTime,
-          subjectId: entry.subjectId,
-          room: entry.room || undefined,
-        })),
-      },
-    });
+      });
 
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.TIMETABLE));
+      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.TIMETABLE));
+      setCopyDialogOpen(false);
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
   }
 
   if (!institutionId) {
@@ -240,8 +315,7 @@ export function TimetablePage() {
         <CardHeader>
           <CardTitle>Timetable</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage timetable
-            records.
+            Sign in with an institution-backed session to manage timetable records.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -254,8 +328,8 @@ export function TimetablePage() {
         <CardHeader>
           <CardTitle>Timetable</CardTitle>
           <CardDescription>
-            Timetable administration is available in Staff view. You are
-            currently in {activeContext?.label ?? "another"} view.
+            Timetable administration is available in Staff view. You are currently in{" "}
+            {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -265,16 +339,14 @@ export function TimetablePage() {
   return (
     <EntityPageShell width="full">
       <EntityPageHeader
-        description="Build weekly class schedules by section."
+        description="Build weekly class schedules by section with a bell-schedule-backed grid."
         title="Timetable"
       />
 
       <Card>
         <CardHeader>
           <CardTitle>Section scope</CardTitle>
-          <CardDescription>
-            Choose class and section before editing timetable entries.
-          </CardDescription>
+          <CardDescription>Choose class and section before editing the grid.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
           <Field>
@@ -305,7 +377,11 @@ export function TimetablePage() {
               <Select
                 onValueChange={setSectionId}
                 value={sectionId}
-                disabled={!selectedClass || selectedClass.sections.length === 0}
+                disabled={
+                  classesQuery.isLoading ||
+                  !selectedClass ||
+                  selectedClass.sections.length === 0
+                }
               >
                 <SelectTrigger id="timetable-section">
                   <SelectValue placeholder="Select section" />
@@ -323,267 +399,187 @@ export function TimetablePage() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Weekly schedule</CardTitle>
-          <CardDescription>
-            Add periods for the selected section and save the full schedule.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(handleSave)} className="space-y-4">
-            <div className="flex justify-end">
+      {isPageLoading ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Loading timetable</CardTitle>
+            <CardDescription>
+              Fetching classes, subjects, and the active bell schedule for this campus.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      ) : !defaultBellSchedule || !bellScheduleDetailQuery.data ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>Set up a bell schedule first</CardTitle>
+            <CardDescription>
+              Timetable editing now uses the active default bell schedule for the current campus.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild>
+              <Link to={ERP_ROUTES.BELL_SCHEDULES}>Go to bell schedules</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader className="gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <CardTitle>Weekly schedule</CardTitle>
+              <CardDescription>
+                Assign subjects, teachers, and rooms into the weekly grid.
+              </CardDescription>
+            </div>
+            <div className="flex flex-wrap gap-3">
               <EntityToolbarSecondaryAction
                 type="button"
-                onClick={() =>
-                  entryFieldArray.append(
-                    buildEmptyTimetableEntry(defaultSubjectId),
-                  )
-                }
+                onClick={() => setEntries({})}
               >
-                <IconPlus data-icon="inline-start" />
-                Add period
+                Clear all
               </EntityToolbarSecondaryAction>
-            </div>
-
-            <div className="rounded-lg border divide-y">
-              {entryFieldArray.fields.length === 0 ? (
-                <div className="flex flex-col items-center gap-3 px-4 py-10 text-center">
-                  <p className="text-sm text-muted-foreground">
-                    No timetable entries yet.
-                  </p>
-                  <p className="max-w-md text-sm text-muted-foreground">
-                    Add the first period to start building the weekly schedule
-                    for this section.
-                  </p>
-                  <EntityToolbarSecondaryAction
-                    onClick={() =>
-                      entryFieldArray.append(
-                        buildEmptyTimetableEntry(defaultSubjectId),
-                      )
-                    }
-                    type="button"
-                  >
-                    <IconPlus data-icon="inline-start" />
-                    Add first period
-                  </EntityToolbarSecondaryAction>
-                </div>
-              ) : (
-                <>
-                  <div className="hidden px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground lg:grid lg:grid-cols-[160px_110px_130px_130px_1fr_140px_auto]">
-                    <span>Day</span>
-                    <span>Period</span>
-                    <span>Start</span>
-                    <span>End</span>
-                    <span>Subject</span>
-                    <span>Room</span>
-                    <span className="text-right">Action</span>
-                  </div>
-                  {entryFieldArray.fields.map((entry, index) => (
-                    <div
-                      key={entry.fieldKey}
-                      className="grid gap-3 px-3 py-3 lg:grid-cols-[160px_110px_130px_130px_1fr_140px_auto]"
-                    >
-                      <Controller
-                        control={control}
-                        name={`entries.${index}.dayOfWeek`}
-                        render={({ field }) => (
-                          <Select
-                            onValueChange={field.onChange}
-                            value={field.value}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Day" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {WEEKDAY_OPTIONS.map((day) => (
-                                <SelectItem key={day.value} value={day.value}>
-                                  {day.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-                      />
-
-                      <Controller
-                        control={control}
-                        name={`entries.${index}.periodIndex`}
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <FieldContent>
-                              <Input
-                                {...field}
-                                type="number"
-                                min={1}
-                                value={String(field.value ?? 1)}
-                                onChange={(event) =>
-                                  field.onChange(
-                                    event.target.valueAsNumber || 1,
-                                  )
-                                }
-                              />
-                              <FieldError>
-                                {fieldState.error?.message}
-                              </FieldError>
-                            </FieldContent>
-                          </Field>
-                        )}
-                      />
-
-                      <Controller
-                        control={control}
-                        name={`entries.${index}.startTime`}
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <FieldContent>
-                              <Input {...field} type="time" />
-                              <FieldError>
-                                {fieldState.error?.message}
-                              </FieldError>
-                            </FieldContent>
-                          </Field>
-                        )}
-                      />
-
-                      <Controller
-                        control={control}
-                        name={`entries.${index}.endTime`}
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <FieldContent>
-                              <Input {...field} type="time" />
-                              <FieldError>
-                                {fieldState.error?.message}
-                              </FieldError>
-                            </FieldContent>
-                          </Field>
-                        )}
-                      />
-
-                      <Controller
-                        control={control}
-                        name={`entries.${index}.subjectId`}
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <FieldContent>
-                              <Select
-                                onValueChange={field.onChange}
-                                value={field.value}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select subject" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {activeSubjects.map((subject) => (
-                                    <SelectItem
-                                      key={subject.id}
-                                      value={subject.id}
-                                    >
-                                      {subject.name}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FieldError>
-                                {fieldState.error?.message}
-                              </FieldError>
-                            </FieldContent>
-                          </Field>
-                        )}
-                      />
-
-                      <Controller
-                        control={control}
-                        name={`entries.${index}.room`}
-                        render={({ field, fieldState }) => (
-                          <Field data-invalid={fieldState.invalid || undefined}>
-                            <FieldContent>
-                              <Input
-                                {...field}
-                                placeholder="Room (optional)"
-                                value={field.value ?? ""}
-                              />
-                              <FieldError>
-                                {fieldState.error?.message}
-                              </FieldError>
-                            </FieldContent>
-                          </Field>
-                        )}
-                      />
-
-                      <EntityRowAction
-                        type="button"
-                        onClick={() => entryFieldArray.remove(index)}
-                      >
-                        <IconTrash
-                          data-icon="inline-start"
-                          className="size-3.5"
-                        />
-                        Remove
-                      </EntityRowAction>
-                    </div>
-                  ))}
-                </>
-              )}
-            </div>
-
-            {formState.errors.entries?.message ? (
-              <p className="text-sm text-destructive">
-                {formState.errors.entries.message}
-              </p>
-            ) : null}
-
-            <div className="flex flex-wrap items-center gap-3">
+              <EntityToolbarSecondaryAction
+                type="button"
+                onClick={() => setCopyDialogOpen(true)}
+              >
+                <IconCopy data-icon="inline-start" />
+                Copy from section
+              </EntityToolbarSecondaryAction>
               <EntityFormPrimaryAction
-                type="submit"
+                type="button"
+                onClick={() => void handleSave()}
                 disabled={replaceMutation.isPending || !classId || !sectionId}
               >
                 {replaceMutation.isPending ? "Saving..." : "Save timetable"}
               </EntityFormPrimaryAction>
             </div>
-          </form>
-        </CardContent>
-      </Card>
-
-      {timetableQuery.data?.entries.length ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Existing saved periods</CardTitle>
-            <CardDescription>
-              Remove individual periods from the saved timetable.
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
-            {timetableQuery.data.entries.map((entry) => (
-              <div
-                key={entry.id}
-                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border px-3 py-2"
-              >
+          <CardContent className="space-y-5">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm font-medium">Visible days</p>
                 <p className="text-sm text-muted-foreground">
-                  {
-                    WEEKDAY_OPTIONS.find((day) => day.value === entry.dayOfWeek)
-                      ?.label
-                  }
-                  , Period {entry.periodIndex} • {entry.startTime} -{" "}
-                  {entry.endTime} • {entry.subjectName}
-                  {entry.room ? ` • ${entry.room}` : ""}
+                  Monday to Friday is the default. Add Saturday or Sunday if needed.
                 </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8"
-                  onClick={() => void handleDeleteEntry(entry.id)}
-                  disabled={deleteMutation.isPending}
-                >
-                  <IconTrash className="size-3.5" />
-                  Delete
-                </Button>
               </div>
-            ))}
+              <ToggleGroup
+                type="multiple"
+                value={visibleDays}
+                onValueChange={(nextValue) =>
+                  setVisibleDays(
+                    nextValue.length > 0
+                      ? (nextValue as TimetableWeekday[])
+                      : [...DEFAULT_SCHOOL_DAY_VALUES],
+                  )
+                }
+              >
+                {WEEKDAY_OPTIONS.map((day: { label: string; value: TimetableWeekday }) => (
+                  <ToggleGroupItem key={day.value} value={day.value}>
+                    {day.label.slice(0, 3)}
+                  </ToggleGroupItem>
+                ))}
+              </ToggleGroup>
+            </div>
+
+            <TimetableGrid
+              bellSchedule={{
+                id: bellScheduleDetailQuery.data.id,
+                name: bellScheduleDetailQuery.data.name,
+                periods: bellScheduleDetailQuery.data.periods,
+              }}
+              classId={classId}
+              conflictKeys={conflictKeys}
+              days={WEEKDAY_OPTIONS.filter((day: { value: TimetableWeekday }) =>
+                visibleDays.includes(day.value),
+              )}
+              entries={entries}
+              subjects={subjects.map((subject) => ({
+                id: subject.id,
+                name: subject.name,
+              }))}
+              onCellChange={(key, value) => {
+                setEntries((current) => {
+                  const nextEntries = { ...current };
+                  if (!value) {
+                    delete nextEntries[key];
+                    return nextEntries;
+                  }
+
+                  nextEntries[key] = value;
+                  return nextEntries;
+                });
+              }}
+            />
           </CardContent>
         </Card>
-      ) : null}
+      )}
+
+      <Dialog open={copyDialogOpen} onOpenChange={setCopyDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Copy from section</DialogTitle>
+            <DialogDescription>
+              Replace the current section timetable with another section's saved grid.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <Field>
+              <FieldLabel htmlFor="copy-class">Source class</FieldLabel>
+              <FieldContent>
+                <Select
+                  value={copySourceClassId}
+                  onValueChange={(nextClassId) => {
+                    setCopySourceClassId(nextClassId);
+                    const nextClass = classes.find((item) => item.id === nextClassId);
+                    setCopySourceSectionId(nextClass?.sections[0]?.id ?? "");
+                  }}
+                >
+                  <SelectTrigger id="copy-class">
+                    <SelectValue placeholder="Select class" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {classes.map((schoolClass) => (
+                      <SelectItem key={schoolClass.id} value={schoolClass.id}>
+                        {schoolClass.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FieldContent>
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="copy-section">Source section</FieldLabel>
+              <FieldContent>
+                <Select value={copySourceSectionId} onValueChange={setCopySourceSectionId}>
+                  <SelectTrigger id="copy-section">
+                    <SelectValue placeholder="Select section" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedCopyClass?.sections.map((section) => (
+                      <SelectItem key={section.id} value={section.id}>
+                        {section.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FieldContent>
+            </Field>
+          </div>
+          <DialogFooter>
+            <EntityFormSecondaryAction type="button" onClick={() => setCopyDialogOpen(false)}>
+              Cancel
+            </EntityFormSecondaryAction>
+            <EntityFormPrimaryAction
+              type="button"
+              onClick={() => void handleCopy()}
+              disabled={copyMutation.isPending || !copySourceClassId || !copySourceSectionId}
+            >
+              {copyMutation.isPending ? "Copying..." : "Copy timetable"}
+            </EntityFormPrimaryAction>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </EntityPageShell>
   );
 }
