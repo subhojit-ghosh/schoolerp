@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PERMISSIONS } from "@repo/contracts";
@@ -48,6 +48,7 @@ import {
 } from "@/features/settings/ui/branding-preview";
 import { findPresetByColors } from "@/lib/color-presets";
 import { findPairingByFonts } from "@/lib/font-pairings";
+import { useUpload } from "@/hooks/use-upload";
 import {
   applyTenantBranding,
   cacheTenantBranding,
@@ -88,6 +89,18 @@ export function BrandingPage() {
     slug: session?.activeOrganization?.slug,
   };
   const updateBranding = useUpdateBrandingMutation(institutionId);
+  const { isUploading, upload } = useUpload();
+
+  const pendingLogoFile = useRef<File | null>(null);
+  const pendingFaviconFile = useRef<File | null>(null);
+
+  const handleLogoFileSelect = useCallback((file: File | null) => {
+    pendingLogoFile.current = file;
+  }, []);
+
+  const handleFaviconFileSelect = useCallback((file: File | null) => {
+    pendingFaviconFile.current = file;
+  }, []);
 
   const { control, handleSubmit, setValue } = useForm<BrandingFormValues>({
     resolver: zodResolver(brandingSchema),
@@ -142,9 +155,34 @@ export function BrandingPage() {
     applyBrandingDensityPreview(previewUiDensity);
   }, [previewUiDensity]);
 
-  function onSubmit(values: BrandingFormValues) {
+  async function onSubmit(values: BrandingFormValues) {
+    const finalValues = { ...values };
+
+    if (pendingLogoFile.current) {
+      const logoUrl = await upload(pendingLogoFile.current, "branding/logo");
+      if (!logoUrl) {
+        toast.error("Failed to upload logo");
+        return;
+      }
+      finalValues.logoUrl = logoUrl;
+      pendingLogoFile.current = null;
+    }
+
+    if (pendingFaviconFile.current) {
+      const faviconUrl = await upload(
+        pendingFaviconFile.current,
+        "branding/favicon",
+      );
+      if (!faviconUrl) {
+        toast.error("Failed to upload favicon");
+        return;
+      }
+      finalValues.faviconUrl = faviconUrl;
+      pendingFaviconFile.current = null;
+    }
+
     updateBranding.mutate(
-      createBrandingMutationBody(values, cachedBranding, organization),
+      createBrandingMutationBody(finalValues, cachedBranding, organization),
       {
         onSuccess: (response) => {
           const updated = createUpdatedBrandingFromResponse(
@@ -201,10 +239,14 @@ export function BrandingPage() {
       <EntityListPage
         actions={
           <EntityPagePrimaryAction
-            disabled={updateBranding.isPending}
+            disabled={updateBranding.isPending || isUploading}
             type="submit"
           >
-            {updateBranding.isPending ? "Saving..." : "Save branding"}
+            {isUploading
+              ? "Uploading..."
+              : updateBranding.isPending
+                ? "Saving..."
+                : "Save branding"}
           </EntityPagePrimaryAction>
         }
         description="Manage institution identity and theme tokens."
@@ -253,7 +295,12 @@ export function BrandingPage() {
                   description="Display name, short name, logo, and favicon appear across the app shell and browser surfaces."
                   title="Identity"
                 >
-                  <BrandingIdentitySection control={control} />
+                  <BrandingIdentitySection
+                    control={control}
+                    disabled={updateBranding.isPending || isUploading}
+                    onFaviconFileSelect={handleFaviconFileSelect}
+                    onLogoFileSelect={handleLogoFileSelect}
+                  />
                 </BrandingSectionFrame>
               </TabsContent>
 

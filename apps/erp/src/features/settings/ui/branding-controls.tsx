@@ -26,10 +26,16 @@ import { useBrandingPreviewFonts } from "@/features/settings/ui/branding-preview
 
 type BrandingIdentitySectionProps = {
   control: Control<BrandingFormValues>;
+  disabled?: boolean;
+  onLogoFileSelect: (file: File | null) => void;
+  onFaviconFileSelect: (file: File | null) => void;
 };
 
 export function BrandingIdentitySection({
   control,
+  disabled,
+  onLogoFileSelect,
+  onFaviconFileSelect,
 }: BrandingIdentitySectionProps) {
   return (
     <FieldGroup className="grid gap-4 md:grid-cols-2">
@@ -69,9 +75,10 @@ export function BrandingIdentitySection({
             <FieldLabel>Logo</FieldLabel>
             <FieldContent>
               <ImageUpload
-                folder="branding/logo"
+                disabled={disabled}
                 label="Logo"
                 onChange={field.onChange}
+                onFileSelect={onLogoFileSelect}
                 previewClassName="h-24"
                 value={field.value}
               />
@@ -88,9 +95,10 @@ export function BrandingIdentitySection({
             <FieldLabel>Favicon</FieldLabel>
             <FieldContent>
               <ImageUpload
-                folder="branding/favicon"
+                disabled={disabled}
                 label="Favicon"
                 onChange={field.onChange}
+                onFileSelect={onFaviconFileSelect}
                 previewClassName="h-16"
                 value={field.value}
               />

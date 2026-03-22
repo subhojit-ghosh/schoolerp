@@ -1,55 +1,67 @@
-import { useRef, useState, type ChangeEvent } from "react";
+import { useRef, type ChangeEvent } from "react";
 import { Button } from "@repo/ui/components/ui/button";
 import { cn } from "@repo/ui/lib/utils";
-import { useUpload, type UploadFolder } from "@/hooks/use-upload";
 
 const ACCEPT = "image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon";
 
 type ImageUploadProps = {
+  /** Current saved URL (from DB) or local blob preview */
   value: string | undefined;
+  /** Called with blob preview URL on file select, or empty string on remove */
   onChange: (url: string) => void;
-  folder: UploadFolder;
+  /** Called with the selected File, or null on remove */
+  onFileSelect: (file: File | null) => void;
   label: string;
+  disabled?: boolean;
   previewClassName?: string;
 };
 
 export function ImageUpload({
   value,
   onChange,
-  folder,
+  onFileSelect,
   label,
+  disabled,
   previewClassName,
 }: ImageUploadProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { isUploading, error, upload } = useUpload();
-  const [localPreview, setLocalPreview] = useState<string | null>(null);
+  const prevBlobRef = useRef<string | null>(null);
 
-  async function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
+  function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const objectUrl = URL.createObjectURL(file);
-    setLocalPreview(objectUrl);
-
-    const publicUrl = await upload(file, folder);
-
-    if (publicUrl) {
-      onChange(publicUrl);
+    // Revoke previous blob URL if any
+    if (prevBlobRef.current) {
+      URL.revokeObjectURL(prevBlobRef.current);
     }
 
-    setLocalPreview(null);
-    URL.revokeObjectURL(objectUrl);
+    const blobUrl = URL.createObjectURL(file);
+    prevBlobRef.current = blobUrl;
+
+    onChange(blobUrl);
+    onFileSelect(file);
 
     if (inputRef.current) {
       inputRef.current.value = "";
     }
   }
 
-  const displayUrl = localPreview ?? value;
+  function handleRemove() {
+    if (prevBlobRef.current) {
+      URL.revokeObjectURL(prevBlobRef.current);
+      prevBlobRef.current = null;
+    }
+
+    onChange("");
+    onFileSelect(null);
+  }
+
+  const hasValue = !!value;
 
   return (
     <div className="flex flex-col gap-2">
-      {displayUrl ? (
+      {hasValue ? (
         <div
           className={cn(
             "flex items-center justify-center rounded-lg border border-border bg-muted/30 p-3",
@@ -59,7 +71,7 @@ export function ImageUpload({
           <img
             alt={label}
             className="max-h-full max-w-full object-contain"
-            src={displayUrl}
+            src={value}
           />
         </div>
       ) : (
@@ -76,18 +88,18 @@ export function ImageUpload({
       <div className="flex items-center gap-2">
         <Button
           className="h-8 rounded-lg text-xs"
-          disabled={isUploading}
+          disabled={disabled}
           onClick={() => inputRef.current?.click()}
           type="button"
           variant="outline"
         >
-          {isUploading ? "Uploading..." : value ? "Replace" : "Upload"}
+          {hasValue ? "Replace" : "Upload"}
         </Button>
 
-        {value && !isUploading && (
+        {hasValue && !disabled && (
           <Button
             className="h-8 rounded-lg text-xs"
-            onClick={() => onChange("")}
+            onClick={handleRemove}
             type="button"
             variant="ghost"
           >
@@ -96,12 +108,11 @@ export function ImageUpload({
         )}
       </div>
 
-      {error && <p className="text-xs text-destructive">{error}</p>}
-
       <input
         ref={inputRef}
         accept={ACCEPT}
         className="hidden"
+        disabled={disabled}
         onChange={handleFileChange}
         type="file"
       />
