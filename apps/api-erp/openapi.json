@@ -206,6 +206,38 @@
         ]
       }
     },
+    "/auth/complete-setup": {
+      "post": {
+        "operationId": "AuthController_completeSetup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteSetupBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthContextDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Complete first-login password setup and start a session",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/auth/forgot-password": {
       "post": {
         "operationId": "AuthController_forgotPassword",
@@ -393,6 +425,43 @@
           }
         ],
         "summary": "Select the active access context inside the current tenant",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/change-password": {
+      "post": {
+        "operationId": "AuthController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChangePasswordResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Change password for the authenticated user",
         "tags": [
           "auth"
         ]
@@ -2966,6 +3035,7 @@
               "type": "string",
               "enum": [
                 "campus",
+                "designation",
                 "name",
                 "status"
               ]
@@ -2981,6 +3051,22 @@
                 "asc",
                 "desc"
               ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "active",
+                  "inactive",
+                  "suspended"
+                ]
+              }
             }
           },
           {
@@ -3316,6 +3402,155 @@
         ]
       }
     },
+    "/staff/{staffId}/reset-password": {
+      "post": {
+        "operationId": "StaffController_resetPassword",
+        "parameters": [
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Reset a staff member's password to their mobile number",
+        "tags": [
+          "staff"
+        ]
+      }
+    },
+    "/staff/{staffId}/subjects": {
+      "get": {
+        "operationId": "StaffController_listSubjectAssignments",
+        "parameters": [
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SubjectTeacherAssignmentDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List subject assignments for a staff member",
+        "tags": [
+          "staff"
+        ]
+      },
+      "post": {
+        "operationId": "StaffController_createSubjectAssignment",
+        "parameters": [
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSubjectTeacherAssignmentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubjectTeacherAssignmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Assign a subject to a staff member",
+        "tags": [
+          "staff"
+        ]
+      }
+    },
+    "/staff/{staffId}/subjects/{assignmentId}": {
+      "delete": {
+        "operationId": "StaffController_removeSubjectAssignment",
+        "parameters": [
+          {
+            "name": "staffId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Remove a subject assignment from a staff member",
+        "tags": [
+          "staff"
+        ]
+      }
+    },
     "/staff/{staffId}/roles/{assignmentId}": {
       "delete": {
         "operationId": "StaffController_removeRoleAssignment",
@@ -3506,6 +3741,35 @@
           }
         ],
         "summary": "Update guardian details",
+        "tags": [
+          "guardians"
+        ]
+      }
+    },
+    "/guardians/{guardianId}/reset-password": {
+      "post": {
+        "operationId": "GuardiansController_resetPassword",
+        "parameters": [
+          {
+            "name": "guardianId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Reset a guardian's password to their mobile number",
         "tags": [
           "guardians"
         ]
@@ -5685,6 +5949,43 @@
         ]
       }
     },
+    "/uploads/presign": {
+      "post": {
+        "operationId": "UploadsController_presignUpload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PresignUploadBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresignUploadResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a presigned URL for file upload to R2",
+        "tags": [
+          "uploads"
+        ]
+      }
+    },
     "/public/tenant-branding": {
       "get": {
         "operationId": "PublicController_getTenantBranding",
@@ -6342,6 +6643,21 @@
           "password"
         ]
       },
+      "CompleteSetupBodyDto": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "password"
+        ]
+      },
       "ForgotPasswordBodyDto": {
         "type": "object",
         "properties": {
@@ -6419,6 +6735,32 @@
         },
         "required": [
           "contextKey"
+        ]
+      },
+      "ChangePasswordBodyDto": {
+        "type": "object",
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ]
+      },
+      "ChangePasswordResponseDto": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "success"
         ]
       },
       "CreateInstitutionOnboardingBodyDto": {
@@ -9302,6 +9644,83 @@
           "slug"
         ]
       },
+      "StaffProfileDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "designation": {
+            "type": "string",
+            "nullable": true
+          },
+          "department": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateOfJoining": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateOfBirth": {
+            "type": "string",
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "male",
+              "female",
+              "other"
+            ]
+          },
+          "bloodGroup": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "A+",
+              "A-",
+              "B+",
+              "B-",
+              "AB+",
+              "AB-",
+              "O+",
+              "O-"
+            ]
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "emergencyContactName": {
+            "type": "string",
+            "nullable": true
+          },
+          "emergencyContactMobile": {
+            "type": "string",
+            "nullable": true
+          },
+          "qualification": {
+            "type": "string",
+            "nullable": true
+          },
+          "experienceYears": {
+            "type": "number",
+            "nullable": true
+          },
+          "employmentType": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "full_time",
+              "part_time",
+              "contractual"
+            ]
+          }
+        }
+      },
       "StaffDto": {
         "type": "object",
         "properties": {
@@ -9331,6 +9750,14 @@
             "allOf": [
               {
                 "$ref": "#/components/schemas/StaffRoleDto"
+              }
+            ]
+          },
+          "profile": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StaffProfileDto"
               }
             ]
           },
@@ -9454,6 +9881,70 @@
           "validFrom"
         ]
       },
+      "CreateStaffProfileBodyDto": {
+        "type": "object",
+        "properties": {
+          "employeeId": {
+            "type": "string"
+          },
+          "designation": {
+            "type": "string"
+          },
+          "department": {
+            "type": "string"
+          },
+          "dateOfJoining": {
+            "type": "string"
+          },
+          "dateOfBirth": {
+            "type": "string"
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female",
+              "other"
+            ]
+          },
+          "bloodGroup": {
+            "type": "string",
+            "enum": [
+              "A+",
+              "A-",
+              "B+",
+              "B-",
+              "AB+",
+              "AB-",
+              "O+",
+              "O-"
+            ]
+          },
+          "address": {
+            "type": "string"
+          },
+          "emergencyContactName": {
+            "type": "string"
+          },
+          "emergencyContactMobile": {
+            "type": "string"
+          },
+          "qualification": {
+            "type": "string"
+          },
+          "experienceYears": {
+            "type": "number"
+          },
+          "employmentType": {
+            "type": "string",
+            "enum": [
+              "full_time",
+              "part_time",
+              "contractual"
+            ]
+          }
+        }
+      },
       "CreateStaffBodyDto": {
         "type": "object",
         "properties": {
@@ -9469,6 +9960,9 @@
               "inactive",
               "suspended"
             ]
+          },
+          "profile": {
+            "$ref": "#/components/schemas/CreateStaffProfileBodyDto"
           },
           "name": {
             "type": "string"
@@ -9568,6 +10062,9 @@
               "suspended"
             ]
           },
+          "profile": {
+            "$ref": "#/components/schemas/CreateStaffProfileBodyDto"
+          },
           "name": {
             "type": "string"
           },
@@ -9588,12 +10085,71 @@
             "type": "string",
             "enum": [
               "active",
-              "inactive"
+              "inactive",
+              "suspended"
             ]
           }
         },
         "required": [
           "status"
+        ]
+      },
+      "SubjectTeacherAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "nullable": true
+          },
+          "className": {
+            "type": "string",
+            "nullable": true
+          },
+          "academicYearId": {
+            "type": "string",
+            "nullable": true
+          },
+          "academicYearName": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "subjectId",
+          "subjectName",
+          "createdAt"
+        ]
+      },
+      "CreateSubjectTeacherAssignmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string",
+            "nullable": true
+          },
+          "academicYearId": {
+            "type": "string",
+            "nullable": true
+          },
+          "subjectId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subjectId"
         ]
       },
       "GuardianLinkedStudentDto": {
@@ -11947,6 +12503,9 @@
               "default",
               "comfortable"
             ]
+          },
+          "brandingVersion": {
+            "type": "number"
           }
         },
         "required": [
@@ -11961,7 +12520,46 @@
           "fontBody",
           "fontMono",
           "borderRadius",
-          "uiDensity"
+          "uiDensity",
+          "brandingVersion"
+        ]
+      },
+      "PresignUploadBodyDto": {
+        "type": "object",
+        "properties": {
+          "folder": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          },
+          "fileSize": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "folder",
+          "contentType",
+          "fileSize"
+        ]
+      },
+      "PresignUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "uploadUrl": {
+            "type": "string"
+          },
+          "publicUrl": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "uploadUrl",
+          "publicUrl",
+          "key"
         ]
       },
       "TenantBrandingDto": {

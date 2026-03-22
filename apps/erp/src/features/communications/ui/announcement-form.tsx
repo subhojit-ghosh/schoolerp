@@ -81,7 +81,9 @@ export function AnnouncementForm({
             name="title"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="announcement-title" required>Title</FieldLabel>
+                <FieldLabel htmlFor="announcement-title" required>
+                  Title
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -144,7 +146,9 @@ export function AnnouncementForm({
             name="body"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="announcement-body" required>Message</FieldLabel>
+                <FieldLabel htmlFor="announcement-body" required>
+                  Message
+                </FieldLabel>
                 <FieldContent>
                   <textarea
                     {...field}

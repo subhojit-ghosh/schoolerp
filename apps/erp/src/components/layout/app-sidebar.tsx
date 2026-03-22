@@ -358,9 +358,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const admissionsItems = filterByPermission(
     getActionableNavItems(NAV_ADMISSIONS),
   );
-  const teachingItems = filterByPermission(
-    getActionableNavItems(NAV_TEACHING),
-  );
+  const teachingItems = filterByPermission(getActionableNavItems(NAV_TEACHING));
   const academicSetupItems = filterByPermission(
     getActionableNavItems(NAV_ACADEMIC_SETUP),
   );

@@ -212,7 +212,10 @@ export function AdmissionApplicationForm({
             name="studentFirstName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-application-student-first-name" required>
+                <FieldLabel
+                  htmlFor="admission-application-student-first-name"
+                  required
+                >
                   Student first name
                 </FieldLabel>
                 <FieldContent>
@@ -254,7 +257,10 @@ export function AdmissionApplicationForm({
             name="guardianName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="admission-application-guardian-name" required>
+                <FieldLabel
+                  htmlFor="admission-application-guardian-name"
+                  required
+                >
                   Guardian name
                 </FieldLabel>
                 <FieldContent>

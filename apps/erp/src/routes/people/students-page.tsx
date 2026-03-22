@@ -76,8 +76,14 @@ export function StudentsPage() {
   const [searchParams] = useSearchParams();
   const authSession = useAuthStore((store) => store.session);
   const institutionId = authSession?.activeOrganization?.id;
-  const canManageStudents = isStaffContext(authSession) && hasPermission(authSession, PERMISSIONS.STUDENTS_MANAGE);
-  const managedInstitutionId = isStaffContext(authSession) && hasPermission(authSession, PERMISSIONS.STUDENTS_READ) ? institutionId : undefined;
+  const canManageStudents =
+    isStaffContext(authSession) &&
+    hasPermission(authSession, PERMISSIONS.STUDENTS_MANAGE);
+  const managedInstitutionId =
+    isStaffContext(authSession) &&
+    hasPermission(authSession, PERMISSIONS.STUDENTS_READ)
+      ? institutionId
+      : undefined;
   const {
     queryState,
     searchInput,
@@ -282,9 +288,11 @@ export function StudentsPage() {
     <EntityListPage
       actions={
         <div className="flex items-center gap-3">
-          {canManageStudents && <DataExchangeEntityActions
-            entityType={DATA_EXCHANGE_ENTITY_TYPES.STUDENTS}
-          />}
+          {canManageStudents && (
+            <DataExchangeEntityActions
+              entityType={DATA_EXCHANGE_ENTITY_TYPES.STUDENTS}
+            />
+          )}
           <EntityPagePrimaryAction asChild>
             <Link to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}>
               <IconPlus className="size-4" />

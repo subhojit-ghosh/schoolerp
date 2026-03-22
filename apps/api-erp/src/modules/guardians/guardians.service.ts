@@ -832,9 +832,7 @@ export class GuardiansService {
     const [matchedEmailUser] = await this.db
       .select({ id: user.id })
       .from(user)
-      .where(
-        and(eq(user.email, email), eq(user.institutionId, institutionId)),
-      )
+      .where(and(eq(user.email, email), eq(user.institutionId, institutionId)))
       .limit(1);
 
     if (matchedEmailUser && matchedEmailUser.id !== currentUserId) {

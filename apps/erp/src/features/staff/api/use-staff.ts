@@ -13,6 +13,7 @@ type StaffListQuery = {
   page?: number;
   q?: string;
   sort?: StaffListSort;
+  status?: ("active" | "inactive" | "suspended")[];
 };
 
 function getStaffListQueryKey(_institutionId: string, query?: StaffListQuery) {
@@ -216,6 +217,88 @@ export function useDeleteStaffMutation(institutionId: string | undefined) {
 
       void queryClient.invalidateQueries({
         queryKey: getStaffListQueryKey(institutionId),
+      });
+    },
+  });
+}
+
+export function useResetStaffPasswordMutation(
+  _institutionId: string | undefined,
+) {
+  return apiQueryClient.useMutation("post", STAFF_API_PATHS.RESET_PASSWORD);
+}
+
+export function useStaffSubjectAssignmentsQuery(
+  institutionId: string | undefined,
+  staffId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    STAFF_API_PATHS.LIST_SUBJECTS,
+    {
+      params: {
+        path: {
+          staffId: staffId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && staffId),
+    },
+  );
+}
+
+export function useCreateStaffSubjectAssignmentMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("post", STAFF_API_PATHS.CREATE_SUBJECT, {
+    onSuccess: (_, variables) => {
+      if (!institutionId) {
+        return;
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          STAFF_API_PATHS.LIST_SUBJECTS,
+          {
+            params: {
+              path: {
+                staffId: variables.params.path.staffId,
+              },
+            },
+          },
+        ).queryKey,
+      });
+    },
+  });
+}
+
+export function useDeleteStaffSubjectAssignmentMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("delete", STAFF_API_PATHS.DELETE_SUBJECT, {
+    onSuccess: (_, variables) => {
+      if (!institutionId) {
+        return;
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          STAFF_API_PATHS.LIST_SUBJECTS,
+          {
+            params: {
+              path: {
+                staffId: variables.params.path.staffId,
+              },
+            },
+          },
+        ).queryKey,
       });
     },
   });

@@ -22,6 +22,7 @@ import {
 } from "@/features/staff/api/use-staff";
 import {
   type StaffCreateFormValues,
+  EMPTY_STAFF_PROFILE,
   EMPTY_STAFF_ROLE_ASSIGNMENT_DRAFT,
   type StaffRoleAssignmentDraft,
 } from "@/features/staff/model/staff-form-schema";
@@ -41,6 +42,7 @@ const DEFAULT_VALUES: StaffCreateFormValues = {
   email: "",
   temporaryPassword: "",
   status: "active",
+  profile: { ...EMPTY_STAFF_PROFILE },
 };
 
 export function StaffCreatePage() {
@@ -70,7 +72,8 @@ export function StaffCreatePage() {
     setRoleAssignmentError(undefined);
 
     const createResult = await createStaffMutation.mutateAsync({
-      body: values,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body: values as any,
     });
 
     if (roleAssignmentDraft.roleId) {

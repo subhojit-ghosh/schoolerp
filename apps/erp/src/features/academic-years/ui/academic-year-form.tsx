@@ -133,7 +133,9 @@ export function AcademicYearForm({
           name="name"
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid || undefined}>
-              <FieldLabel htmlFor="academic-year-name" required>Name</FieldLabel>
+              <FieldLabel htmlFor="academic-year-name" required>
+                Name
+              </FieldLabel>
               <FieldContent>
                 <Input
                   aria-invalid={fieldState.invalid}

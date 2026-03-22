@@ -13,10 +13,7 @@ import type { AuthenticatedSession } from "../auth/auth.types";
 import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
-import {
-  PresignUploadBodyDto,
-  PresignUploadResponseDto,
-} from "./uploads.dto";
+import { PresignUploadBodyDto, PresignUploadResponseDto } from "./uploads.dto";
 import { UploadsService } from "./uploads.service";
 import { parsePresignUpload } from "./uploads.schemas";
 

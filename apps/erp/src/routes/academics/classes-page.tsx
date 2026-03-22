@@ -78,7 +78,10 @@ export function ClassesPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const canQueryClasses = isStaffContext(session) && hasPermission(session, PERMISSIONS.ACADEMICS_READ) && Boolean(institutionId);
+  const canQueryClasses =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.ACADEMICS_READ) &&
+    Boolean(institutionId);
   const setStatusMutation = useSetClassStatusMutation();
   const deleteMutation = useDeleteClassMutation();
   const [deleteTarget, setDeleteTarget] = useState<ClassRow | null>(null);

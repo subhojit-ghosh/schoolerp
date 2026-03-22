@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { ATTENDANCE_STATUS_LABELS, ATTENDANCE_STATUSES, PERMISSIONS } from "@repo/contracts";
+import {
+  ATTENDANCE_STATUS_LABELS,
+  ATTENDANCE_STATUSES,
+  PERMISSIONS,
+} from "@repo/contracts";
 import { IconCheck, IconRefresh } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
@@ -122,8 +126,14 @@ export function AttendancePage() {
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
   const activeCampusName = session?.activeCampus?.name;
-  const canManageAttendance = isStaffContext(session) && hasPermission(session, PERMISSIONS.ATTENDANCE_WRITE);
-  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.ATTENDANCE_READ) ? institutionId : undefined;
+  const canManageAttendance =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.ATTENDANCE_WRITE);
+  const managedInstitutionId =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.ATTENDANCE_READ)
+      ? institutionId
+      : undefined;
   const [activeFilters, setActiveFilters] =
     useState<AttendanceSelectionValues | null>(null);
   const [overviewDate, setOverviewDate] = useState(TODAY);

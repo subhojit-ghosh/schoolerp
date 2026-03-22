@@ -56,16 +56,16 @@ export const NAV_PEOPLE: readonly NavItem[] = [
     url: ERP_ROUTES.STUDENTS,
   },
   {
-    icon: IconUsersGroup,
-    permission: PERMISSIONS.STAFF_READ,
-    title: "Staff",
-    url: ERP_ROUTES.STAFF,
-  },
-  {
     icon: IconUserSearch,
     permission: PERMISSIONS.GUARDIANS_READ,
     title: "Guardians",
     url: ERP_ROUTES.GUARDIANS,
+  },
+  {
+    icon: IconUsersGroup,
+    permission: PERMISSIONS.STAFF_READ,
+    title: "Staff",
+    url: ERP_ROUTES.STAFF,
   },
 ];
 

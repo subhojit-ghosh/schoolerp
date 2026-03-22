@@ -1,4 +1,8 @@
-import { IconDotsVertical, IconLogout, IconSettings } from "@tabler/icons-react";
+import {
+  IconDotsVertical,
+  IconLogout,
+  IconSettings,
+} from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import {
   Avatar,

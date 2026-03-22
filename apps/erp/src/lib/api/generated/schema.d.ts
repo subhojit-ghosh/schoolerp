@@ -72,6 +72,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/complete-setup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Complete first-login password setup and start a session */
+        post: operations["AuthController_completeSetup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/forgot-password": {
         parameters: {
             query?: never;
@@ -172,6 +189,23 @@ export interface paths {
         head?: never;
         /** Select the active access context inside the current tenant */
         patch: operations["AuthController_selectContext"];
+        trace?: never;
+    };
+    "/auth/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Change password for the authenticated user */
+        post: operations["AuthController_changePassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/auth/sign-out": {
@@ -928,6 +962,58 @@ export interface paths {
         patch: operations["StaffController_setStaffStatus"];
         trace?: never;
     };
+    "/staff/{staffId}/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset a staff member's password to their mobile number */
+        post: operations["StaffController_resetPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/{staffId}/subjects": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List subject assignments for a staff member */
+        get: operations["StaffController_listSubjectAssignments"];
+        put?: never;
+        /** Assign a subject to a staff member */
+        post: operations["StaffController_createSubjectAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/{staffId}/subjects/{assignmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a subject assignment from a staff member */
+        delete: operations["StaffController_removeSubjectAssignment"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/staff/{staffId}/roles/{assignmentId}": {
         parameters: {
             query?: never;
@@ -978,6 +1064,23 @@ export interface paths {
         head?: never;
         /** Update guardian details */
         patch: operations["GuardiansController_updateGuardian"];
+        trace?: never;
+    };
+    "/guardians/{guardianId}/reset-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset a guardian's password to their mobile number */
+        post: operations["GuardiansController_resetPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/guardians/{guardianId}/students": {
@@ -1590,6 +1693,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/uploads/presign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Get a presigned URL for file upload to R2 */
+        post: operations["UploadsController_presignUpload"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/tenant-branding": {
         parameters: {
             query?: never;
@@ -1733,6 +1853,10 @@ export interface components {
             password: string;
             tenantSlug?: string;
         };
+        CompleteSetupBodyDto: {
+            token: string;
+            password: string;
+        };
         ForgotPasswordBodyDto: {
             identifier: string;
         };
@@ -1753,6 +1877,13 @@ export interface components {
         SwitchContextBodyDto: {
             /** @enum {string} */
             contextKey: "staff" | "parent" | "student";
+        };
+        ChangePasswordBodyDto: {
+            currentPassword: string;
+            newPassword: string;
+        };
+        ChangePasswordResponseDto: {
+            success: boolean;
         };
         CreateInstitutionOnboardingBodyDto: {
             institutionName: string;
@@ -2456,6 +2587,24 @@ export interface components {
             name: string;
             slug: string;
         };
+        StaffProfileDto: {
+            employeeId?: string | null;
+            designation?: string | null;
+            department?: string | null;
+            dateOfJoining?: string | null;
+            dateOfBirth?: string | null;
+            /** @enum {string|null} */
+            gender?: "male" | "female" | "other" | null;
+            /** @enum {string|null} */
+            bloodGroup?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-" | null;
+            address?: string | null;
+            emergencyContactName?: string | null;
+            emergencyContactMobile?: string | null;
+            qualification?: string | null;
+            experienceYears?: number | null;
+            /** @enum {string|null} */
+            employmentType?: "full_time" | "part_time" | "contractual" | null;
+        };
         StaffDto: {
             email?: string | null;
             /** @enum {string} */
@@ -2463,6 +2612,7 @@ export interface components {
             /** @enum {string} */
             status: "active" | "deleted" | "inactive" | "suspended";
             role?: components["schemas"]["StaffRoleDto"] | null;
+            profile?: components["schemas"]["StaffProfileDto"] | null;
             id: string;
             userId: string;
             institutionId: string;
@@ -2493,10 +2643,29 @@ export interface components {
             id: string;
             validFrom: string;
         };
+        CreateStaffProfileBodyDto: {
+            employeeId?: string;
+            designation?: string;
+            department?: string;
+            dateOfJoining?: string;
+            dateOfBirth?: string;
+            /** @enum {string} */
+            gender?: "male" | "female" | "other";
+            /** @enum {string} */
+            bloodGroup?: "A+" | "A-" | "B+" | "B-" | "AB+" | "AB-" | "O+" | "O-";
+            address?: string;
+            emergencyContactName?: string;
+            emergencyContactMobile?: string;
+            qualification?: string;
+            experienceYears?: number;
+            /** @enum {string} */
+            employmentType?: "full_time" | "part_time" | "contractual";
+        };
         CreateStaffBodyDto: {
             email?: string | null;
             /** @enum {string} */
             status: "active" | "deleted" | "inactive" | "suspended";
+            profile?: components["schemas"]["CreateStaffProfileBodyDto"];
             name: string;
             mobile: string;
         };
@@ -2521,12 +2690,28 @@ export interface components {
             email?: string | null;
             /** @enum {string} */
             status: "active" | "deleted" | "inactive" | "suspended";
+            profile?: components["schemas"]["CreateStaffProfileBodyDto"];
             name: string;
             mobile: string;
         };
         SetStaffStatusBodyDto: {
             /** @enum {string} */
-            status: "active" | "inactive";
+            status: "active" | "inactive" | "suspended";
+        };
+        SubjectTeacherAssignmentDto: {
+            classId?: string | null;
+            className?: string | null;
+            academicYearId?: string | null;
+            academicYearName?: string | null;
+            id: string;
+            subjectId: string;
+            subjectName: string;
+            createdAt: string;
+        };
+        CreateSubjectTeacherAssignmentBodyDto: {
+            classId?: string | null;
+            academicYearId?: string | null;
+            subjectId: string;
         };
         GuardianLinkedStudentDto: {
             /** @enum {string} */
@@ -3118,6 +3303,17 @@ export interface components {
             borderRadius: "sharp" | "default" | "rounded" | "pill" | null;
             /** @enum {string|null} */
             uiDensity: "compact" | "default" | "comfortable" | null;
+            brandingVersion: number;
+        };
+        PresignUploadBodyDto: {
+            folder: string;
+            contentType: string;
+            fileSize: number;
+        };
+        PresignUploadResponseDto: {
+            uploadUrl: string;
+            publicUrl: string;
+            key: string;
         };
         TenantBrandingDto: {
             logoUrl: string | null;
@@ -3218,6 +3414,29 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["SignInBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthContextDto"];
+                };
+            };
+        };
+    };
+    AuthController_completeSetup: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompleteSetupBodyDto"];
             };
         };
         responses: {
@@ -3357,6 +3576,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthContextDto"];
+                };
+            };
+        };
+    };
+    AuthController_changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChangePasswordResponseDto"];
                 };
             };
         };
@@ -4673,8 +4915,9 @@ export interface operations {
             query?: {
                 page?: number;
                 limit?: number;
-                sort?: "campus" | "name" | "status";
+                sort?: "campus" | "designation" | "name" | "status";
                 order?: "asc" | "desc";
+                status?: ("active" | "inactive" | "suspended")[];
                 q?: string;
             };
             header?: never;
@@ -4871,6 +5114,91 @@ export interface operations {
             };
         };
     };
+    StaffController_resetPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StaffController_listSubjectAssignments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubjectTeacherAssignmentDto"][];
+                };
+            };
+        };
+    };
+    StaffController_createSubjectAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSubjectTeacherAssignmentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubjectTeacherAssignmentDto"];
+                };
+            };
+        };
+    };
+    StaffController_removeSubjectAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+                assignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     StaffController_removeRoleAssignment: {
         parameters: {
             query?: never;
@@ -4959,6 +5287,25 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["GuardianDto"];
                 };
+            };
+        };
+    };
+    GuardiansController_resetPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                guardianId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -6101,6 +6448,29 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    UploadsController_presignUpload: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PresignUploadBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PresignUploadResponseDto"];
+                };
             };
         };
     };

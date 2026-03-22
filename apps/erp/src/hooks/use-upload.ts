@@ -40,9 +40,7 @@ export function useUpload() {
 
         if (!presignResponse.ok) {
           const errorBody = await presignResponse.json().catch(() => null);
-          throw new Error(
-            errorBody?.message ?? "Failed to get upload URL",
-          );
+          throw new Error(errorBody?.message ?? "Failed to get upload URL");
         }
 
         const { uploadUrl, publicUrl } =
@@ -63,8 +61,7 @@ export function useUpload() {
         setState({ isUploading: false, error: null });
         return publicUrl;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Upload failed";
+        const message = err instanceof Error ? err.message : "Upload failed";
         setState({ isUploading: false, error: message });
         return null;
       }

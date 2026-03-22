@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { DATA_EXCHANGE_ENTITY_TYPES, PERMISSIONS } from "@repo/contracts";
 import { Link, useLocation } from "react-router";
+import { parseAsString, useQueryState } from "nuqs";
 import { toast } from "sonner";
 import {
   IconArrowRight,
@@ -14,6 +15,14 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
 import {
   Card,
   CardDescription,
@@ -87,8 +96,12 @@ export function StaffPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageStaff = isStaffContext(session) && hasPermission(session, PERMISSIONS.STAFF_MANAGE);
-  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.STAFF_READ) ? institutionId : undefined;
+  const canManageStaff =
+    isStaffContext(session) && hasPermission(session, PERMISSIONS.STAFF_MANAGE);
+  const managedInstitutionId =
+    isStaffContext(session) && hasPermission(session, PERMISSIONS.STAFF_READ)
+      ? institutionId
+      : undefined;
   const setStatusMutation = useSetStaffStatusMutation(managedInstitutionId);
   const deleteMutation = useDeleteStaffMutation(managedInstitutionId);
   const [deleteTarget, setDeleteTarget] = useState<StaffRow | null>(null);
@@ -105,12 +118,20 @@ export function StaffPage() {
     validSorts: VALID_SORT_FIELDS,
   });
 
+  const [statusFilter, setStatusFilter] = useQueryState(
+    "status",
+    parseAsString.withDefault(""),
+  );
+
   const staffQuery = useStaffQuery(managedInstitutionId, {
     limit: queryState.pageSize,
     order: queryState.sortOrder,
     page: queryState.page,
     q: queryState.search || undefined,
     sort: queryState.sortBy,
+    status: statusFilter
+      ? [statusFilter as "active" | "inactive" | "suspended"]
+      : undefined,
   });
 
   const rows = useMemo(
@@ -342,7 +363,7 @@ export function StaffPage() {
     );
   }
 
-  const isFiltered = Boolean(queryState.search);
+  const isFiltered = Boolean(queryState.search || statusFilter);
 
   async function handleDelete() {
     if (!managedInstitutionId || !deleteTarget) {
@@ -366,9 +387,11 @@ export function StaffPage() {
       <EntityListPage
         actions={
           <div className="flex items-center gap-3">
-            {canManageStaff && <DataExchangeEntityActions
-              entityType={DATA_EXCHANGE_ENTITY_TYPES.STAFF}
-            />}
+            {canManageStaff && (
+              <DataExchangeEntityActions
+                entityType={DATA_EXCHANGE_ENTITY_TYPES.STAFF}
+              />
+            )}
             <EntityPagePrimaryAction asChild>
               <Link to={appendSearch(ERP_ROUTES.STAFF_CREATE, location.search)}>
                 <IconPlus className="size-4" />
@@ -391,6 +414,25 @@ export function StaffPage() {
                   value={searchInput}
                 />
               </div>
+              <Select
+                onValueChange={(value) => {
+                  void setStatusFilter(value === "all" ? "" : value);
+                  setPage(1);
+                }}
+                value={statusFilter || "all"}
+              >
+                <SelectTrigger className="h-11 w-[160px] rounded-lg border-border/70 bg-background shadow-none">
+                  <SelectValue placeholder="All statuses" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value="all">All statuses</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         }

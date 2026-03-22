@@ -77,7 +77,11 @@ export function AdmissionApplicationsPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.ADMISSIONS_READ) ? institutionId : undefined;
+  const managedInstitutionId =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.ADMISSIONS_READ)
+      ? institutionId
+      : undefined;
   const {
     queryState,
     searchInput,

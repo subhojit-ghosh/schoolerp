@@ -118,7 +118,11 @@ export class AuthService {
       throw new UnauthorizedException(ERROR_MESSAGES.AUTH.MEMBERSHIP_REQUIRED);
     }
 
-    await this.assertUserIdentityAvailable(normalizedMobile, normalizedEmail, resolvedOrg.id);
+    await this.assertUserIdentityAvailable(
+      normalizedMobile,
+      normalizedEmail,
+      resolvedOrg.id,
+    );
 
     const passwordHash = await hash(payload.password, 12);
     const userId = randomUUID();
@@ -155,7 +159,10 @@ export class AuthService {
     password: string,
     institutionId: string | null,
   ): Promise<ValidatedUser | null> {
-    const matchedUser = await this.findUserByIdentifier(identifier, institutionId);
+    const matchedUser = await this.findUserByIdentifier(
+      identifier,
+      institutionId,
+    );
 
     if (!matchedUser) {
       return null;
@@ -188,7 +195,10 @@ export class AuthService {
       requestContext.ipAddress,
     );
 
-    const matchedUser = await this.findUserByIdentifier(normalizedIdentifier, null);
+    const matchedUser = await this.findUserByIdentifier(
+      normalizedIdentifier,
+      null,
+    );
     const token = this.createPasswordResetToken();
     const tokenHash = this.hashPasswordResetToken(token);
 
@@ -337,7 +347,9 @@ export class AuthService {
         .where(eq(passwordResetToken.id, matchedToken.id));
     });
 
-    const accessContext = await this.resolveSessionAccessContext(matchedUser.id);
+    const accessContext = await this.resolveSessionAccessContext(
+      matchedUser.id,
+    );
 
     return this.createSession(
       {
@@ -395,9 +407,7 @@ export class AuthService {
         institutionId: user.institutionId,
       })
       .from(user)
-      .where(
-        and(eq(user.id, userId), eq(user.institutionId, institutionId)),
-      )
+      .where(and(eq(user.id, userId), eq(user.institutionId, institutionId)))
       .limit(1);
 
     if (!matchedUser) {

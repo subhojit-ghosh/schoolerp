@@ -47,10 +47,14 @@ export const STAFF_API_PATHS = {
   UPDATE: "/staff/{staffId}",
   SET_STATUS: "/staff/{staffId}/status",
   DELETE: "/staff/{staffId}",
+  RESET_PASSWORD: "/staff/{staffId}/reset-password",
   ROLES: "/staff/roles",
   LIST_ASSIGNMENTS: "/staff/{staffId}/roles",
   CREATE_ASSIGNMENT: "/staff/{staffId}/roles",
   DELETE_ASSIGNMENT: "/staff/{staffId}/roles/{assignmentId}",
+  LIST_SUBJECTS: "/staff/{staffId}/subjects",
+  CREATE_SUBJECT: "/staff/{staffId}/subjects",
+  DELETE_SUBJECT: "/staff/{staffId}/subjects/{assignmentId}",
 } as const;
 
 export const GUARDIANS_API_PATHS = {

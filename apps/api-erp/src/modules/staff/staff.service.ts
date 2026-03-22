@@ -9,6 +9,7 @@ import {
 } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
+  academicYears,
   attendanceRecords,
   and,
   asc,
@@ -28,6 +29,9 @@ import {
   or,
   roles,
   schoolClasses,
+  staffProfiles,
+  subjectTeacherAssignments,
+  subjects,
   type SQL,
   user,
 } from "@repo/database";
@@ -47,22 +51,22 @@ import {
   resolveTablePageSize,
   type PaginatedResult,
 } from "../../lib/list-query";
-import type {
-  AuthenticatedSession,
-  ResolvedScopes,
-} from "../auth/auth.types";
+import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { campusScopeFilter } from "../auth/scope-filter";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import { AuthService } from "../auth/auth.service";
 import type {
   CreateStaffResultDto,
   StaffDto,
+  StaffProfileDto,
   StaffRoleAssignmentDto,
   StaffRoleAssignmentScopeDto,
+  SubjectTeacherAssignmentDto,
 } from "./staff.dto";
 import type {
   CreateStaffDto,
   CreateStaffRoleAssignmentDto,
+  CreateSubjectTeacherAssignmentDto,
   ListStaffQueryDto,
   SetStaffStatusDto,
   UpdateStaffDto,
@@ -95,6 +99,7 @@ type RoleAssignmentRow = {
 
 const sortableColumns = {
   campus: campus.name,
+  designation: staffProfiles.designation,
   name: user.name,
   status: member.status,
 } as const;
@@ -121,9 +126,14 @@ export class StaffService {
     const conditions: SQL[] = [
       eq(member.organizationId, institutionId),
       eq(member.memberType, MEMBER_TYPES.STAFF),
-      ne(member.status, STATUS.MEMBER.DELETED),
       ne(campus.status, STATUS.CAMPUS.DELETED),
     ];
+
+    if (query.status?.length) {
+      conditions.push(inArray(member.status, query.status));
+    } else {
+      conditions.push(ne(member.status, STATUS.MEMBER.DELETED));
+    }
 
     conditions.push(eq(member.primaryCampusId, activeCampusId));
 
@@ -133,6 +143,7 @@ export class StaffService {
           ilike(user.name, `%${query.search}%`),
           ilike(user.mobile, `%${query.search}%`),
           ilike(user.email, `%${query.search}%`),
+          ilike(staffProfiles.employeeId, `%${query.search}%`),
         )!,
       );
     }
@@ -143,6 +154,7 @@ export class StaffService {
       .from(member)
       .innerJoin(user, eq(member.userId, user.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .leftJoin(staffProfiles, eq(member.id, staffProfiles.membershipId))
       .where(where);
 
     const total = totalRow?.count ?? 0;
@@ -153,6 +165,7 @@ export class StaffService {
       .from(member)
       .innerJoin(user, eq(member.userId, user.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .leftJoin(staffProfiles, eq(member.id, staffProfiles.membershipId))
       .where(where)
       .orderBy(sortDirection(sortableColumns[sortKey]), asc(user.name))
       .limit(pageSize)
@@ -164,7 +177,8 @@ export class StaffService {
 
     return {
       rows: staffRows.map((row) => ({
-        ...row,
+        ...this.stripProfileColumns(row),
+        profile: this.mapStaffProfile(row),
         role: roleByMembershipId.get(row.id) ?? null,
       })),
       total,
@@ -230,7 +244,11 @@ export class StaffService {
     const selectedCampus = await this.getCampus(institutionId, activeCampusId);
 
     const createResult = await this.db.transaction(async (tx) => {
-      const resolvedUser = await this.findOrCreateUser(tx, institutionId, payload);
+      const resolvedUser = await this.findOrCreateUser(
+        tx,
+        institutionId,
+        payload,
+      );
 
       const [existingStaffMembership] = await tx
         .select({ id: member.id })
@@ -267,6 +285,20 @@ export class StaffService {
         nextMembershipId,
         selectedCampus.id,
       );
+
+      if (payload.profile) {
+        const profileValues = Object.fromEntries(
+          Object.entries(payload.profile).filter(([, v]) => v !== undefined),
+        );
+        if (Object.keys(profileValues).length > 0) {
+          await tx.insert(staffProfiles).values({
+            id: randomUUID(),
+            institutionId,
+            membershipId: nextMembershipId,
+            ...profileValues,
+          });
+        }
+      }
 
       return {
         membershipId: nextMembershipId,
@@ -349,6 +381,33 @@ export class StaffService {
         .where(eq(member.id, staffId));
 
       await this.ensureCampusMembership(tx, staffId, selectedCampus.id);
+
+      if (payload.profile) {
+        const profileValues = Object.fromEntries(
+          Object.entries(payload.profile).filter(([, v]) => v !== undefined),
+        );
+        if (Object.keys(profileValues).length > 0) {
+          const [existing] = await tx
+            .select({ id: staffProfiles.id })
+            .from(staffProfiles)
+            .where(eq(staffProfiles.membershipId, staffId))
+            .limit(1);
+
+          if (existing) {
+            await tx
+              .update(staffProfiles)
+              .set(profileValues)
+              .where(eq(staffProfiles.id, existing.id));
+          } else {
+            await tx.insert(staffProfiles).values({
+              id: randomUUID(),
+              institutionId,
+              membershipId: staffId,
+              ...profileValues,
+            });
+          }
+        }
+      }
     });
 
     return this.getStaff(
@@ -588,6 +647,7 @@ export class StaffService {
       .from(member)
       .innerJoin(user, eq(member.userId, user.id))
       .innerJoin(campus, eq(member.primaryCampusId, campus.id))
+      .leftJoin(staffProfiles, eq(member.id, staffProfiles.membershipId))
       .where(and(...conditions));
 
     const roleByMembershipId = await this.listRoleMap(
@@ -595,7 +655,8 @@ export class StaffService {
     );
 
     return staffRows.map((row) => ({
-      ...row,
+      ...this.stripProfileColumns(row),
+      profile: this.mapStaffProfile(row),
       role: roleByMembershipId.get(row.id) ?? null,
     }));
   }
@@ -792,7 +853,110 @@ export class StaffService {
     campusId: campus.id,
     campusName: campus.name,
     status: member.status,
+    profileEmployeeId: staffProfiles.employeeId,
+    profileDesignation: staffProfiles.designation,
+    profileDepartment: staffProfiles.department,
+    profileDateOfJoining: staffProfiles.dateOfJoining,
+    profileDateOfBirth: staffProfiles.dateOfBirth,
+    profileGender: staffProfiles.gender,
+    profileBloodGroup: staffProfiles.bloodGroup,
+    profileAddress: staffProfiles.address,
+    profileEmergencyContactName: staffProfiles.emergencyContactName,
+    profileEmergencyContactMobile: staffProfiles.emergencyContactMobile,
+    profileQualification: staffProfiles.qualification,
+    profileExperienceYears: staffProfiles.experienceYears,
+    profileEmploymentType: staffProfiles.employmentType,
   };
+
+  private mapStaffProfile(row: {
+    profileEmployeeId: string | null;
+    profileDesignation: string | null;
+    profileDepartment: string | null;
+    profileDateOfJoining: string | null;
+    profileDateOfBirth: string | null;
+    profileGender: string | null;
+    profileBloodGroup: string | null;
+    profileAddress: string | null;
+    profileEmergencyContactName: string | null;
+    profileEmergencyContactMobile: string | null;
+    profileQualification: string | null;
+    profileExperienceYears: number | null;
+    profileEmploymentType: string | null;
+  }): StaffProfileDto | null {
+    // If no profile exists (all nulls from left join), return null
+    const hasAnyValue = Object.entries(row)
+      .filter(([k]) => k.startsWith("profile"))
+      .some(([, v]) => v !== null);
+    if (!hasAnyValue) return null;
+
+    return {
+      employeeId: row.profileEmployeeId,
+      designation: row.profileDesignation,
+      department: row.profileDepartment,
+      dateOfJoining: row.profileDateOfJoining,
+      dateOfBirth: row.profileDateOfBirth,
+      gender: row.profileGender,
+      bloodGroup: row.profileBloodGroup,
+      address: row.profileAddress,
+      emergencyContactName: row.profileEmergencyContactName,
+      emergencyContactMobile: row.profileEmergencyContactMobile,
+      qualification: row.profileQualification,
+      experienceYears: row.profileExperienceYears,
+      employmentType: row.profileEmploymentType,
+    };
+  }
+
+  private stripProfileColumns<T extends Record<string, unknown>>(
+    row: T,
+  ): Omit<
+    T,
+    | "profileEmployeeId"
+    | "profileDesignation"
+    | "profileDepartment"
+    | "profileDateOfJoining"
+    | "profileDateOfBirth"
+    | "profileGender"
+    | "profileBloodGroup"
+    | "profileAddress"
+    | "profileEmergencyContactName"
+    | "profileEmergencyContactMobile"
+    | "profileQualification"
+    | "profileExperienceYears"
+    | "profileEmploymentType"
+  > {
+    const {
+      profileEmployeeId: _1,
+      profileDesignation: _2,
+      profileDepartment: _3,
+      profileDateOfJoining: _4,
+      profileDateOfBirth: _5,
+      profileGender: _6,
+      profileBloodGroup: _7,
+      profileAddress: _8,
+      profileEmergencyContactName: _9,
+      profileEmergencyContactMobile: _10,
+      profileQualification: _11,
+      profileExperienceYears: _12,
+      profileEmploymentType: _13,
+      ...rest
+    } = row as Record<string, unknown>;
+    return rest as Omit<
+      T,
+      | "profileEmployeeId"
+      | "profileDesignation"
+      | "profileDepartment"
+      | "profileDateOfJoining"
+      | "profileDateOfBirth"
+      | "profileGender"
+      | "profileBloodGroup"
+      | "profileAddress"
+      | "profileEmergencyContactName"
+      | "profileEmergencyContactMobile"
+      | "profileQualification"
+      | "profileExperienceYears"
+      | "profileEmploymentType"
+    >;
+  }
 
   private async getCampus(institutionId: string, campusId: string) {
     const [matchedCampus] = await this.db
@@ -1151,7 +1315,11 @@ export class StaffService {
     return rows;
   }
 
-  private async findOrCreateUser(tx: StaffWriter, institutionId: string, payload: CreateStaffDto) {
+  private async findOrCreateUser(
+    tx: StaffWriter,
+    institutionId: string,
+    payload: CreateStaffDto,
+  ) {
     const normalizedMobile = normalizeMobile(payload.mobile);
     const normalizedEmail = normalizeOptionalEmail(payload.email);
     const matchedUser = await this.findUserByIdentity(
@@ -1283,6 +1451,184 @@ export class StaffService {
     }
 
     return authSession.activeCampusId;
+  }
+
+  async listSubjectAssignments(
+    institutionId: string,
+    staffId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): Promise<SubjectTeacherAssignmentDto[]> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
+
+    const rows = await this.db
+      .select({
+        id: subjectTeacherAssignments.id,
+        subjectId: subjects.id,
+        subjectName: subjects.name,
+        classId: schoolClasses.id,
+        className: schoolClasses.name,
+        academicYearId: academicYears.id,
+        academicYearName: academicYears.name,
+        createdAt: subjectTeacherAssignments.createdAt,
+      })
+      .from(subjectTeacherAssignments)
+      .innerJoin(subjects, eq(subjectTeacherAssignments.subjectId, subjects.id))
+      .leftJoin(
+        schoolClasses,
+        eq(subjectTeacherAssignments.classId, schoolClasses.id),
+      )
+      .leftJoin(
+        academicYears,
+        eq(subjectTeacherAssignments.academicYearId, academicYears.id),
+      )
+      .where(
+        and(
+          eq(subjectTeacherAssignments.membershipId, staffId),
+          eq(subjectTeacherAssignments.institutionId, institutionId),
+          isNull(subjectTeacherAssignments.deletedAt),
+        ),
+      )
+      .orderBy(asc(subjects.name));
+
+    return rows.map((row) => ({
+      ...row,
+      classId: row.classId ?? null,
+      className: row.className ?? null,
+      academicYearId: row.academicYearId ?? null,
+      academicYearName: row.academicYearName ?? null,
+      createdAt: row.createdAt.toISOString(),
+    }));
+  }
+
+  async createSubjectAssignment(
+    institutionId: string,
+    staffId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: CreateSubjectTeacherAssignmentDto,
+  ): Promise<SubjectTeacherAssignmentDto> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
+
+    // Verify subject exists
+    const [subjectRecord] = await this.db
+      .select({ id: subjects.id, name: subjects.name })
+      .from(subjects)
+      .where(
+        and(
+          eq(subjects.id, payload.subjectId),
+          eq(subjects.institutionId, institutionId),
+        ),
+      )
+      .limit(1);
+
+    if (!subjectRecord) {
+      throw new NotFoundException("Subject not found");
+    }
+
+    // Check for duplicate
+    const duplicateConditions: SQL[] = [
+      eq(subjectTeacherAssignments.membershipId, staffId),
+      eq(subjectTeacherAssignments.subjectId, payload.subjectId),
+      isNull(subjectTeacherAssignments.deletedAt),
+    ];
+    if (payload.classId) {
+      duplicateConditions.push(
+        eq(subjectTeacherAssignments.classId, payload.classId),
+      );
+    } else {
+      duplicateConditions.push(isNull(subjectTeacherAssignments.classId));
+    }
+
+    const [existing] = await this.db
+      .select({ id: subjectTeacherAssignments.id })
+      .from(subjectTeacherAssignments)
+      .where(and(...duplicateConditions))
+      .limit(1);
+
+    if (existing) {
+      throw new ConflictException(
+        "This subject is already assigned to this staff member",
+      );
+    }
+
+    const assignmentId = randomUUID();
+    await this.db.insert(subjectTeacherAssignments).values({
+      id: assignmentId,
+      institutionId,
+      membershipId: staffId,
+      subjectId: payload.subjectId,
+      classId: payload.classId ?? null,
+      academicYearId: payload.academicYearId ?? null,
+    });
+
+    // Fetch class and academic year names
+    let className: string | null = null;
+    let academicYearName: string | null = null;
+
+    if (payload.classId) {
+      const [classRecord] = await this.db
+        .select({ name: schoolClasses.name })
+        .from(schoolClasses)
+        .where(eq(schoolClasses.id, payload.classId))
+        .limit(1);
+      className = classRecord?.name ?? null;
+    }
+
+    if (payload.academicYearId) {
+      const [ayRecord] = await this.db
+        .select({ name: academicYears.name })
+        .from(academicYears)
+        .where(eq(academicYears.id, payload.academicYearId))
+        .limit(1);
+      academicYearName = ayRecord?.name ?? null;
+    }
+
+    return {
+      id: assignmentId,
+      subjectId: subjectRecord.id,
+      subjectName: subjectRecord.name,
+      classId: payload.classId ?? null,
+      className,
+      academicYearId: payload.academicYearId ?? null,
+      academicYearName,
+      createdAt: new Date().toISOString(),
+    };
+  }
+
+  async removeSubjectAssignment(
+    institutionId: string,
+    staffId: string,
+    assignmentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): Promise<void> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
+
+    const [assignment] = await this.db
+      .select({ id: subjectTeacherAssignments.id })
+      .from(subjectTeacherAssignments)
+      .where(
+        and(
+          eq(subjectTeacherAssignments.id, assignmentId),
+          eq(subjectTeacherAssignments.membershipId, staffId),
+          eq(subjectTeacherAssignments.institutionId, institutionId),
+          isNull(subjectTeacherAssignments.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    if (!assignment) {
+      throw new NotFoundException("Subject assignment not found");
+    }
+
+    await this.db
+      .update(subjectTeacherAssignments)
+      .set({ deletedAt: new Date() })
+      .where(eq(subjectTeacherAssignments.id, assignmentId));
   }
 
   async resetMemberPassword(

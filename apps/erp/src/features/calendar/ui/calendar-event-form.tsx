@@ -64,7 +64,9 @@ export function CalendarEventForm({
             name="title"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="calendar-title" required>Title</FieldLabel>
+                <FieldLabel htmlFor="calendar-title" required>
+                  Title
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
@@ -108,7 +110,9 @@ export function CalendarEventForm({
             name="eventDate"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="calendar-date" required>Date</FieldLabel>
+                <FieldLabel htmlFor="calendar-date" required>
+                  Date
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}

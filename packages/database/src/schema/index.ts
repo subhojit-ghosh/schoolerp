@@ -1069,3 +1069,87 @@ export const feePaymentReversals = pgTable(
     ),
   ],
 );
+
+// ── Staff profile enums ─────────────────────────────────────────────────
+const STAFF_GENDER_ENUM = ["male", "female", "other"] as const;
+const BLOOD_GROUP_ENUM = [
+  "A+",
+  "A-",
+  "B+",
+  "B-",
+  "AB+",
+  "AB-",
+  "O+",
+  "O-",
+] as const;
+const EMPLOYMENT_TYPE_ENUM = ["full_time", "part_time", "contractual"] as const;
+
+export const staffProfiles = pgTable(
+  "staff_profiles",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    membershipId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "cascade" }),
+    employeeId: text(),
+    designation: text(),
+    department: text(),
+    dateOfJoining: date(),
+    dateOfBirth: date(),
+    gender: text({ enum: STAFF_GENDER_ENUM }),
+    bloodGroup: text({ enum: BLOOD_GROUP_ENUM }),
+    address: text(),
+    emergencyContactName: text(),
+    emergencyContactMobile: text(),
+    qualification: text(),
+    experienceYears: integer(),
+    employmentType: text({ enum: EMPLOYMENT_TYPE_ENUM }),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("staff_profiles_institution_idx").on(t.institutionId),
+    uniqueIndex("staff_profiles_membership_unique_idx").on(t.membershipId),
+    uniqueIndex("staff_profiles_employee_id_unique_idx")
+      .on(t.institutionId, t.employeeId)
+      .where(sql`${t.employeeId} IS NOT NULL`),
+  ],
+);
+
+export const subjectTeacherAssignments = pgTable(
+  "subject_teacher_assignments",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    membershipId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "cascade" }),
+    subjectId: text()
+      .notNull()
+      .references(() => subjects.id, { onDelete: "restrict" }),
+    classId: text().references(() => schoolClasses.id, {
+      onDelete: "restrict",
+    }),
+    academicYearId: text().references(() => academicYears.id, {
+      onDelete: "restrict",
+    }),
+    createdAt: timestamp().notNull().defaultNow(),
+    deletedAt: timestamp(),
+  },
+  (t) => [
+    index("subject_teacher_institution_idx").on(t.institutionId),
+    index("subject_teacher_membership_idx").on(t.membershipId),
+    index("subject_teacher_subject_idx").on(t.subjectId),
+    uniqueIndex("subject_teacher_unique_idx")
+      .on(t.membershipId, t.subjectId, t.classId)
+      .where(sql`${t.deletedAt} IS NULL`),
+  ],
+);

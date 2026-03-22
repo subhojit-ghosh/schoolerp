@@ -1639,7 +1639,9 @@ export class StudentsService {
         email: user.email,
       })
       .from(user)
-      .where(and(eq(user.institutionId, institutionId), eq(user.mobile, mobile)))
+      .where(
+        and(eq(user.institutionId, institutionId), eq(user.mobile, mobile)),
+      )
       .limit(1);
 
     if (matchedMobileUser) {

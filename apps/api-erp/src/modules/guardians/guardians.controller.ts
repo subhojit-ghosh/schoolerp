@@ -99,7 +99,9 @@ export class GuardiansController {
   @Post(":guardianId/reset-password")
   @RequirePermission(PERMISSIONS.GUARDIANS_MANAGE)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Reset a guardian's password to their mobile number" })
+  @ApiOperation({
+    summary: "Reset a guardian's password to their mobile number",
+  })
   @ApiNoContentResponse()
   resetPassword(
     @CurrentInstitution() institution: TenantInstitution,

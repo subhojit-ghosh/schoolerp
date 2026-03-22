@@ -84,7 +84,10 @@ function buildExamReportCardHref(
 export function ExamsPage() {
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.EXAMS_READ) ? institutionId : undefined;
+  const managedInstitutionId =
+    isStaffContext(session) && hasPermission(session, PERMISSIONS.EXAMS_READ)
+      ? institutionId
+      : undefined;
   const academicYearsQuery = useAcademicYearsQuery(managedInstitutionId);
   const studentOptionsQuery = useStudentOptionsQuery(managedInstitutionId);
   const examTermsQuery = useExamTermsQuery(managedInstitutionId);

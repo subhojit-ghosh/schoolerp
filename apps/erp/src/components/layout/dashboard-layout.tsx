@@ -38,7 +38,6 @@ import { useAuthStore } from "@/features/auth/model/auth-store";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/ui/sidebar";
 import { ERP_ROUTES } from "@/constants/routes";
 
-
 const ALL_QUICK_ACTIONS = [
   {
     icon: IconUsers,
@@ -135,15 +134,11 @@ export function DashboardLayout() {
         },
         {
           label: "Teaching",
-          items: filterByPermission(
-            getActionableNavItems(NAV_TEACHING),
-          ),
+          items: filterByPermission(getActionableNavItems(NAV_TEACHING)),
         },
         {
           label: "Academic Setup",
-          items: filterByPermission(
-            getActionableNavItems(NAV_ACADEMIC_SETUP),
-          ),
+          items: filterByPermission(getActionableNavItems(NAV_ACADEMIC_SETUP)),
         },
         {
           label: "Finance",

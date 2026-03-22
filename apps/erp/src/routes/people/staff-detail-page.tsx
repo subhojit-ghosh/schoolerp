@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import { IconChevronLeft } from "@tabler/icons-react";
@@ -20,17 +20,26 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
 import {
   useCreateStaffRoleAssignmentMutation,
   useDeleteStaffRoleAssignmentMutation,
+  useResetStaffPasswordMutation,
   useStaffDetailQuery,
   useStaffRoleAssignmentsQuery,
   useStaffRolesQuery,
+  useStaffSubjectAssignmentsQuery,
+  useCreateStaffSubjectAssignmentMutation,
+  useDeleteStaffSubjectAssignmentMutation,
   useUpdateStaffMutation,
 } from "@/features/staff/api/use-staff";
-import { type StaffFormValues } from "@/features/staff/model/staff-form-schema";
+import {
+  EMPTY_STAFF_PROFILE,
+  type StaffFormValues,
+} from "@/features/staff/model/staff-form-schema";
 import { StaffForm } from "@/features/staff/ui/staff-form";
 import { StaffRoleAssignmentsCard } from "@/features/staff/ui/staff-role-assignments-card";
+import { StaffSubjectAssignmentsCard } from "@/features/staff/ui/staff-subject-assignments-card";
 import { ERP_ROUTES } from "@/constants/routes";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
@@ -65,6 +74,17 @@ export function StaffDetailPage() {
     useCreateStaffRoleAssignmentMutation(managedInstitutionId);
   const deleteAssignmentMutation =
     useDeleteStaffRoleAssignmentMutation(managedInstitutionId);
+  const resetPasswordMutation =
+    useResetStaffPasswordMutation(managedInstitutionId);
+  const subjectAssignmentsQuery = useStaffSubjectAssignmentsQuery(
+    managedInstitutionId,
+    staffId,
+  );
+  const createSubjectMutation =
+    useCreateStaffSubjectAssignmentMutation(managedInstitutionId);
+  const deleteSubjectMutation =
+    useDeleteStaffSubjectAssignmentMutation(managedInstitutionId);
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
   const updateError = updateStaffMutation.error as Error | null | undefined;
   const createAssignmentError = createAssignmentMutation.error as
     | Error
@@ -79,14 +99,40 @@ export function StaffDetailPage() {
     const staffRecord = staffQuery.data;
 
     if (!staffRecord) {
-      return { name: "", mobile: "", email: "", status: "active" as const };
+      return {
+        name: "",
+        mobile: "",
+        email: "",
+        status: "active" as const,
+        profile: { ...EMPTY_STAFF_PROFILE },
+      };
     }
+
+    const profile = staffRecord.profile;
 
     return {
       name: staffRecord.name,
       mobile: staffRecord.mobile,
       email: staffRecord.email ?? "",
       status: staffRecord.status as "active" | "inactive" | "suspended",
+      profile: {
+        employeeId: profile?.employeeId ?? "",
+        designation: profile?.designation ?? "",
+        department: profile?.department ?? "",
+        dateOfJoining: profile?.dateOfJoining ?? "",
+        dateOfBirth: profile?.dateOfBirth ?? "",
+        gender: profile?.gender ?? "",
+        bloodGroup: profile?.bloodGroup ?? "",
+        address: profile?.address ?? "",
+        emergencyContactName: profile?.emergencyContactName ?? "",
+        emergencyContactMobile: profile?.emergencyContactMobile ?? "",
+        qualification: profile?.qualification ?? "",
+        experienceYears:
+          profile?.experienceYears != null
+            ? String(profile.experienceYears)
+            : "",
+        employmentType: profile?.employmentType ?? "",
+      },
     };
   }, [staffQuery.data]);
 
@@ -101,7 +147,8 @@ export function StaffDetailPage() {
           staffId,
         },
       },
-      body: values,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      body: values as any,
     });
 
     toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_RECORD));
@@ -144,6 +191,60 @@ export function StaffDetailPage() {
     });
 
     toast.success("Role assignment removed.");
+  }
+
+  async function handleResetPassword() {
+    if (!institutionId || !staffId) {
+      return;
+    }
+
+    await resetPasswordMutation.mutateAsync({
+      params: {
+        path: {
+          staffId,
+        },
+      },
+    });
+
+    setResetPasswordOpen(false);
+    toast.success("Password reset successfully.");
+  }
+
+  async function onCreateSubjectAssignment(values: {
+    subjectId: string;
+    classId?: string;
+  }) {
+    if (!institutionId || !staffId) {
+      return;
+    }
+
+    await createSubjectMutation.mutateAsync({
+      params: {
+        path: {
+          staffId,
+        },
+      },
+      body: values,
+    });
+
+    toast.success("Subject assignment added.");
+  }
+
+  async function onDeleteSubjectAssignment(assignmentId: string) {
+    if (!institutionId || !staffId) {
+      return;
+    }
+
+    await deleteSubjectMutation.mutateAsync({
+      params: {
+        path: {
+          staffId,
+          assignmentId,
+        },
+      },
+    });
+
+    toast.success("Subject assignment removed.");
   }
 
   if (!institutionId) {
@@ -215,14 +316,23 @@ export function StaffDetailPage() {
     <EntityPageShell width="full">
       <EntityDetailPageHeader
         actions={
-          <Button
-            onClick={() =>
-              void navigate(appendSearch(ERP_ROUTES.STAFF, location.search))
-            }
-            variant="outline"
-          >
-            Done
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setResetPasswordOpen(true)}
+              size="sm"
+              variant="outline"
+            >
+              Reset password
+            </Button>
+            <Button
+              onClick={() =>
+                void navigate(appendSearch(ERP_ROUTES.STAFF, location.search))
+              }
+              variant="outline"
+            >
+              Done
+            </Button>
+          </div>
         }
         avatar={
           <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-lg font-semibold text-muted-foreground">
@@ -260,83 +370,82 @@ export function StaffDetailPage() {
         title={staffRecord.name}
       />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <Card>
-          <CardHeader>
-            <CardTitle>Edit staff</CardTitle>
-            <CardDescription>
-              Update the staff identity details and membership status for the
-              active campus.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <StaffForm
-              campusName={staffRecord.campusName}
-              defaultValues={defaultValues}
-              errorMessage={updateError?.message}
-              isPending={updateStaffMutation.isPending}
-              onSubmit={onSubmit}
-              submitLabel="Save changes"
-            />
-          </CardContent>
-        </Card>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Membership summary</CardTitle>
-              <CardDescription>
-                Current tenant-scoped membership state for this staff record.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="rounded-xl border border-border/70 bg-background/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
-                  Member type
-                </p>
-                <p className="mt-2 text-sm font-medium">
-                  {staffRecord.memberType}
-                </p>
-              </div>
-              <div className="rounded-xl border border-border/70 bg-background/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
-                  Primary campus
-                </p>
-                <p className="mt-2 text-sm font-medium">
-                  {staffRecord.campusName}
-                </p>
-              </div>
-              <div className="rounded-xl border border-border/70 bg-background/80 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground/70">
-                  Latest assigned role
-                </p>
-                <p className="mt-2 text-sm font-medium">
-                  {staffRecord.role?.name ?? "No role assigned"}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <StaffRoleAssignmentsCard
-            assignments={assignmentsQuery.data ?? []}
-            assignmentsErrorMessage={
-              assignmentsQuery.isError
-                ? "Role assignments could not be loaded."
-                : undefined
-            }
-            campuses={campuses}
-            canManageAssignments={staffRolesQuery.isSuccess}
-            createErrorMessage={createAssignmentError?.message}
-            deleteErrorMessage={deleteAssignmentError?.message}
-            isAssignmentsLoading={assignmentsQuery.isLoading}
-            isCreating={createAssignmentMutation.isPending}
-            isDeleting={deleteAssignmentMutation.isPending}
-            onCreateAssignment={onCreateAssignment}
-            onDeleteAssignment={onDeleteAssignment}
-            roles={staffRolesQuery.data ?? []}
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit staff</CardTitle>
+          <CardDescription>
+            Update the staff identity details and membership status for the
+            active campus.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <StaffForm
+            campusName={staffRecord.campusName}
+            defaultValues={defaultValues}
+            errorMessage={updateError?.message}
+            isPending={updateStaffMutation.isPending}
+            onSubmit={onSubmit}
+            submitLabel="Save changes"
           />
-        </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <StaffRoleAssignmentsCard
+          assignments={assignmentsQuery.data ?? []}
+          assignmentsErrorMessage={
+            assignmentsQuery.isError
+              ? "Role assignments could not be loaded."
+              : undefined
+          }
+          campuses={campuses}
+          canManageAssignments={staffRolesQuery.isSuccess}
+          createErrorMessage={createAssignmentError?.message}
+          deleteErrorMessage={deleteAssignmentError?.message}
+          isAssignmentsLoading={assignmentsQuery.isLoading}
+          isCreating={createAssignmentMutation.isPending}
+          isDeleting={deleteAssignmentMutation.isPending}
+          onCreateAssignment={onCreateAssignment}
+          onDeleteAssignment={onDeleteAssignment}
+          roles={staffRolesQuery.data ?? []}
+        />
+
+        <StaffSubjectAssignmentsCard
+          assignments={
+            (subjectAssignmentsQuery.data ?? []) as {
+              id: string;
+              subjectId: string;
+              subjectName: string;
+              classId: string | null;
+              className: string | null;
+              academicYearId: string | null;
+              academicYearName: string | null;
+              createdAt: string;
+            }[]
+          }
+          isLoading={subjectAssignmentsQuery.isLoading}
+          isCreating={createSubjectMutation.isPending}
+          isDeleting={deleteSubjectMutation.isPending}
+          createErrorMessage={
+            (createSubjectMutation.error as Error | null)?.message
+          }
+          onCreateAssignment={onCreateSubjectAssignment}
+          onDeleteAssignment={onDeleteSubjectAssignment}
+          institutionId={managedInstitutionId}
+        />
       </div>
+
+      <ConfirmDialog
+        confirmLabel="Reset password"
+        description={`Reset this staff member's password to their mobile number? They will be required to change it on next login.`}
+        isPending={resetPasswordMutation.isPending}
+        onConfirm={() => {
+          void handleResetPassword();
+        }}
+        onOpenChange={setResetPasswordOpen}
+        open={resetPasswordOpen}
+        title="Reset password"
+      />
     </EntityPageShell>
   );
 }

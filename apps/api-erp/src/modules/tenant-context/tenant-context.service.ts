@@ -185,13 +185,9 @@ export class TenantContextService {
     host: string | undefined,
     tenantQuery: string | undefined,
   ) {
-    let tenant = null;
-
-    if (tenantQuery) {
-      tenant = await this.getOrganizationBySlug(tenantQuery);
-    } else {
-      tenant = await this.resolveInstitutionFromHost(host);
-    }
+    const tenant = tenantQuery
+      ? await this.getOrganizationBySlug(tenantQuery)
+      : await this.resolveInstitutionFromHost(host);
 
     if (!tenant) {
       return DEFAULT_TENANT_BRANDING;

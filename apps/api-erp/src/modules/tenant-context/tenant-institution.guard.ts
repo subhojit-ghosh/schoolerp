@@ -16,9 +16,10 @@ export class TenantInstitutionGuard implements CanActivate {
   async canActivate(context: ExecutionContext) {
     const request = context.switchToHttp().getRequest<TenantRequest>();
 
-    const tenantInstitution = await this.tenantContextService.resolveInstitutionFromHost(
-      request.headers.host,
-    );
+    const tenantInstitution =
+      await this.tenantContextService.resolveInstitutionFromHost(
+        request.headers.host,
+      );
 
     if (!tenantInstitution) {
       throw new NotFoundException(ERROR_MESSAGES.TENANT.INSTITUTION_NOT_FOUND);

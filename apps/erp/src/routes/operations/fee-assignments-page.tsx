@@ -48,7 +48,10 @@ import {
   ERP_ROUTES,
 } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
-import { hasPermission, isStaffContext } from "@/features/auth/model/auth-context";
+import {
+  hasPermission,
+  isStaffContext,
+} from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { DataExchangeEntityActions } from "@/features/data-exchange/ui/data-exchange-entity-actions";
 import {
@@ -102,8 +105,12 @@ export function FeeAssignmentsPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageFees = isStaffContext(session) && hasPermission(session, PERMISSIONS.FEES_MANAGE);
-  const canQueryFees = isStaffContext(session) && hasPermission(session, PERMISSIONS.FEES_READ) && Boolean(institutionId);
+  const canManageFees =
+    isStaffContext(session) && hasPermission(session, PERMISSIONS.FEES_MANAGE);
+  const canQueryFees =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.FEES_READ) &&
+    Boolean(institutionId);
 
   const deleteMutation = useDeleteFeeAssignmentMutation();
   const [deleteTarget, setDeleteTarget] = useState<FeeAssignmentRow | null>(
@@ -394,9 +401,11 @@ export function FeeAssignmentsPage() {
       <EntityListPage
         actions={
           <div className="flex items-center gap-3">
-            {canManageFees && <DataExchangeEntityActions
-              entityType={DATA_EXCHANGE_ENTITY_TYPES.FEE_ASSIGNMENTS}
-            />}
+            {canManageFees && (
+              <DataExchangeEntityActions
+                entityType={DATA_EXCHANGE_ENTITY_TYPES.FEE_ASSIGNMENTS}
+              />
+            )}
             <EntityToolbarSecondaryAction asChild>
               <Link
                 to={appendSearch(

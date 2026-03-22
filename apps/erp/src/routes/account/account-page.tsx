@@ -116,9 +116,7 @@ export function AccountPage() {
               disabled={changePasswordMutation.isPending}
               type="submit"
             >
-              {changePasswordMutation.isPending
-                ? "Saving…"
-                : "Change password"}
+              {changePasswordMutation.isPending ? "Saving…" : "Change password"}
             </Button>
           </div>
         </form>

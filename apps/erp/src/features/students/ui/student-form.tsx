@@ -352,7 +352,9 @@ export function StudentForm({
             name="firstName"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="first-name" required>First name</FieldLabel>
+                <FieldLabel htmlFor="first-name" required>
+                  First name
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}

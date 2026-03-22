@@ -77,7 +77,10 @@ export function SubjectsPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const canQuerySubjects = isStaffContext(session) && hasPermission(session, PERMISSIONS.ACADEMICS_READ) && Boolean(institutionId);
+  const canQuerySubjects =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.ACADEMICS_READ) &&
+    Boolean(institutionId);
   const setStatusMutation = useSetSubjectStatusMutation();
   const deleteMutation = useDeleteSubjectMutation();
   const [deleteTarget, setDeleteTarget] = useState<SubjectRow | null>(null);

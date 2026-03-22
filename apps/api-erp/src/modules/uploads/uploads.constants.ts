@@ -4,8 +4,7 @@ export const UPLOAD_FOLDERS = {
   AVATAR: "avatar",
 } as const;
 
-export type UploadFolder =
-  (typeof UPLOAD_FOLDERS)[keyof typeof UPLOAD_FOLDERS];
+export type UploadFolder = (typeof UPLOAD_FOLDERS)[keyof typeof UPLOAD_FOLDERS];
 
 export const UPLOAD_MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 

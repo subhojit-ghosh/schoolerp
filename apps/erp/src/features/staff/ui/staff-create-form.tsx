@@ -21,6 +21,12 @@ import {
   SelectValue,
 } from "@repo/ui/components/ui/select";
 import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@repo/ui/components/ui/tabs";
+import {
   STAFF_STATUS_OPTIONS,
   staffCreateFormSchema,
   type StaffCreateFormValues,
@@ -29,6 +35,10 @@ import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
 } from "@/components/entities/entity-actions";
+import {
+  StaffEmploymentFields,
+  StaffPersonalFields,
+} from "./staff-profile-fields";
 
 type StaffCreateFormProps = {
   afterFields?: ReactNode;
@@ -63,127 +73,155 @@ export function StaffCreateForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <FieldGroup className="gap-6">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Controller
-            control={control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="staff-name" required>Full name</FieldLabel>
-                <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    id="staff-name"
-                    placeholder="Staff full name"
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
-          <Controller
-            control={control}
-            name="mobile"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="staff-mobile" required>Mobile</FieldLabel>
-                <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    id="staff-mobile"
-                    inputMode="tel"
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
-          <Controller
-            control={control}
-            name="email"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="staff-email">Email</FieldLabel>
-                <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    id="staff-email"
-                    placeholder="Optional staff email"
-                    type="email"
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
-          <Controller
-            control={control}
-            name="temporaryPassword"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="staff-temporary-password" required>
-                  Temporary password
-                </FieldLabel>
-                <FieldContent>
-                  <PasswordInput
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    autoComplete="new-password"
-                    id="staff-temporary-password"
-                  />
-                  <FieldDescription>
-                    Staff will be asked to change this on first login.
-                  </FieldDescription>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
-          {campusName ? (
-            <Field>
-              <FieldLabel>Primary campus</FieldLabel>
-              <FieldContent>
-                <div className="flex h-10 items-center">
-                  <Badge
-                    className="rounded-md px-3 py-1 font-medium"
-                    variant="secondary"
-                  >
-                    {campusName}
-                  </Badge>
-                </div>
-              </FieldContent>
-            </Field>
-          ) : null}
-          <Controller
-            control={control}
-            name="status"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel required>Status</FieldLabel>
-                <FieldContent>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger aria-invalid={fieldState.invalid}>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {STAFF_STATUS_OPTIONS.map((status) => (
-                          <SelectItem key={status} value={status}>
-                            {toTitleCase(status)}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
-        </div>
+        <Tabs defaultValue="identity">
+          <TabsList variant="line" className="w-full justify-start border-b">
+            <TabsTrigger value="identity">Identity</TabsTrigger>
+            <TabsTrigger value="employment">Employment</TabsTrigger>
+            <TabsTrigger value="personal">Personal</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="identity">
+            <div className="grid gap-4 pt-6 sm:grid-cols-2">
+              <Controller
+                control={control}
+                name="name"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <FieldLabel htmlFor="staff-name" required>
+                      Full name
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        id="staff-name"
+                      />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </FieldContent>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="mobile"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <FieldLabel htmlFor="staff-mobile" required>
+                      Mobile
+                    </FieldLabel>
+                    <FieldContent>
+                      <Input
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        id="staff-mobile"
+                        inputMode="tel"
+                      />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </FieldContent>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="email"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <FieldLabel htmlFor="staff-email">Email</FieldLabel>
+                    <FieldContent>
+                      <Input
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        id="staff-email"
+                        placeholder="Optional staff email"
+                        type="email"
+                      />
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </FieldContent>
+                  </Field>
+                )}
+              />
+              <Controller
+                control={control}
+                name="temporaryPassword"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <FieldLabel htmlFor="staff-temporary-password" required>
+                      Temporary password
+                    </FieldLabel>
+                    <FieldContent>
+                      <PasswordInput
+                        {...field}
+                        aria-invalid={fieldState.invalid}
+                        autoComplete="new-password"
+                        id="staff-temporary-password"
+                      />
+                      <FieldDescription>
+                        Staff will be asked to change this on first login.
+                      </FieldDescription>
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </FieldContent>
+                  </Field>
+                )}
+              />
+              {campusName ? (
+                <Field>
+                  <FieldLabel>Primary campus</FieldLabel>
+                  <FieldContent>
+                    <div className="flex h-10 items-center">
+                      <Badge
+                        className="rounded-md px-3 py-1 font-medium"
+                        variant="secondary"
+                      >
+                        {campusName}
+                      </Badge>
+                    </div>
+                  </FieldContent>
+                </Field>
+              ) : null}
+              <Controller
+                control={control}
+                name="status"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <FieldLabel required>Status</FieldLabel>
+                    <FieldContent>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger aria-invalid={fieldState.invalid}>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            {STAFF_STATUS_OPTIONS.map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {toTitleCase(status)}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </FieldContent>
+                  </Field>
+                )}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="employment">
+            <div className="pt-6">
+              <StaffEmploymentFields control={control} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="personal">
+            <div className="pt-6">
+              <StaffPersonalFields control={control} />
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {afterFields}
 

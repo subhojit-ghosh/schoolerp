@@ -59,8 +59,14 @@ export function GuardiansPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const canManageGuardians = isStaffContext(session) && hasPermission(session, PERMISSIONS.GUARDIANS_MANAGE);
-  const managedInstitutionId = isStaffContext(session) && hasPermission(session, PERMISSIONS.GUARDIANS_READ) ? institutionId : undefined;
+  const canManageGuardians =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.GUARDIANS_MANAGE);
+  const managedInstitutionId =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.GUARDIANS_READ)
+      ? institutionId
+      : undefined;
   const {
     queryState,
     searchInput,
@@ -258,9 +264,11 @@ export function GuardiansPage() {
             <EntityToolbarSecondaryAction asChild>
               <Link to={ERP_ROUTES.STUDENTS}>Go to students</Link>
             </EntityToolbarSecondaryAction>
-            {canManageGuardians && <DataExchangeEntityActions
-              entityType={DATA_EXCHANGE_ENTITY_TYPES.GUARDIANS}
-            />}
+            {canManageGuardians && (
+              <DataExchangeEntityActions
+                entityType={DATA_EXCHANGE_ENTITY_TYPES.GUARDIANS}
+              />
+            )}
           </div>
         </div>
       }

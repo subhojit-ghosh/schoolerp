@@ -34,17 +34,20 @@ import {
   CreateStaffResultDto,
   CreateStaffBodyDto,
   CreateStaffRoleAssignmentBodyDto,
+  CreateSubjectTeacherAssignmentBodyDto,
   ListStaffQueryDto,
   ListStaffResultDto,
   SetStaffStatusBodyDto,
   StaffDto,
   StaffRoleAssignmentDto,
   StaffRoleDto,
+  SubjectTeacherAssignmentDto,
   UpdateStaffBodyDto,
 } from "./staff.dto";
 import {
   parseCreateStaff,
   parseCreateStaffRoleAssignment,
+  parseCreateSubjectTeacherAssignment,
   parseListStaffQuery,
   parseSetStaffStatus,
   parseUpdateStaff,
@@ -240,7 +243,9 @@ export class StaffController {
   @Post(":staffId/reset-password")
   @RequirePermission(PERMISSIONS.STAFF_MANAGE)
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Reset a staff member's password to their mobile number" })
+  @ApiOperation({
+    summary: "Reset a staff member's password to their mobile number",
+  })
   @ApiNoContentResponse()
   resetPassword(
     @CurrentInstitution() institution: TenantInstitution,
@@ -251,6 +256,66 @@ export class StaffController {
     return this.staffService.resetMemberPassword(
       institution.id,
       staffId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Get(`:staffId/${API_ROUTES.SUBJECTS}`)
+  @RequirePermission(PERMISSIONS.STAFF_READ)
+  @ApiOperation({ summary: "List subject assignments for a staff member" })
+  @ApiOkResponse({ type: SubjectTeacherAssignmentDto, isArray: true })
+  listSubjectAssignments(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+  ) {
+    return this.staffService.listSubjectAssignments(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Post(`:staffId/${API_ROUTES.SUBJECTS}`)
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
+  @ApiOperation({ summary: "Assign a subject to a staff member" })
+  @ApiBody({ type: CreateSubjectTeacherAssignmentBodyDto })
+  @ApiOkResponse({ type: SubjectTeacherAssignmentDto })
+  createSubjectAssignment(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+    @Body() body: CreateSubjectTeacherAssignmentBodyDto,
+  ) {
+    return this.staffService.createSubjectAssignment(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+      parseCreateSubjectTeacherAssignment(body),
+    );
+  }
+
+  @Delete(`:staffId/${API_ROUTES.SUBJECTS}/:assignmentId`)
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Remove a subject assignment from a staff member" })
+  @ApiNoContentResponse()
+  removeSubjectAssignment(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+    @Param("assignmentId") assignmentId: string,
+  ) {
+    return this.staffService.removeSubjectAssignment(
+      institution.id,
+      staffId,
+      assignmentId,
       authSession,
       scopes,
     );

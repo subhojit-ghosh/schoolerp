@@ -46,7 +46,11 @@ import {
   parseSwitchCampus,
   parseSwitchContext,
 } from "./auth.schemas";
-import type { AuthenticatedSession, AuthenticatedUser, ValidatedUser } from "./auth.types";
+import type {
+  AuthenticatedSession,
+  AuthenticatedUser,
+  ValidatedUser,
+} from "./auth.types";
 import { readCookieValue } from "./auth.utils";
 
 @ApiTags(API_DOCS.TAGS.AUTH)
@@ -135,7 +139,9 @@ export class AuthController {
   }
 
   @Post(AUTH_ROUTES.COMPLETE_SETUP)
-  @ApiOperation({ summary: "Complete first-login password setup and start a session" })
+  @ApiOperation({
+    summary: "Complete first-login password setup and start a session",
+  })
   @ApiBody({ type: CompleteSetupBodyDto })
   @ApiOkResponse({ type: AuthContextDto })
   async completeSetup(

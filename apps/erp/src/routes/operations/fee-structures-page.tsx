@@ -41,7 +41,10 @@ import {
 } from "@/components/data-display/server-data-table";
 import { buildFeeStructureEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
-import { hasPermission, isStaffContext } from "@/features/auth/model/auth-context";
+import {
+  hasPermission,
+  isStaffContext,
+} from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
   useDeleteFeeStructureMutation,
@@ -86,7 +89,10 @@ export function FeeStructuresPage() {
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
-  const canQueryFees = isStaffContext(session) && hasPermission(session, PERMISSIONS.FEES_READ) && Boolean(institutionId);
+  const canQueryFees =
+    isStaffContext(session) &&
+    hasPermission(session, PERMISSIONS.FEES_READ) &&
+    Boolean(institutionId);
 
   const deleteMutation = useDeleteFeeStructureMutation();
   const duplicateMutation = useDuplicateFeeStructureMutation();

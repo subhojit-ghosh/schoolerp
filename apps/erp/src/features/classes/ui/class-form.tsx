@@ -137,7 +137,9 @@ export function ClassForm({
             name="name"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="class-name" required>Class name</FieldLabel>
+                <FieldLabel htmlFor="class-name" required>
+                  Class name
+                </FieldLabel>
                 <FieldContent>
                   <Input
                     {...field}
