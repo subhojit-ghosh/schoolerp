@@ -1,33 +1,45 @@
 {
 	email admin@example.com
+}
 
-	on_demand_tls {
-		ask http://127.0.0.1:5002/internal/tls/allow
+erp.example.com {
+	encode zstd gzip
+
+	handle_path /api/* {
+		reverse_proxy 127.0.0.1:5002
+	}
+
+	handle /openapi.json {
+		reverse_proxy 127.0.0.1:5002
+	}
+
+	handle /reference* {
+		reverse_proxy 127.0.0.1:5002
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:5001
 	}
 }
 
-https:// {
-	tls {
-		on_demand
-	}
+*.erp.example.com {
+	# Wildcard tenant hosts require a wildcard certificate.
+	# Configure a DNS challenge for your DNS provider before using this block.
+	# Example:
+	# tls {
+	#   dns cloudflare {env.CLOUDFLARE_API_TOKEN}
+	# }
 
-	encode zstd gzip
-
-	@api path /api/*
-	@docs path /openapi.json /reference*
-	@root host erp.example.com
-
-	handle @api {
-		uri strip_prefix /api
+	handle_path /api/* {
 		reverse_proxy 127.0.0.1:5002
 	}
 
-	handle @docs {
+	handle /openapi.json {
 		reverse_proxy 127.0.0.1:5002
 	}
 
-	handle @root {
-		reverse_proxy 127.0.0.1:5001
+	handle /reference* {
+		reverse_proxy 127.0.0.1:5002
 	}
 
 	handle {

@@ -20,7 +20,7 @@ This setup assumes:
 - root app lives at `https://ROOT_HOST`
 - tenant app lives at `https://<tenant>.ROOT_DOMAIN`
 
-The example host Caddy config uses on-demand TLS. For wildcard tenant subdomains and stored institution custom domains, the first HTTPS request provisions the certificate automatically after DNS points at the VPS.
+The example host Caddy config uses explicit root-domain and wildcard-domain site blocks.
 
 ## 2. Prepare environment
 
@@ -51,11 +51,12 @@ The app services bind only to loopback:
 - `127.0.0.1:5000` -> tenant ERP SPA
 - `127.0.0.1:5002` -> Nest API
 
-Start the database and migrate:
+Start the database, migrate, and seed:
 
 ```bash
 docker compose --env-file ops/docker/.env.production up -d postgres
 docker compose --env-file ops/docker/.env.production --profile ops run --rm migrate
+docker compose --env-file ops/docker/.env.production --profile ops run --rm seed
 ```
 
 Then start the app containers:
@@ -73,6 +74,13 @@ Use `ops/Caddyfile.production.example` as the starting point for the VPS Caddyfi
 
 Then reload Caddy on the host.
 
+Important:
+
+- The `*.your-root-domain` tenant block needs a wildcard certificate.
+- With Caddy, wildcard certificates require DNS challenge configuration for your DNS provider.
+- The example file includes a commented `tls { dns ... }` section to fill in.
+- This explicit domain-based example does not automatically cover arbitrary institution custom domains. For custom domains, either add explicit site blocks or switch to an on-demand TLS setup.
+
 Before starting the stack, confirm those host ports are free:
 
 ```bash
@@ -86,6 +94,7 @@ If that command prints no listening sockets, the ports are free.
 ```bash
 git pull
 docker compose --env-file ops/docker/.env.production --profile ops run --rm migrate
+docker compose --env-file ops/docker/.env.production --profile ops run --rm seed
 docker compose --env-file ops/docker/.env.production up -d --build
 ```
 
@@ -94,6 +103,7 @@ docker compose --env-file ops/docker/.env.production up -d --build
 - API traffic is routed through same-host `/api` to preserve cookie auth behavior.
 - Cookies are scoped to the exact incoming hostname by the backend. `AUTH_COOKIE_DOMAIN` is only the fallback value when no request hostname is available.
 - The ERP frontend build bakes in `ROOT_HOST` and `ROOT_DOMAIN`, so rebuild containers after changing domains.
-- Host Caddy asks the API whether a hostname is allowed before issuing a certificate. Root host, `*.ROOT_DOMAIN`, and institution `customDomain` values are allowed.
+- The provided Caddy example is explicit-domain based: one block for the root app and one wildcard block for tenant subdomains.
 - The stack uses the official `postgres:18-alpine` image. PostgreSQL 18 changed the image's default data layout, so Compose sets `PGDATA=/var/lib/postgresql/18/docker` and mounts the volume at `/var/lib/postgresql`.
 - The runtime images use `node:lts-alpine`. That tracks the current Node LTS line automatically; if you want completely repeatable builds across time, pin it to a specific LTS major instead.
+- The `seed` service is safe to rerun for platform permissions and system roles because the seed script uses idempotent inserts.
