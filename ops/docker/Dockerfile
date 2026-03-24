@@ -35,7 +35,7 @@ COPY --from=workspace /app /app
 
 WORKDIR /app/apps/web
 
-CMD ["/app/node_modules/.bin/next", "start", "--port", "3001", "--hostname", "0.0.0.0"]
+CMD ["/app/apps/web/node_modules/.bin/next", "start", "--port", "3001", "--hostname", "0.0.0.0"]
 
 FROM node:lts-alpine AS api
 
