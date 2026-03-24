@@ -204,6 +204,20 @@
       "when": 1774158899553,
       "tag": "0028_petite_squirrel_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1774162358251,
+      "tag": "0029_mushy_obadiah_stane",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1774162742034,
+      "tag": "0030_uneven_odin",
+      "breakpoints": true
     }
   ]
 }

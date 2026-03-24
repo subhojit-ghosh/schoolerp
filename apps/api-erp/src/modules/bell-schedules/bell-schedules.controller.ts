@@ -60,7 +60,9 @@ export class BellSchedulesController {
 
   @Get()
   @RequirePermission(PERMISSIONS.ACADEMICS_READ)
-  @ApiOperation({ summary: "List bell schedules for the current tenant campus" })
+  @ApiOperation({
+    summary: "List bell schedules for the current tenant campus",
+  })
   @ApiQuery({ name: "page", required: false, type: Number })
   @ApiQuery({ name: "limit", required: false, type: Number })
   @ApiQuery({ name: "q", required: false, type: String })
@@ -163,7 +165,8 @@ export class BellSchedulesController {
   @Put(":scheduleId/periods")
   @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
   @ApiOperation({
-    summary: "Replace the full period list for a bell schedule in the current tenant",
+    summary:
+      "Replace the full period list for a bell schedule in the current tenant",
   })
   @ApiBody({ type: ReplaceBellSchedulePeriodsBodyDto })
   @ApiOkResponse({ type: BellScheduleDto })

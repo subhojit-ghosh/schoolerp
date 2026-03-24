@@ -111,7 +111,7 @@ export const ERROR_MESSAGES = {
     PERIOD_DUPLICATE_INDEX:
       "Bell schedule periods must use unique contiguous period numbers.",
     DEFAULT_SCHEDULE_REQUIRED:
-      "Each campus must keep one active default bell schedule.",
+      "Each campus must keep one default bell schedule for new timetable drafts.",
   },
   TIMETABLE: {
     CLASS_SECTION_REQUIRED: "Class and section are required for timetable.",
@@ -128,6 +128,15 @@ export const ERROR_MESSAGES = {
     COPY_SOURCE_NOT_FOUND: "The source class and section were not found.",
     COPY_SAME_SECTION:
       "Choose a different source section before copying the timetable.",
+    VERSION_NOT_FOUND: "The selected timetable version was not found.",
+    VERSION_NAME_EXISTS:
+      "That timetable version name is already in use for the selected section.",
+    VERSION_PUBLISHED_ONLY:
+      "Only published timetable versions can be assigned as the live timetable.",
+    VERSION_ARCHIVED:
+      "Archived timetable versions cannot be edited or published.",
+    ASSIGNMENT_DATE_RANGE_INVALID:
+      "Assignment end date must be on or after the effective start date.",
   },
   CALENDAR: {
     EVENT_NOT_FOUND: "The selected calendar event was not found.",

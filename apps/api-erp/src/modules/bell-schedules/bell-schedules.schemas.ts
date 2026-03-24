@@ -36,6 +36,13 @@ export const listBellSchedulesQuerySchema = baseListQuerySchema.extend({
       sortableBellScheduleColumns.createdAt,
     ])
     .optional(),
+  status: z
+    .enum([
+      BELL_SCHEDULE_STATUS.DRAFT,
+      BELL_SCHEDULE_STATUS.ACTIVE,
+      BELL_SCHEDULE_STATUS.ARCHIVED,
+    ])
+    .optional(),
 });
 
 export const createBellScheduleSchema = z.object({
@@ -43,17 +50,17 @@ export const createBellScheduleSchema = z.object({
   isDefault: z.boolean().optional(),
 });
 
-export const updateBellScheduleSchema = createBellScheduleSchema.partial().refine(
-  (value) => Object.keys(value).length > 0,
-  {
+export const updateBellScheduleSchema = createBellScheduleSchema
+  .partial()
+  .refine((value) => Object.keys(value).length > 0, {
     message: "At least one field is required",
-  },
-);
+  });
 
 export const setBellScheduleStatusSchema = z.object({
   status: z.enum([
+    BELL_SCHEDULE_STATUS.DRAFT,
     BELL_SCHEDULE_STATUS.ACTIVE,
-    BELL_SCHEDULE_STATUS.INACTIVE,
+    BELL_SCHEDULE_STATUS.ARCHIVED,
     BELL_SCHEDULE_STATUS.DELETED,
   ]),
 });
@@ -74,7 +81,9 @@ export const replaceBellSchedulePeriodsSchema = z
       });
     }
 
-    const sortedIndexes = [...uniqueIndexes].sort((left, right) => left - right);
+    const sortedIndexes = [...uniqueIndexes].sort(
+      (left, right) => left - right,
+    );
     const contiguous = sortedIndexes.every(
       (periodIndex, index) => periodIndex === index + 1,
     );
@@ -102,12 +111,17 @@ export const bellScheduleIdSchema = z.object({
 
 type ListBellSchedulesQueryInput = z.infer<typeof listBellSchedulesQuerySchema>;
 
-export type ListBellSchedulesQueryDto = Omit<ListBellSchedulesQueryInput, "q"> & {
+export type ListBellSchedulesQueryDto = Omit<
+  ListBellSchedulesQueryInput,
+  "q"
+> & {
   search?: string;
 };
 export type CreateBellScheduleDto = z.infer<typeof createBellScheduleSchema>;
 export type UpdateBellScheduleDto = z.infer<typeof updateBellScheduleSchema>;
-export type SetBellScheduleStatusDto = z.infer<typeof setBellScheduleStatusSchema>;
+export type SetBellScheduleStatusDto = z.infer<
+  typeof setBellScheduleStatusSchema
+>;
 export type ReplaceBellSchedulePeriodsDto = z.infer<
   typeof replaceBellSchedulePeriodsSchema
 >;
@@ -127,6 +141,7 @@ export function parseListBellSchedulesQuery(
     page: result.page,
     search: result.q,
     sort: result.sort,
+    status: result.status,
   };
 }
 

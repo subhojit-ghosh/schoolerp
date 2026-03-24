@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
-import { IconCopy } from "@tabler/icons-react";
+import { IconCopy, IconPlus, IconSend } from "@tabler/icons-react";
+import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
   Card,
@@ -18,11 +19,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@repo/ui/components/ui/dialog";
-import {
-  Field,
-  FieldContent,
-  FieldLabel,
-} from "@repo/ui/components/ui/field";
+import { Field, FieldContent, FieldLabel } from "@repo/ui/components/ui/field";
+import { Input } from "@repo/ui/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -30,10 +28,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
-import { ToggleGroup, ToggleGroupItem } from "@repo/ui/components/ui/toggle-group";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@repo/ui/components/ui/toggle-group";
 import {
   EntityFormPrimaryAction,
-  EntityFormSecondaryAction,
   EntityToolbarSecondaryAction,
 } from "@/components/entities/entity-actions";
 import {
@@ -55,8 +55,12 @@ import { useClassesQuery } from "@/features/classes/api/use-classes";
 import { useSubjectsQuery } from "@/features/subjects/api/use-subjects";
 import {
   useCopySectionTimetableMutation,
+  useCreateTimetableVersionMutation,
+  usePublishTimetableVersionMutation,
   useReplaceTimetableMutation,
+  useSetTimetableVersionStatusMutation,
   useTimetableQuery,
+  useTimetableVersionsQuery,
 } from "@/features/timetable/api/use-timetable";
 import { TimetableGrid } from "@/features/timetable/components/timetable-grid";
 import {
@@ -82,7 +86,19 @@ type SubjectOption = {
 type BellScheduleSummary = {
   id: string;
   isDefault: boolean;
-  status: "active" | "inactive" | "deleted";
+  name: string;
+  status: "draft" | "active" | "archived" | "deleted";
+};
+
+type TimetableVersionSummary = {
+  id: string;
+  name: string;
+  bellScheduleId: string;
+  bellScheduleName: string;
+  status: "draft" | "published" | "archived";
+  effectiveFrom: string | null;
+  effectiveTo: string | null;
+  isLive: boolean;
 };
 
 function buildConflictKeys(entries: Record<string, TimetableCellValue>) {
@@ -105,6 +121,48 @@ function buildConflictKeys(entries: Record<string, TimetableCellValue>) {
       .filter((keys) => keys.length > 1)
       .flat(),
   );
+}
+
+function buildDraftName(existingCount: number) {
+  return `Draft ${existingCount + 1}`;
+}
+
+function getTodayDateString() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function getVersionBadgeLabel(version: TimetableVersionSummary | undefined) {
+  if (!version) {
+    return "Version";
+  }
+
+  if (version.isLive) {
+    return "Live";
+  }
+
+  return version.status;
+}
+
+function getVersionBadgeVariant(
+  version: TimetableVersionSummary | undefined,
+): "default" | "outline" | "secondary" {
+  if (!version) {
+    return "outline";
+  }
+
+  if (version.isLive) {
+    return "default";
+  }
+
+  if (version.status === "draft") {
+    return "secondary";
+  }
+
+  return "outline";
+}
+
+function getVersionSelectLabel(version: TimetableVersionSummary) {
+  return `${version.name} • ${version.status}${version.isLive ? " • Live" : ""}`;
 }
 
 export function TimetablePage() {
@@ -144,23 +202,31 @@ export function TimetablePage() {
       ),
     [subjectsQuery.data?.rows],
   );
-  const defaultBellSchedule = useMemo(
-    () =>
-      ((bellSchedulesQuery.data?.rows ?? []) as BellScheduleSummary[]).find(
-        (schedule) => schedule.isDefault && schedule.status === "active",
-      ),
+  const bellSchedules = useMemo(
+    () => (bellSchedulesQuery.data?.rows ?? []) as BellScheduleSummary[],
     [bellSchedulesQuery.data?.rows],
+  );
+  const defaultBellSchedule = useMemo(
+    () => bellSchedules.find((schedule) => schedule.isDefault),
+    [bellSchedules],
   );
 
   const [classId, setClassId] = useState("");
   const [sectionId, setSectionId] = useState("");
-  const [visibleDays, setVisibleDays] = useState<string[]>(
-    [...DEFAULT_SCHOOL_DAY_VALUES],
+  const [selectedVersionId, setSelectedVersionId] = useState("");
+  const [visibleDays, setVisibleDays] = useState<string[]>([
+    ...DEFAULT_SCHOOL_DAY_VALUES,
+  ]);
+  const [entries, setEntries] = useState<Record<string, TimetableCellValue>>(
+    {},
   );
-  const [entries, setEntries] = useState<Record<string, TimetableCellValue>>({});
   const [copyDialogOpen, setCopyDialogOpen] = useState(false);
   const [copySourceClassId, setCopySourceClassId] = useState("");
   const [copySourceSectionId, setCopySourceSectionId] = useState("");
+  const [publishDialogOpen, setPublishDialogOpen] = useState(false);
+  const [publishEffectiveFrom, setPublishEffectiveFrom] =
+    useState(getTodayDateString());
+  const [publishEffectiveTo, setPublishEffectiveTo] = useState("");
 
   useEffect(() => {
     if (classId || classes.length === 0) {
@@ -189,16 +255,55 @@ export function TimetablePage() {
     }
   }, [sectionId, selectedClass]);
 
-  const bellScheduleDetailQuery = useBellScheduleQuery(
-    canQuery && Boolean(defaultBellSchedule?.id),
-    defaultBellSchedule?.id,
-  );
-  const timetableQuery = useTimetableQuery(
+  const versionsQuery = useTimetableVersionsQuery(
     canQuery && Boolean(classId && sectionId),
     { classId, sectionId },
   );
+  const versions = useMemo(
+    () => (versionsQuery.data ?? []) as TimetableVersionSummary[],
+    [versionsQuery.data],
+  );
+
+  useEffect(() => {
+    if (versions.length === 0) {
+      setSelectedVersionId("");
+      return;
+    }
+
+    if (versions.some((version) => version.id === selectedVersionId)) {
+      return;
+    }
+
+    const preferredVersion =
+      versions.find((version) => version.status === "draft") ??
+      versions.find((version) => version.isLive) ??
+      versions[0];
+
+    setSelectedVersionId(preferredVersion?.id ?? "");
+  }, [selectedVersionId, versions]);
+
+  const selectedVersion = useMemo(
+    () => versions.find((version) => version.id === selectedVersionId),
+    [selectedVersionId, versions],
+  );
+
+  const bellScheduleDetailQuery = useBellScheduleQuery(
+    canQuery && Boolean(selectedVersion?.bellScheduleId),
+    selectedVersion?.bellScheduleId,
+  );
+  const timetableQuery = useTimetableQuery(
+    canQuery && Boolean(classId && sectionId),
+    {
+      classId,
+      sectionId,
+      versionId: selectedVersionId || undefined,
+    },
+  );
   const replaceMutation = useReplaceTimetableMutation();
   const copyMutation = useCopySectionTimetableMutation();
+  const createVersionMutation = useCreateTimetableVersionMutation();
+  const publishVersionMutation = usePublishTimetableVersionMutation();
+  const setVersionStatusMutation = useSetTimetableVersionStatusMutation();
 
   useEffect(() => {
     if (!timetableQuery.data) {
@@ -231,13 +336,56 @@ export function TimetablePage() {
 
   const conflictKeys = useMemo(() => buildConflictKeys(entries), [entries]);
   const isBellSchedulePending =
-    bellSchedulesQuery.isLoading ||
-    (Boolean(defaultBellSchedule?.id) && bellScheduleDetailQuery.isLoading);
+    Boolean(selectedVersion?.bellScheduleId) &&
+    bellScheduleDetailQuery.isLoading;
   const isPageLoading =
-    classesQuery.isLoading || subjectsQuery.isLoading || isBellSchedulePending;
+    classesQuery.isLoading ||
+    subjectsQuery.isLoading ||
+    bellSchedulesQuery.isLoading ||
+    versionsQuery.isLoading ||
+    isBellSchedulePending;
+  const canEditSelectedVersion = selectedVersion?.status === "draft";
+
+  async function handleCreateVersion() {
+    if (!classId || !sectionId) {
+      return;
+    }
+
+    const bellScheduleId =
+      selectedVersion?.bellScheduleId ?? defaultBellSchedule?.id;
+
+    if (!bellScheduleId) {
+      toast.error(
+        "Create a bell schedule first before starting a timetable draft.",
+      );
+      return;
+    }
+
+    try {
+      const version = await createVersionMutation.mutateAsync({
+        body: {
+          classId,
+          sectionId,
+          name: buildDraftName(versions.length),
+          bellScheduleId,
+          duplicateFromVersionId: selectedVersionId || undefined,
+        },
+      });
+
+      setSelectedVersionId(version.id);
+      toast.success("Draft timetable version created.");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
+  }
 
   async function handleSave() {
-    if (!classId || !sectionId || !bellScheduleDetailQuery.data) {
+    if (
+      !classId ||
+      !sectionId ||
+      !selectedVersionId ||
+      !bellScheduleDetailQuery.data
+    ) {
       return;
     }
 
@@ -245,7 +393,10 @@ export function TimetablePage() {
       bellScheduleDetailQuery.data.periods.map((period) => [period.id, period]),
     );
     const periodByIndex = new Map(
-      bellScheduleDetailQuery.data.periods.map((period) => [period.periodIndex, period]),
+      bellScheduleDetailQuery.data.periods.map((period) => [
+        period.periodIndex,
+        period,
+      ]),
     );
 
     try {
@@ -253,6 +404,7 @@ export function TimetablePage() {
         params: { path: { sectionId } },
         body: {
           classId,
+          versionId: selectedVersionId,
           entries: Object.entries(entries).flatMap(([key, entry]) => {
             const [dayOfWeek, periodIndexValue] = key.split(":");
             const periodIndex = Number(periodIndexValue);
@@ -288,7 +440,13 @@ export function TimetablePage() {
   }
 
   async function handleCopy() {
-    if (!classId || !sectionId || !copySourceClassId || !copySourceSectionId) {
+    if (
+      !classId ||
+      !sectionId ||
+      !selectedVersionId ||
+      !copySourceClassId ||
+      !copySourceSectionId
+    ) {
       return;
     }
 
@@ -297,6 +455,7 @@ export function TimetablePage() {
         params: { path: { sectionId } },
         body: {
           classId,
+          versionId: selectedVersionId,
           sourceClassId: copySourceClassId,
           sourceSectionId: copySourceSectionId,
         },
@@ -309,13 +468,62 @@ export function TimetablePage() {
     }
   }
 
+  async function handlePublish() {
+    if (!selectedVersionId) {
+      return;
+    }
+
+    try {
+      await publishVersionMutation.mutateAsync({
+        params: {
+          path: {
+            versionId: selectedVersionId,
+          },
+        },
+        body: {
+          effectiveFrom: publishEffectiveFrom,
+          effectiveTo: publishEffectiveTo || undefined,
+        },
+      });
+
+      toast.success("Timetable version published.");
+      setPublishDialogOpen(false);
+      setPublishEffectiveTo("");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
+  }
+
+  async function handleArchive() {
+    if (!selectedVersionId) {
+      return;
+    }
+
+    try {
+      await setVersionStatusMutation.mutateAsync({
+        params: {
+          path: {
+            versionId: selectedVersionId,
+          },
+        },
+        body: {
+          status: "archived",
+        },
+      });
+      toast.success("Timetable version archived.");
+    } catch (error) {
+      toast.error((error as Error).message);
+    }
+  }
+
   if (!institutionId) {
     return (
       <Card>
         <CardHeader>
           <CardTitle>Timetable</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to manage timetable records.
+            Sign in with an institution-backed session to manage timetable
+            records.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -328,8 +536,8 @@ export function TimetablePage() {
         <CardHeader>
           <CardTitle>Timetable</CardTitle>
           <CardDescription>
-            Timetable administration is available in Staff view. You are currently in{" "}
-            {activeContext?.label ?? "another"} view.
+            Timetable administration is available in Staff view. You are
+            currently in {activeContext?.label ?? "another"} view.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -337,19 +545,16 @@ export function TimetablePage() {
   }
 
   return (
-    <EntityPageShell width="full">
+    <EntityPageShell width="full" className="gap-4">
       <EntityPageHeader
-        description="Build weekly class schedules by section with a bell-schedule-backed grid."
+        className="max-w-4xl"
+        description="Prepare timetable drafts, review a selected version, and publish changes on an explicit effective date."
         title="Timetable"
       />
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Section scope</CardTitle>
-          <CardDescription>Choose class and section before editing the grid.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-4 sm:grid-cols-2">
-          <Field>
+      <Card className="border-border/70 shadow-sm">
+        <CardContent className="grid gap-3 p-4 xl:grid-cols-[minmax(0,220px)_minmax(0,160px)_minmax(0,1fr)] xl:items-end">
+          <Field className="space-y-2">
             <FieldLabel htmlFor="timetable-class">Class</FieldLabel>
             <FieldContent>
               <Select
@@ -357,7 +562,7 @@ export function TimetablePage() {
                 value={classId}
                 disabled={classesQuery.isLoading || classes.length === 0}
               >
-                <SelectTrigger id="timetable-class">
+                <SelectTrigger id="timetable-class" className="h-10 rounded-xl">
                   <SelectValue placeholder="Select class" />
                 </SelectTrigger>
                 <SelectContent>
@@ -371,7 +576,7 @@ export function TimetablePage() {
             </FieldContent>
           </Field>
 
-          <Field>
+          <Field className="space-y-2">
             <FieldLabel htmlFor="timetable-section">Section</FieldLabel>
             <FieldContent>
               <Select
@@ -383,7 +588,10 @@ export function TimetablePage() {
                   selectedClass.sections.length === 0
                 }
               >
-                <SelectTrigger id="timetable-section">
+                <SelectTrigger
+                  id="timetable-section"
+                  className="h-10 rounded-xl"
+                >
                   <SelectValue placeholder="Select section" />
                 </SelectTrigger>
                 <SelectContent>
@@ -396,6 +604,29 @@ export function TimetablePage() {
               </Select>
             </FieldContent>
           </Field>
+
+          <div className="flex h-full flex-col justify-between rounded-2xl border border-border/70 bg-muted/[0.14] px-4 py-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-semibold text-foreground">
+                Editing scope
+              </p>
+              {selectedClass && sectionId ? (
+                <Badge
+                  variant="secondary"
+                  className="rounded-full px-2.5 py-0.5 font-medium"
+                >
+                  {selectedClass.name} •{" "}
+                  {selectedClass.sections.find(
+                    (section) => section.id === sectionId,
+                  )?.name ?? "—"}
+                </Badge>
+              ) : null}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Pick the class and section once. Versions, publishing, and the
+              grid stay scoped here.
+            </p>
+          </div>
         </CardContent>
       </Card>
 
@@ -404,16 +635,18 @@ export function TimetablePage() {
           <CardHeader>
             <CardTitle>Loading timetable</CardTitle>
             <CardDescription>
-              Fetching classes, subjects, and the active bell schedule for this campus.
+              Fetching classes, subjects, bell schedules, and timetable versions
+              for this section.
             </CardDescription>
           </CardHeader>
         </Card>
-      ) : !defaultBellSchedule || !bellScheduleDetailQuery.data ? (
+      ) : bellSchedules.length === 0 ? (
         <Card>
           <CardHeader>
             <CardTitle>Set up a bell schedule first</CardTitle>
             <CardDescription>
-              Timetable editing now uses the active default bell schedule for the current campus.
+              Timetable versions must point at an explicit bell schedule before
+              any draft can be prepared.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -422,44 +655,143 @@ export function TimetablePage() {
             </Button>
           </CardContent>
         </Card>
-      ) : (
+      ) : versions.length === 0 ? (
         <Card>
-          <CardHeader className="gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <CardTitle>Weekly schedule</CardTitle>
-              <CardDescription>
-                Assign subjects, teachers, and rooms into the weekly grid.
-              </CardDescription>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <EntityToolbarSecondaryAction
-                type="button"
-                onClick={() => setEntries({})}
-              >
-                Clear all
-              </EntityToolbarSecondaryAction>
-              <EntityToolbarSecondaryAction
-                type="button"
-                onClick={() => setCopyDialogOpen(true)}
-              >
-                <IconCopy data-icon="inline-start" />
-                Copy from section
-              </EntityToolbarSecondaryAction>
-              <EntityFormPrimaryAction
-                type="button"
-                onClick={() => void handleSave()}
-                disabled={replaceMutation.isPending || !classId || !sectionId}
-              >
-                {replaceMutation.isPending ? "Saving..." : "Save timetable"}
-              </EntityFormPrimaryAction>
-            </div>
+          <CardHeader>
+            <CardTitle>Create the first timetable draft</CardTitle>
+            <CardDescription>
+              Start from the section&apos;s default bell schedule, then publish
+              the draft when it is ready to go live.
+            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-5">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-sm font-medium">Visible days</p>
+          <CardContent>
+            <Button type="button" onClick={() => void handleCreateVersion()}>
+              <IconPlus data-icon="inline-start" />
+              New version
+            </Button>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="overflow-hidden border-border/70 shadow-sm">
+          <CardHeader className="gap-4 border-b border-border/60 bg-muted/[0.12] px-4 py-4 sm:px-5">
+            <div className="flex flex-col gap-3">
+              <Field className="max-w-xl space-y-2">
+                <FieldLabel htmlFor="timetable-version">Version</FieldLabel>
+                <FieldContent>
+                  <Select
+                    value={selectedVersionId}
+                    onValueChange={setSelectedVersionId}
+                  >
+                    <SelectTrigger
+                      id="timetable-version"
+                      className="h-10 rounded-xl bg-background"
+                    >
+                      <SelectValue placeholder="Select version" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {versions.map((version) => (
+                        <SelectItem key={version.id} value={version.id}>
+                          {getVersionSelectLabel(version)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FieldContent>
+              </Field>
+
+              <div className="rounded-2xl border border-border/70 bg-background/95 px-4 py-3">
+                <div className="flex flex-col gap-4">
+                  <div className="min-w-0 space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-base font-semibold text-foreground">
+                        {selectedVersion?.name ?? "No version selected"}
+                      </p>
+                      <Badge
+                        variant={getVersionBadgeVariant(selectedVersion)}
+                        className="capitalize"
+                      >
+                        {getVersionBadgeLabel(selectedVersion)}
+                      </Badge>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                      <span className="rounded-full bg-muted px-2.5 py-1">
+                        Bell schedule:{" "}
+                        <span className="font-medium text-foreground">
+                          {selectedVersion?.bellScheduleName ?? "—"}
+                        </span>
+                      </span>
+                      {selectedVersion?.effectiveFrom ? (
+                        <span className="rounded-full bg-muted px-2.5 py-1">
+                          Effective from:{" "}
+                          <span className="font-medium text-foreground">
+                            {selectedVersion.effectiveFrom}
+                          </span>
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 border-t border-border/60 pt-3">
+                    <EntityToolbarSecondaryAction
+                      type="button"
+                      onClick={() => void handleCreateVersion()}
+                    >
+                      <IconPlus data-icon="inline-start" />
+                      New version
+                    </EntityToolbarSecondaryAction>
+                    <EntityToolbarSecondaryAction
+                      type="button"
+                      onClick={() => setCopyDialogOpen(true)}
+                      disabled={!canEditSelectedVersion}
+                    >
+                      <IconCopy data-icon="inline-start" />
+                      Copy from section
+                    </EntityToolbarSecondaryAction>
+                    <EntityToolbarSecondaryAction
+                      type="button"
+                      onClick={() => setPublishDialogOpen(true)}
+                      disabled={!canEditSelectedVersion}
+                    >
+                      <IconSend data-icon="inline-start" />
+                      Publish
+                    </EntityToolbarSecondaryAction>
+                    <EntityToolbarSecondaryAction
+                      type="button"
+                      onClick={() => void handleArchive()}
+                      disabled={!selectedVersion || selectedVersion.isLive}
+                    >
+                      Archive
+                    </EntityToolbarSecondaryAction>
+                    <EntityFormPrimaryAction
+                      type="button"
+                      onClick={() => void handleSave()}
+                      className="ml-auto"
+                      disabled={
+                        replaceMutation.isPending ||
+                        !classId ||
+                        !sectionId ||
+                        !selectedVersionId ||
+                        !canEditSelectedVersion
+                      }
+                    >
+                      {replaceMutation.isPending
+                        ? "Saving..."
+                        : "Save timetable"}
+                    </EntityFormPrimaryAction>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3 rounded-2xl border border-border/60 bg-background px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="space-y-1">
+                <p className="text-sm font-semibold text-foreground">
+                  Visible days
+                </p>
                 <p className="text-sm text-muted-foreground">
-                  Monday to Friday is the default. Add Saturday or Sunday if needed.
+                  Start with Monday to Friday, then add weekend days only when
+                  this version uses them.
                 </p>
               </div>
               <ToggleGroup
@@ -472,44 +804,67 @@ export function TimetablePage() {
                       : [...DEFAULT_SCHOOL_DAY_VALUES],
                   )
                 }
+                className="w-full justify-start rounded-xl bg-muted/40 p-1 lg:w-auto lg:justify-end"
               >
-                {WEEKDAY_OPTIONS.map((day: { label: string; value: TimetableWeekday }) => (
-                  <ToggleGroupItem key={day.value} value={day.value}>
-                    {day.label.slice(0, 3)}
-                  </ToggleGroupItem>
-                ))}
+                {WEEKDAY_OPTIONS.map(
+                  (day: { label: string; value: TimetableWeekday }) => (
+                    <ToggleGroupItem
+                      key={day.value}
+                      value={day.value}
+                      className="min-w-11 rounded-lg px-3 text-xs font-medium"
+                    >
+                      {day.label.slice(0, 3)}
+                    </ToggleGroupItem>
+                  ),
+                )}
               </ToggleGroup>
             </div>
 
-            <TimetableGrid
-              bellSchedule={{
-                id: bellScheduleDetailQuery.data.id,
-                name: bellScheduleDetailQuery.data.name,
-                periods: bellScheduleDetailQuery.data.periods,
-              }}
-              classId={classId}
-              conflictKeys={conflictKeys}
-              days={WEEKDAY_OPTIONS.filter((day: { value: TimetableWeekday }) =>
-                visibleDays.includes(day.value),
-              )}
-              entries={entries}
-              subjects={subjects.map((subject) => ({
-                id: subject.id,
-                name: subject.name,
-              }))}
-              onCellChange={(key, value) => {
-                setEntries((current) => {
-                  const nextEntries = { ...current };
-                  if (!value) {
-                    delete nextEntries[key];
-                    return nextEntries;
+            <div className="rounded-xl border border-border/70 bg-background px-4 py-2.5 text-sm text-muted-foreground">
+              {selectedVersion?.status === "draft"
+                ? "Editing a draft version. Saving updates this draft only until you publish it."
+                : selectedVersion?.isLive
+                  ? `Viewing the live published version${selectedVersion.effectiveFrom ? ` from ${selectedVersion.effectiveFrom}` : ""}. Create a new draft to prepare changes safely.`
+                  : "Viewing a non-live version. Drafts can be edited; published versions are read-only snapshots."}
+            </div>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-5">
+            {selectedVersion && bellScheduleDetailQuery.data ? (
+              <TimetableGrid
+                bellSchedule={{
+                  id: bellScheduleDetailQuery.data.id,
+                  name: bellScheduleDetailQuery.data.name,
+                  periods: bellScheduleDetailQuery.data.periods,
+                }}
+                classId={classId}
+                conflictKeys={conflictKeys}
+                days={WEEKDAY_OPTIONS.filter(
+                  (day: { value: TimetableWeekday }) =>
+                    visibleDays.includes(day.value),
+                )}
+                entries={entries}
+                subjects={subjects.map((subject) => ({
+                  id: subject.id,
+                  name: subject.name,
+                }))}
+                onCellChange={(key, value) => {
+                  if (!canEditSelectedVersion) {
+                    return;
                   }
 
-                  nextEntries[key] = value;
-                  return nextEntries;
-                });
-              }}
-            />
+                  setEntries((current) => {
+                    const nextEntries = { ...current };
+                    if (!value) {
+                      delete nextEntries[key];
+                      return nextEntries;
+                    }
+
+                    nextEntries[key] = value;
+                    return nextEntries;
+                  });
+                }}
+              />
+            ) : null}
           </CardContent>
         </Card>
       )}
@@ -519,7 +874,8 @@ export function TimetablePage() {
           <DialogHeader>
             <DialogTitle>Copy from section</DialogTitle>
             <DialogDescription>
-              Replace the current section timetable with another section's saved grid.
+              Replace the selected draft version with another section&apos;s
+              current timetable.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4">
@@ -530,7 +886,9 @@ export function TimetablePage() {
                   value={copySourceClassId}
                   onValueChange={(nextClassId) => {
                     setCopySourceClassId(nextClassId);
-                    const nextClass = classes.find((item) => item.id === nextClassId);
+                    const nextClass = classes.find(
+                      (item) => item.id === nextClassId,
+                    );
                     setCopySourceSectionId(nextClass?.sections[0]?.id ?? "");
                   }}
                 >
@@ -551,7 +909,10 @@ export function TimetablePage() {
             <Field>
               <FieldLabel htmlFor="copy-section">Source section</FieldLabel>
               <FieldContent>
-                <Select value={copySourceSectionId} onValueChange={setCopySourceSectionId}>
+                <Select
+                  value={copySourceSectionId}
+                  onValueChange={setCopySourceSectionId}
+                >
                   <SelectTrigger id="copy-section">
                     <SelectValue placeholder="Select section" />
                   </SelectTrigger>
@@ -567,15 +928,74 @@ export function TimetablePage() {
             </Field>
           </div>
           <DialogFooter>
-            <EntityFormSecondaryAction type="button" onClick={() => setCopyDialogOpen(false)}>
+            <EntityToolbarSecondaryAction
+              type="button"
+              onClick={() => setCopyDialogOpen(false)}
+            >
               Cancel
-            </EntityFormSecondaryAction>
+            </EntityToolbarSecondaryAction>
             <EntityFormPrimaryAction
               type="button"
               onClick={() => void handleCopy()}
-              disabled={copyMutation.isPending || !copySourceClassId || !copySourceSectionId}
             >
-              {copyMutation.isPending ? "Copying..." : "Copy timetable"}
+              Copy timetable
+            </EntityFormPrimaryAction>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Publish timetable version</DialogTitle>
+            <DialogDescription>
+              Publishing creates the live assignment window for this version.
+              The current live timetable stays untouched until the effective
+              start date.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <Field>
+              <FieldLabel htmlFor="publish-from" required>
+                Effective from
+              </FieldLabel>
+              <FieldContent>
+                <Input
+                  id="publish-from"
+                  type="date"
+                  value={publishEffectiveFrom}
+                  onChange={(event) =>
+                    setPublishEffectiveFrom(event.target.value)
+                  }
+                />
+              </FieldContent>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="publish-to">Effective to</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="publish-to"
+                  type="date"
+                  value={publishEffectiveTo}
+                  onChange={(event) =>
+                    setPublishEffectiveTo(event.target.value)
+                  }
+                />
+              </FieldContent>
+            </Field>
+          </div>
+          <DialogFooter>
+            <EntityToolbarSecondaryAction
+              type="button"
+              onClick={() => setPublishDialogOpen(false)}
+            >
+              Cancel
+            </EntityToolbarSecondaryAction>
+            <EntityFormPrimaryAction
+              type="button"
+              onClick={() => void handlePublish()}
+            >
+              Publish timetable
             </EntityFormPrimaryAction>
           </DialogFooter>
         </DialogContent>

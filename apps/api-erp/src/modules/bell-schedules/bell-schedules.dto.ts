@@ -18,6 +18,9 @@ export class ListBellSchedulesQueryDto {
 
   @ApiPropertyOptional({ enum: Object.values(SORT_ORDERS) })
   order?: (typeof SORT_ORDERS)[keyof typeof SORT_ORDERS];
+
+  @ApiPropertyOptional({ enum: ["draft", "active", "archived"] })
+  status?: "draft" | "active" | "archived";
 }
 
 export class BellSchedulePeriodBodyDto {
@@ -55,7 +58,7 @@ export class UpdateBellScheduleBodyDto {
 
 export class SetBellScheduleStatusBodyDto {
   @ApiProperty({ enum: Object.values(BELL_SCHEDULE_STATUS) })
-  status!: "active" | "inactive" | "deleted";
+  status!: "draft" | "active" | "archived" | "deleted";
 }
 
 export class ReplaceBellSchedulePeriodsBodyDto {
@@ -106,7 +109,7 @@ export class BellScheduleDto {
   isDefault!: boolean;
 
   @ApiProperty({ enum: Object.values(BELL_SCHEDULE_STATUS) })
-  status!: "active" | "inactive" | "deleted";
+  status!: "draft" | "active" | "archived" | "deleted";
 
   @ApiProperty()
   createdAt!: string;
@@ -141,7 +144,7 @@ export class BellScheduleListRowDto {
   isDefault!: boolean;
 
   @ApiProperty({ enum: Object.values(BELL_SCHEDULE_STATUS) })
-  status!: "active" | "inactive" | "deleted";
+  status!: "draft" | "active" | "archived" | "deleted";
 
   @ApiProperty()
   createdAt!: string;

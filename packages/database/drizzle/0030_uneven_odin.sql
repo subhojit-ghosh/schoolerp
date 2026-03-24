@@ -1,0 +1,2 @@
+DROP INDEX "timetable_entries_section_slot_unique_idx";--> statement-breakpoint
+CREATE UNIQUE INDEX "timetable_entries_version_slot_unique_idx" ON "timetable_entries" USING btree ("timetable_version_id","section_id","day_of_week","period_index") WHERE "timetable_entries"."status" != 'deleted';

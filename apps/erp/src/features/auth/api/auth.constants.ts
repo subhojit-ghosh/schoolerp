@@ -102,6 +102,10 @@ export const BELL_SCHEDULES_API_PATHS = {
 
 export const TIMETABLE_API_PATHS = {
   VIEW: "/timetable",
+  VERSIONS: "/timetable/versions",
+  UPDATE_VERSION: "/timetable/versions/{versionId}",
+  PUBLISH_VERSION: "/timetable/versions/{versionId}/publish",
+  SET_VERSION_STATUS: "/timetable/versions/{versionId}/status",
   STAFF_OPTIONS: "/timetable/options",
   TEACHER_VIEW: "/timetable/teacher",
   REPLACE_SECTION: "/timetable/sections/{sectionId}",

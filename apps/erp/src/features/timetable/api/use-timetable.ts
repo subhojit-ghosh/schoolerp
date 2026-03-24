@@ -5,6 +5,8 @@ import { apiQueryClient } from "@/lib/api/client";
 type TimetableScopeQuery = {
   classId: string;
   sectionId: string;
+  versionId?: string;
+  date?: string;
 };
 
 export function useTimetableQuery(
@@ -31,6 +33,81 @@ export function useReplaceTimetableMutation() {
   return apiQueryClient.useMutation(
     "put",
     TIMETABLE_API_PATHS.REPLACE_SECTION,
+    {
+      onSuccess: () => {
+        void queryClient.invalidateQueries();
+      },
+    },
+  );
+}
+
+type TimetableVersionsQuery = {
+  classId: string;
+  sectionId: string;
+};
+
+export function useTimetableVersionsQuery(
+  enabled: boolean,
+  query: TimetableVersionsQuery,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    TIMETABLE_API_PATHS.VERSIONS,
+    {
+      params: {
+        query,
+      },
+    },
+    {
+      enabled,
+    },
+  );
+}
+
+export function useCreateTimetableVersionMutation() {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("post", TIMETABLE_API_PATHS.VERSIONS, {
+    onSuccess: () => {
+      void queryClient.invalidateQueries();
+    },
+  });
+}
+
+export function useUpdateTimetableVersionMutation() {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "patch",
+    TIMETABLE_API_PATHS.UPDATE_VERSION,
+    {
+      onSuccess: () => {
+        void queryClient.invalidateQueries();
+      },
+    },
+  );
+}
+
+export function usePublishTimetableVersionMutation() {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "post",
+    TIMETABLE_API_PATHS.PUBLISH_VERSION,
+    {
+      onSuccess: () => {
+        void queryClient.invalidateQueries();
+      },
+    },
+  );
+}
+
+export function useSetTimetableVersionStatusMutation() {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "patch",
+    TIMETABLE_API_PATHS.SET_VERSION_STATUS,
     {
       onSuccess: () => {
         void queryClient.invalidateQueries();

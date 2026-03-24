@@ -68,6 +68,10 @@ export class BellSchedulesService {
       conditions.push(ilike(bellSchedules.name, `%${query.search}%`));
     }
 
+    if (query.status) {
+      conditions.push(eq(bellSchedules.status, query.status));
+    }
+
     const where = and(...conditions)!;
     const [totalRow] = await this.db
       .select({ count: count() })
@@ -122,9 +126,16 @@ export class BellSchedulesService {
     const campusId = this.requireActiveCampusId(authSession);
     this.assertCampusScopeAccess(campusId, scopes);
     await this.getCampus(institutionId, campusId);
-    await this.assertScheduleNameAvailable(institutionId, campusId, payload.name);
+    await this.assertScheduleNameAvailable(
+      institutionId,
+      campusId,
+      payload.name,
+    );
 
-    const hasDefault = await this.hasCampusDefaultSchedule(institutionId, campusId);
+    const hasDefault = await this.hasCampusDefaultSchedule(
+      institutionId,
+      campusId,
+    );
     const scheduleId = randomUUID();
     const shouldBeDefault = payload.isDefault === true || !hasDefault;
 
@@ -139,7 +150,7 @@ export class BellSchedulesService {
         campusId,
         name: payload.name.trim(),
         isDefault: shouldBeDefault,
-        status: STATUS.BELL_SCHEDULE.ACTIVE,
+        status: STATUS.BELL_SCHEDULE.DRAFT,
       });
     });
 
@@ -155,7 +166,11 @@ export class BellSchedulesService {
     const campusId = this.requireActiveCampusId(authSession);
     this.assertCampusScopeAccess(campusId, scopes);
 
-    const schedule = await this.getScheduleRecord(institutionId, scheduleId, campusId);
+    const schedule = await this.getScheduleRecord(
+      institutionId,
+      scheduleId,
+      campusId,
+    );
     const periods = await this.listSchedulePeriods(schedule.id);
 
     return {
@@ -176,7 +191,11 @@ export class BellSchedulesService {
   ) {
     const campusId = this.requireActiveCampusId(authSession);
     this.assertCampusScopeAccess(campusId, scopes);
-    const schedule = await this.getScheduleRecord(institutionId, scheduleId, campusId);
+    const schedule = await this.getScheduleRecord(
+      institutionId,
+      scheduleId,
+      campusId,
+    );
 
     if (payload.name && payload.name.trim() !== schedule.name) {
       await this.assertScheduleNameAvailable(
@@ -221,7 +240,11 @@ export class BellSchedulesService {
   ) {
     const campusId = this.requireActiveCampusId(authSession);
     this.assertCampusScopeAccess(campusId, scopes);
-    const schedule = await this.getScheduleRecord(institutionId, scheduleId, campusId);
+    const schedule = await this.getScheduleRecord(
+      institutionId,
+      scheduleId,
+      campusId,
+    );
 
     if (
       payload.status === STATUS.BELL_SCHEDULE.DELETED &&
@@ -235,7 +258,7 @@ export class BellSchedulesService {
     await this.db.transaction(async (tx) => {
       const deletingOrDisabling =
         payload.status === STATUS.BELL_SCHEDULE.DELETED ||
-        payload.status === STATUS.BELL_SCHEDULE.INACTIVE;
+        payload.status === STATUS.BELL_SCHEDULE.ARCHIVED;
 
       if (schedule.isDefault && deletingOrDisabling) {
         const fallback = await this.findReplacementDefaultSchedule(
@@ -265,7 +288,7 @@ export class BellSchedulesService {
             payload.status === STATUS.BELL_SCHEDULE.DELETED ? new Date() : null,
           isDefault:
             payload.status === STATUS.BELL_SCHEDULE.DELETED ||
-            payload.status === STATUS.BELL_SCHEDULE.INACTIVE
+            payload.status === STATUS.BELL_SCHEDULE.ARCHIVED
               ? false
               : schedule.isDefault,
         })
@@ -324,7 +347,10 @@ export class BellSchedulesService {
     return this.getBellSchedule(institutionId, scheduleId, authSession, scopes);
   }
 
-  async getActiveDefaultScheduleForCampus(institutionId: string, campusId: string) {
+  async getActiveDefaultScheduleForCampus(
+    institutionId: string,
+    campusId: string,
+  ) {
     const [schedule] = await this.db
       .select({
         id: bellSchedules.id,
@@ -344,7 +370,7 @@ export class BellSchedulesService {
           eq(bellSchedules.institutionId, institutionId),
           eq(bellSchedules.campusId, campusId),
           eq(bellSchedules.isDefault, true),
-          eq(bellSchedules.status, STATUS.BELL_SCHEDULE.ACTIVE),
+          ne(bellSchedules.status, STATUS.BELL_SCHEDULE.DELETED),
         ),
       )
       .limit(1);
@@ -408,7 +434,10 @@ export class BellSchedulesService {
           eq(bellSchedulePeriods.status, STATUS.BELL_SCHEDULE_PERIOD.ACTIVE),
         ),
       )
-      .orderBy(asc(bellSchedulePeriods.periodIndex), asc(bellSchedulePeriods.createdAt));
+      .orderBy(
+        asc(bellSchedulePeriods.periodIndex),
+        asc(bellSchedulePeriods.createdAt),
+      );
 
     return rows;
   }
@@ -499,7 +528,10 @@ export class BellSchedulesService {
     }
   }
 
-  private async hasCampusDefaultSchedule(institutionId: string, campusId: string) {
+  private async hasCampusDefaultSchedule(
+    institutionId: string,
+    campusId: string,
+  ) {
     const [existing] = await this.db
       .select({ id: bellSchedules.id })
       .from(bellSchedules)
@@ -548,7 +580,7 @@ export class BellSchedulesService {
           eq(bellSchedules.institutionId, institutionId),
           eq(bellSchedules.campusId, campusId),
           ne(bellSchedules.id, excludedScheduleId),
-          eq(bellSchedules.status, STATUS.BELL_SCHEDULE.ACTIVE),
+          ne(bellSchedules.status, STATUS.BELL_SCHEDULE.DELETED),
         ),
       )
       .orderBy(asc(bellSchedules.createdAt))

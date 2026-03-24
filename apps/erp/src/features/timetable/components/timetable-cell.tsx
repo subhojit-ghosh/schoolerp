@@ -112,7 +112,11 @@ export function TimetableCell({
 
   const availableStaffIds = useMemo(
     () =>
-      new Set([...staffOptions.preferred, ...staffOptions.others].map((staff) => staff.id)),
+      new Set(
+        [...staffOptions.preferred, ...staffOptions.others].map(
+          (staff) => staff.id,
+        ),
+      ),
     [staffOptions.others, staffOptions.preferred],
   );
 
@@ -130,7 +134,7 @@ export function TimetableCell({
 
   if (isBreak) {
     return (
-      <div className="flex min-h-28 items-center justify-center rounded-lg border border-dashed bg-muted/35 px-3 py-5 text-sm font-medium text-muted-foreground">
+      <div className="flex min-h-24 items-center justify-center rounded-lg border border-dashed bg-muted/35 px-3 py-4 text-sm font-medium text-muted-foreground">
         Break
       </div>
     );
@@ -138,7 +142,7 @@ export function TimetableCell({
 
   if (readOnly) {
     return (
-      <div className="flex min-h-28 flex-col justify-between rounded-lg border bg-card px-3 py-3 text-left">
+      <div className="flex min-h-24 flex-col justify-between rounded-lg border bg-card px-3 py-2.5 text-left">
         {value ? (
           <div className="flex flex-col gap-1">
             <p className="text-sm font-medium">{value.subjectName}</p>
@@ -166,7 +170,7 @@ export function TimetableCell({
     <>
       <button
         type="button"
-        className={`flex min-h-28 w-full flex-col justify-between rounded-lg border px-3 py-3 text-left transition ${
+        className={`flex min-h-24 w-full flex-col justify-between rounded-lg border px-3 py-2.5 text-left transition ${
           conflicted
             ? "border-yellow-500 bg-yellow-50/70 dark:bg-yellow-950/20"
             : value
@@ -221,8 +225,13 @@ export function TimetableCell({
                   <Field data-invalid={fieldState.invalid || undefined}>
                     <FieldLabel required>Subject</FieldLabel>
                     <FieldContent>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <SelectTrigger aria-invalid={fieldState.invalid || undefined}>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger
+                          aria-invalid={fieldState.invalid || undefined}
+                        >
                           <SelectValue placeholder="Select subject" />
                         </SelectTrigger>
                         <SelectContent>
@@ -250,25 +259,33 @@ export function TimetableCell({
                     <FieldContent>
                       <Select
                         onValueChange={(nextValue) =>
-                          field.onChange(nextValue === "unassigned" ? null : nextValue)
+                          field.onChange(
+                            nextValue === "unassigned" ? null : nextValue,
+                          )
                         }
                         value={field.value ?? "unassigned"}
                       >
-                        <SelectTrigger aria-invalid={fieldState.invalid || undefined}>
+                        <SelectTrigger
+                          aria-invalid={fieldState.invalid || undefined}
+                        >
                           <SelectValue placeholder="Optional teacher" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectItem value="unassigned">Not assigned</SelectItem>
+                            <SelectItem value="unassigned">
+                              Not assigned
+                            </SelectItem>
                           </SelectGroup>
                           {staffOptions.preferred.length > 0 ? (
                             <SelectGroup>
                               <SelectLabel>Assigned to subject</SelectLabel>
-                              {staffOptions.preferred.map((staff: StaffOption) => (
-                                <SelectItem key={staff.id} value={staff.id}>
-                                  {staff.name}
-                                </SelectItem>
-                              ))}
+                              {staffOptions.preferred.map(
+                                (staff: StaffOption) => (
+                                  <SelectItem key={staff.id} value={staff.id}>
+                                    {staff.name}
+                                  </SelectItem>
+                                ),
+                              )}
                             </SelectGroup>
                           ) : null}
                           {staffOptions.others.length > 0 ? (
@@ -326,7 +343,10 @@ export function TimetableCell({
               ) : null}
             </div>
             <div className="flex gap-3">
-              <EntityFormSecondaryAction type="button" onClick={() => setOpen(false)}>
+              <EntityFormSecondaryAction
+                type="button"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </EntityFormSecondaryAction>
               <EntityFormPrimaryAction

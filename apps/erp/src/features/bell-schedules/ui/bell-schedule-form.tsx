@@ -53,7 +53,8 @@ function formatDuration(startTime: string, endTime: string) {
     return "--";
   }
 
-  const totalMinutes = endHour * 60 + endMinute - (startHour * 60 + startMinute);
+  const totalMinutes =
+    endHour * 60 + endMinute - (startHour * 60 + startMinute);
 
   if (totalMinutes <= 0) {
     return "--";
@@ -110,7 +111,10 @@ export function BellScheduleForm({
             <Field data-invalid={fieldState.invalid || undefined}>
               <FieldLabel required>Schedule name</FieldLabel>
               <FieldContent>
-                <Input {...field} aria-invalid={fieldState.invalid || undefined} />
+                <Input
+                  {...field}
+                  aria-invalid={fieldState.invalid || undefined}
+                />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </FieldContent>
             </Field>
@@ -273,7 +277,9 @@ export function BellScheduleForm({
       {errors.periods?.message ? (
         <p className="text-sm text-destructive">{errors.periods.message}</p>
       ) : null}
-      {errorMessage ? <p className="text-sm text-destructive">{errorMessage}</p> : null}
+      {errorMessage ? (
+        <p className="text-sm text-destructive">{errorMessage}</p>
+      ) : null}
 
       <div className="flex flex-wrap justify-end gap-3">
         <EntityFormSecondaryAction type="button" onClick={onCancel}>

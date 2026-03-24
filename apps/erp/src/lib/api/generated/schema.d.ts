@@ -562,6 +562,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/timetable/versions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List timetable versions for a class section */
+        get: operations["TimetableController_listTimetableVersions"];
+        put?: never;
+        /** Create a draft timetable version */
+        post: operations["TimetableController_createTimetableVersion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/timetable/versions/{versionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update timetable version details */
+        patch: operations["TimetableController_updateTimetableVersion"];
+        trace?: never;
+    };
+    "/timetable/versions/{versionId}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish a timetable version and assign it */
+        post: operations["TimetableController_publishTimetableVersion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/timetable/versions/{versionId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Set timetable version status */
+        patch: operations["TimetableController_setTimetableVersionStatus"];
+        trace?: never;
+    };
     "/timetable/options": {
         parameters: {
             query?: never;
@@ -604,7 +673,7 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Replace the full timetable for a class section in the current tenant */
+        /** Replace the full timetable for a class section inside a specific version */
         put: operations["TimetableController_replaceSectionTimetable"];
         post?: never;
         delete?: never;
@@ -622,7 +691,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Copy timetable into a section for the current tenant */
+        /** Copy timetable entries from another section into a draft version */
         post: operations["TimetableController_copySectionTimetable"];
         delete?: never;
         options?: never;
@@ -2263,7 +2332,7 @@ export interface components {
             name: string;
             isDefault: boolean;
             /** @enum {string} */
-            status: "active" | "inactive" | "deleted";
+            status: "draft" | "active" | "archived" | "deleted";
             createdAt: string;
             updatedAt: string;
             periodCount: number;
@@ -2297,7 +2366,7 @@ export interface components {
             name: string;
             isDefault: boolean;
             /** @enum {string} */
-            status: "active" | "inactive" | "deleted";
+            status: "draft" | "active" | "archived" | "deleted";
             createdAt: string;
             updatedAt: string;
             periodCount: number;
@@ -2309,7 +2378,7 @@ export interface components {
         };
         SetBellScheduleStatusBodyDto: {
             /** @enum {string} */
-            status: "active" | "inactive" | "deleted";
+            status: "draft" | "active" | "archived" | "deleted";
         };
         BellSchedulePeriodBodyDto: {
             periodIndex: number;
@@ -2342,7 +2411,51 @@ export interface components {
             className: string;
             sectionId: string;
             sectionName: string;
+            versionId?: string | null;
+            versionName?: string | null;
+            /** @enum {string|null} */
+            versionStatus?: "draft" | "published" | "archived" | null;
+            bellScheduleId?: string | null;
+            bellScheduleName?: string | null;
+            resolutionDate: string;
             entries: components["schemas"]["TimetableEntryDto"][];
+        };
+        TimetableVersionDto: {
+            id: string;
+            classId: string;
+            sectionId: string;
+            bellScheduleId: string;
+            bellScheduleName: string;
+            name: string;
+            /** @enum {string} */
+            status: "draft" | "published" | "archived";
+            notes?: string | null;
+            academicYearId?: string | null;
+            effectiveFrom?: string | null;
+            effectiveTo?: string | null;
+            publishedAt?: string | null;
+            entryCount: number;
+            isLive: boolean;
+        };
+        CreateTimetableVersionBodyDto: {
+            classId: string;
+            sectionId: string;
+            name: string;
+            bellScheduleId?: string | null;
+            duplicateFromVersionId?: string | null;
+        };
+        UpdateTimetableVersionBodyDto: {
+            name?: string;
+            bellScheduleId?: string | null;
+            notes?: string | null;
+        };
+        PublishTimetableVersionBodyDto: {
+            effectiveFrom: string;
+            effectiveTo?: string | null;
+        };
+        SetTimetableVersionStatusBodyDto: {
+            /** @enum {string} */
+            status: "draft" | "published" | "archived";
         };
         StaffOptionDto: {
             id: string;
@@ -2373,6 +2486,7 @@ export interface components {
         TeacherTimetableViewDto: {
             staffId: string;
             staffName: string;
+            resolutionDate: string;
             entries: components["schemas"]["TeacherTimetableEntryDto"][];
         };
         ReplaceTimetableEntryBodyDto: {
@@ -2388,12 +2502,15 @@ export interface components {
         };
         ReplaceSectionTimetableBodyDto: {
             classId: string;
+            versionId: string;
             entries: components["schemas"]["ReplaceTimetableEntryBodyDto"][];
         };
         CopySectionTimetableBodyDto: {
             classId: string;
+            versionId: string;
             sourceClassId: string;
             sourceSectionId: string;
+            sourceVersionId?: string;
         };
         CalendarEventDto: {
             id: string;
@@ -4464,6 +4581,7 @@ export interface operations {
                 q?: string;
                 sort?: "name" | "status" | "createdAt";
                 order?: "asc" | "desc";
+                status?: "draft" | "active" | "archived";
             };
             header?: never;
             path?: never;
@@ -4605,6 +4723,8 @@ export interface operations {
             query: {
                 classId: string;
                 sectionId: string;
+                versionId?: string;
+                date?: string;
             };
             header?: never;
             path?: never;
@@ -4618,6 +4738,126 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TimetableViewDto"];
+                };
+            };
+        };
+    };
+    TimetableController_listTimetableVersions: {
+        parameters: {
+            query: {
+                classId: string;
+                sectionId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableVersionDto"][];
+                };
+            };
+        };
+    };
+    TimetableController_createTimetableVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateTimetableVersionBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableVersionDto"];
+                };
+            };
+        };
+    };
+    TimetableController_updateTimetableVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                versionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateTimetableVersionBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableVersionDto"];
+                };
+            };
+        };
+    };
+    TimetableController_publishTimetableVersion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                versionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PublishTimetableVersionBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableVersionDto"];
+                };
+            };
+        };
+    };
+    TimetableController_setTimetableVersionStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                versionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetTimetableVersionStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimetableVersionDto"];
                 };
             };
         };
@@ -4648,6 +4888,7 @@ export interface operations {
         parameters: {
             query: {
                 staffId: string;
+                date?: string;
             };
             header?: never;
             path?: never;

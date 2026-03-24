@@ -34,6 +34,7 @@ export const API_ROUTES = {
   SUBJECTS: "subjects",
   BELL_SCHEDULES: "bell-schedules",
   TIMETABLE: "timetable",
+  VERSIONS: "versions",
   TEACHER: "teacher",
   COPY_FROM: "copy-from",
   CALENDAR: "calendar",

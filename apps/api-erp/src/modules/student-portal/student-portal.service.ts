@@ -8,7 +8,6 @@ import {
   asc,
   calendarEvents,
   campus,
-  classSections,
   desc,
   eq,
   inArray,
@@ -16,10 +15,7 @@ import {
   member,
   ne,
   or,
-  schoolClasses,
   students,
-  subjects,
-  timetableEntries,
 } from "@repo/database";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
 import { ANNOUNCEMENT_AUDIENCE } from "../../constants/status";

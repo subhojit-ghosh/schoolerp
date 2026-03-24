@@ -1735,6 +1735,19 @@
                 "desc"
               ]
             }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "active",
+                "archived"
+              ]
+            }
           }
         ],
         "responses": {
@@ -1986,6 +1999,22 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "versionId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2006,6 +2035,226 @@
           }
         ],
         "summary": "Get class-section timetable for the current tenant",
+        "tags": [
+          "timetable"
+        ]
+      }
+    },
+    "/timetable/versions": {
+      "get": {
+        "operationId": "TimetableController_listTimetableVersions",
+        "parameters": [
+          {
+            "name": "classId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TimetableVersionDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List timetable versions for a class section",
+        "tags": [
+          "timetable"
+        ]
+      },
+      "post": {
+        "operationId": "TimetableController_createTimetableVersion",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTimetableVersionBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimetableVersionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a draft timetable version",
+        "tags": [
+          "timetable"
+        ]
+      }
+    },
+    "/timetable/versions/{versionId}": {
+      "patch": {
+        "operationId": "TimetableController_updateTimetableVersion",
+        "parameters": [
+          {
+            "name": "versionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateTimetableVersionBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimetableVersionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update timetable version details",
+        "tags": [
+          "timetable"
+        ]
+      }
+    },
+    "/timetable/versions/{versionId}/publish": {
+      "post": {
+        "operationId": "TimetableController_publishTimetableVersion",
+        "parameters": [
+          {
+            "name": "versionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PublishTimetableVersionBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimetableVersionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Publish a timetable version and assign it",
+        "tags": [
+          "timetable"
+        ]
+      }
+    },
+    "/timetable/versions/{versionId}/status": {
+      "patch": {
+        "operationId": "TimetableController_setTimetableVersionStatus",
+        "parameters": [
+          {
+            "name": "versionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetTimetableVersionStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TimetableVersionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Set timetable version status",
         "tags": [
           "timetable"
         ]
@@ -2062,6 +2311,14 @@
           {
             "name": "staffId",
             "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "required": false,
             "in": "query",
             "schema": {
               "type": "string"
@@ -2131,7 +2388,7 @@
             "cookie": []
           }
         ],
-        "summary": "Replace the full timetable for a class section in the current tenant",
+        "summary": "Replace the full timetable for a class section inside a specific version",
         "tags": [
           "timetable"
         ]
@@ -2177,7 +2434,7 @@
             "cookie": []
           }
         ],
-        "summary": "Copy timetable into a section for the current tenant",
+        "summary": "Copy timetable entries from another section into a draft version",
         "tags": [
           "timetable"
         ]
@@ -8211,8 +8468,9 @@
           "status": {
             "type": "string",
             "enum": [
+              "draft",
               "active",
-              "inactive",
+              "archived",
               "deleted"
             ]
           },
@@ -8346,8 +8604,9 @@
           "status": {
             "type": "string",
             "enum": [
+              "draft",
               "active",
-              "inactive",
+              "archived",
               "deleted"
             ]
           },
@@ -8398,8 +8657,9 @@
           "status": {
             "type": "string",
             "enum": [
+              "draft",
               "active",
-              "inactive",
+              "archived",
               "deleted"
             ]
           }
@@ -8530,6 +8790,34 @@
           "sectionName": {
             "type": "string"
           },
+          "versionId": {
+            "type": "string",
+            "nullable": true
+          },
+          "versionName": {
+            "type": "string",
+            "nullable": true
+          },
+          "versionStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "nullable": true
+          },
+          "bellScheduleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "bellScheduleName": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolutionDate": {
+            "type": "string"
+          },
           "entries": {
             "type": "array",
             "items": {
@@ -8544,7 +8832,150 @@
           "className",
           "sectionId",
           "sectionName",
+          "resolutionDate",
           "entries"
+        ]
+      },
+      "TimetableVersionDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "bellScheduleId": {
+            "type": "string"
+          },
+          "bellScheduleName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ]
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "academicYearId": {
+            "type": "string",
+            "nullable": true
+          },
+          "effectiveFrom": {
+            "type": "string",
+            "nullable": true
+          },
+          "effectiveTo": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "entryCount": {
+            "type": "number"
+          },
+          "isLive": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "classId",
+          "sectionId",
+          "bellScheduleId",
+          "bellScheduleName",
+          "name",
+          "status",
+          "entryCount",
+          "isLive"
+        ]
+      },
+      "CreateTimetableVersionBodyDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "bellScheduleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "duplicateFromVersionId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "classId",
+          "sectionId",
+          "name"
+        ]
+      },
+      "UpdateTimetableVersionBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "bellScheduleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "PublishTimetableVersionBodyDto": {
+        "type": "object",
+        "properties": {
+          "effectiveFrom": {
+            "type": "string"
+          },
+          "effectiveTo": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "effectiveFrom"
+        ]
+      },
+      "SetTimetableVersionStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ]
+          }
+        },
+        "required": [
+          "status"
         ]
       },
       "StaffOptionDto": {
@@ -8668,6 +9099,9 @@
           "staffName": {
             "type": "string"
           },
+          "resolutionDate": {
+            "type": "string"
+          },
           "entries": {
             "type": "array",
             "items": {
@@ -8678,6 +9112,7 @@
         "required": [
           "staffId",
           "staffName",
+          "resolutionDate",
           "entries"
         ]
       },
@@ -8736,6 +9171,9 @@
           "classId": {
             "type": "string"
           },
+          "versionId": {
+            "type": "string"
+          },
           "entries": {
             "type": "array",
             "items": {
@@ -8745,6 +9183,7 @@
         },
         "required": [
           "classId",
+          "versionId",
           "entries"
         ]
       },
@@ -8754,15 +9193,22 @@
           "classId": {
             "type": "string"
           },
+          "versionId": {
+            "type": "string"
+          },
           "sourceClassId": {
             "type": "string"
           },
           "sourceSectionId": {
             "type": "string"
+          },
+          "sourceVersionId": {
+            "type": "string"
           }
         },
         "required": [
           "classId",
+          "versionId",
           "sourceClassId",
           "sourceSectionId"
         ]

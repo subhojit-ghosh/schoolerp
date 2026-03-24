@@ -66,13 +66,17 @@ function invalidateBellScheduleQueries(
   }
 
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", BELL_SCHEDULES_API_PATHS.DETAIL, {
-      params: {
-        path: {
-          scheduleId,
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      BELL_SCHEDULES_API_PATHS.DETAIL,
+      {
+        params: {
+          path: {
+            scheduleId,
+          },
         },
       },
-    }).queryKey,
+    ).queryKey,
   });
 }
 
@@ -91,7 +95,10 @@ export function useUpdateBellScheduleMutation() {
 
   return apiQueryClient.useMutation("put", BELL_SCHEDULES_API_PATHS.UPDATE, {
     onSuccess: (_, variables) => {
-      invalidateBellScheduleQueries(queryClient, variables.params.path.scheduleId);
+      invalidateBellScheduleQueries(
+        queryClient,
+        variables.params.path.scheduleId,
+      );
     },
   });
 }

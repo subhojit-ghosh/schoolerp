@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -33,20 +34,31 @@ import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.gua
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   CopySectionTimetableBodyDto,
+  CreateTimetableVersionBodyDto,
+  ListTimetableVersionsQueryDto,
+  PublishTimetableVersionBodyDto,
   ReplaceSectionTimetableBodyDto,
+  SetTimetableVersionStatusBodyDto,
   TeacherTimetableQueryDto,
   TeacherTimetableViewDto,
   TimetableStaffOptionsDto,
   TimetableStaffOptionsQueryDto,
   TimetableScopeQueryDto,
+  TimetableVersionDto,
   TimetableViewDto,
+  UpdateTimetableVersionBodyDto,
 } from "./timetable.dto";
 import {
   parseCopySectionTimetable,
+  parseCreateTimetableVersion,
+  parseListTimetableVersionsQuery,
+  parsePublishTimetableVersion,
   parseReplaceSectionTimetable,
+  parseSetTimetableVersionStatus,
   parseTeacherTimetableQuery,
-  parseTimetableStaffOptionsQuery,
   parseTimetableScopeQuery,
+  parseTimetableStaffOptionsQuery,
+  parseUpdateTimetableVersion,
 } from "./timetable.schemas";
 import { TimetableService } from "./timetable.service";
 
@@ -69,6 +81,8 @@ export class TimetableController {
   })
   @ApiQuery({ name: "classId", required: true, type: String })
   @ApiQuery({ name: "sectionId", required: true, type: String })
+  @ApiQuery({ name: "versionId", required: false, type: String })
+  @ApiQuery({ name: "date", required: false, type: String })
   @ApiOkResponse({ type: TimetableViewDto })
   getTimetable(
     @CurrentInstitution() institution: TenantInstitution,
@@ -84,9 +98,113 @@ export class TimetableController {
     );
   }
 
+  @Get(API_ROUTES.VERSIONS)
+  @RequirePermission(PERMISSIONS.ACADEMICS_READ)
+  @ApiOperation({ summary: "List timetable versions for a class section" })
+  @ApiQuery({ name: "classId", required: true, type: String })
+  @ApiQuery({ name: "sectionId", required: true, type: String })
+  @ApiOkResponse({ type: TimetableVersionDto, isArray: true })
+  listTimetableVersions(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Query() query: ListTimetableVersionsQueryDto,
+  ) {
+    return this.timetableService.listTimetableVersions(
+      institution.id,
+      authSession,
+      scopes,
+      parseListTimetableVersionsQuery(query),
+    );
+  }
+
+  @Post(API_ROUTES.VERSIONS)
+  @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
+  @ApiOperation({ summary: "Create a draft timetable version" })
+  @ApiBody({ type: CreateTimetableVersionBodyDto })
+  @ApiOkResponse({ type: TimetableVersionDto })
+  createTimetableVersion(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Body() body: CreateTimetableVersionBodyDto,
+  ) {
+    return this.timetableService.createTimetableVersion(
+      institution.id,
+      authSession,
+      scopes,
+      parseCreateTimetableVersion(body),
+    );
+  }
+
+  @Patch(`${API_ROUTES.VERSIONS}/:versionId`)
+  @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
+  @ApiOperation({ summary: "Update timetable version details" })
+  @ApiBody({ type: UpdateTimetableVersionBodyDto })
+  @ApiOkResponse({ type: TimetableVersionDto })
+  updateTimetableVersion(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("versionId") versionId: string,
+    @Body() body: UpdateTimetableVersionBodyDto,
+  ) {
+    return this.timetableService.updateTimetableVersion(
+      institution.id,
+      versionId,
+      authSession,
+      scopes,
+      parseUpdateTimetableVersion(body),
+    );
+  }
+
+  @Post(`${API_ROUTES.VERSIONS}/:versionId/${API_ROUTES.PUBLISH}`)
+  @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
+  @ApiOperation({ summary: "Publish a timetable version and assign it" })
+  @ApiBody({ type: PublishTimetableVersionBodyDto })
+  @ApiOkResponse({ type: TimetableVersionDto })
+  publishTimetableVersion(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("versionId") versionId: string,
+    @Body() body: PublishTimetableVersionBodyDto,
+  ) {
+    return this.timetableService.publishTimetableVersion(
+      institution.id,
+      versionId,
+      authSession,
+      scopes,
+      parsePublishTimetableVersion(body),
+    );
+  }
+
+  @Patch(`${API_ROUTES.VERSIONS}/:versionId/${API_ROUTES.STATUS}`)
+  @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
+  @ApiOperation({ summary: "Set timetable version status" })
+  @ApiBody({ type: SetTimetableVersionStatusBodyDto })
+  @ApiOkResponse({ type: TimetableVersionDto })
+  setTimetableVersionStatus(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("versionId") versionId: string,
+    @Body() body: SetTimetableVersionStatusBodyDto,
+  ) {
+    return this.timetableService.setTimetableVersionStatus(
+      institution.id,
+      versionId,
+      authSession,
+      scopes,
+      parseSetTimetableVersionStatus(body),
+    );
+  }
+
   @Get(API_ROUTES.OPTIONS)
   @RequirePermission(PERMISSIONS.ACADEMICS_READ)
-  @ApiOperation({ summary: "List timetable staff options for the current tenant" })
+  @ApiOperation({
+    summary: "List timetable staff options for the current tenant",
+  })
   @ApiQuery({ name: "subjectId", required: true, type: String })
   @ApiQuery({ name: "classId", required: false, type: String })
   @ApiOkResponse({ type: TimetableStaffOptionsDto })
@@ -108,6 +226,7 @@ export class TimetableController {
   @RequirePermission(PERMISSIONS.ACADEMICS_READ)
   @ApiOperation({ summary: "Get teacher timetable for the current tenant" })
   @ApiQuery({ name: "staffId", required: true, type: String })
+  @ApiQuery({ name: "date", required: false, type: String })
   @ApiOkResponse({ type: TeacherTimetableViewDto })
   getTeacherTimetable(
     @CurrentInstitution() institution: TenantInstitution,
@@ -127,7 +246,7 @@ export class TimetableController {
   @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
   @ApiOperation({
     summary:
-      "Replace the full timetable for a class section in the current tenant",
+      "Replace the full timetable for a class section inside a specific version",
   })
   @ApiBody({ type: ReplaceSectionTimetableBodyDto })
   @ApiOkResponse({ type: TimetableViewDto })
@@ -150,7 +269,7 @@ export class TimetableController {
   @Post(`sections/:sectionId/${API_ROUTES.COPY_FROM}`)
   @RequirePermission(PERMISSIONS.ACADEMICS_MANAGE)
   @ApiOperation({
-    summary: "Copy timetable into a section for the current tenant",
+    summary: "Copy timetable entries from another section into a draft version",
   })
   @ApiBody({ type: CopySectionTimetableBodyDto })
   @ApiOkResponse({ type: TimetableViewDto })

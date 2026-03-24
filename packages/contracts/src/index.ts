@@ -254,9 +254,21 @@ export const TIMETABLE_ENTRY_STATUS = {
   DELETED: "deleted",
 } as const;
 
-export const BELL_SCHEDULE_STATUS = {
+export const TIMETABLE_VERSION_STATUS = {
+  DRAFT: "draft",
+  PUBLISHED: "published",
+  ARCHIVED: "archived",
+} as const;
+
+export const TIMETABLE_ASSIGNMENT_STATUS = {
   ACTIVE: "active",
   INACTIVE: "inactive",
+} as const;
+
+export const BELL_SCHEDULE_STATUS = {
+  DRAFT: "draft",
+  ACTIVE: "active",
+  ARCHIVED: "archived",
   DELETED: "deleted",
 } as const;
 
@@ -411,6 +423,10 @@ export type SubjectStatus =
   (typeof SUBJECT_STATUS)[keyof typeof SUBJECT_STATUS];
 export type TimetableEntryStatus =
   (typeof TIMETABLE_ENTRY_STATUS)[keyof typeof TIMETABLE_ENTRY_STATUS];
+export type TimetableVersionStatus =
+  (typeof TIMETABLE_VERSION_STATUS)[keyof typeof TIMETABLE_VERSION_STATUS];
+export type TimetableAssignmentStatus =
+  (typeof TIMETABLE_ASSIGNMENT_STATUS)[keyof typeof TIMETABLE_ASSIGNMENT_STATUS];
 export type BellScheduleStatus =
   (typeof BELL_SCHEDULE_STATUS)[keyof typeof BELL_SCHEDULE_STATUS];
 export type BellSchedulePeriodStatus =

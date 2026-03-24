@@ -38,7 +38,7 @@ type BellScheduleRow = {
   isDefault: boolean;
   name: string;
   periodCount: number;
-  status: "active" | "inactive" | "deleted";
+  status: "draft" | "active" | "archived" | "deleted";
   updatedAt: string;
 };
 
@@ -103,7 +103,10 @@ export function BellSchedulesPage() {
               <Button asChild className="h-auto px-0 text-left" variant="link">
                 <Link
                   to={appendSearch(
-                    ERP_ROUTES.BELL_SCHEDULE_EDIT.replace(":scheduleId", row.original.id),
+                    ERP_ROUTES.BELL_SCHEDULE_EDIT.replace(
+                      ":scheduleId",
+                      row.original.id,
+                    ),
                     location.search,
                   )}
                 >
@@ -151,7 +154,10 @@ export function BellSchedulesPage() {
             <EntityRowAction asChild>
               <Link
                 to={appendSearch(
-                  ERP_ROUTES.BELL_SCHEDULE_EDIT.replace(":scheduleId", row.original.id),
+                  ERP_ROUTES.BELL_SCHEDULE_EDIT.replace(
+                    ":scheduleId",
+                    row.original.id,
+                  ),
                   location.search,
                 )}
               >
@@ -197,7 +203,9 @@ export function BellSchedulesPage() {
       <Card>
         <CardHeader>
           <CardTitle>Bell Schedules</CardTitle>
-          <CardDescription>You don't have access to this section.</CardDescription>
+          <CardDescription>
+            You don't have access to this section.
+          </CardDescription>
         </CardHeader>
       </Card>
     );
@@ -207,7 +215,9 @@ export function BellSchedulesPage() {
     <EntityListPage
       actions={
         <EntityPagePrimaryAction asChild>
-          <Link to={appendSearch(ERP_ROUTES.BELL_SCHEDULE_CREATE, location.search)}>
+          <Link
+            to={appendSearch(ERP_ROUTES.BELL_SCHEDULE_CREATE, location.search)}
+          >
             <IconPlus className="size-4" />
             New bell schedule
           </Link>
@@ -233,7 +243,12 @@ export function BellSchedulesPage() {
         table={table}
         emptyAction={
           <EntityEmptyStateAction asChild>
-            <Link to={appendSearch(ERP_ROUTES.BELL_SCHEDULE_CREATE, location.search)}>
+            <Link
+              to={appendSearch(
+                ERP_ROUTES.BELL_SCHEDULE_CREATE,
+                location.search,
+              )}
+            >
               <IconPlus className="size-4" />
               New bell schedule
             </Link>

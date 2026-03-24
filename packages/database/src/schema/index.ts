@@ -27,7 +27,9 @@ import {
   NOTIFICATION_TONES,
   NOTIFICATION_TYPES,
   SUBJECT_STATUS,
+  TIMETABLE_ASSIGNMENT_STATUS,
   TIMETABLE_ENTRY_STATUS,
+  TIMETABLE_VERSION_STATUS,
   WEEKDAY_KEYS,
 } from "@repo/contracts";
 import { campus, member, organization, user } from "./auth";
@@ -87,9 +89,19 @@ const TIMETABLE_ENTRY_STATUS_ENUM = [
   TIMETABLE_ENTRY_STATUS.INACTIVE,
   TIMETABLE_ENTRY_STATUS.DELETED,
 ] as const;
+const TIMETABLE_VERSION_STATUS_ENUM = [
+  TIMETABLE_VERSION_STATUS.DRAFT,
+  TIMETABLE_VERSION_STATUS.PUBLISHED,
+  TIMETABLE_VERSION_STATUS.ARCHIVED,
+] as const;
+const TIMETABLE_ASSIGNMENT_STATUS_ENUM = [
+  TIMETABLE_ASSIGNMENT_STATUS.ACTIVE,
+  TIMETABLE_ASSIGNMENT_STATUS.INACTIVE,
+] as const;
 const BELL_SCHEDULE_STATUS_ENUM = [
+  BELL_SCHEDULE_STATUS.DRAFT,
   BELL_SCHEDULE_STATUS.ACTIVE,
-  BELL_SCHEDULE_STATUS.INACTIVE,
+  BELL_SCHEDULE_STATUS.ARCHIVED,
   BELL_SCHEDULE_STATUS.DELETED,
 ] as const;
 const BELL_SCHEDULE_PERIOD_STATUS_ENUM = [
@@ -702,7 +714,7 @@ export const bellSchedules = pgTable(
     isDefault: boolean().notNull().default(false),
     status: text({ enum: BELL_SCHEDULE_STATUS_ENUM })
       .notNull()
-      .default("active"),
+      .default("draft"),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()
@@ -715,12 +727,60 @@ export const bellSchedules = pgTable(
     index("bell_schedules_campus_idx").on(table.campusId),
     uniqueIndex("bell_schedules_default_per_campus_idx")
       .on(table.campusId)
-      .where(
-        sql`${table.isDefault} IS TRUE AND ${table.status} != 'deleted'`,
-      ),
+      .where(sql`${table.isDefault} IS TRUE AND ${table.status} != 'deleted'`),
     uniqueIndex("bell_schedules_name_per_campus_unique_idx")
       .on(table.campusId, table.name)
       .where(sql`${table.status} != 'deleted'`),
+  ],
+);
+
+export const timetableVersions = pgTable(
+  "timetable_versions",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text()
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    classId: text()
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "restrict" }),
+    sectionId: text()
+      .notNull()
+      .references(() => classSections.id, { onDelete: "restrict" }),
+    academicYearId: text().references(() => academicYears.id, {
+      onDelete: "restrict",
+    }),
+    bellScheduleId: text()
+      .notNull()
+      .references(() => bellSchedules.id, { onDelete: "restrict" }),
+    name: text().notNull(),
+    notes: text(),
+    status: text({ enum: TIMETABLE_VERSION_STATUS_ENUM })
+      .notNull()
+      .default("draft"),
+    publishedAt: timestamp(),
+    createdByUserId: text().references(() => user.id, { onDelete: "set null" }),
+    updatedByUserId: text().references(() => user.id, { onDelete: "set null" }),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+  },
+  (table) => [
+    index("timetable_versions_institution_idx").on(table.institutionId),
+    index("timetable_versions_scope_idx").on(
+      table.campusId,
+      table.classId,
+      table.sectionId,
+    ),
+    index("timetable_versions_status_idx").on(table.status),
+    uniqueIndex("timetable_versions_name_per_scope_unique_idx")
+      .on(table.sectionId, table.name)
+      .where(sql`${table.status} != 'archived'`),
   ],
 );
 
@@ -756,6 +816,47 @@ export const bellSchedulePeriods = pgTable(
   ],
 );
 
+export const timetableAssignments = pgTable(
+  "timetable_assignments",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text()
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    classId: text()
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "restrict" }),
+    sectionId: text()
+      .notNull()
+      .references(() => classSections.id, { onDelete: "restrict" }),
+    timetableVersionId: text()
+      .notNull()
+      .references(() => timetableVersions.id, { onDelete: "restrict" }),
+    effectiveFrom: date().notNull(),
+    effectiveTo: date(),
+    status: text({ enum: TIMETABLE_ASSIGNMENT_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => /* @__PURE__ */ new Date()),
+  },
+  (table) => [
+    index("timetable_assignments_institution_idx").on(table.institutionId),
+    index("timetable_assignments_scope_idx").on(
+      table.campusId,
+      table.classId,
+      table.sectionId,
+    ),
+    index("timetable_assignments_version_idx").on(table.timetableVersionId),
+  ],
+);
+
 export const timetableEntries = pgTable(
   "timetable_entries",
   {
@@ -772,6 +873,9 @@ export const timetableEntries = pgTable(
     sectionId: text()
       .notNull()
       .references(() => classSections.id, { onDelete: "restrict" }),
+    timetableVersionId: text().references(() => timetableVersions.id, {
+      onDelete: "restrict",
+    }),
     subjectId: text()
       .notNull()
       .references(() => subjects.id, { onDelete: "restrict" }),
@@ -801,10 +905,16 @@ export const timetableEntries = pgTable(
       table.classId,
       table.sectionId,
     ),
+    index("timetable_entries_version_idx").on(table.timetableVersionId),
     index("timetable_entries_subject_idx").on(table.subjectId),
     index("timetable_entries_staff_idx").on(table.staffId),
-    uniqueIndex("timetable_entries_section_slot_unique_idx")
-      .on(table.sectionId, table.dayOfWeek, table.periodIndex)
+    uniqueIndex("timetable_entries_version_slot_unique_idx")
+      .on(
+        table.timetableVersionId,
+        table.sectionId,
+        table.dayOfWeek,
+        table.periodIndex,
+      )
       .where(sql`${table.status} != 'deleted'`),
   ],
 );

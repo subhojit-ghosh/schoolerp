@@ -16,9 +16,7 @@ import {
   useReplaceBellSchedulePeriodsMutation,
   useUpdateBellScheduleMutation,
 } from "@/features/bell-schedules/api/use-bell-schedules";
-import {
-  type BellScheduleFormValues,
-} from "@/features/bell-schedules/model/bell-schedule-schema";
+import { type BellScheduleFormValues } from "@/features/bell-schedules/model/bell-schedule-schema";
 import { BellScheduleForm } from "@/features/bell-schedules/ui/bell-schedule-form";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
@@ -111,7 +109,9 @@ export function BellScheduleSheetRoute({ mode }: BellScheduleSheetRouteProps) {
         },
       });
 
-      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.BELL_SCHEDULE));
+      toast.success(
+        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.BELL_SCHEDULE),
+      );
     } else if (scheduleId) {
       await updateMutation.mutateAsync({
         params: { path: { scheduleId } },
@@ -128,7 +128,9 @@ export function BellScheduleSheetRoute({ mode }: BellScheduleSheetRouteProps) {
         },
       });
 
-      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.BELL_SCHEDULE));
+      toast.success(
+        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.BELL_SCHEDULE),
+      );
     }
 
     void navigate(appendSearch(ERP_ROUTES.BELL_SCHEDULES, location.search));
@@ -196,7 +198,9 @@ export function BellScheduleSheetRoute({ mode }: BellScheduleSheetRouteProps) {
         errorMessage={errorMessage}
         isPending={isPending}
         onCancel={() => {
-          void navigate(appendSearch(ERP_ROUTES.BELL_SCHEDULES, location.search));
+          void navigate(
+            appendSearch(ERP_ROUTES.BELL_SCHEDULES, location.search),
+          );
         }}
         onSubmit={handleSubmit}
         submitLabel={

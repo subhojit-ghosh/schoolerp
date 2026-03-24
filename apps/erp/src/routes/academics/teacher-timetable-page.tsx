@@ -6,11 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
-import {
-  Field,
-  FieldContent,
-  FieldLabel,
-} from "@repo/ui/components/ui/field";
+import { Field, FieldContent, FieldLabel } from "@repo/ui/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -31,9 +27,7 @@ import {
 } from "@/features/bell-schedules/api/use-bell-schedules";
 import { useStaffQuery } from "@/features/staff/api/use-staff";
 import { TimetableGrid } from "@/features/timetable/components/timetable-grid";
-import {
-  useTeacherTimetableQuery,
-} from "@/features/timetable/api/use-timetable";
+import { useTeacherTimetableQuery } from "@/features/timetable/api/use-timetable";
 import {
   DEFAULT_SCHOOL_DAY_VALUES,
   type TimetableCellValue,
@@ -93,7 +87,8 @@ export function TeacherTimetablePage() {
     bellSchedulesQuery.isLoading ||
     (Boolean(defaultBellSchedule?.id) && bellScheduleDetailQuery.isLoading);
   const isTeacherPending = Boolean(staffId) && teacherTimetableQuery.isLoading;
-  const isPageLoading = staffQuery.isLoading || isBellSchedulePending || isTeacherPending;
+  const isPageLoading =
+    staffQuery.isLoading || isBellSchedulePending || isTeacherPending;
 
   useEffect(() => {
     if (!staffId && staffRows.length > 0) {
@@ -132,7 +127,8 @@ export function TeacherTimetablePage() {
         <CardHeader>
           <CardTitle>Teacher Schedule</CardTitle>
           <CardDescription>
-            Sign in with an institution-backed session to view teacher schedules.
+            Sign in with an institution-backed session to view teacher
+            schedules.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -144,7 +140,9 @@ export function TeacherTimetablePage() {
       <Card>
         <CardHeader>
           <CardTitle>Teacher Schedule</CardTitle>
-          <CardDescription>You don't have access to this section.</CardDescription>
+          <CardDescription>
+            You don't have access to this section.
+          </CardDescription>
         </CardHeader>
       </Card>
     );
@@ -160,7 +158,9 @@ export function TeacherTimetablePage() {
       <Card>
         <CardHeader>
           <CardTitle>Staff member</CardTitle>
-          <CardDescription>Select a teacher to review their week.</CardDescription>
+          <CardDescription>
+            Select a teacher to review their week.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Field>
@@ -192,7 +192,8 @@ export function TeacherTimetablePage() {
           <CardHeader>
             <CardTitle>Loading teacher schedule</CardTitle>
             <CardDescription>
-              Fetching teachers, the active bell schedule, and the selected weekly load.
+              Fetching teachers, the active bell schedule, and the selected
+              weekly load.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -201,7 +202,8 @@ export function TeacherTimetablePage() {
           <CardHeader>
             <CardTitle>No teachers available</CardTitle>
             <CardDescription>
-              Add at least one staff member before using the teacher timetable view.
+              Add at least one staff member before using the teacher timetable
+              view.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -210,14 +212,17 @@ export function TeacherTimetablePage() {
           <CardHeader>
             <CardTitle>Set up a bell schedule first</CardTitle>
             <CardDescription>
-              Teacher schedule view uses the active default bell schedule to render rows.
+              Teacher schedule view uses the active default bell schedule to
+              render rows.
             </CardDescription>
           </CardHeader>
         </Card>
       ) : (
         <Card>
           <CardHeader>
-            <CardTitle>{teacherTimetableQuery.data?.staffName ?? "Teacher schedule"}</CardTitle>
+            <CardTitle>
+              {teacherTimetableQuery.data?.staffName ?? "Teacher schedule"}
+            </CardTitle>
             <CardDescription>
               Read-only view across Monday to Friday by default.
             </CardDescription>
