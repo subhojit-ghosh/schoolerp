@@ -47,9 +47,9 @@ Important values:
 
 The app services bind only to loopback:
 
-- `127.0.0.1:3001` -> public web app
-- `127.0.0.1:3000` -> tenant ERP SPA
-- `127.0.0.1:4000` -> Nest API
+- `127.0.0.1:5001` -> public web app
+- `127.0.0.1:5000` -> tenant ERP SPA
+- `127.0.0.1:5002` -> Nest API
 
 Start the database and migrate:
 
@@ -72,6 +72,14 @@ Use `ops/Caddyfile.production.example` as the starting point for the VPS Caddyfi
 - `erp.example.com`
 
 Then reload Caddy on the host.
+
+Before starting the stack, confirm those host ports are free:
+
+```bash
+sudo ss -ltnp '( sport = :5000 or sport = :5001 or sport = :5002 )'
+```
+
+If that command prints no listening sockets, the ports are free.
 
 ## 5. Update a deployment
 

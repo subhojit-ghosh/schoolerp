@@ -12,7 +12,7 @@ services:
         VITE_ROOT_DOMAIN: ${ROOT_DOMAIN}
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3001:3001"
+      - "127.0.0.1:5001:3001"
 
   erp:
     build:
@@ -27,7 +27,7 @@ services:
         VITE_ROOT_DOMAIN: ${ROOT_DOMAIN}
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3000:80"
+      - "127.0.0.1:5000:80"
 
   api:
     build:
@@ -69,7 +69,7 @@ services:
       retries: 10
       start_period: 20s
     ports:
-      - "127.0.0.1:4000:4000"
+      - "127.0.0.1:5002:4000"
 
   postgres:
     image: postgres:18-alpine

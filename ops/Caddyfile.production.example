@@ -2,7 +2,7 @@
 	email admin@example.com
 
 	on_demand_tls {
-		ask http://127.0.0.1:4000/internal/tls/allow
+		ask http://127.0.0.1:5002/internal/tls/allow
 	}
 }
 
@@ -19,18 +19,18 @@ https:// {
 
 	handle @api {
 		uri strip_prefix /api
-		reverse_proxy 127.0.0.1:4000
+		reverse_proxy 127.0.0.1:5002
 	}
 
 	handle @docs {
-		reverse_proxy 127.0.0.1:4000
+		reverse_proxy 127.0.0.1:5002
 	}
 
 	handle @root {
-		reverse_proxy 127.0.0.1:3001
+		reverse_proxy 127.0.0.1:5001
 	}
 
 	handle {
-		reverse_proxy 127.0.0.1:3000
+		reverse_proxy 127.0.0.1:5000
 	}
 }
