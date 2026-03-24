@@ -1,5 +1,8 @@
 export const API_ROUTES = {
   HEALTH: "health",
+  INTERNAL: "internal",
+  TLS: "tls",
+  ALLOW: "allow",
   AUTH: "auth",
   ME: "me",
   SIGN_UP: "sign-up",

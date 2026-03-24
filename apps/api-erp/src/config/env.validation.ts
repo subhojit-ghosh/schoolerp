@@ -3,6 +3,8 @@ import { DELIVERY_PROVIDER_TYPES } from "../constants";
 
 const envSchema = z.object({
   DATABASE_URL: z.url(),
+  APP_ROOT_HOST: z.string().min(1).optional(),
+  APP_ROOT_DOMAIN: z.string().min(1).optional(),
   ERP_FRONTEND_URL: z.url().optional(),
   AUTH_COOKIE_DOMAIN: z.string().min(1).optional(),
   AUTH_COOKIE_SECURE: z.enum(["true", "false"]).optional(),

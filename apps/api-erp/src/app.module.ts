@@ -3,6 +3,7 @@ import { DatabaseModule, databaseConfig } from "@repo/backend-core";
 import { ConfigModule } from "@nestjs/config";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+import { appConfig } from "./config/app.config";
 import { authConfig } from "./config/auth.config";
 import { deliveryConfig } from "./config/delivery.config";
 import { storageConfig } from "./config/storage.config";
@@ -39,7 +40,13 @@ import { UploadsModule } from "./modules/uploads/uploads.module";
       isGlobal: true,
       cache: true,
       envFilePath: [".env.local", ".env"],
-      load: [databaseConfig, authConfig, deliveryConfig, storageConfig],
+      load: [
+        databaseConfig,
+        appConfig,
+        authConfig,
+        deliveryConfig,
+        storageConfig,
+      ],
       validate: validateEnvironment,
     }),
     DatabaseModule,

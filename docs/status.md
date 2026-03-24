@@ -22,6 +22,7 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - NestJS owns auth, tenant resolution, and all business rules
 - Vite ERP frontend for `https://<tenant>.erp.test`
 - Same-host `/api` routing via Caddy
+- Production Docker Compose stack for VPS deployment under `docker-compose.yml` and `ops/docker/*`
 - HTTP-only cookie auth, Passport-based
 - Configurable outbound delivery layer for auth flows with channel-specific provider selection (`log`, `disabled`, `webhook`)
 - Multi-campus tenant model; campus switching in session

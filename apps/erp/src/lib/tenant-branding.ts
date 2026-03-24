@@ -1,4 +1,5 @@
-import { getCurrentTenantSlug, type TenantBranding } from "@repo/contracts";
+import { type TenantBranding } from "@repo/contracts";
+import { getCurrentTenantSlug } from "./app-host";
 import { buildGoogleFontsUrl } from "./font-pairings";
 import { getRadiusValue, getSpacingValue } from "./theme-presets";
 

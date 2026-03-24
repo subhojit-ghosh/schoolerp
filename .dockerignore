@@ -1,0 +1,14 @@
+node_modules
+.git
+.turbo
+.playwright-cli
+.claude
+.vscode
+dist
+coverage
+*.log
+.env
+apps/*/.env
+apps/*/.env.local
+packages/*/.env
+packages/*/.env.local

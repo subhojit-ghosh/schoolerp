@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  buildRootAppUrl,
-  getCurrentTenantSlug,
-  isRootHostname,
-  type TenantBranding,
-} from "@repo/contracts";
+import { type TenantBranding } from "@repo/contracts";
 import { createBrowserRouter, Navigate } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
@@ -14,6 +9,11 @@ import { RequireSession } from "@/features/auth/ui/require-session";
 import { AttendancePage } from "@/routes/operations/attendance-page";
 import { ERP_ROUTES, ERP_ROUTE_SEGMENTS } from "@/constants/routes";
 import { fetchTenantBranding } from "@/lib/api";
+import {
+  buildRootAppUrl,
+  getCurrentTenantSlug,
+  isRootHostname,
+} from "@/lib/app-host";
 import {
   applyTenantBranding,
   cacheTenantBranding,

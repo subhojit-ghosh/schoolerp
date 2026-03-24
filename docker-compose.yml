@@ -1,0 +1,116 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ops/docker/Dockerfile
+      target: web
+      args:
+        NEXT_PUBLIC_ROOT_HOST: ${ROOT_HOST}
+        NEXT_PUBLIC_ROOT_DOMAIN: ${ROOT_DOMAIN}
+        VITE_API_URL: /api
+        VITE_ROOT_HOST: ${ROOT_HOST}
+        VITE_ROOT_DOMAIN: ${ROOT_DOMAIN}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3001"
+
+  erp:
+    build:
+      context: .
+      dockerfile: ops/docker/Dockerfile
+      target: erp
+      args:
+        NEXT_PUBLIC_ROOT_HOST: ${ROOT_HOST}
+        NEXT_PUBLIC_ROOT_DOMAIN: ${ROOT_DOMAIN}
+        VITE_API_URL: /api
+        VITE_ROOT_HOST: ${ROOT_HOST}
+        VITE_ROOT_DOMAIN: ${ROOT_DOMAIN}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:80"
+
+  api:
+    build:
+      context: .
+      dockerfile: ops/docker/Dockerfile
+      target: api
+      args:
+        NEXT_PUBLIC_ROOT_HOST: ${ROOT_HOST}
+        NEXT_PUBLIC_ROOT_DOMAIN: ${ROOT_DOMAIN}
+        VITE_API_URL: /api
+        VITE_ROOT_HOST: ${ROOT_HOST}
+        VITE_ROOT_DOMAIN: ${ROOT_DOMAIN}
+    restart: unless-stopped
+    environment:
+      PORT: 4000
+      DATABASE_URL: ${DATABASE_URL}
+      APP_ROOT_HOST: ${ROOT_HOST}
+      APP_ROOT_DOMAIN: ${ROOT_DOMAIN}
+      AUTH_COOKIE_DOMAIN: ${AUTH_COOKIE_DOMAIN}
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE}
+      ERP_FRONTEND_URL: ${ERP_FRONTEND_URL}
+      AUTH_PASSWORD_RESET_URL_BASE: ${AUTH_PASSWORD_RESET_URL_BASE}
+      DELIVERY_EMAIL_PROVIDER: ${DELIVERY_EMAIL_PROVIDER}
+      DELIVERY_SMS_PROVIDER: ${DELIVERY_SMS_PROVIDER}
+      DELIVERY_EMAIL_FROM_ADDRESS: ${DELIVERY_EMAIL_FROM_ADDRESS}
+      DELIVERY_EMAIL_FROM_NAME: ${DELIVERY_EMAIL_FROM_NAME}
+      R2_ACCOUNT_ID: ${R2_ACCOUNT_ID}
+      R2_ACCESS_KEY_ID: ${R2_ACCESS_KEY_ID}
+      R2_SECRET_ACCESS_KEY: ${R2_SECRET_ACCESS_KEY}
+      R2_BUCKET_NAME: ${R2_BUCKET_NAME}
+      R2_PUBLIC_URL: ${R2_PUBLIC_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:4000/health >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    ports:
+      - "127.0.0.1:4000:4000"
+
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/18/docker
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      dockerfile: ops/docker/Dockerfile
+      target: tooling
+      args:
+        NEXT_PUBLIC_ROOT_HOST: ${ROOT_HOST}
+        NEXT_PUBLIC_ROOT_DOMAIN: ${ROOT_DOMAIN}
+        VITE_API_URL: /api
+        VITE_ROOT_HOST: ${ROOT_HOST}
+        VITE_ROOT_DOMAIN: ${ROOT_DOMAIN}
+    profiles:
+      - ops
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command:
+      [
+        "sh",
+        "-lc",
+        "cd packages/database && bunx drizzle-kit migrate --config=drizzle.config.ts",
+      ]
+
+volumes:
+  postgres_data:

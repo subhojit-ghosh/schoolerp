@@ -1,5 +1,6 @@
 import { DATABASE } from "@repo/backend-core";
 import { Inject, Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import type { AppDatabase } from "@repo/database";
 import { and, campus, eq, ne, organization } from "@repo/database";
 import { APP_FALLBACKS, tenantBrandingSchema } from "@repo/contracts";
@@ -26,7 +27,45 @@ export const DEFAULT_TENANT_BRANDING = tenantBrandingSchema.parse({
 
 @Injectable()
 export class TenantContextService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly configService: ConfigService,
+  ) {}
+
+  private getRootHost() {
+    return this.configService
+      .get<string>("app.rootHost", APP_FALLBACKS.ROOT_HOST)
+      .toLowerCase();
+  }
+
+  private getRootDomain() {
+    return this.configService
+      .get<string>("app.rootDomain", APP_FALLBACKS.ROOT_DOMAIN)
+      .toLowerCase();
+  }
+
+  async isManagedHostname(host: string) {
+    const hostname = host.split(":")[0].toLowerCase();
+
+    if (hostname === this.getRootHost()) {
+      return true;
+    }
+
+    if (hostname.endsWith(`.${this.getRootDomain()}`)) {
+      return true;
+    }
+
+    const [row] = await this.db
+      .select({
+        id: organization.id,
+        status: organization.status,
+      })
+      .from(organization)
+      .where(eq(organization.customDomain, hostname))
+      .limit(1);
+
+    return Boolean(row && row.status !== STATUS.ORG.DELETED);
+  }
 
   resolveTenantSlug(host: string | undefined, tenantQuery: string | undefined) {
     if (tenantQuery) {
@@ -39,11 +78,11 @@ export class TenantContextService {
 
     const hostname = host.split(":")[0].toLowerCase();
 
-    if (LOCAL_HOSTS.has(hostname) || hostname === APP_FALLBACKS.ROOT_HOST) {
+    if (LOCAL_HOSTS.has(hostname) || hostname === this.getRootHost()) {
       return undefined;
     }
 
-    const tenantSuffix = `.${APP_FALLBACKS.ROOT_DOMAIN}`;
+    const tenantSuffix = `.${this.getRootDomain()}`;
     if (!hostname.endsWith(tenantSuffix)) {
       return undefined;
     }
@@ -92,11 +131,11 @@ export class TenantContextService {
 
     const hostname = host.split(":")[0].toLowerCase();
 
-    if (LOCAL_HOSTS.has(hostname) || hostname === APP_FALLBACKS.ROOT_HOST) {
+    if (LOCAL_HOSTS.has(hostname) || hostname === this.getRootHost()) {
       return null;
     }
 
-    const tenantSuffix = `.${APP_FALLBACKS.ROOT_DOMAIN}`;
+    const tenantSuffix = `.${this.getRootDomain()}`;
     const isSubdomain = hostname.endsWith(tenantSuffix);
 
     if (isSubdomain) {

@@ -2,7 +2,22 @@ import { describe, expect, test } from "bun:test";
 import { TenantContextService } from "./tenant-context.service";
 
 describe("TenantContextService.resolveTenantSlug", () => {
-  const service = new TenantContextService({} as never);
+  const service = new TenantContextService(
+    {} as never,
+    {
+      get(key: string, fallback: string) {
+        if (key === "app.rootHost") {
+          return "erp.test";
+        }
+
+        if (key === "app.rootDomain") {
+          return "erp.test";
+        }
+
+        return fallback;
+      },
+    } as never,
+  );
 
   test("prefers the explicit tenant query override", () => {
     expect(service.resolveTenantSlug("erp.test", "springfield")).toBe(

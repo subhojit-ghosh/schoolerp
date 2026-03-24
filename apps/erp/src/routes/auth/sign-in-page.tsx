@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router";
-import { buildTenantAppUrl } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
 import {
   useAuthErrorMessage,
@@ -8,6 +7,7 @@ import {
 import type { SignInFormValues } from "@/features/auth/model/auth-form-schema";
 import { AuthLayout } from "@/features/auth/ui/auth-layout";
 import { LoginForm } from "@/features/auth/ui/login-form";
+import { buildTenantAppUrl } from "@/lib/app-host";
 
 export function SignInPage() {
   const navigate = useNavigate();
