@@ -36,6 +36,6 @@ export const API_DOCS = {
     UPLOADS: "uploads",
   },
   THEMES: {
-    NEST: "nest",
+    NEST: "default",
   },
 } as const;

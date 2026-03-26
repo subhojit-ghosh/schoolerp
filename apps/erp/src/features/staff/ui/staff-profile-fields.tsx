@@ -22,17 +22,15 @@ import {
 } from "@/features/staff/model/staff-form-schema";
 
 type StaffProfileFieldsProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  control: Control<any>;
+  control: Control<StaffFormValues>;
 };
 
 export function StaffEmploymentFields({ control }: StaffProfileFieldsProps) {
-  const ctrl = control as Control<StaffFormValues>;
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.employeeId"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -49,7 +47,7 @@ export function StaffEmploymentFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.designation"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -66,7 +64,7 @@ export function StaffEmploymentFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.department"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -83,7 +81,7 @@ export function StaffEmploymentFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.dateOfJoining"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -101,7 +99,7 @@ export function StaffEmploymentFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.employmentType"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -127,7 +125,7 @@ export function StaffEmploymentFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.qualification"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -144,7 +142,7 @@ export function StaffEmploymentFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.experienceYears"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -171,12 +169,11 @@ export function StaffEmploymentFields({ control }: StaffProfileFieldsProps) {
 }
 
 export function StaffPersonalFields({ control }: StaffProfileFieldsProps) {
-  const ctrl = control as Control<StaffFormValues>;
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.dateOfBirth"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -194,7 +191,7 @@ export function StaffPersonalFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.gender"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -220,7 +217,7 @@ export function StaffPersonalFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.bloodGroup"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -246,7 +243,7 @@ export function StaffPersonalFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.address"
         render={({ field, fieldState }) => (
           <Field
@@ -266,7 +263,7 @@ export function StaffPersonalFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.emergencyContactName"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>
@@ -285,7 +282,7 @@ export function StaffPersonalFields({ control }: StaffProfileFieldsProps) {
         )}
       />
       <Controller
-        control={ctrl}
+        control={control}
         name="profile.emergencyContactMobile"
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid || undefined}>

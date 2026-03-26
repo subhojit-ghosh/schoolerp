@@ -22,8 +22,8 @@
     "openapi:export": "bun run openapi:metadata && bun run src/export-openapi.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1014.0",
-    "@aws-sdk/s3-request-presigner": "^3.1014.0",
+    "@aws-sdk/client-s3": "^3.1017.0",
+    "@aws-sdk/s3-request-presigner": "^3.1017.0",
     "@nestjs/common": "^11.1.17",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.17",
@@ -33,7 +33,7 @@
     "@repo/backend-core": "workspace:*",
     "@repo/contracts": "workspace:*",
     "@repo/database": "workspace:*",
-    "@scalar/nestjs-api-reference": "^1.1.4",
+    "@scalar/nestjs-api-reference": "^1.1.5",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
@@ -54,7 +54,7 @@
     "@types/passport": "^1.0.17",
     "@types/passport-local": "^1.0.38",
     "bun-types": "^1.3.11",
-    "eslint": "^10.0.3",
+    "eslint": "^10.1.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "eslint-plugin-unused-imports": "^4.4.1",
@@ -64,7 +64,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.57.1"
+    "typescript": "^6.0.2",
+    "typescript-eslint": "^8.57.2"
   }
 }

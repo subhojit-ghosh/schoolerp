@@ -456,6 +456,11 @@ export function ExampleForm() {
 - Keep Swagger property decorators only when they carry real OpenAPI metadata the plugin cannot express clearly on its own, such as `nullable: true`, explicit nested/lazy `type`, `isArray` for nested DTO refs, schema composition, examples/descriptions, formats, or other schema overrides.
 - After DTO refactors, regenerate OpenAPI and confirm the generated document is semantically unchanged before treating the cleanup as safe.
 
+### TypeScript 6.0 deprecations
+- Backend packages (`contracts`, `database`, `backend-core`) use `moduleResolution: "Node"` + `module: "commonjs"` with `ignoreDeprecations: "6.0"`. Migrating to `moduleResolution: "nodenext"` requires adding `.js` extensions to all relative imports — do not attempt casually.
+- `baseUrl` is deprecated. Do not add it to new tsconfig files. Use `paths` with full relative paths instead (e.g. `"./src/*"` not `"src/*"`).
+- `Control<any>` from `react-hook-form` no longer accepts `Control<SpecificType>` due to type invariance in TS 6. Use the concrete form values type in shared field component props, and cast with `as unknown as Control<BaseType>` at call sites where the caller's form type is a superset.
+
 ### Zod v4
 - This project uses `Zod v4`.
 - Use `z.uuid()` instead of `z.string().uuid()`.

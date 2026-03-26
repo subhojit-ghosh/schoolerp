@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { type Control, Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Badge } from "@repo/ui/components/ui/badge";
 import {
@@ -30,6 +30,7 @@ import {
   STAFF_STATUS_OPTIONS,
   staffCreateFormSchema,
   type StaffCreateFormValues,
+  type StaffFormValues,
 } from "@/features/staff/model/staff-form-schema";
 import {
   EntityFormPrimaryAction,
@@ -212,13 +213,13 @@ export function StaffCreateForm({
 
           <TabsContent value="employment">
             <div className="pt-6">
-              <StaffEmploymentFields control={control} />
+              <StaffEmploymentFields control={control as unknown as Control<StaffFormValues>} />
             </div>
           </TabsContent>
 
           <TabsContent value="personal">
             <div className="pt-6">
-              <StaffPersonalFields control={control} />
+              <StaffPersonalFields control={control as unknown as Control<StaffFormValues>} />
             </div>
           </TabsContent>
         </Tabs>

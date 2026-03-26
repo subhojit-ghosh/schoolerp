@@ -10,7 +10,6 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "baseUrl": ".",
     "paths": {
       "@repo/ui/*": ["./src/*"]
     }

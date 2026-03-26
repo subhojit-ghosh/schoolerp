@@ -10,7 +10,6 @@
     "sourceMap": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": "./",
     "types": ["node", "bun-types"],
     "strict": true,
     "skipLibCheck": true,
