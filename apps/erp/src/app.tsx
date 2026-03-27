@@ -93,7 +93,9 @@ import { SalaryComponentsPage } from "@/routes/hr/salary-components-page";
 import { SalaryComponentSheetRoute } from "@/routes/hr/salary-component-sheet-route";
 import { SalaryTemplatesPage } from "@/routes/hr/salary-templates-page";
 import { SalaryTemplateCreatePage } from "@/routes/hr/salary-template-create-page";
+import { SalaryTemplateEditPage } from "@/routes/hr/salary-template-edit-page";
 import { SalaryTemplateDetailPage } from "@/routes/hr/salary-template-detail-page";
+import { PayrollReportsPage } from "@/routes/hr/payroll-reports-page";
 import { SalaryAssignmentsPage } from "@/routes/hr/salary-assignments-page";
 import { SalaryAssignmentSheetRoute } from "@/routes/hr/salary-assignment-sheet-route";
 import { PayrollRunsPage } from "@/routes/hr/payroll-runs-page";
@@ -432,6 +434,10 @@ const router = createBrowserRouter([
         element: <SalaryTemplateCreatePage />,
       },
       {
+        path: ERP_ROUTES.PAYROLL_SALARY_TEMPLATE_EDIT,
+        element: <SalaryTemplateEditPage />,
+      },
+      {
         path: ERP_ROUTES.PAYROLL_SALARY_TEMPLATE_DETAIL,
         element: <SalaryTemplateDetailPage />,
       },
@@ -464,6 +470,10 @@ const router = createBrowserRouter([
       {
         path: ERP_ROUTES.PAYROLL_PAYSLIP_PRINT,
         element: <PayslipPrintPage />,
+      },
+      {
+        path: ERP_ROUTES.PAYROLL_REPORTS,
+        element: <PayrollReportsPage />,
       },
       {
         path: ERP_ROUTES.ADMISSIONS_ENQUIRIES,
