@@ -37,6 +37,10 @@ import {
   TIMETABLE_ENTRY_STATUS,
   TIMETABLE_VERSION_STATUS,
   WEEKDAY_KEYS,
+  INVENTORY_CATEGORY_STATUS,
+  INVENTORY_ITEM_STATUS,
+  STOCK_TRANSACTION_TYPES,
+  INVENTORY_UNITS,
 } from "@repo/contracts";
 import { campus, member, organization, user } from "./auth";
 
@@ -220,6 +224,9 @@ const AUDIT_ENTITY_TYPE_ENUM = [
   AUDIT_ENTITY_TYPES.STAFF_SALARY_ASSIGNMENT,
   AUDIT_ENTITY_TYPES.PAYROLL_RUN,
   AUDIT_ENTITY_TYPES.PAYSLIP,
+  AUDIT_ENTITY_TYPES.INVENTORY_CATEGORY,
+  AUDIT_ENTITY_TYPES.INVENTORY_ITEM,
+  AUDIT_ENTITY_TYPES.STOCK_TRANSACTION,
 ] as const;
 
 const SALARY_COMPONENT_TYPE_ENUM = [
@@ -250,6 +257,31 @@ const PAYROLL_RUN_STATUS_ENUM = [
   PAYROLL_RUN_STATUS.PROCESSED,
   PAYROLL_RUN_STATUS.APPROVED,
   PAYROLL_RUN_STATUS.PAID,
+] as const;
+
+const INVENTORY_CATEGORY_STATUS_ENUM = [
+  INVENTORY_CATEGORY_STATUS.ACTIVE,
+  INVENTORY_CATEGORY_STATUS.INACTIVE,
+  INVENTORY_CATEGORY_STATUS.DELETED,
+] as const;
+const INVENTORY_ITEM_STATUS_ENUM = [
+  INVENTORY_ITEM_STATUS.ACTIVE,
+  INVENTORY_ITEM_STATUS.INACTIVE,
+  INVENTORY_ITEM_STATUS.DELETED,
+] as const;
+const STOCK_TRANSACTION_TYPE_ENUM = [
+  STOCK_TRANSACTION_TYPES.PURCHASE,
+  STOCK_TRANSACTION_TYPES.ISSUE,
+  STOCK_TRANSACTION_TYPES.RETURN,
+  STOCK_TRANSACTION_TYPES.ADJUSTMENT,
+] as const;
+const INVENTORY_UNIT_ENUM = [
+  INVENTORY_UNITS.PIECE,
+  INVENTORY_UNITS.BOX,
+  INVENTORY_UNITS.PACK,
+  INVENTORY_UNITS.SET,
+  INVENTORY_UNITS.KG,
+  INVENTORY_UNITS.LITER,
 ] as const;
 
 const TRANSPORT_ROUTE_STATUS_ENUM = ["active", "inactive"] as const;
@@ -1940,4 +1972,97 @@ export const payslipLineItems = pgTable(
     amountInPaise: integer().notNull(),
   },
   (t) => [index("payslip_line_items_payslip_idx").on(t.payslipId)],
+);
+
+// ── Inventory ──────────────────────────────────────────────────────────────
+
+export const inventoryCategories = pgTable(
+  "inventory_categories",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    description: text(),
+    // Tier 2: active | inactive | deleted
+    status: text({ enum: INVENTORY_CATEGORY_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    deletedAt: timestamp(),
+  },
+  (t) => [
+    index("inventory_categories_institution_idx").on(t.institutionId),
+    index("inventory_categories_status_idx").on(t.status),
+    uniqueIndex("inventory_categories_name_unique_idx")
+      .on(t.institutionId, t.name)
+      .where(sql`${t.status} != 'deleted'`),
+  ],
+);
+
+export const inventoryItems = pgTable(
+  "inventory_items",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    categoryId: text()
+      .notNull()
+      .references(() => inventoryCategories.id, { onDelete: "restrict" }),
+    name: text().notNull(),
+    sku: text(),
+    unit: text({ enum: INVENTORY_UNIT_ENUM }).notNull().default("piece"),
+    currentStock: integer().notNull().default(0),
+    minimumStock: integer().notNull().default(0),
+    location: text(),
+    purchasePriceInPaise: integer(),
+    // Tier 2: active | inactive | deleted
+    status: text({ enum: INVENTORY_ITEM_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    deletedAt: timestamp(),
+  },
+  (t) => [
+    index("inventory_items_institution_idx").on(t.institutionId),
+    index("inventory_items_category_idx").on(t.categoryId),
+    index("inventory_items_status_idx").on(t.status),
+    uniqueIndex("inventory_items_sku_unique_idx")
+      .on(t.institutionId, t.sku)
+      .where(sql`${t.sku} IS NOT NULL AND ${t.status} != 'deleted'`),
+  ],
+);
+
+export const stockTransactions = pgTable(
+  "stock_transactions",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    itemId: text()
+      .notNull()
+      .references(() => inventoryItems.id, { onDelete: "restrict" }),
+    transactionType: text({ enum: STOCK_TRANSACTION_TYPE_ENUM }).notNull(),
+    quantity: integer().notNull(),
+    referenceNumber: text(),
+    issuedToMembershipId: text().references(() => member.id, {
+      onDelete: "restrict",
+    }),
+    notes: text(),
+    createdByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("stock_transactions_institution_idx").on(t.institutionId),
+    index("stock_transactions_item_idx").on(t.itemId),
+    index("stock_transactions_type_idx").on(t.transactionType),
+    index("stock_transactions_created_at_idx").on(t.createdAt),
+  ],
 );

@@ -21,6 +21,7 @@ import {
   IconMapPin,
   IconMessageCircle,
   IconNotebook,
+  IconPackage,
   IconPalette,
   IconReportMoney,
   IconShieldLock,
@@ -29,6 +30,8 @@ import {
   IconUserSearch,
   IconUsers,
   IconUsersGroup,
+  IconAlertTriangle,
+  IconArrowsExchange,
   type Icon,
 } from "@tabler/icons-react";
 import { PERMISSIONS } from "@repo/contracts";
@@ -316,16 +319,36 @@ export const NAV_SERVICES: readonly NavItem[] = [
   {
     badgeLabel: "Later",
     disabled: true,
-    icon: IconLayoutGrid,
-    title: "Inventory",
-    url: ERP_ROUTES.INVENTORY,
-  },
-  {
-    badgeLabel: "Later",
-    disabled: true,
     icon: IconBuildingEstate,
     title: "Hostel",
     url: ERP_ROUTES.HOSTEL,
+  },
+];
+
+export const NAV_INVENTORY: readonly NavItem[] = [
+  {
+    icon: IconFolder,
+    permission: PERMISSIONS.INVENTORY_READ,
+    title: "Categories",
+    url: ERP_ROUTES.INVENTORY_CATEGORIES,
+  },
+  {
+    icon: IconPackage,
+    permission: PERMISSIONS.INVENTORY_READ,
+    title: "Items",
+    url: ERP_ROUTES.INVENTORY_ITEMS,
+  },
+  {
+    icon: IconArrowsExchange,
+    permission: PERMISSIONS.INVENTORY_READ,
+    title: "Stock Transactions",
+    url: ERP_ROUTES.INVENTORY_TRANSACTIONS,
+  },
+  {
+    icon: IconAlertTriangle,
+    permission: PERMISSIONS.INVENTORY_READ,
+    title: "Low Stock",
+    url: ERP_ROUTES.INVENTORY_LOW_STOCK,
   },
 ];
 

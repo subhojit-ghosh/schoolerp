@@ -118,4 +118,9 @@ export const API_ROUTES = {
   MARK_PAID: "mark-paid",
   MONTHLY_SUMMARY: "monthly-summary",
   STAFF_HISTORY: "staff-history",
+  INVENTORY: "inventory",
+  CATEGORIES: "categories",
+  ITEMS: "items",
+  TRANSACTIONS: "transactions",
+  LOW_STOCK: "low-stock",
 } as const;

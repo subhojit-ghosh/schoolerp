@@ -271,4 +271,20 @@ export const ERROR_MESSAGES = {
     STUDENT_ALREADY_ASSIGNED:
       "This student already has an active transport assignment. Update or deactivate the existing assignment first.",
   },
+  INVENTORY: {
+    CATEGORY_NOT_FOUND: "Inventory category not found.",
+    CATEGORY_HAS_ITEMS:
+      "Cannot delete a category that has items. Remove or reassign the items first.",
+    CATEGORY_NAME_EXISTS:
+      "That category name is already in use for this institution.",
+    ITEM_NOT_FOUND: "Inventory item not found.",
+    ITEM_HAS_TRANSACTIONS:
+      "Cannot delete an item that has stock transactions. Deactivate it instead.",
+    ITEM_SKU_EXISTS:
+      "That SKU is already in use for another item in this institution.",
+    INSUFFICIENT_STOCK:
+      "Insufficient stock to complete this transaction.",
+    TRANSACTION_NOT_FOUND: "Stock transaction not found.",
+    MEMBER_NOT_FOUND: "Member not found in this institution.",
+  },
 } as const;

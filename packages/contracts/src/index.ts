@@ -114,6 +114,8 @@ export const PERMISSIONS = {
   TRANSPORT_MANAGE: "transport:manage",
   PAYROLL_READ: "payroll:read",
   PAYROLL_MANAGE: "payroll:manage",
+  INVENTORY_READ: "inventory:read",
+  INVENTORY_MANAGE: "inventory:manage",
 } as const;
 
 export const DATA_EXCHANGE_ENTITY_TYPES = {
@@ -178,6 +180,9 @@ export const AUDIT_ENTITY_TYPES = {
   STAFF_SALARY_ASSIGNMENT: "staff_salary_assignment",
   PAYROLL_RUN: "payroll_run",
   PAYSLIP: "payslip",
+  INVENTORY_CATEGORY: "inventory_category",
+  INVENTORY_ITEM: "inventory_item",
+  STOCK_TRANSACTION: "stock_transaction",
 } as const;
 
 export const DELIVERY_PROVIDERS = {
@@ -707,6 +712,67 @@ export type SalaryAssignmentStatus = z.infer<
 export type PayrollRunStatus = z.infer<typeof payrollRunStatusSchema>;
 
 export const DEFAULT_WORKING_DAYS_PER_MONTH = 26;
+
+export const INVENTORY_CATEGORY_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  DELETED: "deleted",
+} as const;
+
+export const INVENTORY_ITEM_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  DELETED: "deleted",
+} as const;
+
+export const STOCK_TRANSACTION_TYPES = {
+  PURCHASE: "purchase",
+  ISSUE: "issue",
+  RETURN: "return",
+  ADJUSTMENT: "adjustment",
+} as const;
+
+export const INVENTORY_UNITS = {
+  PIECE: "piece",
+  BOX: "box",
+  PACK: "pack",
+  SET: "set",
+  KG: "kg",
+  LITER: "liter",
+} as const;
+
+export const inventoryCategoryStatusSchema = z.enum([
+  INVENTORY_CATEGORY_STATUS.ACTIVE,
+  INVENTORY_CATEGORY_STATUS.INACTIVE,
+  INVENTORY_CATEGORY_STATUS.DELETED,
+]);
+
+export const inventoryItemStatusSchema = z.enum([
+  INVENTORY_ITEM_STATUS.ACTIVE,
+  INVENTORY_ITEM_STATUS.INACTIVE,
+  INVENTORY_ITEM_STATUS.DELETED,
+]);
+
+export const stockTransactionTypeSchema = z.enum([
+  STOCK_TRANSACTION_TYPES.PURCHASE,
+  STOCK_TRANSACTION_TYPES.ISSUE,
+  STOCK_TRANSACTION_TYPES.RETURN,
+  STOCK_TRANSACTION_TYPES.ADJUSTMENT,
+]);
+
+export const inventoryUnitSchema = z.enum([
+  INVENTORY_UNITS.PIECE,
+  INVENTORY_UNITS.BOX,
+  INVENTORY_UNITS.PACK,
+  INVENTORY_UNITS.SET,
+  INVENTORY_UNITS.KG,
+  INVENTORY_UNITS.LITER,
+]);
+
+export type InventoryCategoryStatus = z.infer<typeof inventoryCategoryStatusSchema>;
+export type InventoryItemStatus = z.infer<typeof inventoryItemStatusSchema>;
+export type StockTransactionType = z.infer<typeof stockTransactionTypeSchema>;
+export type InventoryUnit = z.infer<typeof inventoryUnitSchema>;
 
 export const healthResponseSchema = z.object({
   status: z.string(),

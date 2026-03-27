@@ -40,6 +40,7 @@ export const API_DOCS = {
     LIBRARY: "library",
     TRANSPORT: "transport",
     PAYROLL: "payroll",
+    INVENTORY: "inventory",
   },
   THEMES: {
     NEST: "default",

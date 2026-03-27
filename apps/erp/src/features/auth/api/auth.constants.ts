@@ -262,6 +262,22 @@ export const TRANSPORT_API_PATHS = {
   UPDATE_ASSIGNMENT: "/transport/assignments/{assignmentId}",
 } as const;
 
+export const INVENTORY_API_PATHS = {
+  LIST_CATEGORIES: "/inventory/categories",
+  CREATE_CATEGORY: "/inventory/categories",
+  UPDATE_CATEGORY: "/inventory/categories/{categoryId}",
+  UPDATE_CATEGORY_STATUS: "/inventory/categories/{categoryId}/status",
+  LIST_ITEMS: "/inventory/items",
+  CREATE_ITEM: "/inventory/items",
+  GET_ITEM: "/inventory/items/{itemId}",
+  UPDATE_ITEM: "/inventory/items/{itemId}",
+  UPDATE_ITEM_STATUS: "/inventory/items/{itemId}/status",
+  LIST_ITEM_TRANSACTIONS: "/inventory/items/{itemId}/transactions",
+  LIST_TRANSACTIONS: "/inventory/transactions",
+  CREATE_TRANSACTION: "/inventory/transactions",
+  LOW_STOCK: "/inventory/low-stock",
+} as const;
+
 export const PAYROLL_API_PATHS = {
   LIST_SALARY_COMPONENTS: "/payroll/salary-components",
   CREATE_SALARY_COMPONENT: "/payroll/salary-components",

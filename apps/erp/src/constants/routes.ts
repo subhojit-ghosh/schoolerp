@@ -119,6 +119,16 @@ export const ERP_ROUTES = {
   STAFF_LEAVE: "/staff/leave",
   STAFF_ATTENDANCE: "/staff/attendance",
   INVENTORY: "/inventory",
+  INVENTORY_CATEGORIES: "/inventory/categories",
+  INVENTORY_CATEGORY_CREATE: `/inventory/categories/${ERP_ROUTE_SEGMENTS.NEW}`,
+  INVENTORY_CATEGORY_EDIT: `/inventory/categories/:categoryId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  INVENTORY_ITEMS: "/inventory/items",
+  INVENTORY_ITEM_CREATE: `/inventory/items/${ERP_ROUTE_SEGMENTS.NEW}`,
+  INVENTORY_ITEM_EDIT: `/inventory/items/:itemId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  INVENTORY_ITEM_DETAIL: "/inventory/items/:itemId",
+  INVENTORY_TRANSACTIONS: "/inventory/transactions",
+  INVENTORY_TRANSACTION_CREATE: `/inventory/transactions/${ERP_ROUTE_SEGMENTS.NEW}`,
+  INVENTORY_LOW_STOCK: "/inventory/low-stock",
   PAYROLL: "/payroll",
   PAYROLL_SALARY_COMPONENTS: "/payroll/salary-components",
   PAYROLL_SALARY_COMPONENT_CREATE: `/payroll/salary-components/${ERP_ROUTE_SEGMENTS.NEW}`,
@@ -326,4 +336,16 @@ export function buildPayslipDetailRoute(payslipId: string) {
 
 export function buildPayslipPrintRoute(payslipId: string) {
   return `/payroll/payslips/${payslipId}/print`;
+}
+
+export function buildInventoryCategoryEditRoute(categoryId: string) {
+  return `/inventory/categories/${categoryId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildInventoryItemEditRoute(itemId: string) {
+  return `/inventory/items/${itemId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildInventoryItemDetailRoute(itemId: string) {
+  return `/inventory/items/${itemId}`;
 }

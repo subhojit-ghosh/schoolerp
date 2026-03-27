@@ -89,6 +89,14 @@ import { RouteSheetRoute } from "@/features/transport/ui/route-sheet-route";
 import { VehicleSheetRoute } from "@/features/transport/ui/vehicle-sheet-route";
 import { AssignmentSheetRoute } from "@/features/transport/ui/assignment-sheet-route";
 import { StopSheetRoute } from "@/features/transport/ui/stop-sheet-route";
+import { InventoryCategoriesPage } from "@/routes/inventory/inventory-categories-page";
+import { InventoryCategorySheetRoute } from "@/routes/inventory/inventory-category-sheet-route";
+import { InventoryItemsPage } from "@/routes/inventory/inventory-items-page";
+import { InventoryItemSheetRoute } from "@/routes/inventory/inventory-item-sheet-route";
+import { InventoryItemDetailPage } from "@/routes/inventory/inventory-item-detail-page";
+import { InventoryTransactionsPage } from "@/routes/inventory/inventory-transactions-page";
+import { InventoryTransactionSheetRoute } from "@/routes/inventory/inventory-transaction-sheet-route";
+import { InventoryLowStockPage } from "@/routes/inventory/inventory-low-stock-page";
 import { SalaryComponentsPage } from "@/routes/hr/salary-components-page";
 import { SalaryComponentSheetRoute } from "@/routes/hr/salary-component-sheet-route";
 import { SalaryTemplatesPage } from "@/routes/hr/salary-templates-page";
@@ -409,6 +417,53 @@ const router = createBrowserRouter([
             element: <AssignmentSheetRoute mode="edit" />,
           },
         ],
+      },
+      // ── Inventory ────────────────────────────────────────────────────
+      {
+        path: ERP_ROUTES.INVENTORY_CATEGORIES,
+        element: <InventoryCategoriesPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <InventoryCategorySheetRoute mode="create" />,
+          },
+          {
+            path: `:categoryId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <InventoryCategorySheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.INVENTORY_ITEMS,
+        element: <InventoryItemsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <InventoryItemSheetRoute mode="create" />,
+          },
+          {
+            path: `:itemId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <InventoryItemSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.INVENTORY_ITEM_DETAIL,
+        element: <InventoryItemDetailPage />,
+      },
+      {
+        path: ERP_ROUTES.INVENTORY_TRANSACTIONS,
+        element: <InventoryTransactionsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <InventoryTransactionSheetRoute />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.INVENTORY_LOW_STOCK,
+        element: <InventoryLowStockPage />,
       },
       // ── Payroll ──────────────────────────────────────────────────────
       {

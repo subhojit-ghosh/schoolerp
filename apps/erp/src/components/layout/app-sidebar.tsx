@@ -23,6 +23,7 @@ import {
   IconLayoutGrid,
   IconMessageCircle,
   IconNotebook,
+  IconPackage,
   IconSchool,
   IconSpeakerphone,
   IconTruck,
@@ -53,6 +54,7 @@ import {
   NAV_FINANCE,
   NAV_COMMUNICATION,
   NAV_SERVICES,
+  NAV_INVENTORY,
   NAV_HR,
   NAV_REPORTS,
   NAV_SETTINGS,
@@ -112,6 +114,7 @@ const STAFF_NAV_GROUP_LABELS = {
   LIBRARY: "Library",
   TRANSPORT: "Transport",
   SERVICES: "Services",
+  INVENTORY: "Inventory",
   HR: "HR & Payroll",
   REPORTS: "Reports",
   SETTINGS: "Settings",
@@ -374,6 +377,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const libraryItems = filterByPermission(getActionableNavItems(NAV_LIBRARY));
   const transportItems = filterByPermission(getActionableNavItems(NAV_TRANSPORT));
   const servicesItems = getActionableNavItems(NAV_SERVICES);
+  const inventoryNavItems = filterByPermission(getActionableNavItems(NAV_INVENTORY));
   const hrItems = getActionableNavItems(NAV_HR);
   const reportItems = filterByPermission(getActionableNavItems(NAV_REPORTS));
   const settingsItems = filterByPermission(getActionableNavItems(NAV_SETTINGS));
@@ -417,6 +421,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         { items: libraryItems, label: STAFF_NAV_GROUP_LABELS.LIBRARY },
         { items: transportItems, label: STAFF_NAV_GROUP_LABELS.TRANSPORT },
         { items: servicesItems, label: STAFF_NAV_GROUP_LABELS.SERVICES },
+        { items: inventoryNavItems, label: STAFF_NAV_GROUP_LABELS.INVENTORY },
         { items: hrItems, label: STAFF_NAV_GROUP_LABELS.HR },
         { items: reportItems, label: STAFF_NAV_GROUP_LABELS.REPORTS },
         { items: recordItems, label: STAFF_NAV_GROUP_LABELS.RECORDS },
@@ -453,6 +458,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     libraryItems,
     transportItems,
     hrItems,
+    inventoryNavItems,
     location.pathname,
     peopleItems,
     recordItems,
@@ -672,6 +678,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 icon={IconLayoutGrid}
                 items={servicesItems}
                 label={STAFF_NAV_GROUP_LABELS.SERVICES}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
+              />
+            ) : null}
+            {inventoryNavItems.length > 0 ? (
+              <NavMain
+                collapsible
+                icon={IconPackage}
+                items={inventoryNavItems}
+                label={STAFF_NAV_GROUP_LABELS.INVENTORY}
                 onOpenGroupChange={setOpenGroupLabel}
                 openGroupLabel={openGroupLabel}
               />
