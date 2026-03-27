@@ -278,6 +278,25 @@ export const INVENTORY_API_PATHS = {
   LOW_STOCK: "/inventory/low-stock",
 } as const;
 
+export const HOSTEL_API_PATHS = {
+  LIST_BUILDINGS: "/hostel/buildings",
+  CREATE_BUILDING: "/hostel/buildings",
+  GET_BUILDING: "/hostel/buildings/{buildingId}",
+  UPDATE_BUILDING: "/hostel/buildings/{buildingId}",
+  UPDATE_BUILDING_STATUS: "/hostel/buildings/{buildingId}/status",
+  LIST_ROOMS: "/hostel/rooms",
+  CREATE_ROOM: "/hostel/rooms",
+  UPDATE_ROOM: "/hostel/rooms/{roomId}",
+  UPDATE_ROOM_STATUS: "/hostel/rooms/{roomId}/status",
+  LIST_ALLOCATIONS: "/hostel/allocations",
+  CREATE_ALLOCATION: "/hostel/allocations",
+  VACATE_ALLOCATION: "/hostel/allocations/{allocationId}/vacate",
+  LIST_MESS_PLANS: "/hostel/mess-plans",
+  CREATE_MESS_PLAN: "/hostel/mess-plans",
+  UPDATE_MESS_PLAN: "/hostel/mess-plans/{planId}",
+  UPDATE_MESS_PLAN_STATUS: "/hostel/mess-plans/{planId}/status",
+} as const;
+
 export const PAYROLL_API_PATHS = {
   LIST_SALARY_COMPONENTS: "/payroll/salary-components",
   CREATE_SALARY_COMPONENT: "/payroll/salary-components",

@@ -287,4 +287,25 @@ export const ERROR_MESSAGES = {
     TRANSACTION_NOT_FOUND: "Stock transaction not found.",
     MEMBER_NOT_FOUND: "Member not found in this institution.",
   },
+  HOSTEL: {
+    BUILDING_NOT_FOUND: "Hostel building not found.",
+    BUILDING_NAME_EXISTS:
+      "That building name is already in use for this institution.",
+    BUILDING_HAS_ROOMS:
+      "Cannot delete a building that has rooms. Remove or deactivate the rooms first.",
+    ROOM_NOT_FOUND: "Hostel room not found.",
+    ROOM_NUMBER_EXISTS:
+      "That room number already exists in this building.",
+    ROOM_FULL:
+      "This room has reached its capacity. No more beds can be allocated.",
+    ALLOCATION_NOT_FOUND: "Bed allocation not found.",
+    STUDENT_ALREADY_ALLOCATED:
+      "This student already has an active bed allocation.",
+    ALLOCATION_ALREADY_VACATED:
+      "This bed allocation has already been vacated.",
+    MESS_PLAN_NOT_FOUND: "Mess plan not found.",
+    MESS_PLAN_NAME_EXISTS:
+      "That mess plan name is already in use for this institution.",
+    STUDENT_NOT_FOUND: "Student not found in this institution.",
+  },
 } as const;

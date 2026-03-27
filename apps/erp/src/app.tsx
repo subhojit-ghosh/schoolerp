@@ -97,6 +97,15 @@ import { InventoryItemDetailPage } from "@/routes/inventory/inventory-item-detai
 import { InventoryTransactionsPage } from "@/routes/inventory/inventory-transactions-page";
 import { InventoryTransactionSheetRoute } from "@/routes/inventory/inventory-transaction-sheet-route";
 import { InventoryLowStockPage } from "@/routes/inventory/inventory-low-stock-page";
+import { HostelBuildingsPage } from "@/routes/hostel/hostel-buildings-page";
+import { HostelBuildingSheetRoute } from "@/routes/hostel/hostel-building-sheet-route";
+import { HostelBuildingDetailPage } from "@/routes/hostel/hostel-building-detail-page";
+import { HostelRoomsPage } from "@/routes/hostel/hostel-rooms-page";
+import { HostelRoomSheetRoute } from "@/routes/hostel/hostel-room-sheet-route";
+import { HostelAllocationsPage } from "@/routes/hostel/hostel-allocations-page";
+import { HostelAllocationSheetRoute } from "@/routes/hostel/hostel-allocation-sheet-route";
+import { HostelMessPlansPage } from "@/routes/hostel/hostel-mess-plans-page";
+import { HostelMessPlanSheetRoute } from "@/routes/hostel/hostel-mess-plan-sheet-route";
 import { SalaryComponentsPage } from "@/routes/hr/salary-components-page";
 import { SalaryComponentSheetRoute } from "@/routes/hr/salary-component-sheet-route";
 import { SalaryTemplatesPage } from "@/routes/hr/salary-templates-page";
@@ -464,6 +473,63 @@ const router = createBrowserRouter([
       {
         path: ERP_ROUTES.INVENTORY_LOW_STOCK,
         element: <InventoryLowStockPage />,
+      },
+      // ── Hostel ───────────────────────────────────────────────────────
+      {
+        path: ERP_ROUTES.HOSTEL_BUILDINGS,
+        element: <HostelBuildingsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <HostelBuildingSheetRoute mode="create" />,
+          },
+          {
+            path: `:buildingId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <HostelBuildingSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.HOSTEL_BUILDING_DETAIL,
+        element: <HostelBuildingDetailPage />,
+      },
+      {
+        path: ERP_ROUTES.HOSTEL_ROOMS,
+        element: <HostelRoomsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <HostelRoomSheetRoute mode="create" />,
+          },
+          {
+            path: `:roomId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <HostelRoomSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.HOSTEL_ALLOCATIONS,
+        element: <HostelAllocationsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <HostelAllocationSheetRoute />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.HOSTEL_MESS_PLANS,
+        element: <HostelMessPlansPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <HostelMessPlanSheetRoute mode="create" />,
+          },
+          {
+            path: `:planId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <HostelMessPlanSheetRoute mode="edit" />,
+          },
+        ],
       },
       // ── Payroll ──────────────────────────────────────────────────────
       {

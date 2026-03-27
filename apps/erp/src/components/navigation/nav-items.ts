@@ -317,11 +317,28 @@ export const NAV_SERVICES: readonly NavItem[] = [
     url: ERP_ROUTES.TRANSPORT,
   },
   {
-    badgeLabel: "Later",
-    disabled: true,
     icon: IconBuildingEstate,
-    title: "Hostel",
-    url: ERP_ROUTES.HOSTEL,
+    permission: PERMISSIONS.HOSTEL_READ,
+    title: "Hostel Buildings",
+    url: ERP_ROUTES.HOSTEL_BUILDINGS,
+  },
+  {
+    icon: IconBuildingEstate,
+    permission: PERMISSIONS.HOSTEL_READ,
+    title: "Hostel Rooms",
+    url: ERP_ROUTES.HOSTEL_ROOMS,
+  },
+  {
+    icon: IconBuildingEstate,
+    permission: PERMISSIONS.HOSTEL_READ,
+    title: "Bed Allocations",
+    url: ERP_ROUTES.HOSTEL_ALLOCATIONS,
+  },
+  {
+    icon: IconBuildingEstate,
+    permission: PERMISSIONS.HOSTEL_READ,
+    title: "Mess Plans",
+    url: ERP_ROUTES.HOSTEL_MESS_PLANS,
   },
 ];
 

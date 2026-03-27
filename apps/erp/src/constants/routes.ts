@@ -147,6 +147,18 @@ export const ERP_ROUTES = {
   PAYROLL_PAYSLIP_PRINT: "/payroll/payslips/:payslipId/print",
   PAYROLL_REPORTS: "/payroll/reports",
   HOSTEL: "/hostel",
+  HOSTEL_BUILDINGS: "/hostel/buildings",
+  HOSTEL_BUILDING_CREATE: `/hostel/buildings/${ERP_ROUTE_SEGMENTS.NEW}`,
+  HOSTEL_BUILDING_EDIT: `/hostel/buildings/:buildingId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  HOSTEL_BUILDING_DETAIL: "/hostel/buildings/:buildingId",
+  HOSTEL_ROOMS: "/hostel/rooms",
+  HOSTEL_ROOM_CREATE: `/hostel/rooms/${ERP_ROUTE_SEGMENTS.NEW}`,
+  HOSTEL_ROOM_EDIT: `/hostel/rooms/:roomId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  HOSTEL_ALLOCATIONS: "/hostel/allocations",
+  HOSTEL_ALLOCATION_CREATE: `/hostel/allocations/${ERP_ROUTE_SEGMENTS.NEW}`,
+  HOSTEL_MESS_PLANS: "/hostel/mess-plans",
+  HOSTEL_MESS_PLAN_CREATE: `/hostel/mess-plans/${ERP_ROUTE_SEGMENTS.NEW}`,
+  HOSTEL_MESS_PLAN_EDIT: `/hostel/mess-plans/:planId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   DOCUMENTS: "/documents",
   CERTIFICATES: "/certificates",
   // Parent portal
@@ -348,4 +360,20 @@ export function buildInventoryItemEditRoute(itemId: string) {
 
 export function buildInventoryItemDetailRoute(itemId: string) {
   return `/inventory/items/${itemId}`;
+}
+
+export function buildHostelBuildingEditRoute(buildingId: string) {
+  return `/hostel/buildings/${buildingId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildHostelBuildingDetailRoute(buildingId: string) {
+  return `/hostel/buildings/${buildingId}`;
+}
+
+export function buildHostelRoomEditRoute(roomId: string) {
+  return `/hostel/rooms/${roomId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildHostelMessPlanEditRoute(planId: string) {
+  return `/hostel/mess-plans/${planId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
 }

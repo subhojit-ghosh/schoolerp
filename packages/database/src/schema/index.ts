@@ -41,6 +41,12 @@ import {
   INVENTORY_ITEM_STATUS,
   STOCK_TRANSACTION_TYPES,
   INVENTORY_UNITS,
+  HOSTEL_BUILDING_STATUS,
+  HOSTEL_BUILDING_TYPES,
+  HOSTEL_ROOM_STATUS,
+  HOSTEL_ROOM_TYPES,
+  BED_ALLOCATION_STATUS,
+  MESS_PLAN_STATUS,
 } from "@repo/contracts";
 import { campus, member, organization, user } from "./auth";
 
@@ -227,6 +233,10 @@ const AUDIT_ENTITY_TYPE_ENUM = [
   AUDIT_ENTITY_TYPES.INVENTORY_CATEGORY,
   AUDIT_ENTITY_TYPES.INVENTORY_ITEM,
   AUDIT_ENTITY_TYPES.STOCK_TRANSACTION,
+  AUDIT_ENTITY_TYPES.HOSTEL_BUILDING,
+  AUDIT_ENTITY_TYPES.HOSTEL_ROOM,
+  AUDIT_ENTITY_TYPES.BED_ALLOCATION,
+  AUDIT_ENTITY_TYPES.MESS_PLAN,
 ] as const;
 
 const SALARY_COMPONENT_TYPE_ENUM = [
@@ -282,6 +292,34 @@ const INVENTORY_UNIT_ENUM = [
   INVENTORY_UNITS.SET,
   INVENTORY_UNITS.KG,
   INVENTORY_UNITS.LITER,
+] as const;
+
+const HOSTEL_BUILDING_STATUS_ENUM = [
+  HOSTEL_BUILDING_STATUS.ACTIVE,
+  HOSTEL_BUILDING_STATUS.INACTIVE,
+  HOSTEL_BUILDING_STATUS.DELETED,
+] as const;
+const HOSTEL_BUILDING_TYPE_ENUM = [
+  HOSTEL_BUILDING_TYPES.BOYS,
+  HOSTEL_BUILDING_TYPES.GIRLS,
+  HOSTEL_BUILDING_TYPES.CO_ED,
+] as const;
+const HOSTEL_ROOM_STATUS_ENUM = [
+  HOSTEL_ROOM_STATUS.ACTIVE,
+  HOSTEL_ROOM_STATUS.INACTIVE,
+] as const;
+const HOSTEL_ROOM_TYPE_ENUM = [
+  HOSTEL_ROOM_TYPES.SINGLE,
+  HOSTEL_ROOM_TYPES.DOUBLE,
+  HOSTEL_ROOM_TYPES.DORMITORY,
+] as const;
+const BED_ALLOCATION_STATUS_ENUM = [
+  BED_ALLOCATION_STATUS.ACTIVE,
+  BED_ALLOCATION_STATUS.VACATED,
+] as const;
+const MESS_PLAN_STATUS_ENUM = [
+  MESS_PLAN_STATUS.ACTIVE,
+  MESS_PLAN_STATUS.INACTIVE,
 ] as const;
 
 const TRANSPORT_ROUTE_STATUS_ENUM = ["active", "inactive"] as const;
@@ -2064,5 +2102,127 @@ export const stockTransactions = pgTable(
     index("stock_transactions_item_idx").on(t.itemId),
     index("stock_transactions_type_idx").on(t.transactionType),
     index("stock_transactions_created_at_idx").on(t.createdAt),
+  ],
+);
+
+// ── Hostel ────────────────────────────────────────────────────────────────
+
+export const hostelBuildings = pgTable(
+  "hostel_buildings",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    buildingType: text({ enum: HOSTEL_BUILDING_TYPE_ENUM }).notNull(),
+    campusId: text().references(() => campus.id, { onDelete: "set null" }),
+    wardenMembershipId: text().references(() => member.id, {
+      onDelete: "set null",
+    }),
+    capacity: integer().notNull().default(0),
+    description: text(),
+    // Tier 2: active | inactive | deleted
+    status: text({ enum: HOSTEL_BUILDING_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    deletedAt: timestamp(),
+  },
+  (t) => [
+    index("hostel_buildings_institution_idx").on(t.institutionId),
+    index("hostel_buildings_status_idx").on(t.status),
+    uniqueIndex("hostel_buildings_name_unique_idx")
+      .on(t.institutionId, t.name)
+      .where(sql`${t.status} != 'deleted'`),
+  ],
+);
+
+export const hostelRooms = pgTable(
+  "hostel_rooms",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    buildingId: text()
+      .notNull()
+      .references(() => hostelBuildings.id, { onDelete: "restrict" }),
+    roomNumber: text().notNull(),
+    floor: integer().notNull().default(0),
+    roomType: text({ enum: HOSTEL_ROOM_TYPE_ENUM }).notNull(),
+    capacity: integer().notNull().default(1),
+    occupancy: integer().notNull().default(0),
+    // Tier 3: active | inactive only — no delete
+    status: text({ enum: HOSTEL_ROOM_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("hostel_rooms_institution_idx").on(t.institutionId),
+    index("hostel_rooms_building_idx").on(t.buildingId),
+    index("hostel_rooms_status_idx").on(t.status),
+    uniqueIndex("hostel_rooms_number_unique_idx")
+      .on(t.buildingId, t.roomNumber),
+  ],
+);
+
+export const bedAllocations = pgTable(
+  "bed_allocations",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    roomId: text()
+      .notNull()
+      .references(() => hostelRooms.id, { onDelete: "restrict" }),
+    studentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "restrict" }),
+    bedNumber: text().notNull(),
+    startDate: date().notNull(),
+    endDate: date(),
+    status: text({ enum: BED_ALLOCATION_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("bed_allocations_institution_idx").on(t.institutionId),
+    index("bed_allocations_room_idx").on(t.roomId),
+    index("bed_allocations_student_idx").on(t.studentId),
+    index("bed_allocations_status_idx").on(t.status),
+    uniqueIndex("bed_allocations_active_student_unique_idx")
+      .on(t.studentId)
+      .where(sql`${t.status} = 'active'`),
+  ],
+);
+
+export const messPlans = pgTable(
+  "mess_plans",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    monthlyFeeInPaise: integer().notNull(),
+    description: text(),
+    status: text({ enum: MESS_PLAN_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("mess_plans_institution_idx").on(t.institutionId),
+    index("mess_plans_status_idx").on(t.status),
+    uniqueIndex("mess_plans_name_unique_idx")
+      .on(t.institutionId, t.name),
   ],
 );

@@ -116,6 +116,8 @@ export const PERMISSIONS = {
   PAYROLL_MANAGE: "payroll:manage",
   INVENTORY_READ: "inventory:read",
   INVENTORY_MANAGE: "inventory:manage",
+  HOSTEL_READ: "hostel:read",
+  HOSTEL_MANAGE: "hostel:manage",
 } as const;
 
 export const DATA_EXCHANGE_ENTITY_TYPES = {
@@ -183,6 +185,10 @@ export const AUDIT_ENTITY_TYPES = {
   INVENTORY_CATEGORY: "inventory_category",
   INVENTORY_ITEM: "inventory_item",
   STOCK_TRANSACTION: "stock_transaction",
+  HOSTEL_BUILDING: "hostel_building",
+  HOSTEL_ROOM: "hostel_room",
+  BED_ALLOCATION: "bed_allocation",
+  MESS_PLAN: "mess_plan",
 } as const;
 
 export const DELIVERY_PROVIDERS = {
@@ -773,6 +779,81 @@ export type InventoryCategoryStatus = z.infer<typeof inventoryCategoryStatusSche
 export type InventoryItemStatus = z.infer<typeof inventoryItemStatusSchema>;
 export type StockTransactionType = z.infer<typeof stockTransactionTypeSchema>;
 export type InventoryUnit = z.infer<typeof inventoryUnitSchema>;
+
+// ── Hostel ──────────────────────────────────────────────────────────────────
+
+export const HOSTEL_BUILDING_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  DELETED: "deleted",
+} as const;
+
+export const HOSTEL_BUILDING_TYPES = {
+  BOYS: "boys",
+  GIRLS: "girls",
+  CO_ED: "co_ed",
+} as const;
+
+export const HOSTEL_ROOM_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+} as const;
+
+export const HOSTEL_ROOM_TYPES = {
+  SINGLE: "single",
+  DOUBLE: "double",
+  DORMITORY: "dormitory",
+} as const;
+
+export const BED_ALLOCATION_STATUS = {
+  ACTIVE: "active",
+  VACATED: "vacated",
+} as const;
+
+export const MESS_PLAN_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+} as const;
+
+export const hostelBuildingStatusSchema = z.enum([
+  HOSTEL_BUILDING_STATUS.ACTIVE,
+  HOSTEL_BUILDING_STATUS.INACTIVE,
+  HOSTEL_BUILDING_STATUS.DELETED,
+]);
+
+export const hostelBuildingTypeSchema = z.enum([
+  HOSTEL_BUILDING_TYPES.BOYS,
+  HOSTEL_BUILDING_TYPES.GIRLS,
+  HOSTEL_BUILDING_TYPES.CO_ED,
+]);
+
+export const hostelRoomStatusSchema = z.enum([
+  HOSTEL_ROOM_STATUS.ACTIVE,
+  HOSTEL_ROOM_STATUS.INACTIVE,
+]);
+
+export const hostelRoomTypeSchema = z.enum([
+  HOSTEL_ROOM_TYPES.SINGLE,
+  HOSTEL_ROOM_TYPES.DOUBLE,
+  HOSTEL_ROOM_TYPES.DORMITORY,
+]);
+
+export const bedAllocationStatusSchema = z.enum([
+  BED_ALLOCATION_STATUS.ACTIVE,
+  BED_ALLOCATION_STATUS.VACATED,
+]);
+
+export const messPlanStatusSchema = z.enum([
+  MESS_PLAN_STATUS.ACTIVE,
+  MESS_PLAN_STATUS.INACTIVE,
+]);
+
+export type HostelBuildingStatus = z.infer<typeof hostelBuildingStatusSchema>;
+export type HostelBuildingType = z.infer<typeof hostelBuildingTypeSchema>;
+export type HostelRoomStatus = z.infer<typeof hostelRoomStatusSchema>;
+export type HostelRoomType = z.infer<typeof hostelRoomTypeSchema>;
+export type BedAllocationStatus = z.infer<typeof bedAllocationStatusSchema>;
+export type MessPlanStatus = z.infer<typeof messPlanStatusSchema>;
 
 export const healthResponseSchema = z.object({
   status: z.string(),

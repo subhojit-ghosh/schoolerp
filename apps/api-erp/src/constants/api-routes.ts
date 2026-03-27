@@ -123,4 +123,10 @@ export const API_ROUTES = {
   ITEMS: "items",
   TRANSACTIONS: "transactions",
   LOW_STOCK: "low-stock",
+  HOSTEL: "hostel",
+  BUILDINGS: "buildings",
+  ROOMS: "rooms",
+  ALLOCATIONS: "allocations",
+  MESS_PLANS: "mess-plans",
+  VACATE: "vacate",
 } as const;
