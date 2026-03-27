@@ -17,15 +17,21 @@ import {
   ADMISSION_FORM_FIELD_TYPES,
   AUDIT_ACTIONS,
   AUDIT_ENTITY_TYPES,
-  ANNOUNCEMENT_AUDIENCE,
-  ANNOUNCEMENT_STATUS,
   BELL_SCHEDULE_PERIOD_STATUS,
   BELL_SCHEDULE_STATUS,
+  ANNOUNCEMENT_AUDIENCE,
+  ANNOUNCEMENT_STATUS,
   CALENDAR_EVENT_STATUS,
   CALENDAR_EVENT_TYPES,
   NOTIFICATION_CHANNELS,
   NOTIFICATION_TONES,
   NOTIFICATION_TYPES,
+  SALARY_COMPONENT_TYPES,
+  SALARY_CALCULATION_TYPES,
+  SALARY_COMPONENT_STATUS,
+  SALARY_TEMPLATE_STATUS,
+  SALARY_ASSIGNMENT_STATUS,
+  PAYROLL_RUN_STATUS,
   SUBJECT_STATUS,
   TIMETABLE_ASSIGNMENT_STATUS,
   TIMETABLE_ENTRY_STATUS,
@@ -209,6 +215,41 @@ const AUDIT_ENTITY_TYPE_ENUM = [
   AUDIT_ENTITY_TYPES.TRANSPORT_STOP,
   AUDIT_ENTITY_TYPES.TRANSPORT_VEHICLE,
   AUDIT_ENTITY_TYPES.TRANSPORT_ASSIGNMENT,
+  AUDIT_ENTITY_TYPES.SALARY_COMPONENT,
+  AUDIT_ENTITY_TYPES.SALARY_TEMPLATE,
+  AUDIT_ENTITY_TYPES.STAFF_SALARY_ASSIGNMENT,
+  AUDIT_ENTITY_TYPES.PAYROLL_RUN,
+  AUDIT_ENTITY_TYPES.PAYSLIP,
+] as const;
+
+const SALARY_COMPONENT_TYPE_ENUM = [
+  SALARY_COMPONENT_TYPES.EARNING,
+  SALARY_COMPONENT_TYPES.DEDUCTION,
+] as const;
+const SALARY_CALCULATION_TYPE_ENUM = [
+  SALARY_CALCULATION_TYPES.FIXED,
+  SALARY_CALCULATION_TYPES.PERCENTAGE,
+] as const;
+const SALARY_COMPONENT_STATUS_ENUM = [
+  SALARY_COMPONENT_STATUS.ACTIVE,
+  SALARY_COMPONENT_STATUS.ARCHIVED,
+  SALARY_COMPONENT_STATUS.DELETED,
+] as const;
+const SALARY_TEMPLATE_STATUS_ENUM = [
+  SALARY_TEMPLATE_STATUS.ACTIVE,
+  SALARY_TEMPLATE_STATUS.ARCHIVED,
+  SALARY_TEMPLATE_STATUS.DELETED,
+] as const;
+const SALARY_ASSIGNMENT_STATUS_ENUM = [
+  SALARY_ASSIGNMENT_STATUS.ACTIVE,
+  SALARY_ASSIGNMENT_STATUS.ARCHIVED,
+  SALARY_ASSIGNMENT_STATUS.DELETED,
+] as const;
+const PAYROLL_RUN_STATUS_ENUM = [
+  PAYROLL_RUN_STATUS.DRAFT,
+  PAYROLL_RUN_STATUS.PROCESSED,
+  PAYROLL_RUN_STATUS.APPROVED,
+  PAYROLL_RUN_STATUS.PAID,
 ] as const;
 
 const TRANSPORT_ROUTE_STATUS_ENUM = ["active", "inactive"] as const;
@@ -1686,4 +1727,217 @@ export const studentTransportAssignments = pgTable(
       .on(t.studentId)
       .where(sql`${t.status} = 'active'`),
   ],
+);
+
+// ---------------------------------------------------------------------------
+// Payroll
+// ---------------------------------------------------------------------------
+
+export const salaryComponents = pgTable(
+  "salary_components",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    type: text({ enum: SALARY_COMPONENT_TYPE_ENUM }).notNull(),
+    calculationType: text({ enum: SALARY_CALCULATION_TYPE_ENUM }).notNull(),
+    isTaxable: boolean().notNull().default(true),
+    isStatutory: boolean().notNull().default(false),
+    sortOrder: integer().notNull().default(0),
+    // Tier 1: active | archived | deleted
+    status: text({ enum: SALARY_COMPONENT_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    deletedAt: timestamp(),
+  },
+  (t) => [
+    index("salary_components_institution_idx").on(t.institutionId),
+    index("salary_components_status_idx").on(t.status),
+    uniqueIndex("salary_components_name_unique_idx")
+      .on(t.institutionId, t.name)
+      .where(sql`${t.status} != 'deleted'`),
+  ],
+);
+
+export const salaryTemplates = pgTable(
+  "salary_templates",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    description: text(),
+    // Tier 1: active | archived | deleted
+    status: text({ enum: SALARY_TEMPLATE_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    deletedAt: timestamp(),
+  },
+  (t) => [
+    index("salary_templates_institution_idx").on(t.institutionId),
+    index("salary_templates_status_idx").on(t.status),
+    uniqueIndex("salary_templates_name_unique_idx")
+      .on(t.institutionId, t.name)
+      .where(sql`${t.status} != 'deleted'`),
+  ],
+);
+
+export const salaryTemplateComponents = pgTable(
+  "salary_template_components",
+  {
+    id: text().primaryKey(),
+    salaryTemplateId: text()
+      .notNull()
+      .references(() => salaryTemplates.id, { onDelete: "cascade" }),
+    salaryComponentId: text()
+      .notNull()
+      .references(() => salaryComponents.id, { onDelete: "restrict" }),
+    amountInPaise: integer(), // for fixed components
+    percentage: integer(), // basis points (1200 = 12.00%) for percentage components
+    sortOrder: integer().notNull().default(0),
+  },
+  (t) => [
+    index("salary_template_components_template_idx").on(t.salaryTemplateId),
+    unique("salary_template_components_unique").on(
+      t.salaryTemplateId,
+      t.salaryComponentId,
+    ),
+  ],
+);
+
+export const staffSalaryAssignments = pgTable(
+  "staff_salary_assignments",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    staffProfileId: text()
+      .notNull()
+      .references(() => staffProfiles.id, { onDelete: "restrict" }),
+    salaryTemplateId: text()
+      .notNull()
+      .references(() => salaryTemplates.id, { onDelete: "restrict" }),
+    effectiveFrom: date().notNull(),
+    ctcInPaise: integer().notNull(),
+    // Per-component overrides: { [componentId]: { amountInPaise?, percentage? } }
+    overrides: jsonb(),
+    // Tier 1: active | archived | deleted
+    status: text({ enum: SALARY_ASSIGNMENT_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    deletedAt: timestamp(),
+  },
+  (t) => [
+    index("staff_salary_assignments_institution_idx").on(t.institutionId),
+    index("staff_salary_assignments_staff_idx").on(t.staffProfileId),
+    index("staff_salary_assignments_status_idx").on(t.status),
+    uniqueIndex("staff_salary_assignments_active_unique_idx")
+      .on(t.staffProfileId)
+      .where(sql`${t.status} = 'active'`),
+  ],
+);
+
+export const payrollRuns = pgTable(
+  "payroll_runs",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    month: integer().notNull(), // 1-12
+    year: integer().notNull(),
+    campusId: text().references(() => campus.id, { onDelete: "restrict" }), // null = all campuses
+    // Tier 4 workflow: draft → processed → approved → paid
+    status: text({ enum: PAYROLL_RUN_STATUS_ENUM })
+      .notNull()
+      .default("draft"),
+    totalEarningsInPaise: integer().notNull().default(0),
+    totalDeductionsInPaise: integer().notNull().default(0),
+    totalNetPayInPaise: integer().notNull().default(0),
+    staffCount: integer().notNull().default(0),
+    workingDays: integer().notNull().default(26),
+    processedByMemberId: text().references(() => member.id, {
+      onDelete: "restrict",
+    }),
+    approvedByMemberId: text().references(() => member.id, {
+      onDelete: "restrict",
+    }),
+    processedAt: timestamp(),
+    approvedAt: timestamp(),
+    paidAt: timestamp(),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("payroll_runs_institution_idx").on(t.institutionId),
+    index("payroll_runs_status_idx").on(t.status),
+    index("payroll_runs_month_year_idx").on(t.institutionId, t.year, t.month),
+  ],
+);
+
+export const payslips = pgTable(
+  "payslips",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    payrollRunId: text()
+      .notNull()
+      .references(() => payrollRuns.id, { onDelete: "restrict" }),
+    staffProfileId: text()
+      .notNull()
+      .references(() => staffProfiles.id, { onDelete: "restrict" }),
+    salaryAssignmentId: text()
+      .notNull()
+      .references(() => staffSalaryAssignments.id, { onDelete: "restrict" }),
+    // Snapshot of staff info at processing time
+    staffName: text().notNull(),
+    staffEmployeeId: text(),
+    staffDesignation: text(),
+    staffDepartment: text(),
+    // Attendance breakdown
+    workingDays: integer().notNull(),
+    presentDays: integer().notNull(),
+    paidLeaveDays: integer().notNull().default(0),
+    unpaidLeaveDays: integer().notNull().default(0),
+    // Totals
+    totalEarningsInPaise: integer().notNull(),
+    totalDeductionsInPaise: integer().notNull(),
+    netPayInPaise: integer().notNull(),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("payslips_institution_idx").on(t.institutionId),
+    index("payslips_payroll_run_idx").on(t.payrollRunId),
+    index("payslips_staff_profile_idx").on(t.staffProfileId),
+    unique("payslips_run_staff_unique").on(t.payrollRunId, t.staffProfileId),
+  ],
+);
+
+export const payslipLineItems = pgTable(
+  "payslip_line_items",
+  {
+    id: text().primaryKey(),
+    payslipId: text()
+      .notNull()
+      .references(() => payslips.id, { onDelete: "restrict" }),
+    salaryComponentId: text()
+      .notNull()
+      .references(() => salaryComponents.id, { onDelete: "restrict" }),
+    // Snapshot at processing time
+    componentName: text().notNull(),
+    componentType: text({ enum: SALARY_COMPONENT_TYPE_ENUM }).notNull(),
+    amountInPaise: integer().notNull(),
+  },
+  (t) => [index("payslip_line_items_payslip_idx").on(t.payslipId)],
 );

@@ -34,10 +34,11 @@ Ship a fully functional v1 that a real school can use day-to-day. Every feature 
 
 ## Now — Validate and harden for pilot
 
-The core v1 feature set is built and transport is complete. Remaining work is validation and hardening:
+The core v1 feature set is built, transport and payroll are complete. Remaining work is validation and hardening:
 
 1. **End-to-end delivery testing** — institutions need to configure actual SMS/email provider credentials (Settings > Delivery) and verify password reset and notification delivery works end-to-end in production.
-2. **OpenAPI regeneration** — run `bun run openapi:export` inside `apps/api-erp` (with `DATABASE_URL` set) to regenerate the OpenAPI spec and ERP API client types after the transport module deployment; this replaces the `as any` casts in the transport frontend with proper TypeScript types.
+2. **OpenAPI regeneration** — run `bun run openapi:export` inside `apps/api-erp` (with `DATABASE_URL` set) to regenerate the OpenAPI spec and ERP API client types; this replaces the `as any` casts in the transport and payroll frontends with proper TypeScript types.
+3. **Database migration** — run `bun run db:generate` then `bun run db:migrate` to create the 7 new payroll tables (salary_components, salary_templates, salary_template_components, staff_salary_assignments, payroll_runs, payslips, payslip_line_items).
 
 ## Next — Add the common breadth schools expect in a feature-rich ERP
 
@@ -50,7 +51,7 @@ The core v1 feature set is built and transport is complete. Remaining work is va
 - Exam analytics, deeper reporting, and ranking
 - Finance depth: receipts hardening, ledger export, accounting-adjacent workflows
 - Inventory and stock workflows
-- Payroll after staff leave and attendance foundations are stable
+- Payroll depth: staff attendance tracking integration, salary revision history, bulk salary adjustments
 - Hostel and other segment-specific extensions where the target schools require them
 - Automated test coverage across all domains
 

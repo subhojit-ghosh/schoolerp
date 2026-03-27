@@ -120,6 +120,22 @@ export const ERP_ROUTES = {
   STAFF_ATTENDANCE: "/staff/attendance",
   INVENTORY: "/inventory",
   PAYROLL: "/payroll",
+  PAYROLL_SALARY_COMPONENTS: "/payroll/salary-components",
+  PAYROLL_SALARY_COMPONENT_CREATE: `/payroll/salary-components/${ERP_ROUTE_SEGMENTS.NEW}`,
+  PAYROLL_SALARY_COMPONENT_EDIT: `/payroll/salary-components/:componentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  PAYROLL_SALARY_TEMPLATES: "/payroll/salary-templates",
+  PAYROLL_SALARY_TEMPLATE_CREATE: `/payroll/salary-templates/${ERP_ROUTE_SEGMENTS.NEW}`,
+  PAYROLL_SALARY_TEMPLATE_EDIT: `/payroll/salary-templates/:templateId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  PAYROLL_SALARY_TEMPLATE_DETAIL: "/payroll/salary-templates/:templateId",
+  PAYROLL_SALARY_ASSIGNMENTS: "/payroll/salary-assignments",
+  PAYROLL_SALARY_ASSIGNMENT_CREATE: `/payroll/salary-assignments/${ERP_ROUTE_SEGMENTS.NEW}`,
+  PAYROLL_SALARY_ASSIGNMENT_EDIT: `/payroll/salary-assignments/:assignmentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  PAYROLL_RUNS: "/payroll/runs",
+  PAYROLL_RUN_CREATE: `/payroll/runs/${ERP_ROUTE_SEGMENTS.NEW}`,
+  PAYROLL_RUN_DETAIL: "/payroll/runs/:runId",
+  PAYROLL_PAYSLIP_DETAIL: "/payroll/payslips/:payslipId",
+  PAYROLL_PAYSLIP_PRINT: "/payroll/payslips/:payslipId/print",
+  PAYROLL_REPORTS: "/payroll/reports",
   HOSTEL: "/hostel",
   DOCUMENTS: "/documents",
   CERTIFICATES: "/certificates",
@@ -282,4 +298,32 @@ export function buildTransportVehicleEditRoute(vehicleId: string) {
 
 export function buildTransportAssignmentEditRoute(assignmentId: string) {
   return `/transport/assignments/${assignmentId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildSalaryComponentEditRoute(componentId: string) {
+  return `/payroll/salary-components/${componentId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildSalaryTemplateDetailRoute(templateId: string) {
+  return `/payroll/salary-templates/${templateId}`;
+}
+
+export function buildSalaryTemplateEditRoute(templateId: string) {
+  return `/payroll/salary-templates/${templateId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildSalaryAssignmentEditRoute(assignmentId: string) {
+  return `/payroll/salary-assignments/${assignmentId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildPayrollRunDetailRoute(runId: string) {
+  return `/payroll/runs/${runId}`;
+}
+
+export function buildPayslipDetailRoute(payslipId: string) {
+  return `/payroll/payslips/${payslipId}`;
+}
+
+export function buildPayslipPrintRoute(payslipId: string) {
+  return `/payroll/payslips/${payslipId}/print`;
 }

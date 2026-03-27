@@ -112,6 +112,8 @@ export const PERMISSIONS = {
   LIBRARY_MANAGE: "library:manage",
   TRANSPORT_READ: "transport:read",
   TRANSPORT_MANAGE: "transport:manage",
+  PAYROLL_READ: "payroll:read",
+  PAYROLL_MANAGE: "payroll:manage",
 } as const;
 
 export const DATA_EXCHANGE_ENTITY_TYPES = {
@@ -171,6 +173,11 @@ export const AUDIT_ENTITY_TYPES = {
   TRANSPORT_STOP: "transport_stop",
   TRANSPORT_VEHICLE: "transport_vehicle",
   TRANSPORT_ASSIGNMENT: "transport_assignment",
+  SALARY_COMPONENT: "salary_component",
+  SALARY_TEMPLATE: "salary_template",
+  STAFF_SALARY_ASSIGNMENT: "staff_salary_assignment",
+  PAYROLL_RUN: "payroll_run",
+  PAYSLIP: "payslip",
 } as const;
 
 export const DELIVERY_PROVIDERS = {
@@ -619,6 +626,87 @@ export type AdmissionFormFieldOption = z.infer<
 >;
 export type GuardianRelationship = z.infer<typeof guardianRelationshipSchema>;
 export type AttendanceStatus = z.infer<typeof attendanceStatusSchema>;
+
+export const SALARY_COMPONENT_TYPES = {
+  EARNING: "earning",
+  DEDUCTION: "deduction",
+} as const;
+
+export const SALARY_CALCULATION_TYPES = {
+  FIXED: "fixed",
+  PERCENTAGE: "percentage",
+} as const;
+
+export const SALARY_COMPONENT_STATUS = {
+  ACTIVE: "active",
+  ARCHIVED: "archived",
+  DELETED: "deleted",
+} as const;
+
+export const SALARY_TEMPLATE_STATUS = {
+  ACTIVE: "active",
+  ARCHIVED: "archived",
+  DELETED: "deleted",
+} as const;
+
+export const SALARY_ASSIGNMENT_STATUS = {
+  ACTIVE: "active",
+  ARCHIVED: "archived",
+  DELETED: "deleted",
+} as const;
+
+export const PAYROLL_RUN_STATUS = {
+  DRAFT: "draft",
+  PROCESSED: "processed",
+  APPROVED: "approved",
+  PAID: "paid",
+} as const;
+
+export const salaryComponentTypeSchema = z.enum([
+  SALARY_COMPONENT_TYPES.EARNING,
+  SALARY_COMPONENT_TYPES.DEDUCTION,
+]);
+
+export const salaryCalculationTypeSchema = z.enum([
+  SALARY_CALCULATION_TYPES.FIXED,
+  SALARY_CALCULATION_TYPES.PERCENTAGE,
+]);
+
+export const salaryComponentStatusSchema = z.enum([
+  SALARY_COMPONENT_STATUS.ACTIVE,
+  SALARY_COMPONENT_STATUS.ARCHIVED,
+  SALARY_COMPONENT_STATUS.DELETED,
+]);
+
+export const salaryTemplateStatusSchema = z.enum([
+  SALARY_TEMPLATE_STATUS.ACTIVE,
+  SALARY_TEMPLATE_STATUS.ARCHIVED,
+  SALARY_TEMPLATE_STATUS.DELETED,
+]);
+
+export const salaryAssignmentStatusSchema = z.enum([
+  SALARY_ASSIGNMENT_STATUS.ACTIVE,
+  SALARY_ASSIGNMENT_STATUS.ARCHIVED,
+  SALARY_ASSIGNMENT_STATUS.DELETED,
+]);
+
+export const payrollRunStatusSchema = z.enum([
+  PAYROLL_RUN_STATUS.DRAFT,
+  PAYROLL_RUN_STATUS.PROCESSED,
+  PAYROLL_RUN_STATUS.APPROVED,
+  PAYROLL_RUN_STATUS.PAID,
+]);
+
+export type SalaryComponentType = z.infer<typeof salaryComponentTypeSchema>;
+export type SalaryCalculationType = z.infer<typeof salaryCalculationTypeSchema>;
+export type SalaryComponentStatus = z.infer<typeof salaryComponentStatusSchema>;
+export type SalaryTemplateStatus = z.infer<typeof salaryTemplateStatusSchema>;
+export type SalaryAssignmentStatus = z.infer<
+  typeof salaryAssignmentStatusSchema
+>;
+export type PayrollRunStatus = z.infer<typeof payrollRunStatusSchema>;
+
+export const DEFAULT_WORKING_DAYS_PER_MONTH = 26;
 
 export const healthResponseSchema = z.object({
   status: z.string(),

@@ -267,6 +267,13 @@
       "when": 1774615937502,
       "tag": "0037_workable_gateway",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1774625728744,
+      "tag": "0038_bored_madame_web",
+      "breakpoints": true
     }
   ]
 }

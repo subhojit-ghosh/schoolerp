@@ -344,11 +344,28 @@ export const NAV_HR: readonly NavItem[] = [
     url: ERP_ROUTES.LEAVE_APPLICATIONS,
   },
   {
-    badgeLabel: "Later",
-    disabled: true,
+    icon: IconCurrencyRupee,
+    permission: PERMISSIONS.PAYROLL_READ,
+    title: "Salary Components",
+    url: ERP_ROUTES.PAYROLL_SALARY_COMPONENTS,
+  },
+  {
+    icon: IconFileText,
+    permission: PERMISSIONS.PAYROLL_READ,
+    title: "Salary Templates",
+    url: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES,
+  },
+  {
+    icon: IconUsersGroup,
+    permission: PERMISSIONS.PAYROLL_READ,
+    title: "Salary Assignments",
+    url: ERP_ROUTES.PAYROLL_SALARY_ASSIGNMENTS,
+  },
+  {
     icon: IconReportMoney,
-    title: "Payroll",
-    url: ERP_ROUTES.PAYROLL,
+    permission: PERMISSIONS.PAYROLL_READ,
+    title: "Payroll Runs",
+    url: ERP_ROUTES.PAYROLL_RUNS,
   },
 ];
 

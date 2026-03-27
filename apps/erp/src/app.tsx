@@ -89,6 +89,17 @@ import { RouteSheetRoute } from "@/features/transport/ui/route-sheet-route";
 import { VehicleSheetRoute } from "@/features/transport/ui/vehicle-sheet-route";
 import { AssignmentSheetRoute } from "@/features/transport/ui/assignment-sheet-route";
 import { StopSheetRoute } from "@/features/transport/ui/stop-sheet-route";
+import { SalaryComponentsPage } from "@/routes/hr/salary-components-page";
+import { SalaryComponentSheetRoute } from "@/routes/hr/salary-component-sheet-route";
+import { SalaryTemplatesPage } from "@/routes/hr/salary-templates-page";
+import { SalaryTemplateCreatePage } from "@/routes/hr/salary-template-create-page";
+import { SalaryTemplateDetailPage } from "@/routes/hr/salary-template-detail-page";
+import { SalaryAssignmentsPage } from "@/routes/hr/salary-assignments-page";
+import { SalaryAssignmentSheetRoute } from "@/routes/hr/salary-assignment-sheet-route";
+import { PayrollRunsPage } from "@/routes/hr/payroll-runs-page";
+import { PayrollRunDetailPage } from "@/routes/hr/payroll-run-detail-page";
+import { PayslipDetailPage } from "@/routes/hr/payslip-detail-page";
+import { PayslipPrintPage } from "@/routes/hr/payslip-print-page";
 import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
 import { StudentPortalPage } from "@/features/student-portal/ui/student-portal-page";
 import { AdmissionAcknowledgementPage } from "@/routes/documents/admission-acknowledgement-page";
@@ -396,6 +407,63 @@ const router = createBrowserRouter([
             element: <AssignmentSheetRoute mode="edit" />,
           },
         ],
+      },
+      // ── Payroll ──────────────────────────────────────────────────────
+      {
+        path: ERP_ROUTES.PAYROLL_SALARY_COMPONENTS,
+        element: <SalaryComponentsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <SalaryComponentSheetRoute mode="create" />,
+          },
+          {
+            path: `:componentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <SalaryComponentSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES,
+        element: <SalaryTemplatesPage />,
+      },
+      {
+        path: ERP_ROUTES.PAYROLL_SALARY_TEMPLATE_CREATE,
+        element: <SalaryTemplateCreatePage />,
+      },
+      {
+        path: ERP_ROUTES.PAYROLL_SALARY_TEMPLATE_DETAIL,
+        element: <SalaryTemplateDetailPage />,
+      },
+      {
+        path: ERP_ROUTES.PAYROLL_SALARY_ASSIGNMENTS,
+        element: <SalaryAssignmentsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <SalaryAssignmentSheetRoute mode="create" />,
+          },
+          {
+            path: `:assignmentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <SalaryAssignmentSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.PAYROLL_RUNS,
+        element: <PayrollRunsPage />,
+      },
+      {
+        path: ERP_ROUTES.PAYROLL_RUN_DETAIL,
+        element: <PayrollRunDetailPage />,
+      },
+      {
+        path: ERP_ROUTES.PAYROLL_PAYSLIP_DETAIL,
+        element: <PayslipDetailPage />,
+      },
+      {
+        path: ERP_ROUTES.PAYROLL_PAYSLIP_PRINT,
+        element: <PayslipPrintPage />,
       },
       {
         path: ERP_ROUTES.ADMISSIONS_ENQUIRIES,
