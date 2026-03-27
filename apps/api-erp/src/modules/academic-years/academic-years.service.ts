@@ -16,7 +16,9 @@ import {
   type SQL,
 } from "@repo/database";
 import { randomUUID } from "node:crypto";
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
+import { AuditService } from "../audit/audit.service";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import type { AppDatabase } from "@repo/database";
 import { Inject } from "@nestjs/common";
@@ -51,7 +53,10 @@ const sortableColumns = {
 
 @Injectable()
 export class AcademicYearsService {
-  constructor(@Inject(DATABASE) private readonly database: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly database: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async listAcademicYears(
     institutionId: string,
@@ -115,7 +120,7 @@ export class AcademicYearsService {
   ): Promise<AcademicYearDto> {
     const academicYearId = randomUUID();
 
-    return this.database.transaction(async (tx) => {
+    const result = await this.database.transaction(async (tx) => {
       const [existingCurrent] = await tx
         .select({ id: academicYears.id })
         .from(academicYears)
@@ -160,6 +165,18 @@ export class AcademicYearsService {
 
       return this.toAcademicYearDto(createdYear);
     });
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.ACADEMIC_YEAR,
+      entityId: academicYearId,
+      entityLabel: payload.name,
+      summary: `Created academic year ${payload.name}.`,
+    }).catch(() => {});
+
+    return result;
   }
 
   async updateAcademicYear(
@@ -168,7 +185,7 @@ export class AcademicYearsService {
     authSession: AuthenticatedSession,
     payload: UpdateAcademicYearDto,
   ): Promise<AcademicYearDto> {
-    return this.database.transaction(async (tx) => {
+    const result = await this.database.transaction(async (tx) => {
       const existingYear = await this.getAcademicYearByIdOrThrow(
         tx,
         academicYearId,
@@ -211,6 +228,20 @@ export class AcademicYearsService {
 
       return this.toAcademicYearDto(updatedYear);
     });
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: payload.isCurrent ? AUDIT_ACTIONS.EXECUTE : AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.ACADEMIC_YEAR,
+      entityId: academicYearId,
+      entityLabel: payload.name,
+      summary: payload.isCurrent
+        ? `Set academic year ${payload.name} as current.`
+        : `Updated academic year ${payload.name}.`,
+    }).catch(() => {});
+
+    return result;
   }
 
   private async getAcademicYearOrThrow(

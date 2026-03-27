@@ -188,6 +188,7 @@ export const FEES_API_PATHS = {
   DELETE_ASSIGNMENT: "/fees/assignments/{feeAssignmentId}",
   CREATE_PAYMENT: "/fees/payments",
   REVERSE_PAYMENT: "/fees/payments/{feePaymentId}/reverse",
+  REMIND_ASSIGNMENT: "/fees/assignments/{feeAssignmentId}/remind",
   LIST_DUES: "/fees/dues",
   COLLECTION_SUMMARY: "/fees/reports/collection-summary",
 } as const;
@@ -214,4 +215,49 @@ export const PERMISSIONS_API_PATHS = {
 
 export const AUDIT_API_PATHS = {
   LIST: "/audit-logs",
+} as const;
+
+export const HOMEWORK_API_PATHS = {
+  LIST: "/homework",
+  CREATE: "/homework",
+  DETAIL: "/homework/{homeworkId}",
+  UPDATE: "/homework/{homeworkId}",
+  PUBLISH: "/homework/{homeworkId}/publish",
+  DELETE: "/homework/{homeworkId}",
+} as const;
+
+export const LEAVE_API_PATHS = {
+  LIST_TYPES: "/leave/leave-types",
+  CREATE_TYPE: "/leave/leave-types",
+  UPDATE_TYPE: "/leave/leave-types/{leaveTypeId}",
+  LIST_APPLICATIONS: "/leave/leave-applications",
+  DETAIL_APPLICATION: "/leave/leave-applications/{applicationId}",
+  APPLY: "/leave/leave-applications",
+  APPLY_FOR_STAFF: "/leave/leave-applications/staff/{staffMemberId}",
+  REVIEW: "/leave/leave-applications/{applicationId}/review",
+  CANCEL: "/leave/leave-applications/{applicationId}/cancel",
+} as const;
+
+export const LIBRARY_API_PATHS = {
+  LIST_BOOKS: "/library/books",
+  CREATE_BOOK: "/library/books",
+  UPDATE_BOOK: "/library/books/{bookId}",
+  LIST_TRANSACTIONS: "/library/transactions",
+  ISSUE: "/library/transactions",
+  RETURN: "/library/transactions/{transactionId}/return",
+} as const;
+
+export const TRANSPORT_API_PATHS = {
+  LIST_ROUTES: "/transport/routes",
+  CREATE_ROUTE: "/transport/routes",
+  GET_ROUTE: "/transport/routes/{routeId}",
+  UPDATE_ROUTE: "/transport/routes/{routeId}",
+  CREATE_STOP: "/transport/routes/{routeId}/stops",
+  UPDATE_STOP: "/transport/routes/{routeId}/stops/{stopId}",
+  LIST_VEHICLES: "/transport/vehicles",
+  CREATE_VEHICLE: "/transport/vehicles",
+  UPDATE_VEHICLE: "/transport/vehicles/{vehicleId}",
+  LIST_ASSIGNMENTS: "/transport/assignments",
+  CREATE_ASSIGNMENT: "/transport/assignments",
+  UPDATE_ASSIGNMENT: "/transport/assignments/{assignmentId}",
 } as const;

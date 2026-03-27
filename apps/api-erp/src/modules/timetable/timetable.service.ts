@@ -34,7 +34,9 @@ import {
   type SQL,
 } from "@repo/database";
 import { randomUUID } from "node:crypto";
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
+import { AuditService } from "../audit/audit.service";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { campusScopeFilter } from "../auth/scope-filter";
 import type {
@@ -97,7 +99,10 @@ type ResolvedVersionAssignment = {
 
 @Injectable()
 export class TimetableService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async getTimetable(
     institutionId: string,
@@ -358,6 +363,16 @@ export class TimetableService {
       );
     });
 
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
+      entityId: versionId,
+      entityLabel: payload.name,
+      summary: `Created timetable version ${payload.name}.`,
+    }).catch(() => {});
+
     return this.getTimetableVersionById(institutionId, versionId);
   }
 
@@ -477,6 +492,16 @@ export class TimetableService {
       });
     });
 
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.EXECUTE,
+      entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
+      entityId: versionId,
+      entityLabel: version.name,
+      summary: `Published timetable version ${version.name}.`,
+    }).catch(() => {});
+
     return this.getTimetableVersionById(institutionId, versionId);
   }
 
@@ -503,6 +528,16 @@ export class TimetableService {
         updatedByUserId: authSession.user.id,
       })
       .where(eq(timetableVersions.id, versionId));
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
+      entityId: versionId,
+      entityLabel: version.name,
+      summary: `Set timetable version ${version.name} status to ${payload.status}.`,
+    }).catch(() => {});
 
     return this.getTimetableVersionById(institutionId, versionId);
   }
@@ -896,6 +931,16 @@ export class TimetableService {
         })),
       );
     });
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.EXECUTE,
+      entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
+      entityId: payload.versionId,
+      entityLabel: targetVersion.name,
+      summary: `Copied timetable from ${sourceScope.className} ${sourceScope.sectionName} to ${targetScope.className} ${targetScope.sectionName}.`,
+    }).catch(() => {});
 
     return this.getSectionTimetableSnapshot(
       institutionId,

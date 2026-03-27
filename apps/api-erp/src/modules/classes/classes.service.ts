@@ -1,3 +1,4 @@
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import { DATABASE } from "@repo/backend-core";
 import {
   ConflictException,
@@ -28,6 +29,7 @@ import {
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
+import { AuditService } from "../audit/audit.service";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import type {
   CreateClassDto,
@@ -51,7 +53,10 @@ function normalizeSectionName(name: string) {
 
 @Injectable()
 export class ClassesService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async listClasses(
     institutionId: string,
@@ -184,6 +189,16 @@ export class ClassesService {
       );
     });
 
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.CLASS,
+      entityId: createdClassId,
+      entityLabel: payload.name.trim(),
+      summary: `Created class ${payload.name.trim()}.`,
+    }).catch(() => {});
+
     return this.getClass(institutionId, createdClassId, authSession, scopes);
   }
 
@@ -307,6 +322,16 @@ export class ClassesService {
       }
     });
 
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.CLASS,
+      entityId: classId,
+      entityLabel: payload.name.trim(),
+      summary: `Updated class ${payload.name.trim()}.`,
+    }).catch(() => {});
+
     return this.getClass(institutionId, classId, authSession, scopes);
   }
 
@@ -355,6 +380,16 @@ export class ClassesService {
           eq(schoolClasses.institutionId, institutionId),
         ),
       );
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.CLASS,
+      entityId: classId,
+      entityLabel: classId,
+      summary: `Deleted class ${classId}.`,
+    }).catch(() => {});
   }
 
   private async listClassesForInstitution(

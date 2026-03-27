@@ -3,6 +3,9 @@ import {
   ATTENDANCE_STATUSES,
   AUDIT_ACTIONS,
   AUDIT_ENTITY_TYPES,
+  NOTIFICATION_TYPES,
+  NOTIFICATION_CHANNELS,
+  NOTIFICATION_TONES,
   type AttendanceStatus,
 } from "@repo/contracts";
 import {
@@ -31,6 +34,7 @@ import {
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
 import { AuditService } from "../audit/audit.service";
+import { NotificationFactory } from "../communications/notification.factory";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { sectionScopeFilter } from "../auth/scope-filter";
 import { AuthService } from "../auth/auth.service";
@@ -68,6 +72,7 @@ export class AttendanceService {
     @Inject(DATABASE) private readonly db: AppDatabase,
     private readonly authService: AuthService,
     private readonly auditService: AuditService,
+    private readonly notificationFactory: NotificationFactory,
   ) {}
 
   async listClassSections(
@@ -314,6 +319,27 @@ export class AttendanceService {
         },
       });
     });
+
+    // Notify guardians about absent students (non-blocking)
+    const absentEntries = payload.entries.filter(
+      (e) => e.status === ATTENDANCE_STATUSES.ABSENT,
+    );
+
+    if (absentEntries.length > 0) {
+      this.notificationFactory
+        .notify({
+          institutionId,
+          createdByUserId: authSession.user.id,
+          type: NOTIFICATION_TYPES.ATTENDANCE_ABSENT,
+          channel: NOTIFICATION_CHANNELS.OPERATIONS,
+          tone: NOTIFICATION_TONES.WARNING,
+          audience: "guardians",
+          title: "Student marked absent",
+          message: `${absentEntries.length} student${absentEntries.length > 1 ? "s" : ""} marked absent in ${classSection.className} ${classSection.sectionName} on ${payload.attendanceDate}.`,
+          senderLabel: authSession.user.name,
+        })
+        .catch(() => {});
+    }
 
     return this.getAttendanceDay(institutionId, authSession, scopes, payload);
   }

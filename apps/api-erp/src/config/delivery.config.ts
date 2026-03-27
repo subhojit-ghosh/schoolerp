@@ -14,4 +14,5 @@ export const deliveryConfig = registerAs("delivery", () => ({
     process.env.AUTH_PASSWORD_RESET_URL_BASE ??
     process.env.ERP_FRONTEND_URL ??
     "https://erp.test",
+  credentialsKey: process.env.DELIVERY_CREDENTIALS_KEY ?? null,
 }));

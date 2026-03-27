@@ -20,6 +20,7 @@ import {
   useFeeAssignmentQuery,
   useCreateFeePaymentMutation,
   useReverseFeePaymentMutation,
+  useSendFeeReminderMutation,
 } from "@/features/fees/api/use-fees";
 import {
   FEE_PAYMENT_METHOD_OPTIONS,
@@ -52,7 +53,7 @@ import {
   SelectValue,
 } from "@repo/ui/components/ui/select";
 
-function toMethodLabel(value: (typeof FEE_PAYMENT_METHOD_OPTIONS)[number]) {
+function toMethodLabel(value: string) {
   return value
     .split("_")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
@@ -239,6 +240,7 @@ export function CollectPaymentSheetRoute() {
   );
   const paymentMutation = useCreateFeePaymentMutation();
   const reversePaymentMutation = useReverseFeePaymentMutation();
+  const reminderMutation = useSendFeeReminderMutation();
 
   const closeTo = useMemo(
     () => appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search),
@@ -285,6 +287,14 @@ export function CollectPaymentSheetRoute() {
       body: {},
     });
     toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_PAYMENT));
+  }
+
+  async function handleSendReminder() {
+    if (!feeAssignmentId) return;
+    await reminderMutation.mutateAsync({
+      params: { path: { feeAssignmentId } },
+    });
+    toast.success("Reminder sent to guardian.");
   }
 
   if (assignmentQuery.isLoading) {
@@ -393,14 +403,36 @@ export function CollectPaymentSheetRoute() {
             </CardContent>
           </Card>
         ) : (
-          <CollectPaymentForm
-            assignmentId={assignment.id}
-            outstandingAmountInPaise={assignment.outstandingAmountInPaise}
-            errorMessage={errorMessage}
-            isPending={paymentMutation.isPending}
-            onCancel={() => void navigate(closeTo)}
-            onSubmit={handleSubmit}
-          />
+          <>
+            <CollectPaymentForm
+              assignmentId={assignment.id}
+              outstandingAmountInPaise={assignment.outstandingAmountInPaise}
+              errorMessage={errorMessage}
+              isPending={paymentMutation.isPending}
+              onCancel={() => void navigate(closeTo)}
+              onSubmit={handleSubmit}
+            />
+            <Card>
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="text-sm">
+                    <p className="font-medium">Send payment reminder</p>
+                    <p className="text-muted-foreground">
+                      Notify the guardian via SMS and email about this outstanding fee.
+                    </p>
+                  </div>
+                  <EntityFormSecondaryAction
+                    className="shrink-0"
+                    disabled={reminderMutation.isPending}
+                    onClick={() => void handleSendReminder()}
+                    type="button"
+                  >
+                    {reminderMutation.isPending ? "Sending..." : "Send reminder"}
+                  </EntityFormSecondaryAction>
+                </div>
+              </CardContent>
+            </Card>
+          </>
         )}
 
         <Card>

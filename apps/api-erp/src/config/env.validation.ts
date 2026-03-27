@@ -33,6 +33,8 @@ const envSchema = z.object({
   R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
   R2_BUCKET_NAME: z.string().min(1).optional(),
   R2_PUBLIC_URL: z.url().optional(),
+  DELIVERY_CREDENTIALS_KEY: z.string().min(1).optional(),
+  PAYMENT_CREDENTIALS_KEY: z.string().min(1).optional(),
 });
 
 export function validateEnvironment(config: Record<string, unknown>) {

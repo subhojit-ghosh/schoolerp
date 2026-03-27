@@ -32,28 +32,17 @@ Ship a fully functional v1 that a real school can use day-to-day. Every feature 
 - Treat the frontend as a thin client over tenant-scoped APIs.
 - Every screen a customer sees must be usable, not a placeholder.
 
-## Now — Close remaining v1 blockers
+## Now — Validate and harden for pilot
 
-These items still block full day-to-day v1 readiness:
+The core v1 feature set is built and transport is complete. Remaining work is validation and hardening:
 
-1. **SMS/email delivery** — wire a real provider for password reset, staff password-setup, and future school communications. The current delivery stub means new staff cannot log in without manual intervention.
-2. **Onboarding flow polish** — public school signup at `erp.test` should feel complete for self-serve trials without operator help.
-3. **Notifications depth** — expand beyond announcement-publish events into fee due, absent streak, password-setup, admissions, and approval workflows so the ERP feels operational instead of module-siloed.
+1. **End-to-end delivery testing** — institutions need to configure actual SMS/email provider credentials (Settings > Delivery) and verify password reset and notification delivery works end-to-end in production.
+2. **OpenAPI regeneration** — run `bun run openapi:export` inside `apps/api-erp` (with `DATABASE_URL` set) to regenerate the OpenAPI spec and ERP API client types after the transport module deployment; this replaces the `as any` casts in the transport frontend with proper TypeScript types.
 
-## Next — Close operational gaps a real school hits quickly
+## Next — Add the common breadth schools expect in a feature-rich ERP
 
-1. **Audit trail** — sensitive actions such as fee reversals, marks replacement, attendance corrections, role changes, and rollover actions need traceable history.
-2. **Document outputs** — fee receipts, report cards, admission acknowledgements, and certificate-ready output are part of daily school operations.
-3. **Branding hardening** — ensure tenant logo, favicon, display name, and theme tokens are robust across tenant bootstrap, printing, and navigation.
-
-## Then — Add the common breadth schools expect in a feature-rich ERP
-
-1. **Parent portal completion** — dues, attendance, report cards, notices, and student-centric actions must work outside the staff dashboard.
-2. **Library** — catalog, issue/return, member history, and fine tracking are common school ERP expectations.
-3. **Transport** — routes, stops, vehicle mapping, and student transport assignment are common operational requirements.
-4. **Staff leave management** — leave requests, balances, approvals, and calendar visibility should land before payroll.
-5. **Cross-module polish** — consistency pass across student/staff/fees/exams/attendance/admissions flows for copy, empty states, and action hierarchy.
-6. **Operational quality** — eliminate rough UX edges that create support burden during pilot rollouts.
+1. **Cross-module polish** — consistency pass across student/staff/fees/exams/attendance/admissions flows for copy, empty states, and action hierarchy.
+2. **Operational quality** — eliminate rough UX edges that create support burden during pilot rollouts.
 
 ## Later — Post-v1 depth
 
@@ -67,10 +56,8 @@ These items still block full day-to-day v1 readiness:
 
 ## Risks And Dependencies
 
-- Password reset and staff password-setup links are broken for production use until a real SMS/email provider is wired.
-- Parent dashboard is still placeholder-grade.
-- A broader, feature-rich ERP direction increases surface area; sequencing discipline is required so common breadth modules do not derail core v1 blockers.
-- Onboarding still needs UX hardening for fully self-serve institution setup.
+- Password reset and staff password-setup links rely on a real SMS/email provider being configured per-institution (Settings > Delivery). Without a configured provider, delivery falls back to global config; verify global config is set in production env before go-live.
+- OpenAPI spec is stale until `bun run openapi:export` is run with a live database; transport frontend uses `as any` casts until then.
 - Business rules must stay in NestJS; any shortcut that pushes authorization or domain logic into the frontend creates a security gap.
 
 ## Locked Product Decisions

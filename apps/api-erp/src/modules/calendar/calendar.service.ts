@@ -21,7 +21,9 @@ import {
   type SQL,
 } from "@repo/database";
 import { randomUUID } from "node:crypto";
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
+import { AuditService } from "../audit/audit.service";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import type {
@@ -44,7 +46,10 @@ const sortableColumns = {
 
 @Injectable()
 export class CalendarService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async listEvents(
     institutionId: string,
@@ -194,6 +199,16 @@ export class CalendarService {
       status: STATUS.CALENDAR_EVENT.ACTIVE,
     });
 
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.CALENDAR_EVENT,
+      entityId: eventId,
+      entityLabel: payload.title,
+      summary: `Created calendar event ${payload.title}.`,
+    }).catch(() => {});
+
     return this.getEvent(institutionId, eventId, authSession, scopes);
   }
 
@@ -225,6 +240,16 @@ export class CalendarService {
           eq(calendarEvents.institutionId, institutionId),
         ),
       );
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.CALENDAR_EVENT,
+      entityId: eventId,
+      entityLabel: payload.title,
+      summary: `Updated calendar event ${payload.title}.`,
+    }).catch(() => {});
 
     return this.getEvent(institutionId, eventId, authSession, scopes);
   }
@@ -275,6 +300,15 @@ export class CalendarService {
           eq(calendarEvents.institutionId, institutionId),
         ),
       );
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.CALENDAR_EVENT,
+      entityId: eventId,
+      summary: `Deleted calendar event.`,
+    }).catch(() => {});
   }
 
   private async getEventOrThrow(

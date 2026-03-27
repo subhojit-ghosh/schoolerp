@@ -1,6 +1,11 @@
 import { DATABASE } from "@repo/backend-core";
 import {
   ADMISSION_FORM_FIELD_SCOPES,
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  NOTIFICATION_TYPES,
+  NOTIFICATION_CHANNELS,
+  NOTIFICATION_TONES,
   type AdmissionFormFieldType,
   type AdmissionFormFieldScope,
 } from "@repo/contracts";
@@ -48,6 +53,8 @@ import {
   sortableAdmissionEnquiryColumns,
 } from "./admissions.schemas";
 import { AdmissionFormFieldsService } from "./admission-form-fields.service";
+import { NotificationFactory } from "../communications/notification.factory";
+import { AuditService } from "../audit/audit.service";
 
 const sortableEnquiryColumns = {
   campus: campus.name,
@@ -68,6 +75,8 @@ export class AdmissionsService {
   constructor(
     @Inject(DATABASE) private readonly db: AppDatabase,
     private readonly admissionFormFieldsService: AdmissionFormFieldsService,
+    private readonly notificationFactory: NotificationFactory,
+    private readonly auditService: AuditService,
   ) {}
 
   async listAdmissionFormFields(
@@ -264,12 +273,26 @@ export class AdmissionsService {
       deletedAt: null,
     });
 
-    return this.getAdmissionEnquiry(
+    const enquiry = await this.getAdmissionEnquiry(
       institutionId,
       enquiryId,
       authSession,
       scopes,
     );
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.ADMISSION_ENQUIRY,
+        entityId: enquiryId,
+        entityLabel: payload.studentName,
+        summary: `Created admission enquiry for ${payload.studentName}.`,
+      })
+      .catch(() => {});
+
+    return enquiry;
   }
 
   async updateAdmissionEnquiry(
@@ -302,12 +325,26 @@ export class AdmissionsService {
       })
       .where(eq(admissionEnquiries.id, enquiryId));
 
-    return this.getAdmissionEnquiry(
+    const updatedEnquiry = await this.getAdmissionEnquiry(
       institutionId,
       enquiryId,
       authSession,
       scopes,
     );
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.ADMISSION_ENQUIRY,
+        entityId: enquiryId,
+        entityLabel: payload.studentName,
+        summary: `Updated admission enquiry for ${payload.studentName}.`,
+      })
+      .catch(() => {});
+
+    return updatedEnquiry;
   }
 
   async listAdmissionApplications(
@@ -477,6 +514,36 @@ export class AdmissionsService {
       deletedAt: null,
     });
 
+    const studentName =
+      `${payload.studentFirstName.trim()} ${payload.studentLastName?.trim() ?? ""}`.trim();
+
+    this.notificationFactory
+      .notify({
+        institutionId,
+        campusId,
+        createdByUserId: authSession.user.id,
+        type: NOTIFICATION_TYPES.ADMISSION_APPLICATION_RECEIVED,
+        channel: NOTIFICATION_CHANNELS.OPERATIONS,
+        tone: NOTIFICATION_TONES.INFO,
+        audience: "staff",
+        title: "New admission application",
+        message: `New application received for ${studentName}.`,
+        senderLabel: authSession.user.name,
+      })
+      .catch(() => {});
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.ADMISSION_APPLICATION,
+        entityId: applicationId,
+        entityLabel: studentName,
+        summary: `Created admission application for ${studentName}.`,
+      })
+      .catch(() => {});
+
     return this.getAdmissionApplication(
       institutionId,
       applicationId,
@@ -529,6 +596,35 @@ export class AdmissionsService {
         customFieldValues,
       })
       .where(eq(admissionApplications.id, applicationId));
+
+    const updatedStudentName =
+      `${payload.studentFirstName.trim()} ${payload.studentLastName?.trim() ?? ""}`.trim();
+
+    this.notificationFactory
+      .notify({
+        institutionId,
+        createdByUserId: authSession.user.id,
+        type: NOTIFICATION_TYPES.ADMISSION_STATUS_CHANGED,
+        channel: NOTIFICATION_CHANNELS.OPERATIONS,
+        tone: NOTIFICATION_TONES.INFO,
+        audience: "staff",
+        title: "Admission status updated",
+        message: `Application for ${updatedStudentName} updated to ${payload.status}.`,
+        senderLabel: authSession.user.name,
+      })
+      .catch(() => {});
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.ADMISSION_APPLICATION,
+        entityId: applicationId,
+        entityLabel: updatedStudentName,
+        summary: `Updated admission application for ${updatedStudentName} to ${payload.status}.`,
+      })
+      .catch(() => {});
 
     return this.getAdmissionApplication(
       institutionId,

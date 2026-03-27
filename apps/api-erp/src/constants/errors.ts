@@ -209,6 +209,10 @@ export const ERROR_MESSAGES = {
       "At least one installment is required for a fee structure.",
     FEE_INSTALLMENTS_LOCKED:
       "Installments cannot be modified after assignments exist, including historical records.",
+    FEE_REMINDER_NO_GUARDIAN:
+      "No guardian with contact details found for this student.",
+    FEE_ASSIGNMENT_ALREADY_PAID:
+      "Cannot send a reminder for a fully paid fee assignment.",
   },
   DATA_EXCHANGE: {
     CSV_EMPTY: "Upload a CSV file with a header row and at least one data row.",
@@ -218,5 +222,38 @@ export const ERROR_MESSAGES = {
     TEMPLATE_NOT_FOUND:
       "No template is available for the selected import/export entity type.",
     NO_ROWS_TO_IMPORT: "No valid rows were found to import.",
+  },
+  HOMEWORK: {
+    NOT_FOUND: "Homework not found.",
+    ALREADY_PUBLISHED: "This homework assignment is already published.",
+    SCOPE_DENIED: "You do not have access to the selected class or section.",
+  },
+  LEAVE: {
+    TYPE_NOT_FOUND: "Leave type not found.",
+    TYPE_INACTIVE: "This leave type is inactive.",
+    APPLICATION_NOT_FOUND: "Leave application not found.",
+    ALREADY_REVIEWED: "This leave application has already been reviewed.",
+    ALREADY_CANCELLED: "This leave application is already cancelled.",
+    INVALID_DATE_RANGE: "From date must be on or before to date.",
+  },
+  LIBRARY: {
+    BOOK_NOT_FOUND: "Book not found.",
+    BOOK_INACTIVE: "This book is currently inactive.",
+    NO_COPIES_AVAILABLE: "No copies of this book are currently available.",
+    TRANSACTION_NOT_FOUND: "Library transaction not found.",
+    ALREADY_RETURNED: "This book has already been returned.",
+    MEMBER_NOT_FOUND: "Member not found in this institution.",
+  },
+  TRANSPORT: {
+    ROUTE_NOT_FOUND: "The selected transport route was not found.",
+    STOP_NOT_FOUND: "The selected route stop was not found.",
+    STOP_SEQUENCE_EXISTS:
+      "A stop with that sequence number already exists on this route.",
+    VEHICLE_NOT_FOUND: "The selected vehicle was not found.",
+    VEHICLE_REG_EXISTS:
+      "A vehicle with that registration number already exists for this institution.",
+    ASSIGNMENT_NOT_FOUND: "The selected transport assignment was not found.",
+    STUDENT_ALREADY_ASSIGNED:
+      "This student already has an active transport assignment. Update or deactivate the existing assignment first.",
   },
 } as const;

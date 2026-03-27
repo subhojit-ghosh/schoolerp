@@ -30,3 +30,6 @@ export const AUTH_RECOVERY_CHANNELS = {
 
 export type AuthRecoveryChannel =
   (typeof AUTH_RECOVERY_CHANNELS)[keyof typeof AUTH_RECOVERY_CHANNELS];
+
+/** Sentinel user ID used for system-initiated actions (cron jobs, webhooks). */
+export const SYSTEM_ACTOR_ID = "system";

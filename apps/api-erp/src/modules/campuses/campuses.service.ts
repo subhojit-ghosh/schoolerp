@@ -1,3 +1,4 @@
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import { DATABASE } from "@repo/backend-core";
 import { ConflictException, Inject, Injectable } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
@@ -20,6 +21,7 @@ import {
   resolveTablePageSize,
   type PaginatedResult,
 } from "../../lib/list-query";
+import { AuditService } from "../audit/audit.service";
 import { slugifyValue } from "../auth/auth.utils";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import type { CampusDto } from "./campuses.dto";
@@ -37,7 +39,10 @@ const sortableColumns = {
 
 @Injectable()
 export class CampusesService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async listCampuses(
     organizationId: string,
@@ -132,6 +137,16 @@ export class CampusesService {
         isDefault: campus.isDefault,
         status: campus.status,
       });
+
+    this.auditService.record({
+      institutionId: organizationId,
+      authSession,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.CAMPUS,
+      entityId: createdCampus.id,
+      entityLabel: createdCampus.name,
+      summary: `Created campus ${createdCampus.name}.`,
+    }).catch(() => {});
 
     return createdCampus;
   }

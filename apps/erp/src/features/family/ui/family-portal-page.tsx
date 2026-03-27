@@ -480,11 +480,25 @@ function ExamsPanel({ summary }: { summary: FamilyStudentSummary }) {
                       {term.academicYearName} • Ends {formatDate(term.endDate)}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <Badge variant="secondary">{term.overallGrade}</Badge>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {term.overallPercent}% overall
-                    </p>
+                  <div className="flex items-center gap-2">
+                    <div className="text-right">
+                      <Badge variant="secondary">{term.overallGrade}</Badge>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {term.overallPercent}% overall
+                      </p>
+                    </div>
+                    <Link
+                      to={`${ERP_ROUTES.EXAM_REPORT_CARD}?examTermId=${term.examTermId}&studentId=${summary.student.id}`}
+                      target="_blank"
+                    >
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2 text-xs"
+                      >
+                        Report card
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -494,6 +508,10 @@ function ExamsPanel({ summary }: { summary: FamilyStudentSummary }) {
       </Card>
     </div>
   );
+}
+
+function isOverdue(dueDate: string) {
+  return new Date(`${dueDate}T23:59:59`) < new Date();
 }
 
 function FeesPanel({ summary }: { summary: FamilyStudentSummary }) {
@@ -517,7 +535,11 @@ function FeesPanel({ summary }: { summary: FamilyStudentSummary }) {
         <SummaryStat
           label="Assignments"
           value={String(summary.fees.assignmentCount)}
-          description={`${summary.fees.overdueCount} overdue`}
+          description={
+            summary.fees.overdueCount > 0
+              ? `${summary.fees.overdueCount} overdue`
+              : "None overdue"
+          }
         />
         <SummaryStat
           label="Adjusted"
@@ -537,34 +559,53 @@ function FeesPanel({ summary }: { summary: FamilyStudentSummary }) {
               No fee assignments are available yet.
             </p>
           ) : (
-            summary.fees.recentAssignments.map((assignment) => (
-              <div
-                key={assignment.id}
-                className="rounded-lg border border-border/60 px-3 py-2"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium">
-                      {assignment.feeStructureName}
-                      {assignment.installmentLabel
-                        ? ` • ${assignment.installmentLabel}`
-                        : ""}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Due {formatFeeDate(assignment.dueDate)}
-                    </p>
-                  </div>
-                  <div className="text-right text-sm">
-                    <p className="font-medium">
-                      {formatRupees(assignment.outstandingAmountInPaise)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Paid {formatRupees(assignment.paidAmountInPaise)}
-                    </p>
+            summary.fees.recentAssignments.map((assignment) => {
+              const overdue =
+                assignment.outstandingAmountInPaise > 0 &&
+                isOverdue(assignment.dueDate);
+
+              return (
+                <div
+                  key={assignment.id}
+                  className={cn(
+                    "rounded-lg border px-3 py-2",
+                    overdue
+                      ? "border-destructive/40 bg-destructive/5"
+                      : "border-border/60",
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium">
+                        {assignment.feeStructureName}
+                        {assignment.installmentLabel
+                          ? ` • ${assignment.installmentLabel}`
+                          : ""}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Due {formatFeeDate(assignment.dueDate)}
+                        {overdue ? (
+                          <Badge
+                            variant="destructive"
+                            className="ml-2 px-1.5 py-0 text-[10px]"
+                          >
+                            Overdue
+                          </Badge>
+                        ) : null}
+                      </p>
+                    </div>
+                    <div className="text-right text-sm">
+                      <p className="font-medium">
+                        {formatRupees(assignment.outstandingAmountInPaise)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Paid {formatRupees(assignment.paidAmountInPaise)}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </CardContent>
       </Card>

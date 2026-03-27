@@ -330,6 +330,10 @@ export function useReverseFeePaymentMutation() {
   });
 }
 
+export function useSendFeeReminderMutation() {
+  return apiQueryClient.useMutation("post", FEES_API_PATHS.REMIND_ASSIGNMENT);
+}
+
 // ── Dues ───────────────────────────────────────────────────────────────────
 
 export function useFeeDuesQuery(

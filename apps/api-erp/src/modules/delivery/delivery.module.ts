@@ -13,6 +13,7 @@ import {
   WebhookEmailDeliveryProvider,
   WebhookSmsDeliveryProvider,
 } from "./delivery.providers";
+import { DeliveryConfigService } from "./delivery-config.service";
 import { DeliveryService } from "./delivery.service";
 import type {
   EmailDeliveryProvider,
@@ -22,6 +23,7 @@ import type {
 @Module({
   providers: [
     DeliveryService,
+    DeliveryConfigService,
     DisabledEmailDeliveryProvider,
     DisabledSmsDeliveryProvider,
     LogEmailDeliveryProvider,
@@ -83,7 +85,7 @@ import type {
         ),
     },
   ],
-  exports: [DeliveryService],
+  exports: [DeliveryService, DeliveryConfigService],
 })
 export class DeliveryModule {}
 

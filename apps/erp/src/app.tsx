@@ -37,6 +37,8 @@ import { FeeAdjustmentSheetRoute } from "@/features/fees/ui/fee-adjustment-sheet
 import { BrandingPage } from "@/routes/settings/branding-page";
 import { AdmissionFormFieldsPage } from "@/routes/settings/admission-form-fields-page";
 import { AuditPage } from "@/routes/settings/audit-page";
+import { DeliverySettingsPage } from "@/routes/settings/delivery-page";
+import { PaymentSettingsPage } from "@/routes/settings/payment-page";
 import { CampusesPage } from "@/routes/settings/campuses-page";
 import { RolesPage } from "@/routes/settings/roles-page";
 import { ClassesPage } from "@/routes/academics/classes-page";
@@ -69,12 +71,34 @@ import { SubjectSheetRoute } from "@/features/subjects/ui/subject-sheet-route";
 import { BellScheduleSheetRoute } from "@/features/bell-schedules/ui/bell-schedule-sheet-route";
 import { CalendarEventSheetRoute } from "@/features/calendar/ui/calendar-event-sheet-route";
 import { AnnouncementSheetRoute } from "@/features/communications/ui/announcement-sheet-route";
+import { HomeworkPage } from "@/routes/operations/homework-page";
+import { HomeworkSheetRoute } from "@/features/homework/ui/homework-sheet-route";
+import { LeaveApplicationsPage } from "@/routes/leave/leave-applications-page";
+import { LeaveTypesPage } from "@/routes/leave/leave-types-page";
+import { LeaveApplicationSheetRoute } from "@/features/leave/ui/leave-application-sheet-route";
+import { LeaveTypeSheetRoute } from "@/features/leave/ui/leave-type-sheet-route";
+import { LibraryBooksPage } from "@/routes/library/library-books-page";
+import { LibraryTransactionsPage } from "@/routes/library/library-transactions-page";
+import { BookSheetRoute } from "@/features/library/ui/book-sheet-route";
+import { IssueBookSheetRoute } from "@/features/library/ui/issue-book-sheet-route";
+import { TransportRoutesPage } from "@/routes/transport/transport-routes-page";
+import { TransportVehiclesPage } from "@/routes/transport/transport-vehicles-page";
+import { TransportAssignmentsPage } from "@/routes/transport/transport-assignments-page";
+import { TransportRouteDetailPage } from "@/routes/transport/transport-route-detail-page";
+import { RouteSheetRoute } from "@/features/transport/ui/route-sheet-route";
+import { VehicleSheetRoute } from "@/features/transport/ui/vehicle-sheet-route";
+import { AssignmentSheetRoute } from "@/features/transport/ui/assignment-sheet-route";
+import { StopSheetRoute } from "@/features/transport/ui/stop-sheet-route";
 import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
 import { StudentPortalPage } from "@/features/student-portal/ui/student-portal-page";
 import { AdmissionAcknowledgementPage } from "@/routes/documents/admission-acknowledgement-page";
+import { BonafideCertificatePage } from "@/routes/documents/bonafide-certificate-page";
+import { CharacterCertificatePage } from "@/routes/documents/character-certificate-page";
 import { ExamReportCardPage } from "@/routes/documents/exam-report-card-page";
 import { FeeReceiptPage } from "@/routes/documents/fee-receipt-page";
+import { TransferCertificatePage } from "@/routes/documents/transfer-certificate-page";
 import { AccountPage } from "@/routes/account/account-page";
+import { SetupWizardPage } from "@/routes/setup/setup-wizard-page";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -116,6 +140,15 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
   },
   {
+    path: ERP_ROUTES.SETUP,
+    element: (
+      <RequireSession>
+        <SetupWizardPage />
+      </RequireSession>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
     path: ERP_ROUTES.FEE_ASSIGNMENT_RECEIPT,
     element: (
       <RequireSession>
@@ -138,6 +171,33 @@ const router = createBrowserRouter([
     element: (
       <RequireSession>
         <ExamReportCardPage />
+      </RequireSession>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.STUDENT_TRANSFER_CERTIFICATE,
+    element: (
+      <RequireSession>
+        <TransferCertificatePage />
+      </RequireSession>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.STUDENT_BONAFIDE_CERTIFICATE,
+    element: (
+      <RequireSession>
+        <BonafideCertificatePage />
+      </RequireSession>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.STUDENT_CHARACTER_CERTIFICATE,
+    element: (
+      <RequireSession>
+        <CharacterCertificatePage />
       </RequireSession>
     ),
     errorElement: <RouteErrorBoundary />,
@@ -216,6 +276,124 @@ const router = createBrowserRouter([
           {
             path: `:announcementId/${ERP_ROUTE_SEGMENTS.EDIT}`,
             element: <AnnouncementSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.HOMEWORK,
+        element: <HomeworkPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <HomeworkSheetRoute mode="create" />,
+          },
+          {
+            path: `:homeworkId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <HomeworkSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.LEAVE_APPLICATIONS,
+        element: <LeaveApplicationsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <LeaveApplicationSheetRoute />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.LEAVE_TYPES,
+        element: <LeaveTypesPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <LeaveTypeSheetRoute mode="create" />,
+          },
+          {
+            path: `:leaveTypeId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <LeaveTypeSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.LIBRARY_BOOKS,
+        element: <LibraryBooksPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <BookSheetRoute mode="create" />,
+          },
+          {
+            path: `:bookId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <BookSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.LIBRARY_TRANSACTIONS,
+        element: <LibraryTransactionsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <IssueBookSheetRoute />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.TRANSPORT_ROUTES,
+        element: <TransportRoutesPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <RouteSheetRoute mode="create" />,
+          },
+          {
+            path: `:routeId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <RouteSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.TRANSPORT_ROUTE_DETAIL,
+        element: <TransportRouteDetailPage />,
+        children: [
+          {
+            path: `${ERP_ROUTE_SEGMENTS.STOPS}/${ERP_ROUTE_SEGMENTS.NEW}`,
+            element: <StopSheetRoute mode="create" />,
+          },
+          {
+            path: `${ERP_ROUTE_SEGMENTS.STOPS}/:stopId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <StopSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.TRANSPORT_VEHICLES,
+        element: <TransportVehiclesPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <VehicleSheetRoute mode="create" />,
+          },
+          {
+            path: `:vehicleId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <VehicleSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.TRANSPORT_ASSIGNMENTS,
+        element: <TransportAssignmentsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <AssignmentSheetRoute mode="create" />,
+          },
+          {
+            path: `:assignmentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <AssignmentSheetRoute mode="edit" />,
           },
         ],
       },
@@ -404,6 +582,8 @@ const router = createBrowserRouter([
       },
       { path: ERP_ROUTES.SETTINGS_AUDIT, element: <AuditPage /> },
       { path: ERP_ROUTES.SETTINGS_BRANDING, element: <BrandingPage /> },
+      { path: ERP_ROUTES.SETTINGS_DELIVERY, element: <DeliverySettingsPage /> },
+      { path: ERP_ROUTES.SETTINGS_PAYMENT, element: <PaymentSettingsPage /> },
       {
         path: ERP_ROUTES.SETTINGS_ADMISSION_FIELDS,
         element: <AdmissionFormFieldsPage />,

@@ -1,5 +1,9 @@
 import { DATABASE } from "@repo/backend-core";
 import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+} from "@repo/contracts";
+import {
   and,
   asc,
   announcements,
@@ -42,6 +46,7 @@ import type {
   SetAnnouncementStatusDto,
   UpdateAnnouncementDto,
 } from "./communications.schemas";
+import { AuditService } from "../audit/audit.service";
 
 const sortableAnnouncementColumns = {
   audience: announcements.audience,
@@ -52,7 +57,10 @@ const sortableAnnouncementColumns = {
 
 @Injectable()
 export class CommunicationsService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async listAnnouncements(
     institutionId: string,
@@ -169,12 +177,26 @@ export class CommunicationsService {
       );
     }
 
-    return this.getAnnouncement(
+    const announcement = await this.getAnnouncement(
       institutionId,
       announcementId,
       authSession,
       scopes,
     );
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.ANNOUNCEMENT,
+        entityId: announcementId,
+        entityLabel: payload.title,
+        summary: `Created announcement "${payload.title}".`,
+      })
+      .catch(() => {});
+
+    return announcement;
   }
 
   async updateAnnouncement(
@@ -220,12 +242,26 @@ export class CommunicationsService {
       );
     }
 
-    return this.getAnnouncement(
+    const updatedAnnouncement = await this.getAnnouncement(
       institutionId,
       announcementId,
       authSession,
       scopes,
     );
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.ANNOUNCEMENT,
+        entityId: announcementId,
+        entityLabel: payload.title,
+        summary: `Updated announcement "${payload.title}".`,
+      })
+      .catch(() => {});
+
+    return updatedAnnouncement;
   }
 
   async setAnnouncementStatus(

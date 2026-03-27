@@ -1,4 +1,5 @@
 import type { DeliveryProviderType } from "../../constants";
+import type { DeliveryProvider } from "@repo/contracts";
 
 export type EmailDeliveryMessage = {
   to: string;
@@ -17,7 +18,7 @@ export type SmsDeliveryMessage = {
 };
 
 export type DeliveryResult = {
-  provider: DeliveryProviderType;
+  provider: DeliveryProviderType | DeliveryProvider;
   accepted: boolean;
   externalId?: string | null;
 };

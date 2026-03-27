@@ -1,3 +1,4 @@
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import { DATABASE } from "@repo/backend-core";
 import {
   ConflictException,
@@ -23,6 +24,7 @@ import {
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
+import { AuditService } from "../audit/audit.service";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import type {
   CreateSubjectDto,
@@ -44,7 +46,10 @@ const sortableColumns = {
 
 @Injectable()
 export class SubjectsService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async listSubjects(
     institutionId: string,
@@ -173,6 +178,16 @@ export class SubjectsService {
       status: STATUS.SUBJECT.ACTIVE,
     });
 
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.SUBJECT,
+      entityId: subjectId,
+      entityLabel: normalizeSubjectName(payload.name),
+      summary: `Created subject ${normalizeSubjectName(payload.name)}.`,
+    }).catch(() => {});
+
     return this.getSubject(institutionId, subjectId, authSession, scopes);
   }
 
@@ -205,6 +220,16 @@ export class SubjectsService {
           eq(subjects.institutionId, institutionId),
         ),
       );
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.SUBJECT,
+      entityId: subjectId,
+      entityLabel: normalizeSubjectName(payload.name),
+      summary: `Updated subject ${normalizeSubjectName(payload.name)}.`,
+    }).catch(() => {});
 
     return this.getSubject(institutionId, subjectId, authSession, scopes);
   }
@@ -262,6 +287,16 @@ export class SubjectsService {
           eq(subjects.institutionId, institutionId),
         ),
       );
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.SUBJECT,
+      entityId: subjectId,
+      entityLabel: subjectId,
+      summary: `Deleted subject ${subjectId}.`,
+    }).catch(() => {});
   }
 
   private async getCampus(institutionId: string, campusId: string) {

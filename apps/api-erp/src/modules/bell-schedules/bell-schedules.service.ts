@@ -23,7 +23,9 @@ import {
   type SQL,
 } from "@repo/database";
 import { randomUUID } from "node:crypto";
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import { ERROR_MESSAGES, SORT_ORDERS, STATUS } from "../../constants";
+import { AuditService } from "../audit/audit.service";
 import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import type {
@@ -43,7 +45,10 @@ const sortableColumns = {
 
 @Injectable()
 export class BellSchedulesService {
-  constructor(@Inject(DATABASE) private readonly db: AppDatabase) {}
+  constructor(
+    @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly auditService: AuditService,
+  ) {}
 
   async listBellSchedules(
     institutionId: string,
@@ -154,6 +159,16 @@ export class BellSchedulesService {
       });
     });
 
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.BELL_SCHEDULE,
+      entityId: scheduleId,
+      entityLabel: payload.name.trim(),
+      summary: `Created bell schedule ${payload.name.trim()}.`,
+    }).catch(() => {});
+
     return this.getBellSchedule(institutionId, scheduleId, authSession, scopes);
   }
 
@@ -228,6 +243,16 @@ export class BellSchedulesService {
         .where(eq(bellSchedules.id, scheduleId));
     });
 
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.BELL_SCHEDULE,
+      entityId: scheduleId,
+      entityLabel: payload.name?.trim() ?? schedule.name,
+      summary: `Updated bell schedule ${payload.name?.trim() ?? schedule.name}.`,
+    }).catch(() => {});
+
     return this.getBellSchedule(institutionId, scheduleId, authSession, scopes);
   }
 
@@ -294,6 +319,20 @@ export class BellSchedulesService {
         })
         .where(eq(bellSchedules.id, scheduleId));
     });
+
+    const statusAction =
+      payload.status === STATUS.BELL_SCHEDULE.DELETED
+        ? AUDIT_ACTIONS.DELETE
+        : AUDIT_ACTIONS.UPDATE;
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: statusAction,
+      entityType: AUDIT_ENTITY_TYPES.BELL_SCHEDULE,
+      entityId: scheduleId,
+      entityLabel: schedule.name,
+      summary: `Set bell schedule ${schedule.name} status to ${payload.status}.`,
+    }).catch(() => {});
 
     if (payload.status === STATUS.BELL_SCHEDULE.DELETED) {
       const periods = await this.listSchedulePeriods(scheduleId);

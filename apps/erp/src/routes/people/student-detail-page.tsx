@@ -8,6 +8,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import {
   IconCalendarStats,
+  IconCertificate,
   IconChevronLeft,
   IconCurrencyRupee,
   IconEdit,
@@ -37,7 +38,12 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/ui/tabs";
-import { ERP_ROUTES } from "@/constants/routes";
+import {
+  ERP_ROUTES,
+  buildStudentBonafideCertificateRoute,
+  buildStudentCharacterCertificateRoute,
+  buildStudentTransferCertificateRoute,
+} from "@/constants/routes";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { useAdmissionFormFieldsQuery } from "@/features/admissions/api/use-admissions";
 import {
@@ -356,6 +362,37 @@ export function StudentDetailPage() {
             <Button asChild variant="outline">
               <Link to={ERP_ROUTES.EXAMS}>Exam records</Link>
             </Button>
+            {studentId ? (
+              <>
+                <Button asChild variant="outline">
+                  <Link
+                    to={buildStudentTransferCertificateRoute(studentId)}
+                    target="_blank"
+                  >
+                    <IconCertificate className="size-4" />
+                    TC
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link
+                    to={buildStudentBonafideCertificateRoute(studentId)}
+                    target="_blank"
+                  >
+                    <IconCertificate className="size-4" />
+                    Bonafide
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link
+                    to={buildStudentCharacterCertificateRoute(studentId)}
+                    target="_blank"
+                  >
+                    <IconCertificate className="size-4" />
+                    Character
+                  </Link>
+                </Button>
+              </>
+            ) : null}
             <Button
               onClick={() =>
                 void navigate(

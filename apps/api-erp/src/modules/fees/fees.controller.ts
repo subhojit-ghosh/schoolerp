@@ -80,6 +80,7 @@ const STRUCTURE_DUPLICATE_PATH = `${API_ROUTES.STRUCTURES}/:feeStructureId/${API
 const STRUCTURE_CREATE_NEXT_VERSION_PATH = `${API_ROUTES.STRUCTURES}/:feeStructureId/${API_ROUTES.CREATE_NEXT_VERSION}`;
 const ASSIGNMENT_DETAIL_PATH = `${API_ROUTES.ASSIGNMENTS}/:feeAssignmentId`;
 const ASSIGNMENT_ADJUSTMENTS_PATH = `${ASSIGNMENT_DETAIL_PATH}/${API_ROUTES.ADJUSTMENTS}`;
+const ASSIGNMENT_REMIND_PATH = `${ASSIGNMENT_DETAIL_PATH}/${API_ROUTES.REMIND}`;
 const BULK_ASSIGNMENTS_PATH = `${API_ROUTES.ASSIGNMENTS}/${API_ROUTES.BULK}`;
 const PAYMENT_REVERSE_PATH = `${API_ROUTES.PAYMENTS}/:feePaymentId/${API_ROUTES.REVERSE}`;
 const COLLECTION_SUMMARY_PATH = `${API_ROUTES.REPORTS}/${API_ROUTES.COLLECTION_SUMMARY}`;
@@ -435,6 +436,27 @@ export class FeesController {
       scopes,
       feePaymentId,
       parseReverseFeePayment(body),
+    );
+  }
+
+  @Post(ASSIGNMENT_REMIND_PATH)
+  @HttpCode(HttpStatus.OK)
+  @RequirePermission(PERMISSIONS.FEES_MANAGE)
+  @ApiOperation({ summary: "Manually send a fee reminder to the guardian" })
+  @ApiOkResponse({
+    schema: { properties: { sentAt: { type: "string" }, recipientCount: { type: "number" } } },
+  })
+  sendFeeReminder(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("feeAssignmentId") feeAssignmentId: string,
+  ) {
+    return this.feesService.sendFeeReminder(
+      institution.id,
+      authSession,
+      scopes,
+      feeAssignmentId,
     );
   }
 

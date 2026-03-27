@@ -24,15 +24,15 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - Same-host `/api` routing via Caddy
 - Production Docker Compose stack for VPS deployment under `docker-compose.yml` and `ops/docker/*`
 - HTTP-only cookie auth, Passport-based
-- Configurable outbound delivery layer for auth flows with channel-specific provider selection (`log`, `disabled`, `webhook`)
+- Institution-configurable delivery layer: per-tenant SMS (MSG91, Twilio) and email (Resend, SendGrid) provider config with encrypted credential storage, test send, and fallback to global providers
 - Multi-campus tenant model; campus switching in session
 - RBAC: permission constants, system role seeding, `PermissionGuard`, scope enforcement, role management UI, staff role assignment UI
 - Shared list-page primitives: `EntityListPage`, `ServerDataTable`, URL-backed state, route-addressable sheets
 
 ## Customer-Usable — Working end to end
 
-- **Auth** — login, logout, forgot-password, reset-password (delivery is stub-only, not yet wired to SMS/email)
-- **Onboarding** — school self-signup provisions institution, campus, admin user, membership, session
+- **Auth** — login, logout, forgot-password, reset-password; delivery uses institution-configured provider when available, falls back to global
+- **Onboarding** — school self-signup with live slug availability check, slug preview, password strength indicator, and required field indicators; provisions institution, campus, admin user, membership, session; post-signup guided setup wizard (academic year + first class) at `/setup`
 - **Campus management** — list, create; settings route with URL-backed state and create sheet
 - **Academic years** — list, create, edit; current-year enforcement; sheet flows
 - **Classes and sections** — list, create, edit; section lifecycle (active/inactive); campus assignment; dependency guardrails on delete
@@ -53,32 +53,26 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Admissions** — enquiry and application pipelines with list/create/edit flows, status tracking, tenant-scoped APIs, and printable application acknowledgements
 - **Configurable admission fields** — tenant admins can define additional application/student fields, and the ERP renders and validates them without schema forks per school
 - **Announcements / communication** — announcement list/create/edit/publish flows plus backend-driven in-app notification feed and mark-all-read support
+- **Notifications** — in-app notification feed with support for announcement, fee payment, fee reversal, attendance absent, admission application, admission status change, and exam results events; outbound delivery via institution-configured SMS/email providers
 - **Bulk import/export** — staff-facing CSV templates, preview, execute, and export flows for students, staff, guardians, and fee assignments
 - **Student portal** — student dashboard plus working timetable, attendance, exams, results, announcements, and calendar routes in student context
+- **Parent dashboard** — family portal with child switcher, attendance summary with stats and recent records, timetable by day, exam terms with report card links, fee dues with overdue highlighting, announcements, and calendar
+- **Delivery settings** — institution admins can configure SMS (MSG91, Twilio) and email (Resend, SendGrid) providers from Settings > Delivery, with credential encryption and test send
+- **Audit trail** — backend audit recording across all domain services (students, staff, guardians, classes, sections, subjects, campuses, academic years, calendar events, timetable, bell schedules, fees, attendance, exams, roles, admissions, announcements, library, delivery config) with ERP audit log UI (filterable by action, entity type, search)
+- **Document outputs** — fee receipts, exam report cards, admission acknowledgements, transfer certificates, bonafide certificates, and character certificates; all printable with institution branding via shared `PrintDocumentShell`; certificate links (TC, Bonafide, Character) accessible directly from student detail page
+- **Transport** — routes with stops (inline stop management per route), vehicles with driver info and route assignment, student transport assignments with pickup/dropoff type and date range; full CRUD with active/inactive lifecycle and audit trail; Transport nav group in ERP sidebar
+- **Library** — book catalog with status and copy tracking, issue/return workflow with available copy decrement/increment, transaction history with overdue detection, staff member selection from institution roster; full audit trail
 
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
-- Frontend presentation: many pages are functional but not polished enough for a customer demo.
-- **Parent dashboard** — visible but still placeholder-grade.
-
-## In Progress
-
-- Auth delivery: tokens and password-setup links now flow through a configurable delivery abstraction, but no real SMS or email vendor is wired yet.
-- Audit trail: backend audit log storage and tenant-scoped read API are implemented for role changes, attendance marking, marks replacement, fee payment reversal, and student rollover, but there is no ERP UI yet and broader sensitive-action coverage is still pending.
+- Frontend presentation: some pages could use UX polish for customer demos.
 
 ## Missing for v1
 
-- **SMS/email delivery** for password reset and staff onboarding links
-- **Notifications depth** — expand the feed beyond announcement-publish events into fee due, absent streak, password-setup, admissions, and approval workflows
-- **Audit trail completion** — ERP UI and broader sensitive-action coverage are still missing beyond the first backend hooks
-- **Broader document outputs** beyond current fee receipts, admission acknowledgements, and report cards, such as certificate-ready exports and additional formal documents
-- **Onboarding polish** — public school signup flow usable without assistance
+- **Real SMS/email provider testing** — the delivery abstraction and provider implementations are built; institutions need to configure actual provider credentials and verify delivery end-to-end
+
 
 ## Planned Next — Feature-rich ERP breadth not yet implemented
-
-- **Library** — catalog, issue/return, member history, and fines
-- **Transport** — routes, stops, vehicles, and student transport assignment
-- **Staff leave management** — leave balances, requests, approvals, and calendar visibility
 - **Inventory** — stock, issue tracking, and basic procurement-adjacent workflows
 - **Payroll** — salary structures, deductions, and payslip workflows after staff leave foundations
 - **Hostel** — segment-specific boarding workflows if target schools require them

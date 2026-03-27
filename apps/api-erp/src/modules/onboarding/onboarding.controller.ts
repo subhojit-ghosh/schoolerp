@@ -1,5 +1,11 @@
-import { Body, Controller, Post, Req, Res } from "@nestjs/common";
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, Post, Query, Req, Res } from "@nestjs/common";
+import {
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from "@nestjs/swagger";
 import type { Request, Response } from "express";
 import { API_DOCS, API_ROUTES } from "../../constants";
 import { AuthContextDto } from "../auth/auth.dto";
@@ -15,6 +21,13 @@ export class OnboardingController {
     private readonly onboardingService: OnboardingService,
     private readonly authService: AuthService,
   ) {}
+
+  @Get("check-slug")
+  @ApiOperation({ summary: "Check if a subdomain slug is available" })
+  @ApiQuery({ name: "slug", required: true, type: String })
+  async checkSlug(@Query("slug") slug: string) {
+    return this.onboardingService.checkSlugAvailability(slug ?? "");
+  }
 
   @Post(API_ROUTES.INSTITUTIONS)
   @ApiOperation({

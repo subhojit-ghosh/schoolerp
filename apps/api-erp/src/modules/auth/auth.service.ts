@@ -220,6 +220,7 @@ export class AuthService {
       matchedUser.email,
       token,
       tokenHash,
+      matchedUser.institutionId,
     );
 
     return {
@@ -236,6 +237,7 @@ export class AuthService {
         id: user.id,
         mobile: user.mobile,
         email: user.email,
+        institutionId: user.institutionId,
       })
       .from(user)
       .where(eq(user.id, userId))
@@ -254,6 +256,7 @@ export class AuthService {
       matchedUser.email,
       token,
       tokenHash,
+      matchedUser.institutionId,
     );
   }
 
@@ -1492,6 +1495,7 @@ export class AuthService {
     email: string | null,
     token: string,
     tokenHash: string,
+    institutionId?: string,
   ): Promise<IssuedPasswordSetupResult> {
     await this.database
       .delete(passwordResetToken)
@@ -1521,6 +1525,7 @@ export class AuthService {
       channel,
       recipient,
       token,
+      institutionId,
     });
 
     return {

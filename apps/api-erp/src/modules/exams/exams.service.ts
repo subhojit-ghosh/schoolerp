@@ -5,7 +5,13 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
-import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
+import {
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
+  NOTIFICATION_TYPES,
+  NOTIFICATION_CHANNELS,
+  NOTIFICATION_TONES,
+} from "@repo/contracts";
 import type { AppDatabase } from "@repo/database";
 import {
   academicYears,
@@ -23,6 +29,7 @@ import {
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, STATUS } from "../../constants";
 import { AuditService } from "../audit/audit.service";
+import { NotificationFactory } from "../communications/notification.factory";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { sectionScopeFilter } from "../auth/scope-filter";
 import { ExamMarkDto, ExamReportCardDto, ExamTermDto } from "./exams.dto";
@@ -48,6 +55,7 @@ export class ExamsService {
   constructor(
     @Inject(DATABASE) private readonly database: AppDatabase,
     private readonly auditService: AuditService,
+    private readonly notificationFactory: NotificationFactory,
   ) {}
 
   async listExamTerms(
@@ -234,6 +242,20 @@ export class ExamsService {
         },
       });
     });
+
+    this.notificationFactory
+      .notify({
+        institutionId,
+        createdByUserId: authSession.user.id,
+        type: NOTIFICATION_TYPES.EXAM_RESULTS_PUBLISHED,
+        channel: NOTIFICATION_CHANNELS.ACADEMICS,
+        tone: NOTIFICATION_TONES.INFO,
+        audience: "all",
+        title: "Exam results published",
+        message: `Results for ${examTerm.name} have been published for ${uniqueStudentCount} student${uniqueStudentCount !== 1 ? "s" : ""}.`,
+        senderLabel: authSession.user.name,
+      })
+      .catch(() => {});
 
     return this.listExamMarks(institutionId, examTermId, authSession);
   }

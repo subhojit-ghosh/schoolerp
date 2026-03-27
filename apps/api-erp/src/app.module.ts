@@ -1,11 +1,13 @@
 import { Module } from "@nestjs/common";
 import { DatabaseModule, databaseConfig } from "@repo/backend-core";
 import { ConfigModule } from "@nestjs/config";
+import { ScheduleModule } from "@nestjs/schedule";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { appConfig } from "./config/app.config";
 import { authConfig } from "./config/auth.config";
 import { deliveryConfig } from "./config/delivery.config";
+import { paymentConfig } from "./config/payment.config";
 import { storageConfig } from "./config/storage.config";
 import { AcademicYearsModule } from "./modules/academic-years/academic-years.module";
 import { AttendanceModule } from "./modules/attendance/attendance.module";
@@ -17,6 +19,9 @@ import { CalendarModule } from "./modules/calendar/calendar.module";
 import { CampusesModule } from "./modules/campuses/campuses.module";
 import { ClassesModule } from "./modules/classes/classes.module";
 import { CommunicationsModule } from "./modules/communications/communications.module";
+import { DeliverySettingsModule } from "./modules/delivery/delivery-settings.module";
+import { PaymentGatewayModule } from "./modules/payment-gateway/payment-gateway.module";
+import { PaymentGatewaySettingsModule } from "./modules/payment-gateway/payment-gateway-settings.module";
 import { validateEnvironment } from "./config/env.validation";
 import { DataExchangeModule } from "./modules/data-exchange/data-exchange.module";
 import { FeesModule } from "./modules/fees/fees.module";
@@ -32,6 +37,10 @@ import { SubjectsModule } from "./modules/subjects/subjects.module";
 import { TenantContextModule } from "./modules/tenant-context/tenant-context.module";
 import { TimetableModule } from "./modules/timetable/timetable.module";
 import { GuardiansModule } from "./modules/guardians/guardians.module";
+import { HomeworkModule } from "./modules/homework/homework.module";
+import { LeaveModule } from "./modules/leave/leave.module";
+import { LibraryModule } from "./modules/library/library.module";
+import { TransportModule } from "./modules/transport/transport.module";
 import { StudentsModule } from "./modules/students/students.module";
 import { UploadsModule } from "./modules/uploads/uploads.module";
 @Module({
@@ -45,11 +54,13 @@ import { UploadsModule } from "./modules/uploads/uploads.module";
         appConfig,
         authConfig,
         deliveryConfig,
+        paymentConfig,
         storageConfig,
       ],
       validate: validateEnvironment,
     }),
     DatabaseModule,
+    ScheduleModule.forRoot(),
     AuditModule,
     TenantContextModule,
     AuthModule,
@@ -62,6 +73,9 @@ import { UploadsModule } from "./modules/uploads/uploads.module";
     TimetableModule,
     CalendarModule,
     CommunicationsModule,
+    DeliverySettingsModule,
+    PaymentGatewayModule,
+    PaymentGatewaySettingsModule,
     DataExchangeModule,
     StudentsModule,
     FamilyModule,
@@ -72,6 +86,10 @@ import { UploadsModule } from "./modules/uploads/uploads.module";
     AttendanceModule,
     ExamsModule,
     FeesModule,
+    HomeworkModule,
+    LeaveModule,
+    LibraryModule,
+    TransportModule,
     RolesModule,
     InstitutionsModule,
     UploadsModule,

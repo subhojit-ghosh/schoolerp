@@ -10,6 +10,7 @@ export type PasswordResetDeliveryRequest = {
   channel: AuthRecoveryChannel;
   recipient: string;
   token: string;
+  institutionId?: string;
 };
 
 @Injectable()
@@ -40,32 +41,38 @@ export class PasswordResetDeliveryService {
     }
 
     if (request.channel === AUTH_RECOVERY_CHANNELS.EMAIL) {
-      await this.deliveryService.sendEmail({
-        to: request.recipient,
-        subject: "Reset your Education ERP password",
-        text: [
-          "A password reset was requested for your Education ERP account.",
-          "",
-          `Reset link: ${resetUrl}`,
-          `Reset token: ${request.token}`,
-          "",
-          "If you did not request this, you can ignore this message.",
-        ].join("\n"),
-        metadata: {
-          flow: "password-reset",
+      await this.deliveryService.sendEmail(
+        {
+          to: request.recipient,
+          subject: "Reset your Education ERP password",
+          text: [
+            "A password reset was requested for your Education ERP account.",
+            "",
+            `Reset link: ${resetUrl}`,
+            `Reset token: ${request.token}`,
+            "",
+            "If you did not request this, you can ignore this message.",
+          ].join("\n"),
+          metadata: {
+            flow: "password-reset",
+          },
         },
-      });
+        request.institutionId,
+      );
 
       return;
     }
 
-    await this.deliveryService.sendSms({
-      to: request.recipient,
-      text: `Education ERP password reset. Token: ${request.token}. Reset link: ${resetUrl}`,
-      metadata: {
-        flow: "password-reset",
+    await this.deliveryService.sendSms(
+      {
+        to: request.recipient,
+        text: `Education ERP password reset. Token: ${request.token}. Reset link: ${resetUrl}`,
+        metadata: {
+          flow: "password-reset",
+        },
       },
-    });
+      request.institutionId,
+    );
   }
 
   private buildResetUrl(token: string) {

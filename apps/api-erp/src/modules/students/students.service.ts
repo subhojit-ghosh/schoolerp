@@ -2,6 +2,8 @@ import { DATABASE } from "@repo/backend-core";
 import {
   ADMISSION_FORM_FIELD_SCOPES,
   ATTENDANCE_STATUSES,
+  AUDIT_ACTIONS,
+  AUDIT_ENTITY_TYPES,
 } from "@repo/contracts";
 import {
   BadRequestException,
@@ -64,6 +66,7 @@ import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { campusScopeFilter, sectionScopeFilter } from "../auth/scope-filter";
 import { AdmissionFormFieldsService } from "../admissions/admission-form-fields.service";
+import { AuditService } from "../audit/audit.service";
 import type {
   CreateGuardianLinkDto,
   CurrentEnrollmentDto,
@@ -229,6 +232,7 @@ export class StudentsService {
   constructor(
     @Inject(DATABASE) private readonly db: AppDatabase,
     private readonly admissionFormFieldsService: AdmissionFormFieldsService,
+    private readonly auditService: AuditService,
   ) {}
 
   async listStudents(
@@ -569,6 +573,20 @@ export class StudentsService {
         resolvedCurrentEnrollment,
       );
     });
+
+    const fullName = [payload.firstName.trim(), payload.lastName?.trim()]
+      .filter(Boolean)
+      .join(" ");
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.STUDENT,
+      entityId: studentId,
+      entityLabel: fullName,
+      summary: `Updated student ${fullName}.`,
+    }).catch(() => {});
 
     return this.getStudent(
       institutionId,
@@ -1257,6 +1275,20 @@ export class StudentsService {
     if (!studentRecord) {
       throw new NotFoundException(ERROR_MESSAGES.STUDENTS.STUDENT_NOT_FOUND);
     }
+
+    const fullName = [payload.firstName.trim(), payload.lastName?.trim()]
+      .filter(Boolean)
+      .join(" ");
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.STUDENT,
+      entityId: createdStudent.id,
+      entityLabel: fullName,
+      summary: `Created student ${fullName}.`,
+    }).catch(() => {});
 
     return studentRecord;
   }

@@ -12,6 +12,9 @@ import {
   AUDIT_ENTITY_TYPES,
   FEE_ASSIGNMENT_STATUSES,
   FEE_STRUCTURE_SCOPES,
+  NOTIFICATION_TYPES,
+  NOTIFICATION_CHANNELS,
+  NOTIFICATION_TONES,
 } from "@repo/contracts";
 import type { AppDatabase } from "@repo/database";
 import {
@@ -49,6 +52,8 @@ import {
 } from "../../lib/list-query";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { AuditService } from "../audit/audit.service";
+import { NotificationFactory } from "../communications/notification.factory";
+import { FeeReminderService } from "./fee-reminder.service";
 import { campusScopeFilter } from "../auth/scope-filter";
 import type {
   BulkFeeAssignmentDto,
@@ -110,6 +115,8 @@ export class FeesService {
   constructor(
     @Inject(DATABASE) private readonly database: AppDatabase,
     private readonly auditService: AuditService,
+    private readonly notificationFactory: NotificationFactory,
+    private readonly feeReminderService: FeeReminderService,
   ) {}
 
   // ── Fee Structures ────────────────────────────────────────────────────────
@@ -1322,6 +1329,22 @@ export class FeesService {
         .where(eq(feeAssignments.id, assignment.id));
     });
 
+    // Fire notification (non-blocking — failure should not affect payment)
+    this.notificationFactory
+      .notify({
+        institutionId,
+        campusId: assignment.campusId,
+        createdByUserId: authSession.user.id,
+        type: NOTIFICATION_TYPES.FEE_PAYMENT_RECEIVED,
+        channel: NOTIFICATION_CHANNELS.FINANCE,
+        tone: NOTIFICATION_TONES.POSITIVE,
+        audience: "guardians",
+        title: "Fee payment received",
+        message: `Payment of ₹${(paymentAmountInPaise / 100).toFixed(2)} recorded for ${assignment.studentFirstName} ${assignment.studentLastName ?? ""}.`.trim(),
+        senderLabel: authSession.user.name,
+      })
+      .catch(() => {});
+
     return this.getFeePaymentById(paymentId, institutionId);
   }
 
@@ -1416,7 +1439,43 @@ export class FeesService {
       });
     });
 
+    this.notificationFactory
+      .notify({
+        institutionId,
+        campusId: assignment.campusId,
+        createdByUserId: authSession.user.id,
+        type: NOTIFICATION_TYPES.FEE_PAYMENT_REVERSED,
+        channel: NOTIFICATION_CHANNELS.FINANCE,
+        tone: NOTIFICATION_TONES.WARNING,
+        audience: "guardians",
+        title: "Fee payment reversed",
+        message: `Payment of ₹${(payment.amountInPaise / 100).toFixed(2)} for ${studentFullName} has been reversed.${payload.reason ? ` Reason: ${payload.reason}` : ""}`,
+        senderLabel: authSession.user.name,
+      })
+      .catch(() => {});
+
     return this.getFeePaymentById(feePaymentId, institutionId);
+  }
+
+  async sendFeeReminder(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    feeAssignmentId: string,
+  ) {
+    const assignment = await this.getAssignmentRowOrThrow(
+      institutionId,
+      feeAssignmentId,
+    );
+    this.assertCampusScopeAccess(assignment.campusId, scopes);
+    this.assertActiveCampusMatch(assignment.campusId, authSession);
+
+    return this.feeReminderService.sendReminder(
+      institutionId,
+      feeAssignmentId,
+      authSession.user.id,
+      { skipCooldown: true },
+    );
   }
 
   // ── Dues ──────────────────────────────────────────────────────────────────

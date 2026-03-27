@@ -1,0 +1,1 @@
+ALTER TABLE "fee_payments" ADD COLUMN "online_payment_order_id" text;

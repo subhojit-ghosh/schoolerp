@@ -1,0 +1,2 @@
+ALTER TABLE "fee_assignments" ADD COLUMN "last_reminder_sent_at" timestamp;--> statement-breakpoint
+CREATE INDEX "fee_assignments_last_reminder_idx" ON "fee_assignments" USING btree ("last_reminder_sent_at");

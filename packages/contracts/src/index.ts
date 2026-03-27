@@ -100,6 +100,18 @@ export const PERMISSIONS = {
   FEES_COLLECT: "fees:collect",
   COMMUNICATION_READ: "communication:read",
   COMMUNICATION_MANAGE: "communication:manage",
+  INSTITUTION_DELIVERY_MANAGE: "institution:delivery:manage",
+  INSTITUTION_PAYMENT_MANAGE: "institution:payment:manage",
+  FEES_PAYMENT_ONLINE: "fees:payment:online",
+  HOMEWORK_READ: "homework:read",
+  HOMEWORK_MANAGE: "homework:manage",
+  LEAVE_READ: "leave:read",
+  LEAVE_MANAGE: "leave:manage",
+  LEAVE_APPLY: "leave:apply",
+  LIBRARY_READ: "library:read",
+  LIBRARY_MANAGE: "library:manage",
+  TRANSPORT_READ: "transport:read",
+  TRANSPORT_MANAGE: "transport:manage",
 } as const;
 
 export const DATA_EXCHANGE_ENTITY_TYPES = {
@@ -130,7 +142,56 @@ export const AUDIT_ENTITY_TYPES = {
   EXAM_MARKS: "exam_marks",
   FEE_PAYMENT: "fee_payment",
   STUDENT_ROLLOVER: "student_rollover",
+  STUDENT: "student",
+  STAFF: "staff",
+  GUARDIAN: "guardian",
+  CLASS: "class",
+  SECTION: "section",
+  SUBJECT: "subject",
+  CAMPUS: "campus",
+  INSTITUTION_SETTINGS: "institution_settings",
+  FEE_STRUCTURE: "fee_structure",
+  FEE_ASSIGNMENT: "fee_assignment",
+  ADMISSION_ENQUIRY: "admission_enquiry",
+  ADMISSION_APPLICATION: "admission_application",
+  ANNOUNCEMENT: "announcement",
+  CALENDAR_EVENT: "calendar_event",
+  TIMETABLE: "timetable",
+  BELL_SCHEDULE: "bell_schedule",
+  ACADEMIC_YEAR: "academic_year",
+  DELIVERY_CONFIG: "delivery_config",
+  PAYMENT_CONFIG: "payment_config",
+  PAYMENT_ORDER: "payment_order",
+  HOMEWORK: "homework",
+  LEAVE_TYPE: "leave_type",
+  LEAVE_APPLICATION: "leave_application",
+  LIBRARY_BOOK: "library_book",
+  LIBRARY_TRANSACTION: "library_transaction",
+  TRANSPORT_ROUTE: "transport_route",
+  TRANSPORT_STOP: "transport_stop",
+  TRANSPORT_VEHICLE: "transport_vehicle",
+  TRANSPORT_ASSIGNMENT: "transport_assignment",
 } as const;
+
+export const DELIVERY_PROVIDERS = {
+  MSG91: "msg91",
+  TWILIO: "twilio",
+  RESEND: "resend",
+  SENDGRID: "sendgrid",
+  SMTP: "smtp",
+  DISABLED: "disabled",
+} as const;
+
+export type DeliveryProvider =
+  (typeof DELIVERY_PROVIDERS)[keyof typeof DELIVERY_PROVIDERS];
+
+export const DELIVERY_CHANNELS = {
+  SMS: "sms",
+  EMAIL: "email",
+} as const;
+
+export type DeliveryChannelType =
+  (typeof DELIVERY_CHANNELS)[keyof typeof DELIVERY_CHANNELS];
 
 export type PermissionSlug = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 export type DataExchangeEntityType =
@@ -217,7 +278,29 @@ export const FEE_PAYMENT_METHODS = {
   UPI: "upi",
   BANK_TRANSFER: "bank_transfer",
   CARD: "card",
+  ONLINE: "online",
 } as const;
+
+export const PAYMENT_PROVIDERS = {
+  RAZORPAY: "razorpay",
+  PAYU: "payu",
+  CASHFREE: "cashfree",
+  CUSTOM: "custom",
+  DISABLED: "disabled",
+} as const;
+
+export type PaymentProvider =
+  (typeof PAYMENT_PROVIDERS)[keyof typeof PAYMENT_PROVIDERS];
+
+export const PAYMENT_ORDER_STATUSES = {
+  PENDING: "pending",
+  PAID: "paid",
+  FAILED: "failed",
+  EXPIRED: "expired",
+} as const;
+
+export type PaymentOrderStatus =
+  (typeof PAYMENT_ORDER_STATUSES)[keyof typeof PAYMENT_ORDER_STATUSES];
 
 export const AUTH_CONTEXT_LABELS = {
   [AUTH_CONTEXT_KEYS.STAFF]: "Staff",
@@ -331,6 +414,15 @@ export const NOTIFICATION_TONES = {
 
 export const NOTIFICATION_TYPES = {
   ANNOUNCEMENT_PUBLISHED: "announcement_published",
+  FEE_PAYMENT_RECEIVED: "fee_payment_received",
+  FEE_PAYMENT_REVERSED: "fee_payment_reversed",
+  ATTENDANCE_ABSENT: "attendance_absent",
+  ATTENDANCE_ABSENT_STREAK: "attendance_absent_streak",
+  PASSWORD_SETUP_REQUIRED: "password_setup_required",
+  ADMISSION_APPLICATION_RECEIVED: "admission_application_received",
+  ADMISSION_STATUS_CHANGED: "admission_status_changed",
+  EXAM_RESULTS_PUBLISHED: "exam_results_published",
+  FEE_REMINDER_SENT: "fee_reminder_sent",
 } as const;
 
 export const ADMISSION_ENQUIRY_STATUSES = {

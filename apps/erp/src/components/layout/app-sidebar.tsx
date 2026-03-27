@@ -47,6 +47,8 @@ import {
   NAV_ADMISSIONS,
   NAV_TEACHING,
   NAV_ACADEMIC_SETUP,
+  NAV_LIBRARY,
+  NAV_TRANSPORT,
   NAV_RECORDS,
   NAV_FINANCE,
   NAV_COMMUNICATION,
@@ -107,6 +109,8 @@ const STAFF_NAV_GROUP_LABELS = {
   RECORDS: "Records",
   FINANCE: "Finance",
   COMMUNICATION: "Communication",
+  LIBRARY: "Library",
+  TRANSPORT: "Transport",
   SERVICES: "Services",
   HR: "HR & Payroll",
   REPORTS: "Reports",
@@ -367,6 +371,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const communicationItems = filterByPermission(
     getActionableNavItems(NAV_COMMUNICATION),
   );
+  const libraryItems = filterByPermission(getActionableNavItems(NAV_LIBRARY));
+  const transportItems = filterByPermission(getActionableNavItems(NAV_TRANSPORT));
   const servicesItems = getActionableNavItems(NAV_SERVICES);
   const hrItems = getActionableNavItems(NAV_HR);
   const reportItems = filterByPermission(getActionableNavItems(NAV_REPORTS));
@@ -408,6 +414,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           label: STAFF_NAV_GROUP_LABELS.ACADEMIC_SETUP,
         },
         { items: financeItems, label: STAFF_NAV_GROUP_LABELS.FINANCE },
+        { items: libraryItems, label: STAFF_NAV_GROUP_LABELS.LIBRARY },
+        { items: transportItems, label: STAFF_NAV_GROUP_LABELS.TRANSPORT },
         { items: servicesItems, label: STAFF_NAV_GROUP_LABELS.SERVICES },
         { items: hrItems, label: STAFF_NAV_GROUP_LABELS.HR },
         { items: reportItems, label: STAFF_NAV_GROUP_LABELS.REPORTS },
@@ -442,6 +450,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     familyItems,
     familyServicesItems,
     financeItems,
+    libraryItems,
+    transportItems,
     hrItems,
     location.pathname,
     peopleItems,
@@ -636,6 +646,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {communicationItems.length > 0
               ? renderStandaloneTopLevelItems(communicationItems)
               : null}
+            {libraryItems.length > 0 ? (
+              <NavMain
+                collapsible
+                icon={IconBooks}
+                items={libraryItems}
+                label={STAFF_NAV_GROUP_LABELS.LIBRARY}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
+              />
+            ) : null}
+            {transportItems.length > 0 ? (
+              <NavMain
+                collapsible
+                icon={IconTruck}
+                items={transportItems}
+                label={STAFF_NAV_GROUP_LABELS.TRANSPORT}
+                onOpenGroupChange={setOpenGroupLabel}
+                openGroupLabel={openGroupLabel}
+              />
+            ) : null}
             {servicesItems.length > 0 ? (
               <NavMain
                 collapsible

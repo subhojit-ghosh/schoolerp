@@ -8,4 +8,7 @@ export const DOCUMENT_TITLES = {
   FEE_RECEIPT: "Fee Receipt",
   ADMISSION_ACKNOWLEDGEMENT: "Admission Acknowledgement",
   EXAM_REPORT_CARD: "Report Card",
+  TRANSFER_CERTIFICATE: "Transfer Certificate",
+  BONAFIDE_CERTIFICATE: "Bonafide Certificate",
+  CHARACTER_CERTIFICATE: "Character Certificate",
 } as const;

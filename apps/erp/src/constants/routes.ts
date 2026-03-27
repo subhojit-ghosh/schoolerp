@@ -7,10 +7,15 @@ export const ERP_ROUTE_SEGMENTS = {
   RECEIPT: "receipt",
   ACKNOWLEDGEMENT: "acknowledgement",
   REPORT_CARD: "report-card",
+  TRANSFER_CERTIFICATE: "transfer-certificate",
+  BONAFIDE_CERTIFICATE: "bonafide-certificate",
+  CHARACTER_CERTIFICATE: "character-certificate",
+  STOPS: "stops",
 } as const;
 
 export const ERP_ROUTES = {
   ROOT: "/",
+  SETUP: "/setup",
   DASHBOARD: "/dashboard",
   ACCOUNT: "/account",
   NOTIFICATIONS: "/notifications",
@@ -26,6 +31,9 @@ export const ERP_ROUTES = {
   STUDENTS: "/students",
   STUDENT_CREATE: `/students/${ERP_ROUTE_SEGMENTS.NEW}`,
   STUDENT_DETAIL: "/students/:studentId",
+  STUDENT_TRANSFER_CERTIFICATE: `/students/:studentId/${ERP_ROUTE_SEGMENTS.TRANSFER_CERTIFICATE}`,
+  STUDENT_BONAFIDE_CERTIFICATE: `/students/:studentId/${ERP_ROUTE_SEGMENTS.BONAFIDE_CERTIFICATE}`,
+  STUDENT_CHARACTER_CERTIFICATE: `/students/:studentId/${ERP_ROUTE_SEGMENTS.CHARACTER_CERTIFICATE}`,
   STUDENT_ROLLOVER: "/student-rollover",
   GUARDIANS: "/guardians",
   GUARDIAN_DETAIL: "/guardians/:guardianId",
@@ -54,6 +62,13 @@ export const ERP_ROUTES = {
   EXAMS: "/exams",
   EXAM_REPORT_CARD: `/exams/${ERP_ROUTE_SEGMENTS.REPORT_CARD}`,
   HOMEWORK: "/homework",
+  HOMEWORK_CREATE: `/homework/${ERP_ROUTE_SEGMENTS.NEW}`,
+  HOMEWORK_EDIT: `/homework/:homeworkId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  LEAVE_TYPES: "/leave/types",
+  LEAVE_TYPES_CREATE: `/leave/types/${ERP_ROUTE_SEGMENTS.NEW}`,
+  LEAVE_TYPES_EDIT: `/leave/types/:leaveTypeId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  LEAVE_APPLICATIONS: "/leave/applications",
+  LEAVE_APPLICATIONS_CREATE: `/leave/applications/${ERP_ROUTE_SEGMENTS.NEW}`,
   DISCIPLINE: "/discipline",
   // Finance
   FEES: "/fees",
@@ -81,9 +96,26 @@ export const ERP_ROUTES = {
   REPORTS_FEES: "/reports/fees",
   REPORTS_ADMISSIONS: "/reports/admissions",
   REPORTS_STUDENTS: "/reports/students",
-  // Planned breadth modules
+  // Library
   LIBRARY: "/library",
+  LIBRARY_BOOKS: "/library/books",
+  LIBRARY_BOOKS_CREATE: `/library/books/${ERP_ROUTE_SEGMENTS.NEW}`,
+  LIBRARY_BOOKS_EDIT: `/library/books/:bookId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  LIBRARY_TRANSACTIONS: "/library/transactions",
+  LIBRARY_TRANSACTIONS_ISSUE: `/library/transactions/${ERP_ROUTE_SEGMENTS.NEW}`,
   TRANSPORT: "/transport",
+  TRANSPORT_ROUTES: "/transport/routes",
+  TRANSPORT_ROUTES_CREATE: `/transport/routes/${ERP_ROUTE_SEGMENTS.NEW}`,
+  TRANSPORT_ROUTES_EDIT: `/transport/routes/:routeId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  TRANSPORT_ROUTE_DETAIL: "/transport/routes/:routeId",
+  TRANSPORT_ROUTE_STOP_CREATE: `/transport/routes/:routeId/${ERP_ROUTE_SEGMENTS.STOPS}/${ERP_ROUTE_SEGMENTS.NEW}`,
+  TRANSPORT_ROUTE_STOP_EDIT: `/transport/routes/:routeId/${ERP_ROUTE_SEGMENTS.STOPS}/:stopId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  TRANSPORT_VEHICLES: "/transport/vehicles",
+  TRANSPORT_VEHICLES_CREATE: `/transport/vehicles/${ERP_ROUTE_SEGMENTS.NEW}`,
+  TRANSPORT_VEHICLES_EDIT: `/transport/vehicles/:vehicleId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  TRANSPORT_ASSIGNMENTS: "/transport/assignments",
+  TRANSPORT_ASSIGNMENTS_CREATE: `/transport/assignments/${ERP_ROUTE_SEGMENTS.NEW}`,
+  TRANSPORT_ASSIGNMENTS_EDIT: `/transport/assignments/:assignmentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   STAFF_LEAVE: "/staff/leave",
   STAFF_ATTENDANCE: "/staff/attendance",
   INVENTORY: "/inventory",
@@ -123,6 +155,8 @@ export const ERP_ROUTES = {
   SETTINGS_ADMISSION_FIELDS: "/settings/admission-fields",
   SETTINGS_ROLES: "/settings/roles",
   SETTINGS_AUDIT: "/settings/audit",
+  SETTINGS_DELIVERY: "/settings/delivery",
+  SETTINGS_PAYMENT: "/settings/payment",
   SETTINGS_ROLES_CREATE: `/settings/roles/${ERP_ROUTE_SEGMENTS.NEW}`,
   SETTINGS_ROLES_EDIT: `/settings/roles/:roleId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   // Auth
@@ -204,4 +238,48 @@ export function buildCalendarEventEditRoute(eventId: string) {
 
 export function buildAnnouncementEditRoute(announcementId: string) {
   return `${ERP_ROUTES.ANNOUNCEMENTS}/${announcementId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildHomeworkEditRoute(homeworkId: string) {
+  return `${ERP_ROUTES.HOMEWORK}/${homeworkId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildLibraryBookEditRoute(bookId: string) {
+  return `/library/books/${bookId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildStudentTransferCertificateRoute(studentId: string) {
+  return `/students/${studentId}/${ERP_ROUTE_SEGMENTS.TRANSFER_CERTIFICATE}`;
+}
+
+export function buildStudentBonafideCertificateRoute(studentId: string) {
+  return `/students/${studentId}/${ERP_ROUTE_SEGMENTS.BONAFIDE_CERTIFICATE}`;
+}
+
+export function buildStudentCharacterCertificateRoute(studentId: string) {
+  return `/students/${studentId}/${ERP_ROUTE_SEGMENTS.CHARACTER_CERTIFICATE}`;
+}
+
+export function buildTransportRouteDetailRoute(routeId: string) {
+  return `/transport/routes/${routeId}`;
+}
+
+export function buildTransportRouteEditRoute(routeId: string) {
+  return `/transport/routes/${routeId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildTransportRouteStopCreateRoute(routeId: string) {
+  return `/transport/routes/${routeId}/${ERP_ROUTE_SEGMENTS.STOPS}/${ERP_ROUTE_SEGMENTS.NEW}`;
+}
+
+export function buildTransportRouteStopEditRoute(routeId: string, stopId: string) {
+  return `/transport/routes/${routeId}/${ERP_ROUTE_SEGMENTS.STOPS}/${stopId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildTransportVehicleEditRoute(vehicleId: string) {
+  return `/transport/vehicles/${vehicleId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildTransportAssignmentEditRoute(assignmentId: string) {
+  return `/transport/assignments/${assignmentId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
 }

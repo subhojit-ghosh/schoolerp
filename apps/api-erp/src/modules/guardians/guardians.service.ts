@@ -1,3 +1,4 @@
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import type { GuardianRelationship } from "@repo/contracts";
 import { DATABASE } from "@repo/backend-core";
 import {
@@ -32,6 +33,7 @@ import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
+import { AuditService } from "../audit/audit.service";
 import { AuthService } from "../auth/auth.service";
 import {
   ERROR_MESSAGES,
@@ -96,6 +98,7 @@ export class GuardiansService {
   constructor(
     @Inject(DATABASE) private readonly db: AppDatabase,
     private readonly authService: AuthService,
+    private readonly auditService: AuditService,
   ) {}
 
   async listGuardians(
@@ -238,6 +241,16 @@ export class GuardiansService {
         );
       });
 
+      this.auditService.record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
+        entityId: existingGuardian.id,
+        entityLabel: payload.name.trim(),
+        summary: `Updated guardian ${payload.name.trim()}.`,
+      }).catch(() => {});
+
       return this.getGuardian(
         institutionId,
         existingGuardian.id,
@@ -296,6 +309,16 @@ export class GuardiansService {
       );
     });
 
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
+      entityId: createdGuardianId,
+      entityLabel: payload.name.trim(),
+      summary: `Created guardian ${payload.name.trim()}.`,
+    }).catch(() => {});
+
     return this.getGuardian(
       institutionId,
       createdGuardianId,
@@ -353,6 +376,16 @@ export class GuardiansService {
         selectedCampus.id,
       );
     });
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
+      entityId: guardianId,
+      entityLabel: payload.name.trim(),
+      summary: `Updated guardian ${payload.name.trim()}.`,
+    }).catch(() => {});
 
     return this.getGuardian(institutionId, guardianId, authSession, scopes);
   }
@@ -447,6 +480,16 @@ export class GuardiansService {
         payload.isPrimary ? guardianMembership.id : undefined,
       );
     });
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
+      entityId: guardianId,
+      entityLabel: guardianId,
+      summary: `Linked student ${payload.studentId} to guardian.`,
+    }).catch(() => {});
 
     return this.getGuardian(institutionId, guardianId, authSession, scopes);
   }
@@ -558,6 +601,16 @@ export class GuardiansService {
         studentMembership.membershipId,
       );
     });
+
+    this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.DELETE,
+      entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
+      entityId: guardianId,
+      entityLabel: guardianId,
+      summary: `Unlinked student ${studentId} from guardian.`,
+    }).catch(() => {});
 
     return this.getGuardian(institutionId, guardianId, authSession, scopes);
   }

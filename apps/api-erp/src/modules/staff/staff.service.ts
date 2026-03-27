@@ -37,6 +37,7 @@ import {
 } from "@repo/database";
 import { hash } from "bcryptjs";
 import { randomUUID } from "node:crypto";
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import {
   ERROR_MESSAGES,
   MEMBER_TYPES,
@@ -54,6 +55,7 @@ import {
 import type { AuthenticatedSession, ResolvedScopes } from "../auth/auth.types";
 import { campusScopeFilter } from "../auth/scope-filter";
 import { normalizeMobile, normalizeOptionalEmail } from "../auth/auth.utils";
+import { AuditService } from "../audit/audit.service";
 import { AuthService } from "../auth/auth.service";
 import { TimetableService } from "../timetable/timetable.service";
 import type {
@@ -109,6 +111,7 @@ const sortableColumns = {
 export class StaffService {
   constructor(
     @Inject(DATABASE) private readonly db: AppDatabase,
+    private readonly auditService: AuditService,
     private readonly authService: AuthService,
     private readonly timetableService: TimetableService,
   ) {}
@@ -316,6 +319,18 @@ export class StaffService {
       activeCampusScopes,
     );
 
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.STAFF,
+        entityId: createResult.membershipId,
+        entityLabel: staff.name,
+        summary: `Created staff member ${staff.name}.`,
+      })
+      .catch(() => {});
+
     return {
       staff,
       passwordSetup: null,
@@ -412,12 +427,26 @@ export class StaffService {
       }
     });
 
-    return this.getStaff(
+    const updatedStaff = await this.getStaff(
       institutionId,
       staffId,
       authSession,
       activeCampusScopes,
     );
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.STAFF,
+        entityId: staffId,
+        entityLabel: updatedStaff.name,
+        summary: `Updated staff member ${updatedStaff.name}.`,
+      })
+      .catch(() => {});
+
+    return updatedStaff;
   }
 
   async setStaffStatus(
@@ -441,12 +470,26 @@ export class StaffService {
         ),
       );
 
-    return this.getStaff(
+    const updatedStaff = await this.getStaff(
       institutionId,
       staffId,
       authSession,
       activeCampusScopes,
     );
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.STAFF,
+        entityId: staffId,
+        entityLabel: updatedStaff.name,
+        summary: `Changed staff member ${updatedStaff.name} status to ${payload.status}.`,
+      })
+      .catch(() => {});
+
+    return updatedStaff;
   }
 
   async deleteStaff(

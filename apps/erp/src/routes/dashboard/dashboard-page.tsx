@@ -5,10 +5,12 @@ import {
   IconCalendarStats,
   IconCertificate,
   IconCurrencyRupee,
+  IconRocket,
   IconUsers,
 } from "@tabler/icons-react";
 import { Link } from "react-router";
 import { Badge } from "@repo/ui/components/ui/badge";
+import { Button } from "@repo/ui/components/ui/button";
 import { EntityPageShell } from "@/components/entities/entity-page-shell";
 import { SectionCards } from "@/components/data-display/section-cards";
 import {
@@ -17,6 +19,7 @@ import {
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { ERP_ROUTES } from "@/constants/routes";
+import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { useStudentsQuery } from "@/features/students/api/use-students";
 import { useStaffQuery } from "@/features/staff/api/use-staff";
 import { useAttendanceOverviewQuery } from "@/features/attendance/api/use-attendance";
@@ -101,6 +104,14 @@ export function DashboardPage() {
   const collectionSummaryQuery = useCollectionSummaryQuery(
     Boolean(staffDashboardInstitutionId),
   );
+  const academicYearsQuery = useAcademicYearsQuery(
+    staffDashboardInstitutionId,
+    { limit: 1 },
+  );
+  const needsSetup =
+    isStaffContext(session) &&
+    !academicYearsQuery.isLoading &&
+    (academicYearsQuery.data?.total ?? 0) === 0;
   const attendanceOverview = attendanceOverviewQuery.data ?? [];
   const markedSections = attendanceOverview.filter(
     (item) => item.marked,
@@ -136,6 +147,48 @@ export function DashboardPage() {
 
   return (
     <EntityPageShell width="full">
+      {/* Setup banner */}
+      {needsSetup ? (
+        <div
+          className="flex items-center justify-between gap-4 rounded-xl border p-4"
+          style={{
+            background: "color-mix(in srgb, var(--primary) 6%, transparent)",
+            borderColor: "color-mix(in srgb, var(--primary) 20%, transparent)",
+          }}
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div
+              className="flex size-9 shrink-0 items-center justify-center rounded-lg"
+              style={{
+                background:
+                  "color-mix(in srgb, var(--primary) 15%, transparent)",
+              }}
+            >
+              <IconRocket
+                className="size-4"
+                style={{ color: "var(--primary)" }}
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-foreground">
+                Complete your school setup
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Create an academic year and your first class to unlock
+                attendance, fees, and exams.
+              </p>
+            </div>
+          </div>
+          <Button
+            asChild
+            className="shrink-0 h-9 rounded-lg px-4"
+            style={{ background: "var(--primary)" }}
+          >
+            <Link to={ERP_ROUTES.SETUP}>Get started</Link>
+          </Button>
+        </div>
+      ) : null}
+
       {/* Greeting */}
       <div className="px-0.5">
         <div className="mb-1.5 flex items-center gap-2">

@@ -34,6 +34,11 @@ export const API_DOCS = {
     ROLES: "roles",
     AUDIT: "audit",
     UPLOADS: "uploads",
+    SETTINGS: "settings",
+    HOMEWORK: "homework",
+    LEAVE: "leave",
+    LIBRARY: "library",
+    TRANSPORT: "transport",
   },
   THEMES: {
     NEST: "default",

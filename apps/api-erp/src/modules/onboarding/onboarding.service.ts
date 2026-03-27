@@ -50,6 +50,31 @@ export class OnboardingService {
     private readonly authService: AuthService,
   ) {}
 
+  async checkSlugAvailability(slug: string): Promise<{ available: boolean }> {
+    const normalized = slug.toLowerCase().trim();
+
+    if (!normalized || normalized.length > 63) {
+      return { available: false };
+    }
+
+    if (!/^[a-z0-9-]+$/.test(normalized)) {
+      return { available: false };
+    }
+
+    const [existing] = await this.db
+      .select({ id: organization.id })
+      .from(organization)
+      .where(
+        and(
+          eq(organization.slug, normalized),
+          ne(organization.status, STATUS.ORG.DELETED),
+        ),
+      )
+      .limit(1);
+
+    return { available: !existing };
+  }
+
   async createInstitution(
     payload: CreateInstitutionOnboardingDto,
     requestContext: SessionRequestContext,

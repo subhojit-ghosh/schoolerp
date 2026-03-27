@@ -106,7 +106,32 @@
                 "attendance_day",
                 "exam_marks",
                 "fee_payment",
-                "student_rollover"
+                "student_rollover",
+                "student",
+                "staff",
+                "guardian",
+                "class",
+                "section",
+                "subject",
+                "campus",
+                "institution_settings",
+                "fee_structure",
+                "fee_assignment",
+                "admission_enquiry",
+                "admission_application",
+                "announcement",
+                "calendar_event",
+                "timetable",
+                "bell_schedule",
+                "academic_year",
+                "delivery_config",
+                "payment_config",
+                "payment_order",
+                "homework",
+                "leave_type",
+                "leave_application",
+                "library_book",
+                "library_transaction"
               ]
             }
           },
@@ -491,6 +516,30 @@
         "summary": "Delete the current session and clear the cookie",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/onboarding/check-slug": {
+      "get": {
+        "operationId": "OnboardingController_checkSlug",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Check if a subdomain slug is available",
+        "tags": [
+          "onboarding"
         ]
       }
     },
@@ -1147,6 +1196,434 @@
         "summary": "Update an admission application",
         "tags": [
           "admissions"
+        ]
+      }
+    },
+    "/communications/announcements": {
+      "get": {
+        "operationId": "CommunicationsController_listAnnouncements",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "publishedAt",
+                "status",
+                "title",
+                "audience"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "audience",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "staff",
+                "guardians",
+                "students"
+              ]
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published",
+                "archived"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListAnnouncementsResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List announcements for the current tenant",
+        "tags": [
+          "communications"
+        ]
+      },
+      "post": {
+        "operationId": "CommunicationsController_createAnnouncement",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAnnouncementBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an announcement for the current tenant",
+        "tags": [
+          "communications"
+        ]
+      }
+    },
+    "/communications/announcements/{announcementId}": {
+      "get": {
+        "operationId": "CommunicationsController_getAnnouncement",
+        "parameters": [
+          {
+            "name": "announcementId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get an announcement for the current tenant",
+        "tags": [
+          "communications"
+        ]
+      },
+      "patch": {
+        "operationId": "CommunicationsController_updateAnnouncement",
+        "parameters": [
+          {
+            "name": "announcementId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAnnouncementBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update an announcement for the current tenant",
+        "tags": [
+          "communications"
+        ]
+      }
+    },
+    "/communications/announcements/{announcementId}/status": {
+      "patch": {
+        "operationId": "CommunicationsController_setAnnouncementStatus",
+        "parameters": [
+          {
+            "name": "announcementId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetAnnouncementStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update announcement workflow status",
+        "tags": [
+          "communications"
+        ]
+      }
+    },
+    "/communications/announcements/{announcementId}/publish": {
+      "post": {
+        "operationId": "CommunicationsController_publishAnnouncement",
+        "parameters": [
+          {
+            "name": "announcementId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnnouncementDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Publish an announcement and emit a notification",
+        "tags": [
+          "communications"
+        ]
+      }
+    },
+    "/communications/notifications": {
+      "get": {
+        "operationId": "CommunicationsController_listNotifications",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "unreadOnly",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "actionRequired",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "channel",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "system",
+                "academics",
+                "operations",
+                "finance",
+                "community"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListNotificationsResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List notification feed items for the current session",
+        "tags": [
+          "communications"
+        ]
+      }
+    },
+    "/communications/notifications/mark-all-read": {
+      "post": {
+        "operationId": "CommunicationsController_markNotificationsRead",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MarkNotificationsReadBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "updated": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Mark notifications as read for the current session",
+        "tags": [
+          "communications"
         ]
       }
     },
@@ -2754,131 +3231,17 @@
         ]
       }
     },
-    "/communications/announcements": {
+    "/settings/delivery": {
       "get": {
-        "operationId": "CommunicationsController_listAnnouncements",
-        "parameters": [
-          {
-            "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "minimum": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "sort",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "publishedAt",
-                "status",
-                "title",
-                "audience"
-              ]
-            }
-          },
-          {
-            "name": "order",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "asc",
-                "desc"
-              ]
-            }
-          },
-          {
-            "name": "audience",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "all",
-                "staff",
-                "guardians",
-                "students"
-              ]
-            }
-          },
-          {
-            "name": "status",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "draft",
-                "published",
-                "archived"
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ListAnnouncementsResultDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "List announcements for the current tenant",
-        "tags": [
-          "communications"
-        ]
-      },
-      "post": {
-        "operationId": "CommunicationsController_createAnnouncement",
+        "operationId": "DeliveryConfigController_listConfigs",
         "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateAnnouncementBodyDto"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AnnouncementDto"
+                  "$ref": "#/components/schemas/ListDeliveryConfigsResultDto"
                 }
               }
             }
@@ -2889,242 +3252,42 @@
             "cookie": []
           }
         ],
-        "summary": "Create an announcement for the current tenant",
+        "summary": "List delivery provider configs for current tenant",
         "tags": [
-          "communications"
+          "settings"
         ]
       }
     },
-    "/communications/announcements/{announcementId}": {
-      "get": {
-        "operationId": "CommunicationsController_getAnnouncement",
+    "/settings/delivery/{channel}": {
+      "put": {
+        "operationId": "DeliveryConfigController_upsertConfig",
         "parameters": [
-          {
-            "name": "announcementId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AnnouncementDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Get an announcement for the current tenant",
-        "tags": [
-          "communications"
-        ]
-      },
-      "patch": {
-        "operationId": "CommunicationsController_updateAnnouncement",
-        "parameters": [
-          {
-            "name": "announcementId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UpdateAnnouncementBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AnnouncementDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Update an announcement for the current tenant",
-        "tags": [
-          "communications"
-        ]
-      }
-    },
-    "/communications/announcements/{announcementId}/status": {
-      "patch": {
-        "operationId": "CommunicationsController_setAnnouncementStatus",
-        "parameters": [
-          {
-            "name": "announcementId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SetAnnouncementStatusBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AnnouncementDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Update announcement workflow status",
-        "tags": [
-          "communications"
-        ]
-      }
-    },
-    "/communications/announcements/{announcementId}/publish": {
-      "post": {
-        "operationId": "CommunicationsController_publishAnnouncement",
-        "parameters": [
-          {
-            "name": "announcementId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AnnouncementDto"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "cookie": []
-          }
-        ],
-        "summary": "Publish an announcement and emit a notification",
-        "tags": [
-          "communications"
-        ]
-      }
-    },
-    "/communications/notifications": {
-      "get": {
-        "operationId": "CommunicationsController_listNotifications",
-        "parameters": [
-          {
-            "name": "q",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "minimum": 1,
-              "type": "number"
-            }
-          },
-          {
-            "name": "limit",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "number"
-            }
-          },
-          {
-            "name": "unreadOnly",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          {
-            "name": "actionRequired",
-            "required": false,
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            }
-          },
           {
             "name": "channel",
-            "required": false,
-            "in": "query",
+            "required": true,
+            "in": "path",
             "schema": {
-              "type": "string",
-              "enum": [
-                "system",
-                "academics",
-                "operations",
-                "finance",
-                "community"
-              ]
+              "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertDeliveryConfigBodyDto"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ListNotificationsResultDto"
+                  "$ref": "#/components/schemas/DeliveryConfigDto"
                 }
               }
             }
@@ -3135,22 +3298,123 @@
             "cookie": []
           }
         ],
-        "summary": "List notification feed items for the current session",
+        "summary": "Create or update delivery provider config for a channel",
         "tags": [
-          "communications"
+          "settings"
+        ]
+      },
+      "delete": {
+        "operationId": "DeliveryConfigController_deactivateConfig",
+        "parameters": [
+          {
+            "name": "channel",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Deactivate delivery provider config for a channel",
+        "tags": [
+          "settings"
         ]
       }
     },
-    "/communications/notifications/mark-all-read": {
+    "/settings/delivery/test": {
       "post": {
-        "operationId": "CommunicationsController_markNotificationsRead",
+        "operationId": "DeliveryConfigController_testDelivery",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/MarkNotificationsReadBodyDto"
+                "$ref": "#/components/schemas/TestDeliveryBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestDeliveryResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Send a test message using the configured provider",
+        "tags": [
+          "settings"
+        ]
+      }
+    },
+    "/fees/payments/online-order": {
+      "post": {
+        "operationId": "PaymentOrderController_createOrder",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentOrderBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentOrderResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an online payment order with the configured PG",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/payments/online-verify": {
+      "post": {
+        "operationId": "PaymentOrderController_verifyPayment",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyPaymentBodyDto"
               }
             }
           }
@@ -3162,8 +3426,8 @@
               "application/json": {
                 "schema": {
                   "properties": {
-                    "updated": {
-                      "type": "number"
+                    "success": {
+                      "type": "boolean"
                     }
                   }
                 }
@@ -3176,9 +3440,157 @@
             "cookie": []
           }
         ],
-        "summary": "Mark notifications as read for the current session",
+        "summary": "Verify a client-side payment callback",
         "tags": [
-          "communications"
+          "fees"
+        ]
+      }
+    },
+    "/fees/webhook/{institutionId}": {
+      "post": {
+        "operationId": "PaymentOrderController_handleWebhook",
+        "parameters": [
+          {
+            "name": "institutionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-razorpay-signature",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-webhook-signature",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-payu-checksum",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Inbound webhook from payment gateway",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/settings/payment": {
+      "get": {
+        "operationId": "PaymentGatewayConfigController_getConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentConfigDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get payment gateway config for current tenant",
+        "tags": [
+          "settings"
+        ]
+      },
+      "put": {
+        "operationId": "PaymentGatewayConfigController_upsertConfig",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertPaymentConfigBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentConfigDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create or update payment gateway config",
+        "tags": [
+          "settings"
+        ]
+      },
+      "delete": {
+        "operationId": "PaymentGatewayConfigController_deactivateConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Deactivate payment gateway config",
+        "tags": [
+          "settings"
+        ]
+      }
+    },
+    "/settings/payment/test": {
+      "post": {
+        "operationId": "PaymentGatewayConfigController_testConfig",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Verify provider credentials by resolving the provider",
+        "tags": [
+          "settings"
         ]
       }
     },
@@ -5356,6 +5768,49 @@
         ]
       }
     },
+    "/fees/assignments/{feeAssignmentId}/remind": {
+      "post": {
+        "operationId": "FeesController_sendFeeReminder",
+        "parameters": [
+          {
+            "name": "feeAssignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "sentAt": {
+                      "type": "string"
+                    },
+                    "recipientCount": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Manually send a fee reminder to the guardian",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
     "/fees/dues": {
       "get": {
         "operationId": "FeesController_listFeeDues",
@@ -6249,6 +6704,1108 @@
         ]
       }
     },
+    "/homework": {
+      "get": {
+        "operationId": "HomeworkController_listHomework",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subjectId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "published"
+              ]
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeworkListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List homework assignments",
+        "tags": [
+          "homework"
+        ]
+      },
+      "post": {
+        "operationId": "HomeworkController_createHomework",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateHomeworkBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeworkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a homework assignment",
+        "tags": [
+          "homework"
+        ]
+      }
+    },
+    "/homework/{homeworkId}": {
+      "get": {
+        "operationId": "HomeworkController_getHomework",
+        "parameters": [
+          {
+            "name": "homeworkId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeworkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a homework assignment",
+        "tags": [
+          "homework"
+        ]
+      },
+      "put": {
+        "operationId": "HomeworkController_updateHomework",
+        "parameters": [
+          {
+            "name": "homeworkId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateHomeworkBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeworkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a homework assignment",
+        "tags": [
+          "homework"
+        ]
+      },
+      "delete": {
+        "operationId": "HomeworkController_deleteHomework",
+        "parameters": [
+          {
+            "name": "homeworkId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Delete a homework assignment",
+        "tags": [
+          "homework"
+        ]
+      }
+    },
+    "/homework/{homeworkId}/publish": {
+      "post": {
+        "operationId": "HomeworkController_publishHomework",
+        "parameters": [
+          {
+            "name": "homeworkId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HomeworkDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Publish a homework assignment",
+        "tags": [
+          "homework"
+        ]
+      }
+    },
+    "/leave/leave-types": {
+      "get": {
+        "operationId": "LeaveController_listLeaveTypes",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LeaveTypeDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List leave types",
+        "tags": [
+          "leave"
+        ]
+      },
+      "post": {
+        "operationId": "LeaveController_createLeaveType",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLeaveTypeBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveTypeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a leave type",
+        "tags": [
+          "leave"
+        ]
+      }
+    },
+    "/leave/leave-types/{leaveTypeId}": {
+      "put": {
+        "operationId": "LeaveController_updateLeaveType",
+        "parameters": [
+          {
+            "name": "leaveTypeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateLeaveTypeBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveTypeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a leave type",
+        "tags": [
+          "leave"
+        ]
+      }
+    },
+    "/leave/leave-applications": {
+      "get": {
+        "operationId": "LeaveController_listLeaveApplications",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "approved",
+                "rejected",
+                "cancelled"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "fromDate",
+                "createdAt",
+                "status"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "staffMemberId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "leaveTypeId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveApplicationListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List leave applications",
+        "tags": [
+          "leave"
+        ]
+      },
+      "post": {
+        "operationId": "LeaveController_applyLeave",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLeaveApplicationBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveApplicationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Apply for leave (self)",
+        "tags": [
+          "leave"
+        ]
+      }
+    },
+    "/leave/leave-applications/{applicationId}": {
+      "get": {
+        "operationId": "LeaveController_getLeaveApplication",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveApplicationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a leave application",
+        "tags": [
+          "leave"
+        ]
+      }
+    },
+    "/leave/leave-applications/staff/{staffMemberId}": {
+      "post": {
+        "operationId": "LeaveController_applyLeaveForStaff",
+        "parameters": [
+          {
+            "name": "staffMemberId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateLeaveApplicationBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveApplicationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Apply leave on behalf of a staff member (admin)",
+        "tags": [
+          "leave"
+        ]
+      }
+    },
+    "/leave/leave-applications/{applicationId}/review": {
+      "post": {
+        "operationId": "LeaveController_reviewLeaveApplication",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewLeaveApplicationBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveApplicationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Approve or reject a leave application",
+        "tags": [
+          "leave"
+        ]
+      }
+    },
+    "/leave/leave-applications/{applicationId}/cancel": {
+      "post": {
+        "operationId": "LeaveController_cancelLeaveApplication",
+        "parameters": [
+          {
+            "name": "applicationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveApplicationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Cancel a leave application",
+        "tags": [
+          "leave"
+        ]
+      }
+    },
+    "/library/books": {
+      "get": {
+        "operationId": "LibraryController_listBooks",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "title",
+                "author",
+                "createdAt",
+                "availableCopies"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List library books",
+        "tags": [
+          "library"
+        ]
+      },
+      "post": {
+        "operationId": "LibraryController_createBook",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBookBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Add a book to the library",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/library/books/{bookId}": {
+      "put": {
+        "operationId": "LibraryController_updateBook",
+        "parameters": [
+          {
+            "name": "bookId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBookBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a library book",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/library/transactions": {
+      "get": {
+        "operationId": "LibraryController_listTransactions",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "issued",
+                "returned",
+                "overdue"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "issuedAt",
+                "dueDate",
+                "status"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "memberId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "bookId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List library transactions",
+        "tags": [
+          "library"
+        ]
+      },
+      "post": {
+        "operationId": "LibraryController_issueBook",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IssueBookBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Issue a book to a member",
+        "tags": [
+          "library"
+        ]
+      }
+    },
+    "/library/transactions/{transactionId}/return": {
+      "post": {
+        "operationId": "LibraryController_returnBook",
+        "parameters": [
+          {
+            "name": "transactionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReturnBookBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransactionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Return a borrowed book",
+        "tags": [
+          "library"
+        ]
+      }
+    },
     "/roles": {
       "get": {
         "operationId": "RolesController_listRoles",
@@ -6824,7 +8381,32 @@
               "attendance_day",
               "exam_marks",
               "fee_payment",
-              "student_rollover"
+              "student_rollover",
+              "student",
+              "staff",
+              "guardian",
+              "class",
+              "section",
+              "subject",
+              "campus",
+              "institution_settings",
+              "fee_structure",
+              "fee_assignment",
+              "admission_enquiry",
+              "admission_application",
+              "announcement",
+              "calendar_event",
+              "timetable",
+              "bell_schedule",
+              "academic_year",
+              "delivery_config",
+              "payment_config",
+              "payment_order",
+              "homework",
+              "leave_type",
+              "leave_application",
+              "library_book",
+              "library_transaction"
             ]
           },
           "entityId": {
@@ -7248,7 +8830,17 @@
                 "fees:manage",
                 "fees:collect",
                 "communication:read",
-                "communication:manage"
+                "communication:manage",
+                "institution:delivery:manage",
+                "institution:payment:manage",
+                "fees:payment:online",
+                "homework:read",
+                "homework:manage",
+                "leave:read",
+                "leave:manage",
+                "leave:apply",
+                "library:read",
+                "library:manage"
               ]
             }
           },
@@ -8140,6 +9732,339 @@
           "guardianName",
           "mobile"
         ]
+      },
+      "AnnouncementDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "body": {
+            "type": "string"
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "all",
+              "staff",
+              "guardians",
+              "students"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived",
+              "deleted"
+            ]
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          },
+          "createdByUserId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "institutionId",
+          "title",
+          "body",
+          "audience",
+          "status",
+          "createdAt",
+          "updatedAt",
+          "createdByUserId"
+        ]
+      },
+      "ListAnnouncementsResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnnouncementDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateAnnouncementBodyDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "body": {
+            "type": "string"
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "all",
+              "staff",
+              "guardians",
+              "students"
+            ]
+          },
+          "publishNow": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "title",
+          "body",
+          "audience"
+        ]
+      },
+      "UpdateAnnouncementBodyDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string",
+            "nullable": true
+          },
+          "body": {
+            "type": "string"
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "all",
+              "staff",
+              "guardians",
+              "students"
+            ]
+          },
+          "publishNow": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "required": [
+          "title",
+          "body",
+          "audience"
+        ]
+      },
+      "SetAnnouncementStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "archived"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "NotificationDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "announcementId": {
+            "type": "string",
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "announcement_published",
+              "fee_payment_received",
+              "fee_payment_reversed",
+              "attendance_absent",
+              "attendance_absent_streak",
+              "password_setup_required",
+              "admission_application_received",
+              "admission_status_changed",
+              "exam_results_published",
+              "fee_reminder_sent"
+            ]
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "system",
+              "academics",
+              "operations",
+              "finance",
+              "community"
+            ]
+          },
+          "tone": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "info",
+              "positive",
+              "warning"
+            ]
+          },
+          "audience": {
+            "type": "string",
+            "enum": [
+              "all",
+              "staff",
+              "guardians",
+              "students"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "senderLabel": {
+            "type": "string"
+          },
+          "actionLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "actionHref": {
+            "type": "string",
+            "nullable": true
+          },
+          "actionRequired": {
+            "type": "boolean"
+          },
+          "unread": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "type",
+          "channel",
+          "tone",
+          "audience",
+          "title",
+          "message",
+          "senderLabel",
+          "actionRequired",
+          "unread",
+          "createdAt"
+        ]
+      },
+      "ListNotificationsResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          },
+          "unreadCount": {
+            "type": "number"
+          },
+          "actionRequiredCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount",
+          "unreadCount",
+          "actionRequiredCount"
+        ]
+      },
+      "MarkNotificationsReadBodyDto": {
+        "type": "object",
+        "properties": {
+          "notificationIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "ClassSectionDto": {
         "type": "object",
@@ -9410,329 +11335,236 @@
           "status"
         ]
       },
-      "AnnouncementDto": {
+      "DeliveryConfigDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
           },
-          "institutionId": {
+          "channel": {
             "type": "string"
           },
-          "campusId": {
-            "type": "string",
-            "nullable": true
-          },
-          "campusName": {
-            "type": "string",
-            "nullable": true
-          },
-          "title": {
+          "provider": {
             "type": "string"
           },
-          "summary": {
+          "senderIdentity": {
             "type": "string",
             "nullable": true
           },
-          "body": {
-            "type": "string"
-          },
-          "audience": {
-            "type": "string",
-            "enum": [
-              "all",
-              "staff",
-              "guardians",
-              "students"
-            ]
-          },
-          "status": {
-            "type": "string",
-            "enum": [
-              "draft",
-              "published",
-              "archived",
-              "deleted"
-            ]
-          },
-          "publishedAt": {
-            "type": "string",
-            "nullable": true
+          "isActive": {
+            "type": "boolean"
           },
           "createdAt": {
+            "format": "date-time",
             "type": "string"
           },
           "updatedAt": {
-            "type": "string"
-          },
-          "createdByUserId": {
+            "format": "date-time",
             "type": "string"
           }
         },
         "required": [
           "id",
-          "institutionId",
-          "title",
-          "body",
-          "audience",
-          "status",
+          "channel",
+          "provider",
+          "senderIdentity",
+          "isActive",
           "createdAt",
-          "updatedAt",
-          "createdByUserId"
+          "updatedAt"
         ]
       },
-      "ListAnnouncementsResultDto": {
+      "ListDeliveryConfigsResultDto": {
         "type": "object",
         "properties": {
-          "rows": {
+          "configs": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AnnouncementDto"
+              "$ref": "#/components/schemas/DeliveryConfigDto"
             }
-          },
-          "total": {
-            "type": "number"
-          },
-          "page": {
-            "type": "number"
-          },
-          "pageSize": {
-            "type": "number"
-          },
-          "pageCount": {
-            "type": "number"
           }
         },
         "required": [
-          "rows",
-          "total",
-          "page",
-          "pageSize",
-          "pageCount"
+          "configs"
         ]
       },
-      "CreateAnnouncementBodyDto": {
+      "UpsertDeliveryConfigBodyDto": {
         "type": "object",
         "properties": {
-          "title": {
+          "provider": {
             "type": "string"
           },
-          "summary": {
+          "credentials": {
+            "type": "object"
+          },
+          "senderIdentity": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "credentials"
+        ]
+      },
+      "TestDeliveryBodyDto": {
+        "type": "object",
+        "properties": {
+          "channel": {
+            "type": "string"
+          },
+          "recipient": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "channel",
+          "recipient"
+        ]
+      },
+      "TestDeliveryResultDto": {
+        "type": "object",
+        "properties": {
+          "accepted": {
+            "type": "boolean"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "accepted",
+          "provider"
+        ]
+      },
+      "CreatePaymentOrderBodyDto": {
+        "type": "object",
+        "properties": {
+          "feeAssignmentId": {
+            "type": "string"
+          },
+          "amountInPaise": {
+            "type": "number"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "guardianMobile": {
+            "type": "string"
+          },
+          "guardianEmail": {
             "type": "string",
             "nullable": true
           },
-          "body": {
+          "description": {
             "type": "string"
-          },
-          "audience": {
-            "type": "string",
-            "enum": [
-              "all",
-              "staff",
-              "guardians",
-              "students"
-            ]
-          },
-          "publishNow": {
-            "type": "boolean",
-            "default": false
           }
         },
         "required": [
-          "title",
-          "body",
-          "audience"
+          "feeAssignmentId",
+          "amountInPaise"
         ]
       },
-      "UpdateAnnouncementBodyDto": {
+      "PaymentOrderResultDto": {
         "type": "object",
         "properties": {
-          "title": {
+          "orderId": {
             "type": "string"
           },
-          "summary": {
-            "type": "string",
-            "nullable": true
-          },
-          "body": {
+          "provider": {
             "type": "string"
           },
-          "audience": {
-            "type": "string",
-            "enum": [
-              "all",
-              "staff",
-              "guardians",
-              "students"
-            ]
+          "checkoutData": {
+            "type": "object"
           },
-          "publishNow": {
-            "type": "boolean",
-            "default": false
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
           }
         },
         "required": [
-          "title",
-          "body",
-          "audience"
+          "orderId",
+          "provider",
+          "checkoutData",
+          "expiresAt"
         ]
       },
-      "SetAnnouncementStatusBodyDto": {
+      "VerifyPaymentBodyDto": {
         "type": "object",
         "properties": {
-          "status": {
-            "type": "string",
-            "enum": [
-              "draft",
-              "archived"
-            ]
+          "internalOrderId": {
+            "type": "string"
+          },
+          "externalOrderId": {
+            "type": "string"
+          },
+          "externalPaymentId": {
+            "type": "string"
+          },
+          "externalSignature": {
+            "type": "string"
           }
         },
         "required": [
-          "status"
+          "internalOrderId",
+          "externalOrderId",
+          "externalPaymentId"
         ]
       },
-      "NotificationDto": {
+      "PaymentConfigDto": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string"
           },
-          "campusId": {
-            "type": "string",
-            "nullable": true
-          },
-          "campusName": {
-            "type": "string",
-            "nullable": true
-          },
-          "announcementId": {
-            "type": "string",
-            "nullable": true
-          },
-          "type": {
-            "type": "string",
-            "enum": [
-              "announcement_published"
-            ]
-          },
-          "channel": {
-            "type": "string",
-            "enum": [
-              "system",
-              "academics",
-              "operations",
-              "finance",
-              "community"
-            ]
-          },
-          "tone": {
-            "type": "string",
-            "enum": [
-              "critical",
-              "info",
-              "positive",
-              "warning"
-            ]
-          },
-          "audience": {
-            "type": "string",
-            "enum": [
-              "all",
-              "staff",
-              "guardians",
-              "students"
-            ]
-          },
-          "title": {
+          "provider": {
             "type": "string"
           },
-          "message": {
-            "type": "string"
-          },
-          "senderLabel": {
-            "type": "string"
-          },
-          "actionLabel": {
+          "displayLabel": {
             "type": "string",
             "nullable": true
           },
-          "actionHref": {
-            "type": "string",
-            "nullable": true
-          },
-          "actionRequired": {
-            "type": "boolean"
-          },
-          "unread": {
+          "isActive": {
             "type": "boolean"
           },
           "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
             "type": "string"
           }
         },
         "required": [
           "id",
-          "type",
-          "channel",
-          "tone",
-          "audience",
-          "title",
-          "message",
-          "senderLabel",
-          "actionRequired",
-          "unread",
-          "createdAt"
+          "provider",
+          "displayLabel",
+          "isActive",
+          "createdAt",
+          "updatedAt"
         ]
       },
-      "ListNotificationsResultDto": {
+      "UpsertPaymentConfigBodyDto": {
         "type": "object",
         "properties": {
-          "rows": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/NotificationDto"
-            }
+          "provider": {
+            "type": "string"
           },
-          "total": {
-            "type": "number"
+          "credentials": {
+            "type": "object"
           },
-          "page": {
-            "type": "number"
-          },
-          "pageSize": {
-            "type": "number"
-          },
-          "pageCount": {
-            "type": "number"
-          },
-          "unreadCount": {
-            "type": "number"
-          },
-          "actionRequiredCount": {
-            "type": "number"
+          "displayLabel": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
-          "rows",
-          "total",
-          "page",
-          "pageSize",
-          "pageCount",
-          "unreadCount",
-          "actionRequiredCount"
+          "provider",
+          "credentials"
         ]
-      },
-      "MarkNotificationsReadBodyDto": {
-        "type": "object",
-        "properties": {
-          "notificationIds": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
       },
       "DataExchangeCapabilityDto": {
         "type": "object",
@@ -10365,7 +12197,8 @@
               "cash",
               "upi",
               "bank_transfer",
-              "card"
+              "card",
+              "online"
             ]
           },
           "createdAt": {
@@ -12096,7 +13929,8 @@
               "cash",
               "upi",
               "bank_transfer",
-              "card"
+              "card",
+              "online"
             ]
           },
           "referenceNumber": {
@@ -12407,7 +14241,8 @@
               "cash",
               "upi",
               "bank_transfer",
-              "card"
+              "card",
+              "online"
             ]
           },
           "referenceNumber": {
@@ -13474,6 +15309,672 @@
           "excused",
           "attendancePercent"
         ]
+      },
+      "HomeworkDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "attachmentInstructions": {
+            "type": "string",
+            "nullable": true
+          },
+          "publishedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "subjectName": {
+            "type": "string"
+          },
+          "createdByMemberId": {
+            "type": "string"
+          },
+          "createdByName": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "institutionId",
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "subjectId",
+          "subjectName",
+          "createdByMemberId",
+          "createdByName",
+          "title",
+          "dueDate",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "HomeworkListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/HomeworkDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateHomeworkBodyDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "attachmentInstructions": {
+            "type": "string",
+            "nullable": true
+          },
+          "classId": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "classId",
+          "sectionId",
+          "subjectId",
+          "title",
+          "dueDate"
+        ]
+      },
+      "UpdateHomeworkBodyDto": {
+        "type": "object",
+        "properties": {
+          "classId": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "subjectId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "attachmentInstructions": {
+            "type": "string",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string"
+          }
+        }
+      },
+      "LeaveTypeDto": {
+        "type": "object",
+        "properties": {
+          "maxDaysPerYear": {
+            "type": "number",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isPaid": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "maxDaysPerYear",
+          "status",
+          "id",
+          "name",
+          "isPaid",
+          "createdAt"
+        ]
+      },
+      "CreateLeaveTypeBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "maxDaysPerYear": {
+            "type": "number",
+            "nullable": true
+          },
+          "isPaid": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateLeaveTypeBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "maxDaysPerYear": {
+            "type": "number",
+            "nullable": true
+          },
+          "isPaid": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LeaveApplicationDto": {
+        "type": "object",
+        "properties": {
+          "staffEmployeeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "reason": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected",
+              "cancelled"
+            ]
+          },
+          "reviewedByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "reviewNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "leaveTypeId": {
+            "type": "string"
+          },
+          "leaveTypeName": {
+            "type": "string"
+          },
+          "staffMemberId": {
+            "type": "string"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "fromDate": {
+            "type": "string"
+          },
+          "toDate": {
+            "type": "string"
+          },
+          "daysCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "staffEmployeeId",
+          "reason",
+          "status",
+          "reviewedByName",
+          "reviewedAt",
+          "reviewNote",
+          "id",
+          "leaveTypeId",
+          "leaveTypeName",
+          "staffMemberId",
+          "staffName",
+          "fromDate",
+          "toDate",
+          "daysCount",
+          "createdAt"
+        ]
+      },
+      "LeaveApplicationListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeaveApplicationDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateLeaveApplicationBodyDto": {
+        "type": "object",
+        "properties": {
+          "leaveTypeId": {
+            "type": "string"
+          },
+          "fromDate": {
+            "type": "string"
+          },
+          "toDate": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "leaveTypeId",
+          "fromDate",
+          "toDate"
+        ]
+      },
+      "ReviewLeaveApplicationBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "rejected"
+            ]
+          },
+          "reviewNote": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "BookDto": {
+        "type": "object",
+        "properties": {
+          "author": {
+            "type": "string",
+            "nullable": true
+          },
+          "isbn": {
+            "type": "string",
+            "nullable": true
+          },
+          "publisher": {
+            "type": "string",
+            "nullable": true
+          },
+          "genre": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "totalCopies": {
+            "type": "number"
+          },
+          "availableCopies": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "author",
+          "isbn",
+          "publisher",
+          "genre",
+          "status",
+          "id",
+          "title",
+          "totalCopies",
+          "availableCopies",
+          "createdAt"
+        ]
+      },
+      "BookListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BookDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateBookBodyDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "isbn": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "totalCopies": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      },
+      "UpdateBookBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "isbn": {
+            "type": "string"
+          },
+          "publisher": {
+            "type": "string"
+          },
+          "genre": {
+            "type": "string"
+          },
+          "totalCopies": {
+            "type": "number"
+          }
+        }
+      },
+      "TransactionDto": {
+        "type": "object",
+        "properties": {
+          "bookIsbn": {
+            "type": "string",
+            "nullable": true
+          },
+          "memberEmployeeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "returnedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "issued",
+              "returned",
+              "overdue"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "bookId": {
+            "type": "string"
+          },
+          "bookTitle": {
+            "type": "string"
+          },
+          "memberId": {
+            "type": "string"
+          },
+          "memberName": {
+            "type": "string"
+          },
+          "issuedAt": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          },
+          "fineAmount": {
+            "type": "number"
+          },
+          "finePaid": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "bookIsbn",
+          "memberEmployeeId",
+          "returnedAt",
+          "status",
+          "id",
+          "bookId",
+          "bookTitle",
+          "memberId",
+          "memberName",
+          "issuedAt",
+          "dueDate",
+          "fineAmount",
+          "finePaid",
+          "createdAt"
+        ]
+      },
+      "TransactionListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "IssueBookBodyDto": {
+        "type": "object",
+        "properties": {
+          "bookId": {
+            "type": "string"
+          },
+          "memberId": {
+            "type": "string"
+          },
+          "dueDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "bookId",
+          "memberId",
+          "dueDate"
+        ]
+      },
+      "ReturnBookBodyDto": {
+        "type": "object",
+        "properties": {
+          "fineAmount": {
+            "type": "number"
+          }
+        }
       },
       "RolePermissionDto": {
         "type": "object",

@@ -10,7 +10,12 @@ const env = envSchema.parse({
 });
 
 export default defineConfig({
-  schema: ["./src/schema/index.ts", "./src/schema/auth.ts"],
+  schema: [
+    "./src/schema/index.ts",
+    "./src/schema/auth.ts",
+    "./src/schema/delivery.ts",
+    "./src/schema/payment.ts",
+  ],
   out: "./drizzle",
   dialect: "postgresql",
   casing: "snake_case",

@@ -225,6 +225,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/onboarding/check-slug": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Check if a subdomain slug is available */
+        get: operations["OnboardingController_checkSlug"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/onboarding/institutions": {
         parameters: {
             query?: never;
@@ -365,6 +382,110 @@ export interface paths {
         head?: never;
         /** Update an admission application */
         patch: operations["AdmissionsController_updateAdmissionApplication"];
+        trace?: never;
+    };
+    "/communications/announcements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List announcements for the current tenant */
+        get: operations["CommunicationsController_listAnnouncements"];
+        put?: never;
+        /** Create an announcement for the current tenant */
+        post: operations["CommunicationsController_createAnnouncement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/communications/announcements/{announcementId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an announcement for the current tenant */
+        get: operations["CommunicationsController_getAnnouncement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an announcement for the current tenant */
+        patch: operations["CommunicationsController_updateAnnouncement"];
+        trace?: never;
+    };
+    "/communications/announcements/{announcementId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update announcement workflow status */
+        patch: operations["CommunicationsController_setAnnouncementStatus"];
+        trace?: never;
+    };
+    "/communications/announcements/{announcementId}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish an announcement and emit a notification */
+        post: operations["CommunicationsController_publishAnnouncement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/communications/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List notification feed items for the current session */
+        get: operations["CommunicationsController_listNotifications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/communications/notifications/mark-all-read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark notifications as read for the current session */
+        post: operations["CommunicationsController_markNotificationsRead"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/classes": {
@@ -770,85 +891,15 @@ export interface paths {
         patch: operations["CalendarController_setEventStatus"];
         trace?: never;
     };
-    "/communications/announcements": {
+    "/settings/delivery": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** List announcements for the current tenant */
-        get: operations["CommunicationsController_listAnnouncements"];
-        put?: never;
-        /** Create an announcement for the current tenant */
-        post: operations["CommunicationsController_createAnnouncement"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/communications/announcements/{announcementId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get an announcement for the current tenant */
-        get: operations["CommunicationsController_getAnnouncement"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update an announcement for the current tenant */
-        patch: operations["CommunicationsController_updateAnnouncement"];
-        trace?: never;
-    };
-    "/communications/announcements/{announcementId}/status": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update announcement workflow status */
-        patch: operations["CommunicationsController_setAnnouncementStatus"];
-        trace?: never;
-    };
-    "/communications/announcements/{announcementId}/publish": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Publish an announcement and emit a notification */
-        post: operations["CommunicationsController_publishAnnouncement"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/communications/notifications": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List notification feed items for the current session */
-        get: operations["CommunicationsController_listNotifications"];
+        /** List delivery provider configs for current tenant */
+        get: operations["DeliveryConfigController_listConfigs"];
         put?: never;
         post?: never;
         delete?: never;
@@ -857,7 +908,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/communications/notifications/mark-all-read": {
+    "/settings/delivery/{channel}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Create or update delivery provider config for a channel */
+        put: operations["DeliveryConfigController_upsertConfig"];
+        post?: never;
+        /** Deactivate delivery provider config for a channel */
+        delete: operations["DeliveryConfigController_deactivateConfig"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/settings/delivery/test": {
         parameters: {
             query?: never;
             header?: never;
@@ -866,8 +935,95 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Mark notifications as read for the current session */
-        post: operations["CommunicationsController_markNotificationsRead"];
+        /** Send a test message using the configured provider */
+        post: operations["DeliveryConfigController_testDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/payments/online-order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create an online payment order with the configured PG */
+        post: operations["PaymentOrderController_createOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/payments/online-verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify a client-side payment callback */
+        post: operations["PaymentOrderController_verifyPayment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/webhook/{institutionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Inbound webhook from payment gateway */
+        post: operations["PaymentOrderController_handleWebhook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/settings/payment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get payment gateway config for current tenant */
+        get: operations["PaymentGatewayConfigController_getConfig"];
+        /** Create or update payment gateway config */
+        put: operations["PaymentGatewayConfigController_upsertConfig"];
+        post?: never;
+        /** Deactivate payment gateway config */
+        delete: operations["PaymentGatewayConfigController_deactivateConfig"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/settings/payment/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify provider credentials by resolving the provider */
+        post: operations["PaymentGatewayConfigController_testConfig"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1501,6 +1657,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/fees/assignments/{feeAssignmentId}/remind": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Manually send a fee reminder to the guardian */
+        post: operations["FeesController_sendFeeReminder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/fees/dues": {
         parameters: {
             query?: never;
@@ -1761,6 +1934,251 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/homework": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List homework assignments */
+        get: operations["HomeworkController_listHomework"];
+        put?: never;
+        /** Create a homework assignment */
+        post: operations["HomeworkController_createHomework"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/homework/{homeworkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a homework assignment */
+        get: operations["HomeworkController_getHomework"];
+        /** Update a homework assignment */
+        put: operations["HomeworkController_updateHomework"];
+        post?: never;
+        /** Delete a homework assignment */
+        delete: operations["HomeworkController_deleteHomework"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/homework/{homeworkId}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish a homework assignment */
+        post: operations["HomeworkController_publishHomework"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leave/leave-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List leave types */
+        get: operations["LeaveController_listLeaveTypes"];
+        put?: never;
+        /** Create a leave type */
+        post: operations["LeaveController_createLeaveType"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leave/leave-types/{leaveTypeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a leave type */
+        put: operations["LeaveController_updateLeaveType"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leave/leave-applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List leave applications */
+        get: operations["LeaveController_listLeaveApplications"];
+        put?: never;
+        /** Apply for leave (self) */
+        post: operations["LeaveController_applyLeave"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leave/leave-applications/{applicationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a leave application */
+        get: operations["LeaveController_getLeaveApplication"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leave/leave-applications/staff/{staffMemberId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply leave on behalf of a staff member (admin) */
+        post: operations["LeaveController_applyLeaveForStaff"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leave/leave-applications/{applicationId}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve or reject a leave application */
+        post: operations["LeaveController_reviewLeaveApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leave/leave-applications/{applicationId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a leave application */
+        post: operations["LeaveController_cancelLeaveApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/books": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List library books */
+        get: operations["LibraryController_listBooks"];
+        put?: never;
+        /** Add a book to the library */
+        post: operations["LibraryController_createBook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/books/{bookId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a library book */
+        put: operations["LibraryController_updateBook"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List library transactions */
+        get: operations["LibraryController_listTransactions"];
+        put?: never;
+        /** Issue a book to a member */
+        post: operations["LibraryController_issueBook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/transactions/{transactionId}/return": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Return a borrowed book */
+        post: operations["LibraryController_returnBook"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/roles": {
         parameters: {
             query?: never;
@@ -1937,7 +2355,7 @@ export interface components {
             /** @enum {string} */
             action: "create" | "update" | "delete" | "mark" | "replace" | "reverse" | "execute";
             /** @enum {string} */
-            entityType: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover";
+            entityType: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction";
             entityId?: string | null;
             entityLabel?: string | null;
             summary: string;
@@ -2032,7 +2450,7 @@ export interface components {
             activeOrganization: components["schemas"]["AuthOrganizationDto"] | null;
             availableContexts: components["schemas"]["AuthAccessContextDto"][];
             activeContext: components["schemas"]["AuthAccessContextDto"] | null;
-            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "audit:read" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage")[];
+            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "audit:read" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage" | "institution:delivery:manage" | "institution:payment:manage" | "fees:payment:online" | "homework:read" | "homework:manage" | "leave:read" | "leave:manage" | "leave:apply" | "library:read" | "library:manage")[];
             activeStaffRoles: components["schemas"]["AuthStaffRoleDto"][];
             activeCampus: components["schemas"]["AuthCampusDto"] | null;
             campuses: components["schemas"]["AuthCampusDto"][];
@@ -2249,6 +2667,86 @@ export interface components {
             studentFirstName: string;
             guardianName: string;
             mobile: string;
+        };
+        AnnouncementDto: {
+            id: string;
+            institutionId: string;
+            campusId?: string | null;
+            campusName?: string | null;
+            title: string;
+            summary?: string | null;
+            body: string;
+            /** @enum {string} */
+            audience: "all" | "staff" | "guardians" | "students";
+            /** @enum {string} */
+            status: "draft" | "published" | "archived" | "deleted";
+            publishedAt?: string | null;
+            createdAt: string;
+            updatedAt: string;
+            createdByUserId: string;
+        };
+        ListAnnouncementsResultDto: {
+            rows: components["schemas"]["AnnouncementDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateAnnouncementBodyDto: {
+            title: string;
+            summary?: string | null;
+            body: string;
+            /** @enum {string} */
+            audience: "all" | "staff" | "guardians" | "students";
+            /** @default false */
+            publishNow: boolean;
+        };
+        UpdateAnnouncementBodyDto: {
+            title: string;
+            summary?: string | null;
+            body: string;
+            /** @enum {string} */
+            audience: "all" | "staff" | "guardians" | "students";
+            /** @default false */
+            publishNow: boolean;
+        };
+        SetAnnouncementStatusBodyDto: {
+            /** @enum {string} */
+            status: "draft" | "archived";
+        };
+        NotificationDto: {
+            id: string;
+            campusId?: string | null;
+            campusName?: string | null;
+            announcementId?: string | null;
+            /** @enum {string} */
+            type: "announcement_published" | "fee_payment_received" | "fee_payment_reversed" | "attendance_absent" | "attendance_absent_streak" | "password_setup_required" | "admission_application_received" | "admission_status_changed" | "exam_results_published" | "fee_reminder_sent";
+            /** @enum {string} */
+            channel: "system" | "academics" | "operations" | "finance" | "community";
+            /** @enum {string} */
+            tone: "critical" | "info" | "positive" | "warning";
+            /** @enum {string} */
+            audience: "all" | "staff" | "guardians" | "students";
+            title: string;
+            message: string;
+            senderLabel: string;
+            actionLabel?: string | null;
+            actionHref?: string | null;
+            actionRequired: boolean;
+            unread: boolean;
+            createdAt: string;
+        };
+        ListNotificationsResultDto: {
+            rows: components["schemas"]["NotificationDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+            unreadCount: number;
+            actionRequiredCount: number;
+        };
+        MarkNotificationsReadBodyDto: {
+            notificationIds?: string[];
         };
         ClassSectionDto: {
             id: string;
@@ -2560,85 +3058,69 @@ export interface components {
             /** @enum {string} */
             status: "active" | "inactive";
         };
-        AnnouncementDto: {
+        DeliveryConfigDto: {
             id: string;
-            institutionId: string;
-            campusId?: string | null;
-            campusName?: string | null;
-            title: string;
-            summary?: string | null;
-            body: string;
-            /** @enum {string} */
-            audience: "all" | "staff" | "guardians" | "students";
-            /** @enum {string} */
-            status: "draft" | "published" | "archived" | "deleted";
-            publishedAt?: string | null;
+            channel: string;
+            provider: string;
+            senderIdentity: string | null;
+            isActive: boolean;
+            /** Format: date-time */
             createdAt: string;
+            /** Format: date-time */
             updatedAt: string;
-            createdByUserId: string;
         };
-        ListAnnouncementsResultDto: {
-            rows: components["schemas"]["AnnouncementDto"][];
-            total: number;
-            page: number;
-            pageSize: number;
-            pageCount: number;
+        ListDeliveryConfigsResultDto: {
+            configs: components["schemas"]["DeliveryConfigDto"][];
         };
-        CreateAnnouncementBodyDto: {
-            title: string;
-            summary?: string | null;
-            body: string;
-            /** @enum {string} */
-            audience: "all" | "staff" | "guardians" | "students";
-            /** @default false */
-            publishNow: boolean;
+        UpsertDeliveryConfigBodyDto: {
+            provider: string;
+            credentials: Record<string, never>;
+            senderIdentity?: string;
         };
-        UpdateAnnouncementBodyDto: {
-            title: string;
-            summary?: string | null;
-            body: string;
-            /** @enum {string} */
-            audience: "all" | "staff" | "guardians" | "students";
-            /** @default false */
-            publishNow: boolean;
+        TestDeliveryBodyDto: {
+            channel: string;
+            recipient: string;
         };
-        SetAnnouncementStatusBodyDto: {
-            /** @enum {string} */
-            status: "draft" | "archived";
+        TestDeliveryResultDto: {
+            accepted: boolean;
+            provider: string;
+            externalId?: string | null;
         };
-        NotificationDto: {
+        CreatePaymentOrderBodyDto: {
+            feeAssignmentId: string;
+            amountInPaise: number;
+            studentName?: string;
+            guardianMobile?: string;
+            guardianEmail?: string | null;
+            description?: string;
+        };
+        PaymentOrderResultDto: {
+            orderId: string;
+            provider: string;
+            checkoutData: Record<string, never>;
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        VerifyPaymentBodyDto: {
+            internalOrderId: string;
+            externalOrderId: string;
+            externalPaymentId: string;
+            externalSignature?: string;
+        };
+        PaymentConfigDto: {
             id: string;
-            campusId?: string | null;
-            campusName?: string | null;
-            announcementId?: string | null;
-            /** @enum {string} */
-            type: "announcement_published";
-            /** @enum {string} */
-            channel: "system" | "academics" | "operations" | "finance" | "community";
-            /** @enum {string} */
-            tone: "critical" | "info" | "positive" | "warning";
-            /** @enum {string} */
-            audience: "all" | "staff" | "guardians" | "students";
-            title: string;
-            message: string;
-            senderLabel: string;
-            actionLabel?: string | null;
-            actionHref?: string | null;
-            actionRequired: boolean;
-            unread: boolean;
+            provider: string;
+            displayLabel: string | null;
+            isActive: boolean;
+            /** Format: date-time */
             createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
-        ListNotificationsResultDto: {
-            rows: components["schemas"]["NotificationDto"][];
-            total: number;
-            page: number;
-            pageSize: number;
-            pageCount: number;
-            unreadCount: number;
-            actionRequiredCount: number;
-        };
-        MarkNotificationsReadBodyDto: {
-            notificationIds?: string[];
+        UpsertPaymentConfigBodyDto: {
+            provider: string;
+            credentials: Record<string, never>;
+            displayLabel?: string | null;
         };
         DataExchangeCapabilityDto: {
             /** @enum {string} */
@@ -2792,7 +3274,7 @@ export interface components {
         };
         StudentFeePaymentSummaryDto: {
             /** @enum {string} */
-            paymentMethod: "cash" | "upi" | "bank_transfer" | "card";
+            paymentMethod: "cash" | "upi" | "bank_transfer" | "card" | "online";
             /** Format: date-time */
             createdAt: string;
             id: string;
@@ -3220,7 +3702,7 @@ export interface components {
         };
         FeePaymentDto: {
             /** @enum {string} */
-            paymentMethod: "cash" | "upi" | "bank_transfer" | "card";
+            paymentMethod: "cash" | "upi" | "bank_transfer" | "card" | "online";
             referenceNumber?: string | null;
             notes?: string | null;
             reversalReason?: string | null;
@@ -3300,7 +3782,7 @@ export interface components {
         };
         CreateFeePaymentBodyDto: {
             /** @enum {string} */
-            paymentMethod: "cash" | "upi" | "bank_transfer" | "card";
+            paymentMethod: "cash" | "upi" | "bank_transfer" | "card" | "online";
             referenceNumber?: string | null;
             notes?: string | null;
             feeAssignmentId: string;
@@ -3559,6 +4041,179 @@ export interface components {
             excused: number;
             attendancePercent: number;
         };
+        HomeworkDto: {
+            description?: string | null;
+            attachmentInstructions?: string | null;
+            /** Format: date-time */
+            publishedAt?: string | null;
+            id: string;
+            institutionId: string;
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            subjectId: string;
+            subjectName: string;
+            createdByMemberId: string;
+            createdByName: string;
+            title: string;
+            dueDate: string;
+            status: string;
+            createdAt: string;
+            updatedAt: string;
+        };
+        HomeworkListResultDto: {
+            rows: components["schemas"]["HomeworkDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateHomeworkBodyDto: {
+            description?: string | null;
+            attachmentInstructions?: string | null;
+            classId: string;
+            sectionId: string;
+            subjectId: string;
+            title: string;
+            dueDate: string;
+        };
+        UpdateHomeworkBodyDto: {
+            classId?: string;
+            sectionId?: string;
+            subjectId?: string;
+            title?: string;
+            description?: string | null;
+            attachmentInstructions?: string | null;
+            dueDate?: string;
+        };
+        LeaveTypeDto: {
+            maxDaysPerYear: number | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            name: string;
+            isPaid: boolean;
+            createdAt: string;
+        };
+        CreateLeaveTypeBodyDto: {
+            name: string;
+            maxDaysPerYear?: number | null;
+            isPaid?: boolean;
+        };
+        UpdateLeaveTypeBodyDto: {
+            /** @enum {string} */
+            status?: "active" | "inactive";
+            name?: string;
+            maxDaysPerYear?: number | null;
+            isPaid?: boolean;
+        };
+        LeaveApplicationDto: {
+            staffEmployeeId: string | null;
+            reason: string | null;
+            /** @enum {string} */
+            status: "pending" | "approved" | "rejected" | "cancelled";
+            reviewedByName: string | null;
+            reviewedAt: string | null;
+            reviewNote: string | null;
+            id: string;
+            leaveTypeId: string;
+            leaveTypeName: string;
+            staffMemberId: string;
+            staffName: string;
+            fromDate: string;
+            toDate: string;
+            daysCount: number;
+            createdAt: string;
+        };
+        LeaveApplicationListResultDto: {
+            rows: components["schemas"]["LeaveApplicationDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateLeaveApplicationBodyDto: {
+            leaveTypeId: string;
+            fromDate: string;
+            toDate: string;
+            reason?: string;
+        };
+        ReviewLeaveApplicationBodyDto: {
+            /** @enum {string} */
+            status: "approved" | "rejected";
+            reviewNote?: string;
+        };
+        BookDto: {
+            author: string | null;
+            isbn: string | null;
+            publisher: string | null;
+            genre: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            title: string;
+            totalCopies: number;
+            availableCopies: number;
+            createdAt: string;
+        };
+        BookListResultDto: {
+            rows: components["schemas"]["BookDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateBookBodyDto: {
+            title: string;
+            author?: string;
+            isbn?: string;
+            publisher?: string;
+            genre?: string;
+            totalCopies?: number;
+        };
+        UpdateBookBodyDto: {
+            /** @enum {string} */
+            status?: "active" | "inactive";
+            title?: string;
+            author?: string;
+            isbn?: string;
+            publisher?: string;
+            genre?: string;
+            totalCopies?: number;
+        };
+        TransactionDto: {
+            bookIsbn: string | null;
+            memberEmployeeId: string | null;
+            returnedAt: string | null;
+            /** @enum {string} */
+            status: "issued" | "returned" | "overdue";
+            id: string;
+            bookId: string;
+            bookTitle: string;
+            memberId: string;
+            memberName: string;
+            issuedAt: string;
+            dueDate: string;
+            fineAmount: number;
+            finePaid: boolean;
+            createdAt: string;
+        };
+        TransactionListResultDto: {
+            rows: components["schemas"]["TransactionDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        IssueBookBodyDto: {
+            bookId: string;
+            memberId: string;
+            dueDate: string;
+        };
+        ReturnBookBodyDto: {
+            fineAmount?: number;
+        };
         RolePermissionDto: {
             id: string;
             slug: string;
@@ -3707,7 +4362,7 @@ export interface operations {
                 sort?: "createdAt" | "action" | "entityType" | "actor";
                 order?: "asc" | "desc";
                 action?: "create" | "update" | "delete" | "mark" | "replace" | "reverse" | "execute";
-                entityType?: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover";
+                entityType?: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction";
                 actorUserId?: string;
             };
             header?: never;
@@ -3966,6 +4621,25 @@ export interface operations {
                         success?: boolean;
                     };
                 };
+            };
+        };
+    };
+    OnboardingController_checkSlug: {
+        parameters: {
+            query: {
+                slug: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -4293,6 +4967,199 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AdmissionApplicationDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_listAnnouncements: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                limit?: number;
+                sort?: "publishedAt" | "status" | "title" | "audience";
+                order?: "asc" | "desc";
+                audience?: "all" | "staff" | "guardians" | "students";
+                status?: "draft" | "published" | "archived";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListAnnouncementsResultDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_createAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAnnouncementBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_getAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_updateAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAnnouncementBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_setAnnouncementStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetAnnouncementStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_publishAnnouncement: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_listNotifications: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                limit?: number;
+                unreadOnly?: boolean;
+                actionRequired?: boolean;
+                channel?: "system" | "academics" | "operations" | "finance" | "community";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListNotificationsResultDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_markNotificationsRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkNotificationsReadBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        updated?: number;
+                    };
                 };
             };
         };
@@ -5115,17 +5982,9 @@ export interface operations {
             };
         };
     };
-    CommunicationsController_listAnnouncements: {
+    DeliveryConfigController_listConfigs: {
         parameters: {
-            query?: {
-                q?: string;
-                page?: number;
-                limit?: number;
-                sort?: "publishedAt" | "status" | "title" | "audience";
-                order?: "asc" | "desc";
-                audience?: "all" | "staff" | "guardians" | "students";
-                status?: "draft" | "published" | "archived";
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -5137,21 +5996,23 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ListAnnouncementsResultDto"];
+                    "application/json": components["schemas"]["ListDeliveryConfigsResultDto"];
                 };
             };
         };
     };
-    CommunicationsController_createAnnouncement: {
+    DeliveryConfigController_upsertConfig: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                channel: string;
+            };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateAnnouncementBodyDto"];
+                "application/json": components["schemas"]["UpsertDeliveryConfigBodyDto"];
             };
         };
         responses: {
@@ -5160,17 +6021,17 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["AnnouncementDto"];
+                    "application/json": components["schemas"]["DeliveryConfigDto"];
                 };
             };
         };
     };
-    CommunicationsController_getAnnouncement: {
+    DeliveryConfigController_deactivateConfig: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                announcementId: string;
+                channel: string;
             };
             cookie?: never;
         };
@@ -5180,110 +6041,11 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["AnnouncementDto"];
-                };
+                content?: never;
             };
         };
     };
-    CommunicationsController_updateAnnouncement: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                announcementId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAnnouncementBodyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AnnouncementDto"];
-                };
-            };
-        };
-    };
-    CommunicationsController_setAnnouncementStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                announcementId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetAnnouncementStatusBodyDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AnnouncementDto"];
-                };
-            };
-        };
-    };
-    CommunicationsController_publishAnnouncement: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                announcementId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AnnouncementDto"];
-                };
-            };
-        };
-    };
-    CommunicationsController_listNotifications: {
-        parameters: {
-            query?: {
-                q?: string;
-                page?: number;
-                limit?: number;
-                unreadOnly?: boolean;
-                actionRequired?: boolean;
-                channel?: "system" | "academics" | "operations" | "finance" | "community";
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ListNotificationsResultDto"];
-                };
-            };
-        };
-    };
-    CommunicationsController_markNotificationsRead: {
+    DeliveryConfigController_testDelivery: {
         parameters: {
             query?: never;
             header?: never;
@@ -5292,7 +6054,53 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MarkNotificationsReadBodyDto"];
+                "application/json": components["schemas"]["TestDeliveryBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TestDeliveryResultDto"];
+                };
+            };
+        };
+    };
+    PaymentOrderController_createOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePaymentOrderBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentOrderResultDto"];
+                };
+            };
+        };
+    };
+    PaymentOrderController_verifyPayment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyPaymentBodyDto"];
             };
         };
         responses: {
@@ -5302,9 +6110,108 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        updated?: number;
+                        success?: boolean;
                     };
                 };
+            };
+        };
+    };
+    PaymentOrderController_handleWebhook: {
+        parameters: {
+            query?: never;
+            header: {
+                "x-razorpay-signature": string;
+                "x-webhook-signature": string;
+                "x-payu-checksum": string;
+            };
+            path: {
+                institutionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PaymentGatewayConfigController_getConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentConfigDto"];
+                };
+            };
+        };
+    };
+    PaymentGatewayConfigController_upsertConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertPaymentConfigBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentConfigDto"];
+                };
+            };
+        };
+    };
+    PaymentGatewayConfigController_deactivateConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PaymentGatewayConfigController_testConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -6456,6 +7363,30 @@ export interface operations {
             };
         };
     };
+    FeesController_sendFeeReminder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                feeAssignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        sentAt?: string;
+                        recipientCount?: number;
+                    };
+                };
+            };
+        };
+    };
     FeesController_listFeeDues: {
         parameters: {
             query?: {
@@ -6904,6 +7835,510 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AttendanceStudentReportDto"];
+                };
+            };
+        };
+    };
+    HomeworkController_listHomework: {
+        parameters: {
+            query?: {
+                q?: string;
+                classId?: string;
+                sectionId?: string;
+                subjectId?: string;
+                status?: "draft" | "published";
+                from?: string;
+                to?: string;
+                page?: number;
+                limit?: number;
+                sort?: string;
+                order?: "asc" | "desc";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeworkListResultDto"];
+                };
+            };
+        };
+    };
+    HomeworkController_createHomework: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateHomeworkBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeworkDto"];
+                };
+            };
+        };
+    };
+    HomeworkController_getHomework: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                homeworkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeworkDto"];
+                };
+            };
+        };
+    };
+    HomeworkController_updateHomework: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                homeworkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateHomeworkBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeworkDto"];
+                };
+            };
+        };
+    };
+    HomeworkController_deleteHomework: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                homeworkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    HomeworkController_publishHomework: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                homeworkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeworkDto"];
+                };
+            };
+        };
+    };
+    LeaveController_listLeaveTypes: {
+        parameters: {
+            query: {
+                status: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveTypeDto"][];
+                };
+            };
+        };
+    };
+    LeaveController_createLeaveType: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateLeaveTypeBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveTypeDto"];
+                };
+            };
+        };
+    };
+    LeaveController_updateLeaveType: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                leaveTypeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateLeaveTypeBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveTypeDto"];
+                };
+            };
+        };
+    };
+    LeaveController_listLeaveApplications: {
+        parameters: {
+            query?: {
+                status?: "pending" | "approved" | "rejected" | "cancelled";
+                sort?: "fromDate" | "createdAt" | "status";
+                order?: "asc" | "desc";
+                q?: string;
+                staffMemberId?: string;
+                leaveTypeId?: string;
+                from?: string;
+                to?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveApplicationListResultDto"];
+                };
+            };
+        };
+    };
+    LeaveController_applyLeave: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateLeaveApplicationBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveApplicationDto"];
+                };
+            };
+        };
+    };
+    LeaveController_getLeaveApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveApplicationDto"];
+                };
+            };
+        };
+    };
+    LeaveController_applyLeaveForStaff: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffMemberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateLeaveApplicationBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveApplicationDto"];
+                };
+            };
+        };
+    };
+    LeaveController_reviewLeaveApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewLeaveApplicationBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveApplicationDto"];
+                };
+            };
+        };
+    };
+    LeaveController_cancelLeaveApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveApplicationDto"];
+                };
+            };
+        };
+    };
+    LibraryController_listBooks: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive";
+                sort?: "title" | "author" | "createdAt" | "availableCopies";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookListResultDto"];
+                };
+            };
+        };
+    };
+    LibraryController_createBook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBookBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookDto"];
+                };
+            };
+        };
+    };
+    LibraryController_updateBook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBookBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookDto"];
+                };
+            };
+        };
+    };
+    LibraryController_listTransactions: {
+        parameters: {
+            query?: {
+                status?: "issued" | "returned" | "overdue";
+                sort?: "issuedAt" | "dueDate" | "status";
+                order?: "asc" | "desc";
+                q?: string;
+                memberId?: string;
+                bookId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionListResultDto"];
+                };
+            };
+        };
+    };
+    LibraryController_issueBook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IssueBookBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionDto"];
+                };
+            };
+        };
+    };
+    LibraryController_returnBook: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transactionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReturnBookBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionDto"];
                 };
             };
         };

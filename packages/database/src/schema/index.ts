@@ -43,6 +43,7 @@ const FEE_PAYMENT_METHOD_ENUM = [
   "upi",
   "bank_transfer",
   "card",
+  "online",
 ] as const;
 const ATTENDANCE_STATUS_ENUM = [
   "present",
@@ -146,6 +147,14 @@ const NOTIFICATION_TONE_ENUM = [
 ] as const;
 const NOTIFICATION_TYPE_ENUM = [
   NOTIFICATION_TYPES.ANNOUNCEMENT_PUBLISHED,
+  NOTIFICATION_TYPES.FEE_PAYMENT_RECEIVED,
+  NOTIFICATION_TYPES.FEE_PAYMENT_REVERSED,
+  NOTIFICATION_TYPES.ATTENDANCE_ABSENT,
+  NOTIFICATION_TYPES.ATTENDANCE_ABSENT_STREAK,
+  NOTIFICATION_TYPES.PASSWORD_SETUP_REQUIRED,
+  NOTIFICATION_TYPES.ADMISSION_APPLICATION_RECEIVED,
+  NOTIFICATION_TYPES.ADMISSION_STATUS_CHANGED,
+  NOTIFICATION_TYPES.EXAM_RESULTS_PUBLISHED,
 ] as const;
 const WEEKDAY_ENUM = [
   WEEKDAY_KEYS.MONDAY,
@@ -171,7 +180,43 @@ const AUDIT_ENTITY_TYPE_ENUM = [
   AUDIT_ENTITY_TYPES.EXAM_MARKS,
   AUDIT_ENTITY_TYPES.FEE_PAYMENT,
   AUDIT_ENTITY_TYPES.STUDENT_ROLLOVER,
+  AUDIT_ENTITY_TYPES.STUDENT,
+  AUDIT_ENTITY_TYPES.STAFF,
+  AUDIT_ENTITY_TYPES.GUARDIAN,
+  AUDIT_ENTITY_TYPES.CLASS,
+  AUDIT_ENTITY_TYPES.SECTION,
+  AUDIT_ENTITY_TYPES.SUBJECT,
+  AUDIT_ENTITY_TYPES.CAMPUS,
+  AUDIT_ENTITY_TYPES.INSTITUTION_SETTINGS,
+  AUDIT_ENTITY_TYPES.FEE_STRUCTURE,
+  AUDIT_ENTITY_TYPES.FEE_ASSIGNMENT,
+  AUDIT_ENTITY_TYPES.ADMISSION_ENQUIRY,
+  AUDIT_ENTITY_TYPES.ADMISSION_APPLICATION,
+  AUDIT_ENTITY_TYPES.ANNOUNCEMENT,
+  AUDIT_ENTITY_TYPES.CALENDAR_EVENT,
+  AUDIT_ENTITY_TYPES.TIMETABLE,
+  AUDIT_ENTITY_TYPES.BELL_SCHEDULE,
+  AUDIT_ENTITY_TYPES.ACADEMIC_YEAR,
+  AUDIT_ENTITY_TYPES.DELIVERY_CONFIG,
+  AUDIT_ENTITY_TYPES.PAYMENT_CONFIG,
+  AUDIT_ENTITY_TYPES.PAYMENT_ORDER,
+  AUDIT_ENTITY_TYPES.HOMEWORK,
+  AUDIT_ENTITY_TYPES.LEAVE_TYPE,
+  AUDIT_ENTITY_TYPES.LEAVE_APPLICATION,
+  AUDIT_ENTITY_TYPES.LIBRARY_BOOK,
+  AUDIT_ENTITY_TYPES.LIBRARY_TRANSACTION,
+  AUDIT_ENTITY_TYPES.TRANSPORT_ROUTE,
+  AUDIT_ENTITY_TYPES.TRANSPORT_STOP,
+  AUDIT_ENTITY_TYPES.TRANSPORT_VEHICLE,
+  AUDIT_ENTITY_TYPES.TRANSPORT_ASSIGNMENT,
 ] as const;
+
+const TRANSPORT_ROUTE_STATUS_ENUM = ["active", "inactive"] as const;
+const TRANSPORT_STOP_STATUS_ENUM = ["active", "inactive"] as const;
+const TRANSPORT_VEHICLE_TYPE_ENUM = ["bus", "van", "auto"] as const;
+const TRANSPORT_VEHICLE_STATUS_ENUM = ["active", "inactive"] as const;
+const TRANSPORT_ASSIGNMENT_TYPE_ENUM = ["pickup", "dropoff", "both"] as const;
+const TRANSPORT_ASSIGNMENT_STATUS_ENUM = ["active", "inactive"] as const;
 
 export const academicYears = pgTable(
   "academic_years",
@@ -1175,6 +1220,7 @@ export const feeAssignments = pgTable(
       enum: FEE_ASSIGNMENT_STATUS_ENUM,
     }).notNull(),
     notes: text(),
+    lastReminderSentAt: timestamp(),
     createdAt: timestamp().notNull().defaultNow(),
     deletedAt: timestamp(),
   },
@@ -1183,6 +1229,7 @@ export const feeAssignments = pgTable(
     index("fee_assignments_structure_idx").on(table.feeStructureId),
     index("fee_assignments_student_idx").on(table.studentId),
     index("fee_assignments_due_date_idx").on(table.dueDate),
+    index("fee_assignments_last_reminder_idx").on(table.lastReminderSentAt),
     uniqueIndex("fee_assignments_student_installment_unique_idx")
       .on(table.studentId, table.installmentId)
       .where(
@@ -1208,6 +1255,8 @@ export const feePayments = pgTable(
     }).notNull(),
     referenceNumber: text(),
     notes: text(),
+    // Set when paymentMethod = 'online' — links to the payment_orders record
+    onlinePaymentOrderId: text(),
     createdAt: timestamp().notNull().defaultNow(),
     deletedAt: timestamp(),
   },
@@ -1345,5 +1394,296 @@ export const subjectTeacherAssignments = pgTable(
     uniqueIndex("subject_teacher_unique_idx")
       .on(t.membershipId, t.subjectId, t.classId)
       .where(sql`${t.deletedAt} IS NULL`),
+  ],
+);
+
+export const homework = pgTable(
+  "homework",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    classId: text()
+      .notNull()
+      .references(() => schoolClasses.id, { onDelete: "restrict" }),
+    sectionId: text()
+      .notNull()
+      .references(() => classSections.id, { onDelete: "restrict" }),
+    subjectId: text()
+      .notNull()
+      .references(() => subjects.id, { onDelete: "restrict" }),
+    createdByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    title: text().notNull(),
+    description: text(),
+    attachmentInstructions: text(),
+    dueDate: date().notNull(),
+    status: text({ enum: ["draft", "published"] })
+      .notNull()
+      .default("draft"),
+    publishedAt: timestamp(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    deletedAt: timestamp(),
+  },
+  (t) => [
+    index("homework_institution_idx").on(t.institutionId),
+    index("homework_class_section_idx").on(t.institutionId, t.classId, t.sectionId),
+    index("homework_subject_idx").on(t.subjectId),
+    index("homework_status_idx").on(t.status),
+    index("homework_due_date_idx").on(t.dueDate),
+    index("homework_created_by_idx").on(t.createdByMemberId),
+  ],
+);
+
+// ─── Library ─────────────────────────────────────────────────────────────────
+
+export const libraryBooks = pgTable(
+  "library_books",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    title: text().notNull(),
+    author: text(),
+    isbn: text(),
+    publisher: text(),
+    genre: text(),
+    totalCopies: integer().notNull().default(1),
+    availableCopies: integer().notNull().default(1),
+    status: text({ enum: ["active", "inactive"] }).notNull().default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("library_books_institution_idx").on(t.institutionId),
+    index("library_books_status_idx").on(t.status),
+  ],
+);
+
+export const libraryTransactions = pgTable(
+  "library_transactions",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    bookId: text()
+      .notNull()
+      .references(() => libraryBooks.id, { onDelete: "restrict" }),
+    memberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    issuedAt: timestamp().notNull().defaultNow(),
+    dueDate: date().notNull(),
+    returnedAt: timestamp(),
+    fineAmount: integer().notNull().default(0),
+    finePaid: boolean().notNull().default(false),
+    // issued = currently borrowed; returned = returned; overdue = past due date
+    status: text({ enum: ["issued", "returned", "overdue"] })
+      .notNull()
+      .default("issued"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("library_transactions_institution_idx").on(t.institutionId),
+    index("library_transactions_book_idx").on(t.bookId),
+    index("library_transactions_member_idx").on(t.memberId),
+    index("library_transactions_status_idx").on(t.status),
+  ],
+);
+
+// ─── Leave ────────────────────────────────────────────────────────────────────
+
+export const leaveTypes = pgTable(
+  "leave_types",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    name: text().notNull(),
+    maxDaysPerYear: integer(),
+    isPaid: boolean().notNull().default(true),
+    status: text({ enum: ["active", "inactive"] })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("leave_types_institution_idx").on(t.institutionId),
+    index("leave_types_status_idx").on(t.status),
+  ],
+);
+
+export const leaveApplications = pgTable(
+  "leave_applications",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    staffMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    leaveTypeId: text()
+      .notNull()
+      .references(() => leaveTypes.id, { onDelete: "restrict" }),
+    fromDate: date().notNull(),
+    toDate: date().notNull(),
+    daysCount: integer().notNull(),
+    reason: text(),
+    status: text({ enum: ["pending", "approved", "rejected", "cancelled"] })
+      .notNull()
+      .default("pending"),
+    reviewedByMemberId: text().references(() => member.id, {
+      onDelete: "restrict",
+    }),
+    reviewedAt: timestamp(),
+    reviewNote: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("leave_applications_institution_idx").on(t.institutionId),
+    index("leave_applications_staff_idx").on(t.staffMemberId),
+    index("leave_applications_leave_type_idx").on(t.leaveTypeId),
+    index("leave_applications_status_idx").on(t.status),
+    index("leave_applications_from_date_idx").on(t.fromDate),
+  ],
+);
+
+// ─── Transport ────────────────────────────────────────────────────────────────
+
+export const transportRoutes = pgTable(
+  "transport_routes",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    campusId: text().references(() => campus.id, { onDelete: "restrict" }),
+    name: text().notNull(),
+    description: text(),
+    status: text({ enum: TRANSPORT_ROUTE_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("transport_routes_institution_idx").on(t.institutionId),
+    index("transport_routes_campus_idx").on(t.campusId),
+    index("transport_routes_status_idx").on(t.status),
+  ],
+);
+
+export const transportStops = pgTable(
+  "transport_stops",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    routeId: text()
+      .notNull()
+      .references(() => transportRoutes.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    sequenceNumber: integer().notNull(),
+    pickupTime: text(),
+    dropTime: text(),
+    status: text({ enum: TRANSPORT_STOP_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("transport_stops_institution_idx").on(t.institutionId),
+    index("transport_stops_route_idx").on(t.routeId),
+    index("transport_stops_status_idx").on(t.status),
+    uniqueIndex("transport_stops_route_seq_unique_idx").on(t.routeId, t.sequenceNumber),
+  ],
+);
+
+export const transportVehicles = pgTable(
+  "transport_vehicles",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    registrationNumber: text().notNull(),
+    type: text({ enum: TRANSPORT_VEHICLE_TYPE_ENUM }).notNull(),
+    capacity: integer().notNull(),
+    driverName: text(),
+    driverContact: text(),
+    routeId: text().references(() => transportRoutes.id, {
+      onDelete: "set null",
+    }),
+    status: text({ enum: TRANSPORT_VEHICLE_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("transport_vehicles_institution_idx").on(t.institutionId),
+    index("transport_vehicles_route_idx").on(t.routeId),
+    index("transport_vehicles_status_idx").on(t.status),
+    uniqueIndex("transport_vehicles_reg_unique_idx").on(
+      t.institutionId,
+      t.registrationNumber,
+    ),
+  ],
+);
+
+export const studentTransportAssignments = pgTable(
+  "student_transport_assignments",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    studentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    routeId: text()
+      .notNull()
+      .references(() => transportRoutes.id, { onDelete: "restrict" }),
+    stopId: text()
+      .notNull()
+      .references(() => transportStops.id, { onDelete: "restrict" }),
+    assignmentType: text({ enum: TRANSPORT_ASSIGNMENT_TYPE_ENUM })
+      .notNull()
+      .default("both"),
+    startDate: date().notNull(),
+    endDate: date(),
+    status: text({ enum: TRANSPORT_ASSIGNMENT_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("student_transport_institution_idx").on(t.institutionId),
+    index("student_transport_student_idx").on(t.studentId),
+    index("student_transport_route_idx").on(t.routeId),
+    index("student_transport_stop_idx").on(t.stopId),
+    index("student_transport_status_idx").on(t.status),
+    uniqueIndex("student_transport_active_unique_idx")
+      .on(t.studentId)
+      .where(sql`${t.status} = 'active'`),
   ],
 );

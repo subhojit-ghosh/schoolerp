@@ -15,6 +15,10 @@ import {
   IconFileText,
   IconFolder,
   IconLayoutGrid,
+  IconCreditCard,
+  IconMailForward,
+  IconMap,
+  IconMapPin,
   IconMessageCircle,
   IconNotebook,
   IconPalette,
@@ -111,9 +115,8 @@ export const NAV_TEACHING: readonly NavItem[] = [
     url: ERP_ROUTES.EXAMS,
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconNotebook,
+    permission: PERMISSIONS.HOMEWORK_READ,
     title: "Homework",
     url: ERP_ROUTES.HOMEWORK,
   },
@@ -259,6 +262,42 @@ export const NAV_COMMUNICATION: readonly NavItem[] = [
   },
 ];
 
+export const NAV_LIBRARY: readonly NavItem[] = [
+  {
+    icon: IconBooks,
+    permission: PERMISSIONS.LIBRARY_READ,
+    title: "Books",
+    url: ERP_ROUTES.LIBRARY_BOOKS,
+  },
+  {
+    icon: IconBook2,
+    permission: PERMISSIONS.LIBRARY_READ,
+    title: "Transactions",
+    url: ERP_ROUTES.LIBRARY_TRANSACTIONS,
+  },
+];
+
+export const NAV_TRANSPORT: readonly NavItem[] = [
+  {
+    icon: IconMap,
+    permission: PERMISSIONS.TRANSPORT_READ,
+    title: "Routes",
+    url: ERP_ROUTES.TRANSPORT_ROUTES,
+  },
+  {
+    icon: IconTruck,
+    permission: PERMISSIONS.TRANSPORT_READ,
+    title: "Vehicles",
+    url: ERP_ROUTES.TRANSPORT_VEHICLES,
+  },
+  {
+    icon: IconMapPin,
+    permission: PERMISSIONS.TRANSPORT_READ,
+    title: "Assignments",
+    url: ERP_ROUTES.TRANSPORT_ASSIGNMENTS,
+  },
+];
+
 export const NAV_SERVICES: readonly NavItem[] = [
   {
     badgeLabel: "Planned",
@@ -299,11 +338,10 @@ export const NAV_HR: readonly NavItem[] = [
     url: ERP_ROUTES.STAFF_ATTENDANCE,
   },
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconCalendar,
+    permission: PERMISSIONS.LEAVE_READ,
     title: "Staff Leave",
-    url: ERP_ROUTES.STAFF_LEAVE,
+    url: ERP_ROUTES.LEAVE_APPLICATIONS,
   },
   {
     badgeLabel: "Later",
@@ -340,6 +378,18 @@ export const NAV_SETTINGS: readonly (NavItem & {
     permission: PERMISSIONS.INSTITUTION_ROLES_MANAGE,
     title: "Roles",
     url: ERP_ROUTES.SETTINGS_ROLES,
+  },
+  {
+    icon: IconMailForward,
+    permission: PERMISSIONS.INSTITUTION_DELIVERY_MANAGE,
+    title: "Delivery",
+    url: ERP_ROUTES.SETTINGS_DELIVERY,
+  },
+  {
+    icon: IconCreditCard,
+    permission: PERMISSIONS.INSTITUTION_PAYMENT_MANAGE,
+    title: "Payment",
+    url: ERP_ROUTES.SETTINGS_PAYMENT,
   },
   {
     icon: IconClipboardList,
