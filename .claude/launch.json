@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ERP Frontend (Vite + React)",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "dev:erp"],
+      "port": 3000
+    },
+    {
+      "name": "API Backend (NestJS)",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "dev:api-erp"],
+      "port": 4000
+    },
+    {
+      "name": "Web Frontend (Next.js)",
+      "runtimeExecutable": "bun",
+      "runtimeArgs": ["run", "dev:web"],
+      "port": 3001
+    }
+  ]
+}
