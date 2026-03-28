@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import { IconChevronLeft } from "@tabler/icons-react";
+import { IconCertificate, IconChevronLeft } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -40,7 +40,7 @@ import {
 import { StaffForm } from "@/features/staff/ui/staff-form";
 import { StaffRoleAssignmentsCard } from "@/features/staff/ui/staff-role-assignments-card";
 import { StaffSubjectAssignmentsCard } from "@/features/staff/ui/staff-subject-assignments-card";
-import { ERP_ROUTES } from "@/constants/routes";
+import { ERP_ROUTES, buildStaffIdCardRoute } from "@/constants/routes";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -317,6 +317,17 @@ export function StaffDetailPage() {
       <EntityDetailPageHeader
         actions={
           <div className="flex gap-2">
+            {staffId ? (
+              <Button asChild variant="outline">
+                <Link
+                  to={buildStaffIdCardRoute(staffId)}
+                  target="_blank"
+                >
+                  <IconCertificate className="size-4" />
+                  ID Card
+                </Link>
+              </Button>
+            ) : null}
             <Button
               onClick={() => setResetPasswordOpen(true)}
               size="sm"

@@ -11,4 +11,6 @@ export const DOCUMENT_TITLES = {
   TRANSFER_CERTIFICATE: "Transfer Certificate",
   BONAFIDE_CERTIFICATE: "Bonafide Certificate",
   CHARACTER_CERTIFICATE: "Character Certificate",
+  STUDENT_ID_CARD: "Student Identity Card",
+  STAFF_ID_CARD: "Staff Identity Card",
 } as const;

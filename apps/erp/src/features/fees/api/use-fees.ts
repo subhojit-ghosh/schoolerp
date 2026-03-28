@@ -361,3 +361,25 @@ export function useCollectionSummaryQuery(
     { enabled },
   );
 }
+
+// ── Fee Defaulters ────────────────────────────────────────────────────────
+
+export type FeeDefaultersQuery = {
+  academicYearId?: string;
+  campusId?: string;
+  classId?: string;
+  page?: number;
+  limit?: number;
+};
+
+export function useFeeDefaultersQuery(
+  enabled: boolean,
+  query: FeeDefaultersQuery = {},
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    FEES_API_PATHS.DEFAULTERS,
+    { params: { query } },
+    { enabled },
+  );
+}

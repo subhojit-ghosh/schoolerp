@@ -129,4 +129,9 @@ export const API_ROUTES = {
   ALLOCATIONS: "allocations",
   MESS_PLANS: "mess-plans",
   VACATE: "vacate",
+  STAFF_ATTENDANCE: "staff-attendance",
+  ROSTER: "roster",
+  REPORT: "report",
+  STUDENT_STRENGTH: "student-strength",
+  DEFAULTERS: "defaulters",
 } as const;

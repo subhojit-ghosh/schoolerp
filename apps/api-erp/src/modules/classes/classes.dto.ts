@@ -8,6 +8,8 @@ export class ClassSectionBodyDto {
 
   @ApiProperty()
   name!: string;
+
+  classTeacherMembershipId?: string;
 }
 
 export class ListClassesQueryDto {
@@ -62,6 +64,12 @@ export class ClassSectionDto {
 
   @ApiProperty()
   displayOrder!: number;
+
+  @ApiProperty({ nullable: true })
+  classTeacherMembershipId!: string | null;
+
+  @ApiProperty({ nullable: true })
+  classTeacherName!: string | null;
 }
 
 export class ArchivedClassSectionDto {

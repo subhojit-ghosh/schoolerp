@@ -26,6 +26,7 @@ import {
   useUpdateClassMutation,
 } from "@/features/classes/api/use-classes";
 import { ClassForm } from "@/features/classes/ui/class-form";
+import { useStaffQuery } from "@/features/staff/api/use-staff";
 import { ERP_ROUTES } from "@/constants/routes";
 import type { ClassFormValues } from "@/features/classes/model/class-form-schema";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
@@ -41,6 +42,19 @@ export function ClassDetailPage() {
   const classQuery = useClassQuery(canQueryClass, classId);
   const updateClassMutation = useUpdateClassMutation();
   const updateError = updateClassMutation.error as Error | null | undefined;
+  const staffQuery = useStaffQuery(institutionId, {
+    limit: 500,
+    status: ["active"],
+  });
+
+  const staffOptions = useMemo(
+    () =>
+      (staffQuery.data?.rows ?? []).map((staff) => ({
+        id: staff.id,
+        name: staff.name,
+      })),
+    [staffQuery.data?.rows],
+  );
 
   const defaultValues = useMemo<ClassFormValues>(() => {
     const schoolClass = classQuery.data;
@@ -54,6 +68,8 @@ export function ClassDetailPage() {
       sections: schoolClass.sections.map((section) => ({
         id: section.id,
         name: section.name,
+        classTeacherMembershipId:
+          section.classTeacherMembershipId ?? undefined,
       })),
     };
   }, [classQuery.data]);
@@ -175,6 +191,7 @@ export function ClassDetailPage() {
               errorMessage={updateError?.message}
               isPending={updateClassMutation.isPending}
               onSubmit={onSubmit}
+              staffOptions={staffOptions}
               submitLabel="Save changes"
             />
           </CardContent>
@@ -191,7 +208,14 @@ export function ClassDetailPage() {
             {schoolClass.sections.map((section, index) => (
               <div key={section.id} className="space-y-2">
                 <div className="flex items-center justify-between gap-3">
-                  <p className="text-sm font-medium">{section.name}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">{section.name}</p>
+                    {section.classTeacherName ? (
+                      <p className="text-xs text-muted-foreground">
+                        Class teacher: {section.classTeacherName}
+                      </p>
+                    ) : null}
+                  </div>
                   <Badge variant="outline">Section {index + 1}</Badge>
                 </div>
                 {index < schoolClass.sections.length - 1 ? <Separator /> : null}

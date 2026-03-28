@@ -36,6 +36,8 @@ import {
   BulkFeeAssignmentResultDto,
   CollectionSummaryDto,
   CollectionSummaryQueryDto,
+  FeeDefaulterQueryDto,
+  FeeDefaulterResultDto,
   CreateFeeAssignmentBodyDto,
   CreateFeeAssignmentResultDto,
   CreateFeeAdjustmentBodyDto,
@@ -60,6 +62,7 @@ import {
 import {
   parseBulkFeeAssignment,
   parseCollectionSummaryQuery,
+  parseFeeDefaulterQuery,
   parseCreateFeeAssignment,
   parseCreateFeeAdjustment,
   parseCreateFeePayment,
@@ -84,6 +87,7 @@ const ASSIGNMENT_REMIND_PATH = `${ASSIGNMENT_DETAIL_PATH}/${API_ROUTES.REMIND}`;
 const BULK_ASSIGNMENTS_PATH = `${API_ROUTES.ASSIGNMENTS}/${API_ROUTES.BULK}`;
 const PAYMENT_REVERSE_PATH = `${API_ROUTES.PAYMENTS}/:feePaymentId/${API_ROUTES.REVERSE}`;
 const COLLECTION_SUMMARY_PATH = `${API_ROUTES.REPORTS}/${API_ROUTES.COLLECTION_SUMMARY}`;
+const DEFAULTERS_PATH = `${API_ROUTES.REPORTS}/${API_ROUTES.DEFAULTERS}`;
 
 @ApiTags(API_DOCS.TAGS.FEES)
 @ApiCookieAuth()
@@ -497,6 +501,24 @@ export class FeesController {
       authSession,
       scopes,
       parseCollectionSummaryQuery(query),
+    );
+  }
+
+  @Get(DEFAULTERS_PATH)
+  @RequirePermission(PERMISSIONS.FEES_READ)
+  @ApiOperation({ summary: "Get fee defaulter report with overdue outstanding amounts" })
+  @ApiOkResponse({ type: FeeDefaulterResultDto })
+  getFeeDefaulters(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Query() query: FeeDefaulterQueryDto,
+  ) {
+    return this.feesService.getFeeDefaulters(
+      institution.id,
+      authSession,
+      scopes,
+      parseFeeDefaulterQuery(query),
     );
   }
 }

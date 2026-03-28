@@ -406,3 +406,49 @@ export class CreateFeeAssignmentResultDto {
   @ApiProperty({ type: FeeAssignmentDto, isArray: true })
   assignments!: FeeAssignmentDto[];
 }
+
+// ── Fee Defaulter Report ─────────────────────────────────────────────────────
+
+export class FeeDefaulterQueryDto {
+  @ApiPropertyOptional()
+  academicYearId?: string;
+
+  @ApiPropertyOptional()
+  campusId?: string;
+
+  @ApiPropertyOptional()
+  classId?: string;
+
+  @ApiPropertyOptional({ minimum: 1, type: Number })
+  page?: number;
+
+  @ApiPropertyOptional({ type: Number })
+  limit?: number;
+}
+
+export class FeeDefaulterRowDto {
+  studentId!: string;
+  studentName!: string;
+  admissionNumber!: string;
+  className!: string;
+  sectionName!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  campusName!: string | null;
+  totalAssignedInPaise!: number;
+  totalPaidInPaise!: number;
+  totalOutstandingInPaise!: number;
+  oldestDueDate!: string;
+  daysPastDue!: number;
+}
+
+export class FeeDefaulterResultDto {
+  @ApiProperty({ type: FeeDefaulterRowDto, isArray: true })
+  rows!: FeeDefaulterRowDto[];
+  total!: number;
+  page!: number;
+  pageSize!: number;
+  pageCount!: number;
+  summaryTotalOutstandingInPaise!: number;
+  summaryDefaulterCount!: number;
+}

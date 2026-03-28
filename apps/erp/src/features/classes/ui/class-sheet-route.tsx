@@ -17,6 +17,7 @@ import {
 import type { ClassFormValues } from "@/features/classes/model/class-form-schema";
 import { ClassForm } from "@/features/classes/ui/class-form";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { useStaffQuery } from "@/features/staff/api/use-staff";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -41,6 +42,19 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
   );
   const createClassMutation = useCreateClassMutation();
   const updateClassMutation = useUpdateClassMutation();
+  const staffQuery = useStaffQuery(institutionId, {
+    limit: 500,
+    status: ["active"],
+  });
+
+  const staffOptions = useMemo(
+    () =>
+      (staffQuery.data?.rows ?? []).map((staff) => ({
+        id: staff.id,
+        name: staff.name,
+      })),
+    [staffQuery.data?.rows],
+  );
 
   const defaultValues = useMemo<ClassFormValues>(() => {
     if (mode === "create" || !classQuery.data) {
@@ -52,6 +66,8 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
       sections: classQuery.data.sections.map((section) => ({
         id: section.id,
         name: section.name,
+        classTeacherMembershipId:
+          section.classTeacherMembershipId ?? undefined,
       })),
     };
   }, [classQuery.data, mode]);
@@ -154,6 +170,7 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
           void navigate(appendSearch(ERP_ROUTES.CLASSES, location.search));
         }}
         onSubmit={handleSubmit}
+        staffOptions={staffOptions}
         submitLabel={mode === "create" ? "Create class" : "Save changes"}
       />
     </RouteEntitySheet>

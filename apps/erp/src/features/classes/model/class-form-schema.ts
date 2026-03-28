@@ -9,6 +9,7 @@ const classSectionFormSchema = z.object({
     .string()
     .trim()
     .min(SECTION_NAME_MIN_LENGTH, "Section name is required"),
+  classTeacherMembershipId: z.string().optional(),
 });
 
 function hasUniqueSectionNames(

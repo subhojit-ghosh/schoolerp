@@ -42,6 +42,7 @@ import {
   ERP_ROUTES,
   buildStudentBonafideCertificateRoute,
   buildStudentCharacterCertificateRoute,
+  buildStudentIdCardRoute,
   buildStudentTransferCertificateRoute,
 } from "@/constants/routes";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
@@ -389,6 +390,15 @@ export function StudentDetailPage() {
                   >
                     <IconCertificate className="size-4" />
                     Character
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link
+                    to={buildStudentIdCardRoute(studentId)}
+                    target="_blank"
+                  >
+                    <IconCertificate className="size-4" />
+                    ID Card
                   </Link>
                 </Button>
               </>

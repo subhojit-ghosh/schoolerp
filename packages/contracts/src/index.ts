@@ -118,6 +118,8 @@ export const PERMISSIONS = {
   INVENTORY_MANAGE: "inventory:manage",
   HOSTEL_READ: "hostel:read",
   HOSTEL_MANAGE: "hostel:manage",
+  STAFF_ATTENDANCE_READ: "staff_attendance:read",
+  STAFF_ATTENDANCE_MANAGE: "staff_attendance:manage",
 } as const;
 
 export const DATA_EXCHANGE_ENTITY_TYPES = {
@@ -189,6 +191,7 @@ export const AUDIT_ENTITY_TYPES = {
   HOSTEL_ROOM: "hostel_room",
   BED_ALLOCATION: "bed_allocation",
   MESS_PLAN: "mess_plan",
+  STAFF_ATTENDANCE_DAY: "staff_attendance_day",
 } as const;
 
 export const DELIVERY_PROVIDERS = {
@@ -854,6 +857,31 @@ export type HostelRoomStatus = z.infer<typeof hostelRoomStatusSchema>;
 export type HostelRoomType = z.infer<typeof hostelRoomTypeSchema>;
 export type BedAllocationStatus = z.infer<typeof bedAllocationStatusSchema>;
 export type MessPlanStatus = z.infer<typeof messPlanStatusSchema>;
+
+// ── Staff Attendance ──────────────────────────────────────────────────────
+
+export const STAFF_ATTENDANCE_STATUSES = {
+  PRESENT: "present",
+  ABSENT: "absent",
+  HALF_DAY: "half_day",
+  ON_LEAVE: "on_leave",
+} as const;
+
+export const STAFF_ATTENDANCE_STATUS_LABELS = {
+  [STAFF_ATTENDANCE_STATUSES.PRESENT]: "Present",
+  [STAFF_ATTENDANCE_STATUSES.ABSENT]: "Absent",
+  [STAFF_ATTENDANCE_STATUSES.HALF_DAY]: "Half Day",
+  [STAFF_ATTENDANCE_STATUSES.ON_LEAVE]: "On Leave",
+} as const;
+
+export const staffAttendanceStatusSchema = z.enum([
+  STAFF_ATTENDANCE_STATUSES.PRESENT,
+  STAFF_ATTENDANCE_STATUSES.ABSENT,
+  STAFF_ATTENDANCE_STATUSES.HALF_DAY,
+  STAFF_ATTENDANCE_STATUSES.ON_LEAVE,
+]);
+
+export type StaffAttendanceStatus = z.infer<typeof staffAttendanceStatusSchema>;
 
 export const healthResponseSchema = z.object({
   status: z.string(),

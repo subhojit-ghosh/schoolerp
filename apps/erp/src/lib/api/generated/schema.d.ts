@@ -1708,6 +1708,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/fees/reports/defaulters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get fee defaulter report with overdue outstanding amounts */
+        get: operations["FeesController_getFeeDefaulters"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/family/overview": {
         parameters: {
             query?: never;
@@ -2980,6 +2997,91 @@ export interface paths {
         patch: operations["HostelController_updateMessPlanStatus"];
         trace?: never;
     };
+    "/staff-attendance/roster": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get staff attendance roster for a campus and date */
+        get: operations["StaffAttendanceController_getRoster"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-attendance/day": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create or update daily staff attendance for a campus */
+        post: operations["StaffAttendanceController_upsertDay"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-attendance/day-view": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get staff attendance summary across campuses for a date */
+        get: operations["StaffAttendanceController_getDayView"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff-attendance/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get staff attendance report for a campus over a date range */
+        get: operations["StaffAttendanceController_getReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/student-strength": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get student strength grouped by class and section */
+        get: operations["ReportsController_getStudentStrength"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/roles": {
         parameters: {
             query?: never;
@@ -3156,7 +3258,7 @@ export interface components {
             /** @enum {string} */
             action: "create" | "update" | "delete" | "mark" | "replace" | "reverse" | "execute";
             /** @enum {string} */
-            entityType: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction" | "transport_route" | "transport_stop" | "transport_vehicle" | "transport_assignment" | "salary_component" | "salary_template" | "staff_salary_assignment" | "payroll_run" | "payslip" | "inventory_category" | "inventory_item" | "stock_transaction" | "hostel_building" | "hostel_room" | "bed_allocation" | "mess_plan";
+            entityType: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction" | "transport_route" | "transport_stop" | "transport_vehicle" | "transport_assignment" | "salary_component" | "salary_template" | "staff_salary_assignment" | "payroll_run" | "payslip" | "inventory_category" | "inventory_item" | "stock_transaction" | "hostel_building" | "hostel_room" | "bed_allocation" | "mess_plan" | "staff_attendance_day";
             entityId?: string | null;
             entityLabel?: string | null;
             summary: string;
@@ -3251,7 +3353,7 @@ export interface components {
             activeOrganization: components["schemas"]["AuthOrganizationDto"] | null;
             availableContexts: components["schemas"]["AuthAccessContextDto"][];
             activeContext: components["schemas"]["AuthAccessContextDto"] | null;
-            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "audit:read" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage" | "institution:delivery:manage" | "institution:payment:manage" | "fees:payment:online" | "homework:read" | "homework:manage" | "leave:read" | "leave:manage" | "leave:apply" | "library:read" | "library:manage" | "transport:read" | "transport:manage" | "payroll:read" | "payroll:manage" | "inventory:read" | "inventory:manage" | "hostel:read" | "hostel:manage")[];
+            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "audit:read" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage" | "institution:delivery:manage" | "institution:payment:manage" | "fees:payment:online" | "homework:read" | "homework:manage" | "leave:read" | "leave:manage" | "leave:apply" | "library:read" | "library:manage" | "transport:read" | "transport:manage" | "payroll:read" | "payroll:manage" | "inventory:read" | "inventory:manage" | "hostel:read" | "hostel:manage" | "staff_attendance:read" | "staff_attendance:manage")[];
             activeStaffRoles: components["schemas"]["AuthStaffRoleDto"][];
             activeCampus: components["schemas"]["AuthCampusDto"] | null;
             campuses: components["schemas"]["AuthCampusDto"][];
@@ -3553,6 +3655,8 @@ export interface components {
             id: string;
             name: string;
             displayOrder: number;
+            classTeacherMembershipId: string | null;
+            classTeacherName: string | null;
         };
         ArchivedClassSectionDto: {
             id: string;
@@ -3580,6 +3684,7 @@ export interface components {
         ClassSectionBodyDto: {
             id?: string | null;
             name: string;
+            classTeacherMembershipId?: string;
         };
         CreateClassBodyDto: {
             name: string;
@@ -4609,6 +4714,28 @@ export interface components {
             totalPaidInPaise: number;
             totalOutstandingInPaise: number;
             overdueCount: number;
+        };
+        FeeDefaulterRowDto: {
+            campusName?: string | null;
+            studentId: string;
+            studentName: string;
+            admissionNumber: string;
+            className: string;
+            sectionName: string;
+            totalAssignedInPaise: number;
+            totalPaidInPaise: number;
+            totalOutstandingInPaise: number;
+            oldestDueDate: string;
+            daysPastDue: number;
+        };
+        FeeDefaulterResultDto: {
+            rows: components["schemas"]["FeeDefaulterRowDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+            summaryTotalOutstandingInPaise: number;
+            summaryDefaulterCount: number;
         };
         FamilyOverviewDto: {
             linkedStudents: components["schemas"]["AuthLinkedStudentDto"][];
@@ -5686,6 +5813,83 @@ export interface components {
             /** @enum {string} */
             status: "active" | "inactive";
         };
+        StaffRosterItemDto: {
+            designation: string | null;
+            /** @enum {string|null} */
+            status: "present" | "absent" | "half_day" | "on_leave" | null;
+            membershipId: string;
+            staffName: string;
+            notes?: string | null;
+        };
+        StaffAttendanceSummaryDto: {
+            present: number;
+            absent: number;
+            halfDay: number;
+            onLeave: number;
+            total: number;
+        };
+        StaffAttendanceDayDto: {
+            roster: components["schemas"]["StaffRosterItemDto"][];
+            summary: components["schemas"]["StaffAttendanceSummaryDto"];
+            attendanceDate: string;
+            campusId: string;
+            campusName: string;
+        };
+        StaffAttendanceEntryBodyDto: {
+            /** @enum {string} */
+            status: "present" | "absent" | "half_day" | "on_leave";
+            staffMembershipId: string;
+            notes?: string;
+        };
+        UpsertStaffAttendanceDayBodyDto: {
+            entries: components["schemas"]["StaffAttendanceEntryBodyDto"][];
+            campusId: string;
+            attendanceDate: string;
+        };
+        StaffAttendanceCampusSummaryDto: {
+            campusId: string;
+            campusName: string;
+            present: number;
+            absent: number;
+            halfDay: number;
+            onLeave: number;
+            total: number;
+            marked: boolean;
+        };
+        StaffAttendanceDayViewDto: {
+            campuses: components["schemas"]["StaffAttendanceCampusSummaryDto"][];
+            attendanceDate: string;
+        };
+        StaffAttendanceReportRowDto: {
+            designation: string | null;
+            membershipId: string;
+            staffName: string;
+            present: number;
+            absent: number;
+            halfDay: number;
+            onLeave: number;
+            totalMarkedDays: number;
+            attendancePercent: number;
+        };
+        StaffAttendanceReportDto: {
+            staff: components["schemas"]["StaffAttendanceReportRowDto"][];
+            campusId: string;
+            campusName: string;
+            fromDate: string;
+            toDate: string;
+        };
+        StudentStrengthRowDto: {
+            campusName?: string | null;
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            totalCount: number;
+        };
+        StudentStrengthResultDto: {
+            rows: components["schemas"]["StudentStrengthRowDto"][];
+            grandTotal: number;
+        };
         RolePermissionDto: {
             id: string;
             slug: string;
@@ -5834,7 +6038,7 @@ export interface operations {
                 sort?: "createdAt" | "action" | "entityType" | "actor";
                 order?: "asc" | "desc";
                 action?: "create" | "update" | "delete" | "mark" | "replace" | "reverse" | "execute";
-                entityType?: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction" | "transport_route" | "transport_stop" | "transport_vehicle" | "transport_assignment" | "salary_component" | "salary_template" | "staff_salary_assignment" | "payroll_run" | "payslip" | "inventory_category" | "inventory_item" | "stock_transaction" | "hostel_building" | "hostel_room" | "bed_allocation" | "mess_plan";
+                entityType?: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction" | "transport_route" | "transport_stop" | "transport_vehicle" | "transport_assignment" | "salary_component" | "salary_template" | "staff_salary_assignment" | "payroll_run" | "payslip" | "inventory_category" | "inventory_item" | "stock_transaction" | "hostel_building" | "hostel_room" | "bed_allocation" | "mess_plan" | "staff_attendance_day";
                 actorUserId?: string;
             };
             header?: never;
@@ -8906,6 +9110,31 @@ export interface operations {
             };
         };
     };
+    FeesController_getFeeDefaulters: {
+        parameters: {
+            query?: {
+                academicYearId?: string;
+                campusId?: string;
+                classId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeeDefaulterResultDto"];
+                };
+            };
+        };
+    };
     FamilyController_getOverview: {
         parameters: {
             query?: {
@@ -11391,6 +11620,117 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MessPlanDto"];
+                };
+            };
+        };
+    };
+    StaffAttendanceController_getRoster: {
+        parameters: {
+            query: {
+                campusId: string;
+                attendanceDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffAttendanceDayDto"];
+                };
+            };
+        };
+    };
+    StaffAttendanceController_upsertDay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertStaffAttendanceDayBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffAttendanceDayDto"];
+                };
+            };
+        };
+    };
+    StaffAttendanceController_getDayView: {
+        parameters: {
+            query: {
+                attendanceDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffAttendanceDayViewDto"];
+                };
+            };
+        };
+    };
+    StaffAttendanceController_getReport: {
+        parameters: {
+            query: {
+                campusId: string;
+                fromDate: string;
+                toDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffAttendanceReportDto"];
+                };
+            };
+        };
+    };
+    ReportsController_getStudentStrength: {
+        parameters: {
+            query?: {
+                academicYearId?: string;
+                campusId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentStrengthResultDto"];
                 };
             };
         };

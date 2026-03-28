@@ -147,7 +147,8 @@
                 "hostel_building",
                 "hostel_room",
                 "bed_allocation",
-                "mess_plan"
+                "mess_plan",
+                "staff_attendance_day"
               ]
             }
           },
@@ -5952,6 +5953,75 @@
         ]
       }
     },
+    "/fees/reports/defaulters": {
+      "get": {
+        "operationId": "FeesController_getFeeDefaulters",
+        "parameters": [
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeeDefaulterResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get fee defaulter report with overdue outstanding amounts",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
     "/family/overview": {
       "get": {
         "operationId": "FamilyController_getOverview",
@@ -11366,6 +11436,219 @@
         ]
       }
     },
+    "/staff-attendance/roster": {
+      "get": {
+        "operationId": "StaffAttendanceController_getRoster",
+        "parameters": [
+          {
+            "name": "campusId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "attendanceDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffAttendanceDayDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get staff attendance roster for a campus and date",
+        "tags": [
+          "staff-attendance"
+        ]
+      }
+    },
+    "/staff-attendance/day": {
+      "post": {
+        "operationId": "StaffAttendanceController_upsertDay",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpsertStaffAttendanceDayBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffAttendanceDayDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create or update daily staff attendance for a campus",
+        "tags": [
+          "staff-attendance"
+        ]
+      }
+    },
+    "/staff-attendance/day-view": {
+      "get": {
+        "operationId": "StaffAttendanceController_getDayView",
+        "parameters": [
+          {
+            "name": "attendanceDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffAttendanceDayViewDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get staff attendance summary across campuses for a date",
+        "tags": [
+          "staff-attendance"
+        ]
+      }
+    },
+    "/staff-attendance/report": {
+      "get": {
+        "operationId": "StaffAttendanceController_getReport",
+        "parameters": [
+          {
+            "name": "campusId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "toDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffAttendanceReportDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get staff attendance report for a campus over a date range",
+        "tags": [
+          "staff-attendance"
+        ]
+      }
+    },
+    "/reports/student-strength": {
+      "get": {
+        "operationId": "ReportsController_getStudentStrength",
+        "parameters": [
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentStrengthResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get student strength grouped by class and section",
+        "tags": [
+          "reports"
+        ]
+      }
+    },
     "/roles": {
       "get": {
         "operationId": "RolesController_listRoles",
@@ -11982,7 +12265,8 @@
               "hostel_building",
               "hostel_room",
               "bed_allocation",
-              "mess_plan"
+              "mess_plan",
+              "staff_attendance_day"
             ]
           },
           "entityId": {
@@ -12424,7 +12708,9 @@
                 "inventory:read",
                 "inventory:manage",
                 "hostel:read",
-                "hostel:manage"
+                "hostel:manage",
+                "staff_attendance:read",
+                "staff_attendance:manage"
               ]
             }
           },
@@ -13661,12 +13947,22 @@
           },
           "displayOrder": {
             "type": "number"
+          },
+          "classTeacherMembershipId": {
+            "type": "string",
+            "nullable": true
+          },
+          "classTeacherName": {
+            "type": "string",
+            "nullable": true
           }
         },
         "required": [
           "id",
           "name",
-          "displayOrder"
+          "displayOrder",
+          "classTeacherMembershipId",
+          "classTeacherName"
         ]
       },
       "ArchivedClassSectionDto": {
@@ -13776,6 +14072,9 @@
             "nullable": true
           },
           "name": {
+            "type": "string"
+          },
+          "classTeacherMembershipId": {
             "type": "string"
           }
         },
@@ -17930,6 +18229,95 @@
           "totalPaidInPaise",
           "totalOutstandingInPaise",
           "overdueCount"
+        ]
+      },
+      "FeeDefaulterRowDto": {
+        "type": "object",
+        "properties": {
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "totalAssignedInPaise": {
+            "type": "number"
+          },
+          "totalPaidInPaise": {
+            "type": "number"
+          },
+          "totalOutstandingInPaise": {
+            "type": "number"
+          },
+          "oldestDueDate": {
+            "type": "string"
+          },
+          "daysPastDue": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "studentId",
+          "studentName",
+          "admissionNumber",
+          "className",
+          "sectionName",
+          "totalAssignedInPaise",
+          "totalPaidInPaise",
+          "totalOutstandingInPaise",
+          "oldestDueDate",
+          "daysPastDue"
+        ]
+      },
+      "FeeDefaulterResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeeDefaulterRowDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          },
+          "summaryTotalOutstandingInPaise": {
+            "type": "number"
+          },
+          "summaryDefaulterCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount",
+          "summaryTotalOutstandingInPaise",
+          "summaryDefaulterCount"
         ]
       },
       "FamilyOverviewDto": {
@@ -22225,6 +22613,324 @@
         },
         "required": [
           "status"
+        ]
+      },
+      "StaffRosterItemDto": {
+        "type": "object",
+        "properties": {
+          "designation": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "present",
+              "absent",
+              "half_day",
+              "on_leave"
+            ]
+          },
+          "membershipId": {
+            "type": "string"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "designation",
+          "status",
+          "membershipId",
+          "staffName"
+        ]
+      },
+      "StaffAttendanceSummaryDto": {
+        "type": "object",
+        "properties": {
+          "present": {
+            "type": "number"
+          },
+          "absent": {
+            "type": "number"
+          },
+          "halfDay": {
+            "type": "number"
+          },
+          "onLeave": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "present",
+          "absent",
+          "halfDay",
+          "onLeave",
+          "total"
+        ]
+      },
+      "StaffAttendanceDayDto": {
+        "type": "object",
+        "properties": {
+          "roster": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffRosterItemDto"
+            }
+          },
+          "summary": {
+            "$ref": "#/components/schemas/StaffAttendanceSummaryDto"
+          },
+          "attendanceDate": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "roster",
+          "summary",
+          "attendanceDate",
+          "campusId",
+          "campusName"
+        ]
+      },
+      "StaffAttendanceEntryBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "present",
+              "absent",
+              "half_day",
+              "on_leave"
+            ]
+          },
+          "staffMembershipId": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "staffMembershipId"
+        ]
+      },
+      "UpsertStaffAttendanceDayBodyDto": {
+        "type": "object",
+        "properties": {
+          "entries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffAttendanceEntryBodyDto"
+            }
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "attendanceDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "entries",
+          "campusId",
+          "attendanceDate"
+        ]
+      },
+      "StaffAttendanceCampusSummaryDto": {
+        "type": "object",
+        "properties": {
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "present": {
+            "type": "number"
+          },
+          "absent": {
+            "type": "number"
+          },
+          "halfDay": {
+            "type": "number"
+          },
+          "onLeave": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          },
+          "marked": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "campusId",
+          "campusName",
+          "present",
+          "absent",
+          "halfDay",
+          "onLeave",
+          "total",
+          "marked"
+        ]
+      },
+      "StaffAttendanceDayViewDto": {
+        "type": "object",
+        "properties": {
+          "campuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffAttendanceCampusSummaryDto"
+            }
+          },
+          "attendanceDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "campuses",
+          "attendanceDate"
+        ]
+      },
+      "StaffAttendanceReportRowDto": {
+        "type": "object",
+        "properties": {
+          "designation": {
+            "type": "string",
+            "nullable": true
+          },
+          "membershipId": {
+            "type": "string"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "present": {
+            "type": "number"
+          },
+          "absent": {
+            "type": "number"
+          },
+          "halfDay": {
+            "type": "number"
+          },
+          "onLeave": {
+            "type": "number"
+          },
+          "totalMarkedDays": {
+            "type": "number"
+          },
+          "attendancePercent": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "designation",
+          "membershipId",
+          "staffName",
+          "present",
+          "absent",
+          "halfDay",
+          "onLeave",
+          "totalMarkedDays",
+          "attendancePercent"
+        ]
+      },
+      "StaffAttendanceReportDto": {
+        "type": "object",
+        "properties": {
+          "staff": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffAttendanceReportRowDto"
+            }
+          },
+          "campusId": {
+            "type": "string"
+          },
+          "campusName": {
+            "type": "string"
+          },
+          "fromDate": {
+            "type": "string"
+          },
+          "toDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "staff",
+          "campusId",
+          "campusName",
+          "fromDate",
+          "toDate"
+        ]
+      },
+      "StudentStrengthRowDto": {
+        "type": "object",
+        "properties": {
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "classId": {
+            "type": "string"
+          },
+          "className": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "sectionName": {
+            "type": "string"
+          },
+          "totalCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "classId",
+          "className",
+          "sectionId",
+          "sectionName",
+          "totalCount"
+        ]
+      },
+      "StudentStrengthResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentStrengthRowDto"
+            }
+          },
+          "grandTotal": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "grandTotal"
         ]
       },
       "RolePermissionDto": {

@@ -1,0 +1,2 @@
+ALTER TABLE "sections" ADD COLUMN "class_teacher_membership_id" text;--> statement-breakpoint
+ALTER TABLE "sections" ADD CONSTRAINT "sections_class_teacher_membership_id_member_id_fk" FOREIGN KEY ("class_teacher_membership_id") REFERENCES "public"."member"("id") ON DELETE set null ON UPDATE no action;

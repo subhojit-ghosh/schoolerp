@@ -167,6 +167,14 @@ export const collectionSummaryQuerySchema = z.object({
   academicYearId: z.uuid().optional(),
 });
 
+export const feeDefaulterQuerySchema = z.object({
+  academicYearId: z.uuid().optional(),
+  campusId: z.uuid().optional(),
+  classId: z.uuid().optional(),
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().optional(),
+});
+
 export type CreateFeeStructureDto = z.infer<typeof createFeeStructureSchema>;
 export type UpdateFeeStructureDto = z.infer<typeof updateFeeStructureSchema>;
 export type CreateFeeAssignmentDto = z.infer<typeof createFeeAssignmentSchema>;
@@ -205,6 +213,8 @@ export type ListFeeDuesQueryDto = Omit<ListFeeDuesQueryInput, "q"> & {
 export type CollectionSummaryQueryDto = z.infer<
   typeof collectionSummaryQuerySchema
 >;
+
+export type FeeDefaulterQueryInput = z.infer<typeof feeDefaulterQuerySchema>;
 
 function parseWithBadRequest<T>(schema: z.ZodType<T>, input: unknown) {
   const result = schema.safeParse(input);
@@ -301,4 +311,10 @@ export function parseCollectionSummaryQuery(
   query: unknown,
 ): CollectionSummaryQueryDto {
   return parseWithBadRequest(collectionSummaryQuerySchema, query);
+}
+
+export function parseFeeDefaulterQuery(
+  query: unknown,
+): FeeDefaulterQueryInput {
+  return parseWithBadRequest(feeDefaulterQuerySchema, query);
 }

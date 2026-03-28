@@ -22,6 +22,7 @@ import {
   and,
   asc,
   campus,
+  classSections,
   count,
   desc,
   eq,
@@ -31,6 +32,7 @@ import {
   feePaymentReversals,
   feeStructureInstallments,
   feeStructures,
+  gt,
   ilike,
   inArray,
   isNotNull,
@@ -39,6 +41,7 @@ import {
   member,
   ne,
   or,
+  schoolClasses,
   sql,
   students,
   type SQL,
@@ -73,6 +76,7 @@ import type {
 import {
   sortableFeeAssignmentColumns,
   sortableFeeStructureColumns,
+  type FeeDefaulterQueryInput,
 } from "./fees.schemas";
 
 type PaymentSummary = {
@@ -1686,6 +1690,208 @@ export class FeesService {
       totalOutstandingInPaise,
       overdueCount: Number(overdueRow?.overdueCount ?? 0),
       byStructure,
+    };
+  }
+
+  // ── Fee Defaulters ──────────────────────────────────────────────────────────
+
+  async getFeeDefaulters(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    query: FeeDefaulterQueryInput,
+  ) {
+    const today = new Date().toISOString().split("T")[0];
+    const scopedCampusId = authSession.activeCampusId ?? undefined;
+    const campusFilter = campusScopeFilter(member.primaryCampusId, scopes);
+    const paymentSummaryByAssignment = this.buildPaymentSummarySubquery();
+    const adjustmentSummaryByAssignment = this.buildAdjustmentSummarySubquery();
+
+    const conditions: SQL[] = [
+      eq(feeAssignments.institutionId, institutionId),
+      ne(feeStructures.status, STATUS.FEE_STRUCTURE.DELETED),
+      ne(member.status, STATUS.MEMBER.DELETED),
+      lt(feeAssignments.dueDate, today),
+    ];
+
+    if (query.academicYearId) {
+      conditions.push(eq(feeStructures.academicYearId, query.academicYearId));
+    }
+    if (query.campusId) {
+      conditions.push(eq(member.primaryCampusId, query.campusId));
+    } else if (scopedCampusId) {
+      conditions.push(eq(member.primaryCampusId, scopedCampusId));
+    } else if (campusFilter) {
+      conditions.push(campusFilter);
+    }
+    if (query.classId) {
+      conditions.push(eq(students.classId, query.classId));
+    }
+
+    // CTE-style: build the student-aggregated defaulter subquery
+    const outstandingExpr = sql<number>`
+      ${feeAssignments.assignedAmountInPaise}
+      - coalesce(${paymentSummaryByAssignment.totalPaidAmountInPaise}, 0)
+      - coalesce(${adjustmentSummaryByAssignment.totalAdjustmentAmountInPaise}, 0)
+    `;
+
+    // Condition: outstanding > 0
+    conditions.push(gt(outstandingExpr, 0));
+
+    const where = and(...conditions)!;
+
+    // First, get the total count of defaulter students
+    const [countRow] = await this.database
+      .selectDistinctOn([students.id], {
+        studentId: students.id,
+      })
+      .from(feeAssignments)
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
+      .innerJoin(students, eq(feeAssignments.studentId, students.id))
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .leftJoin(
+        paymentSummaryByAssignment,
+        eq(paymentSummaryByAssignment.feeAssignmentId, feeAssignments.id),
+      )
+      .leftJoin(
+        adjustmentSummaryByAssignment,
+        eq(adjustmentSummaryByAssignment.feeAssignmentId, feeAssignments.id),
+      )
+      .where(where);
+
+    // Use a different approach: group by student to get summary
+    const defaulterAggQuery = this.database
+      .select({
+        studentId: students.id,
+        studentFirstName: students.firstName,
+        studentLastName: students.lastName,
+        admissionNumber: students.admissionNumber,
+        classId: students.classId,
+        className: schoolClasses.name,
+        sectionName: classSections.name,
+        campusName: campus.name,
+        totalAssignedInPaise:
+          sql<number>`coalesce(sum(${feeAssignments.assignedAmountInPaise}), 0)`.as(
+            "total_assigned",
+          ),
+        totalPaidInPaise:
+          sql<number>`coalesce(sum(coalesce(${paymentSummaryByAssignment.totalPaidAmountInPaise}, 0)), 0)`.as(
+            "total_paid",
+          ),
+        totalAdjustedInPaise:
+          sql<number>`coalesce(sum(coalesce(${adjustmentSummaryByAssignment.totalAdjustmentAmountInPaise}, 0)), 0)`.as(
+            "total_adjusted",
+          ),
+        oldestDueDate: sql<string>`min(${feeAssignments.dueDate})`.as(
+          "oldest_due_date",
+        ),
+      })
+      .from(feeAssignments)
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
+      .innerJoin(students, eq(feeAssignments.studentId, students.id))
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
+      .leftJoin(campus, eq(member.primaryCampusId, campus.id))
+      .leftJoin(
+        paymentSummaryByAssignment,
+        eq(paymentSummaryByAssignment.feeAssignmentId, feeAssignments.id),
+      )
+      .leftJoin(
+        adjustmentSummaryByAssignment,
+        eq(adjustmentSummaryByAssignment.feeAssignmentId, feeAssignments.id),
+      )
+      .where(where)
+      .groupBy(
+        students.id,
+        students.firstName,
+        students.lastName,
+        students.admissionNumber,
+        students.classId,
+        schoolClasses.name,
+        schoolClasses.displayOrder,
+        classSections.name,
+        campus.name,
+      )
+      .having(
+        gt(
+          sql<number>`sum(${feeAssignments.assignedAmountInPaise}) - coalesce(sum(coalesce(${paymentSummaryByAssignment.totalPaidAmountInPaise}, 0)), 0) - coalesce(sum(coalesce(${adjustmentSummaryByAssignment.totalAdjustmentAmountInPaise}, 0)), 0)`,
+          0,
+        ),
+      )
+      .orderBy(
+        desc(
+          sql`sum(${feeAssignments.assignedAmountInPaise}) - coalesce(sum(coalesce(${paymentSummaryByAssignment.totalPaidAmountInPaise}, 0)), 0) - coalesce(sum(coalesce(${adjustmentSummaryByAssignment.totalAdjustmentAmountInPaise}, 0)), 0)`,
+        ),
+      );
+
+    // Get total count using a wrapping approach
+    const allDefaulterRows = await defaulterAggQuery;
+    const total = allDefaulterRows.length;
+    const pageSize = resolveTablePageSize(query.limit);
+    const { page, pageCount, offset } = resolvePagination(
+      total,
+      query.page,
+      pageSize,
+    );
+    const paginatedRows = allDefaulterRows.slice(offset, offset + pageSize);
+
+    const summaryTotalOutstandingInPaise = allDefaulterRows.reduce(
+      (sum, row) =>
+        sum +
+        Number(row.totalAssignedInPaise) -
+        Number(row.totalPaidInPaise) -
+        Number(row.totalAdjustedInPaise),
+      0,
+    );
+
+    const rows = paginatedRows.map((row) => {
+      const totalAssigned = Number(row.totalAssignedInPaise);
+      const totalPaid = Number(row.totalPaidInPaise);
+      const totalAdjusted = Number(row.totalAdjustedInPaise);
+      const outstanding = totalAssigned - totalPaid - totalAdjusted;
+      const oldestDueDate = String(row.oldestDueDate);
+      const daysOverdue = Math.max(
+        0,
+        Math.floor(
+          (Date.now() - new Date(`${oldestDueDate}T00:00:00`).getTime()) /
+            (1000 * 60 * 60 * 24),
+        ),
+      );
+
+      const fullName = row.studentLastName
+        ? `${row.studentFirstName} ${row.studentLastName}`
+        : row.studentFirstName;
+
+      return {
+        studentId: row.studentId,
+        studentName: fullName,
+        admissionNumber: row.admissionNumber,
+        className: row.className,
+        sectionName: row.sectionName,
+        campusName: row.campusName ?? null,
+        totalAssignedInPaise: totalAssigned,
+        totalPaidInPaise: totalPaid,
+        totalOutstandingInPaise: outstanding,
+        oldestDueDate,
+        daysPastDue: daysOverdue,
+      };
+    });
+
+    return {
+      rows,
+      total,
+      page,
+      pageSize,
+      pageCount,
+      summaryTotalOutstandingInPaise,
+      summaryDefaulterCount: total,
     };
   }
 

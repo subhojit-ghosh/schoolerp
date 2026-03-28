@@ -17,12 +17,27 @@ import {
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
+import {
   classFormSchema,
   type ClassFormValues,
 } from "@/features/classes/model/class-form-schema";
 
 const EMPTY_SECTION: ClassFormValues["sections"][number] = {
   name: "",
+  classTeacherMembershipId: undefined,
+};
+
+const NO_CLASS_TEACHER_VALUE = "__none__";
+
+type StaffOption = {
+  id: string;
+  name: string;
 };
 
 type ClassFormProps = {
@@ -35,6 +50,7 @@ type ClassFormProps = {
   isPending?: boolean;
   onCancel?: () => void;
   onSubmit: (values: ClassFormValues) => Promise<void> | void;
+  staffOptions?: StaffOption[];
   submitLabel: string;
 };
 
@@ -45,6 +61,7 @@ export function ClassForm({
   isPending = false,
   onCancel,
   onSubmit,
+  staffOptions = [],
   submitLabel,
 }: ClassFormProps) {
   const { control, handleSubmit, reset, formState } = useForm<ClassFormValues>({
@@ -190,7 +207,7 @@ export function ClassForm({
                   name={`sections.${index}.name`}
                   render={({ field, fieldState }) => (
                     <Field
-                      className="flex-1"
+                      className="flex-1 min-w-0"
                       data-invalid={fieldState.invalid || undefined}
                     >
                       <FieldContent>
@@ -206,6 +223,38 @@ export function ClassForm({
                     </Field>
                   )}
                 />
+                {staffOptions.length > 0 ? (
+                  <Controller
+                    control={control}
+                    name={`sections.${index}.classTeacherMembershipId`}
+                    render={({ field }) => (
+                      <Select
+                        onValueChange={(value) =>
+                          field.onChange(
+                            value === NO_CLASS_TEACHER_VALUE
+                              ? undefined
+                              : value,
+                          )
+                        }
+                        value={field.value ?? NO_CLASS_TEACHER_VALUE}
+                      >
+                        <SelectTrigger className="h-8 w-[180px] shrink-0">
+                          <SelectValue placeholder="Class teacher" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={NO_CLASS_TEACHER_VALUE}>
+                            No class teacher
+                          </SelectItem>
+                          {staffOptions.map((staff) => (
+                            <SelectItem key={staff.id} value={staff.id}>
+                              {staff.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                ) : null}
                 <EntityRowAction
                   className="shrink-0"
                   disabled={sectionsFieldArray.fields.length === 1}

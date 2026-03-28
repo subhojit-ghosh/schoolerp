@@ -65,6 +65,8 @@ import { CampusSheetRoute } from "@/features/campuses/ui/campus-sheet-route";
 import { ClassSheetRoute } from "@/features/classes/ui/class-sheet-route";
 import { RoleSheetRoute } from "@/features/roles/ui/role-sheet-route";
 import { AttendanceReportsPage } from "@/routes/reports/attendance-report-page";
+import { StudentStrengthPage } from "@/routes/reports/student-strength-page";
+import { FeeDefaultersPage } from "@/routes/operations/fee-defaulters-page";
 import { AdmissionApplicationSheetRoute } from "@/features/admissions/ui/admission-application-sheet-route";
 import { AdmissionEnquirySheetRoute } from "@/features/admissions/ui/admission-enquiry-sheet-route";
 import { SubjectSheetRoute } from "@/features/subjects/ui/subject-sheet-route";
@@ -126,9 +128,13 @@ import { BonafideCertificatePage } from "@/routes/documents/bonafide-certificate
 import { CharacterCertificatePage } from "@/routes/documents/character-certificate-page";
 import { ExamReportCardPage } from "@/routes/documents/exam-report-card-page";
 import { FeeReceiptPage } from "@/routes/documents/fee-receipt-page";
+import { StaffIdCardPage } from "@/routes/documents/staff-id-card-page";
+import { StudentIdCardPage } from "@/routes/documents/student-id-card-page";
 import { TransferCertificatePage } from "@/routes/documents/transfer-certificate-page";
 import { AccountPage } from "@/routes/account/account-page";
 import { SetupWizardPage } from "@/routes/setup/setup-wizard-page";
+import { StaffAttendancePage } from "@/routes/staff-attendance/staff-attendance-page";
+import { StaffAttendanceReportPage } from "@/routes/staff-attendance/staff-attendance-report-page";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -228,6 +234,24 @@ const router = createBrowserRouter([
     element: (
       <RequireSession>
         <CharacterCertificatePage />
+      </RequireSession>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.DOCUMENT_STUDENT_ID_CARD,
+    element: (
+      <RequireSession>
+        <StudentIdCardPage />
+      </RequireSession>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.DOCUMENT_STAFF_ID_CARD,
+    element: (
+      <RequireSession>
+        <StaffIdCardPage />
       </RequireSession>
     ),
     errorElement: <RouteErrorBoundary />,
@@ -531,6 +555,15 @@ const router = createBrowserRouter([
           },
         ],
       },
+      // ── Staff Attendance ──────────────────────────────────────────────
+      {
+        path: ERP_ROUTES.STAFF_ATTENDANCE,
+        element: <StaffAttendancePage />,
+      },
+      {
+        path: ERP_ROUTES.STAFF_ATTENDANCE_REPORT,
+        element: <StaffAttendanceReportPage />,
+      },
       // ── Payroll ──────────────────────────────────────────────────────
       {
         path: ERP_ROUTES.PAYROLL_SALARY_COMPONENTS,
@@ -713,6 +746,10 @@ const router = createBrowserRouter([
         path: ERP_ROUTES.REPORTS_ATTENDANCE,
         element: <AttendanceReportsPage />,
       },
+      {
+        path: ERP_ROUTES.REPORTS_STUDENT_STRENGTH,
+        element: <StudentStrengthPage />,
+      },
       { path: ERP_ROUTES.EXAMS, element: <ExamsPage /> },
       {
         path: ERP_ROUTES.FEES,
@@ -755,6 +792,7 @@ const router = createBrowserRouter([
       },
       { path: ERP_ROUTES.FEE_DUES, element: <FeeDuesPage /> },
       { path: ERP_ROUTES.FEE_REPORTS, element: <FeeReportsPage /> },
+      { path: ERP_ROUTES.FEE_DEFAULTERS, element: <FeeDefaultersPage /> },
       {
         path: ERP_ROUTES.SETTINGS_CAMPUSES,
         element: <CampusesPage />,

@@ -84,6 +84,7 @@ export const ERP_ROUTES = {
   FEE_ASSIGNMENT_RECEIPT: `/fees/assignments/:feeAssignmentId/${ERP_ROUTE_SEGMENTS.RECEIPT}`,
   FEE_DUES: "/fees/dues",
   FEE_REPORTS: "/fees/reports",
+  FEE_DEFAULTERS: "/fees/reports/defaulters",
   FEE_LEDGER: "/fees/ledger",
   // Communication
   MESSAGES: "/messages",
@@ -96,6 +97,7 @@ export const ERP_ROUTES = {
   REPORTS_FEES: "/reports/fees",
   REPORTS_ADMISSIONS: "/reports/admissions",
   REPORTS_STUDENTS: "/reports/students",
+  REPORTS_STUDENT_STRENGTH: "/reports/student-strength",
   // Library
   LIBRARY: "/library",
   LIBRARY_BOOKS: "/library/books",
@@ -118,6 +120,7 @@ export const ERP_ROUTES = {
   TRANSPORT_ASSIGNMENTS_EDIT: `/transport/assignments/:assignmentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   STAFF_LEAVE: "/staff/leave",
   STAFF_ATTENDANCE: "/staff/attendance",
+  STAFF_ATTENDANCE_REPORT: "/staff/attendance/report",
   INVENTORY: "/inventory",
   INVENTORY_CATEGORIES: "/inventory/categories",
   INVENTORY_CATEGORY_CREATE: `/inventory/categories/${ERP_ROUTE_SEGMENTS.NEW}`,
@@ -159,6 +162,8 @@ export const ERP_ROUTES = {
   HOSTEL_MESS_PLANS: "/hostel/mess-plans",
   HOSTEL_MESS_PLAN_CREATE: `/hostel/mess-plans/${ERP_ROUTE_SEGMENTS.NEW}`,
   HOSTEL_MESS_PLAN_EDIT: `/hostel/mess-plans/:planId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  DOCUMENT_STUDENT_ID_CARD: "/documents/student-id-card/:studentId",
+  DOCUMENT_STAFF_ID_CARD: "/documents/staff-id-card/:staffId",
   DOCUMENTS: "/documents",
   CERTIFICATES: "/certificates",
   // Parent portal
@@ -376,4 +381,12 @@ export function buildHostelRoomEditRoute(roomId: string) {
 
 export function buildHostelMessPlanEditRoute(planId: string) {
   return `/hostel/mess-plans/${planId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildStudentIdCardRoute(studentId: string) {
+  return `/documents/student-id-card/${studentId}`;
+}
+
+export function buildStaffIdCardRoute(staffId: string) {
+  return `/documents/staff-id-card/${staffId}`;
 }

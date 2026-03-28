@@ -19,6 +19,7 @@ const sectionSchema = z.object({
     .string()
     .trim()
     .min(SECTION_NAME_MIN_LENGTH, "Section name is required"),
+  classTeacherMembershipId: z.uuid().optional(),
 });
 
 function hasUniqueSectionNames(sections: Array<z.infer<typeof sectionSchema>>) {

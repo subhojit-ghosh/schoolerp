@@ -44,6 +44,8 @@ import { TransportModule } from "./modules/transport/transport.module";
 import { PayrollModule } from "./modules/payroll/payroll.module";
 import { InventoryModule } from "./modules/inventory/inventory.module";
 import { HostelModule } from "./modules/hostel/hostel.module";
+import { ReportsModule } from "./modules/reports/reports.module";
+import { StaffAttendanceModule } from "./modules/staff-attendance/staff-attendance.module";
 import { StudentsModule } from "./modules/students/students.module";
 import { UploadsModule } from "./modules/uploads/uploads.module";
 @Module({
@@ -96,6 +98,8 @@ import { UploadsModule } from "./modules/uploads/uploads.module";
     PayrollModule,
     InventoryModule,
     HostelModule,
+    StaffAttendanceModule,
+    ReportsModule,
     RolesModule,
     InstitutionsModule,
     UploadsModule,

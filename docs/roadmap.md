@@ -32,27 +32,25 @@ Ship a fully functional v1 that a real school can use day-to-day. Every feature 
 - Treat the frontend as a thin client over tenant-scoped APIs.
 - Every screen a customer sees must be usable, not a placeholder.
 
-## Now — Validate and harden for pilot
+## Now — v1 feature-complete, validate for pilot
 
-The core v1 feature set is built: transport, payroll, hostel, and inventory are complete with typed APIs. OpenAPI spec is regenerated and all frontend modules use typed API clients (zero `as any` casts). Database migrations are applied.
+All v1 features are built: 35+ modules with typed APIs, consistent UX, and zero typecheck errors. Class teacher assignment, staff attendance, ID cards, student strength report, and fee defaulter report are complete.
 
-Remaining work:
+Remaining:
 
-1. **End-to-end delivery testing** *(very last step)* — institutions need to configure actual SMS/email provider credentials (Settings > Delivery) and verify password reset and notification delivery works end-to-end in production. Do not prioritize until all other v1 work is done.
-
-## Next — Add the common breadth schools expect in a feature-rich ERP
-
-1. **Cross-module polish** — consistency pass across student/staff/fees/exams/attendance/admissions flows for copy, empty states, and action hierarchy.
-2. **Operational quality** — eliminate rough UX edges that create support burden during pilot rollouts.
+1. **Database migration** — run `bun run db:generate` + `bun run db:migrate` for class teacher and staff attendance tables
+2. **End-to-end delivery testing** *(very last step)* — configure actual SMS/email provider credentials and verify delivery works in production. Do not prioritize until all other v1 work is done.
 
 ## Later — Post-v1 depth
 
+- WhatsApp integration for parent communication
 - Attendance analytics and absent streak automation
 - Exam analytics, deeper reporting, and ranking
-- Finance depth: receipts hardening, ledger export, accounting-adjacent workflows
+- Finance depth: ledger export, accounting-adjacent workflows
 - Inventory depth: procurement workflows, vendor management
-- Payroll depth: staff attendance tracking integration, salary revision history, bulk salary adjustments
+- Payroll depth: staff attendance tracking, salary revision history, bulk salary adjustments
 - Hostel depth: mess attendance, fee integration, room change history
+- Advanced reporting dashboard with charts and drill-downs
 - Automated test coverage across all domains
 
 ## Risks And Dependencies

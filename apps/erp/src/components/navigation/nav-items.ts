@@ -202,6 +202,13 @@ export const NAV_FINANCE: readonly NavItem[] = [
     url: ERP_ROUTES.FEE_DUES,
   },
   {
+    badgeLabel: "Now",
+    icon: IconAlertTriangle,
+    permission: PERMISSIONS.FEES_READ,
+    title: "Fee Defaulters",
+    url: ERP_ROUTES.FEE_DEFAULTERS,
+  },
+  {
     badgeLabel: "Later",
     disabled: true,
     icon: IconFileText,
@@ -240,11 +247,11 @@ export const NAV_REPORTS: readonly NavItem[] = [
     url: ERP_ROUTES.REPORTS_ADMISSIONS,
   },
   {
-    badgeLabel: "Later",
-    disabled: true,
+    badgeLabel: "Now",
     icon: IconUsers,
-    title: "Students",
-    url: ERP_ROUTES.REPORTS_STUDENTS,
+    permission: PERMISSIONS.STUDENTS_READ,
+    title: "Student Strength",
+    url: ERP_ROUTES.REPORTS_STUDENT_STRENGTH,
   },
 ];
 
@@ -371,9 +378,8 @@ export const NAV_INVENTORY: readonly NavItem[] = [
 
 export const NAV_HR: readonly NavItem[] = [
   {
-    badgeLabel: "Planned",
-    disabled: true,
     icon: IconCalendarStats,
+    permission: PERMISSIONS.STAFF_ATTENDANCE_READ,
     title: "Staff Attendance",
     url: ERP_ROUTES.STAFF_ATTENDANCE,
   },

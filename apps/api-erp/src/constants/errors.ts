@@ -154,6 +154,12 @@ export const ERROR_MESSAGES = {
     ROSTER_MISMATCH:
       "Attendance must be submitted for the full class roster returned by the API.",
   },
+  STAFF_ATTENDANCE: {
+    NO_STAFF_FOUND:
+      "No active staff members were found for the selected campus.",
+    ROSTER_MISMATCH:
+      "Attendance must be submitted for the full staff roster returned by the API.",
+  },
   EXAMS: {
     TERM_NOT_FOUND: "The selected exam term was not found.",
     ACADEMIC_YEAR_REQUIRED:

@@ -191,6 +191,7 @@ export const FEES_API_PATHS = {
   REMIND_ASSIGNMENT: "/fees/assignments/{feeAssignmentId}/remind",
   LIST_DUES: "/fees/dues",
   COLLECTION_SUMMARY: "/fees/reports/collection-summary",
+  DEFAULTERS: "/fees/reports/defaulters",
 } as const;
 
 export const DATA_EXCHANGE_API_PATHS = {
@@ -295,6 +296,17 @@ export const HOSTEL_API_PATHS = {
   CREATE_MESS_PLAN: "/hostel/mess-plans",
   UPDATE_MESS_PLAN: "/hostel/mess-plans/{planId}",
   UPDATE_MESS_PLAN_STATUS: "/hostel/mess-plans/{planId}/status",
+} as const;
+
+export const REPORTS_API_PATHS = {
+  STUDENT_STRENGTH: "/reports/student-strength",
+} as const;
+
+export const STAFF_ATTENDANCE_API_PATHS = {
+  ROSTER: "/staff-attendance/roster",
+  DAY: "/staff-attendance/day",
+  DAY_VIEW: "/staff-attendance/day-view",
+  REPORT: "/staff-attendance/report",
 } as const;
 
 export const PAYROLL_API_PATHS = {

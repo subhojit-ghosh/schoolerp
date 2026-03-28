@@ -281,6 +281,13 @@
       "when": 1774645925824,
       "tag": "0039_gorgeous_vulcan",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1774678379209,
+      "tag": "0040_clumsy_beast",
+      "breakpoints": true
     }
   ]
 }

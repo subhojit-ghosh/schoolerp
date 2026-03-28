@@ -67,6 +67,12 @@ const ATTENDANCE_STATUS_ENUM = [
   "late",
   "excused",
 ] as const;
+const STAFF_ATTENDANCE_STATUS_ENUM = [
+  "present",
+  "absent",
+  "half_day",
+  "on_leave",
+] as const;
 const ADMISSION_ENQUIRY_STATUS_ENUM = [
   "new",
   "in_progress",
@@ -237,6 +243,7 @@ const AUDIT_ENTITY_TYPE_ENUM = [
   AUDIT_ENTITY_TYPES.HOSTEL_ROOM,
   AUDIT_ENTITY_TYPES.BED_ALLOCATION,
   AUDIT_ENTITY_TYPES.MESS_PLAN,
+  AUDIT_ENTITY_TYPES.STAFF_ATTENDANCE_DAY,
 ] as const;
 
 const SALARY_COMPONENT_TYPE_ENUM = [
@@ -818,6 +825,9 @@ export const classSections = pgTable(
       .notNull()
       .default("active"),
     displayOrder: integer().notNull().default(0),
+    classTeacherMembershipId: text().references(() => member.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp().notNull().defaultNow(),
   },
   (table) => [
@@ -1672,6 +1682,41 @@ export const leaveApplications = pgTable(
     index("leave_applications_leave_type_idx").on(t.leaveTypeId),
     index("leave_applications_status_idx").on(t.status),
     index("leave_applications_from_date_idx").on(t.fromDate),
+  ],
+);
+
+// ─── Staff Attendance ────────────────────────────────────────────────────────
+
+export const staffAttendanceRecords = pgTable(
+  "staff_attendance_records",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text()
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    staffMembershipId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    attendanceDate: date().notNull(),
+    status: text({ enum: STAFF_ATTENDANCE_STATUS_ENUM }).notNull(),
+    markedByMembershipId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    notes: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp().notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("staff_att_unique_idx").on(
+      table.institutionId,
+      table.staffMembershipId,
+      table.attendanceDate,
+    ),
+    index("staff_att_institution_date_idx").on(table.institutionId, table.attendanceDate),
+    index("staff_att_campus_date_idx").on(table.institutionId, table.campusId, table.attendanceDate),
   ],
 );
 

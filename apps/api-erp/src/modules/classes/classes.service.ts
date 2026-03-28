@@ -24,6 +24,7 @@ import {
   schoolClasses,
   studentCurrentEnrollments,
   students,
+  user,
   type SQL,
 } from "@repo/database";
 import { randomUUID } from "node:crypto";
@@ -185,6 +186,7 @@ export class ClassesService {
           classId: createdClassId,
           name: section.name.trim(),
           displayOrder: index,
+          classTeacherMembershipId: section.classTeacherMembershipId ?? null,
         })),
       );
     });
@@ -263,6 +265,8 @@ export class ClassesService {
               name: section.name.trim(),
               status: STATUS.SECTION.ACTIVE,
               displayOrder: index,
+              classTeacherMembershipId:
+                section.classTeacherMembershipId ?? null,
             })
             .where(eq(classSections.id, section.id));
 
@@ -286,6 +290,8 @@ export class ClassesService {
               name: section.name.trim(),
               status: STATUS.SECTION.ACTIVE,
               displayOrder: index,
+              classTeacherMembershipId:
+                section.classTeacherMembershipId ?? null,
             })
             .where(eq(classSections.id, matchingInactiveSection.id));
 
@@ -300,6 +306,7 @@ export class ClassesService {
           classId,
           name: section.name.trim(),
           displayOrder: index,
+          classTeacherMembershipId: section.classTeacherMembershipId ?? null,
         });
       }
 
@@ -444,6 +451,8 @@ export class ClassesService {
           classId: string;
           name: string;
           displayOrder: number;
+          classTeacherMembershipId: string | null;
+          classTeacherName: string | null;
         }>;
         archived: Array<{
           id: string;
@@ -456,6 +465,9 @@ export class ClassesService {
       return sectionsByClassId;
     }
 
+    const classTeacherMember = member;
+    const classTeacherUser = user;
+
     const sectionRows = await this.db
       .select({
         id: classSections.id,
@@ -463,8 +475,18 @@ export class ClassesService {
         name: classSections.name,
         status: classSections.status,
         displayOrder: classSections.displayOrder,
+        classTeacherMembershipId: classSections.classTeacherMembershipId,
+        classTeacherName: classTeacherUser.name,
       })
       .from(classSections)
+      .leftJoin(
+        classTeacherMember,
+        eq(classSections.classTeacherMembershipId, classTeacherMember.id),
+      )
+      .leftJoin(
+        classTeacherUser,
+        eq(classTeacherMember.userId, classTeacherUser.id),
+      )
       .where(and(inArray(classSections.classId, classIds)))
       .orderBy(asc(classSections.displayOrder), asc(classSections.name));
 
@@ -480,6 +502,8 @@ export class ClassesService {
           classId: section.classId,
           name: section.name,
           displayOrder: section.displayOrder,
+          classTeacherMembershipId: section.classTeacherMembershipId,
+          classTeacherName: section.classTeacherName,
         });
       } else if (includeArchivedSections) {
         currentSections.archived.push({
