@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { formatAcademicYear } from "@/lib/format";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
   EntityFormPrimaryAction,
@@ -30,14 +31,7 @@ type AcademicYearFormProps = {
 };
 
 function buildAcademicYearName(startDate: string, endDate: string) {
-  const startYear = startDate.slice(0, 4);
-  const endYear = endDate.slice(0, 4);
-
-  if (!startYear || !endYear) {
-    return "";
-  }
-
-  return `${startYear}-${endYear}`;
+  return formatAcademicYear(startDate, endDate);
 }
 
 export function AcademicYearForm({
@@ -52,6 +46,7 @@ export function AcademicYearForm({
   const { control, handleSubmit, reset, setValue } =
     useForm<AcademicYearFormValues>({
       resolver: zodResolver(academicYearFormSchema),
+      mode: "onTouched",
       defaultValues,
     });
   const startDate = useWatch({

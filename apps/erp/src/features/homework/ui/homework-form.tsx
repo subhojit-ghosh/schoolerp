@@ -51,6 +51,7 @@ export function HomeworkForm({
 
   const { control, handleSubmit } = useForm<HomeworkFormValues>({
     resolver: zodResolver(homeworkFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

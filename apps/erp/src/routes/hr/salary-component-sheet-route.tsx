@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -62,33 +63,37 @@ export function SalaryComponentSheetRoute({ mode }: SalaryComponentSheetRoutePro
     undefined;
 
   async function handleSubmit(values: SalaryComponentFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          name: values.name,
-          type: values.type,
-          calculationType: values.calculationType,
-          isTaxable: values.isTaxable,
-          isStatutory: values.isStatutory,
-          sortOrder: values.sortOrder,
-        },
-      });
-      toast.success("Salary component created.");
-      void navigate(closeTo);
-    } else if (componentId) {
-      await updateMutation.mutateAsync({
-        params: { path: { componentId } },
-        body: {
-          name: values.name,
-          type: values.type,
-          calculationType: values.calculationType,
-          isTaxable: values.isTaxable,
-          isStatutory: values.isStatutory,
-          sortOrder: values.sortOrder,
-        },
-      });
-      toast.success("Salary component updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            name: values.name,
+            type: values.type,
+            calculationType: values.calculationType,
+            isTaxable: values.isTaxable,
+            isStatutory: values.isStatutory,
+            sortOrder: values.sortOrder,
+          },
+        });
+        toast.success("Salary component created.");
+        void navigate(closeTo);
+      } else if (componentId) {
+        await updateMutation.mutateAsync({
+          params: { path: { componentId } },
+          body: {
+            name: values.name,
+            type: values.type,
+            calculationType: values.calculationType,
+            isTaxable: values.isTaxable,
+            isStatutory: values.isStatutory,
+            sortOrder: values.sortOrder,
+          },
+        });
+        toast.success("Salary component updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save salary component. Please try again."));
     }
   }
 

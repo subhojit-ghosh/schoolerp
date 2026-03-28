@@ -4,6 +4,7 @@ import {
 } from "@repo/contracts";
 import { z } from "zod";
 import type { components } from "@/lib/api/generated/schema";
+import { HONORIFICS } from "@/lib/format";
 
 const MOBILE_MIN_LENGTH = 10;
 const REQUIRED_TEXT_MIN_LENGTH = 1;
@@ -26,6 +27,7 @@ const sectionIdentifierSchema = z.uuid("Select a section");
 const customFieldValuesSchema = z.record(z.string(), z.unknown());
 
 export const guardianFormSchema = z.object({
+  honorific: z.enum(HONORIFICS).optional().or(z.literal("")),
   name: z
     .string()
     .trim()

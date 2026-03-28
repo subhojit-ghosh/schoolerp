@@ -4,6 +4,7 @@ import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Input } from "@repo/ui/components/ui/input";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -55,6 +56,7 @@ const TRANSACTION_TYPE_BADGE_CLASSES: Record<string, string> = {
 };
 
 export function InventoryTransactionsPage() {
+  useDocumentTitle("Stock Transactions");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.INVENTORY_READ);

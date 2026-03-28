@@ -38,6 +38,7 @@ export function LeaveTypeForm({
 }: LeaveTypeFormProps) {
   const { control, handleSubmit } = useForm<LeaveTypeFormValues>({
     resolver: zodResolver(leaveTypeFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

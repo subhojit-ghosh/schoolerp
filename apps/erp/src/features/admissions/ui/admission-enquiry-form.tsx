@@ -56,6 +56,7 @@ export function AdmissionEnquiryForm({
 }: AdmissionEnquiryFormProps) {
   const { control, handleSubmit, reset } = useForm<AdmissionEnquiryFormValues>({
     resolver: zodResolver(admissionEnquiryFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

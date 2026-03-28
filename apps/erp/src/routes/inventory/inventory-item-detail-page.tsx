@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router";
-import { IconArrowLeft, IconPlus } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { PERMISSIONS } from "@repo/contracts";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import { hasPermission } from "@/features/auth/model/auth-context";
@@ -17,6 +18,7 @@ import {
   INVENTORY_UNIT_LABELS,
   TRANSACTION_TYPE_LABELS,
 } from "@/features/inventory/model/inventory-constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { EntityListPage } from "@/components/entities/entity-list-page";
 import {
   ServerDataTable,
@@ -54,6 +56,8 @@ export function InventoryItemDetailPage() {
 
   const itemQuery = useItemDetailQuery(canRead, itemId);
   const itemData = itemQuery.data;
+
+  useDocumentTitle(itemData?.name ?? "Item Details");
 
   const {
     queryState,
@@ -191,23 +195,22 @@ export function InventoryItemDetailPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon" className="size-8">
-          <Link to={ERP_ROUTES.INVENTORY_ITEMS}>
-            <IconArrowLeft className="size-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {itemData?.name ?? "Item Detail"}
-          </h1>
-          {itemData ? (
-            <p className="text-sm text-muted-foreground">
-              {itemData.categoryName} | {INVENTORY_UNIT_LABELS[itemData.unit] ?? itemData.unit} | Stock: {itemData.currentStock} (min: {itemData.minimumStock})
-              {itemData.location ? ` | ${itemData.location}` : ""}
-            </p>
-          ) : null}
-        </div>
+      <div className="space-y-1">
+        <Breadcrumbs
+          items={[
+            { label: "Inventory Items", href: ERP_ROUTES.INVENTORY_ITEMS },
+            { label: itemData?.name ?? "Item Detail" },
+          ]}
+        />
+        <h1 className="text-2xl font-bold tracking-tight">
+          {itemData?.name ?? "Item Detail"}
+        </h1>
+        {itemData ? (
+          <p className="text-sm text-muted-foreground">
+            {itemData.categoryName} | {INVENTORY_UNIT_LABELS[itemData.unit] ?? itemData.unit} | Stock: {itemData.currentStock} (min: {itemData.minimumStock})
+            {itemData.location ? ` | ${itemData.location}` : ""}
+          </p>
+        ) : null}
       </div>
 
       {itemData && itemData.currentStock <= itemData.minimumStock ? (

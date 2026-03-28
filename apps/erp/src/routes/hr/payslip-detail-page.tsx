@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router";
-import { IconArrowLeft, IconPrinter } from "@tabler/icons-react";
+import { IconPrinter } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -11,12 +11,15 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/ui/table";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityDetailPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { PERMISSIONS } from "@repo/contracts";
 import {
+  ERP_ROUTES,
   buildPayrollRunDetailRoute,
   buildPayslipPrintRoute,
 } from "@/constants/routes";
@@ -50,6 +53,7 @@ type PayslipDetail = {
 };
 
 export function PayslipDetailPage() {
+  useDocumentTitle("Payslip");
   const { payslipId } = useParams();
   const session = useAuthStore((store) => store.session);
   const canReadPayroll = hasPermission(session, PERMISSIONS.PAYROLL_READ);
@@ -100,12 +104,13 @@ export function PayslipDetailPage() {
     <EntityPageShell width="full">
       <EntityDetailPageHeader
         backAction={
-          <Button asChild variant="ghost" size="sm" className="mb-2">
-            <Link to={buildPayrollRunDetailRoute(payslip.payrollRunId)}>
-              <IconArrowLeft className="size-4" />
-              Back to payroll run
-            </Link>
-          </Button>
+          <Breadcrumbs
+            items={[
+              { label: "Payroll Runs", href: ERP_ROUTES.PAYROLL_RUNS },
+              { label: "Run", href: buildPayrollRunDetailRoute(payslip.payrollRunId) },
+              { label: payslip.staffName },
+            ]}
+          />
         }
         title={payslip.staffName}
         badges={

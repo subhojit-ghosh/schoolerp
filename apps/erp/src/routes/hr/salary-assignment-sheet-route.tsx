@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
@@ -93,25 +94,29 @@ export function SalaryAssignmentSheetRoute({ mode }: SalaryAssignmentSheetRouteP
     undefined;
 
   async function handleSubmit(values: SalaryAssignmentFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          staffProfileId: values.staffProfileId,
-          salaryTemplateId: values.salaryTemplateId,
-          effectiveFrom: values.effectiveFrom,
-        },
-      });
-      toast.success("Salary assignment created.");
-      void navigate(closeTo);
-    } else if (assignmentId) {
-      await updateMutation.mutateAsync({
-        params: { path: { assignmentId } },
-        body: {
-          effectiveFrom: values.effectiveFrom,
-        },
-      });
-      toast.success("Salary assignment updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            staffProfileId: values.staffProfileId,
+            salaryTemplateId: values.salaryTemplateId,
+            effectiveFrom: values.effectiveFrom,
+          },
+        });
+        toast.success("Salary assignment created.");
+        void navigate(closeTo);
+      } else if (assignmentId) {
+        await updateMutation.mutateAsync({
+          params: { path: { assignmentId } },
+          body: {
+            effectiveFrom: values.effectiveFrom,
+          },
+        });
+        toast.success("Salary assignment updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save salary assignment. Please try again."));
     }
   }
 

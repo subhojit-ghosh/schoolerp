@@ -9,6 +9,7 @@ import {
   type LeaveApplicationFormValues,
 } from "@/features/leave/model/leave-form-schemas";
 import { LeaveApplicationForm } from "@/features/leave/ui/leave-application-form";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 
 export function LeaveApplicationSheetRoute() {
@@ -26,16 +27,20 @@ export function LeaveApplicationSheetRoute() {
     (applyMutation.error as Error | null | undefined)?.message ?? undefined;
 
   async function handleSubmit(values: LeaveApplicationFormValues) {
-    await applyMutation.mutateAsync({
-      body: {
-        leaveTypeId: values.leaveTypeId,
-        fromDate: values.fromDate,
-        toDate: values.toDate,
-        reason: values.reason || undefined,
-      },
-    });
-    toast.success("Leave application submitted.");
-    void navigate(closeTo);
+    try {
+      await applyMutation.mutateAsync({
+        body: {
+          leaveTypeId: values.leaveTypeId,
+          fromDate: values.fromDate,
+          toDate: values.toDate,
+          reason: values.reason || undefined,
+        },
+      });
+      toast.success("Leave application submitted.");
+      void navigate(closeTo);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not submit leave application. Please try again."));
+    }
   }
 
   return (

@@ -1,8 +1,13 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { DraftRecoveryBanner } from "@/components/feedback/draft-recovery-banner";
+import { UnsavedChangesDialog } from "@/components/feedback/unsaved-changes-dialog";
+import { useFormAutoSave } from "@/hooks/use-form-auto-save";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { extractApiError } from "@/lib/api-error";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -20,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
@@ -28,6 +34,7 @@ import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
 import { hasPermission } from "@/features/auth/model/auth-context";
@@ -51,6 +58,7 @@ type ComponentOption = {
 };
 
 export function SalaryTemplateCreatePage() {
+  useDocumentTitle("New Salary Template");
   const navigate = useNavigate();
   const session = useAuthStore((store) => store.session);
   const canReadPayroll = hasPermission(session, PERMISSIONS.PAYROLL_READ);
@@ -75,11 +83,24 @@ export function SalaryTemplateCreatePage() {
       }));
   }, [componentsQuery.data]);
 
-  const { control, handleSubmit } = useForm<SalaryTemplateFormValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 input/output type divergence with react-hook-form + TS 6
-    resolver: zodResolver(salaryTemplateFormSchema) as any,
-    defaultValues: SALARY_TEMPLATE_DEFAULT_VALUES,
+  const { control, handleSubmit, reset, watch, formState } =
+    useForm<SalaryTemplateFormValues>({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 input/output type divergence with react-hook-form + TS 6
+      resolver: zodResolver(salaryTemplateFormSchema) as any,
+      mode: "onTouched",
+      defaultValues: SALARY_TEMPLATE_DEFAULT_VALUES,
+    });
+
+  const autoSave = useFormAutoSave({
+    key: "salary-template-create",
+    watch,
+    reset,
+    isDirty: formState.isDirty,
   });
+  const clearDraftRef = useRef(autoSave.clearDraft);
+  clearDraftRef.current = autoSave.clearDraft;
+
+  const blocker = useUnsavedChangesGuard(formState.isDirty);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -97,27 +118,46 @@ export function SalaryTemplateCreatePage() {
   );
 
   async function onSubmit(values: SalaryTemplateFormValues) {
-    await createMutation.mutateAsync({
-      body: {
-        name: values.name,
-        description: values.description || undefined,
-        components: values.components.map((c) => ({
-          salaryComponentId: c.salaryComponentId,
-          amountInPaise: c.amountInPaise ?? undefined,
-          percentage: c.percentage ?? undefined,
-          sortOrder: c.sortOrder,
-        })),
-      },
-    });
-    toast.success("Salary template created.");
-    void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES);
+    try {
+      await createMutation.mutateAsync({
+        body: {
+          name: values.name,
+          description: values.description || undefined,
+          components: values.components.map((c) => ({
+            salaryComponentId: c.salaryComponentId,
+            amountInPaise: c.amountInPaise ?? undefined,
+            percentage: c.percentage ?? undefined,
+            sortOrder: c.sortOrder,
+          })),
+        },
+      });
+      clearDraftRef.current();
+      toast.success("Salary template created.");
+      void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not create salary template. Please try again."));
+    }
   }
 
   return (
     <EntityPageShell width="form">
       <EntityPageHeader
+        backAction={
+          <Breadcrumbs
+            items={[
+              { label: "Salary Templates", href: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES },
+              { label: "New Salary Template" },
+            ]}
+          />
+        }
         title="New Salary Template"
         description="Define a salary structure with earning and deduction components."
+      />
+
+      <DraftRecoveryBanner
+        hasDraft={autoSave.hasDraft}
+        onRestore={autoSave.restoreDraft}
+        onDiscard={autoSave.discardDraft}
       />
 
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -214,21 +254,23 @@ export function SalaryTemplateCreatePage() {
           {errorMessage ? (
             <p className="text-sm text-destructive">{errorMessage}</p>
           ) : null}
+        </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <EntityFormPrimaryAction disabled={isPending} type="submit">
-              {isPending ? "Creating..." : "Create salary template"}
-            </EntityFormPrimaryAction>
-            <EntityFormSecondaryAction
-              disabled={isPending}
-              onClick={() => void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES)}
-              type="button"
-            >
-              Cancel
-            </EntityFormSecondaryAction>
-          </div>
+        <div className="sticky bottom-0 z-10 border-t bg-background py-4 flex flex-wrap items-center gap-3">
+          <EntityFormPrimaryAction disabled={isPending} type="submit">
+            {isPending ? "Creating..." : "Create salary template"}
+          </EntityFormPrimaryAction>
+          <EntityFormSecondaryAction
+            disabled={isPending}
+            onClick={() => void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES)}
+            type="button"
+          >
+            Cancel
+          </EntityFormSecondaryAction>
         </div>
       </form>
+
+      <UnsavedChangesDialog blocker={blocker} />
     </EntityPageShell>
   );
 }

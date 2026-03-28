@@ -36,6 +36,7 @@ import {
 } from "@repo/ui/components/ui/tabs";
 import { cn } from "@repo/ui/lib/utils";
 
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityPageHeader,
   EntityPageShell,
@@ -116,6 +117,7 @@ function ClassReportTab({
 
   const form = useForm<ClassReportValues>({
     resolver: zodResolver(classReportSchema),
+    mode: "onTouched",
     defaultValues: {
       classId: "",
       sectionId: "",
@@ -409,6 +411,7 @@ function StudentReportTab({
 
   const form = useForm<StudentReportValues>({
     resolver: zodResolver(studentReportSchema),
+    mode: "onTouched",
     defaultValues: {
       studentId: "",
       startDate: MONTH_AGO,
@@ -615,6 +618,7 @@ function StudentReportTab({
 }
 
 export function AttendanceReportsPage() {
+  useDocumentTitle("Attendance Reports");
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const canViewReports = isStaffContext(session);

@@ -2,6 +2,7 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router";
+import { toast } from "sonner";
 import { Button } from "@repo/ui/components/ui/button";
 import { FieldError } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
@@ -17,8 +18,12 @@ import {
 } from "@/features/auth/model/auth-form-schema";
 import { ERP_ROUTES } from "@/constants/routes";
 import { AuthLayout } from "@/features/auth/ui/auth-layout";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { PasswordStrengthBar } from "@/components/feedback/password-strength-bar";
+import { extractApiError } from "@/lib/api-error";
 
 export function ResetPasswordPage() {
+  useDocumentTitle("Reset Password");
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const resetPasswordMutation = useResetPasswordMutation();
@@ -28,8 +33,9 @@ export function ResetPasswordPage() {
   );
   const initialToken = searchParams.get("token") ?? "";
   const isSetupFlow = searchParams.get("setup") === "1";
-  const { control, handleSubmit, setValue } = useForm<ResetPasswordFormValues>({
+  const { control, handleSubmit, setValue, watch } = useForm<ResetPasswordFormValues>({
     resolver: zodResolver(resetPasswordFormSchema),
+    mode: "onTouched",
     defaultValues: {
       token: initialToken,
       password: "",
@@ -42,14 +48,17 @@ export function ResetPasswordPage() {
   }, [initialToken, setValue]);
 
   async function onSubmit(values: ResetPasswordFormValues) {
-    await resetPasswordMutation.mutateAsync({
-      body: {
-        token: values.token,
-        password: values.password,
-      },
-    });
-
-    void navigate(ERP_ROUTES.SIGN_IN);
+    try {
+      await resetPasswordMutation.mutateAsync({
+        body: {
+          token: values.token,
+          password: values.password,
+        },
+      });
+      void navigate(ERP_ROUTES.SIGN_IN);
+    } catch (error) {
+      toast.error(extractApiError(error, "Unable to reset the password. Please try again."));
+    }
   }
 
   return (
@@ -163,6 +172,7 @@ export function ResetPasswordPage() {
                   placeholder="Enter a new password"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
+                <PasswordStrengthBar password={watch("password")} />
               </div>
             )}
           />

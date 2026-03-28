@@ -29,6 +29,8 @@ import { ClassForm } from "@/features/classes/ui/class-form";
 import { useStaffQuery } from "@/features/staff/api/use-staff";
 import { ERP_ROUTES } from "@/constants/routes";
 import type { ClassFormValues } from "@/features/classes/model/class-form-schema";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { extractApiError } from "@/lib/api-error";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 export function ClassDetailPage() {
@@ -40,6 +42,7 @@ export function ClassDetailPage() {
   const canManageClasses = isStaffContext(session);
   const canQueryClass = canManageClasses && Boolean(institutionId);
   const classQuery = useClassQuery(canQueryClass, classId);
+  useDocumentTitle(classQuery.data?.name ?? "Class Details");
   const updateClassMutation = useUpdateClassMutation();
   const updateError = updateClassMutation.error as Error | null | undefined;
   const staffQuery = useStaffQuery(institutionId, {
@@ -79,12 +82,16 @@ export function ClassDetailPage() {
       return;
     }
 
-    await updateClassMutation.mutateAsync({
-      params: { path: { classId } },
-      body: values,
-    });
+    try {
+      await updateClassMutation.mutateAsync({
+        params: { path: { classId } },
+        body: values,
+      });
 
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CLASS));
+      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CLASS));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update class. Please try again."));
+    }
   }
 
   if (!institutionId) {

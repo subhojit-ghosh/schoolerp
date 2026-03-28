@@ -58,6 +58,7 @@ export function IssueBookForm({
 
   const { control, handleSubmit } = useForm<IssueBookFormValues>({
     resolver: zodResolver(issueBookFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

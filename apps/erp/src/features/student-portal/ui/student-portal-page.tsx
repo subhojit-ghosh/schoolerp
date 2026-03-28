@@ -41,6 +41,7 @@ import type {
   StudentPortalStudentSummary,
   StudentPortalTimetable,
 } from "@/features/student-portal/model/student-portal.types";
+import { formatAcademicYear } from "@/lib/format";
 import { appendSearch } from "@/lib/routes";
 
 const STUDENT_WORKING_LINKS = [
@@ -364,7 +365,7 @@ function ExamsPanel({ summary }: { summary: StudentPortalStudentSummary }) {
                   <div>
                     <p className="text-sm font-medium">{term.examTermName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {term.academicYearName} • Ends {formatDate(term.endDate)}
+                      {formatAcademicYear(term.academicYearName)} • Ends {formatDate(term.endDate)}
                     </p>
                   </div>
                   <div className="text-right">
@@ -441,7 +442,7 @@ function ResultsPanel({
             <SummaryStat
               label="Subjects"
               value={String(reportCard.subjects.length)}
-              description={reportCard.academicYearName}
+              description={formatAcademicYear(reportCard.academicYearName)}
             />
           </div>
 

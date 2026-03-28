@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityPageHeader,
   EntityPageShell,
@@ -29,6 +30,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - 2 + i);
 
 export function PayrollReportsPage() {
+  useDocumentTitle("Payroll Reports");
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.PAYROLL_READ);
 

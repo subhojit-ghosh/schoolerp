@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { IconChevronDown, type Icon } from "@tabler/icons-react";
+import {
+  IconChevronDown,
+  IconStar,
+  IconStarFilled,
+  type Icon,
+} from "@tabler/icons-react";
 import { Link, useLocation } from "react-router";
 import { cn } from "@repo/ui/lib/utils";
 import {
@@ -32,18 +37,53 @@ const ACTIVE_ICON_CLASS =
 const IDLE_ICON_CLASS =
   "border-white/10 bg-white/[0.07] text-sidebar-foreground/70";
 
+function FavoriteToggle({
+  isFavorited,
+  onToggle,
+}: {
+  isFavorited: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+      className={cn(
+        "ml-auto flex size-5 shrink-0 items-center justify-center rounded transition-colors",
+        isFavorited
+          ? "text-amber-400 opacity-100"
+          : "text-sidebar-foreground/40 opacity-0 hover:text-amber-400 group-hover/nav-item:opacity-100",
+      )}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onToggle();
+      }}
+      type="button"
+    >
+      {isFavorited ? (
+        <IconStarFilled className="size-3.5" />
+      ) : (
+        <IconStar className="size-3.5" />
+      )}
+    </button>
+  );
+}
+
 export function NavMain({
   collapsible = false,
   defaultExpanded = false,
   icon,
+  isFavorite,
   items,
   label,
   onOpenGroupChange,
+  onToggleFavorite,
   openGroupLabel,
 }: {
   collapsible?: boolean;
   defaultExpanded?: boolean;
   icon?: Icon;
+  isFavorite?: (url: string) => boolean;
   items: {
     badgeLabel?: string;
     title: string;
@@ -53,6 +93,7 @@ export function NavMain({
   }[];
   label?: string;
   onOpenGroupChange?: (label: string | null) => void;
+  onToggleFavorite?: (url: string) => void;
   openGroupLabel?: string | null;
 }) {
   const GroupIcon = icon;
@@ -207,9 +248,18 @@ export function NavMain({
                             </span>
                           </>
                         ) : (
-                          <Link to={item.url}>
+                          <Link
+                            className="group/nav-item flex w-full items-center"
+                            to={item.url}
+                          >
                             {item.icon ? <item.icon /> : null}
-                            <span>{item.title}</span>
+                            <span className="flex-1 truncate">{item.title}</span>
+                            {onToggleFavorite && isFavorite ? (
+                              <FavoriteToggle
+                                isFavorited={isFavorite(item.url)}
+                                onToggle={() => onToggleFavorite(item.url)}
+                              />
+                            ) : null}
                           </Link>
                         )}
                       </SidebarMenuSubButton>
@@ -239,7 +289,7 @@ export function NavMain({
                       </>
                     ) : (
                       <Link
-                        className="flex w-full items-center gap-3"
+                        className="group/nav-item flex w-full items-center gap-3"
                         to={item.url}
                       >
                         {item.icon ? (
@@ -257,7 +307,14 @@ export function NavMain({
                         <span className={TOP_LEVEL_TITLE_CLASS}>
                           {item.title}
                         </span>
-                        <span className="size-3 shrink-0 opacity-0" />
+                        {onToggleFavorite && isFavorite ? (
+                          <FavoriteToggle
+                            isFavorited={isFavorite(item.url)}
+                            onToggle={() => onToggleFavorite(item.url)}
+                          />
+                        ) : (
+                          <span className="size-3 shrink-0 opacity-0" />
+                        )}
                       </Link>
                     )}
                   </SidebarMenuButton>

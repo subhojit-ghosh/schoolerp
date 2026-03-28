@@ -67,8 +67,10 @@ import {
   formatFeeStatusLabel,
   formatRupees,
 } from "@/features/fees/model/fee-formatters";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -102,6 +104,7 @@ function statusVariant(
 }
 
 export function FeeAssignmentsPage() {
+  useDocumentTitle("Fee Assignments");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
@@ -357,14 +360,19 @@ export function FeeAssignmentsPage() {
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
 
-    await deleteMutation.mutateAsync({
-      params: { path: { feeAssignmentId: deleteTarget.id } },
-    });
-
-    toast.success(
-      ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
-    );
-    setDeleteTarget(null);
+    try {
+      await deleteMutation.mutateAsync({
+        params: { path: { feeAssignmentId: deleteTarget.id } },
+      });
+      toast.success(
+        ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
+      );
+      setDeleteTarget(null);
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not delete fee assignment. Please try again."),
+      );
+    }
   }, [deleteTarget, deleteMutation]);
 
   if (!institutionId) {

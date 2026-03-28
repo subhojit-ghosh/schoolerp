@@ -18,6 +18,7 @@ import {
 } from "@/features/bell-schedules/api/use-bell-schedules";
 import { type BellScheduleFormValues } from "@/features/bell-schedules/model/bell-schedule-schema";
 import { BellScheduleForm } from "@/features/bell-schedules/ui/bell-schedule-form";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -94,46 +95,50 @@ export function BellScheduleSheetRoute({ mode }: BellScheduleSheetRouteProps) {
 
     const normalizedPeriods = normalizePeriods(values.periods);
 
-    if (mode === "create") {
-      const created = await createMutation.mutateAsync({
-        body: {
-          isDefault: values.isDefault,
-          name: values.name,
-        },
-      });
+    try {
+      if (mode === "create") {
+        const created = await createMutation.mutateAsync({
+          body: {
+            isDefault: values.isDefault,
+            name: values.name,
+          },
+        });
 
-      await replacePeriodsMutation.mutateAsync({
-        params: { path: { scheduleId: created.id } },
-        body: {
-          periods: normalizedPeriods,
-        },
-      });
+        await replacePeriodsMutation.mutateAsync({
+          params: { path: { scheduleId: created.id } },
+          body: {
+            periods: normalizedPeriods,
+          },
+        });
 
-      toast.success(
-        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.BELL_SCHEDULE),
-      );
-    } else if (scheduleId) {
-      await updateMutation.mutateAsync({
-        params: { path: { scheduleId } },
-        body: {
-          isDefault: values.isDefault,
-          name: values.name,
-        },
-      });
+        toast.success(
+          ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.BELL_SCHEDULE),
+        );
+      } else if (scheduleId) {
+        await updateMutation.mutateAsync({
+          params: { path: { scheduleId } },
+          body: {
+            isDefault: values.isDefault,
+            name: values.name,
+          },
+        });
 
-      await replacePeriodsMutation.mutateAsync({
-        params: { path: { scheduleId } },
-        body: {
-          periods: normalizedPeriods,
-        },
-      });
+        await replacePeriodsMutation.mutateAsync({
+          params: { path: { scheduleId } },
+          body: {
+            periods: normalizedPeriods,
+          },
+        });
 
-      toast.success(
-        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.BELL_SCHEDULE),
-      );
+        toast.success(
+          ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.BELL_SCHEDULE),
+        );
+      }
+
+      void navigate(appendSearch(ERP_ROUTES.BELL_SCHEDULES, location.search));
+    } catch (error) {
+      toast.error(extractApiError(error, mode === "create" ? "Could not create bell schedule. Please try again." : "Could not update bell schedule. Please try again."));
     }
-
-    void navigate(appendSearch(ERP_ROUTES.BELL_SCHEDULES, location.search));
   }
 
   if (mode === "edit" && bellScheduleQuery.isLoading) {

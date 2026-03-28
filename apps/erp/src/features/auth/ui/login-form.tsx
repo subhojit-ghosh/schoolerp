@@ -28,6 +28,7 @@ export function LoginForm({
 }: LoginFormProps) {
   const { control, handleSubmit } = useForm<SignInFormValues>({
     resolver: zodResolver(signInFormSchema),
+    mode: "onTouched",
     defaultValues: {
       identifier: "",
       password: "",

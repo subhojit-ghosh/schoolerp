@@ -1,6 +1,8 @@
 import * as React from "react";
-import { type Icon } from "@tabler/icons-react";
+import { type Icon, IconClock } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
+
+import { useRecentPages } from "@/hooks/use-recent-pages";
 import {
   CommandDialog,
   CommandEmpty,
@@ -32,6 +34,8 @@ export function NavSearch({
   onOpenChange: (open: boolean) => void;
 }) {
   const navigate = useNavigate();
+  const { recentPages } = useRecentPages();
+  const recentPagesToShow = recentPages.slice(0, 5);
 
   React.useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -80,7 +84,26 @@ export function NavSearch({
             ))}
           </CommandGroup>
         ))}
-        {actionGroups.length > 0 && navGroups.length > 0 ? (
+        {recentPagesToShow.length > 0 ? (
+          <>
+            <CommandSeparator />
+            <CommandGroup heading="Recently Visited">
+              {recentPagesToShow.map((page) => (
+                <CommandItem
+                  key={page.url}
+                  value={`Recently Visited ${page.title}`}
+                  onSelect={() => handleSelect(page.url)}
+                  className="cursor-pointer data-[selected=true]:bg-primary data-[selected=true]:text-primary-foreground"
+                >
+                  <IconClock className="size-4 shrink-0 text-inherit" />
+                  {page.title}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </>
+        ) : null}
+        {(actionGroups.length > 0 || recentPagesToShow.length > 0) &&
+        navGroups.length > 0 ? (
           <CommandSeparator />
         ) : null}
         {navGroups.map((group) => (

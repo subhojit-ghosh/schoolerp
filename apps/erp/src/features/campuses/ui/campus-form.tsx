@@ -47,6 +47,7 @@ export function CampusForm({
 }: CampusFormProps) {
   const { control, handleSubmit, reset, setValue } = useForm<CampusFormValues>({
     resolver: zodResolver(campusFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
   const [slugEditedManually, setSlugEditedManually] = useState(

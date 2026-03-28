@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import {
   IconBookOff,
   IconDotsVertical,
@@ -16,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -75,6 +77,7 @@ function StatusBadge({ status }: { status: TransactionRow["status"] }) {
 }
 
 export function LibraryTransactionsPage() {
+  useDocumentTitle("Library Transactions");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.LIBRARY_READ);
@@ -110,11 +113,15 @@ export function LibraryTransactionsPage() {
 
   const handleReturn = useCallback(
     async (transactionId: string) => {
-      await returnMutation.mutateAsync({
-        params: { path: { transactionId } },
-        body: {},
-      });
-      toast.success("Book returned successfully.");
+      try {
+        await returnMutation.mutateAsync({
+          params: { path: { transactionId } },
+          body: {},
+        });
+        toast.success("Book returned successfully.");
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not return book. Please try again."));
+      }
     },
     [returnMutation],
   );

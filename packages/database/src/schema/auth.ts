@@ -45,6 +45,7 @@ export const user = pgTable(
     institutionId: text()
       .notNull()
       .references(() => organization.id, { onDelete: "cascade" }),
+    honorific: text(),
     name: text().notNull(),
     mobile: text().notNull(),
     email: text(),

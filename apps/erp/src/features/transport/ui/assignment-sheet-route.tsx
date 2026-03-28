@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -67,32 +68,36 @@ export function AssignmentSheetRoute({ mode }: AssignmentSheetRouteProps) {
     undefined;
 
   async function handleSubmit(values: AssignmentFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          studentId: values.studentId,
-          routeId: values.routeId,
-          stopId: values.stopId,
-          assignmentType: values.assignmentType,
-          startDate: values.startDate,
-          endDate: values.endDate || undefined,
-        },
-      });
-      toast.success("Student assigned to transport route.");
-      void navigate(closeTo);
-    } else if (assignmentId) {
-      await updateMutation.mutateAsync({
-        params: { path: { assignmentId } },
-        body: {
-          routeId: values.routeId,
-          stopId: values.stopId,
-          assignmentType: values.assignmentType,
-          startDate: values.startDate,
-          endDate: values.endDate || undefined,
-        },
-      });
-      toast.success("Assignment updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            studentId: values.studentId,
+            routeId: values.routeId,
+            stopId: values.stopId,
+            assignmentType: values.assignmentType,
+            startDate: values.startDate,
+            endDate: values.endDate || undefined,
+          },
+        });
+        toast.success("Student assigned to transport route.");
+        void navigate(closeTo);
+      } else if (assignmentId) {
+        await updateMutation.mutateAsync({
+          params: { path: { assignmentId } },
+          body: {
+            routeId: values.routeId,
+            stopId: values.stopId,
+            assignmentType: values.assignmentType,
+            startDate: values.startDate,
+            endDate: values.endDate || undefined,
+          },
+        });
+        toast.success("Assignment updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save transport assignment. Please try again."));
     }
   }
 

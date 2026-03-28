@@ -1,10 +1,11 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router";
-import { IconArrowLeft, IconPlus } from "@tabler/icons-react";
+import { IconPlus } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { PERMISSIONS } from "@repo/contracts";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import { hasPermission } from "@/features/auth/model/auth-context";
@@ -17,6 +18,7 @@ import {
   HOSTEL_BUILDING_TYPE_LABELS,
   HOSTEL_ROOM_TYPE_LABELS,
 } from "@/features/hostel/model/hostel-constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { EntityListPage } from "@/components/entities/entity-list-page";
 import {
   ServerDataTable,
@@ -47,6 +49,8 @@ export function HostelBuildingDetailPage() {
 
   const buildingQuery = useBuildingDetailQuery(canRead, buildingId);
   const buildingData = buildingQuery.data;
+
+  useDocumentTitle(buildingData?.name ?? "Building Detail");
 
   const {
     queryState,
@@ -170,23 +174,22 @@ export function HostelBuildingDetailPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Button asChild variant="ghost" size="icon" className="size-8">
-          <Link to={ERP_ROUTES.HOSTEL_BUILDINGS}>
-            <IconArrowLeft className="size-4" />
-          </Link>
-        </Button>
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {buildingData?.name ?? "Building Detail"}
-          </h1>
-          {buildingData ? (
-            <p className="text-sm text-muted-foreground">
-              {HOSTEL_BUILDING_TYPE_LABELS[buildingData.buildingType] ?? buildingData.buildingType} | Capacity: {buildingData.capacity}
-              {buildingData.description ? ` | ${buildingData.description}` : ""}
-            </p>
-          ) : null}
-        </div>
+      <div className="space-y-1">
+        <Breadcrumbs
+          items={[
+            { label: "Hostel Buildings", href: ERP_ROUTES.HOSTEL_BUILDINGS },
+            { label: buildingData?.name ?? "Building Detail" },
+          ]}
+        />
+        <h1 className="text-2xl font-bold tracking-tight">
+          {buildingData?.name ?? "Building Detail"}
+        </h1>
+        {buildingData ? (
+          <p className="text-sm text-muted-foreground">
+            {HOSTEL_BUILDING_TYPE_LABELS[buildingData.buildingType] ?? buildingData.buildingType} | Capacity: {buildingData.capacity}
+            {buildingData.description ? ` | ${buildingData.description}` : ""}
+          </p>
+        ) : null}
       </div>
 
       <EntityListPage

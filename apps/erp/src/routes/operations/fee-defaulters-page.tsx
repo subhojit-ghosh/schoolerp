@@ -21,12 +21,14 @@ import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useFeeDefaultersQuery } from "@/features/fees/api/use-fees";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { useCampusesQuery } from "@/features/campuses/api/use-campuses";
 import { formatRupees } from "@/features/fees/model/fee-formatters";
+import { formatAcademicYear } from "@/lib/format";
 
 const ALL_FILTER_VALUE = "all";
 const DEFAULT_PAGE_SIZE = 20;
@@ -55,6 +57,7 @@ function SummaryCard({
 }
 
 export function FeeDefaultersPage() {
+  useDocumentTitle("Fee Defaulters");
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const canManageFees = isStaffContext(session);
@@ -160,7 +163,7 @@ export function FeeDefaultersPage() {
                 </SelectItem>
                 {academicYearOptions.map((ay) => (
                   <SelectItem key={ay.id} value={ay.id}>
-                    {ay.name}
+                    {formatAcademicYear(ay.name)}
                   </SelectItem>
                 ))}
               </SelectGroup>

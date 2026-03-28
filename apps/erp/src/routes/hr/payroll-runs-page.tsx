@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import {
   IconDotsVertical,
   IconEye,
@@ -18,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -90,6 +92,7 @@ function RunStatusBadge({ status }: { status: PayrollRunRow["status"] }) {
 }
 
 export function PayrollRunsPage() {
+  useDocumentTitle("Payroll Runs");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canReadPayroll = hasPermission(session, PERMISSIONS.PAYROLL_READ);
@@ -128,30 +131,42 @@ export function PayrollRunsPage() {
 
   const handleProcess = useCallback(
     async (runId: string) => {
-      await processMutation.mutateAsync({
-        params: { path: { runId } },
-      });
-      toast.success("Payroll run processed.");
+      try {
+        await processMutation.mutateAsync({
+          params: { path: { runId } },
+        });
+        toast.success("Payroll run processed.");
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not process payroll run. Please try again."));
+      }
     },
     [processMutation],
   );
 
   const handleApprove = useCallback(
     async (runId: string) => {
-      await approveMutation.mutateAsync({
-        params: { path: { runId } },
-      });
-      toast.success("Payroll run approved.");
+      try {
+        await approveMutation.mutateAsync({
+          params: { path: { runId } },
+        });
+        toast.success("Payroll run approved.");
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not approve payroll run. Please try again."));
+      }
     },
     [approveMutation],
   );
 
   const handleMarkPaid = useCallback(
     async (runId: string) => {
-      await markPaidMutation.mutateAsync({
-        params: { path: { runId } },
-      });
-      toast.success("Payroll run marked as paid.");
+      try {
+        await markPaidMutation.mutateAsync({
+          params: { path: { runId } },
+        });
+        toast.success("Payroll run marked as paid.");
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not mark payroll run as paid. Please try again."));
+      }
     },
     [markPaidMutation],
   );

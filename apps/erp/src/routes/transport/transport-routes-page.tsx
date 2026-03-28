@@ -17,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -46,6 +47,7 @@ import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
 import { appendSearch } from "@/lib/routes";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 
 type RouteRow = {
   id: string;
@@ -62,6 +64,7 @@ const columnHelper = createColumnHelper<RouteRow>();
 const VALID_SORT_FIELDS = ["name", "createdAt"] as const;
 
 export function TransportRoutesPage() {
+  useDocumentTitle("Transport Routes");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.TRANSPORT_READ);
@@ -97,11 +100,15 @@ export function TransportRoutesPage() {
 
   async function handleToggleStatus(row: RouteRow) {
     const newStatus = row.status === "active" ? "inactive" : "active";
-    await updateMutation.mutateAsync({
-      params: { path: { routeId: row.id } },
-      body: { status: newStatus },
-    });
-    toast.success(newStatus === "active" ? "Route activated." : "Route deactivated.");
+    try {
+      await updateMutation.mutateAsync({
+        params: { path: { routeId: row.id } },
+        body: { status: newStatus },
+      });
+      toast.success(newStatus === "active" ? "Route activated." : "Route deactivated.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update route status. Please try again."));
+    }
   }
 
   const columns = useMemo(

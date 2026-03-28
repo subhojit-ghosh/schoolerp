@@ -18,6 +18,7 @@ import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { isStaffContext } from "@/features/auth/model/auth-context";
 import {
@@ -50,6 +51,7 @@ type BellScheduleSummary = {
 };
 
 export function TeacherTimetablePage() {
+  useDocumentTitle("Teacher Timetable");
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const canQuery = isStaffContext(session) && Boolean(institutionId);

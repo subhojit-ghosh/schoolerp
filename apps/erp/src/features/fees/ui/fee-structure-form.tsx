@@ -1,5 +1,10 @@
-import { useEffect } from "react";
-import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useCallback, useEffect, useRef } from "react";
+import {
+  Controller,
+  useFieldArray,
+  useForm,
+  useWatch,
+} from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FEE_STRUCTURE_SCOPES } from "@repo/contracts";
 import {
@@ -49,6 +54,13 @@ import {
   feeStructureFormSchema,
   type FeeStructureFormValues,
 } from "@/features/fees/model/fee-form-schema";
+import { DraftRecoveryBanner } from "@/components/feedback/draft-recovery-banner";
+import { useFormAutoSave } from "@/hooks/use-form-auto-save";
+import {
+  checkFeeAmountReasonable,
+  checkFeeDueDateNotPast,
+} from "@/lib/date-sanity";
+import { formatAcademicYear } from "@/lib/format";
 
 type Option = {
   id: string;
@@ -57,6 +69,7 @@ type Option = {
 
 type FeeStructureFormProps = {
   academicYears: Option[];
+  autoSaveKey?: string;
   campusLabel?: string;
   canUseCampusScope?: boolean;
   defaultValues: FeeStructureFormValues;
@@ -65,7 +78,9 @@ type FeeStructureFormProps = {
   isReadOnly?: boolean;
   lockScope?: boolean;
   lockReason?: string;
+  onAutoSaveReady?: (clearDraft: () => void) => void;
   onCancel?: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
   onSubmit: (values: FeeStructureFormValues) => Promise<void> | void;
   submitLabel: string;
 };
@@ -110,6 +125,19 @@ function SortableInstallmentRow({
     id,
     disabled: isReadOnly,
   });
+
+  const watchedDueDate = useWatch({
+    control,
+    name: `installments.${index}.dueDate`,
+  });
+  const watchedAmount = useWatch({
+    control,
+    name: `installments.${index}.amount`,
+  });
+  const dueDateWarning = checkFeeDueDateNotPast(watchedDueDate ?? "");
+  const amountInPaise = Number(watchedAmount) * 100;
+  const amountWarning =
+    amountInPaise > 0 ? checkFeeAmountReasonable(amountInPaise) : null;
 
   return (
     <div
@@ -167,6 +195,9 @@ function SortableInstallmentRow({
                 type="number"
               />
               <FieldError>{fieldState.error?.message}</FieldError>
+              {!fieldState.error && amountWarning ? (
+                <p className="text-xs text-amber-600 mt-1">{amountWarning}</p>
+              ) : null}
             </FieldContent>
           </Field>
         )}
@@ -185,6 +216,9 @@ function SortableInstallmentRow({
                 type="date"
               />
               <FieldError>{fieldState.error?.message}</FieldError>
+              {!fieldState.error && dueDateWarning ? (
+                <p className="text-xs text-amber-600 mt-1">{dueDateWarning}</p>
+              ) : null}
             </FieldContent>
           </Field>
         )}
@@ -210,6 +244,7 @@ function SortableInstallmentRow({
 
 export function FeeStructureForm({
   academicYears,
+  autoSaveKey,
   campusLabel,
   canUseCampusScope = true,
   defaultValues,
@@ -218,15 +253,32 @@ export function FeeStructureForm({
   isReadOnly = false,
   lockScope = false,
   lockReason,
+  onAutoSaveReady,
   onCancel,
+  onDirtyChange,
   onSubmit,
   submitLabel,
 }: FeeStructureFormProps) {
-  const { control, handleSubmit, reset } = useForm<FeeStructureFormValues>({
+  const { control, handleSubmit, reset, watch, formState } =
+    useForm<FeeStructureFormValues>({
     resolver: zodResolver(feeStructureFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
   const selectedScope = useWatch({ control, name: "scope" });
+
+  const autoSave = useFormAutoSave({
+    key: autoSaveKey ?? "fee-structure-form",
+    watch,
+    reset,
+    isDirty: formState.isDirty,
+  });
+
+  const onAutoSaveReadyRef = useRef(onAutoSaveReady);
+  onAutoSaveReadyRef.current = onAutoSaveReady;
+  useEffect(() => {
+    onAutoSaveReadyRef.current?.(autoSave.clearDraft);
+  }, [autoSave.clearDraft]);
 
   const { fields, append, remove, move } = useFieldArray({
     control,
@@ -236,6 +288,15 @@ export function FeeStructureForm({
   useEffect(() => {
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  const stableOnDirtyChange = useCallback(
+    (dirty: boolean) => onDirtyChange?.(dirty),
+    [onDirtyChange],
+  );
+
+  useEffect(() => {
+    stableOnDirtyChange(formState.isDirty);
+  }, [formState.isDirty, stableOnDirtyChange]);
 
   useEffect(() => {
     if (!canUseCampusScope && selectedScope === FEE_STRUCTURE_SCOPES.CAMPUS) {
@@ -270,6 +331,14 @@ export function FeeStructureForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      {autoSaveKey ? (
+        <DraftRecoveryBanner
+          hasDraft={autoSave.hasDraft}
+          onRestore={autoSave.restoreDraft}
+          onDiscard={autoSave.discardDraft}
+        />
+      ) : null}
+
       <div className="space-y-8">
         {/* Structure metadata */}
         <div className="space-y-4">
@@ -317,7 +386,7 @@ export function FeeStructureForm({
                           <SelectGroup>
                             {academicYears.map((ay) => (
                               <SelectItem key={ay.id} value={ay.id}>
-                                {ay.name}
+                                {formatAcademicYear(ay.name)}
                               </SelectItem>
                             ))}
                           </SelectGroup>
@@ -480,24 +549,24 @@ export function FeeStructureForm({
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-wrap items-center gap-3 border-t pt-6">
-          <EntityFormPrimaryAction disabled={isPending} type="submit">
-            {isPending ? "Saving..." : submitLabel}
-          </EntityFormPrimaryAction>
-          {onCancel ? (
-            <EntityFormSecondaryAction
-              disabled={isPending}
-              onClick={onCancel}
-              type="button"
-            >
-              Cancel
-            </EntityFormSecondaryAction>
-          ) : null}
-          {errorMessage ? (
-            <p className="ml-2 text-sm text-destructive">{errorMessage}</p>
-          ) : null}
-        </div>
+        {errorMessage ? (
+          <p className="text-sm text-destructive">{errorMessage}</p>
+        ) : null}
+      </div>
+
+      <div className="sticky bottom-0 z-10 -mx-6 -mb-6 mt-6 border-t bg-background px-6 py-4 flex flex-wrap items-center gap-3">
+        <EntityFormPrimaryAction disabled={isPending} type="submit">
+          {isPending ? "Saving..." : submitLabel}
+        </EntityFormPrimaryAction>
+        {onCancel ? (
+          <EntityFormSecondaryAction
+            disabled={isPending}
+            onClick={onCancel}
+            type="button"
+          >
+            Cancel
+          </EntityFormSecondaryAction>
+        ) : null}
       </div>
     </form>
   );

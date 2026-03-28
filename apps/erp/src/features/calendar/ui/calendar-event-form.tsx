@@ -46,6 +46,7 @@ export function CalendarEventForm({
 }: CalendarEventFormProps) {
   const { control, handleSubmit, reset, watch } = useForm<CalendarFormValues>({
     resolver: zodResolver(calendarFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

@@ -20,6 +20,7 @@ import {
 } from "@/features/academic-years/model/academic-year-form-schema";
 import { AcademicYearForm } from "@/features/academic-years/ui/academic-year-form";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -60,28 +61,32 @@ export function AcademicYearSheetRoute({ mode }: AcademicYearSheetRouteProps) {
       return;
     }
 
-    if (mode === "create") {
-      await createAcademicYearMutation.mutateAsync({
-        body: values,
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR),
-      );
-    } else if (academicYearId) {
-      await updateAcademicYearMutation.mutateAsync({
-        params: {
-          path: {
-            academicYearId,
+    try {
+      if (mode === "create") {
+        await createAcademicYearMutation.mutateAsync({
+          body: values,
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR),
+        );
+      } else if (academicYearId) {
+        await updateAcademicYearMutation.mutateAsync({
+          params: {
+            path: {
+              academicYearId,
+            },
           },
-        },
-        body: values,
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR),
-      );
-    }
+          body: values,
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ACADEMIC_YEAR),
+        );
+      }
 
-    void navigate(appendSearch(ERP_ROUTES.ACADEMIC_YEARS, location.search));
+      void navigate(appendSearch(ERP_ROUTES.ACADEMIC_YEARS, location.search));
+    } catch (error) {
+      toast.error(extractApiError(error, mode === "create" ? "Could not create academic year. Please try again." : "Could not update academic year. Please try again."));
+    }
   }
 
   if (mode === "edit" && academicYearQuery.isLoading) {

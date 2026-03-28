@@ -1,8 +1,8 @@
 import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconTrash, IconUserPlus } from "@tabler/icons-react";
+import { IconAlertTriangle, IconTrash, IconUserPlus } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
@@ -10,7 +10,6 @@ import {
   Field,
   FieldContent,
   FieldError,
-  FieldGroup,
   FieldLabel,
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
@@ -35,9 +34,14 @@ import {
   EntityFormSecondaryAction,
 } from "@/components/entities/entity-actions";
 import type { AdmissionFormFieldRecord } from "@/features/admissions/model/admission-custom-fields";
+import { HONORIFICS, formatAcademicYear } from "@/lib/format";
 import { AdmissionCustomFieldsSection } from "@/features/admissions/ui/admission-custom-fields-section";
+import { DraftRecoveryBanner } from "@/components/feedback/draft-recovery-banner";
+import { useFormAutoSave } from "@/hooks/use-form-auto-save";
+import { useStudentDuplicateCheck } from "@/features/students/hooks/use-student-duplicate-check";
 
 const DEFAULT_GUARDIAN: StudentFormValues["guardians"][number] = {
+  honorific: "",
   name: "",
   mobile: "",
   email: "",
@@ -62,36 +66,68 @@ type ClassOption = {
 };
 
 type StudentFormProps = {
+  autoSaveKey?: string;
   campusName?: string;
   campusId?: string;
   academicYears: AcademicYearOption[];
   customFields: AdmissionFormFieldRecord[];
   defaultValues: StudentFormValues;
   errorMessage?: string;
+  institutionId?: string;
   isPending?: boolean;
+  mode?: "create" | "edit";
   onCancel?: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
+  onAutoSaveReady?: (clearDraft: () => void) => void;
   onSubmit: (values: StudentFormValues) => Promise<void> | void;
   submitLabel: string;
 };
 
 export function StudentForm({
+  autoSaveKey,
   campusName,
   campusId,
   academicYears,
   customFields,
   defaultValues,
   errorMessage,
+  institutionId,
   isPending = false,
+  mode = "create",
   onCancel,
+  onDirtyChange,
+  onAutoSaveReady,
   onSubmit,
   submitLabel,
 }: StudentFormProps) {
-  const { control, handleSubmit, reset, setValue } = useForm<StudentFormValues>(
-    {
+  const { control, handleSubmit, reset, setValue, watch, formState } =
+    useForm<StudentFormValues>({
       resolver: zodResolver(studentFormSchema),
+      mode: "onTouched",
       defaultValues,
-    },
+    });
+
+  const autoSave = useFormAutoSave({
+    key: autoSaveKey ?? "student-form",
+    watch,
+    reset,
+    isDirty: formState.isDirty,
+  });
+
+  const onAutoSaveReadyRef = useRef(onAutoSaveReady);
+  onAutoSaveReadyRef.current = onAutoSaveReady;
+  useEffect(() => {
+    onAutoSaveReadyRef.current?.(autoSave.clearDraft);
+  }, [autoSave.clearDraft]);
+
+  const stableOnDirtyChange = useCallback(
+    (dirty: boolean) => onDirtyChange?.(dirty),
+    [onDirtyChange],
   );
+
+  useEffect(() => {
+    stableOnDirtyChange(formState.isDirty);
+  }, [formState.isDirty, stableOnDirtyChange]);
 
   const selectedClassId = useWatch({
     control,
@@ -113,6 +149,8 @@ export function StudentForm({
     control,
     name: "currentEnrollment.sectionId",
   });
+  const watchedFirstName = useWatch({ control, name: "firstName" });
+  const watchedLastName = useWatch({ control, name: "lastName" });
 
   const guardiansFieldArray = useFieldArray({
     control,
@@ -145,6 +183,16 @@ export function StudentForm({
     () => selectedEnrollmentClass?.sections ?? [],
     [selectedEnrollmentClass],
   );
+  const duplicateCheck = useStudentDuplicateCheck(
+    mode === "create" ? institutionId : undefined,
+    {
+      firstName: watchedFirstName ?? "",
+      lastName: watchedLastName ?? "",
+      classId: selectedClassId ?? "",
+      className: selectedClass?.name ?? "",
+    },
+  );
+
   const defaultEnrollmentAcademicYearId = useMemo(() => {
     if (academicYears.length === 0) {
       return "";
@@ -309,8 +357,88 @@ export function StudentForm({
   ]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <FieldGroup className="gap-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
+      {autoSaveKey ? (
+        <DraftRecoveryBanner
+          hasDraft={autoSave.hasDraft}
+          onRestore={autoSave.restoreDraft}
+          onDiscard={autoSave.discardDraft}
+        />
+      ) : null}
+
+      {/* Personal Information */}
+      <section className="rounded-lg border p-6 space-y-4">
+        <div className="space-y-1">
+          <h3 className="text-base font-semibold">Personal Information</h3>
+          <p className="text-sm text-muted-foreground">
+            Basic identity details for the student record.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Controller
+            control={control}
+            name="firstName"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel htmlFor="first-name" required>
+                  First name
+                </FieldLabel>
+                <FieldContent>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    id="first-name"
+                    placeholder="Student first name"
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+          <Controller
+            control={control}
+            name="lastName"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel htmlFor="last-name">Last name</FieldLabel>
+                <FieldContent>
+                  <Input
+                    {...field}
+                    aria-invalid={fieldState.invalid}
+                    id="last-name"
+                    placeholder="Optional"
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+        </div>
+
+        {duplicateCheck.match ? (
+          <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm dark:border-amber-900 dark:bg-amber-950">
+            <IconAlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <p className="text-amber-800 dark:text-amber-200">
+              A student named{" "}
+              <span className="font-medium">{duplicateCheck.match.fullName}</span>{" "}
+              already exists in{" "}
+              <span className="font-medium">{duplicateCheck.match.className}</span>.
+              Are you sure this isn't a duplicate?
+            </p>
+          </div>
+        ) : null}
+      </section>
+
+      {/* Enrollment */}
+      <section className="rounded-lg border p-6 space-y-4">
+        <div className="space-y-1">
+          <h3 className="text-base font-semibold">Enrollment</h3>
+          <p className="text-sm text-muted-foreground">
+            Admission details, class placement, and campus assignment.
+          </p>
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Controller
             control={control}
@@ -347,26 +475,6 @@ export function StudentForm({
               </FieldContent>
             </Field>
           ) : null}
-          <Controller
-            control={control}
-            name="firstName"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="first-name" required>
-                  First name
-                </FieldLabel>
-                <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    id="first-name"
-                    placeholder="Student first name"
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
           <Controller
             control={control}
             name="classId"
@@ -440,26 +548,9 @@ export function StudentForm({
               </Field>
             )}
           />
-          <Controller
-            control={control}
-            name="lastName"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="last-name">Last name</FieldLabel>
-                <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    id="last-name"
-                    placeholder="Optional"
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
         </div>
 
+        {/* Current enrollment sub-section */}
         <div className="grid gap-4 rounded-lg border bg-muted/20 p-4 sm:grid-cols-3">
           <div className="sm:col-span-3">
             <p className="text-sm font-medium">Current enrollment</p>
@@ -489,7 +580,7 @@ export function StudentForm({
                             key={academicYear.id}
                             value={academicYear.id}
                           >
-                            {academicYear.name}
+                            {formatAcademicYear(academicYear.name)}
                             {academicYear.isCurrent ? " (Current)" : ""}
                           </SelectItem>
                         ))}
@@ -596,55 +687,93 @@ export function StudentForm({
             </Button>
           </div>
         </div>
+      </section>
+
+      {/* Guardian Details */}
+      <section className="rounded-lg border p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <h3 className="text-base font-semibold">Guardian Details</h3>
+            <p className="text-sm text-muted-foreground">
+              Keep one primary guardian and any additional contacts linked here.
+            </p>
+          </div>
+          <Button
+            className="gap-1.5"
+            onClick={() =>
+              guardiansFieldArray.append({
+                ...DEFAULT_GUARDIAN,
+                isPrimary: false,
+              })
+            }
+            size="sm"
+            type="button"
+            variant="outline"
+          >
+            <IconUserPlus data-icon="inline-start" />
+            Add guardian
+          </Button>
+        </div>
 
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium">Guardians</p>
-              <p className="text-xs text-muted-foreground">
-                Keep one primary guardian and any additional contacts linked
-                here.
-              </p>
-            </div>
-            <Button
-              className="gap-1.5"
-              onClick={() =>
-                guardiansFieldArray.append({
-                  ...DEFAULT_GUARDIAN,
-                  isPrimary: false,
-                })
-              }
-              size="sm"
-              type="button"
-              variant="outline"
-            >
-              <IconUserPlus data-icon="inline-start" />
-              Add guardian
-            </Button>
-          </div>
-
           {guardiansFieldArray.fields.map((guardian, index) => (
             <div
               key={guardian.id}
               className="grid gap-4 rounded-lg border bg-muted/30 p-4 sm:grid-cols-2"
             >
-              <Controller
-                control={control}
-                name={`guardians.${index}.name`}
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel required>Name</FieldLabel>
-                    <FieldContent>
-                      <Input
-                        {...field}
-                        aria-invalid={fieldState.invalid}
-                        placeholder="Guardian full name"
-                      />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </FieldContent>
-                  </Field>
-                )}
-              />
+              <div className="flex gap-3">
+                <Controller
+                  control={control}
+                  name={`guardians.${index}.honorific`}
+                  render={({ field }) => (
+                    <Field className="w-[100px] shrink-0">
+                      <FieldLabel>Title</FieldLabel>
+                      <FieldContent>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(value === "none" ? "" : value)
+                          }
+                          value={field.value || "none"}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="None" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="none">None</SelectItem>
+                              {HONORIFICS.map((h) => (
+                                <SelectItem key={h} value={h}>
+                                  {h}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FieldContent>
+                    </Field>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name={`guardians.${index}.name`}
+                  render={({ field, fieldState }) => (
+                    <Field
+                      className="flex-1"
+                      data-invalid={fieldState.invalid || undefined}
+                    >
+                      <FieldLabel required>Name</FieldLabel>
+                      <FieldContent>
+                        <Input
+                          {...field}
+                          aria-invalid={fieldState.invalid}
+                          placeholder="Guardian full name"
+                        />
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </FieldContent>
+                    </Field>
+                  )}
+                />
+              </div>
               <Controller
                 control={control}
                 name={`guardians.${index}.mobile`}
@@ -746,26 +875,27 @@ export function StudentForm({
             </div>
           ))}
         </div>
+      </section>
 
-        <FieldError>{errorMessage}</FieldError>
+      <AdmissionCustomFieldsSection
+        control={control}
+        fields={customFields}
+        title="Student-specific details"
+      />
 
-        <AdmissionCustomFieldsSection
-          control={control}
-          fields={customFields}
-          title="Student-specific details"
-        />
+      <FieldError>{errorMessage}</FieldError>
 
-        <div className="flex gap-2">
-          <EntityFormPrimaryAction disabled={isPending} type="submit">
-            {isPending ? "Saving..." : submitLabel}
-          </EntityFormPrimaryAction>
-          {onCancel ? (
-            <EntityFormSecondaryAction onClick={onCancel} type="button">
-              Cancel
-            </EntityFormSecondaryAction>
-          ) : null}
-        </div>
-      </FieldGroup>
+      {/* Sticky footer for form actions */}
+      <div className="sticky bottom-0 -mx-6 -mb-6 border-t bg-background px-6 py-4 flex gap-3 justify-end">
+        {onCancel ? (
+          <EntityFormSecondaryAction onClick={onCancel} type="button">
+            Cancel
+          </EntityFormSecondaryAction>
+        ) : null}
+        <EntityFormPrimaryAction disabled={isPending} type="submit">
+          {isPending ? "Saving..." : submitLabel}
+        </EntityFormPrimaryAction>
+      </div>
     </form>
   );
 }

@@ -25,6 +25,7 @@ import {
 } from "@repo/ui/components/ui/tabs";
 import { cn } from "@repo/ui/lib/utils";
 
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityPageHeader,
   EntityPageShell,
@@ -43,6 +44,7 @@ import {
 } from "@/features/staff-attendance/api/use-staff-attendance";
 import { z } from "zod";
 import { staffAttendanceStatusSchema } from "@repo/contracts";
+import { extractApiError } from "@/lib/api-error";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const STAFF_ATTENDANCE_PAGE_COPY = {
@@ -135,6 +137,7 @@ const entryFormSchema = z.object({
 type EntryFormValues = z.infer<typeof entryFormSchema>;
 
 export function StaffAttendancePage() {
+  useDocumentTitle("Staff Attendance");
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
@@ -158,10 +161,12 @@ export function StaffAttendancePage() {
 
   const selectionForm = useForm<SelectionValues>({
     resolver: zodResolver(selectionSchema),
+    mode: "onTouched",
     defaultValues: { attendanceDate: TODAY },
   });
   const entryForm = useForm<EntryFormValues>({
     resolver: zodResolver(entryFormSchema),
+    mode: "onTouched",
     defaultValues: { attendanceDate: TODAY, entries: [] },
   });
 
@@ -211,20 +216,24 @@ export function StaffAttendancePage() {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await saveMutation.mutateAsync({
-      body: {
-        campusId: activeCampusId,
-        attendanceDate: values.attendanceDate,
-        entries: values.entries.map((e) => ({
-          staffMembershipId: e.staffMembershipId,
-          status: e.status as string,
-        })),
-      } as any,
-    });
-    toast.success(
-      ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_ATTENDANCE),
-    );
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await saveMutation.mutateAsync({
+        body: {
+          campusId: activeCampusId,
+          attendanceDate: values.attendanceDate,
+          entries: values.entries.map((e) => ({
+            staffMembershipId: e.staffMembershipId,
+            status: e.status as string,
+          })),
+        } as any,
+      });
+      toast.success(
+        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_ATTENDANCE),
+      );
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save staff attendance. Please try again."));
+    }
   }
 
   const currentRoster = rosterQuery.data;

@@ -6,6 +6,7 @@ import {
   ADMISSION_FORM_FIELD_TYPES,
   PERMISSIONS,
 } from "@repo/contracts";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { IconPencil, IconPlus, IconRestore } from "@tabler/icons-react";
 import { toast } from "sonner";
 import { Button } from "@repo/ui/components/ui/button";
@@ -61,6 +62,7 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { extractApiError } from "@/lib/api-error";
 import { ERP_TOAST_MESSAGES } from "@/lib/toast-messages";
 
 function toTitleCase(value: string) {
@@ -71,6 +73,7 @@ function toTitleCase(value: string) {
 }
 
 export function AdmissionFormFieldsPage() {
+  useDocumentTitle("Admission Fields");
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const activeContext = getActiveContext(session);
@@ -103,6 +106,7 @@ export function AdmissionFormFieldsPage() {
   const { control, formState, handleSubmit, reset, setValue } =
     useForm<AdmissionFormFieldBuilderValues>({
       resolver: zodResolver(admissionFormFieldBuilderSchema),
+      mode: "onTouched",
       defaultValues: ADMISSION_FORM_FIELD_BUILDER_DEFAULT_VALUES,
     });
   const labelValue = useWatch({ control, name: "label" });
@@ -131,25 +135,29 @@ export function AdmissionFormFieldsPage() {
   async function onSubmit(values: AdmissionFormFieldBuilderValues) {
     const body = toAdmissionFormFieldMutationBody(values);
 
-    if (editingField) {
-      await updateFieldMutation.mutateAsync({
-        params: {
-          path: {
-            fieldId: editingField.id,
+    try {
+      if (editingField) {
+        await updateFieldMutation.mutateAsync({
+          params: {
+            path: {
+              fieldId: editingField.id,
+            },
           },
-        },
-        body,
-      });
-      toast.success(ERP_TOAST_MESSAGES.updated("Admission field"));
-    } else {
-      await createFieldMutation.mutateAsync({
-        body,
-      });
-      toast.success(ERP_TOAST_MESSAGES.created("Admission field"));
-    }
+          body,
+        });
+        toast.success(ERP_TOAST_MESSAGES.updated("Admission field"));
+      } else {
+        await createFieldMutation.mutateAsync({
+          body,
+        });
+        toast.success(ERP_TOAST_MESSAGES.created("Admission field"));
+      }
 
-    setEditingField(null);
-    reset(ADMISSION_FORM_FIELD_BUILDER_DEFAULT_VALUES);
+      setEditingField(null);
+      reset(ADMISSION_FORM_FIELD_BUILDER_DEFAULT_VALUES);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save admission field. Please try again."));
+    }
   }
 
   if (!institutionId) {

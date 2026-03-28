@@ -74,6 +74,22 @@ Keep this file evidence-based. Do not use it as a roadmap.
 
 - **Payroll** — salary components (earning/deduction, fixed/percentage, taxable/statutory), salary templates with multi-component composition, staff salary assignments with per-component overrides, payroll run lifecycle (draft → processed → approved → paid) with automatic leave integration (paid vs unpaid leave deduction from approved leave applications), payslip generation with line-item breakdown, printable payslips via PrintDocumentShell, monthly summary and staff salary history reports; all amounts in paise, percentages in basis points; full audit trail; HR nav group with Salary Components, Salary Templates, Salary Assignments, Payroll Runs
 
+## Phase 0a — Complete (50 items, 190+ files changed)
+
+All pilot-ready polish done. Covers error handling, Indian formatting, UX improvements, and structural upgrades:
+
+- **Error handling** — `extractApiError()` utility; 146 unprotected `mutateAsync` calls across 84 files now have try-catch + user-friendly error toasts; human-readable messages everywhere
+- **Indian formatting** — academic year "2025-26" format (16 files); ₹ lakhs/crores currency (already present); DD Mon YYYY dates (already present); phone numbers formatted as "+91 XXXXX-XXXXX" on detail pages and "XXXXX-XXXXX" in tables (12 files)
+- **Dynamic tab titles** — all 82+ pages show "Page · School Name ERP" in the browser tab
+- **Breadcrumbs** — shared component wired into 14 nested/detail pages, replacing "Back to X" links
+- **Form improvements** — student form split into visual sections (Personal Info, Enrollment, Guardian Details); inline validation on blur (`mode: "onTouched"` on 62 forms); unsaved changes guard on 7 form pages; auto-save drafts with localStorage recovery on 4 form pages; sticky form footers on 5 long forms; date sanity warnings (staff DOB, fee amounts, fee due dates); honorific field (Mr./Mrs./Dr./Shri/Smt.) on staff and guardian forms
+- **Table upgrades** — sticky headers; sort indicators on unsorted columns; table density toggle (compact/comfortable/spacious); differentiated empty search states; prefetch on hover (students page)
+- **Sidebar & navigation** — favorites/pinning (up to 6 modules); recently visited in Cmd+K; keyboard shortcut help overlay (`?` key); sidebar auto-collapses on tablet widths
+- **Dashboard** — today's date prominently displayed; last login info; contextual quick access subtitles
+- **Session management** — session expiry warning toast after 25min idle; auto-redirect after 30min
+- **Documents & print** — receipt verification reference + URL; "View history" links on detail pages; password strength indicator on change/reset password; mobile-friendly print CSS (receipts, ID cards)
+- **Visual polish** — animation transitions on sidebar, dropdowns, selects (150ms); consistent mutation loading states on submit buttons; calendar month grid view alongside list view; exams page normalized to standard layout; lazy image component for future avatar support; duplicate detection warning on student create; exam marks completion badges and warnings
+
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
 - No items currently in this category.
@@ -83,4 +99,4 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Real SMS/email provider testing** — the delivery abstraction and provider implementations are built; institutions need to configure actual provider credentials and verify delivery end-to-end. **Intentionally deferred to the very last step of v1.**
 
 ## Planned Next — Post-v1 depth
-- See roadmap.md for post-v1 feature depth items
+- See roadmap.md for post-v1 feature depth items (Phase 0b → Phase 1 → ...)

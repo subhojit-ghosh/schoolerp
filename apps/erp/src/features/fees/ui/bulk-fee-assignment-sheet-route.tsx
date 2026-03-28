@@ -46,6 +46,7 @@ import {
   formatFeeDate,
   formatRupees,
 } from "@/features/fees/model/fee-formatters";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 
 const DEFAULT_VALUES: FeeBulkAssignmentFormValues = {
@@ -75,6 +76,7 @@ export function BulkFeeAssignmentSheetRoute() {
   const { control, handleSubmit, reset } = useForm<FeeBulkAssignmentFormValues>(
     {
       resolver: zodResolver(feeBulkAssignmentFormSchema),
+      mode: "onTouched",
       defaultValues: DEFAULT_VALUES,
     },
   );
@@ -111,18 +113,24 @@ export function BulkFeeAssignmentSheetRoute() {
   }, [classOptions, reset, structureOptions]);
 
   async function onSubmit(values: FeeBulkAssignmentFormValues) {
-    const result = await bulkAssignMutation.mutateAsync({
-      body: {
-        feeStructureId: values.feeStructureId,
-        classId: values.classId,
-        notes: values.notes || null,
-      },
-    });
+    try {
+      const result = await bulkAssignMutation.mutateAsync({
+        body: {
+          feeStructureId: values.feeStructureId,
+          classId: values.classId,
+          notes: values.notes || null,
+        },
+      });
 
-    toast.success(
-      `Created ${result.created} assignments, skipped ${result.skipped}`,
-    );
-    void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
+      toast.success(
+        `Created ${result.created} assignments, skipped ${result.skipped}`,
+      );
+      void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not assign fees in bulk. Please try again."),
+      );
+    }
   }
 
   return (

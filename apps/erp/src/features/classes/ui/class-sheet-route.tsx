@@ -18,6 +18,7 @@ import type { ClassFormValues } from "@/features/classes/model/class-form-schema
 import { ClassForm } from "@/features/classes/ui/class-form";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useStaffQuery } from "@/features/staff/api/use-staff";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -82,26 +83,30 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
       return;
     }
 
-    if (mode === "create") {
-      await createClassMutation.mutateAsync({
-        body: values,
-      });
-      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CLASS));
-    } else if (classId) {
-      await updateClassMutation.mutateAsync({
-        params: {
-          path: {
-            classId,
+    try {
+      if (mode === "create") {
+        await createClassMutation.mutateAsync({
+          body: values,
+        });
+        toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CLASS));
+      } else if (classId) {
+        await updateClassMutation.mutateAsync({
+          params: {
+            path: {
+              classId,
+            },
           },
-        },
-        body: {
-          ...values,
-        },
-      });
-      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CLASS));
-    }
+          body: {
+            ...values,
+          },
+        });
+        toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CLASS));
+      }
 
-    void navigate(appendSearch(ERP_ROUTES.CLASSES, location.search));
+      void navigate(appendSearch(ERP_ROUTES.CLASSES, location.search));
+    } catch (error) {
+      toast.error(extractApiError(error, mode === "create" ? "Could not create class. Please try again." : "Could not update class. Please try again."));
+    }
   }
 
   if (mode === "edit" && classQuery.isLoading) {

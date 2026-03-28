@@ -37,6 +37,7 @@ export function CategoryForm({
 }: CategoryFormProps) {
   const { control, handleSubmit } = useForm<CategoryFormValues>({
     resolver: zodResolver(categoryFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

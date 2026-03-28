@@ -57,6 +57,7 @@ export function GuardianStudentLinkForm({
   const { control, handleSubmit, reset, setValue } =
     useForm<GuardianStudentLinkFormValues>({
       resolver: zodResolver(guardianStudentLinkFormSchema),
+      mode: "onTouched",
       defaultValues,
     });
   const selectedStudentId = useWatch({

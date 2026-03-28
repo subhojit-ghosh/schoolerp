@@ -37,6 +37,7 @@ export function SubjectForm({
 }: SubjectFormProps) {
   const { control, handleSubmit, reset } = useForm<SubjectFormValues>({
     resolver: zodResolver(subjectFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

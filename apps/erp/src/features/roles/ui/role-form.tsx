@@ -70,6 +70,7 @@ export function RoleForm({
 }: RoleFormProps) {
   const { control, handleSubmit } = useForm<RoleFormValues>({
     resolver: zodResolver(roleFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

@@ -1,5 +1,9 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useCallback, useRef } from "react";
 import {
+  IconArrowsSort,
+  IconBaselineDensityLarge,
+  IconBaselineDensityMedium,
+  IconBaselineDensitySmall,
   IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
@@ -17,6 +21,10 @@ import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
 import { Skeleton } from "@repo/ui/components/ui/skeleton";
 import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@repo/ui/components/ui/toggle-group";
+import {
   Table,
   TableBody,
   TableCell,
@@ -31,15 +39,87 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
+import { cn } from "@repo/ui/lib/utils";
 import { DEFAULT_TABLE_PAGE_SIZE, TABLE_PAGE_SIZES } from "@/constants/query";
+import {
+  useTableDensity,
+  type TableDensity,
+} from "@/hooks/use-table-density";
 
-function SortIcon({ direction }: { direction: false | "asc" | "desc" }) {
+const ROW_HOVER_DELAY_MS = 150;
+
+const DENSITY_CONFIG: Record<
+  TableDensity,
+  { icon: typeof IconBaselineDensitySmall; label: string; cellClassName: string; skeletonClassName: string }
+> = {
+  compact: {
+    icon: IconBaselineDensitySmall,
+    label: "Compact",
+    cellClassName: "py-1.5 text-xs",
+    skeletonClassName: "py-1.5",
+  },
+  comfortable: {
+    icon: IconBaselineDensityMedium,
+    label: "Comfortable",
+    cellClassName: "",
+    skeletonClassName: "py-3",
+  },
+  spacious: {
+    icon: IconBaselineDensityLarge,
+    label: "Spacious",
+    cellClassName: "py-4",
+    skeletonClassName: "py-4",
+  },
+};
+
+function DensityToggle(): ReactNode {
+  const { density, setDensity } = useTableDensity();
+
+  return (
+    <ToggleGroup
+      type="single"
+      size="sm"
+      variant="outline"
+      value={density}
+      onValueChange={(value) => {
+        if (value) setDensity(value as TableDensity);
+      }}
+    >
+      {(Object.entries(DENSITY_CONFIG) as [TableDensity, (typeof DENSITY_CONFIG)[TableDensity]][]).map(
+        ([key, { icon: Icon, label }]) => (
+          <ToggleGroupItem
+            key={key}
+            value={key}
+            aria-label={label}
+            className="h-7 w-7 p-0"
+          >
+            <Icon className="size-3.5" />
+          </ToggleGroupItem>
+        ),
+      )}
+    </ToggleGroup>
+  );
+}
+
+function SortIcon({
+  direction,
+  sortable = true,
+}: {
+  direction: false | "asc" | "desc";
+  sortable?: boolean;
+}) {
   if (direction === "asc") {
     return <IconChevronUp className="ml-1 inline size-3.5" />;
   }
 
   if (direction === "desc") {
     return <IconChevronDown className="ml-1 inline size-3.5" />;
+  }
+
+  if (sortable) {
+    return (
+      <IconArrowsSort className="ml-1 inline size-3.5 opacity-0 transition-opacity group-hover:opacity-40" />
+    );
   }
 
   return null;
@@ -59,6 +139,7 @@ type ServerDataTableProps<TData extends RowData> = {
   selectedCount?: number;
   selectionActions?: ReactNode;
   totalRows: number;
+  onRowHover?: (row: TData) => void;
   onSearchChange: (value: string) => void;
   rowClassName?: (row: TData) => string | undefined;
   rowCellClassName?: (row: TData) => string | undefined;
@@ -74,6 +155,7 @@ export function ServerDataTable<TData extends RowData>({
   emptyTitle,
   errorDescription,
   errorTitle,
+  onRowHover,
   onSearchChange,
   rowCellClassName,
   rowClassName,
@@ -84,6 +166,31 @@ export function ServerDataTable<TData extends RowData>({
   totalRows,
   showSearch = true,
 }: ServerDataTableProps<TData>) {
+  const { density } = useTableDensity();
+  const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleRowMouseEnter = useCallback(
+    function handleRowMouseEnter(rowData: TData) {
+      if (!onRowHover) return;
+      hoverTimerRef.current = setTimeout(() => {
+        onRowHover(rowData);
+      }, ROW_HOVER_DELAY_MS);
+    },
+    [onRowHover],
+  );
+
+  const handleRowMouseLeave = useCallback(
+    function handleRowMouseLeave() {
+      if (hoverTimerRef.current) {
+        clearTimeout(hoverTimerRef.current);
+        hoverTimerRef.current = null;
+      }
+    },
+    [],
+  );
+  const densityCell = DENSITY_CONFIG[density].cellClassName;
+  const densitySkeleton = DENSITY_CONFIG[density].skeletonClassName;
+
   const pageIndex = table.getState().pagination.pageIndex;
   const pageSize =
     table.getState().pagination.pageSize || DEFAULT_TABLE_PAGE_SIZE;
@@ -106,6 +213,7 @@ export function ServerDataTable<TData extends RowData>({
               />
             </div>
             <p className="text-sm text-muted-foreground">{totalRows} results</p>
+            <DensityToggle />
           </div>
         </div>
       ) : null}
@@ -131,7 +239,13 @@ export function ServerDataTable<TData extends RowData>({
         ) : isLoading ? (
           <div className="divide-y">
             {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="flex items-center gap-4 px-4 py-3">
+              <div
+                key={index}
+                className={cn(
+                  "flex items-center gap-4 px-4",
+                  densitySkeleton,
+                )}
+              >
                 <Skeleton className="h-5 w-32" />
                 <Skeleton className="h-5 w-16" />
                 <Skeleton className="h-5 w-20" />
@@ -141,17 +255,30 @@ export function ServerDataTable<TData extends RowData>({
           </div>
         ) : !hasRows ? (
           <div className="flex min-h-56 flex-col items-center justify-center gap-3 px-6 text-center">
-            <p className="text-sm font-medium">{emptyTitle}</p>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              {emptyDescription}
-            </p>
-            {emptyAction}
+            {searchValue ? (
+              <>
+                <p className="text-sm font-medium">
+                  No matches for &ldquo;{searchValue}&rdquo;
+                </p>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  Try a different search term or clear the filter.
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-medium">{emptyTitle}</p>
+                <p className="max-w-sm text-sm text-muted-foreground">
+                  {emptyDescription}
+                </p>
+                {emptyAction}
+              </>
+            )}
           </div>
         ) : (
           <>
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="bg-muted/30">
+                <TableHeader className="bg-muted/30 sticky top-0 z-10">
                   {table.getHeaderGroups().map((headerGroup) => (
                     <TableRow
                       key={headerGroup.id}
@@ -178,11 +305,16 @@ export function ServerDataTable<TData extends RowData>({
                     <TableRow
                       key={row.id}
                       className={rowClassName?.(row.original)}
+                      onMouseEnter={() => handleRowMouseEnter(row.original)}
+                      onMouseLeave={handleRowMouseLeave}
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell
                           key={cell.id}
-                          className={rowCellClassName?.(row.original)}
+                          className={cn(
+                            densityCell,
+                            rowCellClassName?.(row.original),
+                          )}
                         >
                           {flexRender(
                             cell.column.columnDef.cell,

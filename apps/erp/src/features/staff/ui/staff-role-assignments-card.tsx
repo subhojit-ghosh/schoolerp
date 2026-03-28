@@ -120,6 +120,7 @@ export function StaffRoleAssignmentsCard({
   const { control, handleSubmit, reset, setValue } =
     useForm<StaffRoleAssignmentFormValues>({
       resolver: zodResolver(staffRoleAssignmentSchema),
+      mode: "onTouched",
       defaultValues: {
         roleId: UNSELECTED_ROLE_VALUE,
         campusId: "",

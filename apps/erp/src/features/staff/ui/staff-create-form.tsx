@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useCallback, useEffect, useRef } from "react";
 import { type Control, Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Badge } from "@repo/ui/components/ui/badge";
@@ -32,6 +32,7 @@ import {
   type StaffCreateFormValues,
   type StaffFormValues,
 } from "@/features/staff/model/staff-form-schema";
+import { HONORIFICS } from "@/lib/format";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
@@ -40,14 +41,19 @@ import {
   StaffEmploymentFields,
   StaffPersonalFields,
 } from "./staff-profile-fields";
+import { DraftRecoveryBanner } from "@/components/feedback/draft-recovery-banner";
+import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 
 type StaffCreateFormProps = {
   afterFields?: ReactNode;
+  autoSaveKey?: string;
   campusName?: string;
   defaultValues: StaffCreateFormValues;
   errorMessage?: string;
   isPending?: boolean;
+  onAutoSaveReady?: (clearDraft: () => void) => void;
   onCancel?: () => void;
+  onDirtyChange?: (isDirty: boolean) => void;
   onSubmit: (values: StaffCreateFormValues) => Promise<void> | void;
   submitLabel: string;
 };
@@ -58,21 +64,56 @@ function toTitleCase(value: string) {
 
 export function StaffCreateForm({
   afterFields,
+  autoSaveKey,
   campusName,
   defaultValues,
   errorMessage,
   isPending = false,
+  onAutoSaveReady,
   onCancel,
+  onDirtyChange,
   onSubmit,
   submitLabel,
 }: StaffCreateFormProps) {
-  const { control, handleSubmit } = useForm<StaffCreateFormValues>({
-    resolver: zodResolver(staffCreateFormSchema),
-    defaultValues,
+  const { control, handleSubmit, reset, watch, formState } =
+    useForm<StaffCreateFormValues>({
+      resolver: zodResolver(staffCreateFormSchema),
+      mode: "onTouched",
+      defaultValues,
+    });
+
+  const autoSave = useFormAutoSave({
+    key: autoSaveKey ?? "staff-form",
+    watch,
+    reset,
+    isDirty: formState.isDirty,
   });
+
+  const onAutoSaveReadyRef = useRef(onAutoSaveReady);
+  onAutoSaveReadyRef.current = onAutoSaveReady;
+  useEffect(() => {
+    onAutoSaveReadyRef.current?.(autoSave.clearDraft);
+  }, [autoSave.clearDraft]);
+
+  const stableOnDirtyChange = useCallback(
+    (dirty: boolean) => onDirtyChange?.(dirty),
+    [onDirtyChange],
+  );
+
+  useEffect(() => {
+    stableOnDirtyChange(formState.isDirty);
+  }, [formState.isDirty, stableOnDirtyChange]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
+      {autoSaveKey ? (
+        <DraftRecoveryBanner
+          hasDraft={autoSave.hasDraft}
+          onRestore={autoSave.restoreDraft}
+          onDiscard={autoSave.discardDraft}
+        />
+      ) : null}
+
       <FieldGroup className="gap-6">
         <Tabs defaultValue="identity">
           <TabsList variant="line" className="w-full justify-start border-b">
@@ -83,25 +124,61 @@ export function StaffCreateForm({
 
           <TabsContent value="identity">
             <div className="grid gap-4 pt-6 sm:grid-cols-2">
-              <Controller
-                control={control}
-                name="name"
-                render={({ field, fieldState }) => (
-                  <Field data-invalid={fieldState.invalid || undefined}>
-                    <FieldLabel htmlFor="staff-name" required>
-                      Full name
-                    </FieldLabel>
-                    <FieldContent>
-                      <Input
-                        {...field}
-                        aria-invalid={fieldState.invalid}
-                        id="staff-name"
-                      />
-                      <FieldError>{fieldState.error?.message}</FieldError>
-                    </FieldContent>
-                  </Field>
-                )}
-              />
+              <div className="flex gap-3">
+                <Controller
+                  control={control}
+                  name="honorific"
+                  render={({ field }) => (
+                    <Field className="w-[100px] shrink-0">
+                      <FieldLabel>Title</FieldLabel>
+                      <FieldContent>
+                        <Select
+                          onValueChange={(value) =>
+                            field.onChange(value === "none" ? "" : value)
+                          }
+                          value={field.value || "none"}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="None" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectItem value="none">None</SelectItem>
+                              {HONORIFICS.map((h) => (
+                                <SelectItem key={h} value={h}>
+                                  {h}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </FieldContent>
+                    </Field>
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field, fieldState }) => (
+                    <Field
+                      className="flex-1"
+                      data-invalid={fieldState.invalid || undefined}
+                    >
+                      <FieldLabel htmlFor="staff-name" required>
+                        Full name
+                      </FieldLabel>
+                      <FieldContent>
+                        <Input
+                          {...field}
+                          aria-invalid={fieldState.invalid}
+                          id="staff-name"
+                        />
+                        <FieldError>{fieldState.error?.message}</FieldError>
+                      </FieldContent>
+                    </Field>
+                  )}
+                />
+              </div>
               <Controller
                 control={control}
                 name="mobile"
@@ -227,18 +304,18 @@ export function StaffCreateForm({
         {afterFields}
 
         <FieldError>{errorMessage}</FieldError>
-
-        <div className="flex gap-2">
-          <EntityFormPrimaryAction disabled={isPending} type="submit">
-            {isPending ? "Saving..." : submitLabel}
-          </EntityFormPrimaryAction>
-          {onCancel ? (
-            <EntityFormSecondaryAction onClick={onCancel} type="button">
-              Cancel
-            </EntityFormSecondaryAction>
-          ) : null}
-        </div>
       </FieldGroup>
+
+      <div className="sticky bottom-0 z-10 -mx-6 -mb-6 mt-6 border-t bg-background px-6 py-4 flex items-center gap-3">
+        <EntityFormPrimaryAction disabled={isPending} type="submit">
+          {isPending ? "Saving..." : submitLabel}
+        </EntityFormPrimaryAction>
+        {onCancel ? (
+          <EntityFormSecondaryAction onClick={onCancel} type="button">
+            Cancel
+          </EntityFormSecondaryAction>
+        ) : null}
+      </div>
     </form>
   );
 }

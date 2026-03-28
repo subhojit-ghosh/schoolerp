@@ -461,3 +461,33 @@ export const NAV_SETTINGS: readonly (NavItem & {
     url: ERP_ROUTES.SETTINGS_AUDIT,
   },
 ];
+
+/**
+ * All staff nav items aggregated from every group. Used to look up nav items
+ * by URL for features like sidebar favorites.
+ */
+const ALL_STAFF_NAV_ITEMS: readonly NavItem[] = [
+  ...NAV_HOME,
+  ...NAV_PEOPLE,
+  ...NAV_ADMISSIONS,
+  ...NAV_TEACHING,
+  ...NAV_ACADEMIC_SETUP,
+  ...NAV_RECORDS,
+  ...NAV_FINANCE,
+  ...NAV_REPORTS,
+  ...NAV_COMMUNICATION,
+  ...NAV_LIBRARY,
+  ...NAV_TRANSPORT,
+  ...NAV_SERVICES,
+  ...NAV_INVENTORY,
+  ...NAV_HR,
+  ...NAV_SETTINGS,
+];
+
+const NAV_ITEMS_BY_URL = new Map<string, NavItem>(
+  ALL_STAFF_NAV_ITEMS.map((item) => [item.url, item]),
+);
+
+export function findNavItemByUrl(url: string): NavItem | undefined {
+  return NAV_ITEMS_BY_URL.get(url);
+}

@@ -19,11 +19,13 @@ import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { isStaffContext } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useCollectionSummaryQuery } from "@/features/fees/api/use-fees";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { formatRupees } from "@/features/fees/model/fee-formatters";
+import { formatAcademicYear } from "@/lib/format";
 
 function SummaryCard({
   label,
@@ -49,6 +51,7 @@ function SummaryCard({
 }
 
 export function FeeReportsPage() {
+  useDocumentTitle("Fee Reports");
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const canManageFees = isStaffContext(session);
@@ -129,7 +132,7 @@ export function FeeReportsPage() {
                 <SelectItem value="all">All academic years</SelectItem>
                 {academicYearOptions.map((academicYear) => (
                   <SelectItem key={academicYear.id} value={academicYear.id}>
-                    {academicYear.name}
+                    {formatAcademicYear(academicYear.name)}
                   </SelectItem>
                 ))}
               </SelectGroup>
@@ -244,7 +247,7 @@ export function FeeReportsPage() {
                             {item.feeStructureName}
                           </td>
                           <td className="px-6 py-3 text-muted-foreground">
-                            {item.academicYearName}
+                            {formatAcademicYear(item.academicYearName)}
                           </td>
                           <td className="px-6 py-3 text-right tabular-nums">
                             {item.assignmentCount}

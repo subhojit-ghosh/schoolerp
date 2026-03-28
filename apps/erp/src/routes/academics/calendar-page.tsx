@@ -2,7 +2,9 @@ import { useCallback, useMemo, useState } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
 import {
+  IconCalendar,
   IconDotsVertical,
+  IconList,
   IconPencil,
   IconPlus,
   IconPower,
@@ -26,6 +28,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@repo/ui/components/ui/toggle-group";
 import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
 import {
   EntityEmptyStateAction,
@@ -54,10 +60,23 @@ import {
   CALENDAR_LIST_SORT_FIELDS,
   CALENDAR_PAGE_COPY,
 } from "@/features/calendar/model/calendar-list.constants";
+import { CalendarMonthView } from "@/features/calendar/ui/calendar-month-view";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
+
+const CALENDAR_VIEW_MODE = {
+  CALENDAR: "calendar",
+  LIST: "list",
+} as const;
+
+type CalendarViewMode =
+  (typeof CALENDAR_VIEW_MODE)[keyof typeof CALENDAR_VIEW_MODE];
+
+const MONTH_VIEW_PAGE_LIMIT = 200;
 
 type CalendarEventRow = {
   id: string;
@@ -79,6 +98,7 @@ const VALID_CALENDAR_SORT_FIELDS = [
 ] as const;
 
 export function CalendarPage() {
+  useDocumentTitle("Calendar");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
@@ -89,6 +109,9 @@ export function CalendarPage() {
   const deleteMutation = useDeleteCalendarEventMutation();
   const [deleteTarget, setDeleteTarget] = useState<CalendarEventRow | null>(
     null,
+  );
+  const [viewMode, setViewMode] = useState<CalendarViewMode>(
+    CALENDAR_VIEW_MODE.CALENDAR,
   );
 
   const {
@@ -104,13 +127,30 @@ export function CalendarPage() {
     validSorts: VALID_CALENDAR_SORT_FIELDS,
   });
 
-  const eventsQuery = useCalendarEventsQuery(canQueryCalendar, {
-    limit: queryState.pageSize,
-    order: queryState.sortOrder,
-    page: queryState.page,
-    q: queryState.search || undefined,
-    sort: queryState.sortBy,
-  });
+  const eventsQuery = useCalendarEventsQuery(
+    canQueryCalendar && viewMode === CALENDAR_VIEW_MODE.LIST,
+    {
+      limit: queryState.pageSize,
+      order: queryState.sortOrder,
+      page: queryState.page,
+      q: queryState.search || undefined,
+      sort: queryState.sortBy,
+    },
+  );
+
+  const monthEventsQuery = useCalendarEventsQuery(
+    canQueryCalendar && viewMode === CALENDAR_VIEW_MODE.CALENDAR,
+    {
+      limit: MONTH_VIEW_PAGE_LIMIT,
+      sort: CALENDAR_LIST_SORT_FIELDS.DATE,
+      order: SORT_ORDERS.ASC,
+    },
+  );
+
+  const monthEvents = useMemo(
+    () => (monthEventsQuery.data?.rows ?? []) as CalendarEventRow[],
+    [monthEventsQuery.data?.rows],
+  );
 
   const events = useMemo(
     () => (eventsQuery.data?.rows ?? []) as CalendarEventRow[],
@@ -128,22 +168,26 @@ export function CalendarPage() {
 
       const nextStatus = event.status === "active" ? "inactive" : "active";
 
-      await setStatusMutation.mutateAsync({
-        params: {
-          path: {
-            eventId: event.id,
+      try {
+        await setStatusMutation.mutateAsync({
+          params: {
+            path: {
+              eventId: event.id,
+            },
           },
-        },
-        body: {
-          status: nextStatus,
-        },
-      });
+          body: {
+            status: nextStatus,
+          },
+        });
 
-      toast.success(
-        nextStatus === "inactive"
-          ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.CALENDAR_EVENT)
-          : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
-      );
+        toast.success(
+          nextStatus === "inactive"
+            ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.CALENDAR_EVENT)
+            : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
+        );
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not update calendar event status. Please try again."));
+      }
     },
     [institutionId, setStatusMutation],
   );
@@ -349,18 +393,22 @@ export function CalendarPage() {
       return;
     }
 
-    await deleteMutation.mutateAsync({
-      params: {
-        path: {
-          eventId: deleteTarget.id,
+    try {
+      await deleteMutation.mutateAsync({
+        params: {
+          path: {
+            eventId: deleteTarget.id,
+          },
         },
-      },
-    });
+      });
 
-    toast.success(
-      ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
-    );
-    setDeleteTarget(null);
+      toast.success(
+        ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
+      );
+      setDeleteTarget(null);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not delete calendar event. Please try again."));
+    }
   }
 
   if (!institutionId) {
@@ -414,59 +462,98 @@ export function CalendarPage() {
         toolbar={
           <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="relative min-w-[280px] flex-1">
-                <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  className="h-11 w-full max-w-md rounded-lg border-border/70 bg-background pl-10 shadow-none"
-                  placeholder={CALENDAR_PAGE_COPY.SEARCH_PLACEHOLDER}
-                  value={searchInput}
-                  onChange={(event) => setSearchInput(event.target.value)}
-                />
-              </div>
+              {viewMode === CALENDAR_VIEW_MODE.LIST ? (
+                <div className="relative min-w-[280px] flex-1">
+                  <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    className="h-11 w-full max-w-md rounded-lg border-border/70 bg-background pl-10 shadow-none"
+                    placeholder={CALENDAR_PAGE_COPY.SEARCH_PLACEHOLDER}
+                    value={searchInput}
+                    onChange={(event) => setSearchInput(event.target.value)}
+                  />
+                </div>
+              ) : (
+                <div className="flex-1" />
+              )}
+              <ToggleGroup
+                onValueChange={(value) => {
+                  if (value) {
+                    setViewMode(value as CalendarViewMode);
+                  }
+                }}
+                size="sm"
+                type="single"
+                value={viewMode}
+                variant="outline"
+              >
+                <ToggleGroupItem
+                  aria-label="Calendar view"
+                  value={CALENDAR_VIEW_MODE.CALENDAR}
+                >
+                  <IconCalendar className="mr-1.5 size-3.5" />
+                  Calendar
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  aria-label="List view"
+                  value={CALENDAR_VIEW_MODE.LIST}
+                >
+                  <IconList className="mr-1.5 size-3.5" />
+                  List
+                </ToggleGroupItem>
+              </ToggleGroup>
             </div>
           </div>
         }
       >
-        <ServerDataTable
-          emptyAction={
-            !isFiltered ? (
-              <EntityEmptyStateAction asChild>
-                <Link
-                  to={appendSearch(
-                    ERP_ROUTES.CALENDAR_EVENT_CREATE,
-                    location.search,
-                  )}
-                >
-                  <IconPlus className="size-4" />
-                  New calendar event
-                </Link>
-              </EntityEmptyStateAction>
-            ) : null
-          }
-          emptyDescription={
-            isFiltered
-              ? CALENDAR_PAGE_COPY.EMPTY_FILTERED_DESCRIPTION
-              : CALENDAR_PAGE_COPY.EMPTY_DESCRIPTION
-          }
-          emptyTitle={
-            isFiltered
-              ? CALENDAR_PAGE_COPY.EMPTY_FILTERED_TITLE
-              : CALENDAR_PAGE_COPY.EMPTY_TITLE
-          }
-          errorDescription={eventsErrorMessage}
-          errorTitle={CALENDAR_PAGE_COPY.ERROR_TITLE}
-          isError={eventsQuery.isError}
-          isLoading={eventsQuery.isLoading}
-          onSearchChange={setSearchInput}
-          rowCellClassName={(row) =>
-            row.status === "active" ? undefined : "opacity-60"
-          }
-          searchPlaceholder={CALENDAR_PAGE_COPY.SEARCH_PLACEHOLDER}
-          searchValue={searchInput}
-          showSearch={false}
-          table={table}
-          totalRows={eventsQuery.data?.total ?? 0}
-        />
+        {viewMode === CALENDAR_VIEW_MODE.CALENDAR ? (
+          <div className="p-4">
+            <CalendarMonthView
+              events={monthEvents}
+              isLoading={monthEventsQuery.isLoading}
+            />
+          </div>
+        ) : (
+          <ServerDataTable
+            emptyAction={
+              !isFiltered ? (
+                <EntityEmptyStateAction asChild>
+                  <Link
+                    to={appendSearch(
+                      ERP_ROUTES.CALENDAR_EVENT_CREATE,
+                      location.search,
+                    )}
+                  >
+                    <IconPlus className="size-4" />
+                    New calendar event
+                  </Link>
+                </EntityEmptyStateAction>
+              ) : null
+            }
+            emptyDescription={
+              isFiltered
+                ? CALENDAR_PAGE_COPY.EMPTY_FILTERED_DESCRIPTION
+                : CALENDAR_PAGE_COPY.EMPTY_DESCRIPTION
+            }
+            emptyTitle={
+              isFiltered
+                ? CALENDAR_PAGE_COPY.EMPTY_FILTERED_TITLE
+                : CALENDAR_PAGE_COPY.EMPTY_TITLE
+            }
+            errorDescription={eventsErrorMessage}
+            errorTitle={CALENDAR_PAGE_COPY.ERROR_TITLE}
+            isError={eventsQuery.isError}
+            isLoading={eventsQuery.isLoading}
+            onSearchChange={setSearchInput}
+            rowCellClassName={(row) =>
+              row.status === "active" ? undefined : "opacity-60"
+            }
+            searchPlaceholder={CALENDAR_PAGE_COPY.SEARCH_PLACEHOLDER}
+            searchValue={searchInput}
+            showSearch={false}
+            table={table}
+            totalRows={eventsQuery.data?.total ?? 0}
+          />
+        )}
         <Outlet />
       </EntityListPage>
 

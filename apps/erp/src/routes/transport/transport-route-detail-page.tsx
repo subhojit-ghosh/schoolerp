@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { Link, Outlet, useLocation, useParams } from "react-router";
 import {
-  IconArrowLeft,
   IconClock,
   IconDotsVertical,
   IconMapPin,
@@ -23,11 +22,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityDetailPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
 import { EntityPagePrimaryAction, EntityRowAction } from "@/components/entities/entity-actions";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { PERMISSIONS } from "@repo/contracts";
 import {
   ERP_ROUTES,
@@ -43,6 +44,7 @@ import {
 } from "@/features/transport/api/use-transport";
 import { appendSearch } from "@/lib/routes";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 
 type StopRow = {
   id: string;
@@ -64,6 +66,8 @@ export function TransportRouteDetailPage() {
   const updateStopMutation = useUpdateStopMutation(routeId ?? "");
 
   const route = routeQuery.data;
+
+  useDocumentTitle(route?.name ?? "Route Details");
   const stops: StopRow[] = useMemo(
     () => (route?.stops ?? []) as StopRow[],
     [route],
@@ -75,13 +79,17 @@ export function TransportRouteDetailPage() {
 
   async function handleToggleStopStatus(stop: StopRow) {
     const newStatus = stop.status === "active" ? "inactive" : "active";
-    await updateStopMutation.mutateAsync({
-      params: { path: { routeId: routeId ?? "", stopId: stop.id } },
-      body: { status: newStatus },
-    });
-    toast.success(
-      newStatus === "active" ? "Stop activated." : "Stop deactivated.",
-    );
+    try {
+      await updateStopMutation.mutateAsync({
+        params: { path: { routeId: routeId ?? "", stopId: stop.id } },
+        body: { status: newStatus },
+      });
+      toast.success(
+        newStatus === "active" ? "Stop activated." : "Stop deactivated.",
+      );
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update stop status. Please try again."));
+    }
   }
 
   if (routeQuery.isLoading) {
@@ -110,13 +118,12 @@ export function TransportRouteDetailPage() {
         <EntityDetailPageHeader
           title={route.name}
           backAction={
-            <Link
-              className="text-muted-foreground hover:text-foreground mb-1 inline-flex items-center gap-1 text-sm"
-              to={appendSearch(ERP_ROUTES.TRANSPORT_ROUTES, location.search)}
-            >
-              <IconArrowLeft className="size-4" />
-              Transport Routes
-            </Link>
+            <Breadcrumbs
+              items={[
+                { label: "Transport Routes", href: appendSearch(ERP_ROUTES.TRANSPORT_ROUTES, location.search) },
+                { label: route.name },
+              ]}
+            />
           }
           badges={
             route.status === "active" ? (

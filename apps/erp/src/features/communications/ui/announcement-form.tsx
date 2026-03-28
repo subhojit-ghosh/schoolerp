@@ -49,6 +49,7 @@ export function AnnouncementForm({
 }: AnnouncementFormProps) {
   const { control, handleSubmit, reset } = useForm<AnnouncementFormValues>({
     resolver: zodResolver(announcementFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

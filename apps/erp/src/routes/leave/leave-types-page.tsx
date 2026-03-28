@@ -8,6 +8,7 @@ import {
 } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -22,9 +23,11 @@ import {
   useUpdateLeaveTypeMutation,
 } from "@/features/leave/api/use-leave";
 import { LEAVE_TYPES_PAGE_COPY } from "@/features/leave/model/leave-list.constants";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 
 export function LeaveTypesPage() {
+  useDocumentTitle("Leave Types");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canManageLeave = hasPermission(session, PERMISSIONS.LEAVE_MANAGE);
@@ -40,13 +43,17 @@ export function LeaveTypesPage() {
     currentStatus: "active" | "inactive",
   ) {
     const newStatus = currentStatus === "active" ? "inactive" : "active";
-    await updateMutation.mutateAsync({
-      params: { path: { leaveTypeId: id } },
-      body: { status: newStatus },
-    });
-    toast.success(
-      newStatus === "active" ? "Leave type activated." : "Leave type deactivated.",
-    );
+    try {
+      await updateMutation.mutateAsync({
+        params: { path: { leaveTypeId: id } },
+        body: { status: newStatus },
+      });
+      toast.success(
+        newStatus === "active" ? "Leave type activated." : "Leave type deactivated.",
+      );
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update leave type status. Please try again."));
+    }
   }
 
   return (

@@ -32,6 +32,7 @@ import {
   formatFeeStatusLabel,
   formatRupees,
 } from "@/features/fees/model/fee-formatters";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 import { Controller, useForm } from "react-hook-form";
@@ -88,6 +89,7 @@ function CollectPaymentForm({
 
   const { control, handleSubmit } = useForm<FeePaymentFormValues>({
     resolver: zodResolver(createFeePaymentFormSchema(outstandingAmountInPaise)),
+    mode: "onTouched",
     defaultValues: {
       feeAssignmentId: assignmentId,
       amount: String(outstandingAmountInPaise / 100),
@@ -267,34 +269,52 @@ export function CollectPaymentSheetRoute() {
   );
 
   async function handleSubmit(values: FeePaymentFormValues) {
-    const createdPayment = await paymentMutation.mutateAsync({
-      body: {
-        feeAssignmentId: values.feeAssignmentId,
-        amount: Number(values.amount),
-        paymentDate: values.paymentDate,
-        paymentMethod: values.paymentMethod,
-        referenceNumber: values.referenceNumber || null,
-        notes: values.notes || null,
-      },
-    });
-    toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_PAYMENT));
-    void navigate(buildReceiptHref(createdPayment.id));
+    try {
+      const createdPayment = await paymentMutation.mutateAsync({
+        body: {
+          feeAssignmentId: values.feeAssignmentId,
+          amount: Number(values.amount),
+          paymentDate: values.paymentDate,
+          paymentMethod: values.paymentMethod,
+          referenceNumber: values.referenceNumber || null,
+          notes: values.notes || null,
+        },
+      });
+      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_PAYMENT));
+      void navigate(buildReceiptHref(createdPayment.id));
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not record payment. Please try again."),
+      );
+    }
   }
 
   async function handleReversePayment(feePaymentId: string) {
-    await reversePaymentMutation.mutateAsync({
-      params: { path: { feePaymentId } },
-      body: {},
-    });
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_PAYMENT));
+    try {
+      await reversePaymentMutation.mutateAsync({
+        params: { path: { feePaymentId } },
+        body: {},
+      });
+      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_PAYMENT));
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not reverse payment. Please try again."),
+      );
+    }
   }
 
   async function handleSendReminder() {
     if (!feeAssignmentId) return;
-    await reminderMutation.mutateAsync({
-      params: { path: { feeAssignmentId } },
-    });
-    toast.success("Reminder sent to guardian.");
+    try {
+      await reminderMutation.mutateAsync({
+        params: { path: { feeAssignmentId } },
+      });
+      toast.success("Reminder sent to guardian.");
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not send reminder. Please try again."),
+      );
+    }
   }
 
   if (assignmentQuery.isLoading) {

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useIssueBookMutation } from "@/features/library/api/use-library";
@@ -26,15 +27,19 @@ export function IssueBookSheetRoute() {
     (issueMutation.error as Error | null | undefined)?.message ?? undefined;
 
   async function handleSubmit(values: IssueBookFormValues) {
-    await issueMutation.mutateAsync({
-      body: {
-        bookId: values.bookId,
-        memberId: values.memberId,
-        dueDate: values.dueDate,
-      },
-    });
-    toast.success("Book issued successfully.");
-    void navigate(closeTo);
+    try {
+      await issueMutation.mutateAsync({
+        body: {
+          bookId: values.bookId,
+          memberId: values.memberId,
+          dueDate: values.dueDate,
+        },
+      });
+      toast.success("Book issued successfully.");
+      void navigate(closeTo);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not issue book. Please try again."));
+    }
   }
 
   return (

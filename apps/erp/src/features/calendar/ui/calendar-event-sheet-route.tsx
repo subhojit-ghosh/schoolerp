@@ -17,6 +17,7 @@ import {
 } from "@/features/calendar/api/use-calendar";
 import type { CalendarFormValues } from "@/features/calendar/model/calendar-form-schema";
 import { CalendarEventForm } from "@/features/calendar/ui/calendar-event-form";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -70,48 +71,52 @@ export function CalendarEventSheetRoute({
       return;
     }
 
-    if (mode === "create") {
-      await createEventMutation.mutateAsync({
-        body: {
-          description: values.description || undefined,
-          endTime: values.isAllDay ? undefined : values.endTime || undefined,
-          eventDate: values.eventDate,
-          eventType: values.eventType,
-          isAllDay: values.isAllDay,
-          startTime: values.isAllDay
-            ? undefined
-            : values.startTime || undefined,
-          title: values.title,
-        },
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
-      );
-    } else if (eventId) {
-      await updateEventMutation.mutateAsync({
-        params: {
-          path: {
-            eventId,
+    try {
+      if (mode === "create") {
+        await createEventMutation.mutateAsync({
+          body: {
+            description: values.description || undefined,
+            endTime: values.isAllDay ? undefined : values.endTime || undefined,
+            eventDate: values.eventDate,
+            eventType: values.eventType,
+            isAllDay: values.isAllDay,
+            startTime: values.isAllDay
+              ? undefined
+              : values.startTime || undefined,
+            title: values.title,
           },
-        },
-        body: {
-          description: values.description || undefined,
-          endTime: values.isAllDay ? undefined : values.endTime || undefined,
-          eventDate: values.eventDate,
-          eventType: values.eventType,
-          isAllDay: values.isAllDay,
-          startTime: values.isAllDay
-            ? undefined
-            : values.startTime || undefined,
-          title: values.title,
-        },
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
-      );
-    }
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
+        );
+      } else if (eventId) {
+        await updateEventMutation.mutateAsync({
+          params: {
+            path: {
+              eventId,
+            },
+          },
+          body: {
+            description: values.description || undefined,
+            endTime: values.isAllDay ? undefined : values.endTime || undefined,
+            eventDate: values.eventDate,
+            eventType: values.eventType,
+            isAllDay: values.isAllDay,
+            startTime: values.isAllDay
+              ? undefined
+              : values.startTime || undefined,
+            title: values.title,
+          },
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
+        );
+      }
 
-    void navigate(appendSearch(ERP_ROUTES.CALENDAR, location.search));
+      void navigate(appendSearch(ERP_ROUTES.CALENDAR, location.search));
+    } catch (error) {
+      toast.error(extractApiError(error, mode === "create" ? "Could not create calendar event. Please try again." : "Could not update calendar event. Please try again."));
+    }
   }
 
   if (mode === "edit" && eventQuery.isLoading) {

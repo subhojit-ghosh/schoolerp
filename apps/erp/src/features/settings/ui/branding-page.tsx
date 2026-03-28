@@ -48,6 +48,7 @@ import {
 } from "@/features/settings/ui/branding-preview";
 import { findPresetByColors } from "@/lib/color-presets";
 import { findPairingByFonts } from "@/lib/font-pairings";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useUpload } from "@/hooks/use-upload";
 import {
   applyTenantBranding,
@@ -76,6 +77,7 @@ const BRANDING_TAB_LABELS = {
 } as const;
 
 export function BrandingPage() {
+  useDocumentTitle("Branding");
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const activeContext = getActiveContext(session);
@@ -104,6 +106,7 @@ export function BrandingPage() {
 
   const { control, handleSubmit, setValue } = useForm<BrandingFormValues>({
     resolver: zodResolver(brandingSchema),
+    mode: "onTouched",
     defaultValues: getBrandingInitialValues(cachedBranding, organization),
   });
 

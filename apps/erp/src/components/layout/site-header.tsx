@@ -38,6 +38,7 @@ import { ERP_ROUTES } from "@/constants/routes";
 import { mapNotificationRecordToItem } from "@/features/notifications/model/notification-feed";
 import { useNotificationsQuery } from "@/features/communications/api/use-communications";
 import { ThemeDrawer } from "@/features/settings/ui/theme-drawer";
+import { extractApiError } from "@/lib/api-error";
 import { ERP_TOAST_MESSAGES } from "@/lib/toast-messages";
 
 const FULLSCREEN_CHANGE_EVENT = "fullscreenchange";
@@ -139,9 +140,13 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
   }, []);
 
   async function handleCampusChange(campusId: string) {
-    await selectCampusMutation.mutateAsync({
-      body: { campusId },
-    });
+    try {
+      await selectCampusMutation.mutateAsync({
+        body: { campusId },
+      });
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not switch campus. Please try again."));
+    }
   }
 
   async function toggleFullscreen() {

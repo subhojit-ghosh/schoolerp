@@ -69,6 +69,8 @@ import {
   type TimetableWeekday,
   WEEKDAY_OPTIONS,
 } from "@/features/timetable/model/timetable-editor-schema";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { extractApiError } from "@/lib/api-error";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 type ClassWithSections = {
@@ -166,6 +168,7 @@ function getVersionSelectLabel(version: TimetableVersionSummary) {
 }
 
 export function TimetablePage() {
+  useDocumentTitle("Timetable");
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
@@ -375,7 +378,7 @@ export function TimetablePage() {
       setSelectedVersionId(version.id);
       toast.success("Draft timetable version created.");
     } catch (error) {
-      toast.error((error as Error).message);
+      toast.error(extractApiError(error, "Could not create timetable version. Please try again."));
     }
   }
 
@@ -435,7 +438,7 @@ export function TimetablePage() {
 
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.TIMETABLE));
     } catch (error) {
-      toast.error((error as Error).message);
+      toast.error(extractApiError(error, "Could not save timetable. Please try again."));
     }
   }
 
@@ -464,7 +467,7 @@ export function TimetablePage() {
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.TIMETABLE));
       setCopyDialogOpen(false);
     } catch (error) {
-      toast.error((error as Error).message);
+      toast.error(extractApiError(error, "Could not copy timetable. Please try again."));
     }
   }
 
@@ -490,7 +493,7 @@ export function TimetablePage() {
       setPublishDialogOpen(false);
       setPublishEffectiveTo("");
     } catch (error) {
-      toast.error((error as Error).message);
+      toast.error(extractApiError(error, "Could not publish timetable version. Please try again."));
     }
   }
 
@@ -512,7 +515,7 @@ export function TimetablePage() {
       });
       toast.success("Timetable version archived.");
     } catch (error) {
-      toast.error((error as Error).message);
+      toast.error(extractApiError(error, "Could not archive timetable version. Please try again."));
     }
   }
 

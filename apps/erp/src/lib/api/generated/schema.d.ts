@@ -4339,6 +4339,8 @@ export interface components {
             employmentType?: "full_time" | "part_time" | "contractual" | null;
         };
         StaffDto: {
+            /** @enum {string|null} */
+            honorific?: "Mr." | "Mrs." | "Ms." | "Dr." | "Shri" | "Smt." | "Prof." | null;
             email?: string | null;
             /** @enum {string} */
             memberType: "staff" | "student" | "guardian";
@@ -4395,6 +4397,8 @@ export interface components {
             employmentType?: "full_time" | "part_time" | "contractual";
         };
         CreateStaffBodyDto: {
+            /** @enum {string} */
+            honorific?: "Mr." | "Mrs." | "Ms." | "Dr." | "Shri" | "Smt." | "Prof.";
             email?: string | null;
             /** @enum {string} */
             status: "active" | "deleted" | "inactive" | "suspended";
@@ -4420,6 +4424,8 @@ export interface components {
             roleId: string;
         };
         UpdateStaffBodyDto: {
+            /** @enum {string} */
+            honorific?: "Mr." | "Mrs." | "Ms." | "Dr." | "Shri" | "Smt." | "Prof.";
             email?: string | null;
             /** @enum {string} */
             status: "active" | "deleted" | "inactive" | "suspended";
@@ -4459,6 +4465,8 @@ export interface components {
         };
         GuardianDto: {
             userId?: string | null;
+            /** @enum {string|null} */
+            honorific?: "Mr." | "Mrs." | "Ms." | "Dr." | "Shri" | "Smt." | "Prof." | null;
             email?: string | null;
             /** @enum {string} */
             status: "active" | "deleted" | "inactive" | "suspended";
@@ -4478,6 +4486,8 @@ export interface components {
             pageCount: number;
         };
         UpdateGuardianBodyDto: {
+            /** @enum {string} */
+            honorific?: "Mr." | "Mrs." | "Ms." | "Dr." | "Shri" | "Smt." | "Prof.";
             email?: string | null;
             name: string;
             mobile: string;

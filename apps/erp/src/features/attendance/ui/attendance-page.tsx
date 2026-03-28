@@ -36,6 +36,7 @@ import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   getActiveContext,
   hasPermission,
@@ -57,6 +58,7 @@ import {
   type AttendanceSelectionValues,
 } from "@/features/attendance/model/attendance-form-schema";
 import { ATTENDANCE_PAGE_COPY } from "@/features/attendance/model/attendance-page.constants";
+import { extractApiError } from "@/lib/api-error";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const STATUS_CONFIG = {
@@ -122,6 +124,7 @@ const ATTENDANCE_TAB_VALUES = {
 } as const;
 
 export function AttendancePage() {
+  useDocumentTitle("Attendance");
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
@@ -144,10 +147,12 @@ export function AttendancePage() {
 
   const selectionForm = useForm<AttendanceSelectionValues>({
     resolver: zodResolver(attendanceSelectionSchema),
+    mode: "onTouched",
     defaultValues: DEFAULT_ATTENDANCE_SELECTION_VALUES,
   });
   const entryForm = useForm<AttendanceEntryFormValues>({
     resolver: zodResolver(attendanceEntryFormSchema),
+    mode: "onTouched",
     defaultValues: {
       ...DEFAULT_ATTENDANCE_SELECTION_VALUES,
       entries: [],
@@ -214,9 +219,15 @@ export function AttendancePage() {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await saveAttendanceMutation.mutateAsync({ body: values as any });
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ATTENDANCE));
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      await saveAttendanceMutation.mutateAsync({ body: values as any });
+      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ATTENDANCE));
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not save attendance. Please try again."),
+      );
+    }
   }
 
   function handleLoadFromOverview(item: {

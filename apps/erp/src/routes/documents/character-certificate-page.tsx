@@ -5,9 +5,11 @@ import {
   PrintDetailItem,
   PrintDocumentShell,
 } from "@/features/documents/ui/print-document-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useStudentSummaryQuery } from "@/features/students/api/use-students";
 
 export function CharacterCertificatePage() {
+  useDocumentTitle("Character Certificate");
   const { studentId } = useParams();
   const institutionId = useAuthStore(
     (store) => store.session?.activeOrganization?.id,

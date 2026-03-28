@@ -41,8 +41,10 @@ import {
   formatAuditActionLabel,
   formatAuditEntityLabel,
 } from "@/features/audit/model/audit-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { formatPhoneCompact } from "@/lib/format";
 
 type AuditActionFilter =
   | "create"
@@ -105,6 +107,7 @@ function getActionBadgeVariant(action: string) {
 }
 
 export function AuditPage() {
+  useDocumentTitle("Audit Log");
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
@@ -183,7 +186,7 @@ export function AuditPage() {
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span>{row.original.actor.name}</span>
               <span className="hidden h-1 w-1 rounded-full bg-border sm:block" />
-              <span>{row.original.actor.mobile}</span>
+              <span>{formatPhoneCompact(row.original.actor.mobile)}</span>
               {row.original.actor.contextKey ? (
                 <>
                   <span className="hidden h-1 w-1 rounded-full bg-border sm:block" />
@@ -271,7 +274,7 @@ export function AuditPage() {
           <div className="space-y-1">
             <p className="font-medium">{row.original.actor.name}</p>
             <p className="text-xs text-muted-foreground">
-              {row.original.actor.mobile}
+              {formatPhoneCompact(row.original.actor.mobile)}
             </p>
           </div>
         ),

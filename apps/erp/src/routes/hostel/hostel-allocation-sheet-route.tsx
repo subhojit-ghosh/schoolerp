@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -49,16 +50,20 @@ export function HostelAllocationSheetRoute() {
   const errorMessage = (createMutation.error as Error | null | undefined)?.message ?? undefined;
 
   async function handleSubmit(values: AllocationFormValues) {
-    await createMutation.mutateAsync({
-      body: {
-        roomId: values.roomId,
-        studentId: values.studentId,
-        bedNumber: values.bedNumber,
-        startDate: values.startDate,
-      },
-    });
-    toast.success("Bed allocation created.");
-    void navigate(closeTo);
+    try {
+      await createMutation.mutateAsync({
+        body: {
+          roomId: values.roomId,
+          studentId: values.studentId,
+          bedNumber: values.bedNumber,
+          startDate: values.startDate,
+        },
+      });
+      toast.success("Bed allocation created.");
+      void navigate(closeTo);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not create bed allocation. Please try again."));
+    }
   }
 
   return (

@@ -25,6 +25,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/ui/tabs";
+import { extractApiError } from "@/lib/api-error";
 import { EntityToolbarSecondaryAction } from "@/components/entities/entity-actions";
 import { EntitySheet } from "@/components/entities/entity-sheet";
 import {
@@ -94,6 +95,7 @@ export function DataExchangeEntityActions({
 
   const form = useForm<DataExchangeImportFormValues>({
     resolver: zodResolver(dataExchangeImportFormSchema),
+    mode: "onTouched",
     defaultValues: {
       entityType,
     },
@@ -114,14 +116,20 @@ export function DataExchangeEntityActions({
     setCsvContent(fileContent);
     setExecuteResult(null);
 
-    const result = await previewMutation.mutateAsync({
-      body: {
-        entityType,
-        csvContent: fileContent,
-      },
-    });
+    try {
+      const result = await previewMutation.mutateAsync({
+        body: {
+          entityType,
+          csvContent: fileContent,
+        },
+      });
 
-    setPreviewResult(result as PreviewResult);
+      setPreviewResult(result as PreviewResult);
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not preview import. Please try again."),
+      );
+    }
   }
 
   async function handleExecute() {
@@ -130,15 +138,21 @@ export function DataExchangeEntityActions({
       return;
     }
 
-    const result = await executeMutation.mutateAsync({
-      body: {
-        entityType,
-        csvContent,
-      },
-    });
+    try {
+      const result = await executeMutation.mutateAsync({
+        body: {
+          entityType,
+          csvContent,
+        },
+      });
 
-    setExecuteResult(result as ExecuteResult);
-    toast.success("Bulk import finished.");
+      setExecuteResult(result as ExecuteResult);
+      toast.success("Bulk import finished.");
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not execute import. Please try again."),
+      );
+    }
   }
 
   async function handleTemplateDownload() {
@@ -264,7 +278,9 @@ export function DataExchangeEntityActions({
                   type="submit"
                 >
                   <IconFileImport className="size-4" />
-                  Preview import
+                  {previewMutation.isPending
+                    ? "Processing..."
+                    : "Preview import"}
                 </Button>
               </div>
             </form>
@@ -288,7 +304,9 @@ export function DataExchangeEntityActions({
                     type="button"
                   >
                     <IconUpload className="size-4" />
-                    Execute import
+                    {executeMutation.isPending
+                      ? "Importing..."
+                      : "Execute import"}
                   </Button>
                 </div>
 

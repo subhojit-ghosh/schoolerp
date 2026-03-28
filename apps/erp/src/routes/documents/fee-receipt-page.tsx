@@ -24,6 +24,7 @@ import {
   PrintDetailItem,
   PrintDocumentShell,
 } from "@/features/documents/ui/print-document-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useFeeAssignmentQuery } from "@/features/fees/api/use-fees";
 import {
   formatFeeDate,
@@ -39,6 +40,7 @@ function toMethodLabel(value: string) {
 }
 
 export function FeeReceiptPage() {
+  useDocumentTitle("Fee Receipt");
   const { feeAssignmentId } = useParams();
   const [searchParams] = useSearchParams();
   const paymentId = searchParams.get(DOCUMENT_QUERY_PARAMS.PAYMENT_ID);
@@ -105,8 +107,8 @@ export function FeeReceiptPage() {
       subtitle={`${assignment.studentFullName} · ${assignment.feeStructureName}`}
       title={DOCUMENT_TITLES.FEE_RECEIPT}
     >
-      <div className="space-y-8">
-        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+      <div className="space-y-8 print:space-y-4 print:text-[11px] print:break-after-page">
+        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 print:grid-cols-4 print:gap-2">
           <PrintDetailItem
             label="Receipt No."
             value={formatDocumentReference("RCT", selectedPayment.id)}
@@ -129,10 +131,10 @@ export function FeeReceiptPage() {
           />
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
-          <div className="space-y-4 rounded-[24px] border border-border/70 bg-white px-5 py-5">
+        <section className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr] print:grid-cols-[1.3fr_0.7fr] print:gap-3">
+          <div className="space-y-4 rounded-[24px] border border-border/70 bg-white px-5 py-5 print:rounded-none print:px-3 print:py-3 print:space-y-2">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="font-[family:var(--font-heading)] text-xl font-semibold">
+              <h2 className="font-[family:var(--font-heading)] text-xl font-semibold print:text-sm">
                 Student and fee details
               </h2>
               <Badge variant="outline">
@@ -140,7 +142,7 @@ export function FeeReceiptPage() {
               </Badge>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 print:grid-cols-2 print:gap-2">
               <PrintDetailItem
                 label="Student"
                 value={assignment.studentFullName}
@@ -200,11 +202,11 @@ export function FeeReceiptPage() {
             ) : null}
           </div>
 
-          <div className="rounded-[24px] border border-border/70 bg-muted/10 px-5 py-5">
-            <h2 className="font-[family:var(--font-heading)] text-xl font-semibold">
+          <div className="rounded-[24px] border border-border/70 bg-muted/10 px-5 py-5 print:rounded-none print:px-3 print:py-3">
+            <h2 className="font-[family:var(--font-heading)] text-xl font-semibold print:text-sm">
               Collection snapshot
             </h2>
-            <dl className="mt-4 space-y-3 text-sm">
+            <dl className="mt-4 space-y-3 text-sm print:mt-2 print:space-y-1.5 print:text-[11px]">
               <div className="flex items-center justify-between gap-3">
                 <dt className="text-muted-foreground">Assigned amount</dt>
                 <dd className="font-medium">
@@ -235,9 +237,9 @@ export function FeeReceiptPage() {
           </div>
         </section>
 
-        <section className="rounded-[24px] border border-border/70 bg-white px-5 py-5">
+        <section className="rounded-[24px] border border-border/70 bg-white px-5 py-5 print:rounded-none print:px-3 print:py-3">
           <div className="flex items-center justify-between gap-3">
-            <h2 className="font-[family:var(--font-heading)] text-xl font-semibold">
+            <h2 className="font-[family:var(--font-heading)] text-xl font-semibold print:text-sm">
               Payment history
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -277,7 +279,32 @@ export function FeeReceiptPage() {
             </Table>
           </div>
         </section>
+        <ReceiptVerificationFooter paymentId={selectedPayment.id} />
       </div>
     </PrintDocumentShell>
+  );
+}
+
+const VERIFICATION_PATH_PREFIX = "/verify/receipt/";
+
+type ReceiptVerificationFooterProps = {
+  paymentId: string;
+};
+
+function ReceiptVerificationFooter({
+  paymentId,
+}: ReceiptVerificationFooterProps) {
+  const verificationUrl = `${window.location.origin}${VERIFICATION_PATH_PREFIX}${paymentId}`;
+  const referenceCode = formatDocumentReference("RCT", paymentId);
+
+  return (
+    <section className="mt-2 border-t border-dashed border-border/60 pt-4 text-center text-xs text-muted-foreground">
+      <p>
+        Ref: <span className="font-mono font-medium">{referenceCode}</span>
+        <span className="mx-2">·</span>
+        Verify this receipt at{" "}
+        <span className="font-mono break-all">{verificationUrl}</span>
+      </p>
+    </section>
   );
 }

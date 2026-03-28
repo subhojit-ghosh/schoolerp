@@ -61,6 +61,7 @@ export function ExamMarksForm({
   const { control, handleSubmit, reset, setValue } =
     useForm<ExamMarksFormValues>({
       resolver: zodResolver(examMarksFormSchema),
+      mode: "onTouched",
       defaultValues,
     });
 
@@ -277,7 +278,7 @@ export function ExamMarksForm({
         ) : null}
 
         <Button disabled={isPending || students.length === 0} type="submit">
-          Save marks
+          {isPending ? "Saving..." : "Save marks"}
         </Button>
       </FieldGroup>
     </form>

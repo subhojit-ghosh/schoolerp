@@ -895,6 +895,7 @@ export class StaffService {
     id: member.id,
     userId: user.id,
     institutionId: member.organizationId,
+    honorific: user.honorific,
     name: user.name,
     mobile: user.mobile,
     email: user.email,
@@ -1388,6 +1389,7 @@ export class StaffService {
     await tx.insert(user).values({
       id: userId,
       institutionId,
+      honorific: payload.honorific ?? null,
       name: payload.name.trim(),
       mobile: normalizedMobile,
       email: normalizedEmail,
@@ -1420,6 +1422,7 @@ export class StaffService {
     await tx
       .update(user)
       .set({
+        honorific: payload.honorific ?? null,
         name: payload.name.trim(),
         mobile: normalizedMobile,
         email: normalizedEmail,

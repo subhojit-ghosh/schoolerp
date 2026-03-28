@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import {
   IconDotsVertical,
   IconPencil,
@@ -19,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -61,6 +63,7 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function InventoryCategoriesPage() {
+  useDocumentTitle("Inventory Categories");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.INVENTORY_READ);
@@ -98,15 +101,19 @@ export function InventoryCategoriesPage() {
   const handleToggleStatus = useCallback(
     async (id: string, currentStatus: "active" | "inactive") => {
       const newStatus = currentStatus === "active" ? "inactive" : "active";
-      await statusMutation.mutateAsync({
-        params: { path: { categoryId: id } },
-        body: { status: newStatus },
-      });
-      toast.success(
-        newStatus === "active"
-          ? "Category activated."
-          : "Category deactivated.",
-      );
+      try {
+        await statusMutation.mutateAsync({
+          params: { path: { categoryId: id } },
+          body: { status: newStatus },
+        });
+        toast.success(
+          newStatus === "active"
+            ? "Category activated."
+            : "Category deactivated.",
+        );
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not update category status. Please try again."));
+      }
     },
     [statusMutation],
   );

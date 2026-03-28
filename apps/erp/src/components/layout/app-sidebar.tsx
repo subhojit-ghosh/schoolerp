@@ -26,6 +26,7 @@ import {
   IconPackage,
   IconSchool,
   IconSpeakerphone,
+  IconStarFilled,
   IconTruck,
   IconUserHeart,
   IconUserStar,
@@ -42,6 +43,7 @@ import { cn } from "@repo/ui/lib/utils";
 import { NavMain } from "@/components/navigation/nav-main";
 import { NavUser } from "@/components/navigation/nav-user";
 import {
+  findNavItemByUrl,
   getActionableNavItems,
   NAV_HOME,
   NAV_PEOPLE,
@@ -70,6 +72,7 @@ import {
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { readCachedTenantBranding } from "@/lib/tenant-branding";
 import { ERP_ROUTES } from "@/constants/routes";
+import { useSidebarFavorites } from "@/hooks/use-sidebar-favorites";
 import {
   Sidebar,
   SidebarContent,
@@ -340,6 +343,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const selectContextMutation = useSelectContextMutation();
   const [isContextSwitcherOpen, setIsContextSwitcherOpen] =
     React.useState(false);
+  const { favorites, isFavorite, toggleFavorite } = useSidebarFavorites();
   const branding = readCachedTenantBranding();
   const institutionName =
     branding?.institutionName ??
@@ -399,6 +403,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     NAV_STUDENT_COMMUNICATION,
   );
   const studentServicesItems = getActionableNavItems(NAV_STUDENT_SERVICES);
+  const favoriteNavItems = React.useMemo(
+    () =>
+      favorites
+        .map((url) => findNavItemByUrl(url))
+        .filter(
+          (item): item is NonNullable<typeof item> =>
+            item !== undefined && !item.disabled,
+        ),
+    [favorites],
+  );
+
   const sortedContexts = [...availableContexts].sort(
     (left, right) =>
       CONTEXT_META[left.key].order - CONTEXT_META[right.key].order,
@@ -608,14 +623,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent className="pt-3">
         {showStaffNavigation ? (
           <>
+            {favoriteNavItems.length > 0 ? (
+              <NavMain
+                icon={IconStarFilled}
+                isFavorite={isFavorite}
+                items={favoriteNavItems}
+                label="Favorites"
+                onToggleFavorite={toggleFavorite}
+              />
+            ) : null}
             {renderStandaloneTopLevelItems(homeItems)}
             {peopleItems.length > 0 ? (
               <NavMain
                 collapsible
                 icon={IconUsers}
+                isFavorite={isFavorite}
                 items={peopleItems}
                 label={STAFF_NAV_GROUP_LABELS.DIRECTORY}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -623,9 +649,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconFileDescription}
+                isFavorite={isFavorite}
                 items={admissionsItems}
                 label={STAFF_NAV_GROUP_LABELS.ADMISSIONS}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -633,9 +661,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconCalendarStats}
+                isFavorite={isFavorite}
                 items={teachingItems}
                 label={STAFF_NAV_GROUP_LABELS.TEACHING}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -643,9 +673,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconCurrencyRupee}
+                isFavorite={isFavorite}
                 items={financeItems}
                 label={STAFF_NAV_GROUP_LABELS.FINANCE}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -656,9 +688,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconBooks}
+                isFavorite={isFavorite}
                 items={libraryItems}
                 label={STAFF_NAV_GROUP_LABELS.LIBRARY}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -666,9 +700,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconTruck}
+                isFavorite={isFavorite}
                 items={transportItems}
                 label={STAFF_NAV_GROUP_LABELS.TRANSPORT}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -676,9 +712,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconLayoutGrid}
+                isFavorite={isFavorite}
                 items={servicesItems}
                 label={STAFF_NAV_GROUP_LABELS.SERVICES}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -686,9 +724,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconPackage}
+                isFavorite={isFavorite}
                 items={inventoryNavItems}
                 label={STAFF_NAV_GROUP_LABELS.INVENTORY}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -696,9 +736,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconUsersGroup}
+                isFavorite={isFavorite}
                 items={hrItems}
                 label={STAFF_NAV_GROUP_LABELS.HR}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -706,9 +748,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconChartBar}
+                isFavorite={isFavorite}
                 items={reportItems}
                 label={STAFF_NAV_GROUP_LABELS.REPORTS}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -716,9 +760,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconFolder}
+                isFavorite={isFavorite}
                 items={recordItems}
                 label={STAFF_NAV_GROUP_LABELS.RECORDS}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -726,9 +772,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconBook2}
+                isFavorite={isFavorite}
                 items={academicSetupItems}
                 label={STAFF_NAV_GROUP_LABELS.ACADEMIC_SETUP}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}
@@ -736,9 +784,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <NavMain
                 collapsible
                 icon={IconAdjustments}
+                isFavorite={isFavorite}
                 items={settingsItems}
                 label={STAFF_NAV_GROUP_LABELS.SETTINGS}
                 onOpenGroupChange={setOpenGroupLabel}
+                onToggleFavorite={toggleFavorite}
                 openGroupLabel={openGroupLabel}
               />
             ) : null}

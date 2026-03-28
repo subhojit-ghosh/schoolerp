@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router";
 import { toast } from "sonner";
-import { IconArrowLeft, IconEye } from "@tabler/icons-react";
+import { extractApiError } from "@/lib/api-error";
+import { IconEye } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -12,10 +13,12 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/ui/table";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityDetailPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES, buildPayslipDetailRoute } from "@/constants/routes";
 import { hasPermission } from "@/features/auth/model/auth-context";
@@ -79,6 +82,7 @@ function RunStatusBadge({ status }: { status: PayrollRunDetail["status"] }) {
 }
 
 export function PayrollRunDetailPage() {
+  useDocumentTitle("Payroll Run");
   const { runId } = useParams();
   const session = useAuthStore((store) => store.session);
   const canReadPayroll = hasPermission(session, PERMISSIONS.PAYROLL_READ);
@@ -99,20 +103,32 @@ export function PayrollRunDetailPage() {
 
   async function handleProcess() {
     if (!runId) return;
-    await processMutation.mutateAsync({ params: { path: { runId } } });
-    toast.success("Payroll run processed.");
+    try {
+      await processMutation.mutateAsync({ params: { path: { runId } } });
+      toast.success("Payroll run processed.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not process payroll run. Please try again."));
+    }
   }
 
   async function handleApprove() {
     if (!runId) return;
-    await approveMutation.mutateAsync({ params: { path: { runId } } });
-    toast.success("Payroll run approved.");
+    try {
+      await approveMutation.mutateAsync({ params: { path: { runId } } });
+      toast.success("Payroll run approved.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not approve payroll run. Please try again."));
+    }
   }
 
   async function handleMarkPaid() {
     if (!runId) return;
-    await markPaidMutation.mutateAsync({ params: { path: { runId } } });
-    toast.success("Payroll run marked as paid.");
+    try {
+      await markPaidMutation.mutateAsync({ params: { path: { runId } } });
+      toast.success("Payroll run marked as paid.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not mark payroll run as paid. Please try again."));
+    }
   }
 
   if (runQuery.isLoading) {
@@ -147,12 +163,12 @@ export function PayrollRunDetailPage() {
     <EntityPageShell width="full">
       <EntityDetailPageHeader
         backAction={
-          <Button asChild variant="ghost" size="sm" className="mb-2">
-            <Link to={ERP_ROUTES.PAYROLL_RUNS}>
-              <IconArrowLeft className="size-4" />
-              Back to payroll runs
-            </Link>
-          </Button>
+          <Breadcrumbs
+            items={[
+              { label: "Payroll Runs", href: ERP_ROUTES.PAYROLL_RUNS },
+              { label: formatMonthYear(run.month, run.year) },
+            ]}
+          />
         }
         title={formatMonthYear(run.month, run.year)}
         badges={<RunStatusBadge status={run.status} />}

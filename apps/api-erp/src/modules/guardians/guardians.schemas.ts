@@ -1,5 +1,6 @@
 import { guardianRelationshipSchema } from "@repo/contracts";
 import { z } from "zod";
+import { HONORIFICS } from "../../constants";
 import {
   baseListQuerySchema,
   parseListQuerySchema,
@@ -19,6 +20,11 @@ export const sortableGuardianColumns = {
 } as const;
 
 export const updateGuardianSchema = z.object({
+  honorific: z
+    .enum(HONORIFICS)
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
   name: z.string().trim().min(NAME_MIN_LENGTH, "Guardian name is required"),
   mobile: z
     .string()

@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import {
   IconDotsVertical,
   IconPlus,
@@ -16,6 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -64,6 +66,7 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function HostelAllocationsPage() {
+  useDocumentTitle("Bed Allocations");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.HOSTEL_READ);
@@ -100,10 +103,14 @@ export function HostelAllocationsPage() {
 
   const handleVacate = useCallback(
     async (allocationId: string) => {
-      await vacateMutation.mutateAsync({
-        params: { path: { allocationId } },
-      });
-      toast.success("Bed allocation vacated.");
+      try {
+        await vacateMutation.mutateAsync({
+          params: { path: { allocationId } },
+        });
+        toast.success("Bed allocation vacated.");
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not vacate bed allocation. Please try again."));
+      }
     },
     [vacateMutation],
   );

@@ -1,4 +1,4 @@
-import { type Control, Controller } from "react-hook-form";
+import { type Control, Controller, useWatch } from "react-hook-form";
 import {
   Field,
   FieldContent,
@@ -20,6 +20,7 @@ import {
   STAFF_GENDER_OPTIONS,
   type StaffFormValues,
 } from "@/features/staff/model/staff-form-schema";
+import { checkStaffDob } from "@/lib/date-sanity";
 
 type StaffProfileFieldsProps = {
   control: Control<StaffFormValues>;
@@ -169,6 +170,8 @@ export function StaffEmploymentFields({ control }: StaffProfileFieldsProps) {
 }
 
 export function StaffPersonalFields({ control }: StaffProfileFieldsProps) {
+  const dateOfBirth = useWatch({ control, name: "profile.dateOfBirth" });
+  const dobWarning = checkStaffDob(dateOfBirth ?? "");
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -186,6 +189,9 @@ export function StaffPersonalFields({ control }: StaffProfileFieldsProps) {
                 type="date"
               />
               <FieldError>{fieldState.error?.message}</FieldError>
+              {!fieldState.error && dobWarning ? (
+                <p className="text-xs text-amber-600 mt-1">{dobWarning}</p>
+              ) : null}
             </FieldContent>
           </Field>
         )}

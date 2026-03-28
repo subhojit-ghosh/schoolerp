@@ -61,6 +61,7 @@ export function SalaryAssignmentForm({
 }: SalaryAssignmentFormProps) {
   const { control, handleSubmit } = useForm<SalaryAssignmentFormValues>({
     resolver: zodResolver(salaryAssignmentFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

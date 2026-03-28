@@ -16,6 +16,7 @@ import {
   hasPermission,
   isStaffContext,
 } from "@/features/auth/model/auth-context";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -40,9 +41,13 @@ function CreateRoleSheet() {
   const permissionsQuery = usePermissionsQuery(enabled);
 
   async function handleSubmit(values: RoleFormValues) {
-    await createMutation.mutateAsync({ body: values });
-    toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ROLE));
-    void navigate(appendSearch(ERP_ROUTES.SETTINGS_ROLES, location.search));
+    try {
+      await createMutation.mutateAsync({ body: values });
+      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ROLE));
+      void navigate(appendSearch(ERP_ROUTES.SETTINGS_ROLES, location.search));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not create role. Please try again."));
+    }
   }
 
   return (
@@ -97,12 +102,16 @@ function EditRoleSheet() {
 
   async function handleSubmit(values: RoleFormValues) {
     if (!roleId) return;
-    await updateMutation.mutateAsync({
-      params: { path: { roleId } },
-      body: values,
-    });
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ROLE));
-    void navigate(appendSearch(ERP_ROUTES.SETTINGS_ROLES, location.search));
+    try {
+      await updateMutation.mutateAsync({
+        params: { path: { roleId } },
+        body: values,
+      });
+      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ROLE));
+      void navigate(appendSearch(ERP_ROUTES.SETTINGS_ROLES, location.search));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update role. Please try again."));
+    }
   }
 
   if (roleQuery.isLoading || permissionsQuery.isLoading) {

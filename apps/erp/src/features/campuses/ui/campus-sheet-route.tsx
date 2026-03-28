@@ -9,6 +9,7 @@ import {
 } from "@/features/campuses/model/campus-form-schema";
 import { CampusForm } from "@/features/campuses/ui/campus-form";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -31,11 +32,15 @@ export function CampusSheetRoute() {
       return;
     }
 
-    await createCampusMutation.mutateAsync({
-      body: toCampusMutationBody(values),
-    });
-    toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CAMPUS));
-    void navigate(appendSearch(ERP_ROUTES.SETTINGS_CAMPUSES, location.search));
+    try {
+      await createCampusMutation.mutateAsync({
+        body: toCampusMutationBody(values),
+      });
+      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CAMPUS));
+      void navigate(appendSearch(ERP_ROUTES.SETTINGS_CAMPUSES, location.search));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not create campus. Please try again."));
+    }
   }
 
   return (

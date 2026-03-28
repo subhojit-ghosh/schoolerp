@@ -164,3 +164,44 @@ button,
 input {
   font: inherit;
 }
+
+/* ── Print layouts ─────────────────────────────────────── */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm 10mm;
+  }
+
+  /* Hide sidebar, header, and other chrome when printing */
+  [data-slot="sidebar-wrapper"] > [data-slot="sidebar"],
+  [data-slot="sidebar-wrapper"] header,
+  .print-hidden {
+    display: none !important;
+  }
+
+  /* Fee receipt: compact enough to fit 2 per A4 page */
+  .print-receipt {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* ID card grid: 2 columns x 4 rows = 8 per A4 page */
+  .print-id-card-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4mm;
+    page-break-inside: avoid;
+  }
+
+  .print-id-card-grid > * {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* After every 8 cards, force a page break */
+  .print-id-card-grid > *:nth-child(8n) {
+    break-after: page;
+    page-break-after: always;
+  }
+}

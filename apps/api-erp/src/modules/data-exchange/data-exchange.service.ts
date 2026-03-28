@@ -37,9 +37,11 @@ import {
 } from "@repo/database";
 import {
   ERROR_MESSAGES,
+  HONORIFICS,
   MEMBER_TYPES,
   PERMISSIONS,
   STATUS,
+  type Honorific,
   type PermissionSlug,
 } from "../../constants";
 import { AuthService } from "../auth/auth.service";
@@ -88,6 +90,7 @@ type StudentImportPayload = {
 };
 
 type StaffImportPayload = {
+  honorific: Honorific | undefined;
   name: string;
   mobile: string;
   email: string | undefined;
@@ -385,6 +388,7 @@ export class DataExchangeService {
         authSession,
         scopes,
         {
+          honorific: undefined,
           name: payload.name,
           mobile: payload.mobile,
           email: payload.email,
@@ -551,7 +555,13 @@ export class DataExchangeService {
     }
 
     const mobile = this.required(row.mobile, "Staff mobile is required.");
+    const rawHonorific = row.honorific || undefined;
+    const honorific =
+      rawHonorific && (HONORIFICS as readonly string[]).includes(rawHonorific)
+        ? (rawHonorific as Honorific)
+        : undefined;
     return {
+      honorific,
       name: this.required(row.name, "Staff name is required."),
       mobile,
       email: row.email || undefined,

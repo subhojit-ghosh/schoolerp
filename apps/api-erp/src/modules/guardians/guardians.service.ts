@@ -78,6 +78,7 @@ type GuardianSummary = {
   id: string;
   userId: string | null;
   institutionId: string;
+  honorific: string | null;
   name: string;
   mobile: string;
   email: string | null;
@@ -221,6 +222,7 @@ export class GuardiansService {
         await tx
           .update(user)
           .set({
+            honorific: payload.honorific ?? null,
             name: payload.name.trim(),
             mobile: normalizedMobile,
             email: normalizedEmail,
@@ -284,6 +286,7 @@ export class GuardiansService {
         await tx.insert(user).values({
           id: newUserId,
           institutionId,
+          honorific: payload.honorific ?? null,
           name: payload.name.trim(),
           mobile: normalizedMobile,
           email: normalizedEmail,
@@ -357,6 +360,7 @@ export class GuardiansService {
       await tx
         .update(user)
         .set({
+          honorific: payload.honorific ?? null,
           name: payload.name.trim(),
           mobile: normalizedMobile,
           email: normalizedEmail,
@@ -948,6 +952,7 @@ export class GuardiansService {
     id: member.id,
     userId: user.id,
     institutionId: member.organizationId,
+    honorific: user.honorific,
     name: user.name,
     mobile: user.mobile,
     email: user.email,

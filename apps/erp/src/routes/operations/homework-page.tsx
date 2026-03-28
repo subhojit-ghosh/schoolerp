@@ -47,8 +47,10 @@ import {
   HOMEWORK_PAGE_COPY,
   HOMEWORK_LIST_SORT_FIELDS,
 } from "@/features/homework/model/homework-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 
 type HomeworkRow = {
@@ -71,6 +73,7 @@ const VALID_HOMEWORK_SORT_FIELDS = [
 ] as const;
 
 export function HomeworkPage() {
+  useDocumentTitle("Homework");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canReadHomework = hasPermission(session, PERMISSIONS.HOMEWORK_READ);
@@ -107,20 +110,32 @@ export function HomeworkPage() {
 
   const handlePublish = useCallback(
     async (homeworkId: string) => {
-      await publishMutation.mutateAsync({
-        params: { path: { homeworkId } },
-      });
-      toast.success("Homework published.");
+      try {
+        await publishMutation.mutateAsync({
+          params: { path: { homeworkId } },
+        });
+        toast.success("Homework published.");
+      } catch (error) {
+        toast.error(
+          extractApiError(error, "Could not publish homework. Please try again."),
+        );
+      }
     },
     [publishMutation],
   );
 
   const handleDelete = useCallback(
     async (homeworkId: string) => {
-      await deleteMutation.mutateAsync({
-        params: { path: { homeworkId } },
-      });
-      toast.success("Homework deleted.");
+      try {
+        await deleteMutation.mutateAsync({
+          params: { path: { homeworkId } },
+        });
+        toast.success("Homework deleted.");
+      } catch (error) {
+        toast.error(
+          extractApiError(error, "Could not delete homework. Please try again."),
+        );
+      }
     },
     [deleteMutation],
   );

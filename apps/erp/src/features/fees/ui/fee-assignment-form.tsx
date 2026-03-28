@@ -79,6 +79,7 @@ export function FeeAssignmentForm({
   const { control, handleSubmit, reset } = useForm<
     FeeAssignmentFormValues | FeeAssignmentUpdateFormValues
   >({
+    mode: "onTouched",
     resolver: zodResolver(
       mode === "create"
         ? feeAssignmentFormSchema

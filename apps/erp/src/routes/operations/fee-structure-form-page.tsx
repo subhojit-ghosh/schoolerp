@@ -1,8 +1,6 @@
-import { useMemo } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import { IconChevronLeft } from "@tabler/icons-react";
-import { Button } from "@repo/ui/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,6 +11,7 @@ import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { buildFeeStructureEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
@@ -24,6 +23,10 @@ import {
 } from "@/features/fees/api/use-fees";
 import type { FeeStructureFormValues } from "@/features/fees/model/fee-form-schema";
 import { FeeStructureForm } from "@/features/fees/ui/fee-structure-form";
+import { UnsavedChangesDialog } from "@/components/feedback/unsaved-changes-dialog";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -45,10 +48,24 @@ type FeeStructureFormPageProps = {
   mode: "create" | "edit";
 };
 
+function buildAutoSaveKey(mode: "create" | "edit", feeStructureId?: string): string {
+  if (mode === "edit" && feeStructureId) {
+    return `fee-structure-edit-${feeStructureId}`;
+  }
+  return "fee-structure-create";
+}
+
 export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
+  useDocumentTitle(mode === "create" ? "New Fee Structure" : "Edit Fee Structure");
+  const [isDirty, setIsDirty] = useState(false);
+  const blocker = useUnsavedChangesGuard(isDirty);
   const location = useLocation();
   const navigate = useNavigate();
   const { feeStructureId } = useParams();
+  const clearDraftRef = useRef<(() => void) | null>(null);
+  const handleAutoSaveReady = useCallback((clearDraft: () => void) => {
+    clearDraftRef.current = clearDraft;
+  }, []);
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const activeCampusLabel = session?.activeCampus?.name;
@@ -120,56 +137,65 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
       dueDate: i.dueDate,
     }));
 
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          academicYearId: values.academicYearId,
-          name: values.name,
-          description: values.description || null,
-          scope: values.scope,
-          installments,
-        },
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
-      );
-    } else if (feeStructureId) {
-      if (isInstallmentLocked) {
-        const nextVersion = await createNextVersionMutation.mutateAsync({
-          params: { path: { feeStructureId } },
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            academicYearId: values.academicYearId,
+            name: values.name,
+            description: values.description || null,
+            scope: values.scope,
+            installments,
+          },
         });
+        clearDraftRef.current?.();
         toast.success(
           ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
         );
-        void navigate(
-          appendSearch(
-            buildFeeStructureEditRoute(nextVersion.id),
-            location.search,
-          ),
+      } else if (feeStructureId) {
+        if (isInstallmentLocked) {
+          const nextVersion = await createNextVersionMutation.mutateAsync({
+            params: { path: { feeStructureId } },
+          });
+          clearDraftRef.current?.();
+          toast.success(
+            ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
+          );
+          void navigate(
+            appendSearch(
+              buildFeeStructureEditRoute(nextVersion.id),
+              location.search,
+            ),
+          );
+          return;
+        }
+
+        await updateMutation.mutateAsync({
+          params: { path: { feeStructureId } },
+          body: {
+            name: values.name,
+            description: values.description || null,
+            installments,
+          },
+        });
+        clearDraftRef.current?.();
+        toast.success(
+          ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
         );
-        return;
       }
 
-      await updateMutation.mutateAsync({
-        params: { path: { feeStructureId } },
-        body: {
-          name: values.name,
-          description: values.description || null,
-          installments,
-        },
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
+      void navigate(appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search));
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not save fee structure. Please try again."),
       );
     }
-
-    void navigate(appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search));
   }
 
   if (mode === "edit" && feeStructureQuery.isLoading) {
     return (
       <EntityPageShell width="form">
-        <BackLink location={location} />
+        <FeeStructureBreadcrumbs label="Loading..." location={location} />
         <Card className="w-full">
           <CardContent className="py-12 text-center text-sm text-muted-foreground">
             Loading...
@@ -182,7 +208,7 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
   if (mode === "edit" && !feeStructureQuery.data) {
     return (
       <EntityPageShell width="form">
-        <BackLink location={location} />
+        <FeeStructureBreadcrumbs label="Loading..." location={location} />
         <Card className="w-full">
           <CardHeader>
             <CardTitle>Not found</CardTitle>
@@ -215,7 +241,12 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
   return (
     <EntityPageShell width="form">
       <EntityPageHeader
-        backAction={<BackLink location={location} />}
+        backAction={
+          <FeeStructureBreadcrumbs
+            label={mode === "create" ? "New Fee Structure" : `Edit ${feeStructureQuery.data?.name ?? "Fee Structure"}`}
+            location={location}
+          />
+        }
         description={
           mode === "create"
             ? "Define a fee category for an academic year."
@@ -228,6 +259,7 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
         <CardContent className="pt-6">
           <FeeStructureForm
             academicYears={academicYearOptions}
+            autoSaveKey={buildAutoSaveKey(mode, feeStructureId)}
             campusLabel={
               mode === "edit"
                 ? (feeStructureQuery.data?.campusName ?? activeCampusLabel)
@@ -244,11 +276,13 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
                 ? (feeStructureQuery.data?.lockReason ?? undefined)
                 : undefined
             }
+            onAutoSaveReady={handleAutoSaveReady}
             onCancel={() => {
               void navigate(
                 appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search),
               );
             }}
+            onDirtyChange={setIsDirty}
             onSubmit={handleSubmit}
             submitLabel={
               mode === "create"
@@ -260,17 +294,25 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
           />
         </CardContent>
       </Card>
+
+      <UnsavedChangesDialog blocker={blocker} />
     </EntityPageShell>
   );
 }
 
-function BackLink({ location }: { location: ReturnType<typeof useLocation> }) {
+function FeeStructureBreadcrumbs({
+  label,
+  location,
+}: {
+  label: string;
+  location: ReturnType<typeof useLocation>;
+}) {
   return (
-    <Button asChild className="-ml-3" size="sm" variant="ghost">
-      <Link to={appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search)}>
-        <IconChevronLeft data-icon="inline-start" />
-        Back to fee structures
-      </Link>
-    </Button>
+    <Breadcrumbs
+      items={[
+        { label: "Fee Structures", href: appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search) },
+        { label },
+      ]}
+    />
   );
 }

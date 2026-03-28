@@ -5,9 +5,12 @@ import {
   PrintDetailItem,
   PrintDocumentShell,
 } from "@/features/documents/ui/print-document-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useStudentSummaryQuery } from "@/features/students/api/use-students";
+import { formatAcademicYear, formatNameWithHonorific, formatPhone } from "@/lib/format";
 
 export function StudentIdCardPage() {
+  useDocumentTitle("Student ID Card");
   const { studentId } = useParams();
   const institutionId = useAuthStore(
     (store) => store.session?.activeOrganization?.id,
@@ -41,8 +44,8 @@ export function StudentIdCardPage() {
       subtitle={student.admissionNumber ? `Adm. No. ${student.admissionNumber}` : ""}
       title={DOCUMENT_TITLES.STUDENT_ID_CARD}
     >
-      <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="space-y-6 print:space-y-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 print:grid-cols-3 print:gap-2">
           <PrintDetailItem label="Student Name" value={student.fullName} />
           {student.admissionNumber ? (
             <PrintDetailItem
@@ -58,7 +61,7 @@ export function StudentIdCardPage() {
               />
               <PrintDetailItem
                 label="Academic Year"
-                value={student.currentEnrollment.academicYearName}
+                value={formatAcademicYear(student.currentEnrollment.academicYearName)}
               />
             </>
           ) : (
@@ -72,17 +75,17 @@ export function StudentIdCardPage() {
             <>
               <PrintDetailItem
                 label="Guardian Name"
-                value={primaryGuardian.name}
+                value={formatNameWithHonorific(primaryGuardian.name, (primaryGuardian as { honorific?: string | null }).honorific)}
               />
               <PrintDetailItem
                 label="Guardian Mobile"
-                value={primaryGuardian.mobile}
+                value={formatPhone(primaryGuardian.mobile)}
               />
             </>
           ) : null}
         </div>
 
-        <div className="mt-16 flex items-end justify-end pt-8 print:mt-24">
+        <div className="mt-16 flex items-end justify-end pt-8 print:mt-6 print:pt-4">
           <div className="text-center">
             <div className="mb-2 h-px w-48 bg-border" />
             <p className="text-xs text-muted-foreground">

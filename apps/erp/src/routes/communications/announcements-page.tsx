@@ -42,8 +42,10 @@ import {
   ANNOUNCEMENTS_PAGE_COPY,
   ANNOUNCEMENT_LIST_SORT_FIELDS,
 } from "@/features/communications/model/announcement-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 
 type AnnouncementRow = {
@@ -79,6 +81,7 @@ function formatAudience(audience: AnnouncementRow["audience"]) {
 }
 
 export function AnnouncementsPage() {
+  useDocumentTitle("Announcements");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canReadAnnouncements = hasPermission(
@@ -120,14 +123,18 @@ export function AnnouncementsPage() {
 
   const handlePublish = useCallback(
     async (announcementId: string) => {
-      await publishAnnouncementMutation.mutateAsync({
-        params: {
-          path: {
-            announcementId,
+      try {
+        await publishAnnouncementMutation.mutateAsync({
+          params: {
+            path: {
+              announcementId,
+            },
           },
-        },
-      });
-      toast.success("Announcement published.");
+        });
+        toast.success("Announcement published.");
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not publish announcement. Please try again."));
+      }
     },
     [publishAnnouncementMutation],
   );
@@ -136,22 +143,26 @@ export function AnnouncementsPage() {
     async (announcement: AnnouncementRow) => {
       const status = announcement.status === "archived" ? "draft" : "archived";
 
-      await setAnnouncementStatusMutation.mutateAsync({
-        params: {
-          path: {
-            announcementId: announcement.id,
+      try {
+        await setAnnouncementStatusMutation.mutateAsync({
+          params: {
+            path: {
+              announcementId: announcement.id,
+            },
           },
-        },
-        body: {
-          status,
-        },
-      });
+          body: {
+            status,
+          },
+        });
 
-      toast.success(
-        status === "archived"
-          ? "Announcement archived."
-          : "Announcement moved back to draft.",
-      );
+        toast.success(
+          status === "archived"
+            ? "Announcement archived."
+            : "Announcement moved back to draft.",
+        );
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not update announcement status. Please try again."));
+      }
     },
     [setAnnouncementStatusMutation],
   );

@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import {
   buildTransportRouteDetailRoute,
@@ -65,30 +66,34 @@ export function StopSheetRoute({ mode }: StopSheetRouteProps) {
     undefined;
 
   async function handleSubmit(values: StopFormValues) {
-    if (mode === "create" && routeId) {
-      await createMutation.mutateAsync({
-        params: { path: { routeId } },
-        body: {
-          name: values.name,
-          sequenceNumber: values.sequenceNumber,
-          pickupTime: values.pickupTime || undefined,
-          dropTime: values.dropTime || undefined,
-        },
-      });
-      toast.success("Stop added to route.");
-      void navigate(closeTo);
-    } else if (routeId && stopId) {
-      await updateMutation.mutateAsync({
-        params: { path: { routeId, stopId } },
-        body: {
-          name: values.name,
-          sequenceNumber: values.sequenceNumber,
-          pickupTime: values.pickupTime || undefined,
-          dropTime: values.dropTime || undefined,
-        },
-      });
-      toast.success("Stop updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create" && routeId) {
+        await createMutation.mutateAsync({
+          params: { path: { routeId } },
+          body: {
+            name: values.name,
+            sequenceNumber: values.sequenceNumber,
+            pickupTime: values.pickupTime || undefined,
+            dropTime: values.dropTime || undefined,
+          },
+        });
+        toast.success("Stop added to route.");
+        void navigate(closeTo);
+      } else if (routeId && stopId) {
+        await updateMutation.mutateAsync({
+          params: { path: { routeId, stopId } },
+          body: {
+            name: values.name,
+            sequenceNumber: values.sequenceNumber,
+            pickupTime: values.pickupTime || undefined,
+            dropTime: values.dropTime || undefined,
+          },
+        });
+        toast.success("Stop updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save stop. Please try again."));
     }
   }
 

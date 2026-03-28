@@ -14,6 +14,7 @@ import {
   type LeaveTypeFormValues,
 } from "@/features/leave/model/leave-form-schemas";
 import { LeaveTypeForm } from "@/features/leave/ui/leave-type-form";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 
 type LeaveTypeSheetRouteProps = {
@@ -56,27 +57,30 @@ export function LeaveTypeSheetRoute({ mode }: LeaveTypeSheetRouteProps) {
     undefined;
 
   async function handleSubmit(values: LeaveTypeFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          name: values.name,
-          maxDaysPerYear: values.maxDaysPerYear ?? undefined,
-          isPaid: values.isPaid,
-        },
-      });
-      toast.success("Leave type created.");
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            name: values.name,
+            maxDaysPerYear: values.maxDaysPerYear ?? undefined,
+            isPaid: values.isPaid,
+          },
+        });
+        toast.success("Leave type created.");
+      } else if (leaveTypeId) {
+        await updateMutation.mutateAsync({
+          params: { path: { leaveTypeId } },
+          body: {
+            name: values.name,
+            maxDaysPerYear: values.maxDaysPerYear ?? undefined,
+            isPaid: values.isPaid,
+          },
+        });
+        toast.success("Leave type updated.");
+      }
       void navigate(closeTo);
-    } else if (leaveTypeId) {
-      await updateMutation.mutateAsync({
-        params: { path: { leaveTypeId } },
-        body: {
-          name: values.name,
-          maxDaysPerYear: values.maxDaysPerYear ?? undefined,
-          isPaid: values.isPaid,
-        },
-      });
-      toast.success("Leave type updated.");
-      void navigate(closeTo);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save leave type. Please try again."));
     }
   }
 

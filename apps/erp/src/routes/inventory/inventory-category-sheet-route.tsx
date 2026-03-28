@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -58,25 +59,29 @@ export function InventoryCategorySheetRoute({ mode }: InventoryCategorySheetRout
     undefined;
 
   async function handleSubmit(values: CategoryFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          name: values.name,
-          description: values.description || undefined,
-        },
-      });
-      toast.success("Category created.");
-      void navigate(closeTo);
-    } else if (categoryId) {
-      await updateMutation.mutateAsync({
-        params: { path: { categoryId } },
-        body: {
-          name: values.name,
-          description: values.description || null,
-        },
-      });
-      toast.success("Category updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            name: values.name,
+            description: values.description || undefined,
+          },
+        });
+        toast.success("Category created.");
+        void navigate(closeTo);
+      } else if (categoryId) {
+        await updateMutation.mutateAsync({
+          params: { path: { categoryId } },
+          body: {
+            name: values.name,
+            description: values.description || null,
+          },
+        });
+        toast.success("Category updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save category. Please try again."));
     }
   }
 

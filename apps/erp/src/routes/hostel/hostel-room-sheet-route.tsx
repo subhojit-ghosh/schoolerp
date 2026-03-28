@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -70,30 +71,34 @@ export function HostelRoomSheetRoute({ mode }: HostelRoomSheetRouteProps) {
     undefined;
 
   async function handleSubmit(values: RoomFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          buildingId: values.buildingId,
-          roomNumber: values.roomNumber,
-          floor: values.floor,
-          roomType: values.roomType,
-          capacity: values.capacity,
-        },
-      });
-      toast.success("Room created.");
-      void navigate(closeTo);
-    } else if (roomId) {
-      await updateMutation.mutateAsync({
-        params: { path: { roomId } },
-        body: {
-          roomNumber: values.roomNumber,
-          floor: values.floor,
-          roomType: values.roomType,
-          capacity: values.capacity,
-        },
-      });
-      toast.success("Room updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            buildingId: values.buildingId,
+            roomNumber: values.roomNumber,
+            floor: values.floor,
+            roomType: values.roomType,
+            capacity: values.capacity,
+          },
+        });
+        toast.success("Room created.");
+        void navigate(closeTo);
+      } else if (roomId) {
+        await updateMutation.mutateAsync({
+          params: { path: { roomId } },
+          body: {
+            roomNumber: values.roomNumber,
+            floor: values.floor,
+            roomType: values.roomType,
+            capacity: values.capacity,
+          },
+        });
+        toast.success("Room updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save room. Please try again."));
     }
   }
 

@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   AUTH_RECOVERY_CHANNELS,
+  HONORIFICS,
   MEMBER_TYPES,
   SORT_ORDERS,
   STATUS,
@@ -108,6 +109,9 @@ export class CreateStaffProfileBodyDto {
 }
 
 export class CreateStaffBodyDto {
+  @ApiPropertyOptional({ enum: [...HONORIFICS] })
+  honorific?: string;
+
   name!: string;
   mobile!: string;
 
@@ -140,6 +144,10 @@ export class StaffDto {
   id!: string;
   userId!: string;
   institutionId!: string;
+
+  @ApiPropertyOptional({ nullable: true, enum: [...HONORIFICS] })
+  honorific!: string | null;
+
   name!: string;
   mobile!: string;
 

@@ -4,6 +4,7 @@ import {
 } from "@repo/contracts";
 import { z } from "zod";
 import type { components } from "@/lib/api/generated/schema";
+import { HONORIFICS } from "@/lib/format";
 
 const MOBILE_MIN_LENGTH = 10;
 
@@ -14,6 +15,7 @@ export const GUARDIAN_RELATIONSHIP_OPTIONS = [
 ] as const;
 
 export const guardianFormSchema = z.object({
+  honorific: z.enum(HONORIFICS).optional().or(z.literal("")),
   name: z.string().trim().min(1, "Guardian name is required"),
   mobile: z
     .string()

@@ -53,6 +53,7 @@ export function RoomForm({
   const { control, handleSubmit } = useForm<RoomFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 + react-hook-form + TS 6 type bridge
     resolver: zodResolver(roomFormSchema) as any,
+    mode: "onTouched",
     defaultValues,
   });
 

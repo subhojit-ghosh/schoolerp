@@ -1,7 +1,8 @@
 import { useMemo } from "react";
 import { Link, useParams } from "react-router";
 import { toast } from "sonner";
-import { IconArrowLeft, IconPencil, IconToggleLeft, IconToggleRight } from "@tabler/icons-react";
+import { extractApiError } from "@/lib/api-error";
+import { IconPencil, IconToggleLeft, IconToggleRight } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -12,10 +13,12 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/ui/table";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityDetailPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES, buildSalaryTemplateEditRoute } from "@/constants/routes";
 import { hasPermission } from "@/features/auth/model/auth-context";
@@ -59,6 +62,8 @@ export function SalaryTemplateDetailPage() {
       }
     | undefined;
 
+  useDocumentTitle(template?.name ?? "Salary Template");
+
   const components = useMemo(
     () => (template?.components ?? []) as TemplateComponent[],
     [template?.components],
@@ -67,15 +72,19 @@ export function SalaryTemplateDetailPage() {
   async function handleToggleStatus() {
     if (!template || !templateId) return;
     const newStatus = template.status === "active" ? "archived" : "active";
-    await statusMutation.mutateAsync({
-      params: { path: { templateId } },
-      body: { status: newStatus },
-    });
-    toast.success(
-      newStatus === "active"
-        ? "Salary template activated."
-        : "Salary template archived.",
-    );
+    try {
+      await statusMutation.mutateAsync({
+        params: { path: { templateId } },
+        body: { status: newStatus },
+      });
+      toast.success(
+        newStatus === "active"
+          ? "Salary template activated."
+          : "Salary template archived.",
+      );
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update salary template status. Please try again."));
+    }
   }
 
   if (templateQuery.isLoading) {
@@ -105,12 +114,12 @@ export function SalaryTemplateDetailPage() {
     <EntityPageShell width="full">
       <EntityDetailPageHeader
         backAction={
-          <Button asChild variant="ghost" size="sm" className="mb-2">
-            <Link to={ERP_ROUTES.PAYROLL_SALARY_TEMPLATES}>
-              <IconArrowLeft className="size-4" />
-              Back to templates
-            </Link>
-          </Button>
+          <Breadcrumbs
+            items={[
+              { label: "Salary Templates", href: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES },
+              { label: template.name },
+            ]}
+          />
         }
         title={template.name}
         badges={

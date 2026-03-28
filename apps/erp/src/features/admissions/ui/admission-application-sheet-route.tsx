@@ -28,6 +28,7 @@ import {
 } from "@/features/admissions/model/admission-custom-fields";
 import { AdmissionApplicationForm } from "@/features/admissions/ui/admission-application-form";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -125,32 +126,36 @@ export function AdmissionApplicationSheetRoute({
       return;
     }
 
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: toAdmissionApplicationMutationBody(values),
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ADMISSION_APPLICATION),
-      );
-    } else if (applicationId && applicationQuery.data) {
-      await updateMutation.mutateAsync({
-        params: {
-          path: {
-            applicationId,
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: toAdmissionApplicationMutationBody(values),
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ADMISSION_APPLICATION),
+        );
+      } else if (applicationId && applicationQuery.data) {
+        await updateMutation.mutateAsync({
+          params: {
+            path: {
+              applicationId,
+            },
           },
-        },
-        body: {
-          ...toAdmissionApplicationMutationBody(values),
-        },
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ADMISSION_APPLICATION),
-      );
-    }
+          body: {
+            ...toAdmissionApplicationMutationBody(values),
+          },
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ADMISSION_APPLICATION),
+        );
+      }
 
-    void navigate(
-      appendSearch(ERP_ROUTES.ADMISSIONS_APPLICATIONS, location.search),
-    );
+      void navigate(
+        appendSearch(ERP_ROUTES.ADMISSIONS_APPLICATIONS, location.search),
+      );
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save admission application. Please try again."));
+    }
   }
 
   if (mode === "edit" && applicationQuery.isLoading) {

@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiQueryClient } from "@/lib/api/client";
+import { recordLastLogin } from "@/lib/last-login";
 import { AUTH_API_PATHS } from "./auth.constants";
 import { getApiErrorMessage } from "./auth-error";
 import { useAuthStore } from "../model/auth-store";
@@ -37,6 +38,7 @@ export function useSignInMutation() {
       };
       if (maybeSetup.mustChangePassword) return;
       setSession(session);
+      recordLastLogin();
       queryClient.setQueryData(
         apiQueryClient.queryOptions("get", AUTH_API_PATHS.ME).queryKey,
         session,

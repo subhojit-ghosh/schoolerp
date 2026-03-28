@@ -96,6 +96,18 @@ export type {
 };
 export type { ClassStatus, GuardianRelationship, SectionStatus };
 export type AttendanceRecordStatus = AttendanceStatus;
+export const HONORIFICS = [
+  "Mr.",
+  "Mrs.",
+  "Ms.",
+  "Dr.",
+  "Shri",
+  "Smt.",
+  "Prof.",
+] as const;
+
+export type Honorific = (typeof HONORIFICS)[number];
+
 export {
   ANNOUNCEMENT_AUDIENCE,
   NOTIFICATION_CHANNELS,

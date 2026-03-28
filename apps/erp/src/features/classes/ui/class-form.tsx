@@ -66,6 +66,7 @@ export function ClassForm({
 }: ClassFormProps) {
   const { control, handleSubmit, reset, formState } = useForm<ClassFormValues>({
     resolver: zodResolver(classFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
   const [localInactiveSections, setLocalInactiveSections] =

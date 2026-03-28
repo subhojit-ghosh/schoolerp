@@ -15,6 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityPageHeader,
   EntityPageShell,
@@ -24,10 +25,12 @@ import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useStudentStrengthQuery } from "@/features/reports/api/use-reports";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { useCampusesQuery } from "@/features/campuses/api/use-campuses";
+import { formatAcademicYear } from "@/lib/format";
 
 const ALL_FILTER_VALUE = "all";
 
 export function StudentStrengthPage() {
+  useDocumentTitle("Student Strength");
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const canView = isStaffContext(session);
@@ -123,7 +126,7 @@ export function StudentStrengthPage() {
                 </SelectItem>
                 {academicYearOptions.map((ay) => (
                   <SelectItem key={ay.id} value={ay.id}>
-                    {ay.name}
+                    {formatAcademicYear(ay.name)}
                   </SelectItem>
                 ))}
               </SelectGroup>

@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import {
   IconDotsVertical,
   IconEye,
@@ -20,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -69,6 +71,7 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function InventoryItemsPage() {
+  useDocumentTitle("Inventory Items");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.INVENTORY_READ);
@@ -106,13 +109,17 @@ export function InventoryItemsPage() {
   const handleToggleStatus = useCallback(
     async (id: string, currentStatus: "active" | "inactive") => {
       const newStatus = currentStatus === "active" ? "inactive" : "active";
-      await statusMutation.mutateAsync({
-        params: { path: { itemId: id } },
-        body: { status: newStatus },
-      });
-      toast.success(
-        newStatus === "active" ? "Item activated." : "Item deactivated.",
-      );
+      try {
+        await statusMutation.mutateAsync({
+          params: { path: { itemId: id } },
+          body: { status: newStatus },
+        });
+        toast.success(
+          newStatus === "active" ? "Item activated." : "Item deactivated.",
+        );
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not update item status. Please try again."));
+      }
     },
     [statusMutation],
   );

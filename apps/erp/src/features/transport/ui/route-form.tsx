@@ -37,6 +37,7 @@ export function RouteForm({
 }: RouteFormProps) {
   const { control, handleSubmit } = useForm<RouteFormValues>({
     resolver: zodResolver(routeFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

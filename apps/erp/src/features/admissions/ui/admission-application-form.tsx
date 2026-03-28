@@ -77,6 +77,7 @@ export function AdmissionApplicationForm({
   const { control, getValues, handleSubmit, reset, setValue } =
     useForm<AdmissionApplicationFormValues>({
       resolver: zodResolver(admissionApplicationFormSchema),
+      mode: "onTouched",
       defaultValues,
     });
   const selectedEnquiryId = useWatch({

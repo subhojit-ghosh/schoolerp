@@ -20,6 +20,7 @@ import {
   type AnnouncementFormValues,
 } from "@/features/communications/model/announcement-form-schema";
 import { AnnouncementForm } from "@/features/communications/ui/announcement-form";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 
 type AnnouncementSheetRouteProps = {
@@ -59,36 +60,40 @@ export function AnnouncementSheetRoute({ mode }: AnnouncementSheetRouteProps) {
       return;
     }
 
-    if (mode === "create") {
-      await createAnnouncementMutation.mutateAsync({
-        body: {
-          audience: values.audience,
-          body: values.body,
-          publishNow: values.publishNow,
-          summary: values.summary || undefined,
-          title: values.title,
-        },
-      });
-      toast.success("Announcement created.");
-    } else if (announcementId) {
-      await updateAnnouncementMutation.mutateAsync({
-        params: {
-          path: {
-            announcementId,
+    try {
+      if (mode === "create") {
+        await createAnnouncementMutation.mutateAsync({
+          body: {
+            audience: values.audience,
+            body: values.body,
+            publishNow: values.publishNow,
+            summary: values.summary || undefined,
+            title: values.title,
           },
-        },
-        body: {
-          audience: values.audience,
-          body: values.body,
-          publishNow: values.publishNow,
-          summary: values.summary || undefined,
-          title: values.title,
-        },
-      });
-      toast.success("Announcement updated.");
-    }
+        });
+        toast.success("Announcement created.");
+      } else if (announcementId) {
+        await updateAnnouncementMutation.mutateAsync({
+          params: {
+            path: {
+              announcementId,
+            },
+          },
+          body: {
+            audience: values.audience,
+            body: values.body,
+            publishNow: values.publishNow,
+            summary: values.summary || undefined,
+            title: values.title,
+          },
+        });
+        toast.success("Announcement updated.");
+      }
 
-    void navigate(appendSearch(ERP_ROUTES.ANNOUNCEMENTS, location.search));
+      void navigate(appendSearch(ERP_ROUTES.ANNOUNCEMENTS, location.search));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save announcement. Please try again."));
+    }
   }
 
   if (mode === "edit" && announcementQuery.isLoading) {

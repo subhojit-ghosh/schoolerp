@@ -36,6 +36,8 @@ import {
   useRolesQuery,
 } from "@/features/roles/api/use-roles";
 import { ROLES_PAGE_COPY } from "@/features/roles/model/role-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 import {
@@ -57,6 +59,7 @@ type Role = {
 type DeleteDialogState = { roleId: string; roleName: string } | null;
 
 export function RolesPage() {
+  useDocumentTitle("Roles");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
@@ -105,11 +108,15 @@ export function RolesPage() {
 
   async function handleDelete() {
     if (!deleteDialog) return;
-    await deleteMutation.mutateAsync({
-      params: { path: { roleId: deleteDialog.roleId } },
-    });
-    toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.ROLE));
-    setDeleteDialog(null);
+    try {
+      await deleteMutation.mutateAsync({
+        params: { path: { roleId: deleteDialog.roleId } },
+      });
+      toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.ROLE));
+      setDeleteDialog(null);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not delete role. Please try again."));
+    }
   }
 
   const isEmpty = roles.length === 0;

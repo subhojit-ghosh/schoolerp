@@ -9,9 +9,9 @@ import { toast } from "sonner";
 import {
   IconCalendarStats,
   IconCertificate,
-  IconChevronLeft,
   IconCurrencyRupee,
   IconEdit,
+  IconHistory,
   IconReceipt,
   IconReportAnalytics,
   IconSchool,
@@ -38,6 +38,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@repo/ui/components/ui/tabs";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import {
   ERP_ROUTES,
   buildStudentBonafideCertificateRoute,
@@ -70,7 +71,10 @@ import {
   type StudentFormValues,
 } from "@/features/students/model/student-form-schema";
 import { StudentForm } from "@/features/students/ui/student-form";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
+import { formatAcademicYear, formatPhone } from "@/lib/format";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const STUDENT_DETAIL_TAB_VALUES = {
@@ -203,6 +207,10 @@ export function StudentDetailPage() {
     managedInstitutionId,
     studentId,
   );
+  const studentName = studentSummaryQuery.data?.student
+    ? `${studentSummaryQuery.data.student.firstName} ${studentSummaryQuery.data.student.lastName ?? ""}`.trim()
+    : "Student Details";
+  useDocumentTitle(studentName);
   const updateStudentMutation = useUpdateStudentMutation(managedInstitutionId);
   const updateError = updateStudentMutation.error as Error | null | undefined;
   const customFields = filterAdmissionFormFieldsForScope(
@@ -270,16 +278,20 @@ export function StudentDetailPage() {
       return;
     }
 
-    await updateStudentMutation.mutateAsync({
-      params: {
-        path: {
-          studentId,
+    try {
+      await updateStudentMutation.mutateAsync({
+        params: {
+          path: {
+            studentId,
+          },
         },
-      },
-      body: toStudentMutationBody(values),
-    });
+        body: toStudentMutationBody(values),
+      });
 
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STUDENT));
+      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STUDENT));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update student record. Please try again."));
+    }
   }
 
   if (!institutionId) {
@@ -335,12 +347,12 @@ export function StudentDetailPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild variant="outline">
-            <Link to={appendSearch(ERP_ROUTES.STUDENTS, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to students
-            </Link>
-          </Button>
+          <Breadcrumbs
+            items={[
+              { label: "Students", href: appendSearch(ERP_ROUTES.STUDENTS, location.search) },
+              { label: "Not found" },
+            ]}
+          />
         </CardContent>
       </Card>
     );
@@ -403,6 +415,14 @@ export function StudentDetailPage() {
                 </Button>
               </>
             ) : null}
+            <Button asChild size="sm" variant="ghost">
+              <Link
+                to={`${ERP_ROUTES.SETTINGS_AUDIT}?q=${encodeURIComponent(student.fullName)}`}
+              >
+                <IconHistory className="size-4" />
+                View history
+              </Link>
+            </Button>
             <Button
               onClick={() =>
                 void navigate(
@@ -421,12 +441,12 @@ export function StudentDetailPage() {
           </div>
         }
         backAction={
-          <Button asChild className="-ml-3" size="sm" variant="ghost">
-            <Link to={appendSearch(ERP_ROUTES.STUDENTS, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to students
-            </Link>
-          </Button>
+          <Breadcrumbs
+            items={[
+              { label: "Students", href: appendSearch(ERP_ROUTES.STUDENTS, location.search) },
+              { label: student.fullName },
+            ]}
+          />
         }
         badges={
           <Badge
@@ -461,7 +481,7 @@ export function StudentDetailPage() {
         <MetricCard
           description={
             latestExam
-              ? `${latestExam.examTermName} in ${latestExam.academicYearName}`
+              ? `${latestExam.examTermName} in ${formatAcademicYear(latestExam.academicYearName)}`
               : "No marks recorded yet."
           }
           Icon={IconReportAnalytics}
@@ -715,7 +735,7 @@ export function StudentDetailPage() {
                             {latestExam.examTermName}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {latestExam.academicYearName} • Closed on{" "}
+                            {formatAcademicYear(latestExam.academicYearName)} • Closed on{" "}
                             {formatDate(latestExam.endDate)}
                           </p>
                         </div>
@@ -768,7 +788,7 @@ export function StudentDetailPage() {
                               {term.examTermName}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {term.academicYearName} •{" "}
+                              {formatAcademicYear(term.academicYearName)} •{" "}
                               {formatDate(term.endDate)}
                             </p>
                           </div>
@@ -815,8 +835,9 @@ export function StudentDetailPage() {
                   <Separator />
                   <div>
                     <p className="text-sm font-medium">
-                      {studentPlacement.academicYearName ??
-                        "Not linked to an academic year"}
+                      {studentPlacement.academicYearName
+                        ? formatAcademicYear(studentPlacement.academicYearName)
+                        : "Not linked to an academic year"}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {studentPlacement.isManagedEnrollment
@@ -850,7 +871,7 @@ export function StudentDetailPage() {
                         <div>
                           <p className="text-sm font-medium">{guardian.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {guardian.mobile}
+                            {formatPhone(guardian.mobile)}
                             {guardian.email ? ` • ${guardian.email}` : ""}
                           </p>
                         </div>
@@ -945,6 +966,7 @@ export function StudentDetailPage() {
                   defaultValues={defaultValues}
                   errorMessage={updateError?.message}
                   isPending={updateStudentMutation.isPending}
+                  mode="edit"
                   onSubmit={onSubmit}
                   submitLabel="Save changes"
                 />
@@ -965,7 +987,7 @@ export function StudentDetailPage() {
                     <>
                       <div>
                         <p className="text-sm font-medium">
-                          {student.currentEnrollment.academicYearName}
+                          {formatAcademicYear(student.currentEnrollment.academicYearName)}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           Academic year
@@ -1023,7 +1045,7 @@ export function StudentDetailPage() {
                         <div>
                           <p className="text-sm font-medium">{guardian.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {guardian.mobile}
+                            {formatPhone(guardian.mobile)}
                             {guardian.email ? ` • ${guardian.email}` : ""}
                           </p>
                         </div>

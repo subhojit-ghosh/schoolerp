@@ -3,6 +3,9 @@ import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { UnsavedChangesDialog } from "@/components/feedback/unsaved-changes-dialog";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { extractApiError } from "@/lib/api-error";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -20,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
@@ -28,6 +32,7 @@ import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
 import { hasPermission } from "@/features/auth/model/auth-context";
@@ -50,6 +55,7 @@ type ComponentOption = {
 };
 
 export function SalaryTemplateEditPage() {
+  useDocumentTitle("Edit Salary Template");
   const { templateId } = useParams();
   const navigate = useNavigate();
   const session = useAuthStore((store) => store.session);
@@ -101,11 +107,15 @@ export function SalaryTemplateEditPage() {
     };
   }, [templateData]);
 
-  const { control, handleSubmit, reset } = useForm<SalaryTemplateFormValues>({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 + react-hook-form + TS 6 type bridge
-    resolver: zodResolver(salaryTemplateFormSchema) as any,
-    defaultValues,
-  });
+  const { control, handleSubmit, reset, formState } =
+    useForm<SalaryTemplateFormValues>({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 + react-hook-form + TS 6 type bridge
+      resolver: zodResolver(salaryTemplateFormSchema) as any,
+      mode: "onTouched",
+      defaultValues,
+    });
+
+  const blocker = useUnsavedChangesGuard(formState.isDirty);
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -127,21 +137,25 @@ export function SalaryTemplateEditPage() {
   );
 
   async function onSubmit(values: SalaryTemplateFormValues) {
-    await updateMutation.mutateAsync({
-      params: { path: { templateId: templateId! } },
-      body: {
-        name: values.name,
-        description: values.description || undefined,
-        components: values.components.map((c) => ({
-          salaryComponentId: c.salaryComponentId,
-          amountInPaise: c.amountInPaise ?? undefined,
-          percentage: c.percentage ?? undefined,
-          sortOrder: c.sortOrder,
-        })),
-      },
-    });
-    toast.success("Salary template updated.");
-    void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES);
+    try {
+      await updateMutation.mutateAsync({
+        params: { path: { templateId: templateId! } },
+        body: {
+          name: values.name,
+          description: values.description || undefined,
+          components: values.components.map((c) => ({
+            salaryComponentId: c.salaryComponentId,
+            amountInPaise: c.amountInPaise ?? undefined,
+            percentage: c.percentage ?? undefined,
+            sortOrder: c.sortOrder,
+          })),
+        },
+      });
+      toast.success("Salary template updated.");
+      void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update salary template. Please try again."));
+    }
   }
 
   if (templateQuery.isLoading) {
@@ -167,6 +181,14 @@ export function SalaryTemplateEditPage() {
   return (
     <EntityPageShell width="form">
       <EntityPageHeader
+        backAction={
+          <Breadcrumbs
+            items={[
+              { label: "Salary Templates", href: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES },
+              { label: `Edit ${templateData?.name ?? "Template"}` },
+            ]}
+          />
+        }
         title="Edit Salary Template"
         description="Update the salary structure and its components."
       />
@@ -265,21 +287,23 @@ export function SalaryTemplateEditPage() {
           {errorMessage ? (
             <p className="text-sm text-destructive">{errorMessage}</p>
           ) : null}
+        </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <EntityFormPrimaryAction disabled={isPending} type="submit">
-              {isPending ? "Saving..." : "Save changes"}
-            </EntityFormPrimaryAction>
-            <EntityFormSecondaryAction
-              disabled={isPending}
-              onClick={() => void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES)}
-              type="button"
-            >
-              Cancel
-            </EntityFormSecondaryAction>
-          </div>
+        <div className="sticky bottom-0 z-10 border-t bg-background py-4 flex flex-wrap items-center gap-3">
+          <EntityFormPrimaryAction disabled={isPending} type="submit">
+            {isPending ? "Saving..." : "Save changes"}
+          </EntityFormPrimaryAction>
+          <EntityFormSecondaryAction
+            disabled={isPending}
+            onClick={() => void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES)}
+            type="button"
+          >
+            Cancel
+          </EntityFormSecondaryAction>
         </div>
       </form>
+
+      <UnsavedChangesDialog blocker={blocker} />
     </EntityPageShell>
   );
 }

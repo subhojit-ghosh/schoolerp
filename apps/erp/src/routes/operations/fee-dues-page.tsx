@@ -34,6 +34,7 @@ import {
   formatRupees,
 } from "@/features/fees/model/fee-formatters";
 import { FEE_ASSIGNMENT_LIST_SORT_FIELDS } from "@/features/fees/model/fee-assignment-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
 
@@ -55,6 +56,7 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function FeeDuesPage() {
+  useDocumentTitle("Fee Dues");
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const canQueryFees =

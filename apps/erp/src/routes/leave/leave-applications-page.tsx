@@ -19,6 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -44,6 +45,7 @@ import {
 } from "@/features/leave/model/leave-list.constants";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 
 type LeaveApplicationRow = {
@@ -82,6 +84,7 @@ function StatusBadge({ status }: { status: LeaveApplicationRow["status"] }) {
 }
 
 export function LeaveApplicationsPage() {
+  useDocumentTitle("Leave Applications");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canReadLeave = hasPermission(session, PERMISSIONS.LEAVE_READ);
@@ -119,32 +122,44 @@ export function LeaveApplicationsPage() {
 
   const handleApprove = useCallback(
     async (applicationId: string) => {
-      await reviewMutation.mutateAsync({
-        params: { path: { applicationId } },
-        body: { status: "approved" },
-      });
-      toast.success("Leave application approved.");
+      try {
+        await reviewMutation.mutateAsync({
+          params: { path: { applicationId } },
+          body: { status: "approved" },
+        });
+        toast.success("Leave application approved.");
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not approve leave application. Please try again."));
+      }
     },
     [reviewMutation],
   );
 
   const handleReject = useCallback(
     async (applicationId: string) => {
-      await reviewMutation.mutateAsync({
-        params: { path: { applicationId } },
-        body: { status: "rejected" },
-      });
-      toast.success("Leave application rejected.");
+      try {
+        await reviewMutation.mutateAsync({
+          params: { path: { applicationId } },
+          body: { status: "rejected" },
+        });
+        toast.success("Leave application rejected.");
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not reject leave application. Please try again."));
+      }
     },
     [reviewMutation],
   );
 
   const handleCancel = useCallback(
     async (applicationId: string) => {
-      await cancelMutation.mutateAsync({
-        params: { path: { applicationId } },
-      });
-      toast.success("Leave application cancelled.");
+      try {
+        await cancelMutation.mutateAsync({
+          params: { path: { applicationId } },
+        });
+        toast.success("Leave application cancelled.");
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not cancel leave application. Please try again."));
+      }
     },
     [cancelMutation],
   );

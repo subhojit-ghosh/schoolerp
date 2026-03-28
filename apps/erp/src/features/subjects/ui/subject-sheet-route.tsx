@@ -17,6 +17,7 @@ import {
 } from "@/features/subjects/api/use-subjects";
 import type { SubjectFormValues } from "@/features/subjects/model/subject-form-schema";
 import { SubjectForm } from "@/features/subjects/ui/subject-form";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -58,30 +59,34 @@ export function SubjectSheetRoute({ mode }: SubjectSheetRouteProps) {
       return;
     }
 
-    if (mode === "create") {
-      await createSubjectMutation.mutateAsync({
-        body: {
-          code: values.code || undefined,
-          name: values.name,
-        },
-      });
-      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.SUBJECT));
-    } else if (subjectId) {
-      await updateSubjectMutation.mutateAsync({
-        params: {
-          path: {
-            subjectId,
+    try {
+      if (mode === "create") {
+        await createSubjectMutation.mutateAsync({
+          body: {
+            code: values.code || undefined,
+            name: values.name,
           },
-        },
-        body: {
-          code: values.code || undefined,
-          name: values.name,
-        },
-      });
-      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.SUBJECT));
-    }
+        });
+        toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.SUBJECT));
+      } else if (subjectId) {
+        await updateSubjectMutation.mutateAsync({
+          params: {
+            path: {
+              subjectId,
+            },
+          },
+          body: {
+            code: values.code || undefined,
+            name: values.name,
+          },
+        });
+        toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.SUBJECT));
+      }
 
-    void navigate(appendSearch(ERP_ROUTES.SUBJECTS, location.search));
+      void navigate(appendSearch(ERP_ROUTES.SUBJECTS, location.search));
+    } catch (error) {
+      toast.error(extractApiError(error, mode === "create" ? "Could not create subject. Please try again." : "Could not update subject. Please try again."));
+    }
   }
 
   if (mode === "edit" && subjectQuery.isLoading) {

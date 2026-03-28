@@ -82,6 +82,7 @@ export function TimetableCell({
   const { control, handleSubmit, reset, watch, setValue } =
     useForm<TimetableCellFormValues>({
       resolver: zodResolver(timetableCellFormSchema),
+      mode: "onTouched",
       defaultValues: DEFAULT_VALUES,
     });
 

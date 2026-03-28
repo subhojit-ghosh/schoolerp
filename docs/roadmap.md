@@ -15,31 +15,26 @@ Keep this file forward-looking. Put factual implementation state in `docs/status
 
 ## Goal
 
-Ship a fully functional v1 that a real school can use day-to-day. Every feature must be complete enough for a paying customer to rely on it — not a prototype, not a demo with placeholders. The bar is: can a school admin use this to run their school tomorrow?
+Ship a production-grade school ERP that a real Indian school can use for daily operations. The bar: can a school admin run their school on this tomorrow?
 
 ## Testing Policy
 
-**No tests until v1 is functionally complete.** Do not write, suggest, or plan integration tests, unit tests, e2e tests, or any automated test coverage until the full v1 feature set is built and working. Focus entirely on shipping functional product. Testing is a post-v1 concern.
+**No tests until v1 is functionally complete.** Do not write, suggest, or plan any automated test coverage until the full v1 feature set is built and working. Testing is a post-v1 concern.
 
 ## Direction
 
-- Build a school-first ERP around the target monorepo structure:
-  - `apps/web`
-  - `apps/erp`
-  - `apps/api-erp`
-  - `packages/*`
-- Keep NestJS as the source of truth for auth, tenant resolution, and business rules.
-- Treat the frontend as a thin client over tenant-scoped APIs.
-- Every screen a customer sees must be usable, not a placeholder.
+- School-first ERP on: `apps/web`, `apps/erp`, `apps/api-erp`, `packages/*`
+- NestJS is source of truth for auth, tenant resolution, and business rules
+- Frontend is a thin client over tenant-scoped APIs
+- Every screen a customer sees must be usable, not a placeholder
 
-## Now — v1 feature-complete, validate for pilot
+## Now — Phase 0a complete, entering Phase 0b
 
-All v1 features are built: 35+ modules with typed APIs, consistent UX, and zero typecheck errors. Class teacher assignment, staff attendance, ID cards, student strength report, and fee defaulter report are complete.
+v1 is feature-complete with 35+ modules. Phase 0a (quick polish) is done: 190+ files changed covering error handling, Indian formatting, tab titles, breadcrumbs, form grouping, sidebar favorites, table density, calendar grid, keyboard shortcuts, and more. All migrations applied.
 
-Remaining:
+Remaining before Phase 0b:
 
-1. **Database migration** — run `bun run db:generate` + `bun run db:migrate` for class teacher and staff attendance tables
-2. **End-to-end delivery testing** *(very last step)* — configure actual SMS/email provider credentials and verify delivery works in production. Do not prioritize until all other v1 work is done.
+1. **End-to-end delivery testing** *(very last step)* — configure actual SMS/email provider credentials and verify delivery works in production
 
 ## Post-v1 — From CRUD to connected platform
 
@@ -51,30 +46,23 @@ Everything below is grouped into phases. Each phase has a clear gate: do not sta
 
 ---
 
-#### Phase 0 — Pilot-ready (before the first paying school)
+#### Phase 0a — Quick fixes ~~(1–2 weeks)~~ COMPLETE
 
-Gate: A real school admin can use the ERP for daily operations without hitting crashes, confusing errors, or missing basic Indian conventions.
+All 8 items done, plus 42 additional UX/polish items pulled forward from Phase 1 and the visual polish specs. See `docs/status.md` for the full list of what was implemented.
+
+---
+
+#### Phase 0b — Day-1 module depth (before first paying school)
+
+Gate: Fees, attendance, and exams are production-complete for Indian schools. Print outputs are configurable.
 
 | # | Item | Section reference |
 |---|------|-------------------|
-| 1 | Fix runtime crashes (fee structures, settings, classes pages hitting error recovery) | Visual & interaction polish |
-| 2 | Human-readable error messages — replace all raw JS/HTTP errors with user-friendly text | Error handling & user-friendly messages |
-| 3 | Login loading state — spinner on Continue button | Visual & interaction polish |
-| 4 | Indian number formatting — ₹ lakhs/crores everywhere | Indian formatting & conventions |
-| 5 | Indian date format — DD/MM/YYYY consistently | Indian formatting & conventions |
-| 6 | Academic year display — "2025–26" format | Indian formatting & conventions |
-| 7 | Database migration — run pending migrations | Now (v1 remaining) |
-| 8 | SMS/email delivery testing — verify with real provider credentials | Now (v1 remaining) |
-| 9 | Fees module depth (day-1 critical) — installment-wise payments, fee categories, mode-wise reports | Module depth: Fees |
-| 10 | Attendance module depth (day-1 critical) — half-day status, monthly register view, holiday integration | Module depth: Attendance |
-| 11 | Exams module depth (day-1 critical) — grading scale config, multiple exam types, rank generation, class analysis | Module depth: Exams |
-| 12 | Document & print configuration — receipt numbering, signatory management, report card field toggles, live preview | Document & print configuration |
-| 13 | Batch printing — print 60 report cards / 200 receipts at once as single PDF | Print reliability & efficiency |
-| 14 | Attendance auto-select — class teacher's section and today's date pre-filled | Visual & interaction polish |
-| 15 | Dashboard date + contextual quick access — show today's date, counts on quick access cards | Visual & interaction polish |
-| 16 | Form visual grouping — break student create form into sections with headers | Visual & interaction polish |
-| 17 | Unsaved changes guard — confirm before navigating away from dirty forms | Session & form safety |
-| 18 | Dynamic tab titles — "Students · Demo School" for multi-tab users | Visual & interaction polish |
+| 1 | Fees module depth — installment-wise payments, fee categories, mode-wise reports, late fee calc | Module depth: Fees |
+| 2 | Attendance module depth — half-day status, monthly register view, holiday integration | Module depth: Attendance |
+| 3 | Exams module depth — grading scale config, multiple exam types, rank generation, class analysis | Module depth: Exams |
+| 4 | Document & print configuration — receipt numbering, signatory management, report card field toggles, live preview | Document & print configuration |
+| 5 | Batch printing — print 60 report cards / 200 receipts at once as single PDF | Print reliability & efficiency |
 
 ---
 
@@ -82,27 +70,20 @@ Gate: A real school admin can use the ERP for daily operations without hitting c
 
 Gate: Schools can onboard themselves, daily workflows are fast, admins trust the numbers they see.
 
+Items pulled forward to Phase 0a (done): calendar visual grid, inline validation, session expiry warning, auto-save drafts, table density toggle, sticky headers, sidebar favorites, breadcrumbs, trust signals, duplicate detection, empty states, perceived performance (prefetch, skeletons).
+
 | # | Item | Section reference |
 |---|------|-------------------|
 | 1 | Guided setup checklist — post-signup progress tracker | Onboarding & first-time experience |
-| 2 | Import wizard — CSV import for students, staff, guardians with column mapping + preview | Onboarding & first-time experience |
-| 3 | Leave management depth — balance tracking, half-day leave, holiday integration, team calendar | Module depth: Leave management |
-| 4 | Payroll depth — attendance-based LOP, PF/ESI templates, bank file export, payslip email | Module depth: Payroll |
-| 5 | Calendar visual grid — month/week view, not just a list | Module depth: Calendar |
-| 6 | Inline field validation — validate on blur, not just on submit | Error handling & user-friendly messages |
-| 7 | Session expiry warning — "5 minutes left, click to stay logged in" | Session & form safety |
-| 8 | Auto-save drafts — attendance and marks entry periodically saved | Session & form safety |
-| 9 | Table density toggle — comfortable/compact/spacious | Visual & interaction polish |
-| 10 | Sticky table headers — for pages with 20+ rows | Visual & interaction polish |
-| 11 | Sidebar favorites/pinning — pin 5–6 daily modules to the top | Visual & interaction polish |
-| 12 | Breadcrumbs — full path navigation on nested pages | Global search & navigation |
-| 13 | Global search upgrade — ⌘K searches across students, staff, receipts, admission numbers | Global search & navigation |
-| 14 | Trust signals — last login display, data accuracy context ("Based on 180 working days") | Trust signals |
-| 15 | Government compliance basics — caste/category fields, CBSE/ICSE affiliation fields, staff-student ratio | Must-haves: Government compliance |
-| 16 | Data export — full institution data dump in CSV/Excel | Must-haves: Data ownership |
-| 17 | PTM — slot booking, feedback recording, attendance tracking | Must-haves: PTM |
-| 18 | Student section transfer — mid-year section moves with attendance continuity | New modules: Section transfer |
-| 19 | Duplicate detection — warn on same name + DOB + father's name before creating student | Data validation & guardrails |
+| 2 | Leave management depth — balance tracking, half-day leave, holiday integration, team calendar | Module depth: Leave management |
+| 3 | Payroll depth — attendance-based LOP, PF/ESI templates, bank file export, payslip email | Module depth: Payroll |
+| 4 | Global search upgrade — ⌘K searches across students, staff, receipts, admission numbers | Global search & navigation |
+| 5 | Government compliance basics — caste/category fields, CBSE/ICSE affiliation fields, staff-student ratio | Must-haves: Government compliance |
+| 6 | Data export — full institution data dump in CSV/Excel | Must-haves: Data ownership |
+| 7 | PTM — slot booking, feedback recording, attendance tracking | Must-haves: PTM |
+| 8 | Student section transfer — mid-year section moves with attendance continuity | New modules: Section transfer |
+| 9 | Role-specific dashboards — principal, class teacher, accountant, parent each see a tailored view | Role-specific dashboards |
+| 10 | Notification preferences — per-user channel settings, quiet hours, digest mode | Notification & alert preferences |
 
 ---
 
@@ -114,7 +95,7 @@ Gate: Schools see value beyond data entry — automated alerts, workflows, actio
 |---|------|-------------------|
 | 1 | Domain event infrastructure — Postgres event store + BullMQ + poller fallback | Platform theme 1 |
 | 2 | Automated workflows — absence SMS, fee overdue reminders, streak alerts | Platform theme 2 |
-| 3 | Actionable dashboard — "needs attention" feed, inline actions, trend indicators, role-aware views | Platform theme 3 |
+| 3 | Actionable dashboard — "needs attention" feed, inline actions, trend indicators | Platform theme 3 |
 | 4 | Library depth — fine collection, reservation queue, borrowing history, overdue alerts, librarian dashboard | Module depth: Library |
 | 5 | Admissions depth — convert-to-student pipeline, registration fee, document checklist, waitlist promotion | Module depth: Admissions |
 | 6 | Hostel depth — mess plan assignment, fee integration, room transfer, occupancy dashboard | Module depth: Hostel |
@@ -134,6 +115,7 @@ Gate: Schools see value beyond data entry — automated alerts, workflows, actio
 | 20 | Expense management — track expenses by category, department, budget head | New modules: Finance |
 | 21 | Scholarship management — types, application workflow, auto-apply to fees, DBT tracking | New modules: Scholarships |
 | 22 | Emergency broadcast — multi-channel instant alert with delivery confirmation | New modules: Emergency broadcast |
+| 23 | Income beyond fees — donations, grants, government aid, rental income, canteen revenue | New modules: Finance |
 
 ---
 
@@ -148,20 +130,18 @@ Gate: Schools choose us over competitors because of features they can't get else
 | 3 | Smart defaults by board type — auto-configure grading, exam patterns, class naming on onboarding | Competitive edge: Smart defaults |
 | 4 | QR-based operations — ID card scan, QR attendance, receipt verification, library barcode | Competitive edge: QR |
 | 5 | Automated government reports — one-click UDISE+, RTE dashboard, affiliation renewal data | Competitive edge: Government reports |
-| 6 | UDISE+ data export — auto-generate from existing data | Must-haves: Government compliance |
-| 7 | RTE 25% reservation tracking — admission quota monitoring | Must-haves: Government compliance |
-| 8 | Multi-language — Hindi UI, bilingual documents, SMS templates in parent's language | Must-haves: Multi-language |
-| 9 | Analytics & trends — trend lines, section comparisons, cohort tracking, anomaly detection | Platform theme 5 |
-| 10 | Approval workflows — generalized engine for concessions, certificates, expenses, procurement | Platform theme 6 |
-| 11 | Complaint & grievance management — ticket workflow, SLA tracking, anonymous option | New modules: Complaints |
-| 12 | Scheduled report delivery — recurring PDF/Excel reports via email | New modules: Scheduled reports |
-| 13 | Dark mode — user-togglable full app dark mode | Visual & interaction polish |
-| 14 | Visitor management — front desk check-in, student pickup authorization, visitor log | Nice-to-haves: Visitor management |
-| 15 | Student diary / daily remarks — replace physical school diary | Nice-to-haves: Student diary |
-| 16 | Lesson planning — syllabus coverage tracking, plan templates, timetable alignment | Nice-to-haves: Lesson planning |
-| 17 | Parent engagement scoring — track engagement, surface disengaged parents | Competitive edge: Parent engagement |
-| 18 | In-app help — contextual tooltips, knowledge base, report-a-problem, changelog | In-app help & support |
-| 19 | Onboarding tours — first-visit module walkthroughs | In-app help & support |
+| 6 | Multi-language — Hindi UI, bilingual documents, SMS templates in parent's language | Must-haves: Multi-language |
+| 7 | Analytics & trends — trend lines, section comparisons, cohort tracking, anomaly detection | Platform theme 5 |
+| 8 | Approval workflows — generalized engine for concessions, certificates, expenses, procurement | Platform theme 6 |
+| 9 | Complaint & grievance management — ticket workflow, SLA tracking, anonymous option | New modules: Complaints |
+| 10 | Scheduled report delivery — recurring PDF/Excel reports via email | New modules: Scheduled reports |
+| 11 | Dark mode — user-togglable full app dark mode | Visual & interaction polish |
+| 12 | Visitor management — front desk check-in, student pickup authorization, visitor log | Nice-to-haves: Visitor management |
+| 13 | Student diary / daily remarks — replace physical school diary | Nice-to-haves: Student diary |
+| 14 | Lesson planning — syllabus coverage tracking, plan templates, timetable alignment | Nice-to-haves: Lesson planning |
+| 15 | Parent engagement scoring — track engagement, surface disengaged parents | Competitive edge: Parent engagement |
+| 16 | In-app help — contextual tooltips, knowledge base, report-a-problem, changelog | In-app help & support |
+| 17 | Onboarding tours — first-visit module walkthroughs | In-app help & support |
 
 ---
 
@@ -176,15 +156,17 @@ Gate: The business can sustain itself — billing, admin tools, multi-school ope
 | 3 | School chain / group management — consolidated dashboards, cross-branch reports, centralized policies | Platform & business: School chains |
 | 4 | Budget planning — annual budget by department, actuals vs budget tracking | New modules: Finance |
 | 5 | Petty cash management — daily register, approvals, reconciliation | New modules: Finance |
-| 6 | Tally export — fee collection and expense data in Tally-compatible format | New modules: Finance |
-| 7 | API & webhooks — event subscriptions for third-party systems, public API for school websites | API & integrations |
-| 8 | SSO for school chains — one login across all branches | API & integrations |
-| 9 | Calendar sync — iCal feed for Google Calendar / Apple Calendar | API & integrations |
-| 10 | House system & co-curricular — house assignment, points, inter-house competitions | Nice-to-haves: House system |
-| 11 | Alumni tracking — directory, batch listing, achievement tracking | Nice-to-haves: Alumni |
-| 12 | Incident & disciplinary records — incident log, severity levels, parent notification | Nice-to-haves: Disciplinary |
-| 13 | Automated test coverage — integration tests for critical paths across all domains | Cross-cutting depth |
-| 14 | Feedback loop — in-app feature requests, NPS surveys, release notes | Feedback & communication loop |
+| 6 | Cash book and bank book — basic double-entry, daily cash/bank balance | New modules: Finance |
+| 7 | Tally export — fee collection and expense data in Tally-compatible format | New modules: Finance |
+| 8 | Financial year reports — income vs expenditure, balance sheet basics, audit-ready data | New modules: Finance |
+| 9 | API & webhooks — event subscriptions for third-party systems, public API for school websites | API & integrations |
+| 10 | SSO for school chains — one login across all branches | API & integrations |
+| 11 | Calendar sync — iCal feed for Google Calendar / Apple Calendar | API & integrations |
+| 12 | House system & co-curricular — house assignment, points, inter-house competitions | Nice-to-haves: House system |
+| 13 | Alumni tracking — directory, batch listing, achievement tracking | Nice-to-haves: Alumni |
+| 14 | Incident & disciplinary records — incident log, severity levels, parent notification | Nice-to-haves: Disciplinary |
+| 15 | Automated test coverage — integration tests for critical paths across all domains | Cross-cutting depth |
+| 16 | Feedback loop — in-app feature requests, NPS surveys, release notes | Feedback & communication loop |
 
 ---
 
@@ -576,13 +558,16 @@ This is what you need to run as a SaaS company, not just deliver software to sch
 ### Must-haves — schools will ask about these before buying
 
 #### Government compliance (India-specific)
-- **UDISE+ data export** — auto-generate the annual UDISE+ form from existing student, staff, and infrastructure data. Every school in India must submit this. One-click generation from ERP data eliminates weeks of manual compilation.
-- **RTE 25% reservation tracking** — admission quota monitoring against the 25% economically weaker section mandate. Track category-wise admissions, flag when quota is under/over-filled.
-- **CBSE / ICSE / State board affiliation fields** — affiliation number, DISE code, school category, recognition details. Displayed on certificates and reports automatically.
+
+Phase 1 basics (data fields):
 - **Caste/category tracking** — SC/ST/OBC/General/EWS on student records. Required for every government report, scholarship application, and RTE compliance.
+- **CBSE / ICSE / State board affiliation fields** — affiliation number, DISE code, school category, recognition details. Displayed on certificates and reports automatically.
 - **Income certificate / BPL tracking** — for scholarship eligibility, fee concession rules, and RTE admission priority.
 - **Staff-student ratio reports** — auto-calculated from current data, required for CBSE affiliation renewal.
 - **Category-wise enrollment statistics** — gender, caste, age-group breakdowns for government reporting.
+
+Phase 3 automation (covered by "Automated government reports" in Competitive edge):
+- UDISE+ one-click export, RTE 25% dashboard, affiliation renewal data pack — see Competitive edge section for full specs.
 
 #### Mobile app
 - **PWA at minimum** — installable on Android/iOS, push notifications, app-like experience. Indian school staff and parents live on phones, not desktops.
@@ -737,13 +722,15 @@ Features don't matter if the product feels rough. This section covers the UX qua
 - **Setup progress dashboard** — "Your school is 40% configured. You haven't set up: fee structures, timetable, exam terms." Visible until setup is complete.
 - **Sample data / demo mode** — let the school explore with realistic fake data before entering real data. One click to wipe sample data when ready to go live.
 - **Video walkthroughs** — 2-minute embedded videos per module. Non-tech school admins don't read documentation. Play button on each module's empty state.
-- **Import wizard** — school has data in Excel. Step-by-step import: upload file → map columns → preview → confirm. For students, staff, fee structures.
+- ~~**Import wizard**~~ — Done. 3-step flow (download template → preview with validation → execute) for students, staff, guardians, and fee assignments.
 
 #### Indian formatting & conventions
-- **Currency** — ₹ with Indian number formatting everywhere. ₹4,50,000 not ₹450,000. Lakhs and crores, not millions.
-- **Date format** — DD/MM/YYYY consistently. Never MM/DD/YYYY. Configurable per institution if needed.
-- **Phone numbers** — +91 prefix handling, 10-digit validation, display as XXXXX-XXXXX.
+
+Already done: ₹ with Indian number formatting (lakhs/crores via `en-IN` locale), DD Mon YYYY date format.
+
+Still needed:
 - **Academic year format** — "2025–26" not "2025-2026". Every Indian school writes it this way.
+- **Phone numbers** — +91 prefix handling, 10-digit validation, display as XXXXX-XXXXX.
 - **Class naming** — configurable: "Class VI" (Roman, CBSE style) vs "Class 6" (Arabic) vs "Std. 6" (state board style). Set once in school settings, applied everywhere.
 - **Honorifics** — "Shri", "Smt.", "Mr.", "Mrs.", "Dr." on certificates and formal documents. Configurable per staff/guardian.
 
@@ -835,8 +822,8 @@ Features don't matter if the product feels rough. This section covers the UX qua
 Issues observed in the current ERP UI that must be fixed for enterprise-grade quality:
 
 **Login & auth flow:**
-- Login button needs a loading spinner or "Signing in..." text while the request is in-flight. Currently just grays out — user doesn't know if it's working.
-- Login error messages must never show raw JS errors like `Cannot read properties of undefined`. Map every auth error to a user-friendly message.
+- ~~Login button loading spinner~~ — Done. Shows "Signing in…" text while in-flight.
+- ~~Login error messages~~ — Done. Auth errors are mapped to human-readable messages with fallback.
 
 **Sidebar navigation:**
 - 13+ top-level nav items forces scrolling on laptop screens to reach Reports and Academic Setup. Group related items or support a collapsible/pinned favorites model.
@@ -868,8 +855,8 @@ Issues observed in the current ERP UI that must be fixed for enterprise-grade qu
 - Attendance page requires 3 dropdown selections (date, class, section) before showing anything. For class teachers who do this daily, auto-select their assigned section and today's date.
 
 **General visual improvements:**
-- **Dark mode** — sidebar is dark but content area is light. Add a user-togglable dark mode for the full app. Teachers marking attendance at 7am prefer dark mode.
-- **Density toggle** — comfortable (default), compact (data-heavy users), spacious (accessibility). Persisted in user preferences.
+- **Dark mode** — Phase 3. Sidebar is dark but content area is light. User-togglable full app dark mode.
+- **Density toggle** — Phase 1. Comfortable (default), compact (data-heavy users), spacious (accessibility). Persisted in user preferences.
 - **Responsive behavior** — verify the ERP is usable on tablet (iPad) screens. Many school admins use tablets.
 - **Loading states** — skeleton shimmer exists on some pages (good), but ensure every page has it. No page should ever show a blank white content area while loading.
 - **Animation polish** — sidebar expand/collapse, sheet open/close, dropdown open should have subtle 150ms transitions. Not flashy, just smooth.
@@ -892,34 +879,9 @@ Issues observed in the current ERP UI that must be fixed for enterprise-grade qu
 - Subscription billing must handle Indian payment quirks — UPI autopay limits, GST on SaaS invoices, annual vs monthly preference by school segment.
 - Custom report builder is high-effort, high-risk for scope creep. Consider a curated report template library first before opening fully custom reports.
 
-## Locked Product Decisions
-
-- One institution = one tenant.
-- Tenant is resolved from subdomain.
-- The root domain hosts public entry and onboarding, not tenant ERP workflows.
-- Campus switching happens inside a tenant only.
-- One user record per human identity.
-- A user may be both staff and parent.
-- Auth is NestJS Passport-based.
-- Web auth uses HTTP-only cookies.
-- Mobile is primary identifier.
-- Email is secondary identifier.
-- Theme customization is token-driven, not layout-driven.
-
-## Locked Engineering Decisions
-
-- Business rules belong in NestJS, not React.
-- Frontend should keep business-facing client logic inside feature modules, not route pages.
-- Shared constants must be used for domain values and route strings.
-- Tenant-scoped destructive operations must block when the action would orphan, hide, or silently detach active business data.
-- New browser testing in local dev should use:
-  - `https://erp.test`
-  - `https://<tenant>.erp.test`
-- Local dev should not default to `http://localhost:3000` for browser verification unless explicitly requested.
-- Event architecture: Postgres event store (source of truth) + BullMQ (async processor) + poller cron (fallback). No external message broker. Event insert is always in the same DB transaction as the business write.
-- Everything stays in the NestJS monolith. Do not introduce separate microservices until there is a concrete scaling reason.
-
 ## Working Convention
+
+Locked product and engineering decisions are defined in `CLAUDE.md`. Do not duplicate them here.
 
 When priorities change, update:
 

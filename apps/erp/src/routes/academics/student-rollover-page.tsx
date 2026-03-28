@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { extractApiError } from "@/lib/api-error";
 import {
   IconArrowRight,
   IconCheck,
@@ -68,6 +70,7 @@ const DEFAULT_VALUES: StudentRolloverFormValues = {
 };
 
 export function StudentRolloverPage() {
+  useDocumentTitle("Student Rollover");
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const activeContext = getActiveContext(session);
@@ -89,6 +92,7 @@ export function StudentRolloverPage() {
   const { control, getValues, handleSubmit, resetField, setValue, watch } =
     useForm<StudentRolloverFormValues>({
       resolver: zodResolver(studentRolloverFormSchema),
+      mode: "onTouched",
       defaultValues: DEFAULT_VALUES,
     });
   const { fields, replace } = useFieldArray({
@@ -261,59 +265,71 @@ export function StudentRolloverPage() {
   }, [classOptions, fields, setValue, values.sectionMappings]);
 
   async function loadRoster() {
-    const currentValues = getValues();
-    const rosterPreview = await previewMutation.mutateAsync({
-      body: {
-        sourceAcademicYearId: currentValues.sourceAcademicYearId,
-        targetAcademicYearId: currentValues.targetAcademicYearId,
-        sectionMappings: [],
-        withdrawnStudentIds: [],
-      },
-    });
+    try {
+      const currentValues = getValues();
+      const rosterPreview = await previewMutation.mutateAsync({
+        body: {
+          sourceAcademicYearId: currentValues.sourceAcademicYearId,
+          targetAcademicYearId: currentValues.targetAcademicYearId,
+          sectionMappings: [],
+          withdrawnStudentIds: [],
+        },
+      });
 
-    replace(
-      rosterPreview.sections.map((section) => ({
-        sourceClassId: section.sourceClassId,
-        sourceSectionId: section.sourceSectionId,
-        targetClassId: "",
-        targetSectionId: "",
-      })),
-    );
-    setValue("withdrawnStudentIds", []);
-    setPreview(rosterPreview);
-    setLastPreviewSignature(
-      getStudentRolloverPreviewSignature({
-        ...currentValues,
-        sectionMappings: rosterPreview.sections.map((section) => ({
+      replace(
+        rosterPreview.sections.map((section) => ({
           sourceClassId: section.sourceClassId,
           sourceSectionId: section.sourceSectionId,
           targetClassId: "",
           targetSectionId: "",
         })),
-        withdrawnStudentIds: [],
-      }),
-    );
+      );
+      setValue("withdrawnStudentIds", []);
+      setPreview(rosterPreview);
+      setLastPreviewSignature(
+        getStudentRolloverPreviewSignature({
+          ...currentValues,
+          sectionMappings: rosterPreview.sections.map((section) => ({
+            sourceClassId: section.sourceClassId,
+            sourceSectionId: section.sourceSectionId,
+            targetClassId: "",
+            targetSectionId: "",
+          })),
+          withdrawnStudentIds: [],
+        }),
+      );
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not load source roster. Please try again."));
+    }
   }
 
   const handlePreview = handleSubmit(async (formValues) => {
-    const nextPreview = await previewMutation.mutateAsync({
-      body: toStudentRolloverBody(formValues),
-    });
+    try {
+      const nextPreview = await previewMutation.mutateAsync({
+        body: toStudentRolloverBody(formValues),
+      });
 
-    setPreview(nextPreview);
-    setLastPreviewSignature(getStudentRolloverPreviewSignature(formValues));
+      setPreview(nextPreview);
+      setLastPreviewSignature(getStudentRolloverPreviewSignature(formValues));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not refresh rollover preview. Please try again."));
+    }
   });
 
   const handleExecute = handleSubmit(async (formValues) => {
-    const result = await executeMutation.mutateAsync({
-      body: toStudentRolloverBody(formValues),
-    });
+    try {
+      const result = await executeMutation.mutateAsync({
+        body: toStudentRolloverBody(formValues),
+      });
 
-    toast.success(
-      `${result.summary.mappedStudentCount} students rolled into ${result.targetAcademicYear.name}.`,
-    );
-    setPreview(result);
-    setLastPreviewSignature(getStudentRolloverPreviewSignature(formValues));
+      toast.success(
+        `${result.summary.mappedStudentCount} students rolled into ${result.targetAcademicYear.name}.`,
+      );
+      setPreview(result);
+      setLastPreviewSignature(getStudentRolloverPreviewSignature(formValues));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not execute student rollover. Please try again."));
+    }
   });
 
   if (!institutionId) {
@@ -438,7 +454,9 @@ export function StudentRolloverPage() {
               type="button"
             >
               <IconChevronsUp className="size-4" />
-              Load source roster
+              {previewMutation.isPending
+                ? "Loading..."
+                : "Load source roster"}
             </Button>
             <Button
               className="h-10 rounded-lg"
@@ -448,7 +466,9 @@ export function StudentRolloverPage() {
               variant="outline"
             >
               <IconRefresh className="size-4" />
-              Refresh preview
+              {previewMutation.isPending
+                ? "Refreshing..."
+                : "Refresh preview"}
             </Button>
             <Button
               className="h-10 rounded-lg"
@@ -462,7 +482,9 @@ export function StudentRolloverPage() {
               type="button"
             >
               <IconCheck className="size-4" />
-              Run rollover
+              {executeMutation.isPending
+                ? "Processing..."
+                : "Run rollover"}
             </Button>
           </div>
 

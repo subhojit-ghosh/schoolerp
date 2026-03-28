@@ -35,9 +35,11 @@ import {
   GUARDIAN_LIST_SORT_FIELDS,
   GUARDIANS_PAGE_COPY,
 } from "@/features/guardians/model/guardian-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
 import { appendSearch } from "@/lib/routes";
+import { formatPhoneCompact } from "@/lib/format";
 
 type GuardianRow = {
   campusName: string;
@@ -57,6 +59,7 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function GuardiansPage() {
+  useDocumentTitle("Guardians");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
@@ -127,7 +130,7 @@ export function GuardiansPage() {
               </Link>
             </Button>
             <p className="text-sm text-muted-foreground">
-              {row.original.mobile}
+              {formatPhoneCompact(row.original.mobile)}
               {row.original.email ? ` • ${row.original.email}` : ""}
             </p>
           </div>

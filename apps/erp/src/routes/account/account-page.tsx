@@ -12,15 +12,20 @@ import {
   changePasswordFormSchema,
   type ChangePasswordFormValues,
 } from "@/features/auth/model/auth-form-schema";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { PasswordStrengthBar } from "@/components/feedback/password-strength-bar";
+import { extractApiError } from "@/lib/api-error";
 
 export function AccountPage() {
+  useDocumentTitle("Account");
   const changePasswordMutation = useChangePasswordMutation();
   const errorMessage = useAuthErrorMessage(
     changePasswordMutation.error,
     "Incorrect current password or something went wrong.",
   );
-  const { control, handleSubmit, reset } = useForm<ChangePasswordFormValues>({
+  const { control, handleSubmit, reset, watch } = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(changePasswordFormSchema),
+    mode: "onTouched",
     defaultValues: {
       currentPassword: "",
       newPassword: "",
@@ -29,14 +34,18 @@ export function AccountPage() {
   });
 
   async function onSubmit(values: ChangePasswordFormValues) {
-    await changePasswordMutation.mutateAsync({
-      body: {
-        currentPassword: values.currentPassword,
-        newPassword: values.newPassword,
-      },
-    });
-    reset();
-    toast.success("Password changed successfully.");
+    try {
+      await changePasswordMutation.mutateAsync({
+        body: {
+          currentPassword: values.currentPassword,
+          newPassword: values.newPassword,
+        },
+      });
+      reset();
+      toast.success("Password changed successfully.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not change password. Please check your current password and try again."));
+    }
   }
 
   return (
@@ -86,6 +95,7 @@ export function AccountPage() {
                   autoComplete="new-password"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
+                <PasswordStrengthBar password={watch("newPassword")} />
               </Field>
             )}
           />

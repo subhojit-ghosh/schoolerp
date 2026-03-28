@@ -53,6 +53,7 @@ export function ItemForm({
   const { control, handleSubmit } = useForm<ItemFormValues>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 + react-hook-form + TS 6 type bridge
     resolver: zodResolver(itemFormSchema) as any,
+    mode: "onTouched",
     defaultValues,
   });
 

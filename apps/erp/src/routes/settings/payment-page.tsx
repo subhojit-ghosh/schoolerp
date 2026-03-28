@@ -9,6 +9,8 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { toast } from "sonner";
+import { UnsavedChangesDialog } from "@/components/feedback/unsaved-changes-dialog";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -31,6 +33,7 @@ import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   usePaymentConfigQuery,
   useUpsertPaymentConfigMutation,
@@ -81,15 +84,18 @@ function PaymentConfigCard() {
   const upsertMutation = useUpsertPaymentConfigMutation();
   const deactivateMutation = useDeactivatePaymentConfigMutation();
 
-  const { control, handleSubmit, watch, reset } = useForm<ConfigFormValues>({
-    resolver: zodResolver(configFormSchema),
-    defaultValues: {
-      provider: config?.provider ?? "razorpay",
-      credentials: {},
-      displayLabel: config?.displayLabel ?? "",
-    },
-  });
+  const { control, handleSubmit, watch, reset, formState } =
+    useForm<ConfigFormValues>({
+      resolver: zodResolver(configFormSchema),
+      mode: "onTouched",
+      defaultValues: {
+        provider: config?.provider ?? "razorpay",
+        credentials: {},
+        displayLabel: config?.displayLabel ?? "",
+      },
+    });
 
+  const blocker = useUnsavedChangesGuard(formState.isDirty);
   const selectedProvider = watch("provider");
   const currentFields = CREDENTIAL_FIELDS[selectedProvider] ?? [];
 
@@ -287,11 +293,14 @@ function PaymentConfigCard() {
           </form>
         )}
       </CardContent>
+
+      <UnsavedChangesDialog blocker={blocker} />
     </Card>
   );
 }
 
 export function PaymentSettingsPage() {
+  useDocumentTitle("Payment Settings");
   return (
     <EntityPageShell>
       <EntityPageHeader

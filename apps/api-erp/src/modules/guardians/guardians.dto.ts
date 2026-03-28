@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   GUARDIAN_RELATIONSHIPS,
+  HONORIFICS,
   SORT_ORDERS,
   STATUS,
   type GuardianRelationship,
@@ -28,6 +29,9 @@ export class ListGuardiansQueryDto {
 }
 
 export class UpdateGuardianBodyDto {
+  @ApiPropertyOptional({ enum: [...HONORIFICS] })
+  honorific?: string;
+
   name!: string;
   mobile!: string;
 
@@ -74,6 +78,10 @@ export class GuardianDto {
   @ApiPropertyOptional({ nullable: true })
   userId!: string | null;
   institutionId!: string;
+
+  @ApiPropertyOptional({ nullable: true, enum: [...HONORIFICS] })
+  honorific!: string | null;
+
   name!: string;
   mobile!: string;
 

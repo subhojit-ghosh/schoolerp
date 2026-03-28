@@ -12,6 +12,7 @@ import {
 import { Input } from "@repo/ui/components/ui/input";
 import { z } from "zod";
 
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityPageHeader,
   EntityPageShell,
@@ -48,6 +49,7 @@ function getFirstOfMonth() {
 }
 
 export function StaffAttendanceReportPage() {
+  useDocumentTitle("Staff Attendance Report");
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
   const activeCampusId = session?.activeCampus?.id;
@@ -62,6 +64,7 @@ export function StaffAttendanceReportPage() {
 
   const filterForm = useForm<ReportFilterValues>({
     resolver: zodResolver(reportFilterSchema),
+    mode: "onTouched",
     defaultValues: {
       fromDate: getFirstOfMonth(),
       toDate: TODAY,

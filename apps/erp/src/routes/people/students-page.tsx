@@ -1,7 +1,8 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { DATA_EXCHANGE_ENTITY_TYPES, PERMISSIONS } from "@repo/contracts";
 import { Link, useLocation, useSearchParams } from "react-router";
 import { IconArrowRight, IconPlus, IconSearch } from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
@@ -36,9 +37,12 @@ import {
   STUDENT_LIST_SORT_FIELDS,
   STUDENTS_PAGE_COPY,
 } from "@/features/students/model/student-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { apiQueryClient } from "@/lib/api/client";
 import { appendSearch } from "@/lib/routes";
+import { STUDENTS_API_PATHS } from "@/features/auth/api/auth.constants";
 
 const ERROR_BOUNDARY_PREVIEW_PARAM = "previewErrorBoundary";
 const ERROR_BOUNDARY_PREVIEW_VALUE = "1";
@@ -72,8 +76,10 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function StudentsPage() {
+  useDocumentTitle("Students");
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const queryClient = useQueryClient();
   const authSession = useAuthStore((store) => store.session);
   const institutionId = authSession?.activeOrganization?.id;
   const canManageStudents =
@@ -248,6 +254,17 @@ export function StudentsPage() {
     sortOrder: queryState.sortOrder,
   });
 
+  const handleRowHover = useCallback(
+    function handleRowHover(student: StudentRow) {
+      void queryClient.prefetchQuery(
+        apiQueryClient.queryOptions("get", STUDENTS_API_PATHS.DETAIL, {
+          params: { path: { studentId: student.id } },
+        }),
+      );
+    },
+    [queryClient],
+  );
+
   if (
     searchParams.get(ERROR_BOUNDARY_PREVIEW_PARAM) ===
     ERROR_BOUNDARY_PREVIEW_VALUE
@@ -349,6 +366,7 @@ export function StudentsPage() {
         errorTitle={STUDENTS_PAGE_COPY.ERROR_TITLE}
         isError={studentsQuery.isError}
         isLoading={studentsQuery.isLoading}
+        onRowHover={handleRowHover}
         onSearchChange={setSearchInput}
         searchPlaceholder={STUDENTS_PAGE_COPY.SEARCH_PLACEHOLDER}
         searchValue={searchInput}

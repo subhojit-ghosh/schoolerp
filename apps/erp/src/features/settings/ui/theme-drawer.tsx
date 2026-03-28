@@ -57,6 +57,7 @@ export function ThemeDrawer() {
 
   const { control, handleSubmit, setValue } = useForm<BrandingFormValues>({
     resolver: zodResolver(brandingSchema),
+    mode: "onTouched",
     defaultValues: getBrandingInitialValues(cachedBranding, organization),
   });
 

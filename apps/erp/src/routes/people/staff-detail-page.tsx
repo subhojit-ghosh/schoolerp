@@ -1,7 +1,10 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import { IconCertificate, IconChevronLeft } from "@tabler/icons-react";
+import {
+  IconCertificate,
+  IconHistory,
+} from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -40,8 +43,12 @@ import {
 import { StaffForm } from "@/features/staff/ui/staff-form";
 import { StaffRoleAssignmentsCard } from "@/features/staff/ui/staff-role-assignments-card";
 import { StaffSubjectAssignmentsCard } from "@/features/staff/ui/staff-subject-assignments-card";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { ERP_ROUTES, buildStaffIdCardRoute } from "@/constants/routes";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
+import { formatNameWithHonorific, formatPhone } from "@/lib/format";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 function toInitials(name: string) {
@@ -64,6 +71,7 @@ export function StaffDetailPage() {
   const managedInstitutionId = canManageStaff ? institutionId : undefined;
   const campuses = session?.activeCampus ? [session.activeCampus] : [];
   const staffQuery = useStaffDetailQuery(managedInstitutionId, staffId);
+  useDocumentTitle(staffQuery.data?.name ?? "Staff Details");
   const assignmentsQuery = useStaffRoleAssignmentsQuery(
     managedInstitutionId,
     staffId,
@@ -100,6 +108,7 @@ export function StaffDetailPage() {
 
     if (!staffRecord) {
       return {
+        honorific: "",
         name: "",
         mobile: "",
         email: "",
@@ -111,6 +120,7 @@ export function StaffDetailPage() {
     const profile = staffRecord.profile;
 
     return {
+      honorific: ((staffRecord as { honorific?: string | null }).honorific ?? "") as StaffFormValues["honorific"],
       name: staffRecord.name,
       mobile: staffRecord.mobile,
       email: staffRecord.email ?? "",
@@ -141,17 +151,21 @@ export function StaffDetailPage() {
       return;
     }
 
-    await updateStaffMutation.mutateAsync({
-      params: {
-        path: {
-          staffId,
+    try {
+      await updateStaffMutation.mutateAsync({
+        params: {
+          path: {
+            staffId,
+          },
         },
-      },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      body: values as any,
-    });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        body: values as any,
+      });
 
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_RECORD));
+      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_RECORD));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update staff record. Please try again."));
+    }
   }
 
   async function onCreateAssignment(values: {
@@ -164,16 +178,20 @@ export function StaffDetailPage() {
       return;
     }
 
-    await createAssignmentMutation.mutateAsync({
-      params: {
-        path: {
-          staffId,
+    try {
+      await createAssignmentMutation.mutateAsync({
+        params: {
+          path: {
+            staffId,
+          },
         },
-      },
-      body: values,
-    });
+        body: values,
+      });
 
-    toast.success("Role assignment added.");
+      toast.success("Role assignment added.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not add role assignment. Please try again."));
+    }
   }
 
   async function onDeleteAssignment(assignmentId: string) {
@@ -181,16 +199,20 @@ export function StaffDetailPage() {
       return;
     }
 
-    await deleteAssignmentMutation.mutateAsync({
-      params: {
-        path: {
-          staffId,
-          assignmentId,
+    try {
+      await deleteAssignmentMutation.mutateAsync({
+        params: {
+          path: {
+            staffId,
+            assignmentId,
+          },
         },
-      },
-    });
+      });
 
-    toast.success("Role assignment removed.");
+      toast.success("Role assignment removed.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not remove role assignment. Please try again."));
+    }
   }
 
   async function handleResetPassword() {
@@ -198,16 +220,20 @@ export function StaffDetailPage() {
       return;
     }
 
-    await resetPasswordMutation.mutateAsync({
-      params: {
-        path: {
-          staffId,
+    try {
+      await resetPasswordMutation.mutateAsync({
+        params: {
+          path: {
+            staffId,
+          },
         },
-      },
-    });
+      });
 
-    setResetPasswordOpen(false);
-    toast.success("Password reset successfully.");
+      setResetPasswordOpen(false);
+      toast.success("Password reset successfully.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not reset password. Please try again."));
+    }
   }
 
   async function onCreateSubjectAssignment(values: {
@@ -218,16 +244,20 @@ export function StaffDetailPage() {
       return;
     }
 
-    await createSubjectMutation.mutateAsync({
-      params: {
-        path: {
-          staffId,
+    try {
+      await createSubjectMutation.mutateAsync({
+        params: {
+          path: {
+            staffId,
+          },
         },
-      },
-      body: values,
-    });
+        body: values,
+      });
 
-    toast.success("Subject assignment added.");
+      toast.success("Subject assignment added.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not add subject assignment. Please try again."));
+    }
   }
 
   async function onDeleteSubjectAssignment(assignmentId: string) {
@@ -235,16 +265,20 @@ export function StaffDetailPage() {
       return;
     }
 
-    await deleteSubjectMutation.mutateAsync({
-      params: {
-        path: {
-          staffId,
-          assignmentId,
+    try {
+      await deleteSubjectMutation.mutateAsync({
+        params: {
+          path: {
+            staffId,
+            assignmentId,
+          },
         },
-      },
-    });
+      });
 
-    toast.success("Subject assignment removed.");
+      toast.success("Subject assignment removed.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not remove subject assignment. Please try again."));
+    }
   }
 
   if (!institutionId) {
@@ -299,18 +333,22 @@ export function StaffDetailPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild variant="outline">
-            <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to staff
-            </Link>
-          </Button>
+          <Breadcrumbs
+            items={[
+              { label: "Staff", href: appendSearch(ERP_ROUTES.STAFF, location.search) },
+              { label: "Not found" },
+            ]}
+          />
         </CardContent>
       </Card>
     );
   }
 
   const staffRecord = staffQuery.data;
+  const staffDisplayName = formatNameWithHonorific(
+    staffRecord.name,
+    (staffRecord as { honorific?: string | null }).honorific,
+  );
 
   return (
     <EntityPageShell width="full">
@@ -328,6 +366,14 @@ export function StaffDetailPage() {
                 </Link>
               </Button>
             ) : null}
+            <Button asChild size="sm" variant="ghost">
+              <Link
+                to={`${ERP_ROUTES.SETTINGS_AUDIT}?q=${encodeURIComponent(staffRecord.name)}`}
+              >
+                <IconHistory className="size-4" />
+                View history
+              </Link>
+            </Button>
             <Button
               onClick={() => setResetPasswordOpen(true)}
               size="sm"
@@ -351,12 +397,12 @@ export function StaffDetailPage() {
           </div>
         }
         backAction={
-          <Button asChild className="-ml-3" size="sm" variant="ghost">
-            <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to staff
-            </Link>
-          </Button>
+          <Breadcrumbs
+            items={[
+              { label: "Staff", href: appendSearch(ERP_ROUTES.STAFF, location.search) },
+              { label: staffDisplayName },
+            ]}
+          />
         }
         badges={
           <>
@@ -374,11 +420,11 @@ export function StaffDetailPage() {
         }
         meta={
           <>
-            {staffRecord.mobile}
+            {formatPhone(staffRecord.mobile)}
             {staffRecord.email ? ` • ${staffRecord.email}` : ""}
           </>
         }
-        title={staffRecord.name}
+        title={staffDisplayName}
       />
 
       <Card>

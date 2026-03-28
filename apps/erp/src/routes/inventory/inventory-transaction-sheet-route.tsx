@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -40,18 +41,22 @@ export function InventoryTransactionSheetRoute() {
   const errorMessage = (createMutation.error as Error | null | undefined)?.message ?? undefined;
 
   async function handleSubmit(values: TransactionFormValues) {
-    await createMutation.mutateAsync({
-      body: {
-        itemId: values.itemId,
-        transactionType: values.transactionType,
-        quantity: values.quantity,
-        referenceNumber: values.referenceNumber || undefined,
-        issuedToMembershipId: values.issuedToMembershipId || undefined,
-        notes: values.notes || undefined,
-      },
-    });
-    toast.success("Stock transaction recorded.");
-    void navigate(closeTo);
+    try {
+      await createMutation.mutateAsync({
+        body: {
+          itemId: values.itemId,
+          transactionType: values.transactionType,
+          quantity: values.quantity,
+          referenceNumber: values.referenceNumber || undefined,
+          issuedToMembershipId: values.issuedToMembershipId || undefined,
+          notes: values.notes || undefined,
+        },
+      });
+      toast.success("Stock transaction recorded.");
+      void navigate(closeTo);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not record stock transaction. Please try again."));
+    }
   }
 
   return (

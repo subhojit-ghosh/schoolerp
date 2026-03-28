@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { extractApiError } from "@/lib/api-error";
 import {
   IconBook2,
   IconCheck,
@@ -96,6 +98,7 @@ function StepIndicator({ current }: { current: WizardStep }) {
 }
 
 export function SetupWizardPage() {
+  useDocumentTitle("Setup");
   const navigate = useNavigate();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
@@ -108,15 +111,23 @@ export function SetupWizardPage() {
   const createClassMutation = useCreateClassMutation();
 
   async function handleAcademicYearSubmit(values: AcademicYearFormValues) {
-    await createAcademicYearMutation.mutateAsync({ body: values });
-    toast.success("Academic year created");
-    setStep("first-class");
+    try {
+      await createAcademicYearMutation.mutateAsync({ body: values });
+      toast.success("Academic year created");
+      setStep("first-class");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not create academic year. Please try again."));
+    }
   }
 
   async function handleClassSubmit(values: ClassFormValues) {
-    await createClassMutation.mutateAsync({ body: values });
-    toast.success("Class created");
-    setStep("done");
+    try {
+      await createClassMutation.mutateAsync({ body: values });
+      toast.success("Class created");
+      setStep("done");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not create class. Please try again."));
+    }
   }
 
   function goToDashboard() {

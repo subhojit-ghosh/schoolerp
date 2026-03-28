@@ -14,6 +14,11 @@ import {
   IconLayoutGrid,
 } from "@tabler/icons-react";
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import {
+  KeyboardShortcutsDialog,
+  useKeyboardShortcutsDialog,
+} from "@/components/feedback/keyboard-shortcuts-dialog";
+import { SessionExpiryWarning } from "@/components/feedback/session-expiry-warning";
 import { SiteHeader } from "@/components/layout/site-header";
 import { NavSearch } from "@/components/navigation/nav-search";
 import {
@@ -36,6 +41,7 @@ import {
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { SidebarInset, SidebarProvider } from "@repo/ui/components/ui/sidebar";
+import { useIsTablet } from "@repo/ui/hooks/use-mobile";
 import { ERP_ROUTES } from "@/constants/routes";
 
 const ALL_QUICK_ACTIONS = [
@@ -109,8 +115,10 @@ const ALL_QUICK_ACTIONS = [
 
 export function DashboardLayout() {
   const [commandOpen, setCommandOpen] = useState(false);
+  const shortcutsDialog = useKeyboardShortcutsDialog();
   const session = useAuthStore((store) => store.session);
   const showStaffNav = isStaffContext(session);
+  const isTablet = useIsTablet();
 
   function filterByPermission(items: ReturnType<typeof getActionableNavItems>) {
     return items.filter(
@@ -177,7 +185,7 @@ export function DashboardLayout() {
   return (
     <SidebarProvider
       className="[--header-height:calc(var(--spacing)*12)]"
-      defaultOpen
+      defaultOpen={!isTablet}
     >
       <AppSidebar />
       <SidebarInset>
@@ -191,6 +199,11 @@ export function DashboardLayout() {
         open={commandOpen}
         onOpenChange={setCommandOpen}
       />
+      <KeyboardShortcutsDialog
+        open={shortcutsDialog.open}
+        onOpenChange={shortcutsDialog.onOpenChange}
+      />
+      <SessionExpiryWarning />
     </SidebarProvider>
   );
 }

@@ -15,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -60,6 +61,7 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function SalaryAssignmentsPage() {
+  useDocumentTitle("Salary Assignments");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canReadPayroll = hasPermission(session, PERMISSIONS.PAYROLL_READ);

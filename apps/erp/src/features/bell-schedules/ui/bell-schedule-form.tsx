@@ -89,6 +89,7 @@ export function BellScheduleForm({
     formState: { errors },
   } = useForm<BellScheduleFormValues>({
     resolver: zodResolver(bellScheduleFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

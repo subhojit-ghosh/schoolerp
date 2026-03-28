@@ -21,6 +21,8 @@ import {
   PrintDetailItem,
   PrintDocumentShell,
 } from "@/features/documents/ui/print-document-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { formatPhone } from "@/lib/format";
 
 function formatStatus(value: string) {
   return value
@@ -64,6 +66,7 @@ function formatCustomFieldValue(
 }
 
 export function AdmissionAcknowledgementPage() {
+  useDocumentTitle("Admission Acknowledgement");
   const { applicationId } = useParams();
   const institutionId = useAuthStore(
     (store) => store.session?.activeOrganization?.id,
@@ -174,7 +177,7 @@ export function AdmissionAcknowledgementPage() {
                 label="Guardian Name"
                 value={application.guardianName}
               />
-              <PrintDetailItem label="Mobile" value={application.mobile} />
+              <PrintDetailItem label="Mobile" value={formatPhone(application.mobile)} />
               <PrintDetailItem
                 label="Email"
                 value={application.email ?? "Not provided"}

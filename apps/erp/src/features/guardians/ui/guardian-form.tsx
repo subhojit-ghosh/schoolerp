@@ -12,9 +12,18 @@ import {
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
+import {
   guardianFormSchema,
   type GuardianFormValues,
 } from "@/features/guardians/model/guardian-form-schema";
+import { HONORIFICS } from "@/lib/format";
 
 type GuardianFormProps = {
   campusName?: string;
@@ -33,6 +42,7 @@ export function GuardianForm({
 }: GuardianFormProps) {
   const { control, handleSubmit, reset } = useForm<GuardianFormValues>({
     resolver: zodResolver(guardianFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 
@@ -44,26 +54,62 @@ export function GuardianForm({
     <form onSubmit={handleSubmit(onSubmit)}>
       <FieldGroup className="gap-6">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Controller
-            control={control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="guardian-name" required>
-                  Name
-                </FieldLabel>
-                <FieldContent>
-                  <Input
-                    {...field}
-                    aria-invalid={fieldState.invalid}
-                    id="guardian-name"
-                    placeholder="Guardian full name"
-                  />
-                  <FieldError>{fieldState.error?.message}</FieldError>
-                </FieldContent>
-              </Field>
-            )}
-          />
+          <div className="flex gap-3">
+            <Controller
+              control={control}
+              name="honorific"
+              render={({ field }) => (
+                <Field className="w-[100px] shrink-0">
+                  <FieldLabel>Title</FieldLabel>
+                  <FieldContent>
+                    <Select
+                      onValueChange={(value) =>
+                        field.onChange(value === "none" ? "" : value)
+                      }
+                      value={field.value || "none"}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="None" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value="none">None</SelectItem>
+                          {HONORIFICS.map((h) => (
+                            <SelectItem key={h} value={h}>
+                              {h}
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+            <Controller
+              control={control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <Field
+                  className="flex-1"
+                  data-invalid={fieldState.invalid || undefined}
+                >
+                  <FieldLabel htmlFor="guardian-name" required>
+                    Name
+                  </FieldLabel>
+                  <FieldContent>
+                    <Input
+                      {...field}
+                      aria-invalid={fieldState.invalid}
+                      id="guardian-name"
+                      placeholder="Guardian full name"
+                    />
+                    <FieldError>{fieldState.error?.message}</FieldError>
+                  </FieldContent>
+                </Field>
+              )}
+            />
+          </div>
           <Controller
             control={control}
             name="mobile"

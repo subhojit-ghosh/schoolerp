@@ -22,6 +22,7 @@ import {
   examTermFormSchema,
   type ExamTermFormValues,
 } from "@/features/exams/model/exam-form-schema";
+import { formatAcademicYear } from "@/lib/format";
 
 type AcademicYearOption = {
   id: string;
@@ -45,6 +46,7 @@ export function ExamTermForm({
 }: ExamTermFormProps) {
   const { control, handleSubmit, reset } = useForm<ExamTermFormValues>({
     resolver: zodResolver(examTermFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 
@@ -89,7 +91,7 @@ export function ExamTermForm({
                           key={academicYear.id}
                           value={academicYear.id}
                         >
-                          {academicYear.name}
+                          {formatAcademicYear(academicYear.name)}
                         </SelectItem>
                       ))}
                     </SelectGroup>
@@ -165,7 +167,7 @@ export function ExamTermForm({
           disabled={isPending || academicYears.length === 0}
           type="submit"
         >
-          Create exam term
+          {isPending ? "Creating..." : "Create exam term"}
         </Button>
       </FieldGroup>
     </form>

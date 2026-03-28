@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -62,33 +63,37 @@ export function HostelBuildingSheetRoute({ mode }: HostelBuildingSheetRouteProps
     undefined;
 
   async function handleSubmit(values: BuildingFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          name: values.name,
-          buildingType: values.buildingType,
-          campusId: values.campusId || undefined,
-          wardenMembershipId: values.wardenMembershipId || undefined,
-          capacity: values.capacity,
-          description: values.description || undefined,
-        },
-      });
-      toast.success("Building created.");
-      void navigate(closeTo);
-    } else if (buildingId) {
-      await updateMutation.mutateAsync({
-        params: { path: { buildingId } },
-        body: {
-          name: values.name,
-          buildingType: values.buildingType,
-          campusId: values.campusId || null,
-          wardenMembershipId: values.wardenMembershipId || null,
-          capacity: values.capacity,
-          description: values.description || null,
-        },
-      });
-      toast.success("Building updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            name: values.name,
+            buildingType: values.buildingType,
+            campusId: values.campusId || undefined,
+            wardenMembershipId: values.wardenMembershipId || undefined,
+            capacity: values.capacity,
+            description: values.description || undefined,
+          },
+        });
+        toast.success("Building created.");
+        void navigate(closeTo);
+      } else if (buildingId) {
+        await updateMutation.mutateAsync({
+          params: { path: { buildingId } },
+          body: {
+            name: values.name,
+            buildingType: values.buildingType,
+            campusId: values.campusId || null,
+            wardenMembershipId: values.wardenMembershipId || null,
+            capacity: values.capacity,
+            description: values.description || null,
+          },
+        });
+        toast.success("Building updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save building. Please try again."));
     }
   }
 

@@ -53,6 +53,7 @@ export function LeaveApplicationForm({
 
   const { control, handleSubmit } = useForm<LeaveApplicationFormValues>({
     resolver: zodResolver(leaveApplicationFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

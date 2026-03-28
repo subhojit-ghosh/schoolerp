@@ -32,6 +32,8 @@ import {
 } from "@/features/notifications/model/notification-feed";
 import { cn } from "@repo/ui/lib/utils";
 import { PERMISSIONS } from "@repo/contracts";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { extractApiError } from "@/lib/api-error";
 
 type NotificationFilter =
   (typeof NOTIFICATION_FILTERS)[keyof typeof NOTIFICATION_FILTERS];
@@ -52,6 +54,7 @@ function getFilteredItems(
 }
 
 export function NotificationsPage() {
+  useDocumentTitle("Notifications");
   const session = useAuthStore((store) => store.session);
   const [activeFilter, setActiveFilter] = useState<NotificationFilter>(
     NOTIFICATION_FILTERS.ALL,
@@ -91,10 +94,14 @@ export function NotificationsPage() {
         <EntityToolbarSecondaryAction
           disabled={markAllReadMutation.isPending || items.length === 0}
           onClick={async () => {
-            await markAllReadMutation.mutateAsync({
-              body: {},
-            });
-            toast.success("All notifications marked as read.");
+            try {
+              await markAllReadMutation.mutateAsync({
+                body: {},
+              });
+              toast.success("All notifications marked as read.");
+            } catch (error) {
+              toast.error(extractApiError(error, "Could not mark notifications as read. Please try again."));
+            }
           }}
         >
           <IconCircleCheckFilled className="size-4" />

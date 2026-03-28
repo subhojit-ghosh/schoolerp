@@ -16732,6 +16732,19 @@
       "StaffDto": {
         "type": "object",
         "properties": {
+          "honorific": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "Mr.",
+              "Mrs.",
+              "Ms.",
+              "Dr.",
+              "Shri",
+              "Smt.",
+              "Prof."
+            ]
+          },
           "email": {
             "type": "string",
             "nullable": true
@@ -16956,6 +16969,18 @@
       "CreateStaffBodyDto": {
         "type": "object",
         "properties": {
+          "honorific": {
+            "type": "string",
+            "enum": [
+              "Mr.",
+              "Mrs.",
+              "Ms.",
+              "Dr.",
+              "Shri",
+              "Smt.",
+              "Prof."
+            ]
+          },
           "email": {
             "type": "string",
             "nullable": true
@@ -17057,6 +17082,18 @@
       "UpdateStaffBodyDto": {
         "type": "object",
         "properties": {
+          "honorific": {
+            "type": "string",
+            "enum": [
+              "Mr.",
+              "Mrs.",
+              "Ms.",
+              "Dr.",
+              "Shri",
+              "Smt.",
+              "Prof."
+            ]
+          },
           "email": {
             "type": "string",
             "nullable": true
@@ -17211,6 +17248,19 @@
             "type": "string",
             "nullable": true
           },
+          "honorific": {
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "Mr.",
+              "Mrs.",
+              "Ms.",
+              "Dr.",
+              "Shri",
+              "Smt.",
+              "Prof."
+            ]
+          },
           "email": {
             "type": "string",
             "nullable": true
@@ -17293,6 +17343,18 @@
       "UpdateGuardianBodyDto": {
         "type": "object",
         "properties": {
+          "honorific": {
+            "type": "string",
+            "enum": [
+              "Mr.",
+              "Mrs.",
+              "Ms.",
+              "Dr.",
+              "Shri",
+              "Smt.",
+              "Prof."
+            ]
+          },
           "email": {
             "type": "string",
             "nullable": true

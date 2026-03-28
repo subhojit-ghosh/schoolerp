@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -44,6 +45,7 @@ import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
 import { appendSearch } from "@/lib/routes";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 
 type VehicleRow = {
   id: string;
@@ -68,6 +70,7 @@ const VEHICLE_TYPE_LABELS: Record<"bus" | "van" | "auto", string> = {
 };
 
 export function TransportVehiclesPage() {
+  useDocumentTitle("Vehicles");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.TRANSPORT_READ);
@@ -103,13 +106,17 @@ export function TransportVehiclesPage() {
 
   async function handleToggleStatus(row: VehicleRow) {
     const newStatus = row.status === "active" ? "inactive" : "active";
-    await updateMutation.mutateAsync({
-      params: { path: { vehicleId: row.id } },
-      body: { status: newStatus },
-    });
-    toast.success(
-      newStatus === "active" ? "Vehicle activated." : "Vehicle deactivated.",
-    );
+    try {
+      await updateMutation.mutateAsync({
+        params: { path: { vehicleId: row.id } },
+        body: { status: newStatus },
+      });
+      toast.success(
+        newStatus === "active" ? "Vehicle activated." : "Vehicle deactivated.",
+      );
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update vehicle status. Please try again."));
+    }
   }
 
   const columns = useMemo(

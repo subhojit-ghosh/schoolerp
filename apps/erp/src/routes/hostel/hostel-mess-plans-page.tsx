@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import {
   IconDotsVertical,
   IconPencil,
@@ -19,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -66,6 +68,7 @@ function formatPaise(paise: number): string {
 }
 
 export function HostelMessPlansPage() {
+  useDocumentTitle("Mess Plans");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.HOSTEL_READ);
@@ -103,15 +106,19 @@ export function HostelMessPlansPage() {
   const handleToggleStatus = useCallback(
     async (id: string, currentStatus: "active" | "inactive") => {
       const newStatus = currentStatus === "active" ? "inactive" : "active";
-      await statusMutation.mutateAsync({
-        params: { path: { planId: id } },
-        body: { status: newStatus },
-      });
-      toast.success(
-        newStatus === "active"
-          ? "Mess plan activated."
-          : "Mess plan deactivated.",
-      );
+      try {
+        await statusMutation.mutateAsync({
+          params: { path: { planId: id } },
+          body: { status: newStatus },
+        });
+        toast.success(
+          newStatus === "active"
+            ? "Mess plan activated."
+            : "Mess plan deactivated.",
+        );
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not update mess plan status. Please try again."));
+      }
     },
     [statusMutation],
   );

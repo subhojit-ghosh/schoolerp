@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import {
   IconArrowRight,
@@ -18,6 +19,7 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academic-years";
 import { useStudentsQuery } from "@/features/students/api/use-students";
@@ -25,6 +27,8 @@ import { useStaffQuery } from "@/features/staff/api/use-staff";
 import { useAttendanceOverviewQuery } from "@/features/attendance/api/use-attendance";
 import { useCollectionSummaryQuery } from "@/features/fees/api/use-fees";
 import { formatRupees } from "@/features/fees/model/fee-formatters";
+import { formatDateTime, formatFullDate } from "@/lib/format";
+import { getLastLogin } from "@/lib/last-login";
 import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
 import { StudentPortalPage } from "@/features/student-portal/ui/student-portal-page";
 
@@ -77,10 +81,17 @@ function firstName(name: string) {
   return name.split(" ")[0] ?? name;
 }
 
-const TODAY = new Date().toISOString().slice(0, 10);
+const TODAY_DATE = new Date();
+const TODAY = TODAY_DATE.toISOString().slice(0, 10);
+const TODAY_DISPLAY = formatFullDate(TODAY_DATE);
 const DASHBOARD_STAFF_LIMIT = 1;
 
 export function DashboardPage() {
+  useDocumentTitle("Dashboard");
+  const lastLoginDisplay = useMemo(() => {
+    const stored = getLastLogin();
+    return stored ? formatDateTime(stored) : null;
+  }, []);
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const name = session?.user.name ?? "";
@@ -203,9 +214,17 @@ export function DashboardPage() {
         >
           {getGreeting()}, {firstName(name)}
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Here's what's happening today.
-        </p>
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-sm text-muted-foreground">
+          <span>{TODAY_DISPLAY}</span>
+          {lastLoginDisplay ? (
+            <>
+              <span aria-hidden="true" className="hidden sm:inline">
+                &middot;
+              </span>
+              <span className="text-xs">Last login: {lastLoginDisplay}</span>
+            </>
+          ) : null}
+        </div>
       </div>
 
       {/* Stat cards */}

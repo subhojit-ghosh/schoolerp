@@ -55,6 +55,7 @@ export function AssignmentForm({
 
   const { control, handleSubmit, setValue } = useForm<AssignmentFormValues>({
     resolver: zodResolver(assignmentFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

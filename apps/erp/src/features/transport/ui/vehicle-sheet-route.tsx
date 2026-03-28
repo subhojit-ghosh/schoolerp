@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -61,33 +62,37 @@ export function VehicleSheetRoute({ mode }: VehicleSheetRouteProps) {
     undefined;
 
   async function handleSubmit(values: VehicleFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          registrationNumber: values.registrationNumber,
-          type: values.type,
-          capacity: values.capacity,
-          driverName: values.driverName || undefined,
-          driverContact: values.driverContact || undefined,
-          routeId: values.routeId || undefined,
-        },
-      });
-      toast.success("Vehicle added.");
-      void navigate(closeTo);
-    } else if (vehicleId) {
-      await updateMutation.mutateAsync({
-        params: { path: { vehicleId } },
-        body: {
-          registrationNumber: values.registrationNumber,
-          type: values.type,
-          capacity: values.capacity,
-          driverName: values.driverName || undefined,
-          driverContact: values.driverContact || undefined,
-          routeId: values.routeId || undefined,
-        },
-      });
-      toast.success("Vehicle updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            registrationNumber: values.registrationNumber,
+            type: values.type,
+            capacity: values.capacity,
+            driverName: values.driverName || undefined,
+            driverContact: values.driverContact || undefined,
+            routeId: values.routeId || undefined,
+          },
+        });
+        toast.success("Vehicle added.");
+        void navigate(closeTo);
+      } else if (vehicleId) {
+        await updateMutation.mutateAsync({
+          params: { path: { vehicleId } },
+          body: {
+            registrationNumber: values.registrationNumber,
+            type: values.type,
+            capacity: values.capacity,
+            driverName: values.driverName || undefined,
+            driverContact: values.driverContact || undefined,
+            routeId: values.routeId || undefined,
+          },
+        });
+        toast.success("Vehicle updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save vehicle. Please try again."));
     }
   }
 

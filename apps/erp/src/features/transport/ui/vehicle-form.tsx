@@ -46,6 +46,7 @@ export function VehicleForm({
 }: VehicleFormProps) {
   const { control, handleSubmit } = useForm<VehicleFormValues>({
     resolver: zodResolver(vehicleFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

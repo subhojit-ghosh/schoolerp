@@ -1,6 +1,7 @@
 import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import {
   IconDotsVertical,
   IconPencil,
@@ -20,6 +21,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -69,6 +71,7 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function HostelRoomsPage() {
+  useDocumentTitle("Hostel Rooms");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.HOSTEL_READ);
@@ -106,13 +109,17 @@ export function HostelRoomsPage() {
   const handleToggleStatus = useCallback(
     async (id: string, currentStatus: "active" | "inactive") => {
       const newStatus = currentStatus === "active" ? "inactive" : "active";
-      await statusMutation.mutateAsync({
-        params: { path: { roomId: id } },
-        body: { status: newStatus },
-      });
-      toast.success(
-        newStatus === "active" ? "Room activated." : "Room deactivated.",
-      );
+      try {
+        await statusMutation.mutateAsync({
+          params: { path: { roomId: id } },
+          body: { status: newStatus },
+        });
+        toast.success(
+          newStatus === "active" ? "Room activated." : "Room deactivated.",
+        );
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not update room status. Please try again."));
+      }
     },
     [statusMutation],
   );

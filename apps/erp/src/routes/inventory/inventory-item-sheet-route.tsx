@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -72,35 +73,39 @@ export function InventoryItemSheetRoute({ mode }: InventoryItemSheetRouteProps) 
     undefined;
 
   async function handleSubmit(values: ItemFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          name: values.name,
-          categoryId: values.categoryId,
-          sku: values.sku || undefined,
-          unit: values.unit,
-          minimumStock: values.minimumStock,
-          location: values.location || undefined,
-          purchasePriceInPaise: values.purchasePriceInPaise,
-        },
-      });
-      toast.success("Item created.");
-      void navigate(closeTo);
-    } else if (itemId) {
-      await updateMutation.mutateAsync({
-        params: { path: { itemId } },
-        body: {
-          name: values.name,
-          categoryId: values.categoryId,
-          sku: values.sku || null,
-          unit: values.unit,
-          minimumStock: values.minimumStock,
-          location: values.location || null,
-          purchasePriceInPaise: values.purchasePriceInPaise ?? null,
-        },
-      });
-      toast.success("Item updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            name: values.name,
+            categoryId: values.categoryId,
+            sku: values.sku || undefined,
+            unit: values.unit,
+            minimumStock: values.minimumStock,
+            location: values.location || undefined,
+            purchasePriceInPaise: values.purchasePriceInPaise,
+          },
+        });
+        toast.success("Item created.");
+        void navigate(closeTo);
+      } else if (itemId) {
+        await updateMutation.mutateAsync({
+          params: { path: { itemId } },
+          body: {
+            name: values.name,
+            categoryId: values.categoryId,
+            sku: values.sku || null,
+            unit: values.unit,
+            minimumStock: values.minimumStock,
+            location: values.location || null,
+            purchasePriceInPaise: values.purchasePriceInPaise ?? null,
+          },
+        });
+        toast.success("Item updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save item. Please try again."));
     }
   }
 

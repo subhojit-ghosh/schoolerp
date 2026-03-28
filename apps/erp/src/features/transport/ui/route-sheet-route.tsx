@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -56,27 +57,31 @@ export function RouteSheetRoute({ mode }: RouteSheetRouteProps) {
     undefined;
 
   async function handleSubmit(values: RouteFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          name: values.name,
-          description: values.description || undefined,
-          campusId: values.campusId || undefined,
-        },
-      });
-      toast.success("Transport route created.");
-      void navigate(closeTo);
-    } else if (routeId) {
-      await updateMutation.mutateAsync({
-        params: { path: { routeId } },
-        body: {
-          name: values.name,
-          description: values.description || undefined,
-          campusId: values.campusId || undefined,
-        },
-      });
-      toast.success("Route updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            name: values.name,
+            description: values.description || undefined,
+            campusId: values.campusId || undefined,
+          },
+        });
+        toast.success("Transport route created.");
+        void navigate(closeTo);
+      } else if (routeId) {
+        await updateMutation.mutateAsync({
+          params: { path: { routeId } },
+          body: {
+            name: values.name,
+            description: values.description || undefined,
+            campusId: values.campusId || undefined,
+          },
+        });
+        toast.success("Route updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save transport route. Please try again."));
     }
   }
 

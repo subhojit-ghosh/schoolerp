@@ -23,9 +23,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@repo/ui/components/ui/sidebar";
+import { toast } from "sonner";
 import { useSignOutMutation } from "@/features/auth/api/use-auth";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { ERP_ROUTES } from "@/constants/routes";
+import { extractApiError } from "@/lib/api-error";
+import { formatPhoneCompact } from "@/lib/format";
 
 function toInitials(name: string) {
   return name
@@ -44,15 +47,21 @@ export function NavUser() {
   const user = session?.user;
 
   async function handleSignOut() {
-    await signOutMutation.mutateAsync({});
-    void navigate("/sign-in");
+    try {
+      await signOutMutation.mutateAsync({});
+      void navigate("/sign-in");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not sign out. Please try again."));
+    }
   }
 
   if (!user) {
     return null;
   }
 
-  const secondaryLabel = user.mobile ?? user.email;
+  const secondaryLabel = user.mobile
+    ? formatPhoneCompact(user.mobile)
+    : user.email;
   const initials = toInitials(user.name);
 
   return (

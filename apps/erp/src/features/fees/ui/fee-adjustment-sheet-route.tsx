@@ -41,6 +41,7 @@ import {
   type FeeAdjustmentFormValues,
 } from "@/features/fees/model/fee-form-schema";
 import { formatRupees } from "@/features/fees/model/fee-formatters";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -70,6 +71,7 @@ export function FeeAdjustmentSheetRoute() {
   const adjustmentMutation = useCreateFeeAdjustmentMutation();
   const { control, handleSubmit } = useForm<FeeAdjustmentFormValues>({
     resolver: zodResolver(feeAdjustmentFormSchema),
+    mode: "onTouched",
     defaultValues: DEFAULT_VALUES,
   });
   const outstandingAmountInPaise =
@@ -81,20 +83,26 @@ export function FeeAdjustmentSheetRoute() {
       return;
     }
 
-    await adjustmentMutation.mutateAsync({
-      params: { path: { feeAssignmentId } },
-      body: {
-        feeAssignmentId,
-        adjustmentType: values.adjustmentType,
-        amount: Number(values.amount),
-        reason: values.reason || null,
-      },
-    });
+    try {
+      await adjustmentMutation.mutateAsync({
+        params: { path: { feeAssignmentId } },
+        body: {
+          feeAssignmentId,
+          adjustmentType: values.adjustmentType,
+          amount: Number(values.amount),
+          reason: values.reason || null,
+        },
+      });
 
-    toast.success(
-      ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
-    );
-    void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
+      toast.success(
+        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
+      );
+      void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not apply concession. Please try again."),
+      );
+    }
   }
 
   return (

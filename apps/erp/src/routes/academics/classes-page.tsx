@@ -55,8 +55,10 @@ import {
   CLASS_LIST_SORT_FIELDS,
   CLASSES_PAGE_COPY,
 } from "@/features/classes/model/class-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -76,6 +78,7 @@ const VALID_CLASS_SORT_FIELDS = [
 ] as const;
 
 export function ClassesPage() {
+  useDocumentTitle("Classes");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
@@ -123,16 +126,20 @@ export function ClassesPage() {
       const nextStatus =
         schoolClass.status === "active" ? "inactive" : "active";
 
-      await setStatusMutation.mutateAsync({
-        params: { path: { classId: schoolClass.id } },
-        body: { status: nextStatus },
-      });
+      try {
+        await setStatusMutation.mutateAsync({
+          params: { path: { classId: schoolClass.id } },
+          body: { status: nextStatus },
+        });
 
-      toast.success(
-        nextStatus === "inactive"
-          ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.CLASS)
-          : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CLASS),
-      );
+        toast.success(
+          nextStatus === "inactive"
+            ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.CLASS)
+            : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CLASS),
+        );
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not update class status. Please try again."));
+      }
     },
     [institutionId, setStatusMutation],
   );
@@ -304,12 +311,16 @@ export function ClassesPage() {
       return;
     }
 
-    await deleteMutation.mutateAsync({
-      params: { path: { classId: deleteTarget.id } },
-    });
+    try {
+      await deleteMutation.mutateAsync({
+        params: { path: { classId: deleteTarget.id } },
+      });
 
-    toast.success(ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.CLASS));
-    setDeleteTarget(null);
+      toast.success(ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.CLASS));
+      setDeleteTarget(null);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not delete class. Please try again."));
+    }
   }
 
   if (!institutionId) {

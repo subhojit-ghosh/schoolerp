@@ -60,8 +60,11 @@ import {
   FEE_STRUCTURE_LIST_SORT_FIELDS,
   FEE_STRUCTURES_PAGE_COPY,
 } from "@/features/fees/model/fee-structure-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { extractApiError } from "@/lib/api-error";
+import { formatAcademicYear } from "@/lib/format";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -86,6 +89,7 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function FeeStructuresPage() {
+  useDocumentTitle("Fee Structures");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
@@ -129,27 +133,42 @@ export function FeeStructuresPage() {
 
   const handleDuplicate = useCallback(
     async (structureId: string) => {
-      await duplicateMutation.mutateAsync({
-        params: { path: { feeStructureId: structureId } },
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.created(`${ERP_TOAST_SUBJECTS.FEE_STRUCTURE} copy`),
-      );
+      try {
+        await duplicateMutation.mutateAsync({
+          params: { path: { feeStructureId: structureId } },
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.created(`${ERP_TOAST_SUBJECTS.FEE_STRUCTURE} copy`),
+        );
+      } catch (error) {
+        toast.error(
+          extractApiError(error, "Could not duplicate fee structure. Please try again."),
+        );
+      }
     },
     [duplicateMutation],
   );
 
   const handleStatusChange = useCallback(
     async (feeStructureId: string, status: "active" | "archived") => {
-      await setStatusMutation.mutateAsync({
-        params: { path: { feeStructureId } },
-        body: { status },
-      });
-      toast.success(
-        status === "archived"
-          ? ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.FEE_STRUCTURE)
-          : ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
-      );
+      try {
+        await setStatusMutation.mutateAsync({
+          params: { path: { feeStructureId } },
+          body: { status },
+        });
+        toast.success(
+          status === "archived"
+            ? ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.FEE_STRUCTURE)
+            : ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
+        );
+      } catch (error) {
+        toast.error(
+          extractApiError(
+            error,
+            `Could not ${status === "archived" ? "archive" : "restore"} fee structure. Please try again.`,
+          ),
+        );
+      }
     },
     [setStatusMutation],
   );
@@ -206,6 +225,7 @@ export function FeeStructuresPage() {
             />
           </button>
         ),
+        cell: ({ getValue }) => formatAcademicYear(getValue()),
       }),
       columnHelper.accessor("scope", {
         header: "Scope",
@@ -352,12 +372,17 @@ export function FeeStructuresPage() {
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
 
-    await deleteMutation.mutateAsync({
-      params: { path: { feeStructureId: deleteTarget.id } },
-    });
-
-    toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.FEE_STRUCTURE));
-    setDeleteTarget(null);
+    try {
+      await deleteMutation.mutateAsync({
+        params: { path: { feeStructureId: deleteTarget.id } },
+      });
+      toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.FEE_STRUCTURE));
+      setDeleteTarget(null);
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not delete fee structure. Please try again."),
+      );
+    }
   }, [deleteTarget, deleteMutation]);
 
   if (!institutionId) {

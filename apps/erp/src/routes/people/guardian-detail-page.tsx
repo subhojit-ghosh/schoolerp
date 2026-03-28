@@ -2,7 +2,7 @@ import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
 import { useMemo } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import { toast } from "sonner";
-import { IconChevronLeft } from "@tabler/icons-react";
+import { IconHistory } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -32,12 +32,16 @@ import {
 } from "@/features/guardians/api/use-guardians";
 import { GuardianForm } from "@/features/guardians/ui/guardian-form";
 import { GuardianStudentLinkForm } from "@/features/guardians/ui/guardian-student-link-form";
-import {
-  type GuardianFormValues,
-  type GuardianStudentLinkFormValues,
+import type {
+  GuardianFormValues,
+  GuardianStudentLinkFormValues,
 } from "@/features/guardians/model/guardian-form-schema";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { ERP_ROUTES } from "@/constants/routes";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
+import { formatNameWithHonorific, formatPhone } from "@/lib/format";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 function toInitials(name: string) {
@@ -58,6 +62,7 @@ export function GuardianDetailPage() {
   const canManageGuardians = isStaffContext(session);
   const managedInstitutionId = canManageGuardians ? institutionId : undefined;
   const guardianQuery = useGuardianQuery(managedInstitutionId, guardianId);
+  useDocumentTitle(guardianQuery.data?.name ?? "Guardian Details");
   const studentOptionsQuery = useStudentOptionsQuery(managedInstitutionId);
   const updateGuardianMutation = useUpdateGuardianMutation(
     managedInstitutionId,
@@ -81,6 +86,7 @@ export function GuardianDetailPage() {
 
     if (!guardian) {
       return {
+        honorific: "",
         name: "",
         mobile: "",
         email: "",
@@ -88,6 +94,7 @@ export function GuardianDetailPage() {
     }
 
     return {
+      honorific: ((guardian as { honorific?: string | null }).honorific ?? "") as GuardianFormValues["honorific"],
       name: guardian.name,
       mobile: guardian.mobile,
       email: guardian.email ?? "",
@@ -130,16 +137,23 @@ export function GuardianDetailPage() {
       return;
     }
 
-    await updateGuardianMutation.mutateAsync({
-      params: {
-        path: {
-          guardianId,
+    try {
+      await updateGuardianMutation.mutateAsync({
+        params: {
+          path: {
+            guardianId,
+          },
         },
-      },
-      body: values,
-    });
+        body: {
+          ...values,
+          honorific: values.honorific || undefined,
+        },
+      });
 
-    toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.GUARDIAN));
+      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.GUARDIAN));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update guardian. Please try again."));
+    }
   }
 
   async function handleStudentLinkSubmit(
@@ -149,16 +163,20 @@ export function GuardianDetailPage() {
       return;
     }
 
-    await linkStudentMutation.mutateAsync({
-      params: {
-        path: {
-          guardianId,
+    try {
+      await linkStudentMutation.mutateAsync({
+        params: {
+          path: {
+            guardianId,
+          },
         },
-      },
-      body: values,
-    });
+        body: values,
+      });
 
-    toast.success(ERP_TOAST_MESSAGES.linked(ERP_TOAST_SUBJECTS.STUDENT));
+      toast.success(ERP_TOAST_MESSAGES.linked(ERP_TOAST_SUBJECTS.STUDENT));
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not link student. Please try again."));
+    }
   }
 
   if (!institutionId) {
@@ -215,18 +233,22 @@ export function GuardianDetailPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button asChild variant="outline">
-            <Link to={appendSearch(ERP_ROUTES.GUARDIANS, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to guardians
-            </Link>
-          </Button>
+          <Breadcrumbs
+            items={[
+              { label: "Guardians", href: appendSearch(ERP_ROUTES.GUARDIANS, location.search) },
+              { label: "Not found" },
+            ]}
+          />
         </CardContent>
       </Card>
     );
   }
 
   const guardian = guardianQuery.data;
+  const guardianDisplayName = formatNameWithHonorific(
+    guardian.name,
+    (guardian as { honorific?: string | null }).honorific,
+  );
   const updateGuardianError = updateGuardianMutation.error as
     | Error
     | null
@@ -239,27 +261,37 @@ export function GuardianDetailPage() {
   return (
     <EntityPageShell width="full">
       <EntityDetailPageHeader
+        actions={
+          <Button asChild size="sm" variant="ghost">
+            <Link
+              to={`${ERP_ROUTES.SETTINGS_AUDIT}?q=${encodeURIComponent(guardian.name)}`}
+            >
+              <IconHistory className="size-4" />
+              View history
+            </Link>
+          </Button>
+        }
         avatar={
           <div className="flex size-14 items-center justify-center rounded-2xl bg-muted text-lg font-semibold text-muted-foreground">
             {toInitials(guardian.name)}
           </div>
         }
         backAction={
-          <Button asChild className="-ml-3" size="sm" variant="ghost">
-            <Link to={appendSearch(ERP_ROUTES.GUARDIANS, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to guardians
-            </Link>
-          </Button>
+          <Breadcrumbs
+            items={[
+              { label: "Guardians", href: appendSearch(ERP_ROUTES.GUARDIANS, location.search) },
+              { label: guardianDisplayName },
+            ]}
+          />
         }
         badges={<Badge variant="outline">{guardian.status}</Badge>}
         meta={
           <>
-            {guardian.mobile}
+            {formatPhone(guardian.mobile)}
             {guardian.email ? ` • ${guardian.email}` : ""}
           </>
         }
-        title={guardian.name}
+        title={guardianDisplayName}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -360,42 +392,50 @@ export function GuardianDetailPage() {
                         return;
                       }
 
-                      await unlinkStudentMutation.mutateAsync({
-                        params: {
-                          path: {
-                            guardianId,
-                            studentId: linkedStudent.studentId,
+                      try {
+                        await unlinkStudentMutation.mutateAsync({
+                          params: {
+                            path: {
+                              guardianId,
+                              studentId: linkedStudent.studentId,
+                            },
                           },
-                        },
-                      });
+                        });
 
-                      toast.success(
-                        ERP_TOAST_MESSAGES.unlinked(ERP_TOAST_SUBJECTS.STUDENT),
-                      );
+                        toast.success(
+                          ERP_TOAST_MESSAGES.unlinked(ERP_TOAST_SUBJECTS.STUDENT),
+                        );
+                      } catch (error) {
+                        toast.error(extractApiError(error, "Could not unlink student. Please try again."));
+                      }
                     }}
                     onSubmit={async (values) => {
                       if (!institutionId || !guardianId) {
                         return;
                       }
 
-                      await updateStudentLinkMutation.mutateAsync({
-                        params: {
-                          path: {
-                            guardianId,
-                            studentId: linkedStudent.studentId,
+                      try {
+                        await updateStudentLinkMutation.mutateAsync({
+                          params: {
+                            path: {
+                              guardianId,
+                              studentId: linkedStudent.studentId,
+                            },
                           },
-                        },
-                        body: {
-                          relationship: values.relationship,
-                          isPrimary: values.isPrimary,
-                        },
-                      });
+                          body: {
+                            relationship: values.relationship,
+                            isPrimary: values.isPrimary,
+                          },
+                        });
 
-                      toast.success(
-                        ERP_TOAST_MESSAGES.updated(
-                          ERP_TOAST_SUBJECTS.RELATIONSHIP,
-                        ),
-                      );
+                        toast.success(
+                          ERP_TOAST_MESSAGES.updated(
+                            ERP_TOAST_SUBJECTS.RELATIONSHIP,
+                          ),
+                        );
+                      } catch (error) {
+                        toast.error(extractApiError(error, "Could not update student link. Please try again."));
+                      }
                     }}
                     showStudentSelect={false}
                     students={studentOptions}

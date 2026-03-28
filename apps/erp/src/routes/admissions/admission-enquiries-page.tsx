@@ -36,6 +36,7 @@ import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
 import { appendSearch } from "@/lib/routes";
+import { formatPhoneCompact } from "@/lib/format";
 
 type AdmissionEnquiryRow = {
   id: string;
@@ -131,6 +132,7 @@ export function AdmissionEnquiriesPage() {
       }),
       columnHelper.accessor("mobile", {
         header: "Contact",
+        cell: ({ getValue }) => formatPhoneCompact(getValue()),
       }),
       columnHelper.accessor("campusName", {
         header: () => (

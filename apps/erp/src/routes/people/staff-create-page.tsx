@@ -1,8 +1,6 @@
-import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { useCallback, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { IconChevronLeft } from "@tabler/icons-react";
-import { Button } from "@repo/ui/components/ui/button";
 import {
   Card,
   CardContent,
@@ -28,15 +26,21 @@ import {
 } from "@/features/staff/model/staff-form-schema";
 import { StaffCreateForm } from "@/features/staff/ui/staff-create-form";
 import { StaffRoleAssignmentFields } from "@/features/staff/ui/staff-role-assignment-fields";
+import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { buildStaffDetailRoute, ERP_ROUTES } from "@/constants/routes";
 import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
+import { UnsavedChangesDialog } from "@/components/feedback/unsaved-changes-dialog";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const DEFAULT_VALUES: StaffCreateFormValues = {
+  honorific: "",
   name: "",
   mobile: "",
   email: "",
@@ -45,7 +49,16 @@ const DEFAULT_VALUES: StaffCreateFormValues = {
   profile: { ...EMPTY_STAFF_PROFILE },
 };
 
+const STAFF_CREATE_AUTO_SAVE_KEY = "staff-create";
+
 export function StaffCreatePage() {
+  useDocumentTitle("New Staff");
+  const [isDirty, setIsDirty] = useState(false);
+  const clearDraftRef = useRef<(() => void) | null>(null);
+  const handleAutoSaveReady = useCallback((clearDraft: () => void) => {
+    clearDraftRef.current = clearDraft;
+  }, []);
+  const blocker = useUnsavedChangesGuard(isDirty);
   const location = useLocation();
   const navigate = useNavigate();
   const session = useAuthStore((store) => store.session);
@@ -71,42 +84,47 @@ export function StaffCreatePage() {
 
     setRoleAssignmentError(undefined);
 
-    const createResult = await createStaffMutation.mutateAsync({
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      body: values as any,
-    });
+    try {
+      const createResult = await createStaffMutation.mutateAsync({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        body: values as any,
+      });
 
-    if (roleAssignmentDraft.roleId) {
-      try {
-        await createAssignmentMutation.mutateAsync({
-          params: {
-            path: {
-              staffId: createResult.staff.id,
+      if (roleAssignmentDraft.roleId) {
+        try {
+          await createAssignmentMutation.mutateAsync({
+            params: {
+              path: {
+                staffId: createResult.staff.id,
+              },
             },
-          },
-          body: {
-            roleId: roleAssignmentDraft.roleId,
-            campusId: roleAssignmentDraft.campusId || undefined,
-            classId: roleAssignmentDraft.classId || undefined,
-            sectionId: roleAssignmentDraft.sectionId || undefined,
-          },
-        });
-      } catch (error) {
-        setRoleAssignmentError(
-          error instanceof Error
-            ? error.message
-            : "The staff record was created, but the role assignment could not be saved.",
-        );
+            body: {
+              roleId: roleAssignmentDraft.roleId,
+              campusId: roleAssignmentDraft.campusId || undefined,
+              classId: roleAssignmentDraft.classId || undefined,
+              sectionId: roleAssignmentDraft.sectionId || undefined,
+            },
+          });
+        } catch (error) {
+          setRoleAssignmentError(
+            error instanceof Error
+              ? error.message
+              : "The staff record was created, but the role assignment could not be saved.",
+          );
+        }
       }
-    }
 
-    toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.STAFF_RECORD));
-    void navigate(
-      appendSearch(
-        buildStaffDetailRoute(createResult.staff.id),
-        location.search,
-      ),
-    );
+      clearDraftRef.current?.();
+      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.STAFF_RECORD));
+      void navigate(
+        appendSearch(
+          buildStaffDetailRoute(createResult.staff.id),
+          location.search,
+        ),
+      );
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not create staff record. Please try again."));
+    }
   }
 
   if (!institutionId) {
@@ -140,12 +158,12 @@ export function StaffCreatePage() {
     <EntityPageShell width="compact">
       <EntityPageHeader
         backAction={
-          <Button asChild className="-ml-3" size="sm" variant="ghost">
-            <Link to={appendSearch(ERP_ROUTES.STAFF, location.search)}>
-              <IconChevronLeft data-icon="inline-start" />
-              Back to staff
-            </Link>
-          </Button>
+          <Breadcrumbs
+            items={[
+              { label: "Staff", href: appendSearch(ERP_ROUTES.STAFF, location.search) },
+              { label: "New Staff" },
+            ]}
+          />
         }
         description={`Add a staff member for ${
           activeCampusName ?? "the selected campus"
@@ -156,6 +174,7 @@ export function StaffCreatePage() {
       <Card className="w-full">
         <CardContent className="pt-6">
           <StaffCreateForm
+            autoSaveKey={STAFF_CREATE_AUTO_SAVE_KEY}
             campusName={activeCampusName}
             defaultValues={DEFAULT_VALUES}
             afterFields={
@@ -178,14 +197,18 @@ export function StaffCreatePage() {
               createStaffMutation.isPending ||
               createAssignmentMutation.isPending
             }
+            onAutoSaveReady={handleAutoSaveReady}
             onCancel={() => {
               void navigate(appendSearch(ERP_ROUTES.STAFF, location.search));
             }}
+            onDirtyChange={setIsDirty}
             onSubmit={handleSubmit}
             submitLabel="Create staff"
           />
         </CardContent>
       </Card>
+
+      <UnsavedChangesDialog blocker={blocker} />
     </EntityPageShell>
   );
 }

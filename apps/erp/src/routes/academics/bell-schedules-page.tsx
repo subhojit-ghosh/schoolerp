@@ -29,6 +29,7 @@ import {
   BELL_SCHEDULE_LIST_SORT_FIELDS,
   useBellSchedulesQuery,
 } from "@/features/bell-schedules/api/use-bell-schedules";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
 import { appendSearch } from "@/lib/routes";
@@ -50,6 +51,7 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function BellSchedulesPage() {
+  useDocumentTitle("Bell Schedules");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;

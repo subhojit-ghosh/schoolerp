@@ -21,6 +21,7 @@ import {
   type AdmissionEnquiryFormValues,
 } from "@/features/admissions/model/admission-form-schema";
 import { AdmissionEnquiryForm } from "@/features/admissions/ui/admission-enquiry-form";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -65,32 +66,36 @@ export function AdmissionEnquirySheetRoute({
       return;
     }
 
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: toAdmissionEnquiryMutationBody(values),
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ADMISSION_ENQUIRY),
-      );
-    } else if (enquiryId && enquiryQuery.data) {
-      await updateMutation.mutateAsync({
-        params: {
-          path: {
-            enquiryId,
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: toAdmissionEnquiryMutationBody(values),
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ADMISSION_ENQUIRY),
+        );
+      } else if (enquiryId && enquiryQuery.data) {
+        await updateMutation.mutateAsync({
+          params: {
+            path: {
+              enquiryId,
+            },
           },
-        },
-        body: {
-          ...toAdmissionEnquiryMutationBody(values),
-        },
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ADMISSION_ENQUIRY),
-      );
-    }
+          body: {
+            ...toAdmissionEnquiryMutationBody(values),
+          },
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ADMISSION_ENQUIRY),
+        );
+      }
 
-    void navigate(
-      appendSearch(ERP_ROUTES.ADMISSIONS_ENQUIRIES, location.search),
-    );
+      void navigate(
+        appendSearch(ERP_ROUTES.ADMISSIONS_ENQUIRIES, location.search),
+      );
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save admission enquiry. Please try again."));
+    }
   }
 
   if (mode === "edit" && enquiryQuery.isLoading) {

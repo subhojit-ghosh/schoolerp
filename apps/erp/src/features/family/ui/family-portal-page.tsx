@@ -44,6 +44,7 @@ import {
   formatFeeDate,
   formatRupees,
 } from "@/features/fees/model/fee-formatters";
+import { formatAcademicYear } from "@/lib/format";
 import { appendSearch } from "@/lib/routes";
 import { cn } from "@repo/ui/lib/utils";
 
@@ -477,7 +478,7 @@ function ExamsPanel({ summary }: { summary: FamilyStudentSummary }) {
                   <div>
                     <p className="text-sm font-medium">{term.examTermName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {term.academicYearName} • Ends {formatDate(term.endDate)}
+                      {formatAcademicYear(term.academicYearName)} • Ends {formatDate(term.endDate)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">

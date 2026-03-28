@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -59,33 +60,37 @@ export function BookSheetRoute({ mode }: BookSheetRouteProps) {
     undefined;
 
   async function handleSubmit(values: BookFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          title: values.title,
-          author: values.author || undefined,
-          isbn: values.isbn || undefined,
-          publisher: values.publisher || undefined,
-          genre: values.genre || undefined,
-          totalCopies: values.totalCopies,
-        },
-      });
-      toast.success("Book added to library.");
-      void navigate(closeTo);
-    } else if (bookId) {
-      await updateMutation.mutateAsync({
-        params: { path: { bookId } },
-        body: {
-          title: values.title,
-          author: values.author || undefined,
-          isbn: values.isbn || undefined,
-          publisher: values.publisher || undefined,
-          genre: values.genre || undefined,
-          totalCopies: values.totalCopies,
-        },
-      });
-      toast.success("Book updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            title: values.title,
+            author: values.author || undefined,
+            isbn: values.isbn || undefined,
+            publisher: values.publisher || undefined,
+            genre: values.genre || undefined,
+            totalCopies: values.totalCopies,
+          },
+        });
+        toast.success("Book added to library.");
+        void navigate(closeTo);
+      } else if (bookId) {
+        await updateMutation.mutateAsync({
+          params: { path: { bookId } },
+          body: {
+            title: values.title,
+            author: values.author || undefined,
+            isbn: values.isbn || undefined,
+            publisher: values.publisher || undefined,
+            genre: values.genre || undefined,
+            totalCopies: values.totalCopies,
+          },
+        });
+        toast.success("Book updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save book. Please try again."));
     }
   }
 

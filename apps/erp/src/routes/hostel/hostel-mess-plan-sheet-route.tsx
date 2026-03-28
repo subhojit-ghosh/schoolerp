@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -59,27 +60,31 @@ export function HostelMessPlanSheetRoute({ mode }: HostelMessPlanSheetRouteProps
     undefined;
 
   async function handleSubmit(values: MessPlanFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          name: values.name,
-          monthlyFeeInPaise: values.monthlyFeeInPaise,
-          description: values.description || undefined,
-        },
-      });
-      toast.success("Mess plan created.");
-      void navigate(closeTo);
-    } else if (planId) {
-      await updateMutation.mutateAsync({
-        params: { path: { planId } },
-        body: {
-          name: values.name,
-          monthlyFeeInPaise: values.monthlyFeeInPaise,
-          description: values.description || null,
-        },
-      });
-      toast.success("Mess plan updated.");
-      void navigate(closeTo);
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            name: values.name,
+            monthlyFeeInPaise: values.monthlyFeeInPaise,
+            description: values.description || undefined,
+          },
+        });
+        toast.success("Mess plan created.");
+        void navigate(closeTo);
+      } else if (planId) {
+        await updateMutation.mutateAsync({
+          params: { path: { planId } },
+          body: {
+            name: values.name,
+            monthlyFeeInPaise: values.monthlyFeeInPaise,
+            description: values.description || null,
+          },
+        });
+        toast.success("Mess plan updated.");
+        void navigate(closeTo);
+      }
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not save mess plan. Please try again."));
     }
   }
 

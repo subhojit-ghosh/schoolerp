@@ -34,8 +34,10 @@ import {
   ACADEMIC_YEAR_LIST_SORT_FIELDS,
   ACADEMIC_YEARS_PAGE_COPY,
 } from "@/features/academic-years/model/academic-year-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { formatAcademicYear, formatDate } from "@/lib/format";
 import { appendSearch } from "@/lib/routes";
 
 type AcademicYearRow = {
@@ -55,11 +57,12 @@ const VALID_SORT_FIELDS = [
   ACADEMIC_YEAR_LIST_SORT_FIELDS.START_DATE,
 ] as const;
 
-function formatDateRange(startDate: string, endDate: string) {
-  return `${startDate} to ${endDate}`;
+function formatDateRange(startDate: string, endDate: string): string {
+  return `${formatDate(startDate)} to ${formatDate(endDate)}`;
 }
 
 export function AcademicYearsPage() {
+  useDocumentTitle("Academic Years");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
@@ -123,7 +126,7 @@ export function AcademicYearsPage() {
                   location.search,
                 )}
               >
-                {row.original.name}
+                {formatAcademicYear(row.original.name)}
               </Link>
             </Button>
             <p className="text-sm text-muted-foreground">

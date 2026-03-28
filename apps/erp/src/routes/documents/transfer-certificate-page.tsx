@@ -5,9 +5,12 @@ import {
   PrintDetailItem,
   PrintDocumentShell,
 } from "@/features/documents/ui/print-document-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useStudentSummaryQuery } from "@/features/students/api/use-students";
+import { formatAcademicYear } from "@/lib/format";
 
 export function TransferCertificatePage() {
+  useDocumentTitle("Transfer Certificate");
   const { studentId } = useParams();
   const institutionId = useAuthStore(
     (store) => store.session?.activeOrganization?.id,
@@ -61,7 +64,7 @@ export function TransferCertificatePage() {
           {student.currentEnrollment ? (
             <PrintDetailItem
               label="Academic Year"
-              value={student.currentEnrollment.academicYearName}
+              value={formatAcademicYear(student.currentEnrollment.academicYearName)}
             />
           ) : null}
         </div>

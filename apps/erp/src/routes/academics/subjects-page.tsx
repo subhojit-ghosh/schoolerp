@@ -54,8 +54,10 @@ import {
   SUBJECT_LIST_SORT_FIELDS,
   SUBJECTS_PAGE_COPY,
 } from "@/features/subjects/model/subject-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -74,6 +76,7 @@ const VALID_SUBJECT_SORT_FIELDS = [
 ] as const;
 
 export function SubjectsPage() {
+  useDocumentTitle("Subjects");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
@@ -122,22 +125,26 @@ export function SubjectsPage() {
 
       const nextStatus = subject.status === "active" ? "inactive" : "active";
 
-      await setStatusMutation.mutateAsync({
-        params: {
-          path: {
-            subjectId: subject.id,
+      try {
+        await setStatusMutation.mutateAsync({
+          params: {
+            path: {
+              subjectId: subject.id,
+            },
           },
-        },
-        body: {
-          status: nextStatus,
-        },
-      });
+          body: {
+            status: nextStatus,
+          },
+        });
 
-      toast.success(
-        nextStatus === "inactive"
-          ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.SUBJECT)
-          : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.SUBJECT),
-      );
+        toast.success(
+          nextStatus === "inactive"
+            ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.SUBJECT)
+            : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.SUBJECT),
+        );
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not update subject status. Please try again."));
+      }
     },
     [institutionId, setStatusMutation],
   );
@@ -294,16 +301,20 @@ export function SubjectsPage() {
       return;
     }
 
-    await deleteMutation.mutateAsync({
-      params: {
-        path: {
-          subjectId: deleteTarget.id,
+    try {
+      await deleteMutation.mutateAsync({
+        params: {
+          path: {
+            subjectId: deleteTarget.id,
+          },
         },
-      },
-    });
+      });
 
-    toast.success(ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.SUBJECT));
-    setDeleteTarget(null);
+      toast.success(ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.SUBJECT));
+      setDeleteTarget(null);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not delete subject. Please try again."));
+    }
   }
 
   if (!institutionId) {

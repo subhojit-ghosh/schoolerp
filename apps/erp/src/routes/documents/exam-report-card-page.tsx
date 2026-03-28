@@ -18,9 +18,12 @@ import {
   PrintDetailItem,
   PrintDocumentShell,
 } from "@/features/documents/ui/print-document-shell";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useExamReportCardQuery } from "@/features/exams/api/use-exams";
+import { formatAcademicYear } from "@/lib/format";
 
 export function ExamReportCardPage() {
+  useDocumentTitle("Report Card");
   const [searchParams] = useSearchParams();
   const examTermId =
     searchParams.get(DOCUMENT_QUERY_PARAMS.EXAM_TERM_ID) ?? undefined;
@@ -81,7 +84,7 @@ export function ExamReportCardPage() {
   return (
     <PrintDocumentShell
       backHref={ERP_ROUTES.EXAMS}
-      subtitle={`${reportCard.examTermName} · ${reportCard.academicYearName}`}
+      subtitle={`${reportCard.examTermName} · ${formatAcademicYear(reportCard.academicYearName)}`}
       title={DOCUMENT_TITLES.EXAM_REPORT_CARD}
     >
       <div className="space-y-8">
@@ -175,7 +178,7 @@ export function ExamReportCardPage() {
               />
               <PrintDetailItem
                 label="Academic Year"
-                value={reportCard.academicYearName}
+                value={formatAcademicYear(reportCard.academicYearName)}
               />
               <PrintDetailItem
                 label="Total Marks"

@@ -1,6 +1,6 @@
 import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
-import { STATUS } from "../../constants";
+import { HONORIFICS, STATUS } from "../../constants";
 import {
   baseListQuerySchema,
   parseListQuerySchema,
@@ -99,6 +99,11 @@ const staffProfileSchema = z.object({
 });
 
 const staffBaseSchema = z.object({
+  honorific: z
+    .enum(HONORIFICS)
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
   name: z.string().trim().min(NAME_MIN_LENGTH, "Staff name is required"),
   mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Staff mobile is required"),
   email: z

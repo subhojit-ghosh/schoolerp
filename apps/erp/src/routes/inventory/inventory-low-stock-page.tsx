@@ -4,6 +4,7 @@ import { IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Input } from "@repo/ui/components/ui/input";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { EntityListPage } from "@/components/entities/entity-list-page";
 import {
   ServerDataTable,
@@ -42,6 +43,7 @@ const VALID_SORT_FIELDS = [
 ] as const;
 
 export function InventoryLowStockPage() {
+  useDocumentTitle("Low Stock");
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.INVENTORY_READ);
 

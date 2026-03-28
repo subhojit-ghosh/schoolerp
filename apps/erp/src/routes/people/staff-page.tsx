@@ -64,9 +64,12 @@ import {
   STAFF_LIST_SORT_FIELDS,
   STAFF_PAGE_COPY,
 } from "@/features/staff/model/staff-list.constants";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
+import { formatPhoneCompact } from "@/lib/format";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 type StaffRow = {
@@ -93,6 +96,7 @@ const VALID_SORT_FIELDS = [
 const STAFF_CREATE_LABEL = "New staff";
 
 export function StaffPage() {
+  useDocumentTitle("Staff");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const institutionId = session?.activeOrganization?.id;
@@ -149,22 +153,26 @@ export function StaffPage() {
       const nextStatus =
         staffRecord.status === "active" ? "inactive" : "active";
 
-      await setStatusMutation.mutateAsync({
-        params: {
-          path: {
-            staffId: staffRecord.id,
+      try {
+        await setStatusMutation.mutateAsync({
+          params: {
+            path: {
+              staffId: staffRecord.id,
+            },
           },
-        },
-        body: {
-          status: nextStatus,
-        },
-      });
+          body: {
+            status: nextStatus,
+          },
+        });
 
-      toast.success(
-        nextStatus === "inactive"
-          ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.STAFF_RECORD)
-          : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.STAFF_RECORD),
-      );
+        toast.success(
+          nextStatus === "inactive"
+            ? ERP_TOAST_MESSAGES.disabled(ERP_TOAST_SUBJECTS.STAFF_RECORD)
+            : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.STAFF_RECORD),
+        );
+      } catch (error) {
+        toast.error(extractApiError(error, "Could not update staff status. Please try again."));
+      }
     },
     [managedInstitutionId, setStatusMutation],
   );
@@ -201,7 +209,7 @@ export function StaffPage() {
               </Link>
             </Button>
             <p className="text-sm text-muted-foreground">
-              {row.original.mobile}
+              {formatPhoneCompact(row.original.mobile)}
               {row.original.email ? ` • ${row.original.email}` : ""}
             </p>
           </div>
@@ -370,16 +378,20 @@ export function StaffPage() {
       return;
     }
 
-    await deleteMutation.mutateAsync({
-      params: {
-        path: {
-          staffId: deleteTarget.id,
+    try {
+      await deleteMutation.mutateAsync({
+        params: {
+          path: {
+            staffId: deleteTarget.id,
+          },
         },
-      },
-    });
+      });
 
-    toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.STAFF_RECORD));
-    setDeleteTarget(null);
+      toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.STAFF_RECORD));
+      setDeleteTarget(null);
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not delete staff record. Please try again."));
+    }
   }
 
   return (

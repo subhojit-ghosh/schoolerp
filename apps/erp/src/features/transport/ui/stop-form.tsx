@@ -37,6 +37,7 @@ export function StopForm({
 }: StopFormProps) {
   const { control, handleSubmit } = useForm<StopFormValues>({
     resolver: zodResolver(stopFormSchema),
+    mode: "onTouched",
     defaultValues,
   });
 

@@ -8,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@repo/ui/components/ui/table";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import { ERP_ROUTES, buildPayslipDetailRoute } from "@/constants/routes";
 import { PERMISSIONS } from "@repo/contracts";
 import { hasPermission } from "@/features/auth/model/auth-context";
@@ -46,6 +47,7 @@ type PayslipDetail = {
 };
 
 export function PayslipPrintPage() {
+  useDocumentTitle("Print Payslip");
   const { payslipId } = useParams();
   const session = useAuthStore((store) => store.session);
   const canReadPayroll = hasPermission(session, PERMISSIONS.PAYROLL_READ);

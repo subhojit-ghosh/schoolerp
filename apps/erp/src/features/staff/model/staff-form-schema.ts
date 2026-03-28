@@ -1,5 +1,6 @@
 import { z } from "zod";
 import type { components } from "@/lib/api/generated/schema";
+import { HONORIFICS } from "@/lib/format";
 
 const MOBILE_MIN_LENGTH = 10;
 const PASSWORD_MIN_LENGTH = 8;
@@ -56,6 +57,7 @@ const staffProfileSchema = z.object({
 });
 
 const staffBaseSchema = z.object({
+  honorific: z.enum(HONORIFICS).optional().or(z.literal("")),
   name: z.string().trim().min(1, "Staff name is required"),
   mobile: z.string().trim().min(MOBILE_MIN_LENGTH, "Staff mobile is required"),
   email: z.email().optional().or(z.literal("")),

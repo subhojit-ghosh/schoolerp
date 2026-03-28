@@ -23,6 +23,7 @@ import type {
 } from "@/features/fees/model/fee-form-schema";
 import { FeeAssignmentForm } from "@/features/fees/ui/fee-assignment-form";
 import { useStudentOptionsQuery } from "@/features/students/api/use-students";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
@@ -130,33 +131,39 @@ export function FeeAssignmentSheetRoute({
   ) {
     if (!institutionId) return;
 
-    if (mode === "create") {
-      const formValues = values as FeeAssignmentFormValues;
-      await createMutation.mutateAsync({
-        body: {
-          feeStructureId: formValues.feeStructureId,
-          studentId: formValues.studentId,
-          notes: formValues.notes || null,
-        },
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
-      );
-    } else if (feeAssignmentId) {
-      const formValues = values as FeeAssignmentUpdateFormValues;
-      await updateMutation.mutateAsync({
-        params: { path: { feeAssignmentId } },
-        body: {
-          dueDate: formValues.dueDate,
-          notes: formValues.notes || null,
-        },
-      });
-      toast.success(
-        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
+    try {
+      if (mode === "create") {
+        const formValues = values as FeeAssignmentFormValues;
+        await createMutation.mutateAsync({
+          body: {
+            feeStructureId: formValues.feeStructureId,
+            studentId: formValues.studentId,
+            notes: formValues.notes || null,
+          },
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
+        );
+      } else if (feeAssignmentId) {
+        const formValues = values as FeeAssignmentUpdateFormValues;
+        await updateMutation.mutateAsync({
+          params: { path: { feeAssignmentId } },
+          body: {
+            dueDate: formValues.dueDate,
+            notes: formValues.notes || null,
+          },
+        });
+        toast.success(
+          ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.FEE_ASSIGNMENT),
+        );
+      }
+
+      void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not save fee assignment. Please try again."),
       );
     }
-
-    void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
   }
 
   if (mode === "edit" && feeAssignmentQuery.isLoading) {

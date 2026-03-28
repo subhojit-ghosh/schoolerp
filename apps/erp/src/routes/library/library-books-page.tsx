@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
+import { useDocumentTitle } from "@/hooks/use-document-title";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -40,6 +41,7 @@ import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
 import { appendSearch } from "@/lib/routes";
 import { toast } from "sonner";
+import { extractApiError } from "@/lib/api-error";
 
 type BookRow = {
   id: string;
@@ -58,6 +60,7 @@ const columnHelper = createColumnHelper<BookRow>();
 const VALID_SORT_FIELDS = ["title", "author", "createdAt", "availableCopies"] as const;
 
 export function LibraryBooksPage() {
+  useDocumentTitle("Library Books");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
   const canRead = hasPermission(session, PERMISSIONS.LIBRARY_READ);
@@ -93,11 +96,15 @@ export function LibraryBooksPage() {
 
   async function handleToggleStatus(book: BookRow) {
     const newStatus = book.status === "active" ? "inactive" : "active";
-    await updateMutation.mutateAsync({
-      params: { path: { bookId: book.id } },
-      body: { status: newStatus },
-    });
-    toast.success(newStatus === "active" ? "Book activated." : "Book deactivated.");
+    try {
+      await updateMutation.mutateAsync({
+        params: { path: { bookId: book.id } },
+        body: { status: newStatus },
+      });
+      toast.success(newStatus === "active" ? "Book activated." : "Book deactivated.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not update book status. Please try again."));
+    }
   }
 
   const columns = useMemo(

@@ -14,6 +14,7 @@ import {
   type HomeworkFormValues,
 } from "@/features/homework/model/homework-form-schema";
 import { HomeworkForm } from "@/features/homework/ui/homework-form";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 
 type HomeworkSheetRouteProps = {
@@ -63,37 +64,42 @@ export function HomeworkSheetRoute({ mode }: HomeworkSheetRouteProps) {
     undefined;
 
   async function handleSubmit(values: HomeworkFormValues) {
-    if (mode === "create") {
-      await createMutation.mutateAsync({
-        body: {
-          classId: values.classId,
-          sectionId: values.sectionId,
-          subjectId: values.subjectId,
-          title: values.title,
-          description: values.description || undefined,
-          attachmentInstructions:
-            values.attachmentInstructions || undefined,
-          dueDate: values.dueDate,
-        },
-      });
-      toast.success("Homework created.");
+    try {
+      if (mode === "create") {
+        await createMutation.mutateAsync({
+          body: {
+            classId: values.classId,
+            sectionId: values.sectionId,
+            subjectId: values.subjectId,
+            title: values.title,
+            description: values.description || undefined,
+            attachmentInstructions:
+              values.attachmentInstructions || undefined,
+            dueDate: values.dueDate,
+          },
+        });
+        toast.success("Homework created.");
+      } else if (homeworkId) {
+        await updateMutation.mutateAsync({
+          params: { path: { homeworkId } },
+          body: {
+            classId: values.classId,
+            sectionId: values.sectionId,
+            subjectId: values.subjectId,
+            title: values.title,
+            description: values.description || null,
+            attachmentInstructions:
+              values.attachmentInstructions || null,
+            dueDate: values.dueDate,
+          },
+        });
+        toast.success("Homework updated.");
+      }
       void navigate(closeTo);
-    } else if (homeworkId) {
-      await updateMutation.mutateAsync({
-        params: { path: { homeworkId } },
-        body: {
-          classId: values.classId,
-          sectionId: values.sectionId,
-          subjectId: values.subjectId,
-          title: values.title,
-          description: values.description || null,
-          attachmentInstructions:
-            values.attachmentInstructions || null,
-          dueDate: values.dueDate,
-        },
-      });
-      toast.success("Homework updated.");
-      void navigate(closeTo);
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not save homework. Please try again."),
+      );
     }
   }
 

@@ -1,6 +1,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Link } from "react-router";
+import { toast } from "sonner";
 import { Button } from "@repo/ui/components/ui/button";
 import { FieldError } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
@@ -15,8 +16,11 @@ import {
 } from "@/features/auth/model/auth-form-schema";
 import { ERP_ROUTES } from "@/constants/routes";
 import { AuthLayout } from "@/features/auth/ui/auth-layout";
+import { useDocumentTitle } from "@/hooks/use-document-title";
+import { extractApiError } from "@/lib/api-error";
 
 export function ForgotPasswordPage() {
+  useDocumentTitle("Forgot Password");
   const forgotPasswordMutation = useForgotPasswordMutation();
   const errorMessage = useAuthErrorMessage(
     forgotPasswordMutation.error,
@@ -24,16 +28,21 @@ export function ForgotPasswordPage() {
   );
   const { control, handleSubmit, reset } = useForm<ForgotPasswordFormValues>({
     resolver: zodResolver(forgotPasswordFormSchema),
+    mode: "onTouched",
     defaultValues: {
       identifier: "",
     },
   });
 
   async function onSubmit(values: ForgotPasswordFormValues) {
-    await forgotPasswordMutation.mutateAsync({
-      body: values,
-    });
-    reset();
+    try {
+      await forgotPasswordMutation.mutateAsync({
+        body: values,
+      });
+      reset();
+    } catch (error) {
+      toast.error(extractApiError(error, "Unable to start password recovery right now. Please try again."));
+    }
   }
 
   return (
