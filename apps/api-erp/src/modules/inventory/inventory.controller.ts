@@ -28,13 +28,16 @@ import {
   CreateCategoryBodyDto,
   UpdateCategoryBodyDto,
   UpdateCategoryStatusBodyDto,
+  CategoryDto,
   CategoryListResultDto,
   CreateItemBodyDto,
   UpdateItemBodyDto,
   UpdateItemStatusBodyDto,
+  ItemDto,
   ItemListResultDto,
   ItemDetailDto,
   CreateStockTransactionBodyDto,
+  StockTransactionDto,
   StockTransactionListResultDto,
   ListCategoriesQueryParamsDto,
   ListItemsQueryParamsDto,
@@ -82,7 +85,7 @@ export class InventoryController {
   @Post(API_ROUTES.CATEGORIES)
   @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
   @ApiOperation({ summary: "Create an inventory category" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: CategoryDto })
   async createCategory(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -95,7 +98,7 @@ export class InventoryController {
   @Patch(`${API_ROUTES.CATEGORIES}/:categoryId`)
   @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
   @ApiOperation({ summary: "Update an inventory category" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: CategoryDto })
   async updateCategory(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -109,7 +112,7 @@ export class InventoryController {
   @Patch(`${API_ROUTES.CATEGORIES}/:categoryId/${API_ROUTES.STATUS}`)
   @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
   @ApiOperation({ summary: "Update inventory category status" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: CategoryDto })
   async updateCategoryStatus(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -142,7 +145,7 @@ export class InventoryController {
   @Post(API_ROUTES.ITEMS)
   @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
   @ApiOperation({ summary: "Create an inventory item" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: ItemDto })
   async createItem(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -166,7 +169,7 @@ export class InventoryController {
   @Patch(`${API_ROUTES.ITEMS}/:itemId`)
   @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
   @ApiOperation({ summary: "Update an inventory item" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: ItemDetailDto })
   async updateItem(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -180,7 +183,7 @@ export class InventoryController {
   @Patch(`${API_ROUTES.ITEMS}/:itemId/${API_ROUTES.STATUS}`)
   @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
   @ApiOperation({ summary: "Update inventory item status" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: ItemDto })
   async updateItemStatus(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -209,7 +212,7 @@ export class InventoryController {
   @Post(API_ROUTES.TRANSACTIONS)
   @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
   @ApiOperation({ summary: "Create a stock transaction" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: StockTransactionDto })
   async createStockTransaction(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,

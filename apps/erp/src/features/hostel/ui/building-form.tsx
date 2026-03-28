@@ -44,6 +44,7 @@ export function BuildingForm({
   onSubmit,
 }: BuildingFormProps) {
   const { control, handleSubmit } = useForm<BuildingFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 + react-hook-form + TS 6 type bridge
     resolver: zodResolver(buildingFormSchema) as any,
     defaultValues,
   });

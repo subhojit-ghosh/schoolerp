@@ -120,7 +120,7 @@ export function PayrollRunsPage() {
     sort: queryState.sortBy,
   });
 
-  const runsData = runsQuery.data as any;
+  const runsData = runsQuery.data;
   const runs = useMemo(
     () => (runsData?.rows ?? []) as PayrollRunRow[],
     [runsData?.rows],
@@ -130,7 +130,7 @@ export function PayrollRunsPage() {
     async (runId: string) => {
       await processMutation.mutateAsync({
         params: { path: { runId } },
-      } as any);
+      });
       toast.success("Payroll run processed.");
     },
     [processMutation],
@@ -140,7 +140,7 @@ export function PayrollRunsPage() {
     async (runId: string) => {
       await approveMutation.mutateAsync({
         params: { path: { runId } },
-      } as any);
+      });
       toast.success("Payroll run approved.");
     },
     [approveMutation],
@@ -150,7 +150,7 @@ export function PayrollRunsPage() {
     async (runId: string) => {
       await markPaidMutation.mutateAsync({
         params: { path: { runId } },
-      } as any);
+      });
       toast.success("Payroll run marked as paid.");
     },
     [markPaidMutation],

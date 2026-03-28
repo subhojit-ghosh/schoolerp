@@ -38,6 +38,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { buildClassEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
@@ -203,19 +204,7 @@ export function ClassesPage() {
             />
           </button>
         ),
-        cell: ({ getValue }) =>
-          getValue() === "active" ? (
-            <Badge
-              variant="secondary"
-              className="text-green-700 dark:text-green-400"
-            >
-              Active
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="text-muted-foreground">
-              Inactive
-            </Badge>
-          ),
+        cell: ({ getValue }) => <StatusBadge status={getValue()} />,
       }),
       columnHelper.accessor("sections", {
         header: "Sections",

@@ -63,18 +63,18 @@ Keep this file evidence-based. Do not use it as a roadmap.
 - **Transport** — routes with stops (inline stop management per route), vehicles with driver info and route assignment, student transport assignments with pickup/dropoff type and date range; full CRUD with active/inactive lifecycle and audit trail; Transport nav group in ERP sidebar
 - **Library** — book catalog with status and copy tracking, issue/return workflow with available copy decrement/increment, transaction history with overdue detection, staff member selection from institution roster; full audit trail
 
+- **Hostel** — buildings (boys/girls/co-ed), rooms with floor/capacity/occupancy tracking, bed allocations with student assignment and vacate flow, mess plans with monthly fee tracking; active/inactive lifecycle, full audit trail
+- **Inventory** — categories, items with SKU/unit/minimum-stock/location, stock transactions (purchase/issue/return/adjustment), item detail with transaction history, low-stock alert view; active/inactive lifecycle, full audit trail
+
 - **Payroll** — salary components (earning/deduction, fixed/percentage, taxable/statutory), salary templates with multi-component composition, staff salary assignments with per-component overrides, payroll run lifecycle (draft → processed → approved → paid) with automatic leave integration (paid vs unpaid leave deduction from approved leave applications), payslip generation with line-item breakdown, printable payslips via PrintDocumentShell, monthly summary and staff salary history reports; all amounts in paise, percentages in basis points; full audit trail; HR nav group with Salary Components, Salary Templates, Salary Assignments, Payroll Runs
 
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
-- Frontend presentation: some pages could use UX polish for customer demos.
+- No items currently in this category.
 
 ## Missing for v1
 
-- **Real SMS/email provider testing** — the delivery abstraction and provider implementations are built; institutions need to configure actual provider credentials and verify delivery end-to-end
-- **OpenAPI regeneration** — payroll endpoints exist in backend but OpenAPI types are not yet regenerated; frontend uses `as any` casts until `bun run openapi:export` is run with a live database
+- **Real SMS/email provider testing** — the delivery abstraction and provider implementations are built; institutions need to configure actual provider credentials and verify delivery end-to-end. **Intentionally deferred to the very last step of v1.**
 
-
-## Planned Next — Feature-rich ERP breadth not yet implemented
-- **Inventory** — stock, issue tracking, and basic procurement-adjacent workflows
-- **Hostel** — segment-specific boarding workflows if target schools require them
+## Planned Next — Post-v1 depth
+- See roadmap.md for post-v1 feature depth items

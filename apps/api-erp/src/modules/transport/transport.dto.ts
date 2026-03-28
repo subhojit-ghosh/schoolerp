@@ -37,6 +37,11 @@ export class RouteDto {
   createdAt!: string;
 }
 
+export class RouteDetailDto extends RouteDto {
+  @ApiProperty({ type: () => [StopDto] })
+  stops!: StopDto[];
+}
+
 export class RouteListResultDto {
   rows!: RouteDto[];
   total!: number;

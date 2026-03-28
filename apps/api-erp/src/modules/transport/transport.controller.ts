@@ -36,6 +36,7 @@ import {
   ListAssignmentsQueryParamsDto,
   ListRoutesQueryParamsDto,
   ListVehiclesQueryParamsDto,
+  RouteDetailDto,
   RouteDto,
   RouteListResultDto,
   StopDto,
@@ -85,7 +86,7 @@ export class TransportController {
   @Get(`${API_ROUTES.TRANSPORT_ROUTES}/:routeId`)
   @RequirePermission(PERMISSIONS.TRANSPORT_READ)
   @ApiOperation({ summary: "Get a transport route with its stops" })
-  @ApiOkResponse({ type: RouteDto })
+  @ApiOkResponse({ type: RouteDetailDto })
   async getRoute(
     @CurrentInstitution() institution: TenantInstitution,
     @Param("routeId") routeId: string,

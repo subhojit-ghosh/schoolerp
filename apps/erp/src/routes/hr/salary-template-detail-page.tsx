@@ -70,7 +70,7 @@ export function SalaryTemplateDetailPage() {
     await statusMutation.mutateAsync({
       params: { path: { templateId } },
       body: { status: newStatus },
-    } as any);
+    });
     toast.success(
       newStatus === "active"
         ? "Salary template activated."

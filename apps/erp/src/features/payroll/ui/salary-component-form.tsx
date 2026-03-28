@@ -44,6 +44,7 @@ export function SalaryComponentForm({
   onSubmit,
 }: SalaryComponentFormProps) {
   const { control, handleSubmit } = useForm<SalaryComponentFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 + react-hook-form + TS 6 type bridge
     resolver: zodResolver(salaryComponentFormSchema) as any,
     defaultValues,
   });

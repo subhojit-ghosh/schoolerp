@@ -36,6 +36,7 @@ export function MessPlanForm({
   onSubmit,
 }: MessPlanFormProps) {
   const { control, handleSubmit } = useForm<MessPlanFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 + react-hook-form + TS 6 type bridge
     resolver: zodResolver(messPlanFormSchema) as any,
     defaultValues,
   });

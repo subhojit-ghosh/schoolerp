@@ -26,6 +26,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
 import {
   ERP_ROUTES,
@@ -72,8 +73,7 @@ export function TransportVehiclesPage() {
   const canRead = hasPermission(session, PERMISSIONS.TRANSPORT_READ);
   const canManage = hasPermission(session, PERMISSIONS.TRANSPORT_MANAGE);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateMutation = useUpdateVehicleMutation() as any;
+  const updateMutation = useUpdateVehicleMutation();
 
   const {
     queryState,
@@ -88,7 +88,6 @@ export function TransportVehiclesPage() {
     validSorts: VALID_SORT_FIELDS,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const vehiclesQuery = useTransportVehiclesQuery(canRead, {
     limit: queryState.pageSize,
     order: queryState.sortOrder,
@@ -98,8 +97,7 @@ export function TransportVehiclesPage() {
   });
 
   const rows = useMemo(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    () => ((vehiclesQuery.data as any)?.rows ?? []) as VehicleRow[],
+    () => (vehiclesQuery.data?.rows ?? []) as VehicleRow[],
     [vehiclesQuery.data],
   );
 
@@ -182,14 +180,7 @@ export function TransportVehiclesPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) =>
-          row.original.status === "active" ? (
-            <Badge className="bg-green-500/10 text-green-700 border-green-200">
-              Active
-            </Badge>
-          ) : (
-            <Badge variant="secondary">Inactive</Badge>
-          ),
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
       }),
       columnHelper.display({
         id: "actions",
@@ -231,11 +222,9 @@ export function TransportVehiclesPage() {
     columns,
     data: rows,
     page: queryState.page,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pageCount: (vehiclesQuery.data as any)?.pageCount ?? 1,
+    pageCount: vehiclesQuery.data?.pageCount ?? 1,
     pageSize: queryState.pageSize,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rowCount: (vehiclesQuery.data as any)?.total ?? 0,
+    rowCount: vehiclesQuery.data?.total ?? 0,
     setPage,
     setPageSize,
     sortBy: queryState.sortBy,
@@ -308,8 +297,7 @@ export function TransportVehiclesPage() {
           searchPlaceholder="Search vehicles..."
           searchValue={searchInput}
           table={table}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          totalRows={(vehiclesQuery.data as any)?.total ?? 0}
+          totalRows={vehiclesQuery.data?.total ?? 0}
           showSearch={false}
         />
         <Outlet />

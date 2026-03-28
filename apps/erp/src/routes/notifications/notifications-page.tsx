@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import {
   IconArrowRight,
   IconCircleCheckFilled,
@@ -89,11 +90,12 @@ export function NotificationsPage() {
       actions={
         <EntityToolbarSecondaryAction
           disabled={markAllReadMutation.isPending || items.length === 0}
-          onClick={() =>
-            void markAllReadMutation.mutateAsync({
+          onClick={async () => {
+            await markAllReadMutation.mutateAsync({
               body: {},
-            })
-          }
+            });
+            toast.success("All notifications marked as read.");
+          }}
         >
           <IconCircleCheckFilled className="size-4" />
           Mark all read

@@ -38,7 +38,7 @@ export function InventoryItemSheetRoute({ mode }: InventoryItemSheetRouteProps) 
     [location.search],
   );
 
-  const categoriesData = categoriesQuery.data as any;
+  const categoriesData = categoriesQuery.data;
   const categoryOptions = useMemo(
     () =>
       ((categoriesData?.rows ?? []) as Array<{ id: string; name: string }>),

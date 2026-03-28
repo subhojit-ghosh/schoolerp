@@ -29,6 +29,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
@@ -96,7 +97,7 @@ export function HostelRoomsPage() {
     sort: queryState.sortBy,
   });
 
-  const roomsData = roomsQuery.data as any;
+  const roomsData = roomsQuery.data;
   const rooms = useMemo(
     () => (roomsData?.rows ?? []) as RoomRow[],
     [roomsData?.rows],
@@ -108,7 +109,7 @@ export function HostelRoomsPage() {
       await statusMutation.mutateAsync({
         params: { path: { roomId: id } },
         body: { status: newStatus },
-      } as any);
+      });
       toast.success(
         newStatus === "active" ? "Room activated." : "Room deactivated.",
       );
@@ -185,12 +186,7 @@ export function HostelRoomsPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) =>
-          row.original.status === "active" ? (
-            <Badge variant="outline">Active</Badge>
-          ) : (
-            <Badge variant="secondary">Inactive</Badge>
-          ),
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
       }),
       columnHelper.display({
         id: "actions",

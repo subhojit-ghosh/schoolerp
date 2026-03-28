@@ -29,6 +29,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
@@ -54,7 +55,7 @@ type SalaryComponentRow = {
   isTaxable: boolean;
   isStatutory: boolean;
   sortOrder: number;
-  status: "active" | "inactive";
+  status: "active" | "archived";
   createdAt: string;
 };
 
@@ -95,23 +96,23 @@ export function SalaryComponentsPage() {
     sort: queryState.sortBy,
   });
 
-  const componentsData = componentsQuery.data as any;
+  const componentsData = componentsQuery.data;
   const components = useMemo(
     () => (componentsData?.rows ?? []) as SalaryComponentRow[],
     [componentsData?.rows],
   );
 
   const handleToggleStatus = useCallback(
-    async (id: string, currentStatus: "active" | "inactive") => {
-      const newStatus = currentStatus === "active" ? "inactive" : "active";
+    async (id: string, currentStatus: "active" | "archived") => {
+      const newStatus = currentStatus === "active" ? "archived" : "active";
       await statusMutation.mutateAsync({
         params: { path: { componentId: id } },
         body: { status: newStatus },
-      } as any);
+      });
       toast.success(
         newStatus === "active"
           ? "Salary component activated."
-          : "Salary component deactivated.",
+          : "Salary component archived.",
       );
     },
     [statusMutation],
@@ -216,12 +217,7 @@ export function SalaryComponentsPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) =>
-          row.original.status === "active" ? (
-            <Badge variant="outline">Active</Badge>
-          ) : (
-            <Badge variant="secondary">Inactive</Badge>
-          ),
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
       }),
       columnHelper.display({
         id: "actions",
@@ -264,7 +260,7 @@ export function SalaryComponentsPage() {
                     {component.status === "active" ? (
                       <>
                         <IconToggleRight className="mr-2 size-4" />
-                        Deactivate
+                        Archive
                       </>
                     ) : (
                       <>

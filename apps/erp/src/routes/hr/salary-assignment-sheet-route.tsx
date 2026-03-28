@@ -100,7 +100,7 @@ export function SalaryAssignmentSheetRoute({ mode }: SalaryAssignmentSheetRouteP
           salaryTemplateId: values.salaryTemplateId,
           effectiveFrom: values.effectiveFrom,
         },
-      } as any);
+      });
       toast.success("Salary assignment created.");
       void navigate(closeTo);
     } else if (assignmentId) {
@@ -109,7 +109,7 @@ export function SalaryAssignmentSheetRoute({ mode }: SalaryAssignmentSheetRouteP
         body: {
           effectiveFrom: values.effectiveFrom,
         },
-      } as any);
+      });
       toast.success("Salary assignment updated.");
       void navigate(closeTo);
     }

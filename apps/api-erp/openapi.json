@@ -131,7 +131,23 @@
                 "leave_type",
                 "leave_application",
                 "library_book",
-                "library_transaction"
+                "library_transaction",
+                "transport_route",
+                "transport_stop",
+                "transport_vehicle",
+                "transport_assignment",
+                "salary_component",
+                "salary_template",
+                "staff_salary_assignment",
+                "payroll_run",
+                "payslip",
+                "inventory_category",
+                "inventory_item",
+                "stock_transaction",
+                "hostel_building",
+                "hostel_room",
+                "bed_allocation",
+                "mess_plan"
               ]
             }
           },
@@ -7806,6 +7822,3550 @@
         ]
       }
     },
+    "/transport/routes": {
+      "get": {
+        "operationId": "TransportController_listRoutes",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List transport routes",
+        "tags": [
+          "transport"
+        ]
+      },
+      "post": {
+        "operationId": "TransportController_createRoute",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRouteBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a transport route",
+        "tags": [
+          "transport"
+        ]
+      }
+    },
+    "/transport/routes/{routeId}": {
+      "get": {
+        "operationId": "TransportController_getRoute",
+        "parameters": [
+          {
+            "name": "routeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a transport route with its stops",
+        "tags": [
+          "transport"
+        ]
+      },
+      "put": {
+        "operationId": "TransportController_updateRoute",
+        "parameters": [
+          {
+            "name": "routeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRouteBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RouteDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a transport route",
+        "tags": [
+          "transport"
+        ]
+      }
+    },
+    "/transport/routes/{routeId}/stops": {
+      "post": {
+        "operationId": "TransportController_createStop",
+        "parameters": [
+          {
+            "name": "routeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStopBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StopDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Add a stop to a route",
+        "tags": [
+          "transport"
+        ]
+      }
+    },
+    "/transport/routes/{routeId}/stops/{stopId}": {
+      "put": {
+        "operationId": "TransportController_updateStop",
+        "parameters": [
+          {
+            "name": "routeId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stopId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStopBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StopDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a route stop",
+        "tags": [
+          "transport"
+        ]
+      }
+    },
+    "/transport/vehicles": {
+      "get": {
+        "operationId": "TransportController_listVehicles",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "registrationNumber",
+                "type",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "routeId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List transport vehicles",
+        "tags": [
+          "transport"
+        ]
+      },
+      "post": {
+        "operationId": "TransportController_createVehicle",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVehicleBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Add a vehicle",
+        "tags": [
+          "transport"
+        ]
+      }
+    },
+    "/transport/vehicles/{vehicleId}": {
+      "put": {
+        "operationId": "TransportController_updateVehicle",
+        "parameters": [
+          {
+            "name": "vehicleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVehicleBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehicleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a vehicle",
+        "tags": [
+          "transport"
+        ]
+      }
+    },
+    "/transport/assignments": {
+      "get": {
+        "operationId": "TransportController_listAssignments",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "startDate",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "routeId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stopId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "studentId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List student transport assignments",
+        "tags": [
+          "transport"
+        ]
+      },
+      "post": {
+        "operationId": "TransportController_createAssignment",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAssignmentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Assign a student to a transport route",
+        "tags": [
+          "transport"
+        ]
+      }
+    },
+    "/transport/assignments/{assignmentId}": {
+      "put": {
+        "operationId": "TransportController_updateAssignment",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAssignmentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssignmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a student transport assignment",
+        "tags": [
+          "transport"
+        ]
+      }
+    },
+    "/payroll/salary-components": {
+      "get": {
+        "operationId": "PayrollController_listSalaryComponents",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "archived",
+                "deleted"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "earning",
+                "deduction"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "type",
+                "sortOrder",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalaryComponentListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List salary components",
+        "tags": [
+          "payroll"
+        ]
+      },
+      "post": {
+        "operationId": "PayrollController_createSalaryComponent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSalaryComponentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a salary component",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/salary-components/{componentId}": {
+      "patch": {
+        "operationId": "PayrollController_updateSalaryComponent",
+        "parameters": [
+          {
+            "name": "componentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSalaryComponentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a salary component",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/salary-components/{componentId}/status": {
+      "patch": {
+        "operationId": "PayrollController_updateSalaryComponentStatus",
+        "parameters": [
+          {
+            "name": "componentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSalaryComponentStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update salary component status",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/templates": {
+      "get": {
+        "operationId": "PayrollController_listSalaryTemplates",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "archived",
+                "deleted"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalaryTemplateListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List salary templates",
+        "tags": [
+          "payroll"
+        ]
+      },
+      "post": {
+        "operationId": "PayrollController_createSalaryTemplate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSalaryTemplateBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a salary template with components",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/templates/{templateId}": {
+      "get": {
+        "operationId": "PayrollController_getSalaryTemplate",
+        "parameters": [
+          {
+            "name": "templateId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalaryTemplateDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get salary template detail with components",
+        "tags": [
+          "payroll"
+        ]
+      },
+      "patch": {
+        "operationId": "PayrollController_updateSalaryTemplate",
+        "parameters": [
+          {
+            "name": "templateId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSalaryTemplateBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a salary template",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/templates/{templateId}/status": {
+      "patch": {
+        "operationId": "PayrollController_updateSalaryTemplateStatus",
+        "parameters": [
+          {
+            "name": "templateId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSalaryTemplateStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update salary template status",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/assignments": {
+      "get": {
+        "operationId": "PayrollController_listSalaryAssignments",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "archived",
+                "deleted"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "staffName",
+                "effectiveFrom",
+                "ctcInPaise",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalaryAssignmentListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List salary assignments",
+        "tags": [
+          "payroll"
+        ]
+      },
+      "post": {
+        "operationId": "PayrollController_createSalaryAssignment",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSalaryAssignmentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Assign salary template to a staff member",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/assignments/{assignmentId}": {
+      "get": {
+        "operationId": "PayrollController_getSalaryAssignment",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SalaryAssignmentDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get salary assignment detail",
+        "tags": [
+          "payroll"
+        ]
+      },
+      "patch": {
+        "operationId": "PayrollController_updateSalaryAssignment",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSalaryAssignmentBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update salary assignment",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/assignments/{assignmentId}/status": {
+      "patch": {
+        "operationId": "PayrollController_updateSalaryAssignmentStatus",
+        "parameters": [
+          {
+            "name": "assignmentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSalaryAssignmentStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update salary assignment status",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/runs": {
+      "get": {
+        "operationId": "PayrollController_listPayrollRuns",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "draft",
+                "processed",
+                "approved",
+                "paid"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "month",
+                "year",
+                "status",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "year",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollRunListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List payroll runs",
+        "tags": [
+          "payroll"
+        ]
+      },
+      "post": {
+        "operationId": "PayrollController_createPayrollRun",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePayrollRunBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a payroll run (draft)",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/runs/{runId}": {
+      "get": {
+        "operationId": "PayrollController_getPayrollRun",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayrollRunDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get payroll run detail",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/runs/{runId}/process": {
+      "post": {
+        "operationId": "PayrollController_processPayrollRun",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Process a payroll run (calculate all payslips)",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/runs/{runId}/approve": {
+      "post": {
+        "operationId": "PayrollController_approvePayrollRun",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Approve a payroll run",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/runs/{runId}/mark-paid": {
+      "post": {
+        "operationId": "PayrollController_markPayrollRunPaid",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IdResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Mark a payroll run as paid",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/runs/{runId}/payslips": {
+      "get": {
+        "operationId": "PayrollController_listPayslips",
+        "parameters": [
+          {
+            "name": "runId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "staffName",
+                "netPayInPaise",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayslipListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List payslips for a payroll run",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/payslips/{payslipId}": {
+      "get": {
+        "operationId": "PayrollController_getPayslip",
+        "parameters": [
+          {
+            "name": "payslipId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayslipDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get a single payslip with line items",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/reports/monthly-summary": {
+      "get": {
+        "operationId": "PayrollController_getMonthlySummary",
+        "parameters": [
+          {
+            "name": "month",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "year",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MonthlySummaryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Monthly payroll summary",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/payroll/reports/staff-history/{staffProfileId}": {
+      "get": {
+        "operationId": "PayrollController_getStaffHistory",
+        "parameters": [
+          {
+            "name": "staffProfileId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StaffHistoryResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Staff salary history",
+        "tags": [
+          "payroll"
+        ]
+      }
+    },
+    "/inventory/categories": {
+      "get": {
+        "operationId": "InventoryController_listCategories",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive",
+                "deleted"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List inventory categories",
+        "tags": [
+          "inventory"
+        ]
+      },
+      "post": {
+        "operationId": "InventoryController_createCategory",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCategoryBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an inventory category",
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/inventory/categories/{categoryId}": {
+      "patch": {
+        "operationId": "InventoryController_updateCategory",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update an inventory category",
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/inventory/categories/{categoryId}/status": {
+      "patch": {
+        "operationId": "InventoryController_updateCategoryStatus",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCategoryStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoryDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update inventory category status",
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/inventory/items": {
+      "get": {
+        "operationId": "InventoryController_listItems",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive",
+                "deleted"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "currentStock",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "categoryId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List inventory items",
+        "tags": [
+          "inventory"
+        ]
+      },
+      "post": {
+        "operationId": "InventoryController_createItem",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateItemBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create an inventory item",
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/inventory/items/{itemId}": {
+      "get": {
+        "operationId": "InventoryController_getItem",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get inventory item detail",
+        "tags": [
+          "inventory"
+        ]
+      },
+      "patch": {
+        "operationId": "InventoryController_updateItem",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItemBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDetailDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update an inventory item",
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/inventory/items/{itemId}/status": {
+      "patch": {
+        "operationId": "InventoryController_updateItemStatus",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateItemStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update inventory item status",
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/inventory/items/{itemId}/transactions": {
+      "get": {
+        "operationId": "InventoryController_listItemTransactions",
+        "parameters": [
+          {
+            "name": "itemId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "quantity"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockTransactionListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List stock transactions for an item",
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/inventory/transactions": {
+      "post": {
+        "operationId": "InventoryController_createStockTransaction",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStockTransactionBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockTransactionDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a stock transaction",
+        "tags": [
+          "inventory"
+        ]
+      },
+      "get": {
+        "operationId": "InventoryController_listTransactions",
+        "parameters": [
+          {
+            "name": "transactionType",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "purchase",
+                "issue",
+                "return",
+                "adjustment"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "createdAt",
+                "quantity"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StockTransactionListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List all stock transactions",
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/inventory/low-stock": {
+      "get": {
+        "operationId": "InventoryController_listLowStock",
+        "parameters": [
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "currentStock",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ItemListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List items below minimum stock",
+        "tags": [
+          "inventory"
+        ]
+      }
+    },
+    "/hostel/buildings": {
+      "get": {
+        "operationId": "HostelController_listBuildings",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive",
+                "deleted"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List hostel buildings",
+        "tags": [
+          "hostel"
+        ]
+      },
+      "post": {
+        "operationId": "HostelController_createBuilding",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBuildingBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a hostel building",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
+    "/hostel/buildings/{buildingId}": {
+      "get": {
+        "operationId": "HostelController_getBuilding",
+        "parameters": [
+          {
+            "name": "buildingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get hostel building detail",
+        "tags": [
+          "hostel"
+        ]
+      },
+      "patch": {
+        "operationId": "HostelController_updateBuilding",
+        "parameters": [
+          {
+            "name": "buildingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBuildingBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a hostel building",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
+    "/hostel/buildings/{buildingId}/status": {
+      "patch": {
+        "operationId": "HostelController_updateBuildingStatus",
+        "parameters": [
+          {
+            "name": "buildingId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBuildingStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BuildingDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update hostel building status",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
+    "/hostel/rooms": {
+      "get": {
+        "operationId": "HostelController_listRooms",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "roomNumber",
+                "floor",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "buildingId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List hostel rooms",
+        "tags": [
+          "hostel"
+        ]
+      },
+      "post": {
+        "operationId": "HostelController_createRoom",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoomBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a hostel room",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
+    "/hostel/rooms/{roomId}": {
+      "patch": {
+        "operationId": "HostelController_updateRoom",
+        "parameters": [
+          {
+            "name": "roomId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoomBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a hostel room",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
+    "/hostel/rooms/{roomId}/status": {
+      "patch": {
+        "operationId": "HostelController_updateRoomStatus",
+        "parameters": [
+          {
+            "name": "roomId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRoomStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update hostel room status",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
+    "/hostel/allocations": {
+      "get": {
+        "operationId": "HostelController_listAllocations",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "vacated"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bedNumber",
+                "startDate",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "roomId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "buildingId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllocationListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List bed allocations",
+        "tags": [
+          "hostel"
+        ]
+      },
+      "post": {
+        "operationId": "HostelController_createAllocation",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAllocationBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllocationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a bed allocation",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
+    "/hostel/allocations/{allocationId}/vacate": {
+      "post": {
+        "operationId": "HostelController_vacateAllocation",
+        "parameters": [
+          {
+            "name": "allocationId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AllocationDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Vacate a bed allocation",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
+    "/hostel/mess-plans": {
+      "get": {
+        "operationId": "HostelController_listMessPlans",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive"
+              ]
+            }
+          },
+          {
+            "name": "sort",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "createdAt"
+              ]
+            }
+          },
+          {
+            "name": "order",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessPlanListResultDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List mess plans",
+        "tags": [
+          "hostel"
+        ]
+      },
+      "post": {
+        "operationId": "HostelController_createMessPlan",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateMessPlanBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessPlanDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a mess plan",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
+    "/hostel/mess-plans/{planId}": {
+      "patch": {
+        "operationId": "HostelController_updateMessPlan",
+        "parameters": [
+          {
+            "name": "planId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMessPlanBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessPlanDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a mess plan",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
+    "/hostel/mess-plans/{planId}/status": {
+      "patch": {
+        "operationId": "HostelController_updateMessPlanStatus",
+        "parameters": [
+          {
+            "name": "planId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMessPlanStatusBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessPlanDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update mess plan status",
+        "tags": [
+          "hostel"
+        ]
+      }
+    },
     "/roles": {
       "get": {
         "operationId": "RolesController_listRoles",
@@ -8406,7 +11966,23 @@
               "leave_type",
               "leave_application",
               "library_book",
-              "library_transaction"
+              "library_transaction",
+              "transport_route",
+              "transport_stop",
+              "transport_vehicle",
+              "transport_assignment",
+              "salary_component",
+              "salary_template",
+              "staff_salary_assignment",
+              "payroll_run",
+              "payslip",
+              "inventory_category",
+              "inventory_item",
+              "stock_transaction",
+              "hostel_building",
+              "hostel_room",
+              "bed_allocation",
+              "mess_plan"
             ]
           },
           "entityId": {
@@ -8840,7 +12416,15 @@
                 "leave:manage",
                 "leave:apply",
                 "library:read",
-                "library:manage"
+                "library:manage",
+                "transport:read",
+                "transport:manage",
+                "payroll:read",
+                "payroll:manage",
+                "inventory:read",
+                "inventory:manage",
+                "hostel:read",
+                "hostel:manage"
               ]
             }
           },
@@ -15975,6 +19559,2673 @@
             "type": "number"
           }
         }
+      },
+      "RouteDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "stopCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "campusId",
+          "campusName",
+          "status",
+          "id",
+          "name",
+          "stopCount",
+          "createdAt"
+        ]
+      },
+      "RouteListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RouteDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "StopDto": {
+        "type": "object",
+        "properties": {
+          "pickupTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "dropTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "routeId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "sequenceNumber": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pickupTime",
+          "dropTime",
+          "status",
+          "id",
+          "routeId",
+          "name",
+          "sequenceNumber",
+          "createdAt"
+        ]
+      },
+      "RouteDetailDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "stops": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StopDto"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "stopCount": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "campusId",
+          "campusName",
+          "status",
+          "stops",
+          "id",
+          "name",
+          "stopCount",
+          "createdAt"
+        ]
+      },
+      "CreateRouteBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateRouteBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "campusId": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateStopBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "sequenceNumber": {
+            "type": "number"
+          },
+          "pickupTime": {
+            "type": "string"
+          },
+          "dropTime": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "sequenceNumber"
+        ]
+      },
+      "UpdateStopBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "sequenceNumber": {
+            "type": "number"
+          },
+          "pickupTime": {
+            "type": "string"
+          },
+          "dropTime": {
+            "type": "string"
+          }
+        }
+      },
+      "VehicleDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "bus",
+              "van",
+              "auto"
+            ]
+          },
+          "driverName": {
+            "type": "string",
+            "nullable": true
+          },
+          "driverContact": {
+            "type": "string",
+            "nullable": true
+          },
+          "routeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "routeName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "driverName",
+          "driverContact",
+          "routeId",
+          "routeName",
+          "status",
+          "id",
+          "registrationNumber",
+          "capacity",
+          "createdAt"
+        ]
+      },
+      "VehicleListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VehicleDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateVehicleBodyDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "bus",
+              "van",
+              "auto"
+            ]
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "number"
+          },
+          "driverName": {
+            "type": "string"
+          },
+          "driverContact": {
+            "type": "string"
+          },
+          "routeId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "registrationNumber",
+          "capacity"
+        ]
+      },
+      "UpdateVehicleBodyDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "bus",
+              "van",
+              "auto"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "registrationNumber": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "number"
+          },
+          "driverName": {
+            "type": "string"
+          },
+          "driverContact": {
+            "type": "string"
+          },
+          "routeId": {
+            "type": "string"
+          }
+        }
+      },
+      "AssignmentDto": {
+        "type": "object",
+        "properties": {
+          "admissionNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "assignmentType": {
+            "type": "string",
+            "enum": [
+              "pickup",
+              "dropoff",
+              "both"
+            ]
+          },
+          "endDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "routeId": {
+            "type": "string"
+          },
+          "routeName": {
+            "type": "string"
+          },
+          "stopId": {
+            "type": "string"
+          },
+          "stopName": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "admissionNumber",
+          "assignmentType",
+          "endDate",
+          "status",
+          "id",
+          "studentId",
+          "studentName",
+          "routeId",
+          "routeName",
+          "stopId",
+          "stopName",
+          "startDate",
+          "createdAt"
+        ]
+      },
+      "AssignmentListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AssignmentDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateAssignmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "assignmentType": {
+            "type": "string",
+            "enum": [
+              "pickup",
+              "dropoff",
+              "both"
+            ]
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "routeId": {
+            "type": "string"
+          },
+          "stopId": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "studentId",
+          "routeId",
+          "stopId",
+          "startDate"
+        ]
+      },
+      "UpdateAssignmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "assignmentType": {
+            "type": "string",
+            "enum": [
+              "pickup",
+              "dropoff",
+              "both"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "routeId": {
+            "type": "string"
+          },
+          "stopId": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          }
+        }
+      },
+      "SalaryComponentDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "earning",
+              "deduction"
+            ]
+          },
+          "calculationType": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "percentage"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived",
+              "deleted"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isTaxable": {
+            "type": "boolean"
+          },
+          "isStatutory": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "calculationType",
+          "status",
+          "id",
+          "name",
+          "isTaxable",
+          "isStatutory",
+          "sortOrder",
+          "createdAt"
+        ]
+      },
+      "SalaryComponentListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SalaryComponentDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateSalaryComponentBodyDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "earning",
+              "deduction"
+            ]
+          },
+          "calculationType": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "percentage"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "isTaxable": {
+            "type": "boolean"
+          },
+          "isStatutory": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "type",
+          "calculationType",
+          "name"
+        ]
+      },
+      "IdResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "UpdateSalaryComponentBodyDto": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "earning",
+              "deduction"
+            ]
+          },
+          "calculationType": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "percentage"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "isTaxable": {
+            "type": "boolean"
+          },
+          "isStatutory": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        }
+      },
+      "UpdateSalaryComponentStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "SalaryTemplateDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived",
+              "deleted"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "status",
+          "id",
+          "name",
+          "createdAt"
+        ]
+      },
+      "SalaryTemplateListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SalaryTemplateDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "TemplateComponentBodyDto": {
+        "type": "object",
+        "properties": {
+          "amountInPaise": {
+            "type": "number",
+            "nullable": true
+          },
+          "percentage": {
+            "type": "number",
+            "nullable": true
+          },
+          "salaryComponentId": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "salaryComponentId"
+        ]
+      },
+      "CreateSalaryTemplateBodyDto": {
+        "type": "object",
+        "properties": {
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateComponentBodyDto"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "components",
+          "name"
+        ]
+      },
+      "SalaryTemplateComponentDto": {
+        "type": "object",
+        "properties": {
+          "componentType": {
+            "type": "string",
+            "enum": [
+              "earning",
+              "deduction"
+            ]
+          },
+          "calculationType": {
+            "type": "string",
+            "enum": [
+              "fixed",
+              "percentage"
+            ]
+          },
+          "amountInPaise": {
+            "type": "number",
+            "nullable": true
+          },
+          "percentage": {
+            "type": "number",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "salaryComponentId": {
+            "type": "string"
+          },
+          "componentName": {
+            "type": "string"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "componentType",
+          "calculationType",
+          "amountInPaise",
+          "percentage",
+          "id",
+          "salaryComponentId",
+          "componentName",
+          "sortOrder"
+        ]
+      },
+      "SalaryTemplateDetailDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived",
+              "deleted"
+            ]
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SalaryTemplateComponentDto"
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "status",
+          "components",
+          "id",
+          "name",
+          "createdAt"
+        ]
+      },
+      "UpdateSalaryTemplateBodyDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "components": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TemplateComponentBodyDto"
+            }
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateSalaryTemplateStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "SalaryAssignmentDto": {
+        "type": "object",
+        "properties": {
+          "staffEmployeeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffDesignation": {
+            "type": "string",
+            "nullable": true
+          },
+          "overrides": {
+            "type": "object",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived",
+              "deleted"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "staffProfileId": {
+            "type": "string"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "salaryTemplateId": {
+            "type": "string"
+          },
+          "salaryTemplateName": {
+            "type": "string"
+          },
+          "effectiveFrom": {
+            "type": "string"
+          },
+          "ctcInPaise": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "staffEmployeeId",
+          "staffDesignation",
+          "overrides",
+          "status",
+          "id",
+          "staffProfileId",
+          "staffName",
+          "salaryTemplateId",
+          "salaryTemplateName",
+          "effectiveFrom",
+          "ctcInPaise",
+          "createdAt"
+        ]
+      },
+      "SalaryAssignmentListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SalaryAssignmentDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateSalaryAssignmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "staffProfileId": {
+            "type": "string"
+          },
+          "salaryTemplateId": {
+            "type": "string"
+          },
+          "effectiveFrom": {
+            "type": "string"
+          },
+          "overrides": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "staffProfileId",
+          "salaryTemplateId",
+          "effectiveFrom"
+        ]
+      },
+      "UpdateSalaryAssignmentBodyDto": {
+        "type": "object",
+        "properties": {
+          "overrides": {
+            "type": "object",
+            "nullable": true
+          },
+          "effectiveFrom": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateSalaryAssignmentStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "PayrollRunDto": {
+        "type": "object",
+        "properties": {
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "processed",
+              "approved",
+              "paid"
+            ]
+          },
+          "processedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "approvedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "paidAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "month": {
+            "type": "number"
+          },
+          "year": {
+            "type": "number"
+          },
+          "totalEarningsInPaise": {
+            "type": "number"
+          },
+          "totalDeductionsInPaise": {
+            "type": "number"
+          },
+          "totalNetPayInPaise": {
+            "type": "number"
+          },
+          "staffCount": {
+            "type": "number"
+          },
+          "workingDays": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "campusId",
+          "campusName",
+          "status",
+          "processedAt",
+          "approvedAt",
+          "paidAt",
+          "id",
+          "month",
+          "year",
+          "totalEarningsInPaise",
+          "totalDeductionsInPaise",
+          "totalNetPayInPaise",
+          "staffCount",
+          "workingDays",
+          "createdAt"
+        ]
+      },
+      "PayrollRunListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayrollRunDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreatePayrollRunBodyDto": {
+        "type": "object",
+        "properties": {
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "month": {
+            "type": "number"
+          },
+          "year": {
+            "type": "number"
+          },
+          "workingDays": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "month",
+          "year"
+        ]
+      },
+      "PayslipDto": {
+        "type": "object",
+        "properties": {
+          "staffEmployeeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffDesignation": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffDepartment": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "payrollRunId": {
+            "type": "string"
+          },
+          "staffProfileId": {
+            "type": "string"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "workingDays": {
+            "type": "number"
+          },
+          "presentDays": {
+            "type": "number"
+          },
+          "paidLeaveDays": {
+            "type": "number"
+          },
+          "unpaidLeaveDays": {
+            "type": "number"
+          },
+          "totalEarningsInPaise": {
+            "type": "number"
+          },
+          "totalDeductionsInPaise": {
+            "type": "number"
+          },
+          "netPayInPaise": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "staffEmployeeId",
+          "staffDesignation",
+          "staffDepartment",
+          "id",
+          "payrollRunId",
+          "staffProfileId",
+          "staffName",
+          "workingDays",
+          "presentDays",
+          "paidLeaveDays",
+          "unpaidLeaveDays",
+          "totalEarningsInPaise",
+          "totalDeductionsInPaise",
+          "netPayInPaise",
+          "createdAt"
+        ]
+      },
+      "PayslipListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayslipDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "PayslipLineItemDto": {
+        "type": "object",
+        "properties": {
+          "componentType": {
+            "type": "string",
+            "enum": [
+              "earning",
+              "deduction"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "salaryComponentId": {
+            "type": "string"
+          },
+          "componentName": {
+            "type": "string"
+          },
+          "amountInPaise": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "componentType",
+          "id",
+          "salaryComponentId",
+          "componentName",
+          "amountInPaise"
+        ]
+      },
+      "PayslipDetailDto": {
+        "type": "object",
+        "properties": {
+          "staffEmployeeId": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffDesignation": {
+            "type": "string",
+            "nullable": true
+          },
+          "staffDepartment": {
+            "type": "string",
+            "nullable": true
+          },
+          "lineItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PayslipLineItemDto"
+            }
+          },
+          "month": {
+            "type": "number"
+          },
+          "year": {
+            "type": "number"
+          },
+          "id": {
+            "type": "string"
+          },
+          "payrollRunId": {
+            "type": "string"
+          },
+          "staffProfileId": {
+            "type": "string"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "workingDays": {
+            "type": "number"
+          },
+          "presentDays": {
+            "type": "number"
+          },
+          "paidLeaveDays": {
+            "type": "number"
+          },
+          "unpaidLeaveDays": {
+            "type": "number"
+          },
+          "totalEarningsInPaise": {
+            "type": "number"
+          },
+          "totalDeductionsInPaise": {
+            "type": "number"
+          },
+          "netPayInPaise": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "staffEmployeeId",
+          "staffDesignation",
+          "staffDepartment",
+          "lineItems",
+          "month",
+          "year",
+          "id",
+          "payrollRunId",
+          "staffProfileId",
+          "staffName",
+          "workingDays",
+          "presentDays",
+          "paidLeaveDays",
+          "unpaidLeaveDays",
+          "totalEarningsInPaise",
+          "totalDeductionsInPaise",
+          "netPayInPaise",
+          "createdAt"
+        ]
+      },
+      "MonthlySummaryRunDto": {
+        "type": "object",
+        "properties": {
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "campusName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "processed",
+              "approved",
+              "paid"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "totalEarningsInPaise": {
+            "type": "number"
+          },
+          "totalDeductionsInPaise": {
+            "type": "number"
+          },
+          "totalNetPayInPaise": {
+            "type": "number"
+          },
+          "staffCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "campusId",
+          "campusName",
+          "status",
+          "id",
+          "totalEarningsInPaise",
+          "totalDeductionsInPaise",
+          "totalNetPayInPaise",
+          "staffCount"
+        ]
+      },
+      "MonthlySummaryResponseDto": {
+        "type": "object",
+        "properties": {
+          "runs": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonthlySummaryRunDto"
+            }
+          },
+          "month": {
+            "type": "number"
+          },
+          "year": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "runs",
+          "month",
+          "year"
+        ]
+      },
+      "StaffHistoryRowDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "month": {
+            "type": "number"
+          },
+          "year": {
+            "type": "number"
+          },
+          "workingDays": {
+            "type": "number"
+          },
+          "presentDays": {
+            "type": "number"
+          },
+          "paidLeaveDays": {
+            "type": "number"
+          },
+          "unpaidLeaveDays": {
+            "type": "number"
+          },
+          "totalEarningsInPaise": {
+            "type": "number"
+          },
+          "totalDeductionsInPaise": {
+            "type": "number"
+          },
+          "netPayInPaise": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "month",
+          "year",
+          "workingDays",
+          "presentDays",
+          "paidLeaveDays",
+          "unpaidLeaveDays",
+          "totalEarningsInPaise",
+          "totalDeductionsInPaise",
+          "netPayInPaise",
+          "createdAt"
+        ]
+      },
+      "StaffHistoryResponseDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StaffHistoryRowDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CategoryDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "deleted"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "status",
+          "id",
+          "name",
+          "createdAt"
+        ]
+      },
+      "CategoryListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CategoryDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateCategoryBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "UpdateCategoryBodyDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateCategoryStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "ItemDto": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "piece",
+              "box",
+              "pack",
+              "set",
+              "kg",
+              "liter"
+            ]
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "purchasePriceInPaise": {
+            "type": "number",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "deleted"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "categoryName": {
+            "type": "string"
+          },
+          "currentStock": {
+            "type": "number"
+          },
+          "minimumStock": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "unit",
+          "location",
+          "purchasePriceInPaise",
+          "status",
+          "id",
+          "name",
+          "categoryId",
+          "categoryName",
+          "currentStock",
+          "minimumStock",
+          "createdAt"
+        ]
+      },
+      "ItemListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ItemDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateItemBodyDto": {
+        "type": "object",
+        "properties": {
+          "unit": {
+            "type": "string",
+            "enum": [
+              "piece",
+              "box",
+              "pack",
+              "set",
+              "kg",
+              "liter"
+            ]
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "minimumStock": {
+            "type": "number"
+          },
+          "location": {
+            "type": "string"
+          },
+          "purchasePriceInPaise": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "categoryId"
+        ]
+      },
+      "ItemDetailDto": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "piece",
+              "box",
+              "pack",
+              "set",
+              "kg",
+              "liter"
+            ]
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "purchasePriceInPaise": {
+            "type": "number",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "deleted"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "categoryName": {
+            "type": "string"
+          },
+          "currentStock": {
+            "type": "number"
+          },
+          "minimumStock": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sku",
+          "unit",
+          "location",
+          "purchasePriceInPaise",
+          "status",
+          "id",
+          "name",
+          "categoryId",
+          "categoryName",
+          "currentStock",
+          "minimumStock",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UpdateItemBodyDto": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit": {
+            "type": "string",
+            "enum": [
+              "piece",
+              "box",
+              "pack",
+              "set",
+              "kg",
+              "liter"
+            ]
+          },
+          "location": {
+            "type": "string",
+            "nullable": true
+          },
+          "purchasePriceInPaise": {
+            "type": "number",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "minimumStock": {
+            "type": "number"
+          }
+        }
+      },
+      "UpdateItemStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "StockTransactionDto": {
+        "type": "object",
+        "properties": {
+          "transactionType": {
+            "type": "string",
+            "enum": [
+              "purchase",
+              "issue",
+              "return",
+              "adjustment"
+            ]
+          },
+          "referenceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "issuedToMembershipId": {
+            "type": "string",
+            "nullable": true
+          },
+          "issuedToName": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "id": {
+            "type": "string"
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "itemName": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "createdByMemberId": {
+            "type": "string"
+          },
+          "createdByName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transactionType",
+          "referenceNumber",
+          "issuedToMembershipId",
+          "issuedToName",
+          "notes",
+          "id",
+          "itemId",
+          "itemName",
+          "quantity",
+          "createdByMemberId",
+          "createdByName",
+          "createdAt"
+        ]
+      },
+      "StockTransactionListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StockTransactionDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateStockTransactionBodyDto": {
+        "type": "object",
+        "properties": {
+          "transactionType": {
+            "type": "string",
+            "enum": [
+              "purchase",
+              "issue",
+              "return",
+              "adjustment"
+            ]
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "referenceNumber": {
+            "type": "string"
+          },
+          "issuedToMembershipId": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "transactionType",
+          "itemId",
+          "quantity"
+        ]
+      },
+      "BuildingDto": {
+        "type": "object",
+        "properties": {
+          "buildingType": {
+            "type": "string",
+            "enum": [
+              "boys",
+              "girls",
+              "co_ed"
+            ]
+          },
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "wardenMembershipId": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive",
+              "deleted"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "buildingType",
+          "campusId",
+          "wardenMembershipId",
+          "description",
+          "status",
+          "id",
+          "name",
+          "capacity",
+          "createdAt"
+        ]
+      },
+      "BuildingListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BuildingDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateBuildingBodyDto": {
+        "type": "object",
+        "properties": {
+          "buildingType": {
+            "type": "string",
+            "enum": [
+              "boys",
+              "girls",
+              "co_ed"
+            ]
+          },
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "wardenMembershipId": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "buildingType",
+          "name"
+        ]
+      },
+      "UpdateBuildingBodyDto": {
+        "type": "object",
+        "properties": {
+          "buildingType": {
+            "type": "string",
+            "enum": [
+              "boys",
+              "girls",
+              "co_ed"
+            ]
+          },
+          "campusId": {
+            "type": "string",
+            "nullable": true
+          },
+          "wardenMembershipId": {
+            "type": "string",
+            "nullable": true
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "number"
+          }
+        }
+      },
+      "UpdateBuildingStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "RoomDto": {
+        "type": "object",
+        "properties": {
+          "roomType": {
+            "type": "string",
+            "enum": [
+              "single",
+              "double",
+              "dormitory"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "buildingId": {
+            "type": "string"
+          },
+          "buildingName": {
+            "type": "string"
+          },
+          "roomNumber": {
+            "type": "string"
+          },
+          "floor": {
+            "type": "number"
+          },
+          "capacity": {
+            "type": "number"
+          },
+          "occupancy": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "roomType",
+          "status",
+          "id",
+          "buildingId",
+          "buildingName",
+          "roomNumber",
+          "floor",
+          "capacity",
+          "occupancy",
+          "createdAt"
+        ]
+      },
+      "RoomListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RoomDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateRoomBodyDto": {
+        "type": "object",
+        "properties": {
+          "roomType": {
+            "type": "string",
+            "enum": [
+              "single",
+              "double",
+              "dormitory"
+            ]
+          },
+          "buildingId": {
+            "type": "string"
+          },
+          "roomNumber": {
+            "type": "string"
+          },
+          "floor": {
+            "type": "number"
+          },
+          "capacity": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "roomType",
+          "buildingId",
+          "roomNumber"
+        ]
+      },
+      "UpdateRoomBodyDto": {
+        "type": "object",
+        "properties": {
+          "roomType": {
+            "type": "string",
+            "enum": [
+              "single",
+              "double",
+              "dormitory"
+            ]
+          },
+          "roomNumber": {
+            "type": "string"
+          },
+          "floor": {
+            "type": "number"
+          },
+          "capacity": {
+            "type": "number"
+          }
+        }
+      },
+      "UpdateRoomStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "AllocationDto": {
+        "type": "object",
+        "properties": {
+          "endDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "vacated"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "roomId": {
+            "type": "string"
+          },
+          "roomNumber": {
+            "type": "string"
+          },
+          "buildingName": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "studentName": {
+            "type": "string"
+          },
+          "bedNumber": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "endDate",
+          "status",
+          "id",
+          "roomId",
+          "roomNumber",
+          "buildingName",
+          "studentId",
+          "studentName",
+          "bedNumber",
+          "startDate",
+          "createdAt"
+        ]
+      },
+      "AllocationListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AllocationDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateAllocationBodyDto": {
+        "type": "object",
+        "properties": {
+          "roomId": {
+            "type": "string"
+          },
+          "studentId": {
+            "type": "string"
+          },
+          "bedNumber": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "roomId",
+          "studentId",
+          "bedNumber",
+          "startDate"
+        ]
+      },
+      "MessPlanDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "monthlyFeeInPaise": {
+            "type": "number"
+          },
+          "createdAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "description",
+          "status",
+          "id",
+          "name",
+          "monthlyFeeInPaise",
+          "createdAt"
+        ]
+      },
+      "MessPlanListResultDto": {
+        "type": "object",
+        "properties": {
+          "rows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessPlanDto"
+            }
+          },
+          "total": {
+            "type": "number"
+          },
+          "page": {
+            "type": "number"
+          },
+          "pageSize": {
+            "type": "number"
+          },
+          "pageCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "rows",
+          "total",
+          "page",
+          "pageSize",
+          "pageCount"
+        ]
+      },
+      "CreateMessPlanBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "monthlyFeeInPaise": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "monthlyFeeInPaise"
+        ]
+      },
+      "UpdateMessPlanBodyDto": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "monthlyFeeInPaise": {
+            "type": "number"
+          }
+        }
+      },
+      "UpdateMessPlanStatusBodyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "inactive"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
       },
       "RolePermissionDto": {
         "type": "object",

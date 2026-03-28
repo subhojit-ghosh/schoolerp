@@ -27,6 +27,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
 import {
   ERP_ROUTES,
@@ -66,8 +67,7 @@ export function TransportRoutesPage() {
   const canRead = hasPermission(session, PERMISSIONS.TRANSPORT_READ);
   const canManage = hasPermission(session, PERMISSIONS.TRANSPORT_MANAGE);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateMutation = useUpdateRouteMutation() as any;
+  const updateMutation = useUpdateRouteMutation();
 
   const {
     queryState,
@@ -82,7 +82,6 @@ export function TransportRoutesPage() {
     validSorts: VALID_SORT_FIELDS,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const routesQuery = useTransportRoutesQuery(canRead, {
     limit: queryState.pageSize,
     order: queryState.sortOrder,
@@ -92,8 +91,7 @@ export function TransportRoutesPage() {
   });
 
   const rows = useMemo(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    () => ((routesQuery.data as any)?.rows ?? []) as RouteRow[],
+    () => (routesQuery.data?.rows ?? []) as RouteRow[],
     [routesQuery.data],
   );
 
@@ -145,14 +143,7 @@ export function TransportRoutesPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) =>
-          row.original.status === "active" ? (
-            <Badge className="bg-green-500/10 text-green-700 border-green-200">
-              Active
-            </Badge>
-          ) : (
-            <Badge variant="secondary">Inactive</Badge>
-          ),
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
       }),
       columnHelper.display({
         id: "actions",
@@ -205,11 +196,9 @@ export function TransportRoutesPage() {
     columns,
     data: rows,
     page: queryState.page,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pageCount: (routesQuery.data as any)?.pageCount ?? 1,
+    pageCount: routesQuery.data?.pageCount ?? 1,
     pageSize: queryState.pageSize,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rowCount: (routesQuery.data as any)?.total ?? 0,
+    rowCount: routesQuery.data?.total ?? 0,
     setPage,
     setPageSize,
     sortBy: queryState.sortBy,
@@ -276,8 +265,7 @@ export function TransportRoutesPage() {
           searchPlaceholder="Search routes..."
           searchValue={searchInput}
           table={table}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          totalRows={(routesQuery.data as any)?.total ?? 0}
+          totalRows={routesQuery.data?.total ?? 0}
           showSearch={false}
         />
         <Outlet />

@@ -76,6 +76,7 @@ export function SalaryTemplateCreatePage() {
   }, [componentsQuery.data]);
 
   const { control, handleSubmit } = useForm<SalaryTemplateFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 input/output type divergence with react-hook-form + TS 6
     resolver: zodResolver(salaryTemplateFormSchema) as any,
     defaultValues: SALARY_TEMPLATE_DEFAULT_VALUES,
   });
@@ -107,7 +108,7 @@ export function SalaryTemplateCreatePage() {
           sortOrder: c.sortOrder,
         })),
       },
-    } as any);
+    });
     toast.success("Salary template created.");
     void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES);
   }
@@ -216,7 +217,7 @@ export function SalaryTemplateCreatePage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <EntityFormPrimaryAction disabled={isPending} type="submit">
-              {isPending ? "Creating..." : "Create template"}
+              {isPending ? "Creating..." : "Create salary template"}
             </EntityFormPrimaryAction>
             <EntityFormSecondaryAction
               disabled={isPending}

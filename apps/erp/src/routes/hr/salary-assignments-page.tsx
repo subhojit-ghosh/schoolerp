@@ -7,7 +7,6 @@ import {
   IconSearch,
 } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
 import {
@@ -25,6 +24,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
@@ -86,7 +86,7 @@ export function SalaryAssignmentsPage() {
     sort: queryState.sortBy,
   });
 
-  const assignmentsData = assignmentsQuery.data as any;
+  const assignmentsData = assignmentsQuery.data;
   const assignments = useMemo(
     () => (assignmentsData?.rows ?? []) as SalaryAssignmentRow[],
     [assignmentsData?.rows],
@@ -196,12 +196,7 @@ export function SalaryAssignmentsPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) =>
-          row.original.status === "active" ? (
-            <Badge variant="outline">Active</Badge>
-          ) : (
-            <Badge variant="secondary">Inactive</Badge>
-          ),
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
       }),
       columnHelper.display({
         id: "actions",

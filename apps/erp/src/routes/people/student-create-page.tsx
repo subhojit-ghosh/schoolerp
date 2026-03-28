@@ -125,7 +125,7 @@ export function StudentCreatePage() {
         description={`Add student details and link guardians for ${
           activeCampusName ?? "the selected campus"
         }.`}
-        title="New student"
+        title="New Student"
       />
 
       <Card className="w-full">

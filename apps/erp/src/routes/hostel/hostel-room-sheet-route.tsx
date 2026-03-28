@@ -38,7 +38,7 @@ export function HostelRoomSheetRoute({ mode }: HostelRoomSheetRouteProps) {
     [location.search],
   );
 
-  const buildingsData = buildingsQuery.data as any;
+  const buildingsData = buildingsQuery.data;
   const buildingOptions = useMemo(
     () =>
       ((buildingsData?.rows ?? []) as Array<{ id: string; name: string }>),

@@ -27,8 +27,7 @@ export function RouteSheetRoute({ mode }: RouteSheetRouteProps) {
   const session = useAuthStore((store) => store.session);
   const isEnabled = Boolean(session?.activeOrganization?.id);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const routesQuery = useTransportRoutesQuery(mode === "edit" && isEnabled, { limit: 100 }) as any;
+  const routesQuery = useTransportRoutesQuery(mode === "edit" && isEnabled, { limit: 100 });
   const createMutation = useCreateRouteMutation();
   const updateMutation = useUpdateRouteMutation();
 

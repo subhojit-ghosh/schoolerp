@@ -46,7 +46,7 @@ export function HostelBuildingDetailPage() {
   const canRead = hasPermission(session, PERMISSIONS.HOSTEL_READ);
 
   const buildingQuery = useBuildingDetailQuery(canRead, buildingId);
-  const buildingData = buildingQuery.data as any;
+  const buildingData = buildingQuery.data;
 
   const {
     queryState,
@@ -73,7 +73,7 @@ export function HostelBuildingDetailPage() {
     },
   );
 
-  const roomsData = roomsQuery.data as any;
+  const roomsData = roomsQuery.data;
   const rooms = useMemo(
     () => (roomsData?.rows ?? []) as RoomRow[],
     [roomsData?.rows],

@@ -66,7 +66,7 @@ export function SalaryTemplateEditPage() {
   );
   const updateMutation = useUpdateSalaryTemplateMutation();
 
-  const templateData = templateQuery.data as any;
+  const templateData = templateQuery.data;
 
   const componentOptions = useMemo(() => {
     const rows =
@@ -102,6 +102,7 @@ export function SalaryTemplateEditPage() {
   }, [templateData]);
 
   const { control, handleSubmit, reset } = useForm<SalaryTemplateFormValues>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Zod v4 + react-hook-form + TS 6 type bridge
     resolver: zodResolver(salaryTemplateFormSchema) as any,
     defaultValues,
   });
@@ -138,7 +139,7 @@ export function SalaryTemplateEditPage() {
           sortOrder: c.sortOrder,
         })),
       },
-    } as any);
+    });
     toast.success("Salary template updated.");
     void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES);
   }

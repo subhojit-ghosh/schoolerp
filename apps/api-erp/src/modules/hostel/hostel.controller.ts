@@ -28,16 +28,20 @@ import {
   CreateBuildingBodyDto,
   UpdateBuildingBodyDto,
   UpdateBuildingStatusBodyDto,
+  BuildingDto,
   BuildingListResultDto,
   CreateRoomBodyDto,
   UpdateRoomBodyDto,
   UpdateRoomStatusBodyDto,
+  RoomDto,
   RoomListResultDto,
   CreateAllocationBodyDto,
+  AllocationDto,
   AllocationListResultDto,
   CreateMessPlanBodyDto,
   UpdateMessPlanBodyDto,
   UpdateMessPlanStatusBodyDto,
+  MessPlanDto,
   MessPlanListResultDto,
   ListBuildingsQueryParamsDto,
   ListRoomsQueryParamsDto,
@@ -86,7 +90,7 @@ export class HostelController {
   @Post(API_ROUTES.BUILDINGS)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Create a hostel building" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: BuildingDto })
   async createBuilding(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -99,7 +103,7 @@ export class HostelController {
   @Get(`${API_ROUTES.BUILDINGS}/:buildingId`)
   @RequirePermission(PERMISSIONS.HOSTEL_READ)
   @ApiOperation({ summary: "Get hostel building detail" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: BuildingDto })
   async getBuilding(
     @CurrentInstitution() institution: TenantInstitution,
     @Param("buildingId") buildingId: string,
@@ -110,7 +114,7 @@ export class HostelController {
   @Patch(`${API_ROUTES.BUILDINGS}/:buildingId`)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Update a hostel building" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: BuildingDto })
   async updateBuilding(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -124,7 +128,7 @@ export class HostelController {
   @Patch(`${API_ROUTES.BUILDINGS}/:buildingId/${API_ROUTES.STATUS}`)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Update hostel building status" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: BuildingDto })
   async updateBuildingStatus(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -157,7 +161,7 @@ export class HostelController {
   @Post(API_ROUTES.ROOMS)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Create a hostel room" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: RoomDto })
   async createRoom(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -170,7 +174,7 @@ export class HostelController {
   @Patch(`${API_ROUTES.ROOMS}/:roomId`)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Update a hostel room" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: RoomDto })
   async updateRoom(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -184,7 +188,7 @@ export class HostelController {
   @Patch(`${API_ROUTES.ROOMS}/:roomId/${API_ROUTES.STATUS}`)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Update hostel room status" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: RoomDto })
   async updateRoomStatus(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -212,7 +216,7 @@ export class HostelController {
   @Post(API_ROUTES.ALLOCATIONS)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Create a bed allocation" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: AllocationDto })
   async createAllocation(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -225,7 +229,7 @@ export class HostelController {
   @Post(`${API_ROUTES.ALLOCATIONS}/:allocationId/${API_ROUTES.VACATE}`)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Vacate a bed allocation" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: AllocationDto })
   async vacateAllocation(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -251,7 +255,7 @@ export class HostelController {
   @Post(API_ROUTES.MESS_PLANS)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Create a mess plan" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: MessPlanDto })
   async createMessPlan(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -264,7 +268,7 @@ export class HostelController {
   @Patch(`${API_ROUTES.MESS_PLANS}/:planId`)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Update a mess plan" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: MessPlanDto })
   async updateMessPlan(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -278,7 +282,7 @@ export class HostelController {
   @Patch(`${API_ROUTES.MESS_PLANS}/:planId/${API_ROUTES.STATUS}`)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Update mess plan status" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: MessPlanDto })
   async updateMessPlanStatus(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,

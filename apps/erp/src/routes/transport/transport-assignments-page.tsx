@@ -26,6 +26,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
 import {
   ERP_ROUTES,
@@ -75,8 +76,7 @@ export function TransportAssignmentsPage() {
   const canRead = hasPermission(session, PERMISSIONS.TRANSPORT_READ);
   const canManage = hasPermission(session, PERMISSIONS.TRANSPORT_MANAGE);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateMutation = useUpdateAssignmentMutation() as any;
+  const updateMutation = useUpdateAssignmentMutation();
 
   const {
     queryState,
@@ -91,7 +91,6 @@ export function TransportAssignmentsPage() {
     validSorts: VALID_SORT_FIELDS,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const assignmentsQuery = useTransportAssignmentsQuery(canRead, {
     limit: queryState.pageSize,
     order: queryState.sortOrder,
@@ -101,8 +100,7 @@ export function TransportAssignmentsPage() {
   });
 
   const rows = useMemo(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    () => ((assignmentsQuery.data as any)?.rows ?? []) as AssignmentRow[],
+    () => (assignmentsQuery.data?.rows ?? []) as AssignmentRow[],
     [assignmentsQuery.data],
   );
 
@@ -177,14 +175,7 @@ export function TransportAssignmentsPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) =>
-          row.original.status === "active" ? (
-            <Badge className="bg-green-500/10 text-green-700 border-green-200">
-              Active
-            </Badge>
-          ) : (
-            <Badge variant="secondary">Inactive</Badge>
-          ),
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
       }),
       columnHelper.display({
         id: "actions",
@@ -226,11 +217,9 @@ export function TransportAssignmentsPage() {
     columns,
     data: rows,
     page: queryState.page,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    pageCount: (assignmentsQuery.data as any)?.pageCount ?? 1,
+    pageCount: assignmentsQuery.data?.pageCount ?? 1,
     pageSize: queryState.pageSize,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    rowCount: (assignmentsQuery.data as any)?.total ?? 0,
+    rowCount: assignmentsQuery.data?.total ?? 0,
     setPage,
     setPageSize,
     sortBy: queryState.sortBy,
@@ -305,8 +294,7 @@ export function TransportAssignmentsPage() {
           searchPlaceholder="Search assignments..."
           searchValue={searchInput}
           table={table}
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          totalRows={(assignmentsQuery.data as any)?.total ?? 0}
+          totalRows={assignmentsQuery.data?.total ?? 0}
           showSearch={false}
         />
         <Outlet />

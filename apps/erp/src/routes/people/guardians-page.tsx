@@ -14,6 +14,7 @@ import {
 } from "@repo/ui/components/ui/card";
 import { EntityListPage } from "@/components/entities/entity-list-page";
 import {
+  EntityEmptyStateAction,
   EntityRowAction,
   EntityToolbarSecondaryAction,
 } from "@/components/entities/entity-actions";
@@ -276,9 +277,9 @@ export function GuardiansPage() {
       <ServerDataTable
         emptyAction={
           !isFiltered ? (
-            <EntityToolbarSecondaryAction asChild>
+            <EntityEmptyStateAction asChild>
               <Link to={ERP_ROUTES.STUDENTS}>Go to students</Link>
-            </EntityToolbarSecondaryAction>
+            </EntityEmptyStateAction>
           ) : undefined
         }
         emptyDescription={

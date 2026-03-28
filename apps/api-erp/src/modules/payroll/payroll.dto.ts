@@ -1,5 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 
+// ── Shared ────────────────────────────────────────────────────────────────
+
+export class IdResponseDto {
+  id!: string;
+}
+
 // ── Salary Components ─────────────────────────────────────────────────────
 
 export class CreateSalaryComponentBodyDto {
@@ -396,4 +402,54 @@ export class MonthlySummaryQueryParamsDto {
 export class StaffHistoryQueryParamsDto {
   page?: number;
   limit?: number;
+}
+
+// ── Report Responses ─────────────────────────────────────────────────────
+
+export class MonthlySummaryRunDto {
+  id!: string;
+
+  @ApiProperty({ nullable: true })
+  campusId!: string | null;
+
+  @ApiProperty({ nullable: true })
+  campusName!: string | null;
+
+  @ApiProperty({ enum: ["draft", "processed", "approved", "paid"] })
+  status!: "draft" | "processed" | "approved" | "paid";
+
+  totalEarningsInPaise!: number;
+  totalDeductionsInPaise!: number;
+  totalNetPayInPaise!: number;
+  staffCount!: number;
+}
+
+export class MonthlySummaryResponseDto {
+  month!: number;
+  year!: number;
+
+  @ApiProperty({ type: [MonthlySummaryRunDto] })
+  runs!: MonthlySummaryRunDto[];
+}
+
+export class StaffHistoryRowDto {
+  id!: string;
+  month!: number;
+  year!: number;
+  workingDays!: number;
+  presentDays!: number;
+  paidLeaveDays!: number;
+  unpaidLeaveDays!: number;
+  totalEarningsInPaise!: number;
+  totalDeductionsInPaise!: number;
+  netPayInPaise!: number;
+  createdAt!: string;
+}
+
+export class StaffHistoryResponseDto {
+  rows!: StaffHistoryRowDto[];
+  total!: number;
+  page!: number;
+  pageSize!: number;
+  pageCount!: number;
 }

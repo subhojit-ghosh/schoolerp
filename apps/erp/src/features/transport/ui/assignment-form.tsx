@@ -66,16 +66,11 @@ export function AssignmentForm({
   }, [selectedRouteId, setValue]);
 
   const studentOptionsQuery = useStudentOptionsQuery(institutionId);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const routesQuery = useTransportRoutesQuery(isEnabled, { limit: 100, status: "active" }) as any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const routeDetailQuery = useTransportRouteQuery(selectedRouteId, Boolean(selectedRouteId)) as any;
+  const routesQuery = useTransportRoutesQuery(isEnabled, { limit: 100, status: "active" });
+  const routeDetailQuery = useTransportRouteQuery(selectedRouteId, Boolean(selectedRouteId));
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const students = (studentOptionsQuery.data as any[]) ?? [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const students = studentOptionsQuery.data ?? [];
   const routes: Array<{ id: string; name: string }> = routesQuery.data?.rows ?? [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const stops: Array<{ id: string; name: string; sequenceNumber: number; pickupTime?: string | null; status: string }> =
     (routeDetailQuery.data?.stops ?? []).filter(
       (s: { status: string }) => s.status === "active",

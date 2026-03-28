@@ -2179,6 +2179,807 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/transport/routes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List transport routes */
+        get: operations["TransportController_listRoutes"];
+        put?: never;
+        /** Create a transport route */
+        post: operations["TransportController_createRoute"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/routes/{routeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a transport route with its stops */
+        get: operations["TransportController_getRoute"];
+        /** Update a transport route */
+        put: operations["TransportController_updateRoute"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/routes/{routeId}/stops": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a stop to a route */
+        post: operations["TransportController_createStop"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/routes/{routeId}/stops/{stopId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a route stop */
+        put: operations["TransportController_updateStop"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/vehicles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List transport vehicles */
+        get: operations["TransportController_listVehicles"];
+        put?: never;
+        /** Add a vehicle */
+        post: operations["TransportController_createVehicle"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/vehicles/{vehicleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a vehicle */
+        put: operations["TransportController_updateVehicle"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List student transport assignments */
+        get: operations["TransportController_listAssignments"];
+        put?: never;
+        /** Assign a student to a transport route */
+        post: operations["TransportController_createAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/assignments/{assignmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a student transport assignment */
+        put: operations["TransportController_updateAssignment"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/salary-components": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List salary components */
+        get: operations["PayrollController_listSalaryComponents"];
+        put?: never;
+        /** Create a salary component */
+        post: operations["PayrollController_createSalaryComponent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/salary-components/{componentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a salary component */
+        patch: operations["PayrollController_updateSalaryComponent"];
+        trace?: never;
+    };
+    "/payroll/salary-components/{componentId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update salary component status */
+        patch: operations["PayrollController_updateSalaryComponentStatus"];
+        trace?: never;
+    };
+    "/payroll/templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List salary templates */
+        get: operations["PayrollController_listSalaryTemplates"];
+        put?: never;
+        /** Create a salary template with components */
+        post: operations["PayrollController_createSalaryTemplate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/templates/{templateId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get salary template detail with components */
+        get: operations["PayrollController_getSalaryTemplate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a salary template */
+        patch: operations["PayrollController_updateSalaryTemplate"];
+        trace?: never;
+    };
+    "/payroll/templates/{templateId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update salary template status */
+        patch: operations["PayrollController_updateSalaryTemplateStatus"];
+        trace?: never;
+    };
+    "/payroll/assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List salary assignments */
+        get: operations["PayrollController_listSalaryAssignments"];
+        put?: never;
+        /** Assign salary template to a staff member */
+        post: operations["PayrollController_createSalaryAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/assignments/{assignmentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get salary assignment detail */
+        get: operations["PayrollController_getSalaryAssignment"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update salary assignment */
+        patch: operations["PayrollController_updateSalaryAssignment"];
+        trace?: never;
+    };
+    "/payroll/assignments/{assignmentId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update salary assignment status */
+        patch: operations["PayrollController_updateSalaryAssignmentStatus"];
+        trace?: never;
+    };
+    "/payroll/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List payroll runs */
+        get: operations["PayrollController_listPayrollRuns"];
+        put?: never;
+        /** Create a payroll run (draft) */
+        post: operations["PayrollController_createPayrollRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/runs/{runId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get payroll run detail */
+        get: operations["PayrollController_getPayrollRun"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/runs/{runId}/process": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Process a payroll run (calculate all payslips) */
+        post: operations["PayrollController_processPayrollRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/runs/{runId}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve a payroll run */
+        post: operations["PayrollController_approvePayrollRun"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/runs/{runId}/mark-paid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark a payroll run as paid */
+        post: operations["PayrollController_markPayrollRunPaid"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/runs/{runId}/payslips": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List payslips for a payroll run */
+        get: operations["PayrollController_listPayslips"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/payslips/{payslipId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a single payslip with line items */
+        get: operations["PayrollController_getPayslip"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/reports/monthly-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Monthly payroll summary */
+        get: operations["PayrollController_getMonthlySummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/reports/staff-history/{staffProfileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Staff salary history */
+        get: operations["PayrollController_getStaffHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List inventory categories */
+        get: operations["InventoryController_listCategories"];
+        put?: never;
+        /** Create an inventory category */
+        post: operations["InventoryController_createCategory"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/categories/{categoryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an inventory category */
+        patch: operations["InventoryController_updateCategory"];
+        trace?: never;
+    };
+    "/inventory/categories/{categoryId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update inventory category status */
+        patch: operations["InventoryController_updateCategoryStatus"];
+        trace?: never;
+    };
+    "/inventory/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List inventory items */
+        get: operations["InventoryController_listItems"];
+        put?: never;
+        /** Create an inventory item */
+        post: operations["InventoryController_createItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/items/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get inventory item detail */
+        get: operations["InventoryController_getItem"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an inventory item */
+        patch: operations["InventoryController_updateItem"];
+        trace?: never;
+    };
+    "/inventory/items/{itemId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update inventory item status */
+        patch: operations["InventoryController_updateItemStatus"];
+        trace?: never;
+    };
+    "/inventory/items/{itemId}/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List stock transactions for an item */
+        get: operations["InventoryController_listItemTransactions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/transactions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all stock transactions */
+        get: operations["InventoryController_listTransactions"];
+        put?: never;
+        /** Create a stock transaction */
+        post: operations["InventoryController_createStockTransaction"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/low-stock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List items below minimum stock */
+        get: operations["InventoryController_listLowStock"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hostel/buildings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List hostel buildings */
+        get: operations["HostelController_listBuildings"];
+        put?: never;
+        /** Create a hostel building */
+        post: operations["HostelController_createBuilding"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hostel/buildings/{buildingId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get hostel building detail */
+        get: operations["HostelController_getBuilding"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a hostel building */
+        patch: operations["HostelController_updateBuilding"];
+        trace?: never;
+    };
+    "/hostel/buildings/{buildingId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update hostel building status */
+        patch: operations["HostelController_updateBuildingStatus"];
+        trace?: never;
+    };
+    "/hostel/rooms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List hostel rooms */
+        get: operations["HostelController_listRooms"];
+        put?: never;
+        /** Create a hostel room */
+        post: operations["HostelController_createRoom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hostel/rooms/{roomId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a hostel room */
+        patch: operations["HostelController_updateRoom"];
+        trace?: never;
+    };
+    "/hostel/rooms/{roomId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update hostel room status */
+        patch: operations["HostelController_updateRoomStatus"];
+        trace?: never;
+    };
+    "/hostel/allocations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List bed allocations */
+        get: operations["HostelController_listAllocations"];
+        put?: never;
+        /** Create a bed allocation */
+        post: operations["HostelController_createAllocation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hostel/allocations/{allocationId}/vacate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Vacate a bed allocation */
+        post: operations["HostelController_vacateAllocation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hostel/mess-plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List mess plans */
+        get: operations["HostelController_listMessPlans"];
+        put?: never;
+        /** Create a mess plan */
+        post: operations["HostelController_createMessPlan"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hostel/mess-plans/{planId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a mess plan */
+        patch: operations["HostelController_updateMessPlan"];
+        trace?: never;
+    };
+    "/hostel/mess-plans/{planId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update mess plan status */
+        patch: operations["HostelController_updateMessPlanStatus"];
+        trace?: never;
+    };
     "/roles": {
         parameters: {
             query?: never;
@@ -2355,7 +3156,7 @@ export interface components {
             /** @enum {string} */
             action: "create" | "update" | "delete" | "mark" | "replace" | "reverse" | "execute";
             /** @enum {string} */
-            entityType: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction";
+            entityType: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction" | "transport_route" | "transport_stop" | "transport_vehicle" | "transport_assignment" | "salary_component" | "salary_template" | "staff_salary_assignment" | "payroll_run" | "payslip" | "inventory_category" | "inventory_item" | "stock_transaction" | "hostel_building" | "hostel_room" | "bed_allocation" | "mess_plan";
             entityId?: string | null;
             entityLabel?: string | null;
             summary: string;
@@ -2450,7 +3251,7 @@ export interface components {
             activeOrganization: components["schemas"]["AuthOrganizationDto"] | null;
             availableContexts: components["schemas"]["AuthAccessContextDto"][];
             activeContext: components["schemas"]["AuthAccessContextDto"] | null;
-            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "audit:read" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage" | "institution:delivery:manage" | "institution:payment:manage" | "fees:payment:online" | "homework:read" | "homework:manage" | "leave:read" | "leave:manage" | "leave:apply" | "library:read" | "library:manage")[];
+            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "audit:read" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage" | "institution:delivery:manage" | "institution:payment:manage" | "fees:payment:online" | "homework:read" | "homework:manage" | "leave:read" | "leave:manage" | "leave:apply" | "library:read" | "library:manage" | "transport:read" | "transport:manage" | "payroll:read" | "payroll:manage" | "inventory:read" | "inventory:manage" | "hostel:read" | "hostel:manage")[];
             activeStaffRoles: components["schemas"]["AuthStaffRoleDto"][];
             activeCampus: components["schemas"]["AuthCampusDto"] | null;
             campuses: components["schemas"]["AuthCampusDto"][];
@@ -4214,6 +5015,677 @@ export interface components {
         ReturnBookBodyDto: {
             fineAmount?: number;
         };
+        RouteDto: {
+            description: string | null;
+            campusId: string | null;
+            campusName: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            name: string;
+            stopCount: number;
+            createdAt: string;
+        };
+        RouteListResultDto: {
+            rows: components["schemas"]["RouteDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        StopDto: {
+            pickupTime: string | null;
+            dropTime: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            routeId: string;
+            name: string;
+            sequenceNumber: number;
+            createdAt: string;
+        };
+        RouteDetailDto: {
+            description: string | null;
+            campusId: string | null;
+            campusName: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            stops: components["schemas"]["StopDto"][];
+            id: string;
+            name: string;
+            stopCount: number;
+            createdAt: string;
+        };
+        CreateRouteBodyDto: {
+            name: string;
+            description?: string;
+            campusId?: string;
+        };
+        UpdateRouteBodyDto: {
+            /** @enum {string} */
+            status?: "active" | "inactive";
+            name?: string;
+            description?: string;
+            campusId?: string;
+        };
+        CreateStopBodyDto: {
+            name: string;
+            sequenceNumber: number;
+            pickupTime?: string;
+            dropTime?: string;
+        };
+        UpdateStopBodyDto: {
+            /** @enum {string} */
+            status?: "active" | "inactive";
+            name?: string;
+            sequenceNumber?: number;
+            pickupTime?: string;
+            dropTime?: string;
+        };
+        VehicleDto: {
+            /** @enum {string} */
+            type: "bus" | "van" | "auto";
+            driverName: string | null;
+            driverContact: string | null;
+            routeId: string | null;
+            routeName: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            registrationNumber: string;
+            capacity: number;
+            createdAt: string;
+        };
+        VehicleListResultDto: {
+            rows: components["schemas"]["VehicleDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateVehicleBodyDto: {
+            /** @enum {string} */
+            type: "bus" | "van" | "auto";
+            registrationNumber: string;
+            capacity: number;
+            driverName?: string;
+            driverContact?: string;
+            routeId?: string;
+        };
+        UpdateVehicleBodyDto: {
+            /** @enum {string} */
+            type?: "bus" | "van" | "auto";
+            /** @enum {string} */
+            status?: "active" | "inactive";
+            registrationNumber?: string;
+            capacity?: number;
+            driverName?: string;
+            driverContact?: string;
+            routeId?: string;
+        };
+        AssignmentDto: {
+            admissionNumber: string | null;
+            /** @enum {string} */
+            assignmentType: "pickup" | "dropoff" | "both";
+            endDate: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            studentId: string;
+            studentName: string;
+            routeId: string;
+            routeName: string;
+            stopId: string;
+            stopName: string;
+            startDate: string;
+            createdAt: string;
+        };
+        AssignmentListResultDto: {
+            rows: components["schemas"]["AssignmentDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateAssignmentBodyDto: {
+            /** @enum {string} */
+            assignmentType?: "pickup" | "dropoff" | "both";
+            studentId: string;
+            routeId: string;
+            stopId: string;
+            startDate: string;
+            endDate?: string;
+        };
+        UpdateAssignmentBodyDto: {
+            /** @enum {string} */
+            assignmentType?: "pickup" | "dropoff" | "both";
+            /** @enum {string} */
+            status?: "active" | "inactive";
+            routeId?: string;
+            stopId?: string;
+            startDate?: string;
+            endDate?: string;
+        };
+        SalaryComponentDto: {
+            /** @enum {string} */
+            type: "earning" | "deduction";
+            /** @enum {string} */
+            calculationType: "fixed" | "percentage";
+            /** @enum {string} */
+            status: "active" | "archived" | "deleted";
+            id: string;
+            name: string;
+            isTaxable: boolean;
+            isStatutory: boolean;
+            sortOrder: number;
+            createdAt: string;
+        };
+        SalaryComponentListResultDto: {
+            rows: components["schemas"]["SalaryComponentDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateSalaryComponentBodyDto: {
+            /** @enum {string} */
+            type: "earning" | "deduction";
+            /** @enum {string} */
+            calculationType: "fixed" | "percentage";
+            name: string;
+            isTaxable?: boolean;
+            isStatutory?: boolean;
+            sortOrder?: number;
+        };
+        IdResponseDto: {
+            id: string;
+        };
+        UpdateSalaryComponentBodyDto: {
+            /** @enum {string} */
+            type?: "earning" | "deduction";
+            /** @enum {string} */
+            calculationType?: "fixed" | "percentage";
+            name?: string;
+            isTaxable?: boolean;
+            isStatutory?: boolean;
+            sortOrder?: number;
+        };
+        UpdateSalaryComponentStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "archived";
+        };
+        SalaryTemplateDto: {
+            description: string | null;
+            /** @enum {string} */
+            status: "active" | "archived" | "deleted";
+            id: string;
+            name: string;
+            createdAt: string;
+        };
+        SalaryTemplateListResultDto: {
+            rows: components["schemas"]["SalaryTemplateDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        TemplateComponentBodyDto: {
+            amountInPaise?: number | null;
+            percentage?: number | null;
+            salaryComponentId: string;
+            sortOrder?: number;
+        };
+        CreateSalaryTemplateBodyDto: {
+            components: components["schemas"]["TemplateComponentBodyDto"][];
+            name: string;
+            description?: string;
+        };
+        SalaryTemplateComponentDto: {
+            /** @enum {string} */
+            componentType: "earning" | "deduction";
+            /** @enum {string} */
+            calculationType: "fixed" | "percentage";
+            amountInPaise: number | null;
+            percentage: number | null;
+            id: string;
+            salaryComponentId: string;
+            componentName: string;
+            sortOrder: number;
+        };
+        SalaryTemplateDetailDto: {
+            description: string | null;
+            /** @enum {string} */
+            status: "active" | "archived" | "deleted";
+            components: components["schemas"]["SalaryTemplateComponentDto"][];
+            id: string;
+            name: string;
+            createdAt: string;
+        };
+        UpdateSalaryTemplateBodyDto: {
+            description?: string | null;
+            components?: components["schemas"]["TemplateComponentBodyDto"][];
+            name?: string;
+        };
+        UpdateSalaryTemplateStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "archived";
+        };
+        SalaryAssignmentDto: {
+            staffEmployeeId: string | null;
+            staffDesignation: string | null;
+            overrides: Record<string, never> | null;
+            /** @enum {string} */
+            status: "active" | "archived" | "deleted";
+            id: string;
+            staffProfileId: string;
+            staffName: string;
+            salaryTemplateId: string;
+            salaryTemplateName: string;
+            effectiveFrom: string;
+            ctcInPaise: number;
+            createdAt: string;
+        };
+        SalaryAssignmentListResultDto: {
+            rows: components["schemas"]["SalaryAssignmentDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateSalaryAssignmentBodyDto: {
+            staffProfileId: string;
+            salaryTemplateId: string;
+            effectiveFrom: string;
+            overrides?: Record<string, never>;
+        };
+        UpdateSalaryAssignmentBodyDto: {
+            overrides?: Record<string, never> | null;
+            effectiveFrom?: string;
+        };
+        UpdateSalaryAssignmentStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "archived";
+        };
+        PayrollRunDto: {
+            campusId: string | null;
+            campusName: string | null;
+            /** @enum {string} */
+            status: "draft" | "processed" | "approved" | "paid";
+            processedAt: string | null;
+            approvedAt: string | null;
+            paidAt: string | null;
+            id: string;
+            month: number;
+            year: number;
+            totalEarningsInPaise: number;
+            totalDeductionsInPaise: number;
+            totalNetPayInPaise: number;
+            staffCount: number;
+            workingDays: number;
+            createdAt: string;
+        };
+        PayrollRunListResultDto: {
+            rows: components["schemas"]["PayrollRunDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreatePayrollRunBodyDto: {
+            campusId?: string | null;
+            month: number;
+            year: number;
+            workingDays?: number;
+        };
+        PayslipDto: {
+            staffEmployeeId: string | null;
+            staffDesignation: string | null;
+            staffDepartment: string | null;
+            id: string;
+            payrollRunId: string;
+            staffProfileId: string;
+            staffName: string;
+            workingDays: number;
+            presentDays: number;
+            paidLeaveDays: number;
+            unpaidLeaveDays: number;
+            totalEarningsInPaise: number;
+            totalDeductionsInPaise: number;
+            netPayInPaise: number;
+            createdAt: string;
+        };
+        PayslipListResultDto: {
+            rows: components["schemas"]["PayslipDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        PayslipLineItemDto: {
+            /** @enum {string} */
+            componentType: "earning" | "deduction";
+            id: string;
+            salaryComponentId: string;
+            componentName: string;
+            amountInPaise: number;
+        };
+        PayslipDetailDto: {
+            staffEmployeeId: string | null;
+            staffDesignation: string | null;
+            staffDepartment: string | null;
+            lineItems: components["schemas"]["PayslipLineItemDto"][];
+            month: number;
+            year: number;
+            id: string;
+            payrollRunId: string;
+            staffProfileId: string;
+            staffName: string;
+            workingDays: number;
+            presentDays: number;
+            paidLeaveDays: number;
+            unpaidLeaveDays: number;
+            totalEarningsInPaise: number;
+            totalDeductionsInPaise: number;
+            netPayInPaise: number;
+            createdAt: string;
+        };
+        MonthlySummaryRunDto: {
+            campusId: string | null;
+            campusName: string | null;
+            /** @enum {string} */
+            status: "draft" | "processed" | "approved" | "paid";
+            id: string;
+            totalEarningsInPaise: number;
+            totalDeductionsInPaise: number;
+            totalNetPayInPaise: number;
+            staffCount: number;
+        };
+        MonthlySummaryResponseDto: {
+            runs: components["schemas"]["MonthlySummaryRunDto"][];
+            month: number;
+            year: number;
+        };
+        StaffHistoryRowDto: {
+            id: string;
+            month: number;
+            year: number;
+            workingDays: number;
+            presentDays: number;
+            paidLeaveDays: number;
+            unpaidLeaveDays: number;
+            totalEarningsInPaise: number;
+            totalDeductionsInPaise: number;
+            netPayInPaise: number;
+            createdAt: string;
+        };
+        StaffHistoryResponseDto: {
+            rows: components["schemas"]["StaffHistoryRowDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CategoryDto: {
+            description: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
+            id: string;
+            name: string;
+            createdAt: string;
+        };
+        CategoryListResultDto: {
+            rows: components["schemas"]["CategoryDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateCategoryBodyDto: {
+            name: string;
+            description?: string;
+        };
+        UpdateCategoryBodyDto: {
+            description?: string | null;
+            name?: string;
+        };
+        UpdateCategoryStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        ItemDto: {
+            sku: string | null;
+            /** @enum {string} */
+            unit: "piece" | "box" | "pack" | "set" | "kg" | "liter";
+            location: string | null;
+            purchasePriceInPaise: number | null;
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
+            id: string;
+            name: string;
+            categoryId: string;
+            categoryName: string;
+            currentStock: number;
+            minimumStock: number;
+            createdAt: string;
+        };
+        ItemListResultDto: {
+            rows: components["schemas"]["ItemDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateItemBodyDto: {
+            /** @enum {string} */
+            unit?: "piece" | "box" | "pack" | "set" | "kg" | "liter";
+            name: string;
+            categoryId: string;
+            sku?: string;
+            minimumStock?: number;
+            location?: string;
+            purchasePriceInPaise?: number;
+        };
+        ItemDetailDto: {
+            sku: string | null;
+            /** @enum {string} */
+            unit: "piece" | "box" | "pack" | "set" | "kg" | "liter";
+            location: string | null;
+            purchasePriceInPaise: number | null;
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
+            id: string;
+            name: string;
+            categoryId: string;
+            categoryName: string;
+            currentStock: number;
+            minimumStock: number;
+            createdAt: string;
+            updatedAt: string;
+        };
+        UpdateItemBodyDto: {
+            sku?: string | null;
+            /** @enum {string} */
+            unit?: "piece" | "box" | "pack" | "set" | "kg" | "liter";
+            location?: string | null;
+            purchasePriceInPaise?: number | null;
+            name?: string;
+            categoryId?: string;
+            minimumStock?: number;
+        };
+        UpdateItemStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        StockTransactionDto: {
+            /** @enum {string} */
+            transactionType: "purchase" | "issue" | "return" | "adjustment";
+            referenceNumber: string | null;
+            issuedToMembershipId: string | null;
+            issuedToName: string | null;
+            notes: string | null;
+            id: string;
+            itemId: string;
+            itemName: string;
+            quantity: number;
+            createdByMemberId: string;
+            createdByName: string;
+            createdAt: string;
+        };
+        StockTransactionListResultDto: {
+            rows: components["schemas"]["StockTransactionDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateStockTransactionBodyDto: {
+            /** @enum {string} */
+            transactionType: "purchase" | "issue" | "return" | "adjustment";
+            itemId: string;
+            quantity: number;
+            referenceNumber?: string;
+            issuedToMembershipId?: string;
+            notes?: string;
+        };
+        BuildingDto: {
+            /** @enum {string} */
+            buildingType: "boys" | "girls" | "co_ed";
+            campusId: string | null;
+            wardenMembershipId: string | null;
+            description: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
+            id: string;
+            name: string;
+            capacity: number;
+            createdAt: string;
+        };
+        BuildingListResultDto: {
+            rows: components["schemas"]["BuildingDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateBuildingBodyDto: {
+            /** @enum {string} */
+            buildingType: "boys" | "girls" | "co_ed";
+            campusId?: string | null;
+            wardenMembershipId?: string | null;
+            name: string;
+            capacity?: number;
+            description?: string;
+        };
+        UpdateBuildingBodyDto: {
+            /** @enum {string} */
+            buildingType?: "boys" | "girls" | "co_ed";
+            campusId?: string | null;
+            wardenMembershipId?: string | null;
+            description?: string | null;
+            name?: string;
+            capacity?: number;
+        };
+        UpdateBuildingStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        RoomDto: {
+            /** @enum {string} */
+            roomType: "single" | "double" | "dormitory";
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            buildingId: string;
+            buildingName: string;
+            roomNumber: string;
+            floor: number;
+            capacity: number;
+            occupancy: number;
+            createdAt: string;
+        };
+        RoomListResultDto: {
+            rows: components["schemas"]["RoomDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateRoomBodyDto: {
+            /** @enum {string} */
+            roomType: "single" | "double" | "dormitory";
+            buildingId: string;
+            roomNumber: string;
+            floor?: number;
+            capacity?: number;
+        };
+        UpdateRoomBodyDto: {
+            /** @enum {string} */
+            roomType?: "single" | "double" | "dormitory";
+            roomNumber?: string;
+            floor?: number;
+            capacity?: number;
+        };
+        UpdateRoomStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        AllocationDto: {
+            endDate: string | null;
+            /** @enum {string} */
+            status: "active" | "vacated";
+            id: string;
+            roomId: string;
+            roomNumber: string;
+            buildingName: string;
+            studentId: string;
+            studentName: string;
+            bedNumber: string;
+            startDate: string;
+            createdAt: string;
+        };
+        AllocationListResultDto: {
+            rows: components["schemas"]["AllocationDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateAllocationBodyDto: {
+            roomId: string;
+            studentId: string;
+            bedNumber: string;
+            startDate: string;
+        };
+        MessPlanDto: {
+            description: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            name: string;
+            monthlyFeeInPaise: number;
+            createdAt: string;
+        };
+        MessPlanListResultDto: {
+            rows: components["schemas"]["MessPlanDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateMessPlanBodyDto: {
+            name: string;
+            monthlyFeeInPaise: number;
+            description?: string;
+        };
+        UpdateMessPlanBodyDto: {
+            description?: string | null;
+            name?: string;
+            monthlyFeeInPaise?: number;
+        };
+        UpdateMessPlanStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
         RolePermissionDto: {
             id: string;
             slug: string;
@@ -4362,7 +5834,7 @@ export interface operations {
                 sort?: "createdAt" | "action" | "entityType" | "actor";
                 order?: "asc" | "desc";
                 action?: "create" | "update" | "delete" | "mark" | "replace" | "reverse" | "execute";
-                entityType?: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction";
+                entityType?: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction" | "transport_route" | "transport_stop" | "transport_vehicle" | "transport_assignment" | "salary_component" | "salary_template" | "staff_salary_assignment" | "payroll_run" | "payslip" | "inventory_category" | "inventory_item" | "stock_transaction" | "hostel_building" | "hostel_room" | "bed_allocation" | "mess_plan";
                 actorUserId?: string;
             };
             header?: never;
@@ -8339,6 +9811,1586 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TransactionDto"];
+                };
+            };
+        };
+    };
+    TransportController_listRoutes: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive";
+                sort?: "name" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                campusId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteListResultDto"];
+                };
+            };
+        };
+    };
+    TransportController_createRoute: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRouteBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDto"];
+                };
+            };
+        };
+    };
+    TransportController_getRoute: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                routeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDetailDto"];
+                };
+            };
+        };
+    };
+    TransportController_updateRoute: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                routeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRouteBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDto"];
+                };
+            };
+        };
+    };
+    TransportController_createStop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                routeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStopBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StopDto"];
+                };
+            };
+        };
+    };
+    TransportController_updateStop: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                routeId: string;
+                stopId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStopBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StopDto"];
+                };
+            };
+        };
+    };
+    TransportController_listVehicles: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive";
+                sort?: "registrationNumber" | "type" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                routeId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VehicleListResultDto"];
+                };
+            };
+        };
+    };
+    TransportController_createVehicle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateVehicleBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VehicleDto"];
+                };
+            };
+        };
+    };
+    TransportController_updateVehicle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateVehicleBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VehicleDto"];
+                };
+            };
+        };
+    };
+    TransportController_listAssignments: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive";
+                sort?: "startDate" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                routeId?: string;
+                stopId?: string;
+                studentId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentListResultDto"];
+                };
+            };
+        };
+    };
+    TransportController_createAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAssignmentBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentDto"];
+                };
+            };
+        };
+    };
+    TransportController_updateAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAssignmentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AssignmentDto"];
+                };
+            };
+        };
+    };
+    PayrollController_listSalaryComponents: {
+        parameters: {
+            query?: {
+                status?: "active" | "archived" | "deleted";
+                type?: "earning" | "deduction";
+                sort?: "name" | "type" | "sortOrder" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SalaryComponentListResultDto"];
+                };
+            };
+        };
+    };
+    PayrollController_createSalaryComponent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSalaryComponentBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_updateSalaryComponent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                componentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSalaryComponentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_updateSalaryComponentStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                componentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSalaryComponentStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_listSalaryTemplates: {
+        parameters: {
+            query?: {
+                status?: "active" | "archived" | "deleted";
+                sort?: "name" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SalaryTemplateListResultDto"];
+                };
+            };
+        };
+    };
+    PayrollController_createSalaryTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSalaryTemplateBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_getSalaryTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                templateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SalaryTemplateDetailDto"];
+                };
+            };
+        };
+    };
+    PayrollController_updateSalaryTemplate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                templateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSalaryTemplateBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_updateSalaryTemplateStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                templateId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSalaryTemplateStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_listSalaryAssignments: {
+        parameters: {
+            query?: {
+                status?: "active" | "archived" | "deleted";
+                sort?: "staffName" | "effectiveFrom" | "ctcInPaise" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SalaryAssignmentListResultDto"];
+                };
+            };
+        };
+    };
+    PayrollController_createSalaryAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSalaryAssignmentBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_getSalaryAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SalaryAssignmentDto"];
+                };
+            };
+        };
+    };
+    PayrollController_updateSalaryAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSalaryAssignmentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_updateSalaryAssignmentStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSalaryAssignmentStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_listPayrollRuns: {
+        parameters: {
+            query?: {
+                status?: "draft" | "processed" | "approved" | "paid";
+                sort?: "month" | "year" | "status" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                year?: number;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollRunListResultDto"];
+                };
+            };
+        };
+    };
+    PayrollController_createPayrollRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePayrollRunBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_getPayrollRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayrollRunDto"];
+                };
+            };
+        };
+    };
+    PayrollController_processPayrollRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_approvePayrollRun: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_markPayrollRunPaid: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_listPayslips: {
+        parameters: {
+            query?: {
+                sort?: "staffName" | "netPayInPaise" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                runId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayslipListResultDto"];
+                };
+            };
+        };
+    };
+    PayrollController_getPayslip: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                payslipId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayslipDetailDto"];
+                };
+            };
+        };
+    };
+    PayrollController_getMonthlySummary: {
+        parameters: {
+            query: {
+                month: number;
+                year: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonthlySummaryResponseDto"];
+                };
+            };
+        };
+    };
+    PayrollController_getStaffHistory: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                staffProfileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffHistoryResponseDto"];
+                };
+            };
+        };
+    };
+    InventoryController_listCategories: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive" | "deleted";
+                sort?: "name" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryListResultDto"];
+                };
+            };
+        };
+    };
+    InventoryController_createCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCategoryBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryDto"];
+                };
+            };
+        };
+    };
+    InventoryController_updateCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                categoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCategoryBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryDto"];
+                };
+            };
+        };
+    };
+    InventoryController_updateCategoryStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                categoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCategoryStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CategoryDto"];
+                };
+            };
+        };
+    };
+    InventoryController_listItems: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive" | "deleted";
+                sort?: "name" | "currentStock" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                categoryId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemListResultDto"];
+                };
+            };
+        };
+    };
+    InventoryController_createItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateItemBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDto"];
+                };
+            };
+        };
+    };
+    InventoryController_getItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+        };
+    };
+    InventoryController_updateItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateItemBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDetailDto"];
+                };
+            };
+        };
+    };
+    InventoryController_updateItemStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateItemStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemDto"];
+                };
+            };
+        };
+    };
+    InventoryController_listItemTransactions: {
+        parameters: {
+            query?: {
+                sort?: "createdAt" | "quantity";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockTransactionListResultDto"];
+                };
+            };
+        };
+    };
+    InventoryController_listTransactions: {
+        parameters: {
+            query?: {
+                transactionType?: "purchase" | "issue" | "return" | "adjustment";
+                sort?: "createdAt" | "quantity";
+                order?: "asc" | "desc";
+                q?: string;
+                itemId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockTransactionListResultDto"];
+                };
+            };
+        };
+    };
+    InventoryController_createStockTransaction: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStockTransactionBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockTransactionDto"];
+                };
+            };
+        };
+    };
+    InventoryController_listLowStock: {
+        parameters: {
+            query?: {
+                sort?: "name" | "currentStock" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ItemListResultDto"];
+                };
+            };
+        };
+    };
+    HostelController_listBuildings: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive" | "deleted";
+                sort?: "name" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BuildingListResultDto"];
+                };
+            };
+        };
+    };
+    HostelController_createBuilding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBuildingBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BuildingDto"];
+                };
+            };
+        };
+    };
+    HostelController_getBuilding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                buildingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BuildingDto"];
+                };
+            };
+        };
+    };
+    HostelController_updateBuilding: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                buildingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBuildingBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BuildingDto"];
+                };
+            };
+        };
+    };
+    HostelController_updateBuildingStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                buildingId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBuildingStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BuildingDto"];
+                };
+            };
+        };
+    };
+    HostelController_listRooms: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive";
+                sort?: "roomNumber" | "floor" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                buildingId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomListResultDto"];
+                };
+            };
+        };
+    };
+    HostelController_createRoom: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRoomBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomDto"];
+                };
+            };
+        };
+    };
+    HostelController_updateRoom: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoomBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomDto"];
+                };
+            };
+        };
+    };
+    HostelController_updateRoomStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roomId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRoomStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomDto"];
+                };
+            };
+        };
+    };
+    HostelController_listAllocations: {
+        parameters: {
+            query?: {
+                status?: "active" | "vacated";
+                sort?: "bedNumber" | "startDate" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                roomId?: string;
+                buildingId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AllocationListResultDto"];
+                };
+            };
+        };
+    };
+    HostelController_createAllocation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAllocationBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AllocationDto"];
+                };
+            };
+        };
+    };
+    HostelController_vacateAllocation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                allocationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AllocationDto"];
+                };
+            };
+        };
+    };
+    HostelController_listMessPlans: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive";
+                sort?: "name" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessPlanListResultDto"];
+                };
+            };
+        };
+    };
+    HostelController_createMessPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMessPlanBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessPlanDto"];
+                };
+            };
+        };
+    };
+    HostelController_updateMessPlan: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                planId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMessPlanBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessPlanDto"];
+                };
+            };
+        };
+    };
+    HostelController_updateMessPlanStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                planId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateMessPlanStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessPlanDto"];
                 };
             };
         };

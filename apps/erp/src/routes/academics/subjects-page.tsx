@@ -11,7 +11,6 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
 import {
@@ -38,6 +37,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { buildSubjectEditRoute, ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import {
@@ -214,19 +214,7 @@ export function SubjectsPage() {
             />
           </button>
         ),
-        cell: ({ getValue }) =>
-          getValue() === "active" ? (
-            <Badge
-              variant="secondary"
-              className="text-green-700 dark:text-green-400"
-            >
-              Active
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="text-muted-foreground">
-              Inactive
-            </Badge>
-          ),
+        cell: ({ getValue }) => <StatusBadge status={getValue()} />,
       }),
       columnHelper.display({
         id: "actions",

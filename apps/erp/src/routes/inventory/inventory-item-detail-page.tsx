@@ -53,7 +53,7 @@ export function InventoryItemDetailPage() {
   const canRead = hasPermission(session, PERMISSIONS.INVENTORY_READ);
 
   const itemQuery = useItemDetailQuery(canRead, itemId);
-  const itemData = itemQuery.data as any;
+  const itemData = itemQuery.data;
 
   const {
     queryState,
@@ -80,7 +80,7 @@ export function InventoryItemDetailPage() {
     },
   );
 
-  const transactionsData = transactionsQuery.data as any;
+  const transactionsData = transactionsQuery.data;
   const transactions = useMemo(
     () => (transactionsData?.rows ?? []) as TransactionRow[],
     [transactionsData?.rows],

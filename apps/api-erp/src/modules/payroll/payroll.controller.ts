@@ -27,6 +27,7 @@ import { CurrentInstitution } from "../tenant-context/current-institution.decora
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
+  IdResponseDto,
   CreateSalaryComponentBodyDto,
   UpdateSalaryComponentBodyDto,
   UpdateSalaryComponentStatusBodyDto,
@@ -52,7 +53,9 @@ import {
   ListPayrollRunsQueryParamsDto,
   ListPayslipsQueryParamsDto,
   MonthlySummaryQueryParamsDto,
+  MonthlySummaryResponseDto,
   StaffHistoryQueryParamsDto,
+  StaffHistoryResponseDto,
 } from "./payroll.dto";
 import {
   parseCreateSalaryComponent,
@@ -99,7 +102,7 @@ export class PayrollController {
   @Post(API_ROUTES.SALARY_COMPONENTS)
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @ApiOperation({ summary: "Create a salary component" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: IdResponseDto })
   async createSalaryComponent(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -112,7 +115,7 @@ export class PayrollController {
   @Patch(`${API_ROUTES.SALARY_COMPONENTS}/:componentId`)
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @ApiOperation({ summary: "Update a salary component" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: IdResponseDto })
   async updateSalaryComponent(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -126,7 +129,7 @@ export class PayrollController {
   @Patch(`${API_ROUTES.SALARY_COMPONENTS}/:componentId/${API_ROUTES.STATUS}`)
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @ApiOperation({ summary: "Update salary component status" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: IdResponseDto })
   async updateSalaryComponentStatus(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -159,7 +162,7 @@ export class PayrollController {
   @Post(API_ROUTES.SALARY_TEMPLATES)
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @ApiOperation({ summary: "Create a salary template with components" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: IdResponseDto })
   async createSalaryTemplate(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -183,7 +186,7 @@ export class PayrollController {
   @Patch(`${API_ROUTES.SALARY_TEMPLATES}/:templateId`)
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @ApiOperation({ summary: "Update a salary template" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: IdResponseDto })
   async updateSalaryTemplate(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -197,7 +200,7 @@ export class PayrollController {
   @Patch(`${API_ROUTES.SALARY_TEMPLATES}/:templateId/${API_ROUTES.STATUS}`)
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @ApiOperation({ summary: "Update salary template status" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: IdResponseDto })
   async updateSalaryTemplateStatus(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -230,7 +233,7 @@ export class PayrollController {
   @Post(API_ROUTES.SALARY_ASSIGNMENTS)
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @ApiOperation({ summary: "Assign salary template to a staff member" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: IdResponseDto })
   async createSalaryAssignment(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -254,7 +257,7 @@ export class PayrollController {
   @Patch(`${API_ROUTES.SALARY_ASSIGNMENTS}/:assignmentId`)
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @ApiOperation({ summary: "Update salary assignment" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: IdResponseDto })
   async updateSalaryAssignment(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -273,7 +276,7 @@ export class PayrollController {
   @Patch(`${API_ROUTES.SALARY_ASSIGNMENTS}/:assignmentId/${API_ROUTES.STATUS}`)
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @ApiOperation({ summary: "Update salary assignment status" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: IdResponseDto })
   async updateSalaryAssignmentStatus(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -306,7 +309,7 @@ export class PayrollController {
   @Post(API_ROUTES.PAYROLL_RUNS)
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @ApiOperation({ summary: "Create a payroll run (draft)" })
-  @ApiCreatedResponse()
+  @ApiCreatedResponse({ type: IdResponseDto })
   async createPayrollRun(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -331,7 +334,7 @@ export class PayrollController {
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Process a payroll run (calculate all payslips)" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: IdResponseDto })
   async processPayrollRun(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -344,7 +347,7 @@ export class PayrollController {
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Approve a payroll run" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: IdResponseDto })
   async approvePayrollRun(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -357,7 +360,7 @@ export class PayrollController {
   @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Mark a payroll run as paid" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: IdResponseDto })
   async markPayrollRunPaid(
     @CurrentInstitution() institution: TenantInstitution,
     @CurrentSession() session: AuthenticatedSession,
@@ -397,7 +400,7 @@ export class PayrollController {
   @Get(`${API_ROUTES.REPORTS}/${API_ROUTES.MONTHLY_SUMMARY}`)
   @RequirePermission(PERMISSIONS.PAYROLL_READ)
   @ApiOperation({ summary: "Monthly payroll summary" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: MonthlySummaryResponseDto })
   async getMonthlySummary(
     @CurrentInstitution() institution: TenantInstitution,
     @Query() query: MonthlySummaryQueryParamsDto,
@@ -409,7 +412,7 @@ export class PayrollController {
   @Get(`${API_ROUTES.REPORTS}/${API_ROUTES.STAFF_HISTORY}/:staffProfileId`)
   @RequirePermission(PERMISSIONS.PAYROLL_READ)
   @ApiOperation({ summary: "Staff salary history" })
-  @ApiOkResponse()
+  @ApiOkResponse({ type: StaffHistoryResponseDto })
   async getStaffHistory(
     @CurrentInstitution() institution: TenantInstitution,
     @Param("staffProfileId") staffProfileId: string,

@@ -60,8 +60,7 @@ export function TransportRouteDetailPage() {
   const canRead = hasPermission(session, PERMISSIONS.TRANSPORT_READ);
   const canManage = hasPermission(session, PERMISSIONS.TRANSPORT_MANAGE);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const routeQuery = useTransportRouteQuery(routeId ?? "", canRead && Boolean(routeId)) as any;
+  const routeQuery = useTransportRouteQuery(routeId ?? "", canRead && Boolean(routeId));
   const updateStopMutation = useUpdateStopMutation(routeId ?? "");
 
   const route = routeQuery.data;
@@ -76,8 +75,7 @@ export function TransportRouteDetailPage() {
 
   async function handleToggleStopStatus(stop: StopRow) {
     const newStatus = stop.status === "active" ? "inactive" : "active";
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (updateStopMutation as any).mutateAsync({
+    await updateStopMutation.mutateAsync({
       params: { path: { routeId: routeId ?? "", stopId: stop.id } },
       body: { status: newStatus },
     });

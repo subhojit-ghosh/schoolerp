@@ -27,11 +27,10 @@ export function AssignmentSheetRoute({ mode }: AssignmentSheetRouteProps) {
   const session = useAuthStore((store) => store.session);
   const isEnabled = Boolean(session?.activeOrganization?.id);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const assignmentsQuery = useTransportAssignmentsQuery(
     mode === "edit" && isEnabled,
     { limit: 100 },
-  ) as any;
+  );
   const createMutation = useCreateAssignmentMutation();
   const updateMutation = useUpdateAssignmentMutation();
 

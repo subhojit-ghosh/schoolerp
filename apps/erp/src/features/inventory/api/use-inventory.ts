@@ -2,47 +2,44 @@ import { useQueryClient } from "@tanstack/react-query";
 import { INVENTORY_API_PATHS } from "@/features/auth/api/auth.constants";
 import { apiQueryClient } from "@/lib/api/client";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const api = apiQueryClient as any;
-
 function invalidateInventoryLists(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({
-    queryKey: api.queryOptions("get", INVENTORY_API_PATHS.LIST_CATEGORIES, { params: { query: {} } }).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", INVENTORY_API_PATHS.LIST_CATEGORIES, { params: { query: {} } }).queryKey,
   });
   void queryClient.invalidateQueries({
-    queryKey: api.queryOptions("get", INVENTORY_API_PATHS.LIST_ITEMS, { params: { query: {} } }).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", INVENTORY_API_PATHS.LIST_ITEMS, { params: { query: {} } }).queryKey,
   });
   void queryClient.invalidateQueries({
-    queryKey: api.queryOptions("get", INVENTORY_API_PATHS.LIST_TRANSACTIONS, { params: { query: {} } }).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", INVENTORY_API_PATHS.LIST_TRANSACTIONS, { params: { query: {} } }).queryKey,
   });
   void queryClient.invalidateQueries({
-    queryKey: api.queryOptions("get", INVENTORY_API_PATHS.LOW_STOCK, { params: { query: {} } }).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", INVENTORY_API_PATHS.LOW_STOCK, { params: { query: {} } }).queryKey,
   });
 }
 
 // ── Categories ───────────────────────────────────────────────────────────────
 
 export function useCategoriesQuery(enabled: boolean, query: Record<string, unknown> = {}) {
-  return api.useQuery("get", INVENTORY_API_PATHS.LIST_CATEGORIES, { params: { query } }, { enabled });
+  return apiQueryClient.useQuery("get", INVENTORY_API_PATHS.LIST_CATEGORIES, { params: { query } }, { enabled });
 }
 
 export function useCreateCategoryMutation() {
   const queryClient = useQueryClient();
-  return api.useMutation("post", INVENTORY_API_PATHS.CREATE_CATEGORY, {
+  return apiQueryClient.useMutation("post", INVENTORY_API_PATHS.CREATE_CATEGORY, {
     onSuccess: () => { invalidateInventoryLists(queryClient); },
   });
 }
 
 export function useUpdateCategoryMutation() {
   const queryClient = useQueryClient();
-  return api.useMutation("patch", INVENTORY_API_PATHS.UPDATE_CATEGORY, {
+  return apiQueryClient.useMutation("patch", INVENTORY_API_PATHS.UPDATE_CATEGORY, {
     onSuccess: () => { invalidateInventoryLists(queryClient); },
   });
 }
 
 export function useUpdateCategoryStatusMutation() {
   const queryClient = useQueryClient();
-  return api.useMutation("patch", INVENTORY_API_PATHS.UPDATE_CATEGORY_STATUS, {
+  return apiQueryClient.useMutation("patch", INVENTORY_API_PATHS.UPDATE_CATEGORY_STATUS, {
     onSuccess: () => { invalidateInventoryLists(queryClient); },
   });
 }
@@ -50,11 +47,11 @@ export function useUpdateCategoryStatusMutation() {
 // ── Items ────────────────────────────────────────────────────────────────────
 
 export function useItemsQuery(enabled: boolean, query: Record<string, unknown> = {}) {
-  return api.useQuery("get", INVENTORY_API_PATHS.LIST_ITEMS, { params: { query } }, { enabled });
+  return apiQueryClient.useQuery("get", INVENTORY_API_PATHS.LIST_ITEMS, { params: { query } }, { enabled });
 }
 
 export function useItemDetailQuery(enabled: boolean, itemId?: string) {
-  return api.useQuery(
+  return apiQueryClient.useQuery(
     "get",
     INVENTORY_API_PATHS.GET_ITEM,
     { params: { path: { itemId: itemId! } } },
@@ -64,21 +61,21 @@ export function useItemDetailQuery(enabled: boolean, itemId?: string) {
 
 export function useCreateItemMutation() {
   const queryClient = useQueryClient();
-  return api.useMutation("post", INVENTORY_API_PATHS.CREATE_ITEM, {
+  return apiQueryClient.useMutation("post", INVENTORY_API_PATHS.CREATE_ITEM, {
     onSuccess: () => { invalidateInventoryLists(queryClient); },
   });
 }
 
 export function useUpdateItemMutation() {
   const queryClient = useQueryClient();
-  return api.useMutation("patch", INVENTORY_API_PATHS.UPDATE_ITEM, {
+  return apiQueryClient.useMutation("patch", INVENTORY_API_PATHS.UPDATE_ITEM, {
     onSuccess: () => { invalidateInventoryLists(queryClient); },
   });
 }
 
 export function useUpdateItemStatusMutation() {
   const queryClient = useQueryClient();
-  return api.useMutation("patch", INVENTORY_API_PATHS.UPDATE_ITEM_STATUS, {
+  return apiQueryClient.useMutation("patch", INVENTORY_API_PATHS.UPDATE_ITEM_STATUS, {
     onSuccess: () => { invalidateInventoryLists(queryClient); },
   });
 }
@@ -86,11 +83,11 @@ export function useUpdateItemStatusMutation() {
 // ── Transactions ─────────────────────────────────────────────────────────────
 
 export function useTransactionsQuery(enabled: boolean, query: Record<string, unknown> = {}) {
-  return api.useQuery("get", INVENTORY_API_PATHS.LIST_TRANSACTIONS, { params: { query } }, { enabled });
+  return apiQueryClient.useQuery("get", INVENTORY_API_PATHS.LIST_TRANSACTIONS, { params: { query } }, { enabled });
 }
 
 export function useItemTransactionsQuery(enabled: boolean, itemId: string, query: Record<string, unknown> = {}) {
-  return api.useQuery(
+  return apiQueryClient.useQuery(
     "get",
     INVENTORY_API_PATHS.LIST_ITEM_TRANSACTIONS,
     { params: { path: { itemId }, query } },
@@ -100,7 +97,7 @@ export function useItemTransactionsQuery(enabled: boolean, itemId: string, query
 
 export function useCreateTransactionMutation() {
   const queryClient = useQueryClient();
-  return api.useMutation("post", INVENTORY_API_PATHS.CREATE_TRANSACTION, {
+  return apiQueryClient.useMutation("post", INVENTORY_API_PATHS.CREATE_TRANSACTION, {
     onSuccess: () => { invalidateInventoryLists(queryClient); },
   });
 }
@@ -108,5 +105,5 @@ export function useCreateTransactionMutation() {
 // ── Low Stock ────────────────────────────────────────────────────────────────
 
 export function useLowStockQuery(enabled: boolean, query: Record<string, unknown> = {}) {
-  return api.useQuery("get", INVENTORY_API_PATHS.LOW_STOCK, { params: { query } }, { enabled });
+  return apiQueryClient.useQuery("get", INVENTORY_API_PATHS.LOW_STOCK, { params: { query } }, { enabled });
 }

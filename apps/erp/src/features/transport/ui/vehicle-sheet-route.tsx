@@ -27,10 +27,9 @@ export function VehicleSheetRoute({ mode }: VehicleSheetRouteProps) {
   const session = useAuthStore((store) => store.session);
   const isEnabled = Boolean(session?.activeOrganization?.id);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const vehiclesQuery = useTransportVehiclesQuery(mode === "edit" && isEnabled, {
     limit: 100,
-  }) as any;
+  });
   const createMutation = useCreateVehicleMutation();
   const updateMutation = useUpdateVehicleMutation();
 

@@ -36,7 +36,7 @@ export function CategoryForm({
   onSubmit,
 }: CategoryFormProps) {
   const { control, handleSubmit } = useForm<CategoryFormValues>({
-    resolver: zodResolver(categoryFormSchema) as any,
+    resolver: zodResolver(categoryFormSchema),
     defaultValues,
   });
 

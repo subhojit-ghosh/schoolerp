@@ -81,7 +81,7 @@ export function InventoryTransactionsPage() {
     sort: queryState.sortBy,
   });
 
-  const transactionsData = transactionsQuery.data as any;
+  const transactionsData = transactionsQuery.data;
   const transactions = useMemo(
     () => (transactionsData?.rows ?? []) as TransactionRow[],
     [transactionsData?.rows],

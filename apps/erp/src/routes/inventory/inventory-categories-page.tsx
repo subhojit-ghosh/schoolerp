@@ -10,7 +10,6 @@ import {
   IconToggleRight,
 } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
 import {
@@ -29,6 +28,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
@@ -89,7 +89,7 @@ export function InventoryCategoriesPage() {
     sort: queryState.sortBy,
   });
 
-  const categoriesData = categoriesQuery.data as any;
+  const categoriesData = categoriesQuery.data;
   const categories = useMemo(
     () => (categoriesData?.rows ?? []) as CategoryRow[],
     [categoriesData?.rows],
@@ -101,7 +101,7 @@ export function InventoryCategoriesPage() {
       await statusMutation.mutateAsync({
         params: { path: { categoryId: id } },
         body: { status: newStatus },
-      } as any);
+      });
       toast.success(
         newStatus === "active"
           ? "Category activated."
@@ -144,12 +144,7 @@ export function InventoryCategoriesPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) =>
-          row.original.status === "active" ? (
-            <Badge variant="outline">Active</Badge>
-          ) : (
-            <Badge variant="secondary">Inactive</Badge>
-          ),
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
       }),
       columnHelper.display({
         id: "actions",

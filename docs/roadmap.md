@@ -34,11 +34,11 @@ Ship a fully functional v1 that a real school can use day-to-day. Every feature 
 
 ## Now — Validate and harden for pilot
 
-The core v1 feature set is built, transport and payroll are complete. Remaining work is validation and hardening:
+The core v1 feature set is built: transport, payroll, hostel, and inventory are complete with typed APIs. OpenAPI spec is regenerated and all frontend modules use typed API clients (zero `as any` casts). Database migrations are applied.
 
-1. **End-to-end delivery testing** — institutions need to configure actual SMS/email provider credentials (Settings > Delivery) and verify password reset and notification delivery works end-to-end in production.
-2. **OpenAPI regeneration** — run `bun run openapi:export` inside `apps/api-erp` (with `DATABASE_URL` set) to regenerate the OpenAPI spec and ERP API client types; this replaces the `as any` casts in the transport and payroll frontends with proper TypeScript types.
-3. **Database migration** — run `bun run db:generate` then `bun run db:migrate` to create the 7 new payroll tables (salary_components, salary_templates, salary_template_components, staff_salary_assignments, payroll_runs, payslips, payslip_line_items).
+Remaining work:
+
+1. **End-to-end delivery testing** *(very last step)* — institutions need to configure actual SMS/email provider credentials (Settings > Delivery) and verify password reset and notification delivery works end-to-end in production. Do not prioritize until all other v1 work is done.
 
 ## Next — Add the common breadth schools expect in a feature-rich ERP
 
@@ -50,15 +50,14 @@ The core v1 feature set is built, transport and payroll are complete. Remaining 
 - Attendance analytics and absent streak automation
 - Exam analytics, deeper reporting, and ranking
 - Finance depth: receipts hardening, ledger export, accounting-adjacent workflows
-- Inventory and stock workflows
+- Inventory depth: procurement workflows, vendor management
 - Payroll depth: staff attendance tracking integration, salary revision history, bulk salary adjustments
-- Hostel and other segment-specific extensions where the target schools require them
+- Hostel depth: mess attendance, fee integration, room change history
 - Automated test coverage across all domains
 
 ## Risks And Dependencies
 
 - Password reset and staff password-setup links rely on a real SMS/email provider being configured per-institution (Settings > Delivery). Without a configured provider, delivery falls back to global config; verify global config is set in production env before go-live.
-- OpenAPI spec is stale until `bun run openapi:export` is run with a live database; transport frontend uses `as any` casts until then.
 - Business rules must stay in NestJS; any shortcut that pushes authorization or domain logic into the frontend creates a security gap.
 
 ## Locked Product Decisions

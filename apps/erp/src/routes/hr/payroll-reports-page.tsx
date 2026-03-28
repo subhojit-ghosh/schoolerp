@@ -41,7 +41,7 @@ export function PayrollReportsPage() {
     order: "asc",
   });
 
-  const runsData = runsQuery.data as any;
+  const runsData = runsQuery.data;
   const runs = useMemo(() => runsData?.rows ?? [], [runsData]);
 
   // Build a 12-month summary grid

@@ -29,8 +29,7 @@ export function StopSheetRoute({ mode }: StopSheetRouteProps) {
   const session = useAuthStore((store) => store.session);
   const isEnabled = Boolean(routeId && session?.activeOrganization?.id);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const routeQuery = useTransportRouteQuery(routeId ?? "", isEnabled) as any;
+  const routeQuery = useTransportRouteQuery(routeId ?? "", isEnabled);
   const createMutation = useCreateStopMutation(routeId ?? "");
   const updateMutation = useUpdateStopMutation(routeId ?? "");
 
@@ -59,20 +58,15 @@ export function StopSheetRoute({ mode }: StopSheetRouteProps) {
     };
   }, [editingStop, mode]);
 
-  const isPending =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (createMutation as any).isPending || (updateMutation as any).isPending;
+  const isPending = createMutation.isPending || updateMutation.isPending;
   const errorMessage =
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ((createMutation as any).error as Error | null | undefined)?.message ??
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ((updateMutation as any).error as Error | null | undefined)?.message ??
+    (createMutation.error as Error | null | undefined)?.message ??
+    (updateMutation.error as Error | null | undefined)?.message ??
     undefined;
 
   async function handleSubmit(values: StopFormValues) {
     if (mode === "create" && routeId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (createMutation as any).mutateAsync({
+      await createMutation.mutateAsync({
         params: { path: { routeId } },
         body: {
           name: values.name,
@@ -84,8 +78,7 @@ export function StopSheetRoute({ mode }: StopSheetRouteProps) {
       toast.success("Stop added to route.");
       void navigate(closeTo);
     } else if (routeId && stopId) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (updateMutation as any).mutateAsync({
+      await updateMutation.mutateAsync({
         params: { path: { routeId, stopId } },
         body: {
           name: values.name,

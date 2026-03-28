@@ -32,17 +32,16 @@ export function HostelAllocationSheetRoute() {
     [location.search],
   );
 
-  const roomsData = roomsQuery.data as any;
+  const roomsData = roomsQuery.data;
   const roomOptions = useMemo(
-    () =>
-      ((roomsData?.rows ?? []) as Array<{ id: string; roomNumber: string; buildingName: string }>),
+    () => roomsData?.rows ?? [],
     [roomsData?.rows],
   );
 
-  const studentsData = studentsQuery.data as any;
+  const studentsData = studentsQuery.data;
   const studentOptions = useMemo(
     () =>
-      ((studentsData ?? []) as Array<{ id: string; name: string }>),
+      (studentsData ?? []).map((s) => ({ id: s.id, name: s.fullName })),
     [studentsData],
   );
 
@@ -66,7 +65,7 @@ export function HostelAllocationSheetRoute() {
     <RouteEntitySheet
       closeTo={closeTo}
       description="Assign a student to a hostel bed."
-      title="New allocation"
+      title="New Allocation"
     >
       <AllocationForm
         rooms={roomOptions}

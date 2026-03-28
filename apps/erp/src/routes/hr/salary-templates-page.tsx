@@ -11,7 +11,6 @@ import {
   IconToggleRight,
 } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
 import {
@@ -30,6 +29,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
@@ -91,7 +91,7 @@ export function SalaryTemplatesPage() {
     sort: queryState.sortBy,
   });
 
-  const templatesData = templatesQuery.data as any;
+  const templatesData = templatesQuery.data;
   const templates = useMemo(
     () => (templatesData?.rows ?? []) as SalaryTemplateRow[],
     [templatesData?.rows],
@@ -103,7 +103,7 @@ export function SalaryTemplatesPage() {
       await statusMutation.mutateAsync({
         params: { path: { templateId: id } },
         body: { status: newStatus },
-      } as any);
+      });
       toast.success(
         newStatus === "active"
           ? "Salary template activated."
@@ -146,12 +146,7 @@ export function SalaryTemplatesPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) =>
-          row.original.status === "active" ? (
-            <Badge variant="outline">Active</Badge>
-          ) : (
-            <Badge variant="secondary">Archived</Badge>
-          ),
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
       }),
       columnHelper.accessor("createdAt", {
         header: () => (

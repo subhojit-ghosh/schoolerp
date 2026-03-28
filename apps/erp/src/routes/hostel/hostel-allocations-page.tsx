@@ -8,7 +8,6 @@ import {
   IconLogout,
 } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
-import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { Input } from "@repo/ui/components/ui/input";
 import {
@@ -26,6 +25,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
@@ -92,7 +92,7 @@ export function HostelAllocationsPage() {
     sort: queryState.sortBy,
   });
 
-  const allocationsData = allocationsQuery.data as any;
+  const allocationsData = allocationsQuery.data;
   const allocations = useMemo(
     () => (allocationsData?.rows ?? []) as AllocationRow[],
     [allocationsData?.rows],
@@ -102,7 +102,7 @@ export function HostelAllocationsPage() {
     async (allocationId: string) => {
       await vacateMutation.mutateAsync({
         params: { path: { allocationId } },
-      } as any);
+      });
       toast.success("Bed allocation vacated.");
     },
     [vacateMutation],
@@ -180,16 +180,12 @@ export function HostelAllocationsPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) =>
-          row.original.status === "active" ? (
-            <Badge variant="outline">
-              {BED_ALLOCATION_STATUS_LABELS[row.original.status]}
-            </Badge>
-          ) : (
-            <Badge variant="secondary">
-              {BED_ALLOCATION_STATUS_LABELS[row.original.status]}
-            </Badge>
-          ),
+        cell: ({ row }) => (
+          <StatusBadge
+            status={row.original.status}
+            label={BED_ALLOCATION_STATUS_LABELS[row.original.status]}
+          />
+        ),
       }),
       columnHelper.display({
         id: "actions",

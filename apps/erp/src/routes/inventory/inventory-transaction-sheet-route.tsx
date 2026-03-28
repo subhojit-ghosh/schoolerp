@@ -29,7 +29,7 @@ export function InventoryTransactionSheetRoute() {
     [location.search],
   );
 
-  const itemsData = itemsQuery.data as any;
+  const itemsData = itemsQuery.data;
   const itemOptions = useMemo(
     () =>
       ((itemsData?.rows ?? []) as Array<{ id: string; name: string }>),
@@ -58,7 +58,7 @@ export function InventoryTransactionSheetRoute() {
     <RouteEntitySheet
       closeTo={closeTo}
       description="Record a stock movement."
-      title="New transaction"
+      title="New Transaction"
     >
       <TransactionForm
         items={itemOptions}

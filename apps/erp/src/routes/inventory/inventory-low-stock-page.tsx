@@ -66,7 +66,7 @@ export function InventoryLowStockPage() {
     sort: queryState.sortBy,
   });
 
-  const lowStockData = lowStockQuery.data as any;
+  const lowStockData = lowStockQuery.data;
   const items = useMemo(
     () => (lowStockData?.rows ?? []) as LowStockRow[],
     [lowStockData?.rows],

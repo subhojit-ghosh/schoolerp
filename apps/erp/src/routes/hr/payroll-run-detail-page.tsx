@@ -99,19 +99,19 @@ export function PayrollRunDetailPage() {
 
   async function handleProcess() {
     if (!runId) return;
-    await processMutation.mutateAsync({ params: { path: { runId } } } as any);
+    await processMutation.mutateAsync({ params: { path: { runId } } });
     toast.success("Payroll run processed.");
   }
 
   async function handleApprove() {
     if (!runId) return;
-    await approveMutation.mutateAsync({ params: { path: { runId } } } as any);
+    await approveMutation.mutateAsync({ params: { path: { runId } } });
     toast.success("Payroll run approved.");
   }
 
   async function handleMarkPaid() {
     if (!runId) return;
-    await markPaidMutation.mutateAsync({ params: { path: { runId } } } as any);
+    await markPaidMutation.mutateAsync({ params: { path: { runId } } });
     toast.success("Payroll run marked as paid.");
   }
 

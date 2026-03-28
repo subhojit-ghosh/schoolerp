@@ -26,6 +26,7 @@ import {
   ServerDataTable,
   SortIcon,
 } from "@/components/data-display/server-data-table";
+import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
 import { ERP_ROUTES, buildLibraryBookEditRoute } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
@@ -174,14 +175,7 @@ export function LibraryBooksPage() {
       }),
       columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }) =>
-          row.original.status === "active" ? (
-            <Badge className="bg-green-500/10 text-green-700 border-green-200">
-              Active
-            </Badge>
-          ) : (
-            <Badge variant="secondary">Inactive</Badge>
-          ),
+        cell: ({ row }) => <StatusBadge status={row.original.status} />,
       }),
       columnHelper.display({
         id: "actions",

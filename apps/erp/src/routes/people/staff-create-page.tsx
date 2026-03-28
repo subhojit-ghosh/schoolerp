@@ -150,7 +150,7 @@ export function StaffCreatePage() {
         description={`Add a staff member for ${
           activeCampusName ?? "the selected campus"
         } and optionally assign an initial role.`}
-        title="New staff"
+        title="New Staff"
       />
 
       <Card className="w-full">
