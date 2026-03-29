@@ -22,6 +22,7 @@ import {
   member,
   ne,
   schoolClasses,
+  sql,
   studentCurrentEnrollments,
   students,
   user,
@@ -107,7 +108,16 @@ export class ClassesService {
       .innerJoin(campus, eq(schoolClasses.campusId, campus.id))
       .where(where)
       .orderBy(
-        sortDirection(sortableColumns[sortKey]),
+        ...(sortKey === sortableClassColumns.name
+          ? [
+              sortDirection(
+                sql`regexp_replace(${schoolClasses.name}, '\\d+', '', 'g')`,
+              ),
+              sortDirection(
+                sql`coalesce(nullif(regexp_replace(${schoolClasses.name}, '\\D', '', 'g'), '')::integer, 0)`,
+              ),
+            ]
+          : [sortDirection(sortableColumns[sortKey])]),
         asc(schoolClasses.displayOrder),
         asc(schoolClasses.name),
       )

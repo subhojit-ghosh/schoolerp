@@ -194,9 +194,7 @@ export function AcademicYearsPage() {
           row.original.isCurrent ? (
             <Badge>Current</Badge>
           ) : (
-            <Badge variant="outline" className="text-muted-foreground">
-              Archived
-            </Badge>
+            <span className="text-muted-foreground">—</span>
           ),
       }),
       columnHelper.accessor("status", {

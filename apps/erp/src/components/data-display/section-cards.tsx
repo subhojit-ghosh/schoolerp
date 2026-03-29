@@ -49,7 +49,7 @@ export function SectionCards({
 }: SectionCardsProps) {
   const cards: CardDef[] = [
     {
-      label: "Enrolled students",
+      label: "Active students",
       value: isLoadingStudents ? LOADING_VALUE : String(studentCount),
       badge: isLoadingStudents
         ? LOADING_BADGE
