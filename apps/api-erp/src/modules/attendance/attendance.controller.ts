@@ -38,6 +38,9 @@ import {
   parseAttendanceOverviewQuery,
   parseAttendanceClassReportQuery,
   parseAttendanceStudentReportQuery,
+  parseMonthlyRegisterQuery,
+  parseConsolidatedReportQuery,
+  parseChronicAbsenteesQuery,
   parseUpsertAttendanceDay,
 } from "./attendance.schemas";
 import { AttendanceService } from "./attendance.service";
@@ -191,6 +194,75 @@ export class AttendanceController {
       authSession,
       scopes,
       parseAttendanceStudentReportQuery(query),
+    );
+  }
+
+  @Get(API_ROUTES.MONTHLY_REGISTER)
+  @RequirePermission(PERMISSIONS.ATTENDANCE_READ)
+  @ApiOperation({
+    summary: "Get monthly attendance register for a class-section",
+  })
+  @ApiQuery({ name: "classId", type: String })
+  @ApiQuery({ name: "sectionId", type: String })
+  @ApiQuery({ name: "month", type: Number })
+  @ApiQuery({ name: "year", type: Number })
+  getMonthlyRegister(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Query() query: Record<string, string>,
+  ) {
+    return this.attendanceService.getMonthlyRegister(
+      institution.id,
+      authSession,
+      scopes,
+      parseMonthlyRegisterQuery(query),
+    );
+  }
+
+  @Get(`${API_ROUTES.REPORTS}/${API_ROUTES.CONSOLIDATED}`)
+  @RequirePermission(PERMISSIONS.ATTENDANCE_READ)
+  @ApiOperation({
+    summary:
+      "Get consolidated attendance report across classes for a date range",
+  })
+  @ApiQuery({ name: "startDate", type: String })
+  @ApiQuery({ name: "endDate", type: String })
+  @ApiQuery({ name: "campusId", type: String, required: false })
+  getConsolidatedReport(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Query() query: Record<string, string>,
+  ) {
+    return this.attendanceService.getConsolidatedReport(
+      institution.id,
+      authSession,
+      scopes,
+      parseConsolidatedReportQuery(query),
+    );
+  }
+
+  @Get(`${API_ROUTES.REPORTS}/${API_ROUTES.CHRONIC_ABSENTEES}`)
+  @RequirePermission(PERMISSIONS.ATTENDANCE_READ)
+  @ApiOperation({
+    summary: "Get students below attendance threshold",
+  })
+  @ApiQuery({ name: "startDate", type: String })
+  @ApiQuery({ name: "endDate", type: String })
+  @ApiQuery({ name: "campusId", type: String, required: false })
+  @ApiQuery({ name: "threshold", type: Number, required: false })
+  getChronicAbsentees(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Query() query: Record<string, string>,
+  ) {
+    return this.attendanceService.getChronicAbsentees(
+      institution.id,
+      authSession,
+      scopes,
+      parseChronicAbsenteesQuery(query),
     );
   }
 }

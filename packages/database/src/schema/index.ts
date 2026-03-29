@@ -47,6 +47,10 @@ import {
   HOSTEL_ROOM_TYPES,
   BED_ALLOCATION_STATUS,
   MESS_PLAN_STATUS,
+  EXAM_TYPES,
+  GRADING_SCALE_STATUS,
+  FEE_CATEGORIES,
+  LATE_FEE_CALC_TYPES,
 } from "@repo/contracts";
 import { campus, member, organization, user } from "./auth";
 
@@ -65,6 +69,7 @@ const ATTENDANCE_STATUS_ENUM = [
   "present",
   "absent",
   "late",
+  "half_day",
   "excused",
 ] as const;
 const STAFF_ATTENDANCE_STATUS_ENUM = [
@@ -335,6 +340,30 @@ const TRANSPORT_VEHICLE_TYPE_ENUM = ["bus", "van", "auto"] as const;
 const TRANSPORT_VEHICLE_STATUS_ENUM = ["active", "inactive"] as const;
 const TRANSPORT_ASSIGNMENT_TYPE_ENUM = ["pickup", "dropoff", "both"] as const;
 const TRANSPORT_ASSIGNMENT_STATUS_ENUM = ["active", "inactive"] as const;
+
+// Phase 0b enums
+const EXAM_TYPE_ENUM = [
+  EXAM_TYPES.UNIT_TEST,
+  EXAM_TYPES.MIDTERM,
+  EXAM_TYPES.FINAL,
+  EXAM_TYPES.PRACTICAL,
+] as const;
+const GRADING_SCALE_STATUS_ENUM = [
+  GRADING_SCALE_STATUS.ACTIVE,
+  GRADING_SCALE_STATUS.ARCHIVED,
+  GRADING_SCALE_STATUS.DELETED,
+] as const;
+const FEE_CATEGORY_ENUM = [
+  FEE_CATEGORIES.TUITION,
+  FEE_CATEGORIES.TRANSPORT,
+  FEE_CATEGORIES.HOSTEL,
+  FEE_CATEGORIES.LAB,
+  FEE_CATEGORIES.MISC,
+] as const;
+const LATE_FEE_CALC_TYPE_ENUM = [
+  LATE_FEE_CALC_TYPES.FLAT,
+  LATE_FEE_CALC_TYPES.PER_DAY,
+] as const;
 
 export const academicYears = pgTable(
   "academic_years",
@@ -1233,6 +1262,7 @@ export const feeStructures = pgTable(
       .default("active"),
     amountInPaise: integer().notNull(),
     dueDate: date().notNull(),
+    category: text({ enum: FEE_CATEGORY_ENUM }),
     createdAt: timestamp().notNull().defaultNow(),
     deletedAt: timestamp(), // audit timestamp — set when status = deleted
   },
@@ -1241,9 +1271,59 @@ export const feeStructures = pgTable(
     index("fee_structures_academic_year_idx").on(table.academicYearId),
     index("fee_structures_campus_idx").on(table.campusId),
     index("fee_structures_status_idx").on(table.status),
+    index("fee_structures_category_idx").on(table.category),
     uniqueIndex("fee_structures_name_scope_unique_idx")
       .on(table.institutionId, table.academicYearId, table.campusId, table.name)
       .where(sql`${table.status} != 'deleted'`),
+  ],
+);
+
+// ── Grading scales ──────────────────────────────────────────────────────────
+export const gradingScales = pgTable(
+  "grading_scales",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    isDefault: boolean().notNull().default(false),
+    status: text({ enum: GRADING_SCALE_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("grading_scales_institution_idx").on(t.institutionId),
+    index("grading_scales_status_idx").on(t.status),
+    uniqueIndex("grading_scales_name_unique_idx")
+      .on(t.institutionId, t.name)
+      .where(sql`${t.status} != 'deleted'`),
+  ],
+);
+
+export const gradingScaleBands = pgTable(
+  "grading_scale_bands",
+  {
+    id: text().primaryKey(),
+    gradingScaleId: text()
+      .notNull()
+      .references(() => gradingScales.id, { onDelete: "cascade" }),
+    grade: text().notNull(),
+    label: text().notNull(),
+    minPercent: integer().notNull(), // whole percent 0-100
+    sortOrder: integer().notNull().default(0),
+  },
+  (t) => [
+    index("grading_scale_bands_scale_idx").on(t.gradingScaleId),
+    uniqueIndex("grading_scale_bands_grade_unique_idx").on(
+      t.gradingScaleId,
+      t.grade,
+    ),
   ],
 );
 
@@ -1258,6 +1338,12 @@ export const examTerms = pgTable(
       .notNull()
       .references(() => academicYears.id, { onDelete: "restrict" }),
     name: text().notNull(),
+    examType: text({ enum: EXAM_TYPE_ENUM }).notNull().default("final"),
+    weightageInBp: integer().notNull().default(10000), // basis points, 10000 = 100%
+    gradingScaleId: text().references(() => gradingScales.id, {
+      onDelete: "restrict",
+    }),
+    defaultPassingPercent: integer().notNull().default(33),
     startDate: date().notNull(),
     endDate: date().notNull(),
     createdAt: timestamp().notNull().defaultNow(),
@@ -1288,6 +1374,7 @@ export const examMarks = pgTable(
     subjectName: text().notNull(),
     maxMarks: integer().notNull(),
     obtainedMarks: integer().notNull(),
+    graceMarks: integer().notNull().default(0),
     remarks: text(),
     createdAt: timestamp().notNull().defaultNow(),
   },
@@ -1375,6 +1462,7 @@ export const feePayments = pgTable(
       enum: FEE_PAYMENT_METHOD_ENUM,
     }).notNull(),
     referenceNumber: text(),
+    receiptNumber: text(), // auto-incremented receipt number (e.g. "RCT-000042")
     notes: text(),
     // Set when paymentMethod = 'online' — links to the payment_orders record
     onlinePaymentOrderId: text(),
@@ -1385,6 +1473,9 @@ export const feePayments = pgTable(
     index("fee_payments_institution_idx").on(table.institutionId),
     index("fee_payments_assignment_idx").on(table.feeAssignmentId),
     index("fee_payments_payment_date_idx").on(table.paymentDate),
+    uniqueIndex("fee_payments_receipt_number_unique_idx")
+      .on(table.institutionId, table.receiptNumber)
+      .where(sql`${table.receiptNumber} IS NOT NULL`),
   ],
 );
 
@@ -2328,5 +2419,75 @@ export const messPlans = pgTable(
     index("mess_plans_institution_idx").on(t.institutionId),
     index("mess_plans_status_idx").on(t.status),
     uniqueIndex("mess_plans_name_unique_idx").on(t.institutionId, t.name),
+  ],
+);
+
+// ── Phase 0b: Late fee rules ────────────────────────────────────────────────
+export const lateFeeRules = pgTable(
+  "late_fee_rules",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    feeStructureId: text().references(() => feeStructures.id, {
+      onDelete: "cascade",
+    }), // null = institution-wide default
+    calculationType: text({ enum: LATE_FEE_CALC_TYPE_ENUM }).notNull(),
+    amountInPaise: integer().notNull(), // flat amount or per-day amount
+    gracePeriodDays: integer().notNull().default(0),
+    maxAmountInPaise: integer(), // optional cap
+    isActive: boolean().notNull().default(true),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("late_fee_rules_institution_idx").on(t.institutionId),
+    index("late_fee_rules_structure_idx").on(t.feeStructureId),
+  ],
+);
+
+// ── Phase 0b: Institution signatories ───────────────────────────────────────
+export const institutionSignatories = pgTable(
+  "institution_signatories",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    designation: text().notNull(),
+    sortOrder: integer().notNull().default(0),
+    isActive: boolean().notNull().default(true),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("institution_signatories_institution_idx").on(t.institutionId),
+    uniqueIndex("institution_signatories_unique_idx")
+      .on(t.institutionId, t.name, t.designation)
+      .where(sql`${t.isActive} = true`),
+  ],
+);
+
+// ── Phase 0b: Institution document configuration ────────────────────────────
+export const institutionDocumentConfig = pgTable(
+  "institution_document_config",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .unique()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    receiptPrefix: text().notNull().default("RCT"),
+    receiptNextNumber: integer().notNull().default(1),
+    receiptPadLength: integer().notNull().default(6),
+    reportCardConfig: jsonb(), // { showRank, showRemarks, showAttendanceSummary, showGradingScale, showResult }
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("institution_document_config_institution_idx").on(t.institutionId),
   ],
 );

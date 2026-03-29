@@ -6022,6 +6022,216 @@
         ]
       }
     },
+    "/fees/reports/mode-wise": {
+      "get": {
+        "operationId": "FeesController_getModeWiseCollection",
+        "parameters": [
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get mode-wise fee collection report",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/late-fee-rules": {
+      "get": {
+        "operationId": "FeesController_listLateFeeRules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List late fee rules",
+        "tags": [
+          "fees"
+        ]
+      },
+      "post": {
+        "operationId": "FeesController_createLateFeeRule",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a late fee rule",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/late-fee-rules/{ruleId}": {
+      "patch": {
+        "operationId": "FeesController_updateLateFeeRule",
+        "parameters": [
+          {
+            "name": "ruleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a late fee rule",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/batch-receipts": {
+      "get": {
+        "operationId": "FeesController_getBatchReceipts",
+        "parameters": [
+          {
+            "name": "feeStructureId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get batch receipt data for printing",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
+    "/fees/demand-notice": {
+      "get": {
+        "operationId": "FeesController_getDemandNotice",
+        "parameters": [
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get fee demand notice for a student",
+        "tags": [
+          "fees"
+        ]
+      }
+    },
     "/family/overview": {
       "get": {
         "operationId": "FamilyController_getOverview",
@@ -6094,6 +6304,153 @@
         ]
       }
     },
+    "/exams/grading-scales": {
+      "get": {
+        "operationId": "ExamsController_listGradingScales",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GradingScaleDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List grading scales for the institution",
+        "tags": [
+          "exams"
+        ]
+      },
+      "post": {
+        "operationId": "ExamsController_createGradingScale",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateGradingScaleBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradingScaleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a grading scale",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/exams/grading-scales/{scaleId}": {
+      "patch": {
+        "operationId": "ExamsController_updateGradingScale",
+        "parameters": [
+          {
+            "name": "scaleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateGradingScaleBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradingScaleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a grading scale",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/exams/grading-scales/{scaleId}/default": {
+      "patch": {
+        "operationId": "ExamsController_setDefaultGradingScale",
+        "parameters": [
+          {
+            "name": "scaleId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GradingScaleDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Set a grading scale as the institution default",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
     "/exams/terms": {
       "get": {
         "operationId": "ExamsController_listExamTerms",
@@ -6118,7 +6475,7 @@
             "cookie": []
           }
         ],
-        "summary": "List exam terms for the current tenant institution",
+        "summary": "List exam terms for the current tenant",
         "tags": [
           "exams"
         ]
@@ -6153,7 +6510,7 @@
             "cookie": []
           }
         ],
-        "summary": "Create an exam term for the current tenant",
+        "summary": "Create an exam term",
         "tags": [
           "exams"
         ]
@@ -6284,6 +6641,165 @@
           }
         ],
         "summary": "Get subject-wise report card with grading for one student",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/exams/terms/{examTermId}/ranks": {
+      "get": {
+        "operationId": "ExamsController_getRanks",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RanksDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get ranked student list for a class/section",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/exams/terms/{examTermId}/class-analysis": {
+      "get": {
+        "operationId": "ExamsController_getClassAnalysis",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClassAnalysisDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get class-level marks analysis for an exam term",
+        "tags": [
+          "exams"
+        ]
+      }
+    },
+    "/exams/terms/{examTermId}/batch-report-cards": {
+      "get": {
+        "operationId": "ExamsController_getBatchReportCards",
+        "parameters": [
+          {
+            "name": "examTermId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExamReportCardDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get report cards for all students in a class/section",
         "tags": [
           "exams"
         ]
@@ -6787,6 +7303,262 @@
         "summary": "Get attendance history for a single student over a date range",
         "tags": [
           "attendance"
+        ]
+      }
+    },
+    "/attendance/monthly-register": {
+      "get": {
+        "operationId": "AttendanceController_getMonthlyRegister",
+        "parameters": [
+          {
+            "name": "year",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "month",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "sectionId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get monthly attendance register for a class-section",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/attendance/reports/consolidated": {
+      "get": {
+        "operationId": "AttendanceController_getConsolidatedReport",
+        "parameters": [
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get consolidated attendance report across classes for a date range",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/attendance/reports/chronic-absentees": {
+      "get": {
+        "operationId": "AttendanceController_getChronicAbsentees",
+        "parameters": [
+          {
+            "name": "threshold",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "campusId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get students below attendance threshold",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/documents/signatories": {
+      "get": {
+        "operationId": "DocumentsController_listSignatories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List institution signatories",
+        "tags": [
+          "documents"
+        ]
+      },
+      "post": {
+        "operationId": "DocumentsController_createSignatory",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Create a signatory",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/documents/signatories/{signatoryId}": {
+      "patch": {
+        "operationId": "DocumentsController_updateSignatory",
+        "parameters": [
+          {
+            "name": "signatoryId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update a signatory",
+        "tags": [
+          "documents"
+        ]
+      }
+    },
+    "/documents/config": {
+      "get": {
+        "operationId": "DocumentsController_getDocumentConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get document configuration",
+        "tags": [
+          "documents"
+        ]
+      },
+      "patch": {
+        "operationId": "DocumentsController_updateDocumentConfig",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Update document configuration",
+        "tags": [
+          "documents"
         ]
       }
     },
@@ -15958,6 +16730,7 @@
               "present",
               "absent",
               "late",
+              "half_day",
               "excused"
             ]
           },
@@ -18446,18 +19219,26 @@
           "totalObtainedMarks": {
             "type": "number"
           },
+          "totalEffectiveMarks": {
+            "type": "number"
+          },
           "overallPercent": {
             "type": "number"
           },
           "overallGrade": {
+            "type": "string"
+          },
+          "result": {
             "type": "string"
           }
         },
         "required": [
           "totalMaxMarks",
           "totalObtainedMarks",
+          "totalEffectiveMarks",
           "overallPercent",
-          "overallGrade"
+          "overallGrade",
+          "result"
         ]
       },
       "ExamReportCardSubjectDto": {
@@ -18476,10 +19257,19 @@
           "obtainedMarks": {
             "type": "number"
           },
+          "graceMarks": {
+            "type": "number"
+          },
+          "effectiveMarks": {
+            "type": "number"
+          },
           "percent": {
             "type": "number"
           },
           "grade": {
+            "type": "string"
+          },
+          "result": {
             "type": "string"
           }
         },
@@ -18487,8 +19277,11 @@
           "subjectName",
           "maxMarks",
           "obtainedMarks",
+          "graceMarks",
+          "effectiveMarks",
           "percent",
-          "grade"
+          "grade",
+          "result"
         ]
       },
       "ExamGradeBandDto": {
@@ -18513,6 +19306,14 @@
       "ExamReportCardDto": {
         "type": "object",
         "properties": {
+          "classRank": {
+            "type": "number",
+            "nullable": true
+          },
+          "sectionRank": {
+            "type": "number",
+            "nullable": true
+          },
           "summary": {
             "$ref": "#/components/schemas/ExamReportCardSummaryDto"
           },
@@ -18534,6 +19335,9 @@
           "examTermName": {
             "type": "string"
           },
+          "examType": {
+            "type": "string"
+          },
           "academicYearId": {
             "type": "string"
           },
@@ -18548,6 +19352,9 @@
           },
           "admissionNumber": {
             "type": "string"
+          },
+          "defaultPassingPercent": {
+            "type": "number"
           }
         },
         "required": [
@@ -18556,11 +19363,13 @@
           "gradingScheme",
           "examTermId",
           "examTermName",
+          "examType",
           "academicYearId",
           "academicYearName",
           "studentId",
           "studentFullName",
-          "admissionNumber"
+          "admissionNumber",
+          "defaultPassingPercent"
         ]
       },
       "StudentPortalOverviewDto": {
@@ -18608,9 +19417,134 @@
           "calendarEvents"
         ]
       },
+      "GradingScaleBandDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "grade": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "minPercent": {
+            "type": "number"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "grade",
+          "label",
+          "minPercent",
+          "sortOrder"
+        ]
+      },
+      "GradingScaleDto": {
+        "type": "object",
+        "properties": {
+          "bands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GradingScaleBandDto"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "institutionId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "isDefault": {
+            "type": "boolean"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "bands",
+          "createdAt",
+          "id",
+          "institutionId",
+          "name",
+          "isDefault",
+          "status"
+        ]
+      },
+      "GradingScaleBandInputDto": {
+        "type": "object",
+        "properties": {
+          "grade": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "minPercent": {
+            "type": "number"
+          },
+          "sortOrder": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "grade",
+          "label",
+          "minPercent",
+          "sortOrder"
+        ]
+      },
+      "CreateGradingScaleBodyDto": {
+        "type": "object",
+        "properties": {
+          "bands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GradingScaleBandInputDto"
+            }
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "bands",
+          "name"
+        ]
+      },
+      "UpdateGradingScaleBodyDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "bands": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/GradingScaleBandInputDto"
+            }
+          }
+        }
+      },
       "ExamTermDto": {
         "type": "object",
         "properties": {
+          "gradingScaleId": {
+            "type": "string",
+            "nullable": true
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -18630,6 +19564,15 @@
           "name": {
             "type": "string"
           },
+          "examType": {
+            "type": "string"
+          },
+          "weightageInBp": {
+            "type": "number"
+          },
+          "defaultPassingPercent": {
+            "type": "number"
+          },
           "startDate": {
             "type": "string"
           },
@@ -18644,6 +19587,9 @@
           "academicYearId",
           "academicYearName",
           "name",
+          "examType",
+          "weightageInBp",
+          "defaultPassingPercent",
           "startDate",
           "endDate"
         ]
@@ -18651,6 +19597,19 @@
       "CreateExamTermBodyDto": {
         "type": "object",
         "properties": {
+          "examType": {
+            "type": "string"
+          },
+          "weightageInBp": {
+            "type": "number"
+          },
+          "gradingScaleId": {
+            "type": "string",
+            "nullable": true
+          },
+          "defaultPassingPercent": {
+            "type": "number"
+          },
           "academicYearId": {
             "type": "string"
           },
@@ -18705,6 +19664,9 @@
           },
           "obtainedMarks": {
             "type": "number"
+          },
+          "graceMarks": {
+            "type": "number"
           }
         },
         "required": [
@@ -18716,12 +19678,16 @@
           "admissionNumber",
           "subjectName",
           "maxMarks",
-          "obtainedMarks"
+          "obtainedMarks",
+          "graceMarks"
         ]
       },
       "UpsertExamMarkEntryBodyDto": {
         "type": "object",
         "properties": {
+          "graceMarks": {
+            "type": "number"
+          },
           "remarks": {
             "type": "string",
             "nullable": true
@@ -18758,6 +19724,148 @@
         },
         "required": [
           "entries"
+        ]
+      },
+      "RankedStudentDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string"
+          },
+          "studentFullName": {
+            "type": "string"
+          },
+          "admissionNumber": {
+            "type": "string"
+          },
+          "totalEffectiveMarks": {
+            "type": "number"
+          },
+          "totalMaxMarks": {
+            "type": "number"
+          },
+          "percentage": {
+            "type": "number"
+          },
+          "grade": {
+            "type": "string"
+          },
+          "rank": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "studentId",
+          "studentFullName",
+          "admissionNumber",
+          "totalEffectiveMarks",
+          "totalMaxMarks",
+          "percentage",
+          "grade",
+          "rank"
+        ]
+      },
+      "RanksDto": {
+        "type": "object",
+        "properties": {
+          "students": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RankedStudentDto"
+            }
+          },
+          "examTermId": {
+            "type": "string"
+          },
+          "examTermName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "students",
+          "examTermId",
+          "examTermName"
+        ]
+      },
+      "ClassAnalysisSubjectDto": {
+        "type": "object",
+        "properties": {
+          "subjectName": {
+            "type": "string"
+          },
+          "average": {
+            "type": "number"
+          },
+          "highest": {
+            "type": "number"
+          },
+          "lowest": {
+            "type": "number"
+          },
+          "passCount": {
+            "type": "number"
+          },
+          "failCount": {
+            "type": "number"
+          },
+          "topperName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subjectName",
+          "average",
+          "highest",
+          "lowest",
+          "passCount",
+          "failCount",
+          "topperName"
+        ]
+      },
+      "ClassAnalysisDto": {
+        "type": "object",
+        "properties": {
+          "subjects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ClassAnalysisSubjectDto"
+            }
+          },
+          "examTermId": {
+            "type": "string"
+          },
+          "examTermName": {
+            "type": "string"
+          },
+          "classAverage": {
+            "type": "number"
+          },
+          "classTopperName": {
+            "type": "string"
+          },
+          "classTopperPercent": {
+            "type": "number"
+          },
+          "studentCount": {
+            "type": "number"
+          },
+          "passCount": {
+            "type": "number"
+          },
+          "failCount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "subjects",
+          "examTermId",
+          "examTermName",
+          "classAverage",
+          "classTopperName",
+          "classTopperPercent",
+          "studentCount",
+          "passCount",
+          "failCount"
         ]
       },
       "AcademicYearStatus": {
@@ -18921,6 +20029,7 @@
               "present",
               "absent",
               "late",
+              "half_day",
               "excused"
             ]
           },
@@ -18996,6 +20105,7 @@
               "present",
               "absent",
               "late",
+              "half_day",
               "excused"
             ]
           },

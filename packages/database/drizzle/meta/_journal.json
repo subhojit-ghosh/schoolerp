@@ -295,6 +295,13 @@
       "when": 1774702804466,
       "tag": "0041_supreme_tigra",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1774770360330,
+      "tag": "0042_slow_cerebro",
+      "breakpoints": true
     }
   ]
 }

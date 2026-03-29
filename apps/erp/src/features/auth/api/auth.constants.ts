@@ -155,6 +155,9 @@ export const ATTENDANCE_API_PATHS = {
   OVERVIEW: "/attendance/overview",
   CLASS_REPORT: "/attendance/class-report",
   STUDENT_REPORT: "/attendance/student-report",
+  MONTHLY_REGISTER: "/attendance/monthly-register",
+  CONSOLIDATED_REPORT: "/attendance/reports/consolidated",
+  CHRONIC_ABSENTEES: "/attendance/reports/chronic-absentees",
 } as const;
 
 export const EXAMS_API_PATHS = {
@@ -163,6 +166,13 @@ export const EXAMS_API_PATHS = {
   LIST_MARKS: "/exams/terms/{examTermId}/marks",
   REPLACE_MARKS: "/exams/terms/{examTermId}/marks",
   REPORT_CARD: "/exams/terms/{examTermId}/report-card",
+  RANKS: "/exams/terms/{examTermId}/ranks",
+  CLASS_ANALYSIS: "/exams/terms/{examTermId}/class-analysis",
+  BATCH_REPORT_CARDS: "/exams/terms/{examTermId}/batch-report-cards",
+  LIST_GRADING_SCALES: "/exams/grading-scales",
+  CREATE_GRADING_SCALE: "/exams/grading-scales",
+  UPDATE_GRADING_SCALE: "/exams/grading-scales/{scaleId}",
+  SET_DEFAULT_GRADING_SCALE: "/exams/grading-scales/{scaleId}/default",
 } as const;
 
 export const INSTITUTIONS_API_PATHS = {
@@ -192,6 +202,20 @@ export const FEES_API_PATHS = {
   LIST_DUES: "/fees/dues",
   COLLECTION_SUMMARY: "/fees/reports/collection-summary",
   DEFAULTERS: "/fees/reports/defaulters",
+  MODE_WISE_COLLECTION: "/fees/reports/mode-wise",
+  LIST_LATE_FEE_RULES: "/fees/late-fee-rules",
+  CREATE_LATE_FEE_RULE: "/fees/late-fee-rules",
+  UPDATE_LATE_FEE_RULE: "/fees/late-fee-rules/{ruleId}",
+  DEMAND_NOTICE: "/fees/demand-notice",
+  BATCH_RECEIPTS: "/fees/batch-receipts",
+} as const;
+
+export const DOCUMENTS_API_PATHS = {
+  LIST_SIGNATORIES: "/documents/signatories",
+  CREATE_SIGNATORY: "/documents/signatories",
+  UPDATE_SIGNATORY: "/documents/signatories/{signatoryId}",
+  GET_CONFIG: "/documents/config",
+  UPDATE_CONFIG: "/documents/config",
 } as const;
 
 export const DATA_EXCHANGE_API_PATHS = {

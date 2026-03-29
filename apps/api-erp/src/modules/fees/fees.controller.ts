@@ -18,6 +18,7 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
 import { API_DOCS, API_ROUTES, PERMISSIONS } from "../../constants";
@@ -526,6 +527,88 @@ export class FeesController {
       authSession,
       scopes,
       parseFeeDefaulterQuery(query),
+    );
+  }
+
+  @Get(`${API_ROUTES.REPORTS}/${API_ROUTES.MODE_WISE}`)
+  @RequirePermission(PERMISSIONS.FEES_READ)
+  @ApiOperation({ summary: "Get mode-wise fee collection report" })
+  @ApiQuery({ name: "startDate", type: String, required: false })
+  @ApiQuery({ name: "endDate", type: String, required: false })
+  @ApiQuery({ name: "classId", type: String, required: false })
+  @ApiQuery({ name: "campusId", type: String, required: false })
+  getModeWiseCollection(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Query() query: Record<string, string>,
+  ) {
+    return this.feesService.getModeWiseCollection(
+      institution.id,
+      query,
+      scopes,
+    );
+  }
+
+  @Get(API_ROUTES.LATE_FEE_RULES)
+  @RequirePermission(PERMISSIONS.FEES_READ)
+  @ApiOperation({ summary: "List late fee rules" })
+  listLateFeeRules(@CurrentInstitution() institution: TenantInstitution) {
+    return this.feesService.listLateFeeRules(institution.id);
+  }
+
+  @Post(API_ROUTES.LATE_FEE_RULES)
+  @RequirePermission(PERMISSIONS.FEES_MANAGE)
+  @ApiOperation({ summary: "Create a late fee rule" })
+  createLateFeeRule(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.feesService.createLateFeeRule(institution.id, body as any);
+  }
+
+  @Patch(`${API_ROUTES.LATE_FEE_RULES}/:ruleId`)
+  @RequirePermission(PERMISSIONS.FEES_MANAGE)
+  @ApiOperation({ summary: "Update a late fee rule" })
+  updateLateFeeRule(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("ruleId") ruleId: string,
+    @Body() body: Record<string, unknown>,
+  ) {
+    return this.feesService.updateLateFeeRule(
+      institution.id,
+      ruleId,
+      body as any,
+    );
+  }
+
+  @Get(API_ROUTES.BATCH_RECEIPTS)
+  @RequirePermission(PERMISSIONS.FEES_READ)
+  @ApiOperation({ summary: "Get batch receipt data for printing" })
+  @ApiQuery({ name: "startDate", type: String, required: false })
+  @ApiQuery({ name: "endDate", type: String, required: false })
+  @ApiQuery({ name: "classId", type: String, required: false })
+  @ApiQuery({ name: "feeStructureId", type: String, required: false })
+  getBatchReceipts(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: Record<string, string>,
+  ) {
+    return this.feesService.getBatchReceipts(institution.id, query);
+  }
+
+  @Get(API_ROUTES.DEMAND_NOTICE)
+  @RequirePermission(PERMISSIONS.FEES_READ)
+  @ApiOperation({ summary: "Get fee demand notice for a student" })
+  @ApiQuery({ name: "studentId", type: String })
+  @ApiQuery({ name: "academicYearId", type: String, required: false })
+  getDemandNotice(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query("studentId") studentId: string,
+    @Query("academicYearId") academicYearId?: string,
+  ) {
+    return this.feesService.getDemandNotice(
+      institution.id,
+      studentId,
+      academicYearId,
     );
   }
 }

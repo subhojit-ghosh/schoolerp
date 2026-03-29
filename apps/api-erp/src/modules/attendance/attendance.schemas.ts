@@ -69,6 +69,26 @@ export const attendanceStudentReportQuerySchema = z.object({
   endDate: attendanceDateSchema,
 });
 
+export const monthlyRegisterQuerySchema = z.object({
+  classId: z.uuid(),
+  sectionId: z.uuid(),
+  month: z.coerce.number().int().min(1).max(12),
+  year: z.coerce.number().int().min(2000).max(2100),
+});
+
+export const consolidatedReportQuerySchema = z.object({
+  campusId: z.uuid().optional(),
+  startDate: attendanceDateSchema,
+  endDate: attendanceDateSchema,
+});
+
+export const chronicAbsenteesQuerySchema = z.object({
+  campusId: z.uuid().optional(),
+  startDate: attendanceDateSchema,
+  endDate: attendanceDateSchema,
+  threshold: z.coerce.number().int().min(0).max(100).optional().default(75),
+});
+
 export type AttendanceClassSectionQueryDto = z.infer<
   typeof attendanceClassSectionQuerySchema
 >;
@@ -85,6 +105,15 @@ export type AttendanceClassReportQueryDto = z.infer<
 >;
 export type AttendanceStudentReportQueryDto = z.infer<
   typeof attendanceStudentReportQuerySchema
+>;
+export type MonthlyRegisterQueryDto = z.infer<
+  typeof monthlyRegisterQuerySchema
+>;
+export type ConsolidatedReportQueryDto = z.infer<
+  typeof consolidatedReportQuerySchema
+>;
+export type ChronicAbsenteesQueryDto = z.infer<
+  typeof chronicAbsenteesQuerySchema
 >;
 
 function parseSchema<T>(schema: z.ZodSchema<T>, input: unknown) {
@@ -123,4 +152,16 @@ export function parseAttendanceClassReportQuery(input: unknown) {
 
 export function parseAttendanceStudentReportQuery(input: unknown) {
   return parseSchema(attendanceStudentReportQuerySchema, input);
+}
+
+export function parseMonthlyRegisterQuery(input: unknown) {
+  return parseSchema(monthlyRegisterQuerySchema, input);
+}
+
+export function parseConsolidatedReportQuery(input: unknown) {
+  return parseSchema(consolidatedReportQuerySchema, input);
+}
+
+export function parseChronicAbsenteesQuery(input: unknown) {
+  return parseSchema(chronicAbsenteesQuerySchema, input);
 }

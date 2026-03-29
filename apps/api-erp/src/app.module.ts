@@ -24,6 +24,7 @@ import { PaymentGatewayModule } from "./modules/payment-gateway/payment-gateway.
 import { PaymentGatewaySettingsModule } from "./modules/payment-gateway/payment-gateway-settings.module";
 import { validateEnvironment } from "./config/env.validation";
 import { DataExchangeModule } from "./modules/data-exchange/data-exchange.module";
+import { DocumentsModule } from "./modules/documents/documents.module";
 import { FeesModule } from "./modules/fees/fees.module";
 import { ExamsModule } from "./modules/exams/exams.module";
 import { FamilyModule } from "./modules/family/family.module";
@@ -91,6 +92,7 @@ import { UploadsModule } from "./modules/uploads/uploads.module";
     AttendanceModule,
     ExamsModule,
     FeesModule,
+    DocumentsModule,
     HomeworkModule,
     LeaveModule,
     LibraryModule,

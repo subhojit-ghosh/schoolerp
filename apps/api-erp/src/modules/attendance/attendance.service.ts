@@ -20,14 +20,17 @@ import {
   and,
   asc,
   attendanceRecords,
+  calendarEvents,
   campus,
   classSections,
   eq,
   gte,
   inArray,
+  isNull,
   lte,
   member,
   ne,
+  or,
   schoolClasses,
   students,
 } from "@repo/database";
@@ -44,6 +47,9 @@ import type {
   AttendanceOverviewQueryDto,
   AttendanceClassReportQueryDto,
   AttendanceStudentReportQueryDto,
+  MonthlyRegisterQueryDto,
+  ConsolidatedReportQueryDto,
+  ChronicAbsenteesQueryDto,
   UpsertAttendanceDayDto,
 } from "./attendance.schemas";
 
@@ -63,6 +69,7 @@ const EMPTY_ATTENDANCE_COUNTS: AttendanceCounts = {
   [ATTENDANCE_STATUSES.PRESENT]: 0,
   [ATTENDANCE_STATUSES.ABSENT]: 0,
   [ATTENDANCE_STATUSES.LATE]: 0,
+  [ATTENDANCE_STATUSES.HALF_DAY]: 0,
   [ATTENDANCE_STATUSES.EXCUSED]: 0,
 };
 
@@ -541,6 +548,7 @@ export class AttendanceService {
               present: counts[ATTENDANCE_STATUSES.PRESENT],
               absent: counts[ATTENDANCE_STATUSES.ABSENT],
               late: counts[ATTENDANCE_STATUSES.LATE],
+              half_day: counts[ATTENDANCE_STATUSES.HALF_DAY],
               excused: counts[ATTENDANCE_STATUSES.EXCUSED],
             }
           : null,
@@ -792,6 +800,437 @@ export class AttendanceService {
         status: r.status,
       })),
     };
+  }
+
+  // ── Monthly attendance register ──────────────────────────────────────
+
+  async getMonthlyRegister(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    query: MonthlyRegisterQueryDto,
+  ) {
+    const selectedCampus = await this.getActiveCampus(
+      institutionId,
+      authSession,
+    );
+    this.assertCampusScopeAccess(selectedCampus.id, scopes);
+    this.assertClassSectionScopeAccess(query.classId, query.sectionId, scopes);
+    const classSection = await this.getClassSection(
+      query.classId,
+      query.sectionId,
+    );
+
+    // Calculate date range for the month
+    const startDate = `${query.year}-${String(query.month).padStart(2, "0")}-01`;
+    const lastDay = new Date(query.year, query.month, 0).getDate();
+    const endDate = `${query.year}-${String(query.month).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+
+    // Get holidays in range
+    const holidays = await this.getHolidayDates(
+      institutionId,
+      selectedCampus.id,
+      startDate,
+      endDate,
+    );
+
+    // Get students
+    const studentRows = await this.db
+      .select({
+        studentId: students.id,
+        admissionNumber: students.admissionNumber,
+        firstName: students.firstName,
+        lastName: students.lastName,
+      })
+      .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .where(
+        and(
+          eq(students.institutionId, institutionId),
+          eq(member.primaryCampusId, selectedCampus.id),
+          eq(students.classId, query.classId),
+          eq(students.sectionId, query.sectionId),
+          eq(member.status, STATUS.MEMBER.ACTIVE),
+        ),
+      )
+      .orderBy(asc(students.firstName), asc(students.lastName));
+
+    const studentIds = studentRows.map((s) => s.studentId);
+
+    // Get attendance records
+    const recordRows =
+      studentIds.length > 0
+        ? await this.db
+            .select({
+              studentId: attendanceRecords.studentId,
+              attendanceDate: attendanceRecords.attendanceDate,
+              status: attendanceRecords.status,
+            })
+            .from(attendanceRecords)
+            .where(
+              and(
+                eq(attendanceRecords.institutionId, institutionId),
+                gte(attendanceRecords.attendanceDate, startDate),
+                lte(attendanceRecords.attendanceDate, endDate),
+                inArray(attendanceRecords.studentId, studentIds),
+              ),
+            )
+        : [];
+
+    // Build student-day map
+    const recordMap = new Map<string, Map<number, string>>();
+    for (const row of recordRows) {
+      const dayNum = new Date(row.attendanceDate).getDate();
+      let studentDays = recordMap.get(row.studentId);
+      if (!studentDays) {
+        studentDays = new Map();
+        recordMap.set(row.studentId, studentDays);
+      }
+      studentDays.set(dayNum, row.status);
+    }
+
+    // Count working days (exclude Sundays and holidays)
+    let workingDays = 0;
+    for (let d = 1; d <= lastDay; d++) {
+      const dateStr = `${query.year}-${String(query.month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+      const dayOfWeek = new Date(dateStr).getDay();
+      if (dayOfWeek !== 0 && !holidays.has(dateStr)) {
+        workingDays++;
+      }
+    }
+
+    const studentData = studentRows.map((s) => {
+      const dayMap = recordMap.get(s.studentId) ?? new Map();
+      const days: Record<string, string | null> = {};
+      let present = 0;
+      let absent = 0;
+      let late = 0;
+      let halfDay = 0;
+      let excused = 0;
+
+      for (let d = 1; d <= lastDay; d++) {
+        const dateStr = `${query.year}-${String(query.month).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+        const dayOfWeek = new Date(dateStr).getDay();
+
+        if (dayOfWeek === 0) {
+          days[d] = "S"; // Sunday
+        } else if (holidays.has(dateStr)) {
+          days[d] = "H"; // Holiday
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          const status: string | null = dayMap.get(d) ?? null;
+          days[d] = status;
+          if (status === ATTENDANCE_STATUSES.PRESENT) present++;
+          else if (status === ATTENDANCE_STATUSES.ABSENT) absent++;
+          else if (status === ATTENDANCE_STATUSES.LATE) late++;
+          else if (status === ATTENDANCE_STATUSES.HALF_DAY) halfDay++;
+          else if (status === ATTENDANCE_STATUSES.EXCUSED) excused++;
+        }
+      }
+
+      const totalMarked = present + absent + late + halfDay + excused;
+      return {
+        studentId: s.studentId,
+        admissionNumber: s.admissionNumber,
+        fullName: [s.firstName, s.lastName].filter(Boolean).join(" "),
+        days,
+        totals: {
+          present,
+          absent,
+          late,
+          halfDay,
+          excused,
+          percentage:
+            totalMarked === 0 ? 0 : Math.round((present / totalMarked) * 100),
+        },
+      };
+    });
+
+    return {
+      classId: query.classId,
+      className: classSection.className,
+      sectionId: query.sectionId,
+      sectionName: classSection.sectionName,
+      campusId: selectedCampus.id,
+      campusName: selectedCampus.name,
+      month: query.month,
+      year: query.year,
+      daysInMonth: lastDay,
+      workingDays,
+      holidays: Array.from(holidays),
+      students: studentData,
+    };
+  }
+
+  // ── Consolidated attendance report ────────────────────────────────────
+
+  async getConsolidatedReport(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    query: ConsolidatedReportQueryDto,
+  ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    const campusId = query.campusId ?? activeCampusId;
+
+    // Get all sections with student counts
+    const sectionRows = await this.db
+      .select({
+        classId: students.classId,
+        className: schoolClasses.name,
+        sectionId: students.sectionId,
+        sectionName: classSections.name,
+      })
+      .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
+      .where(
+        and(
+          eq(students.institutionId, institutionId),
+          eq(member.primaryCampusId, campusId),
+          eq(member.status, STATUS.MEMBER.ACTIVE),
+          sectionScopeFilter(students.sectionId, scopes),
+        ),
+      )
+      .orderBy(
+        asc(schoolClasses.displayOrder),
+        asc(schoolClasses.name),
+        asc(classSections.displayOrder),
+        asc(classSections.name),
+      );
+
+    // Build section map
+    const sectionMap = new Map<
+      string,
+      {
+        classId: string;
+        className: string;
+        sectionId: string;
+        sectionName: string;
+        studentCount: number;
+      }
+    >();
+    for (const row of sectionRows) {
+      const key = `${row.classId}::${row.sectionId}`;
+      const current = sectionMap.get(key);
+      if (current) {
+        current.studentCount++;
+      } else {
+        sectionMap.set(key, { ...row, studentCount: 1 });
+      }
+    }
+
+    // Get attendance records for date range
+    const attendanceRows = await this.db
+      .select({
+        classId: attendanceRecords.classId,
+        sectionId: attendanceRecords.sectionId,
+        studentId: attendanceRecords.studentId,
+        status: attendanceRecords.status,
+      })
+      .from(attendanceRecords)
+      .where(
+        and(
+          eq(attendanceRecords.institutionId, institutionId),
+          eq(attendanceRecords.campusId, campusId),
+          gte(attendanceRecords.attendanceDate, query.startDate),
+          lte(attendanceRecords.attendanceDate, query.endDate),
+          sectionScopeFilter(attendanceRecords.sectionId, scopes),
+        ),
+      );
+
+    // Per-student attendance counts grouped by section
+    type StudentAttendance = { present: number; total: number };
+    const sectionStudents = new Map<string, Map<string, StudentAttendance>>();
+
+    for (const row of attendanceRows) {
+      const sectionKey = `${row.classId}::${row.sectionId}`;
+      let studentMap = sectionStudents.get(sectionKey);
+      if (!studentMap) {
+        studentMap = new Map();
+        sectionStudents.set(sectionKey, studentMap);
+      }
+      const sa = studentMap.get(row.studentId) ?? { present: 0, total: 0 };
+      sa.total++;
+      if (
+        row.status === ATTENDANCE_STATUSES.PRESENT ||
+        row.status === ATTENDANCE_STATUSES.LATE
+      ) {
+        sa.present++;
+      }
+      studentMap.set(row.studentId, sa);
+    }
+
+    const CHRONIC_THRESHOLD = 75;
+    const sections = Array.from(sectionMap.entries()).map(([key, section]) => {
+      const studentMap = sectionStudents.get(key);
+      let totalPercent = 0;
+      let chronicAbsenteeCount = 0;
+      let markedStudentCount = 0;
+
+      if (studentMap) {
+        for (const sa of studentMap.values()) {
+          const pct = sa.total > 0 ? (sa.present / sa.total) * 100 : 0;
+          totalPercent += pct;
+          markedStudentCount++;
+          if (pct < CHRONIC_THRESHOLD) chronicAbsenteeCount++;
+        }
+      }
+
+      return {
+        classId: section.classId,
+        className: section.className,
+        sectionId: section.sectionId,
+        sectionName: section.sectionName,
+        studentCount: section.studentCount,
+        avgAttendancePercent:
+          markedStudentCount > 0
+            ? Number((totalPercent / markedStudentCount).toFixed(1))
+            : 0,
+        chronicAbsenteeCount,
+      };
+    });
+
+    return {
+      campusId,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      sections,
+    };
+  }
+
+  // ── Chronic absentees ─────────────────────────────────────────────────
+
+  async getChronicAbsentees(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    query: ChronicAbsenteesQueryDto,
+  ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    const campusId = query.campusId ?? activeCampusId;
+    const threshold = query.threshold;
+
+    // Get all attendance records in range for this campus
+    const rows = await this.db
+      .select({
+        studentId: attendanceRecords.studentId,
+        studentFirstName: students.firstName,
+        studentLastName: students.lastName,
+        admissionNumber: students.admissionNumber,
+        classId: students.classId,
+        className: schoolClasses.name,
+        sectionId: students.sectionId,
+        sectionName: classSections.name,
+        status: attendanceRecords.status,
+      })
+      .from(attendanceRecords)
+      .innerJoin(students, eq(attendanceRecords.studentId, students.id))
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
+      .where(
+        and(
+          eq(attendanceRecords.institutionId, institutionId),
+          eq(attendanceRecords.campusId, campusId),
+          gte(attendanceRecords.attendanceDate, query.startDate),
+          lte(attendanceRecords.attendanceDate, query.endDate),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          sectionScopeFilter(attendanceRecords.sectionId, scopes),
+        ),
+      );
+
+    // Aggregate per student
+    type StudentData = {
+      name: string;
+      admissionNumber: string;
+      className: string;
+      sectionName: string;
+      present: number;
+      total: number;
+    };
+    const studentMap = new Map<string, StudentData>();
+
+    for (const row of rows) {
+      const existing = studentMap.get(row.studentId) ?? {
+        name: [row.studentFirstName, row.studentLastName]
+          .filter(Boolean)
+          .join(" "),
+        admissionNumber: row.admissionNumber,
+        className: row.className,
+        sectionName: row.sectionName,
+        present: 0,
+        total: 0,
+      };
+      existing.total++;
+      if (
+        row.status === ATTENDANCE_STATUSES.PRESENT ||
+        row.status === ATTENDANCE_STATUSES.LATE
+      ) {
+        existing.present++;
+      }
+      studentMap.set(row.studentId, existing);
+    }
+
+    // Filter below threshold
+    const absentees = Array.from(studentMap.entries())
+      .map(([studentId, data]) => {
+        const pct =
+          data.total > 0
+            ? Number(((data.present / data.total) * 100).toFixed(1))
+            : 0;
+        return {
+          studentId,
+          fullName: data.name,
+          admissionNumber: data.admissionNumber,
+          className: data.className,
+          sectionName: data.sectionName,
+          attendancePercent: pct,
+          totalDays: data.total,
+          presentDays: data.present,
+        };
+      })
+      .filter((s) => s.attendancePercent < threshold)
+      .sort((a, b) => a.attendancePercent - b.attendancePercent);
+
+    return {
+      campusId,
+      startDate: query.startDate,
+      endDate: query.endDate,
+      threshold,
+      students: absentees,
+    };
+  }
+
+  // ── Private helpers ─────────────────────────────────────────────────────
+
+  private async getHolidayDates(
+    institutionId: string,
+    campusId: string,
+    startDate: string,
+    endDate: string,
+  ): Promise<Set<string>> {
+    const rows = await this.db
+      .select({ eventDate: calendarEvents.eventDate })
+      .from(calendarEvents)
+      .where(
+        and(
+          eq(calendarEvents.institutionId, institutionId),
+          eq(calendarEvents.eventType, "holiday"),
+          eq(calendarEvents.status, "active"),
+          gte(calendarEvents.eventDate, startDate),
+          lte(calendarEvents.eventDate, endDate),
+          or(
+            isNull(calendarEvents.campusId),
+            eq(calendarEvents.campusId, campusId),
+          ),
+        ),
+      );
+
+    return new Set(rows.map((r) => r.eventDate));
   }
 
   private async getClassSection(classId: string, sectionId: string) {

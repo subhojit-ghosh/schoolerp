@@ -32,12 +32,15 @@ import {
   feePaymentReversals,
   feeStructureInstallments,
   feeStructures,
+  gte,
   gt,
   ilike,
   inArray,
   isNotNull,
   isNull,
+  lateFeeRules,
   lt,
+  lte,
   member,
   ne,
   or,
@@ -2749,6 +2752,511 @@ export class FeesService {
       .limit(1);
 
     return existingStructure?.id ?? null;
+  }
+
+  // ── Mode-wise collection report ────────────────────────────────────────
+
+  async getModeWiseCollection(
+    institutionId: string,
+    query: {
+      startDate?: string;
+      endDate?: string;
+      classId?: string;
+      campusId?: string;
+      academicYearId?: string;
+    },
+    _scopes: ResolvedScopes,
+  ) {
+    const conditions: SQL[] = [
+      eq(feePayments.institutionId, institutionId),
+      isNull(feePayments.deletedAt),
+    ];
+
+    if (query.startDate) {
+      conditions.push(gte(feePayments.paymentDate, query.startDate));
+    }
+    if (query.endDate) {
+      conditions.push(lte(feePayments.paymentDate, query.endDate));
+    }
+
+    // Build the query with optional class filter
+    let baseQuery = this.database
+      .select({
+        paymentMethod: feePayments.paymentMethod,
+        amountInPaise: feePayments.amountInPaise,
+      })
+      .from(feePayments)
+      .where(and(...conditions))
+      .$dynamic();
+
+    // Filter by class if specified — need to join through assignments → students
+    if (query.classId) {
+      baseQuery = this.database
+        .select({
+          paymentMethod: feePayments.paymentMethod,
+          amountInPaise: feePayments.amountInPaise,
+        })
+        .from(feePayments)
+        .innerJoin(
+          feeAssignments,
+          eq(feePayments.feeAssignmentId, feeAssignments.id),
+        )
+        .innerJoin(students, eq(feeAssignments.studentId, students.id))
+        .where(and(...conditions, eq(students.classId, query.classId)))
+        .$dynamic();
+    }
+
+    const rows = await baseQuery;
+
+    type MethodStats = { count: number; totalInPaise: number };
+    const byMethod = new Map<string, MethodStats>();
+    let grandTotalInPaise = 0;
+    let grandCount = 0;
+
+    for (const row of rows) {
+      const stats = byMethod.get(row.paymentMethod) ?? {
+        count: 0,
+        totalInPaise: 0,
+      };
+      stats.count++;
+      stats.totalInPaise += row.amountInPaise;
+      byMethod.set(row.paymentMethod, stats);
+      grandTotalInPaise += row.amountInPaise;
+      grandCount++;
+    }
+
+    return {
+      methods: Array.from(byMethod.entries()).map(([method, stats]) => ({
+        paymentMethod: method,
+        count: stats.count,
+        totalInPaise: stats.totalInPaise,
+      })),
+      grandTotalInPaise,
+      grandCount,
+    };
+  }
+
+  // ── Late fee rules ────────────────────────────────────────────────────
+
+  async listLateFeeRules(institutionId: string) {
+    return this.database
+      .select({
+        id: lateFeeRules.id,
+        institutionId: lateFeeRules.institutionId,
+        feeStructureId: lateFeeRules.feeStructureId,
+        calculationType: lateFeeRules.calculationType,
+        amountInPaise: lateFeeRules.amountInPaise,
+        gracePeriodDays: lateFeeRules.gracePeriodDays,
+        maxAmountInPaise: lateFeeRules.maxAmountInPaise,
+        isActive: lateFeeRules.isActive,
+        createdAt: lateFeeRules.createdAt,
+      })
+      .from(lateFeeRules)
+      .where(eq(lateFeeRules.institutionId, institutionId))
+      .orderBy(asc(lateFeeRules.createdAt));
+  }
+
+  async createLateFeeRule(
+    institutionId: string,
+    payload: {
+      feeStructureId?: string | null;
+      calculationType: string;
+      amountInPaise: number;
+      gracePeriodDays?: number;
+      maxAmountInPaise?: number | null;
+    },
+  ) {
+    const id = randomUUID();
+    await this.database.insert(lateFeeRules).values({
+      id,
+      institutionId,
+      feeStructureId: payload.feeStructureId ?? null,
+      calculationType: payload.calculationType as "flat" | "per_day",
+      amountInPaise: payload.amountInPaise,
+      gracePeriodDays: payload.gracePeriodDays ?? 0,
+      maxAmountInPaise: payload.maxAmountInPaise ?? null,
+    });
+    return { id };
+  }
+
+  async updateLateFeeRule(
+    institutionId: string,
+    ruleId: string,
+    payload: {
+      calculationType?: string;
+      amountInPaise?: number;
+      gracePeriodDays?: number;
+      maxAmountInPaise?: number | null;
+      isActive?: boolean;
+    },
+  ) {
+    const [rule] = await this.database
+      .select({ id: lateFeeRules.id })
+      .from(lateFeeRules)
+      .where(
+        and(
+          eq(lateFeeRules.id, ruleId),
+          eq(lateFeeRules.institutionId, institutionId),
+        ),
+      )
+      .limit(1);
+
+    if (!rule) {
+      throw new NotFoundException("Late fee rule not found.");
+    }
+
+    const updates: Record<string, any> = {};
+    if (payload.calculationType !== undefined)
+      updates.calculationType = payload.calculationType;
+    if (payload.amountInPaise !== undefined)
+      updates.amountInPaise = payload.amountInPaise;
+    if (payload.gracePeriodDays !== undefined)
+      updates.gracePeriodDays = payload.gracePeriodDays;
+    if (payload.maxAmountInPaise !== undefined)
+      updates.maxAmountInPaise = payload.maxAmountInPaise;
+    if (payload.isActive !== undefined) updates.isActive = payload.isActive;
+
+    if (Object.keys(updates).length > 0) {
+      await this.database
+        .update(lateFeeRules)
+        .set(updates)
+        .where(eq(lateFeeRules.id, ruleId));
+    }
+
+    return { id: ruleId };
+  }
+
+  calculateLateFee(
+    dueDate: string,
+    assignedAmountInPaise: number,
+    rule: {
+      calculationType: string;
+      amountInPaise: number;
+      gracePeriodDays: number;
+      maxAmountInPaise: number | null;
+    },
+    asOfDate: Date = new Date(),
+  ): number {
+    const due = new Date(dueDate);
+    const diffMs = asOfDate.getTime() - due.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const overdueDays = Math.max(0, diffDays - rule.gracePeriodDays);
+
+    if (overdueDays <= 0) return 0;
+
+    let lateFee: number;
+    if (rule.calculationType === "flat") {
+      lateFee = rule.amountInPaise;
+    } else {
+      lateFee = overdueDays * rule.amountInPaise;
+    }
+
+    if (rule.maxAmountInPaise !== null && lateFee > rule.maxAmountInPaise) {
+      lateFee = rule.maxAmountInPaise;
+    }
+
+    return lateFee;
+  }
+
+  // ── Demand notice ─────────────────────────────────────────────────────
+
+  async getDemandNotice(
+    institutionId: string,
+    studentId: string,
+    academicYearId?: string,
+  ) {
+    // Get student info
+    const [studentRow] = await this.database
+      .select({
+        id: students.id,
+        firstName: students.firstName,
+        lastName: students.lastName,
+        admissionNumber: students.admissionNumber,
+        className: schoolClasses.name,
+        sectionName: classSections.name,
+      })
+      .from(students)
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
+      .where(
+        and(
+          eq(students.id, studentId),
+          eq(students.institutionId, institutionId),
+          ne(member.status, STATUS.MEMBER.DELETED),
+        ),
+      )
+      .limit(1);
+
+    if (!studentRow) {
+      throw new NotFoundException(ERROR_MESSAGES.STUDENTS.STUDENT_NOT_FOUND);
+    }
+
+    // Get pending/partial assignments
+    const assignmentConditions = [
+      eq(feeAssignments.institutionId, institutionId),
+      eq(feeAssignments.studentId, studentId),
+      isNull(feeAssignments.deletedAt),
+      ne(feeAssignments.status, FEE_ASSIGNMENT_STATUSES.PAID),
+    ];
+
+    if (academicYearId) {
+      assignmentConditions.push(
+        eq(feeStructures.academicYearId, academicYearId),
+      );
+    }
+
+    const assignmentRows = await this.database
+      .select({
+        id: feeAssignments.id,
+        feeStructureId: feeAssignments.feeStructureId,
+        feeStructureName: feeStructures.name,
+        installmentId: feeAssignments.installmentId,
+        installmentLabel: feeStructureInstallments.label,
+        assignedAmountInPaise: feeAssignments.assignedAmountInPaise,
+        dueDate: feeAssignments.dueDate,
+        status: feeAssignments.status,
+      })
+      .from(feeAssignments)
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
+      .leftJoin(
+        feeStructureInstallments,
+        eq(feeAssignments.installmentId, feeStructureInstallments.id),
+      )
+      .where(and(...assignmentConditions))
+      .orderBy(asc(feeAssignments.dueDate));
+
+    // Get payments and adjustments for these assignments
+    const assignmentIds = assignmentRows.map((a) => a.id);
+
+    const paymentsByAssignment = new Map<string, number>();
+    const adjustmentsByAssignment = new Map<string, number>();
+
+    if (assignmentIds.length > 0) {
+      const paymentRows = await this.database
+        .select({
+          feeAssignmentId: feePayments.feeAssignmentId,
+          amountInPaise: feePayments.amountInPaise,
+        })
+        .from(feePayments)
+        .leftJoin(
+          feePaymentReversals,
+          eq(feePayments.id, feePaymentReversals.feePaymentId),
+        )
+        .where(
+          and(
+            inArray(feePayments.feeAssignmentId, assignmentIds),
+            isNull(feePayments.deletedAt),
+            isNull(feePaymentReversals.id),
+          ),
+        );
+
+      for (const row of paymentRows) {
+        paymentsByAssignment.set(
+          row.feeAssignmentId,
+          (paymentsByAssignment.get(row.feeAssignmentId) ?? 0) +
+            row.amountInPaise,
+        );
+      }
+
+      const adjustmentRows = await this.database
+        .select({
+          feeAssignmentId: feeAssignmentAdjustments.feeAssignmentId,
+          amountInPaise: feeAssignmentAdjustments.amountInPaise,
+        })
+        .from(feeAssignmentAdjustments)
+        .where(
+          inArray(feeAssignmentAdjustments.feeAssignmentId, assignmentIds),
+        );
+
+      for (const row of adjustmentRows) {
+        adjustmentsByAssignment.set(
+          row.feeAssignmentId,
+          (adjustmentsByAssignment.get(row.feeAssignmentId) ?? 0) +
+            row.amountInPaise,
+        );
+      }
+    }
+
+    // Get late fee rules for computation
+    const lateFeeRuleRows = await this.listLateFeeRules(institutionId);
+    const activeRules = lateFeeRuleRows.filter((r) => r.isActive);
+
+    const now = new Date();
+    let grandTotalAssigned = 0;
+    let grandTotalPaid = 0;
+    let grandTotalAdjusted = 0;
+    let grandTotalLateFee = 0;
+
+    const items = assignmentRows.map((a) => {
+      const paid = paymentsByAssignment.get(a.id) ?? 0;
+      const adjusted = adjustmentsByAssignment.get(a.id) ?? 0;
+      const outstanding = Math.max(
+        0,
+        a.assignedAmountInPaise - paid - adjusted,
+      );
+
+      // Find applicable late fee rule (structure-specific first, then default)
+      const structureRule = activeRules.find(
+        (r) => r.feeStructureId === a.feeStructureId,
+      );
+      const defaultRule = activeRules.find((r) => !r.feeStructureId);
+      const rule = structureRule ?? defaultRule;
+
+      let lateFeeInPaise = 0;
+      if (rule && outstanding > 0) {
+        lateFeeInPaise = this.calculateLateFee(
+          a.dueDate,
+          a.assignedAmountInPaise,
+          rule,
+          now,
+        );
+      }
+
+      grandTotalAssigned += a.assignedAmountInPaise;
+      grandTotalPaid += paid;
+      grandTotalAdjusted += adjusted;
+      grandTotalLateFee += lateFeeInPaise;
+
+      return {
+        feeStructureName: a.feeStructureName,
+        installmentLabel: a.installmentLabel,
+        assignedAmountInPaise: a.assignedAmountInPaise,
+        paidAmountInPaise: paid,
+        adjustedAmountInPaise: adjusted,
+        outstandingAmountInPaise: outstanding,
+        lateFeeInPaise,
+        dueDate: a.dueDate,
+        status: a.status,
+      };
+    });
+
+    return {
+      studentId: studentRow.id,
+      studentFullName: this.buildStudentFullName(
+        studentRow.firstName,
+        studentRow.lastName,
+      ),
+      admissionNumber: studentRow.admissionNumber,
+      className: studentRow.className,
+      sectionName: studentRow.sectionName,
+      items,
+      summary: {
+        totalAssignedInPaise: grandTotalAssigned,
+        totalPaidInPaise: grandTotalPaid,
+        totalAdjustedInPaise: grandTotalAdjusted,
+        totalOutstandingInPaise: Math.max(
+          0,
+          grandTotalAssigned - grandTotalPaid - grandTotalAdjusted,
+        ),
+        totalLateFeeInPaise: grandTotalLateFee,
+        grandTotalDueInPaise:
+          Math.max(
+            0,
+            grandTotalAssigned - grandTotalPaid - grandTotalAdjusted,
+          ) + grandTotalLateFee,
+      },
+    };
+  }
+
+  // ── Batch receipts ─────────────────────────────────────────────────────
+
+  async getBatchReceipts(
+    institutionId: string,
+    query: {
+      startDate?: string;
+      endDate?: string;
+      classId?: string;
+      feeStructureId?: string;
+    },
+  ) {
+    const conditions = [
+      eq(feePayments.institutionId, institutionId),
+      isNull(feePayments.deletedAt),
+    ];
+
+    if (query.startDate) {
+      conditions.push(gte(feePayments.paymentDate, query.startDate));
+    }
+    if (query.endDate) {
+      conditions.push(lte(feePayments.paymentDate, query.endDate));
+    }
+
+    const baseConditions = and(...conditions);
+
+    // Build query — optionally filter by class or structure
+    const rows = await this.database
+      .select({
+        paymentId: feePayments.id,
+        receiptNumber: feePayments.receiptNumber,
+        amountInPaise: feePayments.amountInPaise,
+        paymentDate: feePayments.paymentDate,
+        paymentMethod: feePayments.paymentMethod,
+        referenceNumber: feePayments.referenceNumber,
+        studentFirstName: students.firstName,
+        studentLastName: students.lastName,
+        admissionNumber: students.admissionNumber,
+        className: schoolClasses.name,
+        sectionName: classSections.name,
+        feeStructureName: feeStructures.name,
+        installmentLabel: feeStructureInstallments.label,
+        assignedAmountInPaise: feeAssignments.assignedAmountInPaise,
+      })
+      .from(feePayments)
+      .innerJoin(
+        feeAssignments,
+        eq(feePayments.feeAssignmentId, feeAssignments.id),
+      )
+      .innerJoin(
+        feeStructures,
+        eq(feeAssignments.feeStructureId, feeStructures.id),
+      )
+      .leftJoin(
+        feeStructureInstallments,
+        eq(feeAssignments.installmentId, feeStructureInstallments.id),
+      )
+      .innerJoin(students, eq(feeAssignments.studentId, students.id))
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
+      .leftJoin(
+        feePaymentReversals,
+        eq(feePayments.id, feePaymentReversals.feePaymentId),
+      )
+      .where(
+        and(
+          baseConditions,
+          isNull(feePaymentReversals.id),
+          ne(member.status, STATUS.MEMBER.DELETED),
+          query.classId ? eq(students.classId, query.classId) : undefined,
+          query.feeStructureId
+            ? eq(feeAssignments.feeStructureId, query.feeStructureId)
+            : undefined,
+        ),
+      )
+      .orderBy(asc(feePayments.paymentDate), asc(students.firstName));
+
+    return rows.map((r) => ({
+      paymentId: r.paymentId,
+      receiptNumber: r.receiptNumber,
+      amountInPaise: r.amountInPaise,
+      paymentDate: r.paymentDate,
+      paymentMethod: r.paymentMethod,
+      referenceNumber: r.referenceNumber,
+      studentFullName: this.buildStudentFullName(
+        r.studentFirstName,
+        r.studentLastName,
+      ),
+      admissionNumber: r.admissionNumber,
+      className: r.className,
+      sectionName: r.sectionName,
+      feeStructureName: r.feeStructureName,
+      installmentLabel: r.installmentLabel,
+      assignedAmountInPaise: r.assignedAmountInPaise,
+    }));
   }
 
   private resolveAssignmentStatus(

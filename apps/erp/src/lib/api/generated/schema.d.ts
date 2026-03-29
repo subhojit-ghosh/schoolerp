@@ -1725,6 +1725,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/fees/reports/mode-wise": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get mode-wise fee collection report */
+        get: operations["FeesController_getModeWiseCollection"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/late-fee-rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List late fee rules */
+        get: operations["FeesController_listLateFeeRules"];
+        put?: never;
+        /** Create a late fee rule */
+        post: operations["FeesController_createLateFeeRule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/late-fee-rules/{ruleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a late fee rule */
+        patch: operations["FeesController_updateLateFeeRule"];
+        trace?: never;
+    };
+    "/fees/batch-receipts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get batch receipt data for printing */
+        get: operations["FeesController_getBatchReceipts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/fees/demand-notice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get fee demand notice for a student */
+        get: operations["FeesController_getDemandNotice"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/family/overview": {
         parameters: {
             query?: never;
@@ -1759,6 +1845,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/exams/grading-scales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List grading scales for the institution */
+        get: operations["ExamsController_listGradingScales"];
+        put?: never;
+        /** Create a grading scale */
+        post: operations["ExamsController_createGradingScale"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exams/grading-scales/{scaleId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a grading scale */
+        patch: operations["ExamsController_updateGradingScale"];
+        trace?: never;
+    };
+    "/exams/grading-scales/{scaleId}/default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Set a grading scale as the institution default */
+        patch: operations["ExamsController_setDefaultGradingScale"];
+        trace?: never;
+    };
     "/exams/terms": {
         parameters: {
             query?: never;
@@ -1766,10 +1904,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List exam terms for the current tenant institution */
+        /** List exam terms for the current tenant */
         get: operations["ExamsController_listExamTerms"];
         put?: never;
-        /** Create an exam term for the current tenant */
+        /** Create an exam term */
         post: operations["ExamsController_createExamTerm"];
         delete?: never;
         options?: never;
@@ -1804,6 +1942,57 @@ export interface paths {
         };
         /** Get subject-wise report card with grading for one student */
         get: operations["ExamsController_getExamReportCard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exams/terms/{examTermId}/ranks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get ranked student list for a class/section */
+        get: operations["ExamsController_getRanks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exams/terms/{examTermId}/class-analysis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get class-level marks analysis for an exam term */
+        get: operations["ExamsController_getClassAnalysis"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/exams/terms/{examTermId}/batch-report-cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get report cards for all students in a class/section */
+        get: operations["ExamsController_getBatchReportCards"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1949,6 +2138,110 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/attendance/monthly-register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get monthly attendance register for a class-section */
+        get: operations["AttendanceController_getMonthlyRegister"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/attendance/reports/consolidated": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get consolidated attendance report across classes for a date range */
+        get: operations["AttendanceController_getConsolidatedReport"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/attendance/reports/chronic-absentees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get students below attendance threshold */
+        get: operations["AttendanceController_getChronicAbsentees"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/signatories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List institution signatories */
+        get: operations["DocumentsController_listSignatories"];
+        put?: never;
+        /** Create a signatory */
+        post: operations["DocumentsController_createSignatory"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/documents/signatories/{signatoryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a signatory */
+        patch: operations["DocumentsController_updateSignatory"];
+        trace?: never;
+    };
+    "/documents/config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get document configuration */
+        get: operations["DocumentsController_getDocumentConfig"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update document configuration */
+        patch: operations["DocumentsController_updateDocumentConfig"];
         trace?: never;
     };
     "/homework": {
@@ -4150,7 +4443,7 @@ export interface components {
         };
         StudentAttendanceRecordDto: {
             /** @enum {string} */
-            status: "present" | "absent" | "late" | "excused";
+            status: "present" | "absent" | "late" | "half_day" | "excused";
             date: string;
         };
         StudentAttendanceSummaryDto: {
@@ -4759,16 +5052,21 @@ export interface components {
         ExamReportCardSummaryDto: {
             totalMaxMarks: number;
             totalObtainedMarks: number;
+            totalEffectiveMarks: number;
             overallPercent: number;
             overallGrade: string;
+            result: string;
         };
         ExamReportCardSubjectDto: {
             remarks?: string | null;
             subjectName: string;
             maxMarks: number;
             obtainedMarks: number;
+            graceMarks: number;
+            effectiveMarks: number;
             percent: number;
             grade: string;
+            result: string;
         };
         ExamGradeBandDto: {
             grade: string;
@@ -4776,16 +5074,20 @@ export interface components {
             label: string;
         };
         ExamReportCardDto: {
+            classRank?: number | null;
+            sectionRank?: number | null;
             summary: components["schemas"]["ExamReportCardSummaryDto"];
             subjects: components["schemas"]["ExamReportCardSubjectDto"][];
             gradingScheme: components["schemas"]["ExamGradeBandDto"][];
             examTermId: string;
             examTermName: string;
+            examType: string;
             academicYearId: string;
             academicYearName: string;
             studentId: string;
             studentFullName: string;
             admissionNumber: string;
+            defaultPassingPercent: number;
         };
         StudentPortalOverviewDto: {
             studentSummary: components["schemas"]["StudentSummaryDto"];
@@ -4795,7 +5097,39 @@ export interface components {
             selectedReportCardTermId?: string | null;
             selectedReportCard?: components["schemas"]["ExamReportCardDto"] | null;
         };
+        GradingScaleBandDto: {
+            id: string;
+            grade: string;
+            label: string;
+            minPercent: number;
+            sortOrder: number;
+        };
+        GradingScaleDto: {
+            bands: components["schemas"]["GradingScaleBandDto"][];
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            institutionId: string;
+            name: string;
+            isDefault: boolean;
+            status: string;
+        };
+        GradingScaleBandInputDto: {
+            grade: string;
+            label: string;
+            minPercent: number;
+            sortOrder: number;
+        };
+        CreateGradingScaleBodyDto: {
+            bands: components["schemas"]["GradingScaleBandInputDto"][];
+            name: string;
+        };
+        UpdateGradingScaleBodyDto: {
+            name?: string;
+            bands?: components["schemas"]["GradingScaleBandInputDto"][];
+        };
         ExamTermDto: {
+            gradingScaleId?: string | null;
             /** Format: date-time */
             createdAt: string;
             id: string;
@@ -4803,10 +5137,17 @@ export interface components {
             academicYearId: string;
             academicYearName: string;
             name: string;
+            examType: string;
+            weightageInBp: number;
+            defaultPassingPercent: number;
             startDate: string;
             endDate: string;
         };
         CreateExamTermBodyDto: {
+            examType?: string;
+            weightageInBp?: number;
+            gradingScaleId?: string | null;
+            defaultPassingPercent?: number;
             academicYearId: string;
             name: string;
             startDate: string;
@@ -4824,8 +5165,10 @@ export interface components {
             subjectName: string;
             maxMarks: number;
             obtainedMarks: number;
+            graceMarks: number;
         };
         UpsertExamMarkEntryBodyDto: {
+            graceMarks?: number;
             remarks?: string | null;
             studentId: string;
             subjectName: string;
@@ -4834,6 +5177,41 @@ export interface components {
         };
         UpsertExamMarksBodyDto: {
             entries: components["schemas"]["UpsertExamMarkEntryBodyDto"][];
+        };
+        RankedStudentDto: {
+            studentId: string;
+            studentFullName: string;
+            admissionNumber: string;
+            totalEffectiveMarks: number;
+            totalMaxMarks: number;
+            percentage: number;
+            grade: string;
+            rank: number;
+        };
+        RanksDto: {
+            students: components["schemas"]["RankedStudentDto"][];
+            examTermId: string;
+            examTermName: string;
+        };
+        ClassAnalysisSubjectDto: {
+            subjectName: string;
+            average: number;
+            highest: number;
+            lowest: number;
+            passCount: number;
+            failCount: number;
+            topperName: string;
+        };
+        ClassAnalysisDto: {
+            subjects: components["schemas"]["ClassAnalysisSubjectDto"][];
+            examTermId: string;
+            examTermName: string;
+            classAverage: number;
+            classTopperName: string;
+            classTopperPercent: number;
+            studentCount: number;
+            passCount: number;
+            failCount: number;
         };
         /** @enum {string} */
         AcademicYearStatus: "active" | "archived" | "deleted";
@@ -4875,7 +5253,7 @@ export interface components {
         };
         AttendanceStudentEntryDto: {
             /** @enum {string|null} */
-            status: "present" | "absent" | "late" | "excused" | null;
+            status: "present" | "absent" | "late" | "half_day" | "excused" | null;
             studentId: string;
             admissionNumber: string;
             fullName: string;
@@ -4893,7 +5271,7 @@ export interface components {
         };
         AttendanceDayEntryBodyDto: {
             /** @enum {string} */
-            status: "present" | "absent" | "late" | "excused";
+            status: "present" | "absent" | "late" | "half_day" | "excused";
             studentId: string;
         };
         UpsertAttendanceDayBodyDto: {
@@ -9145,6 +9523,123 @@ export interface operations {
             };
         };
     };
+    FeesController_getModeWiseCollection: {
+        parameters: {
+            query?: {
+                campusId?: string;
+                classId?: string;
+                endDate?: string;
+                startDate?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FeesController_listLateFeeRules: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FeesController_createLateFeeRule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FeesController_updateLateFeeRule: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                ruleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FeesController_getBatchReceipts: {
+        parameters: {
+            query?: {
+                feeStructureId?: string;
+                classId?: string;
+                endDate?: string;
+                startDate?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FeesController_getDemandNotice: {
+        parameters: {
+            query: {
+                studentId: string;
+                academicYearId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     FamilyController_getOverview: {
         parameters: {
             query?: {
@@ -9183,6 +9678,94 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StudentPortalOverviewDto"];
+                };
+            };
+        };
+    };
+    ExamsController_listGradingScales: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradingScaleDto"][];
+                };
+            };
+        };
+    };
+    ExamsController_createGradingScale: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateGradingScaleBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradingScaleDto"];
+                };
+            };
+        };
+    };
+    ExamsController_updateGradingScale: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scaleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateGradingScaleBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradingScaleDto"];
+                };
+            };
+        };
+    };
+    ExamsController_setDefaultGradingScale: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scaleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GradingScaleDto"];
                 };
             };
         };
@@ -9294,6 +9877,78 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExamReportCardDto"];
+                };
+            };
+        };
+    };
+    ExamsController_getRanks: {
+        parameters: {
+            query: {
+                sectionId?: string;
+                classId: string;
+            };
+            header?: never;
+            path: {
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RanksDto"];
+                };
+            };
+        };
+    };
+    ExamsController_getClassAnalysis: {
+        parameters: {
+            query: {
+                sectionId?: string;
+                classId: string;
+            };
+            header?: never;
+            path: {
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassAnalysisDto"];
+                };
+            };
+        };
+    };
+    ExamsController_getBatchReportCards: {
+        parameters: {
+            query: {
+                sectionId?: string;
+                classId: string;
+            };
+            header?: never;
+            path: {
+                examTermId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExamReportCardDto"][];
                 };
             };
         };
@@ -9547,6 +10202,158 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["AttendanceStudentReportDto"];
                 };
+            };
+        };
+    };
+    AttendanceController_getMonthlyRegister: {
+        parameters: {
+            query: {
+                year: number;
+                month: number;
+                sectionId: string;
+                classId: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AttendanceController_getConsolidatedReport: {
+        parameters: {
+            query: {
+                campusId?: string;
+                endDate: string;
+                startDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AttendanceController_getChronicAbsentees: {
+        parameters: {
+            query: {
+                threshold?: number;
+                campusId?: string;
+                endDate: string;
+                startDate: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentsController_listSignatories: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentsController_createSignatory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentsController_updateSignatory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                signatoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentsController_getDocumentConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DocumentsController_updateDocumentConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

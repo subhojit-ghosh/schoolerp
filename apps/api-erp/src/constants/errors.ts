@@ -171,6 +171,11 @@ export const ERROR_MESSAGES = {
       "Each student can only have one mark entry per subject in the same exam term.",
     STUDENT_REQUIRED:
       "Every marks entry must belong to a student in the selected institution.",
+    GRADING_SCALE_NOT_FOUND: "The selected grading scale was not found.",
+    NO_DEFAULT_GRADING_SCALE:
+      "No default grading scale is configured. Please create one in Settings.",
+    GRADING_SCALE_HAS_TERMS:
+      "This grading scale is referenced by exam terms and cannot be deleted.",
   },
   FEES: {
     ACADEMIC_YEAR_NOT_FOUND: "The selected academic year was not found.",

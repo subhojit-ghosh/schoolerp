@@ -323,6 +323,59 @@ export const PAYMENT_ORDER_STATUSES = {
 export type PaymentOrderStatus =
   (typeof PAYMENT_ORDER_STATUSES)[keyof typeof PAYMENT_ORDER_STATUSES];
 
+// ── Fee categories ──────────────────────────────────────────────────────────
+export const FEE_CATEGORIES = {
+  TUITION: "tuition",
+  TRANSPORT: "transport",
+  HOSTEL: "hostel",
+  LAB: "lab",
+  MISC: "misc",
+} as const;
+export const FEE_CATEGORY_LABELS = {
+  [FEE_CATEGORIES.TUITION]: "Tuition",
+  [FEE_CATEGORIES.TRANSPORT]: "Transport",
+  [FEE_CATEGORIES.HOSTEL]: "Hostel",
+  [FEE_CATEGORIES.LAB]: "Lab",
+  [FEE_CATEGORIES.MISC]: "Miscellaneous",
+} as const;
+export type FeeCategory = (typeof FEE_CATEGORIES)[keyof typeof FEE_CATEGORIES];
+
+// ── Late fee calculation types ──────────────────────────────────────────────
+export const LATE_FEE_CALC_TYPES = {
+  FLAT: "flat",
+  PER_DAY: "per_day",
+} as const;
+export const LATE_FEE_CALC_TYPE_LABELS = {
+  [LATE_FEE_CALC_TYPES.FLAT]: "Flat Amount",
+  [LATE_FEE_CALC_TYPES.PER_DAY]: "Per Day",
+} as const;
+export type LateFeeCalcType =
+  (typeof LATE_FEE_CALC_TYPES)[keyof typeof LATE_FEE_CALC_TYPES];
+
+// ── Exam types ──────────────────────────────────────────────────────────────
+export const EXAM_TYPES = {
+  UNIT_TEST: "unit_test",
+  MIDTERM: "midterm",
+  FINAL: "final",
+  PRACTICAL: "practical",
+} as const;
+export const EXAM_TYPE_LABELS = {
+  [EXAM_TYPES.UNIT_TEST]: "Unit Test",
+  [EXAM_TYPES.MIDTERM]: "Mid-Term",
+  [EXAM_TYPES.FINAL]: "Final",
+  [EXAM_TYPES.PRACTICAL]: "Practical",
+} as const;
+export type ExamType = (typeof EXAM_TYPES)[keyof typeof EXAM_TYPES];
+
+// ── Grading scale statuses ──────────────────────────────────────────────────
+export const GRADING_SCALE_STATUS = {
+  ACTIVE: "active",
+  ARCHIVED: "archived",
+  DELETED: "deleted",
+} as const;
+export type GradingScaleStatus =
+  (typeof GRADING_SCALE_STATUS)[keyof typeof GRADING_SCALE_STATUS];
+
 export const AUTH_CONTEXT_LABELS = {
   [AUTH_CONTEXT_KEYS.STAFF]: "Staff",
   [AUTH_CONTEXT_KEYS.PARENT]: "Parent",
@@ -605,18 +658,21 @@ export const ATTENDANCE_STATUSES = {
   PRESENT: "present",
   ABSENT: "absent",
   LATE: "late",
+  HALF_DAY: "half_day",
   EXCUSED: "excused",
 } as const;
 export const ATTENDANCE_STATUS_LABELS = {
   [ATTENDANCE_STATUSES.PRESENT]: "Present",
   [ATTENDANCE_STATUSES.ABSENT]: "Absent",
   [ATTENDANCE_STATUSES.LATE]: "Late",
+  [ATTENDANCE_STATUSES.HALF_DAY]: "Half Day",
   [ATTENDANCE_STATUSES.EXCUSED]: "Excused",
 } as const;
 export const attendanceStatusSchema = z.enum([
   ATTENDANCE_STATUSES.PRESENT,
   ATTENDANCE_STATUSES.ABSENT,
   ATTENDANCE_STATUSES.LATE,
+  ATTENDANCE_STATUSES.HALF_DAY,
   ATTENDANCE_STATUSES.EXCUSED,
 ]);
 
