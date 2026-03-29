@@ -106,8 +106,7 @@ export function BatchReceiptsPage() {
             key={receipt.paymentId}
             className="mx-auto max-w-[210mm] bg-white px-8 py-6"
             style={{
-              pageBreakAfter:
-                index < receipts.length - 1 ? "always" : "auto",
+              pageBreakAfter: index < receipts.length - 1 ? "always" : "auto",
             }}
           >
             {/* Header */}

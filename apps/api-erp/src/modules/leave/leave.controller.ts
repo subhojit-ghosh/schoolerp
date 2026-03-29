@@ -27,21 +27,29 @@ import { CurrentInstitution } from "../tenant-context/current-institution.decora
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
+  AllocateLeaveBalancesBodyDto,
   CreateLeaveApplicationBodyDto,
   CreateLeaveTypeBodyDto,
   LeaveApplicationDto,
   LeaveApplicationListResultDto,
+  LeaveBalanceDto,
   LeaveTypeDto,
   ListLeaveApplicationsQueryParamsDto,
+  ListLeaveBalancesQueryParamsDto,
   ReviewLeaveApplicationBodyDto,
+  TeamLeaveCalendarEntryDto,
+  TeamLeaveCalendarQueryDto,
   UpdateLeaveTypeBodyDto,
 } from "./leave.dto";
 import {
+  parseAllocateLeaveBalances,
   parseCreateLeaveApplication,
   parseCreateLeaveType,
   parseListLeaveApplications,
+  parseListLeaveBalances,
   parseListLeaveTypes,
   parseReviewLeaveApplication,
+  parseTeamLeaveCalendar,
   parseUpdateLeaveType,
 } from "./leave.schemas";
 import { LeaveService } from "./leave.service";
@@ -190,6 +198,58 @@ export class LeaveController {
       institution.id,
       applicationId,
       session,
+    );
+  }
+
+  // ── Leave Balances ────────────────────────────────────────────────────────
+
+  @Get("balances")
+  @RequirePermission(PERMISSIONS.LEAVE_READ)
+  @ApiOperation({ summary: "List leave balances for staff" })
+  @ApiOkResponse({ type: [LeaveBalanceDto] })
+  async listLeaveBalances(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: ListLeaveBalancesQueryParamsDto,
+  ) {
+    const parsed = parseListLeaveBalances(query);
+    return this.leaveService.listLeaveBalances(institution.id, parsed);
+  }
+
+  @Post("balances/allocate")
+  @RequirePermission(PERMISSIONS.LEAVE_MANAGE)
+  @ApiOperation({
+    summary: "Allocate leave balances for all staff for a given academic year",
+  })
+  async allocateLeaveBalances(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Body() body: AllocateLeaveBalancesBodyDto,
+  ) {
+    const dto = parseAllocateLeaveBalances(body);
+    return this.leaveService.allocateLeaveBalances(
+      institution.id,
+      dto.academicYearId,
+      session,
+    );
+  }
+
+  // ── Team Leave Calendar ────────────────────────────────────────────────────
+
+  @Get("team-calendar")
+  @RequirePermission(PERMISSIONS.LEAVE_READ)
+  @ApiOperation({
+    summary: "Get approved leaves for all staff in a date range",
+  })
+  @ApiOkResponse({ type: [TeamLeaveCalendarEntryDto] })
+  async getTeamLeaveCalendar(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: TeamLeaveCalendarQueryDto,
+  ) {
+    const parsed = parseTeamLeaveCalendar(query);
+    return this.leaveService.getTeamLeaveCalendar(
+      institution.id,
+      parsed.from,
+      parsed.to,
     );
   }
 }

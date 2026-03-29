@@ -118,6 +118,44 @@ export class DataExchangeController {
     );
   }
 
+  @Get(`${API_ROUTES.EXPORTS}/full-dump`)
+  @ApiOperation({
+    summary: "Export all institution data as a combined CSV bundle",
+  })
+  async exportFullDump(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Res() response: Response,
+  ) {
+    const entityTypes = ["students", "staff", "guardians", "fee_assignments"];
+    const sections: string[] = [];
+
+    for (const entityType of entityTypes) {
+      try {
+        const file = await this.dataExchangeService.exportData(
+          institution.id,
+          authSession,
+          scopes,
+          entityType as Parameters<
+            typeof this.dataExchangeService.exportData
+          >[3],
+        );
+        sections.push(`\n--- ${entityType.toUpperCase()} ---\n`, file.content);
+      } catch {
+        // Skip entities the user doesn't have permission for
+      }
+    }
+
+    const combined = sections.join("\n");
+    response.setHeader("Content-Type", "text/csv; charset=utf-8");
+    response.setHeader(
+      "Content-Disposition",
+      `attachment; filename="full-institution-export.csv"`,
+    );
+    response.send(combined);
+  }
+
   @Get(`${API_ROUTES.EXPORTS}/:entityType`)
   @ApiOperation({ summary: "Export entity data to CSV" })
   async exportData(

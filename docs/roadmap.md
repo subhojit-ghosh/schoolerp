@@ -28,11 +28,11 @@ Ship a production-grade school ERP that a real Indian school can use for daily o
 - Frontend is a thin client over tenant-scoped APIs
 - Every screen a customer sees must be usable, not a placeholder
 
-## Now — Phase 0a complete, entering Phase 0b
+## Now — Phase 1 complete, entering Phase 2
 
-v1 is feature-complete with 35+ modules. Phase 0a (quick polish) is done: 190+ files changed covering error handling, Indian formatting, tab titles, breadcrumbs, form grouping, sidebar favorites, table density, calendar grid, keyboard shortcuts, and more. All migrations applied.
+v1 is feature-complete with 35+ modules. Phase 0a, 0b, and Phase 1 are all done. All migrations applied.
 
-Remaining before Phase 0b:
+Remaining:
 
 1. **End-to-end delivery testing** *(very last step)* — configure actual SMS/email provider credentials and verify delivery works in production
 
@@ -66,24 +66,9 @@ Gate: Fees, attendance, and exams are production-complete for Indian schools. Pr
 
 ---
 
-#### Phase 1 — First 5 schools (earn trust, reduce support load)
+#### Phase 1 — First 5 schools ~~(earn trust, reduce support load)~~ COMPLETE
 
-Gate: Schools can onboard themselves, daily workflows are fast, admins trust the numbers they see.
-
-Items pulled forward to Phase 0a (done): calendar visual grid, inline validation, session expiry warning, auto-save drafts, table density toggle, sticky headers, sidebar favorites, breadcrumbs, trust signals, duplicate detection, empty states, perceived performance (prefetch, skeletons).
-
-| # | Item | Section reference |
-|---|------|-------------------|
-| 1 | Guided setup checklist — post-signup progress tracker | Onboarding & first-time experience |
-| 2 | Leave management depth — balance tracking, half-day leave, holiday integration, team calendar | Module depth: Leave management |
-| 3 | Payroll depth — attendance-based LOP, PF/ESI templates, bank file export, payslip email | Module depth: Payroll |
-| 4 | Global search upgrade — ⌘K searches across students, staff, receipts, admission numbers | Global search & navigation |
-| 5 | Government compliance basics — caste/category fields, CBSE/ICSE affiliation fields, staff-student ratio | Must-haves: Government compliance |
-| 6 | Data export — full institution data dump in CSV/Excel | Must-haves: Data ownership |
-| 7 | PTM — slot booking, feedback recording, attendance tracking | Must-haves: PTM |
-| 8 | Student section transfer — mid-year section moves with attendance continuity | New modules: Section transfer |
-| 9 | Role-specific dashboards — principal, class teacher, accountant, parent each see a tailored view | Role-specific dashboards |
-| 10 | Notification preferences — per-user channel settings, quiet hours, digest mode | Notification & alert preferences |
+All 10 items done. See `docs/status.md` for the full list of what was implemented.
 
 ---
 

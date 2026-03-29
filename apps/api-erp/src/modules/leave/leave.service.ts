@@ -9,12 +9,14 @@ import { DATABASE } from "@repo/backend-core";
 import {
   and,
   asc,
+  calendarEvents,
   count,
   desc,
   eq,
   gte,
   ilike,
   leaveApplications,
+  leaveBalances,
   leaveTypes,
   lte,
   member,
@@ -34,6 +36,7 @@ import type {
   CreateLeaveApplicationDto,
   CreateLeaveTypeDto,
   ListLeaveApplicationsQueryDto,
+  ListLeaveBalancesQueryDto,
   ReviewLeaveApplicationDto,
   UpdateLeaveTypeDto,
 } from "./leave.schemas";
@@ -74,6 +77,9 @@ export class LeaveService {
       name: lt.name,
       maxDaysPerYear: lt.maxDaysPerYear,
       isPaid: lt.isPaid,
+      carryForwardDays: lt.carryForwardDays,
+      isHalfDayAllowed: lt.isHalfDayAllowed,
+      leaveCategory: lt.leaveCategory,
       status: lt.status,
       createdAt: lt.createdAt.toISOString(),
     }));
@@ -92,6 +98,9 @@ export class LeaveService {
       name: dto.name,
       maxDaysPerYear: dto.maxDaysPerYear ?? null,
       isPaid: dto.isPaid ?? true,
+      carryForwardDays: dto.carryForwardDays ?? 0,
+      isHalfDayAllowed: dto.isHalfDayAllowed ?? false,
+      leaveCategory: dto.leaveCategory ?? "other",
       status: "active",
     });
 
@@ -140,6 +149,9 @@ export class LeaveService {
             ? dto.maxDaysPerYear
             : existing.maxDaysPerYear,
         isPaid: dto.isPaid ?? existing.isPaid,
+        carryForwardDays: dto.carryForwardDays ?? existing.carryForwardDays,
+        isHalfDayAllowed: dto.isHalfDayAllowed ?? existing.isHalfDayAllowed,
+        leaveCategory: dto.leaveCategory ?? existing.leaveCategory,
         status: dto.status ?? existing.status,
       })
       .where(eq(leaveTypes.id, leaveTypeId));
@@ -217,6 +229,7 @@ export class LeaveService {
           fromDate: leaveApplications.fromDate,
           toDate: leaveApplications.toDate,
           daysCount: leaveApplications.daysCount,
+          isHalfDay: leaveApplications.isHalfDay,
           reason: leaveApplications.reason,
           status: leaveApplications.status,
           reviewedByName: reviewedByUser.name,
@@ -347,6 +360,13 @@ export class LeaveService {
       throw new BadRequestException(ERROR_MESSAGES.LEAVE.TYPE_INACTIVE);
     }
 
+    const isHalfDay = dto.isHalfDay ?? false;
+    if (isHalfDay && !leaveType.isHalfDayAllowed) {
+      throw new BadRequestException(
+        "Half-day leave is not allowed for this leave type.",
+      );
+    }
+
     const staffMember = await this.db
       .select({ id: member.id })
       .from(member)
@@ -362,7 +382,14 @@ export class LeaveService {
       throw new NotFoundException("Staff member not found.");
     }
 
-    const daysCount = this.calcDaysCount(dto.fromDate, dto.toDate);
+    const holidays = await this.getHolidayDates(
+      institutionId,
+      dto.fromDate,
+      dto.toDate,
+    );
+    const daysCount = isHalfDay
+      ? 0.5
+      : this.calcWorkingDays(dto.fromDate, dto.toDate, holidays);
 
     const id = randomUUID();
 
@@ -373,7 +400,8 @@ export class LeaveService {
       leaveTypeId: dto.leaveTypeId,
       fromDate: dto.fromDate,
       toDate: dto.toDate,
-      daysCount,
+      daysCount: Math.ceil(daysCount),
+      isHalfDay,
       reason: dto.reason ?? null,
       status: "pending",
     });
@@ -427,7 +455,15 @@ export class LeaveService {
       throw new NotFoundException("Staff member not found.");
     }
 
-    const daysCount = this.calcDaysCount(dto.fromDate, dto.toDate);
+    const isHalfDay = dto.isHalfDay ?? false;
+    const holidays = await this.getHolidayDates(
+      institutionId,
+      dto.fromDate,
+      dto.toDate,
+    );
+    const daysCount = isHalfDay
+      ? 0.5
+      : this.calcWorkingDays(dto.fromDate, dto.toDate, holidays);
     const id = randomUUID();
 
     await this.db.insert(leaveApplications).values({
@@ -437,7 +473,8 @@ export class LeaveService {
       leaveTypeId: dto.leaveTypeId,
       fromDate: dto.fromDate,
       toDate: dto.toDate,
-      daysCount,
+      daysCount: Math.ceil(daysCount),
+      isHalfDay,
       reason: dto.reason ?? null,
       status: "pending",
     });
@@ -550,6 +587,196 @@ export class LeaveService {
     });
 
     return { id: applicationId };
+  }
+
+  // ── Leave Balances ───────────────────────────────────────────────────────
+
+  async listLeaveBalances(
+    institutionId: string,
+    query: ListLeaveBalancesQueryDto,
+  ) {
+    const conditions = [eq(leaveBalances.institutionId, institutionId)];
+
+    if (query.staffMemberId) {
+      conditions.push(eq(leaveBalances.staffMemberId, query.staffMemberId));
+    }
+    if (query.academicYearId) {
+      conditions.push(eq(leaveBalances.academicYearId, query.academicYearId));
+    }
+
+    const rows = await this.db
+      .select({
+        id: leaveBalances.id,
+        staffMemberId: leaveBalances.staffMemberId,
+        staffName: staffUser.name,
+        leaveTypeId: leaveBalances.leaveTypeId,
+        leaveTypeName: leaveTypes.name,
+        academicYearId: leaveBalances.academicYearId,
+        allocated: leaveBalances.allocated,
+        used: leaveBalances.used,
+        carriedForward: leaveBalances.carriedForward,
+      })
+      .from(leaveBalances)
+      .innerJoin(member, eq(leaveBalances.staffMemberId, member.id))
+      .innerJoin(staffUser, eq(member.userId, staffUser.id))
+      .innerJoin(leaveTypes, eq(leaveBalances.leaveTypeId, leaveTypes.id))
+      .where(and(...conditions))
+      .orderBy(asc(staffUser.name), asc(leaveTypes.name));
+
+    return rows.map((r) => ({
+      ...r,
+      remaining: r.allocated + r.carriedForward - r.used,
+    }));
+  }
+
+  async allocateLeaveBalances(
+    institutionId: string,
+    academicYearId: string,
+    authSession: AuthenticatedSession,
+  ) {
+    // Get all active leave types with maxDaysPerYear set
+    const activeTypes = await this.db
+      .select()
+      .from(leaveTypes)
+      .where(
+        and(
+          eq(leaveTypes.institutionId, institutionId),
+          eq(leaveTypes.status, "active"),
+        ),
+      );
+
+    // Get all active staff members
+    const staffMembers = await this.db
+      .select({ id: member.id })
+      .from(member)
+      .where(
+        and(
+          eq(member.organizationId, institutionId),
+          eq(member.memberType, "staff"),
+          eq(member.status, "active"),
+        ),
+      );
+
+    let created = 0;
+    for (const staffMember of staffMembers) {
+      for (const lt of activeTypes) {
+        if (!lt.maxDaysPerYear) continue;
+
+        // Check if balance already exists
+        const existing = await this.db
+          .select({ id: leaveBalances.id })
+          .from(leaveBalances)
+          .where(
+            and(
+              eq(leaveBalances.staffMemberId, staffMember.id),
+              eq(leaveBalances.leaveTypeId, lt.id),
+              eq(leaveBalances.academicYearId, academicYearId),
+            ),
+          )
+          .then((rows) => rows[0]);
+
+        if (existing) continue;
+
+        await this.db.insert(leaveBalances).values({
+          id: randomUUID(),
+          institutionId,
+          staffMemberId: staffMember.id,
+          leaveTypeId: lt.id,
+          academicYearId,
+          allocated: lt.maxDaysPerYear,
+          used: 0,
+          carriedForward: 0,
+        });
+        created++;
+      }
+    }
+
+    await this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.LEAVE_TYPE,
+      entityId: academicYearId,
+      summary: `Allocated leave balances for ${created} staff-type combinations`,
+    });
+
+    return { created };
+  }
+
+  // ── Team Leave Calendar ──────────────────────────────────────────────────
+
+  async getTeamLeaveCalendar(institutionId: string, from: string, to: string) {
+    const rows = await this.db
+      .select({
+        id: leaveApplications.id,
+        staffMemberId: leaveApplications.staffMemberId,
+        staffName: staffUser.name,
+        leaveTypeName: leaveTypes.name,
+        fromDate: leaveApplications.fromDate,
+        toDate: leaveApplications.toDate,
+        daysCount: leaveApplications.daysCount,
+        isHalfDay: leaveApplications.isHalfDay,
+        status: leaveApplications.status,
+      })
+      .from(leaveApplications)
+      .innerJoin(leaveTypes, eq(leaveApplications.leaveTypeId, leaveTypes.id))
+      .innerJoin(member, eq(leaveApplications.staffMemberId, member.id))
+      .innerJoin(staffUser, eq(member.userId, staffUser.id))
+      .where(
+        and(
+          eq(leaveApplications.institutionId, institutionId),
+          eq(leaveApplications.status, "approved"),
+          lte(leaveApplications.fromDate, to),
+          gte(leaveApplications.toDate, from),
+        ),
+      )
+      .orderBy(asc(leaveApplications.fromDate));
+
+    return rows;
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────────
+
+  private async getHolidayDates(
+    institutionId: string,
+    fromDate: string,
+    toDate: string,
+  ): Promise<Set<string>> {
+    const holidays = await this.db
+      .select({
+        eventDate: calendarEvents.eventDate,
+      })
+      .from(calendarEvents)
+      .where(
+        and(
+          eq(calendarEvents.institutionId, institutionId),
+          eq(calendarEvents.eventType, "holiday"),
+          eq(calendarEvents.status, "active"),
+          gte(calendarEvents.eventDate, fromDate),
+          lte(calendarEvents.eventDate, toDate),
+        ),
+      );
+
+    return new Set(holidays.map((h) => h.eventDate));
+  }
+
+  private calcWorkingDays(
+    fromDate: string,
+    toDate: string,
+    holidays: Set<string>,
+  ): number {
+    const from = new Date(fromDate);
+    const to = new Date(toDate);
+    let count = 0;
+    const cursor = new Date(from);
+    while (cursor <= to) {
+      const dateStr = cursor.toISOString().slice(0, 10);
+      if (!holidays.has(dateStr)) {
+        count++;
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return count;
   }
 
   private calcDaysCount(fromDate: string, toDate: string): number {

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import {
   IconArrowRight,
@@ -31,6 +31,8 @@ import { formatDateTime, formatFullDate } from "@/lib/format";
 import { getLastLogin } from "@/lib/last-login";
 import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
 import { StudentPortalPage } from "@/features/student-portal/ui/student-portal-page";
+import { useSetupStatusQuery } from "@/features/setup/api/use-setup-status";
+import { SetupChecklist } from "@/features/setup/ui/setup-checklist";
 
 const QUICK_ACTIONS = [
   {
@@ -123,6 +125,19 @@ export function DashboardPage() {
     isStaffContext(session) &&
     !academicYearsQuery.isLoading &&
     (academicYearsQuery.data?.total ?? 0) === 0;
+
+  const CHECKLIST_DISMISSED_KEY = "setup-checklist-dismissed";
+  const [checklistDismissed, setChecklistDismissed] = useState(
+    () => localStorage.getItem(CHECKLIST_DISMISSED_KEY) === "true",
+  );
+  const setupStatusQuery = useSetupStatusQuery(
+    isStaffContext(session) && !needsSetup && !checklistDismissed,
+  );
+  const handleDismissChecklist = useCallback(() => {
+    localStorage.setItem(CHECKLIST_DISMISSED_KEY, "true");
+    setChecklistDismissed(true);
+  }, []);
+
   const attendanceOverview = attendanceOverviewQuery.data ?? [];
   const markedSections = attendanceOverview.filter(
     (item) => item.marked,
@@ -198,6 +213,14 @@ export function DashboardPage() {
             <Link to={ERP_ROUTES.SETUP}>Get started</Link>
           </Button>
         </div>
+      ) : null}
+
+      {/* Setup checklist */}
+      {!checklistDismissed && setupStatusQuery.data ? (
+        <SetupChecklist
+          status={setupStatusQuery.data}
+          onDismiss={handleDismissChecklist}
+        />
       ) : null}
 
       {/* Greeting */}
@@ -308,6 +331,122 @@ export function DashboardPage() {
           )}
         </div>
       </div>
+      {/* Role-specific insights */}
+      <RoleInsights session={session} />
     </EntityPageShell>
+  );
+}
+
+function RoleInsights({
+  session,
+}: {
+  session: ReturnType<typeof useAuthStore.getState>["session"];
+}) {
+  const roles = session?.activeStaffRoles ?? [];
+  const roleNames = roles.map((r: { name: string }) => r.name);
+
+  const isAdmin = roleNames.some(
+    (n: string) =>
+      n.toLowerCase().includes("admin") ||
+      n.toLowerCase().includes("principal"),
+  );
+  const isAccountant = roleNames.some(
+    (n: string) =>
+      n.toLowerCase().includes("accountant") ||
+      n.toLowerCase().includes("finance"),
+  );
+  const isTeacher = roleNames.some(
+    (n: string) =>
+      n.toLowerCase().includes("teacher") ||
+      n.toLowerCase().includes("class teacher"),
+  );
+
+  if (!isAdmin && !isAccountant && !isTeacher) return null;
+
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-0.5">
+        For you
+      </p>
+      <div className="grid grid-cols-1 gap-3 @xl/main:grid-cols-2 @4xl/main:grid-cols-3">
+        {isAdmin ? (
+          <>
+            <InsightCard
+              title="Staff-Student Ratio"
+              description="Monitor staffing levels across the institution"
+              href={ERP_ROUTES.REPORTS_STUDENT_STRENGTH}
+            />
+            <InsightCard
+              title="Fee Defaulters"
+              description="Students with overdue fee payments"
+              href={ERP_ROUTES.FEE_DEFAULTERS}
+            />
+            <InsightCard
+              title="Audit Trail"
+              description="Review recent changes across the system"
+              href={ERP_ROUTES.SETTINGS_AUDIT}
+            />
+          </>
+        ) : null}
+        {isAccountant ? (
+          <>
+            <InsightCard
+              title="Fee Collection"
+              description="Today's collection and outstanding summary"
+              href={ERP_ROUTES.FEE_REPORTS}
+            />
+            <InsightCard
+              title="Fee Defaulters"
+              description="Follow up on overdue payments"
+              href={ERP_ROUTES.FEE_DEFAULTERS}
+            />
+            <InsightCard
+              title="Payroll Runs"
+              description="Process and manage monthly payroll"
+              href={ERP_ROUTES.PAYROLL_RUNS}
+            />
+          </>
+        ) : null}
+        {isTeacher ? (
+          <>
+            <InsightCard
+              title="My Attendance"
+              description="Mark today's class attendance"
+              href={ERP_ROUTES.ATTENDANCE}
+            />
+            <InsightCard
+              title="Homework"
+              description="Assign and track homework"
+              href={ERP_ROUTES.HOMEWORK}
+            />
+            <InsightCard
+              title="PTM Sessions"
+              description="Upcoming parent-teacher meetings"
+              href={ERP_ROUTES.PTM_SESSIONS}
+            />
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function InsightCard({
+  title,
+  description,
+  href,
+}: {
+  title: string;
+  description: string;
+  href: string;
+}) {
+  return (
+    <Link
+      to={href}
+      className="group rounded-xl border bg-card p-4 transition-all hover:border-primary/40 hover:shadow-md"
+    >
+      <p className="text-sm font-semibold text-foreground">{title}</p>
+      <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
+    </Link>
   );
 }

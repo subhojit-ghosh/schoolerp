@@ -69,6 +69,13 @@ export const ERP_ROUTES = {
   LEAVE_TYPES_EDIT: `/leave/types/:leaveTypeId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   LEAVE_APPLICATIONS: "/leave/applications",
   LEAVE_APPLICATIONS_CREATE: `/leave/applications/${ERP_ROUTE_SEGMENTS.NEW}`,
+  LEAVE_BALANCES: "/leave/balances",
+  LEAVE_TEAM_CALENDAR: "/leave/team-calendar",
+  // PTM
+  PTM_SESSIONS: "/ptm",
+  PTM_SESSION_CREATE: `/ptm/${ERP_ROUTE_SEGMENTS.NEW}`,
+  // Notification Preferences
+  NOTIFICATION_PREFERENCES: "/account/notification-preferences",
   DISCIPLINE: "/discipline",
   // Finance
   FEES: "/fees",

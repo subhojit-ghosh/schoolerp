@@ -1788,6 +1788,92 @@ export class StudentsService {
     return new Date(`${date}T00:00:00.000Z`).toISOString();
   }
 
+  // ── Section Transfer ──────────────────────────────────────────────────────
+
+  async transferSection(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    dto: {
+      targetClassId: string;
+      targetSectionId: string;
+      reason?: string;
+    },
+  ) {
+    const student = await this.db
+      .select({
+        id: students.id,
+        firstName: students.firstName,
+        lastName: students.lastName,
+        classId: students.classId,
+        sectionId: students.sectionId,
+        membershipId: students.membershipId,
+      })
+      .from(students)
+      .where(
+        and(
+          eq(students.id, studentId),
+          eq(students.institutionId, institutionId),
+          isNull(students.deletedAt),
+        ),
+      )
+      .then((rows) => rows[0]);
+
+    if (!student) {
+      throw new NotFoundException(ERROR_MESSAGES.STUDENTS.STUDENT_NOT_FOUND);
+    }
+
+    // Update student record with new class/section
+    await this.db
+      .update(students)
+      .set({
+        classId: dto.targetClassId,
+        sectionId: dto.targetSectionId,
+      })
+      .where(eq(students.id, studentId));
+
+    // Update current enrollment record
+    const activeEnrollment = await this.db
+      .select({ id: studentCurrentEnrollments.id })
+      .from(studentCurrentEnrollments)
+      .where(
+        and(
+          eq(
+            studentCurrentEnrollments.studentMembershipId,
+            student.membershipId,
+          ),
+          isNull(studentCurrentEnrollments.deletedAt),
+        ),
+      )
+      .then((rows) => rows[0]);
+
+    if (activeEnrollment) {
+      await this.db
+        .update(studentCurrentEnrollments)
+        .set({
+          classId: dto.targetClassId,
+          sectionId: dto.targetSectionId,
+        })
+        .where(eq(studentCurrentEnrollments.id, activeEnrollment.id));
+    }
+
+    const studentName = [student.firstName, student.lastName]
+      .filter(Boolean)
+      .join(" ");
+
+    await this.auditService.record({
+      institutionId,
+      authSession,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.STUDENT,
+      entityId: studentId,
+      entityLabel: studentName,
+      summary: `Section transfer for "${studentName}"${dto.reason ? `: ${dto.reason}` : ""}`,
+    });
+
+    return { id: studentId };
+  }
+
   private toRoundedPercent(obtained: number, max: number) {
     if (max <= 0) {
       return 0;

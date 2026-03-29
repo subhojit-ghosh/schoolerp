@@ -225,6 +225,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/onboarding/setup-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get institution setup progress (entity counts) */
+        get: operations["OnboardingController_getSetupStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/onboarding/check-slug": {
         parameters: {
             query?: never;
@@ -2419,6 +2436,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/leave/balances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List leave balances for staff */
+        get: operations["LeaveController_listLeaveBalances"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leave/balances/allocate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Allocate leave balances for all staff for a given academic year */
+        post: operations["LeaveController_allocateLeaveBalances"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/leave/team-calendar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get approved leaves for all staff in a date range */
+        get: operations["LeaveController_getTeamLeaveCalendar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/library/books": {
         parameters: {
             query?: never;
@@ -3688,6 +3756,14 @@ export interface components {
         };
         ChangePasswordResponseDto: {
             success: boolean;
+        };
+        SetupStatusDto: {
+            academicYears: number;
+            classes: number;
+            students: number;
+            staff: number;
+            subjects: number;
+            feeStructures: number;
         };
         CreateInstitutionOnboardingBodyDto: {
             institutionName: string;
@@ -5406,23 +5482,35 @@ export interface components {
         LeaveTypeDto: {
             maxDaysPerYear: number | null;
             /** @enum {string} */
+            leaveCategory: "casual" | "sick" | "earned" | "comp_off" | "maternity" | "paternity" | "other";
+            /** @enum {string} */
             status: "active" | "inactive";
             id: string;
             name: string;
             isPaid: boolean;
+            carryForwardDays: number;
+            isHalfDayAllowed: boolean;
             createdAt: string;
         };
         CreateLeaveTypeBodyDto: {
+            /** @enum {string} */
+            leaveCategory?: "casual" | "sick" | "earned" | "comp_off" | "maternity" | "paternity" | "other";
             name: string;
             maxDaysPerYear?: number | null;
             isPaid?: boolean;
+            carryForwardDays?: number;
+            isHalfDayAllowed?: boolean;
         };
         UpdateLeaveTypeBodyDto: {
+            /** @enum {string} */
+            leaveCategory?: "casual" | "sick" | "earned" | "comp_off" | "maternity" | "paternity" | "other";
             /** @enum {string} */
             status?: "active" | "inactive";
             name?: string;
             maxDaysPerYear?: number | null;
             isPaid?: boolean;
+            carryForwardDays?: number;
+            isHalfDayAllowed?: boolean;
         };
         LeaveApplicationDto: {
             staffEmployeeId: string | null;
@@ -5440,6 +5528,7 @@ export interface components {
             fromDate: string;
             toDate: string;
             daysCount: number;
+            isHalfDay: boolean;
             createdAt: string;
         };
         LeaveApplicationListResultDto: {
@@ -5453,12 +5542,40 @@ export interface components {
             leaveTypeId: string;
             fromDate: string;
             toDate: string;
+            isHalfDay?: boolean;
             reason?: string;
         };
         ReviewLeaveApplicationBodyDto: {
             /** @enum {string} */
             status: "approved" | "rejected";
             reviewNote?: string;
+        };
+        LeaveBalanceDto: {
+            id: string;
+            staffMemberId: string;
+            staffName: string;
+            leaveTypeId: string;
+            leaveTypeName: string;
+            academicYearId: string;
+            allocated: number;
+            used: number;
+            carriedForward: number;
+            remaining: number;
+        };
+        AllocateLeaveBalancesBodyDto: {
+            academicYearId: string;
+        };
+        TeamLeaveCalendarEntryDto: {
+            /** @enum {string} */
+            status: "approved";
+            id: string;
+            staffMemberId: string;
+            staffName: string;
+            leaveTypeName: string;
+            fromDate: string;
+            toDate: string;
+            daysCount: number;
+            isHalfDay: boolean;
         };
         BookDto: {
             author: string | null;
@@ -6684,6 +6801,25 @@ export interface operations {
                     "application/json": {
                         success?: boolean;
                     };
+                };
+            };
+        };
+    };
+    OnboardingController_getSetupStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SetupStatusDto"];
                 };
             };
         };
@@ -10707,6 +10843,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LeaveApplicationDto"];
+                };
+            };
+        };
+    };
+    LeaveController_listLeaveBalances: {
+        parameters: {
+            query?: {
+                staffMemberId?: string;
+                academicYearId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveBalanceDto"][];
+                };
+            };
+        };
+    };
+    LeaveController_allocateLeaveBalances: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AllocateLeaveBalancesBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    LeaveController_getTeamLeaveCalendar: {
+        parameters: {
+            query: {
+                from: string;
+                to: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeamLeaveCalendarEntryDto"][];
                 };
             };
         };

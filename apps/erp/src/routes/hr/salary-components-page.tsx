@@ -7,6 +7,7 @@ import {
   IconPencil,
   IconPlus,
   IconSearch,
+  IconSeedling,
   IconToggleLeft,
   IconToggleRight,
 } from "@tabler/icons-react";
@@ -40,6 +41,7 @@ import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
   useSalaryComponentsQuery,
   useUpdateSalaryComponentStatusMutation,
+  useSeedStatutoryComponentsMutation,
 } from "@/features/payroll/api/use-payroll";
 import {
   SALARY_COMPONENT_LIST_SORT_FIELDS,
@@ -77,6 +79,26 @@ export function SalaryComponentsPage() {
   const canManagePayroll = hasPermission(session, PERMISSIONS.PAYROLL_MANAGE);
 
   const statusMutation = useUpdateSalaryComponentStatusMutation();
+  const seedMutation = useSeedStatutoryComponentsMutation();
+
+  const handleSeedStatutory = useCallback(async () => {
+    try {
+      const result = (await seedMutation.mutateAsync()) as {
+        created: number;
+      };
+      if (result.created > 0) {
+        toast.success(
+          `Seeded ${result.created} statutory salary components (PF, ESI, TDS, etc.)`,
+        );
+      } else {
+        toast.info("All statutory components already exist.");
+      }
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Failed to seed statutory components."),
+      );
+    }
+  }, [seedMutation]);
 
   const {
     queryState,
@@ -320,17 +342,29 @@ export function SalaryComponentsPage() {
       description={SALARY_COMPONENTS_PAGE_COPY.DESCRIPTION}
       actions={
         canManagePayroll ? (
-          <EntityPagePrimaryAction asChild>
-            <Link
-              to={appendSearch(
-                ERP_ROUTES.PAYROLL_SALARY_COMPONENT_CREATE,
-                location.search,
-              )}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-9"
+              disabled={seedMutation.isPending}
+              onClick={() => void handleSeedStatutory()}
             >
-              <IconPlus className="size-4" />
-              New component
-            </Link>
-          </EntityPagePrimaryAction>
+              <IconSeedling className="mr-1.5 size-4" />
+              {seedMutation.isPending ? "Seeding..." : "Seed statutory"}
+            </Button>
+            <EntityPagePrimaryAction asChild>
+              <Link
+                to={appendSearch(
+                  ERP_ROUTES.PAYROLL_SALARY_COMPONENT_CREATE,
+                  location.search,
+                )}
+              >
+                <IconPlus className="size-4" />
+                New component
+              </Link>
+            </EntityPagePrimaryAction>
+          </div>
         ) : undefined
       }
       toolbar={

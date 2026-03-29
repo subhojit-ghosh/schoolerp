@@ -1,5 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
+export class SetupStatusDto {
+  academicYears!: number;
+  classes!: number;
+  students!: number;
+  staff!: number;
+  subjects!: number;
+  feeStructures!: number;
+}
+
 export class CreateInstitutionOnboardingBodyDto {
   @ApiProperty()
   institutionName!: string;

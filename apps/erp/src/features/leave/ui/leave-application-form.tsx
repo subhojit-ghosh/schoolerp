@@ -1,4 +1,4 @@
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Field,
@@ -8,6 +8,7 @@ import {
   FieldLabel,
 } from "@repo/ui/components/ui/field";
 import { Input } from "@repo/ui/components/ui/input";
+import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -57,8 +58,18 @@ export function LeaveApplicationForm({
     defaultValues,
   });
 
+  const selectedLeaveTypeId = useWatch({ control, name: "leaveTypeId" });
+  const selectedLeaveType = leaveTypeOptions.find(
+    (lt) => lt.id === selectedLeaveTypeId,
+  );
+  const halfDayAllowed = selectedLeaveType?.isHalfDayAllowed ?? false;
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={handleSubmit(
+        onSubmit as unknown as Parameters<typeof handleSubmit>[0],
+      )}
+    >
       <FieldGroup className="gap-4">
         <Controller
           control={control}
@@ -127,6 +138,26 @@ export function LeaveApplicationForm({
             )}
           />
         </div>
+
+        {halfDayAllowed ? (
+          <Controller
+            control={control}
+            name="isHalfDay"
+            render={({ field }) => (
+              <Field>
+                <FieldContent>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                    <span className="text-sm">Half-day leave</span>
+                  </label>
+                </FieldContent>
+              </Field>
+            )}
+          />
+        ) : null}
 
         <Controller
           control={control}

@@ -217,7 +217,6 @@ export function StaffAttendancePage() {
     }
 
     try {
-       
       await saveMutation.mutateAsync({
         body: {
           campusId: activeCampusId,
@@ -226,7 +225,7 @@ export function StaffAttendancePage() {
             staffMembershipId: e.staffMembershipId,
             status: e.status as string,
           })),
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
       });
       toast.success(

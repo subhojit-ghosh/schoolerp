@@ -100,6 +100,21 @@ All 5 Phase 0b items are implemented end-to-end:
 - **Document config** — new Settings > Documents page with signatory management (add/activate/deactivate), receipt numbering config (prefix/next number/pad length with preview), report card field toggles (rank/remarks/attendance/grading/result), sidebar nav item
 - **Batch printing** — batch report cards page at /documents/batch-report-cards, batch receipts page at /documents/batch-receipts, both with CSS page-break-after for proper multi-page browser printing
 
+## Phase 1 — Complete (10 items, First 5 Schools)
+
+All Phase 1 items implemented end-to-end:
+
+- **Guided setup checklist** — backend setup-status endpoint returns entity counts, dashboard shows interactive checklist with progress bar (academic years, classes, subjects, staff, students, fee structures) with dismiss + localStorage persistence
+- **Leave management depth** — leave type categories (casual/sick/earned/comp_off/maternity/paternity), carry-forward days, half-day leave support, holiday integration (auto-excludes calendar holidays from leave day count), leave balance tracking per staff per academic year with allocation endpoint, team leave calendar showing approved leaves by date
+- **Payroll depth** — attendance-based LOP deduction (absent days + half-day from staff attendance integrated into payroll processing), statutory salary component seeding (Basic, HRA, DA, Conveyance, PF employee/employer, ESI employee/employer, Professional Tax, TDS), bank transfer file export (CSV with NEFT format), download button on payroll run detail
+- **Global search upgrade** — backend `/search` endpoint querying students (by name/admission number), staff (by name/employee ID), and fee receipts (by receipt number); Cmd+K now shows live backend search results above navigation items with type badges
+- **Government compliance** — caste/category/religion/nationality/motherTongue/bloodGroup/aadharNumber fields on students, boardAffiliation/affiliationNumber/udiseCode/address/city/state/pincode/contactPhone/contactEmail on institution, staff-student ratio endpoint
+- **Data export** — full institution data dump endpoint combining students, staff, guardians, and fee assignments into a single CSV download
+- **PTM module** — sessions CRUD (title, date, time range, slot duration), auto-generate time slots per teacher, slot booking (student + parent), feedback recording with attendance marking, PTM sessions list page with create dialog
+- **Student section transfer** — mid-year section/class transfer endpoint updates both student record and current enrollment in one operation with audit trail
+- **Role-specific dashboards** — dashboard "For you" section shows context-aware insights: admin sees ratio/defaulters/audit, accountant sees collection/defaulters/payroll, teacher sees attendance/homework/PTM
+- **Notification preferences** — per-user channel toggles (SMS/email/in-app), quiet hours configuration, digest mode (instant/daily/weekly), settings page under account
+
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
 - No items currently in this category.
@@ -109,4 +124,4 @@ All 5 Phase 0b items are implemented end-to-end:
 - **Real SMS/email provider testing** — the delivery abstraction and provider implementations are built; institutions need to configure actual provider credentials and verify delivery end-to-end. **Intentionally deferred to the very last step of v1.**
 
 ## Planned Next — Post-v1 depth
-- See roadmap.md for post-v1 feature depth items (Phase 0b → Phase 1 → ...)
+- See roadmap.md for post-v1 feature depth items (Phase 1 → Phase 2 → ...)

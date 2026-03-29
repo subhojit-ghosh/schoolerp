@@ -26,6 +26,7 @@ import {
   payslips,
   payslipLineItems,
   staffProfiles,
+  staffAttendanceRecords,
   member,
   user,
   campus,
@@ -1005,10 +1006,44 @@ export class PayrollService {
         }
       }
 
+      // Also check staff attendance for absent days not covered by leave
+      const attendanceAbsent = await this.db
+        .select({ count: count() })
+        .from(staffAttendanceRecords)
+        .where(
+          and(
+            eq(staffAttendanceRecords.institutionId, institutionId),
+            eq(staffAttendanceRecords.staffMembershipId, sa.membershipId),
+            gte(staffAttendanceRecords.attendanceDate, monthStart),
+            lte(staffAttendanceRecords.attendanceDate, monthEnd),
+            eq(staffAttendanceRecords.status, "absent"),
+          ),
+        );
+      const absentDays = attendanceAbsent[0]?.count ?? 0;
+
+      // Half-day attendance counts as 0.5 absent
+      const attendanceHalfDay = await this.db
+        .select({ count: count() })
+        .from(staffAttendanceRecords)
+        .where(
+          and(
+            eq(staffAttendanceRecords.institutionId, institutionId),
+            eq(staffAttendanceRecords.staffMembershipId, sa.membershipId),
+            gte(staffAttendanceRecords.attendanceDate, monthStart),
+            lte(staffAttendanceRecords.attendanceDate, monthEnd),
+            eq(staffAttendanceRecords.status, "half_day"),
+          ),
+        );
+      const halfDayCount = attendanceHalfDay[0]?.count ?? 0;
+
+      // Total LOP = unpaid leave days + attendance absences + half(half-day attendance)
+      const totalLopDays =
+        unpaidLeaveDays + absentDays + Math.ceil(halfDayCount * 0.5);
+
       const workingDays = run.workingDays;
       const presentDays = Math.max(
         0,
-        workingDays - paidLeaveDays - unpaidLeaveDays,
+        workingDays - paidLeaveDays - totalLopDays,
       );
       const effectiveDays = presentDays + paidLeaveDays;
 
@@ -1463,6 +1498,202 @@ export class PayrollService {
       pageSize,
       pageCount: pagination.pageCount,
     };
+  }
+
+  // ── Bank File Export ────────────────────────────────────────────────────
+
+  async generateBankFile(
+    institutionId: string,
+    runId: string,
+  ): Promise<{ fileName: string; content: string }> {
+    const run = await this.db
+      .select()
+      .from(payrollRuns)
+      .where(
+        and(
+          eq(payrollRuns.id, runId),
+          eq(payrollRuns.institutionId, institutionId),
+        ),
+      )
+      .then((rows) => rows[0]);
+
+    if (!run) throw new NotFoundException(ERROR_MESSAGES.PAYROLL.RUN_NOT_FOUND);
+    if (run.status === PAYROLL_RUN_STATUS.DRAFT) {
+      throw new BadRequestException(
+        "Payroll run must be processed before exporting bank file.",
+      );
+    }
+
+    const slips = await this.db
+      .select({
+        staffName: payslips.staffName,
+        staffEmployeeId: payslips.staffEmployeeId,
+        netPayInPaise: payslips.netPayInPaise,
+      })
+      .from(payslips)
+      .where(
+        and(
+          eq(payslips.payrollRunId, runId),
+          eq(payslips.institutionId, institutionId),
+        ),
+      )
+      .orderBy(asc(payslips.staffName));
+
+    // Generate CSV for bank transfer (NEFT/RTGS compatible)
+    const header = [
+      "Sr No",
+      "Employee Name",
+      "Employee ID",
+      "Net Pay (INR)",
+      "Payment Mode",
+    ].join(",");
+
+    const rows: string[] = slips.map((slip, i) => {
+      const netPayRupees = (slip.netPayInPaise / 100).toFixed(2);
+      return [
+        i + 1,
+        `"${slip.staffName}"`,
+        slip.staffEmployeeId ?? "",
+        netPayRupees,
+        "NEFT",
+      ].join(",");
+    });
+
+    const totalNet = slips.reduce((sum, s) => sum + s.netPayInPaise, 0);
+    rows.push("");
+    rows.push(`,,Total,${(totalNet / 100).toFixed(2)},`);
+
+    const content = [header, ...rows].join("\n");
+    const fileName = `bank-transfer-${run.year}-${String(run.month).padStart(2, "0")}.csv`;
+
+    return { fileName, content };
+  }
+
+  // ── Statutory Template Seeding ────────────────────────────────────────
+
+  async seedStatutoryComponents(
+    institutionId: string,
+    session: AuthenticatedSession,
+  ) {
+    const STATUTORY_COMPONENTS = [
+      {
+        name: "Basic Salary",
+        type: "earning" as const,
+        calculationType: "fixed" as const,
+        isTaxable: true,
+        isStatutory: false,
+        sortOrder: 1,
+      },
+      {
+        name: "House Rent Allowance (HRA)",
+        type: "earning" as const,
+        calculationType: "percentage" as const,
+        isTaxable: true,
+        isStatutory: false,
+        sortOrder: 2,
+      },
+      {
+        name: "Dearness Allowance (DA)",
+        type: "earning" as const,
+        calculationType: "percentage" as const,
+        isTaxable: true,
+        isStatutory: false,
+        sortOrder: 3,
+      },
+      {
+        name: "Conveyance Allowance",
+        type: "earning" as const,
+        calculationType: "fixed" as const,
+        isTaxable: false,
+        isStatutory: false,
+        sortOrder: 4,
+      },
+      {
+        name: "Provident Fund (PF) - Employee",
+        type: "deduction" as const,
+        calculationType: "percentage" as const,
+        isTaxable: false,
+        isStatutory: true,
+        sortOrder: 10,
+      },
+      {
+        name: "Provident Fund (PF) - Employer",
+        type: "deduction" as const,
+        calculationType: "percentage" as const,
+        isTaxable: false,
+        isStatutory: true,
+        sortOrder: 11,
+      },
+      {
+        name: "ESI - Employee",
+        type: "deduction" as const,
+        calculationType: "percentage" as const,
+        isTaxable: false,
+        isStatutory: true,
+        sortOrder: 12,
+      },
+      {
+        name: "ESI - Employer",
+        type: "deduction" as const,
+        calculationType: "percentage" as const,
+        isTaxable: false,
+        isStatutory: true,
+        sortOrder: 13,
+      },
+      {
+        name: "Professional Tax",
+        type: "deduction" as const,
+        calculationType: "fixed" as const,
+        isTaxable: false,
+        isStatutory: true,
+        sortOrder: 14,
+      },
+      {
+        name: "TDS (Income Tax)",
+        type: "deduction" as const,
+        calculationType: "fixed" as const,
+        isTaxable: false,
+        isStatutory: true,
+        sortOrder: 15,
+      },
+    ];
+
+    let created = 0;
+
+    for (const comp of STATUTORY_COMPONENTS) {
+      // Check if component with same name already exists
+      const existing = await this.db
+        .select({ id: salaryComponents.id })
+        .from(salaryComponents)
+        .where(
+          and(
+            eq(salaryComponents.institutionId, institutionId),
+            eq(salaryComponents.name, comp.name),
+            ne(salaryComponents.status, SALARY_COMPONENT_STATUS.DELETED),
+          ),
+        )
+        .then((rows) => rows[0]);
+
+      if (existing) continue;
+
+      await this.db.insert(salaryComponents).values({
+        id: randomUUID(),
+        institutionId,
+        ...comp,
+      });
+      created++;
+    }
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.SALARY_COMPONENT,
+      entityId: institutionId,
+      summary: `Seeded ${created} statutory salary components`,
+    });
+
+    return { created };
   }
 
   // ── Private helpers ─────────────────────────────────────────────────────

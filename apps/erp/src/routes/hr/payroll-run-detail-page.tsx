@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Link, useParams } from "react-router";
 import { toast } from "sonner";
 import { extractApiError } from "@/lib/api-error";
-import { IconEye } from "@tabler/icons-react";
+import { IconDownload, IconEye } from "@tabler/icons-react";
+import { APP_FALLBACKS } from "@/constants/api";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -149,6 +150,37 @@ export function PayrollRunDetailPage() {
     }
   }
 
+  const handleDownloadBankFile = useCallback(async () => {
+    if (!runId) return;
+    try {
+      const baseUrl = import.meta.env.VITE_API_URL ?? APP_FALLBACKS.API_URL;
+      const response = await fetch(
+        `${baseUrl}/payroll/runs/${runId}/bank-file`,
+        { credentials: "include" },
+      );
+      if (!response.ok) throw new Error("Download failed");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download =
+        response.headers
+          .get("Content-Disposition")
+          ?.split("filename=")[1]
+          ?.replace(/"/g, "") ?? "bank-transfer.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Bank file downloaded.");
+    } catch (error) {
+      toast.error(extractApiError(error, "Could not download bank file."));
+    }
+  }, [runId]);
+
+  const isActionPending =
+    processMutation.isPending ||
+    approveMutation.isPending ||
+    markPaidMutation.isPending;
+
   if (runQuery.isLoading) {
     return (
       <EntityPageShell width="full">
@@ -171,11 +203,6 @@ export function PayrollRunDetailPage() {
       </EntityPageShell>
     );
   }
-
-  const isActionPending =
-    processMutation.isPending ||
-    approveMutation.isPending ||
-    markPaidMutation.isPending;
 
   return (
     <EntityPageShell width="full">
@@ -219,6 +246,16 @@ export function PayrollRunDetailPage() {
                   onClick={() => void handleMarkPaid()}
                 >
                   {markPaidMutation.isPending ? "Marking..." : "Mark paid"}
+                </Button>
+              ) : null}
+              {run.status !== "draft" ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void handleDownloadBankFile()}
+                >
+                  <IconDownload className="mr-1.5 size-4" />
+                  Bank file
                 </Button>
               ) : null}
             </div>

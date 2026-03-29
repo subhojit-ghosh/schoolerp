@@ -2,14 +2,17 @@ import {
   Body,
   Controller,
   Get,
+  Header,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
   Query,
+  Res,
   UseGuards,
 } from "@nestjs/common";
+import type { Response } from "express";
 import {
   ApiCookieAuth,
   ApiCreatedResponse,
@@ -461,5 +464,43 @@ export class PayrollController {
       staffProfileId,
       parsed,
     );
+  }
+
+  // ── Bank File Export ───────────────────────────────────────────────────
+
+  @Get(`${API_ROUTES.PAYROLL_RUNS}/:runId/bank-file`)
+  @RequirePermission(PERMISSIONS.PAYROLL_READ)
+  @ApiOperation({ summary: "Download bank transfer file (CSV)" })
+  async downloadBankFile(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("runId") runId: string,
+    @Res() response: Response,
+  ) {
+    const { fileName, content } = await this.payrollService.generateBankFile(
+      institution.id,
+      runId,
+    );
+
+    response.setHeader("Content-Type", "text/csv");
+    response.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${fileName}"`,
+    );
+    response.send(content);
+  }
+
+  // ── Statutory Components Seeding ──────────────────────────────────────
+
+  @Post("seed-statutory")
+  @RequirePermission(PERMISSIONS.PAYROLL_MANAGE)
+  @ApiOperation({
+    summary:
+      "Seed Indian statutory salary components (PF, ESI, PT, TDS, Basic, HRA, DA)",
+  })
+  async seedStatutoryComponents(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+  ) {
+    return this.payrollService.seedStatutoryComponents(institution.id, session);
   }
 }

@@ -13,6 +13,7 @@ export const AUTH_API_PATHS = {
 
 export const ONBOARDING_API_PATHS = {
   CREATE_INSTITUTION: "/onboarding/institutions",
+  SETUP_STATUS: "/onboarding/setup-status",
 } as const;
 
 export const STUDENTS_API_PATHS = {
@@ -224,6 +225,7 @@ export const DATA_EXCHANGE_API_PATHS = {
   PREVIEW_IMPORT: "/data-exchange/imports/preview",
   EXECUTE_IMPORT: "/data-exchange/imports/execute",
   EXPORT: "/data-exchange/exports/{entityType}",
+  FULL_DUMP: "/data-exchange/exports/full-dump",
 } as const;
 
 export const ROLES_API_PATHS = {
@@ -261,6 +263,9 @@ export const LEAVE_API_PATHS = {
   APPLY_FOR_STAFF: "/leave/leave-applications/staff/{staffMemberId}",
   REVIEW: "/leave/leave-applications/{applicationId}/review",
   CANCEL: "/leave/leave-applications/{applicationId}/cancel",
+  LIST_BALANCES: "/leave/balances",
+  ALLOCATE_BALANCES: "/leave/balances/allocate",
+  TEAM_CALENDAR: "/leave/team-calendar",
 } as const;
 
 export const LIBRARY_API_PATHS = {

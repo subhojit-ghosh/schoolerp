@@ -745,21 +745,24 @@ export function ExamsPage() {
                     <SelectContent>
                       <SelectGroup>
                         {(studentOptionsQuery.data ?? [])
-                          .reduce<{ id: string; name: string }[]>(
-                            (acc, s) => {
-                              if (
-                                "classId" in s &&
-                                !acc.some((c) => c.id === (s as Record<string, string>).classId)
-                              ) {
-                                acc.push({
-                                  id: (s as Record<string, string>).classId,
-                                  name: (s as Record<string, string>).className ?? "Class",
-                                });
-                              }
-                              return acc;
-                            },
-                            [],
-                          )
+                          .reduce<{ id: string; name: string }[]>((acc, s) => {
+                            if (
+                              "classId" in s &&
+                              !acc.some(
+                                (c) =>
+                                  c.id ===
+                                  (s as Record<string, string>).classId,
+                              )
+                            ) {
+                              acc.push({
+                                id: (s as Record<string, string>).classId,
+                                name:
+                                  (s as Record<string, string>).className ??
+                                  "Class",
+                              });
+                            }
+                            return acc;
+                          }, [])
                           .map((cls) => (
                             <SelectItem key={cls.id} value={cls.id}>
                               {cls.name}

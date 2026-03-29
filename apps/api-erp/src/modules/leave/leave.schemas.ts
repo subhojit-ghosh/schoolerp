@@ -1,16 +1,32 @@
 import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
 
+const LEAVE_CATEGORIES = [
+  "casual",
+  "sick",
+  "earned",
+  "comp_off",
+  "maternity",
+  "paternity",
+  "other",
+] as const;
+
 export const createLeaveTypeSchema = z.object({
   name: z.string().min(1).max(100),
   maxDaysPerYear: z.number().int().positive().optional().nullable(),
   isPaid: z.boolean().default(true),
+  carryForwardDays: z.number().int().min(0).default(0),
+  isHalfDayAllowed: z.boolean().default(false),
+  leaveCategory: z.enum(LEAVE_CATEGORIES).default("other"),
 });
 
 export const updateLeaveTypeSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   maxDaysPerYear: z.number().int().positive().optional().nullable(),
   isPaid: z.boolean().optional(),
+  carryForwardDays: z.number().int().min(0).optional(),
+  isHalfDayAllowed: z.boolean().optional(),
+  leaveCategory: z.enum(LEAVE_CATEGORIES).optional(),
   status: z.enum(["active", "inactive"]).optional(),
 });
 
@@ -23,6 +39,7 @@ export const createLeaveApplicationSchema = z
     leaveTypeId: z.uuid(),
     fromDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format"),
     toDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format"),
+    isHalfDay: z.boolean().default(false),
     reason: z.string().max(2000).optional(),
   })
   .refine((data) => data.fromDate <= data.toDate, {
@@ -48,6 +65,20 @@ export const listLeaveApplicationsQuerySchema = z.object({
   order: z.enum(["asc", "desc"]).default("desc"),
 });
 
+export const listLeaveBalancesQuerySchema = z.object({
+  staffMemberId: z.string().optional(),
+  academicYearId: z.string().optional(),
+});
+
+export const allocateLeaveBalancesSchema = z.object({
+  academicYearId: z.uuid(),
+});
+
+export const teamLeaveCalendarQuerySchema = z.object({
+  from: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format"),
+  to: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format"),
+});
+
 export type CreateLeaveTypeDto = z.infer<typeof createLeaveTypeSchema>;
 export type UpdateLeaveTypeDto = z.infer<typeof updateLeaveTypeSchema>;
 export type CreateLeaveApplicationDto = z.infer<
@@ -58,6 +89,15 @@ export type ReviewLeaveApplicationDto = z.infer<
 >;
 export type ListLeaveApplicationsQueryDto = z.infer<
   typeof listLeaveApplicationsQuerySchema
+>;
+export type ListLeaveBalancesQueryDto = z.infer<
+  typeof listLeaveBalancesQuerySchema
+>;
+export type AllocateLeaveBalancesDto = z.infer<
+  typeof allocateLeaveBalancesSchema
+>;
+export type TeamLeaveCalendarQueryDto = z.infer<
+  typeof teamLeaveCalendarQuerySchema
 >;
 
 function parseOrBadRequest<T>(schema: z.ZodType<T>, input: unknown): T {
@@ -90,4 +130,16 @@ export function parseReviewLeaveApplication(input: unknown) {
 
 export function parseListLeaveApplications(input: unknown) {
   return parseOrBadRequest(listLeaveApplicationsQuerySchema, input);
+}
+
+export function parseListLeaveBalances(input: unknown) {
+  return parseOrBadRequest(listLeaveBalancesQuerySchema, input);
+}
+
+export function parseAllocateLeaveBalances(input: unknown) {
+  return parseOrBadRequest(allocateLeaveBalancesSchema, input);
+}
+
+export function parseTeamLeaveCalendar(input: unknown) {
+  return parseOrBadRequest(teamLeaveCalendarQuerySchema, input);
 }

@@ -32,6 +32,7 @@ import {
   IconUsersGroup,
   IconAlertTriangle,
   IconArrowsExchange,
+  IconUsersPlus,
   type Icon,
 } from "@tabler/icons-react";
 import { PERMISSIONS } from "@repo/contracts";
@@ -89,6 +90,15 @@ export const NAV_ADMISSIONS: readonly NavItem[] = [
     permission: PERMISSIONS.ADMISSIONS_READ,
     title: "Applications",
     url: ERP_ROUTES.ADMISSIONS_APPLICATIONS,
+  },
+];
+
+export const NAV_PTM: readonly NavItem[] = [
+  {
+    icon: IconUsersPlus,
+    permission: PERMISSIONS.ACADEMICS_READ,
+    title: "PTM Sessions",
+    url: ERP_ROUTES.PTM_SESSIONS,
   },
 ];
 
@@ -390,6 +400,18 @@ export const NAV_HR: readonly NavItem[] = [
     url: ERP_ROUTES.LEAVE_APPLICATIONS,
   },
   {
+    icon: IconCalendar,
+    permission: PERMISSIONS.LEAVE_READ,
+    title: "Leave Balances",
+    url: ERP_ROUTES.LEAVE_BALANCES,
+  },
+  {
+    icon: IconCalendar,
+    permission: PERMISSIONS.LEAVE_READ,
+    title: "Team Calendar",
+    url: ERP_ROUTES.LEAVE_TEAM_CALENDAR,
+  },
+  {
     icon: IconCurrencyRupee,
     permission: PERMISSIONS.PAYROLL_READ,
     title: "Salary Components",
@@ -476,6 +498,7 @@ const ALL_STAFF_NAV_ITEMS: readonly NavItem[] = [
   ...NAV_HOME,
   ...NAV_PEOPLE,
   ...NAV_ADMISSIONS,
+  ...NAV_PTM,
   ...NAV_TEACHING,
   ...NAV_ACADEMIC_SETUP,
   ...NAV_RECORDS,

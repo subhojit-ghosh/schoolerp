@@ -48,6 +48,9 @@ import { HostelModule } from "./modules/hostel/hostel.module";
 import { ReportsModule } from "./modules/reports/reports.module";
 import { StaffAttendanceModule } from "./modules/staff-attendance/staff-attendance.module";
 import { StudentsModule } from "./modules/students/students.module";
+import { NotificationPreferencesModule } from "./modules/notification-preferences/notification-preferences.module";
+import { PtmModule } from "./modules/ptm/ptm.module";
+import { SearchModule } from "./modules/search/search.module";
 import { UploadsModule } from "./modules/uploads/uploads.module";
 @Module({
   imports: [
@@ -105,6 +108,9 @@ import { UploadsModule } from "./modules/uploads/uploads.module";
     RolesModule,
     InstitutionsModule,
     UploadsModule,
+    NotificationPreferencesModule,
+    PtmModule,
+    SearchModule,
     PublicModule,
   ],
   controllers: [AppController],

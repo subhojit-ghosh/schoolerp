@@ -1,6 +1,7 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PAYROLL_API_PATHS } from "@/features/auth/api/auth.constants";
 import { apiQueryClient } from "@/lib/api/client";
+import { APP_FALLBACKS } from "@/constants/api";
 
 function invalidatePayrollLists(
   queryClient: ReturnType<typeof useQueryClient>,
@@ -310,4 +311,28 @@ export function usePayslipDetailQuery(enabled: boolean, payslipId?: string) {
     { params: { path: { payslipId: payslipId! } } },
     { enabled: enabled && Boolean(payslipId) },
   );
+}
+
+function getApiBaseUrl() {
+  return import.meta.env.VITE_API_URL ?? APP_FALLBACKS.API_URL;
+}
+
+export function useSeedStatutoryComponentsMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const response = await fetch(
+        `${getApiBaseUrl()}/payroll/seed-statutory`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
+      if (!response.ok) throw new Error("Failed to seed statutory components");
+      return response.json();
+    },
+    onSuccess: () => {
+      invalidatePayrollLists(queryClient);
+    },
+  });
 }

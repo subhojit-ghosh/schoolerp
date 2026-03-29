@@ -7,16 +7,22 @@ import {
 import { Inject, Injectable, ConflictException } from "@nestjs/common";
 import type { AppDatabase } from "@repo/database";
 import {
+  academicYears,
   and,
   campus,
   campusMemberships,
+  count,
   eq,
+  feeStructures,
   isNull,
   member,
   membershipRoles,
   ne,
   organization,
   roles,
+  schoolClasses,
+  students,
+  subjects,
   user,
 } from "@repo/database";
 import { hash } from "bcryptjs";
@@ -201,6 +207,82 @@ export class OnboardingService {
     return {
       authSession,
       authContext,
+    };
+  }
+
+  async getSetupStatus(institutionId: string) {
+    const [
+      academicYearResult,
+      classResult,
+      studentResult,
+      staffResult,
+      subjectResult,
+      feeStructureResult,
+    ] = await Promise.all([
+      this.db
+        .select({ count: count() })
+        .from(academicYears)
+        .where(
+          and(
+            eq(academicYears.institutionId, institutionId),
+            ne(academicYears.status, "deleted"),
+          ),
+        ),
+      this.db
+        .select({ count: count() })
+        .from(schoolClasses)
+        .where(
+          and(
+            eq(schoolClasses.institutionId, institutionId),
+            ne(schoolClasses.status, "deleted"),
+          ),
+        ),
+      this.db
+        .select({ count: count() })
+        .from(students)
+        .where(
+          and(
+            eq(students.institutionId, institutionId),
+            isNull(students.deletedAt),
+          ),
+        ),
+      this.db
+        .select({ count: count() })
+        .from(member)
+        .where(
+          and(
+            eq(member.organizationId, institutionId),
+            eq(member.memberType, MEMBER_TYPES.STAFF),
+            eq(member.status, STATUS.MEMBER.ACTIVE),
+          ),
+        ),
+      this.db
+        .select({ count: count() })
+        .from(subjects)
+        .where(
+          and(
+            eq(subjects.institutionId, institutionId),
+            ne(subjects.status, "deleted"),
+          ),
+        ),
+      this.db
+        .select({ count: count() })
+        .from(feeStructures)
+        .where(
+          and(
+            eq(feeStructures.institutionId, institutionId),
+            ne(feeStructures.status, "deleted"),
+          ),
+        ),
+    ]);
+
+    return {
+      academicYears: academicYearResult[0]?.count ?? 0,
+      classes: classResult[0]?.count ?? 0,
+      students: studentResult[0]?.count ?? 0,
+      staff: staffResult[0]?.count ?? 0,
+      subjects: subjectResult[0]?.count ?? 0,
+      feeStructures: feeStructureResult[0]?.count ?? 0,
     };
   }
 

@@ -536,6 +536,33 @@
         ]
       }
     },
+    "/onboarding/setup-status": {
+      "get": {
+        "operationId": "OnboardingController_getSetupStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetupStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get institution setup progress (entity counts)",
+        "tags": [
+          "onboarding"
+        ]
+      }
+    },
     "/onboarding/check-slug": {
       "get": {
         "operationId": "OnboardingController_checkSlug",
@@ -8306,6 +8333,130 @@
         ]
       }
     },
+    "/leave/balances": {
+      "get": {
+        "operationId": "LeaveController_listLeaveBalances",
+        "parameters": [
+          {
+            "name": "staffMemberId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "academicYearId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/LeaveBalanceDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "List leave balances for staff",
+        "tags": [
+          "leave"
+        ]
+      }
+    },
+    "/leave/balances/allocate": {
+      "post": {
+        "operationId": "LeaveController_allocateLeaveBalances",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AllocateLeaveBalancesBodyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Allocate leave balances for all staff for a given academic year",
+        "tags": [
+          "leave"
+        ]
+      }
+    },
+    "/leave/team-calendar": {
+      "get": {
+        "operationId": "LeaveController_getTeamLeaveCalendar",
+        "parameters": [
+          {
+            "name": "from",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TeamLeaveCalendarEntryDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Get approved leaves for all staff in a date range",
+        "tags": [
+          "leave"
+        ]
+      }
+    },
     "/library/books": {
       "get": {
         "operationId": "LibraryController_listBooks",
@@ -13663,6 +13814,37 @@
         },
         "required": [
           "success"
+        ]
+      },
+      "SetupStatusDto": {
+        "type": "object",
+        "properties": {
+          "academicYears": {
+            "type": "number"
+          },
+          "classes": {
+            "type": "number"
+          },
+          "students": {
+            "type": "number"
+          },
+          "staff": {
+            "type": "number"
+          },
+          "subjects": {
+            "type": "number"
+          },
+          "feeStructures": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "academicYears",
+          "classes",
+          "students",
+          "staff",
+          "subjects",
+          "feeStructures"
         ]
       },
       "CreateInstitutionOnboardingBodyDto": {
@@ -20634,6 +20816,18 @@
             "type": "number",
             "nullable": true
           },
+          "leaveCategory": {
+            "type": "string",
+            "enum": [
+              "casual",
+              "sick",
+              "earned",
+              "comp_off",
+              "maternity",
+              "paternity",
+              "other"
+            ]
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -20650,22 +20844,43 @@
           "isPaid": {
             "type": "boolean"
           },
+          "carryForwardDays": {
+            "type": "number"
+          },
+          "isHalfDayAllowed": {
+            "type": "boolean"
+          },
           "createdAt": {
             "type": "string"
           }
         },
         "required": [
           "maxDaysPerYear",
+          "leaveCategory",
           "status",
           "id",
           "name",
           "isPaid",
+          "carryForwardDays",
+          "isHalfDayAllowed",
           "createdAt"
         ]
       },
       "CreateLeaveTypeBodyDto": {
         "type": "object",
         "properties": {
+          "leaveCategory": {
+            "type": "string",
+            "enum": [
+              "casual",
+              "sick",
+              "earned",
+              "comp_off",
+              "maternity",
+              "paternity",
+              "other"
+            ]
+          },
           "name": {
             "type": "string"
           },
@@ -20674,6 +20889,12 @@
             "nullable": true
           },
           "isPaid": {
+            "type": "boolean"
+          },
+          "carryForwardDays": {
+            "type": "number"
+          },
+          "isHalfDayAllowed": {
             "type": "boolean"
           }
         },
@@ -20684,6 +20905,18 @@
       "UpdateLeaveTypeBodyDto": {
         "type": "object",
         "properties": {
+          "leaveCategory": {
+            "type": "string",
+            "enum": [
+              "casual",
+              "sick",
+              "earned",
+              "comp_off",
+              "maternity",
+              "paternity",
+              "other"
+            ]
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -20699,6 +20932,12 @@
             "nullable": true
           },
           "isPaid": {
+            "type": "boolean"
+          },
+          "carryForwardDays": {
+            "type": "number"
+          },
+          "isHalfDayAllowed": {
             "type": "boolean"
           }
         }
@@ -20759,6 +20998,9 @@
           "daysCount": {
             "type": "number"
           },
+          "isHalfDay": {
+            "type": "boolean"
+          },
           "createdAt": {
             "type": "string"
           }
@@ -20778,6 +21020,7 @@
           "fromDate",
           "toDate",
           "daysCount",
+          "isHalfDay",
           "createdAt"
         ]
       },
@@ -20823,6 +21066,9 @@
           "toDate": {
             "type": "string"
           },
+          "isHalfDay": {
+            "type": "boolean"
+          },
           "reason": {
             "type": "string"
           }
@@ -20849,6 +21095,110 @@
         },
         "required": [
           "status"
+        ]
+      },
+      "LeaveBalanceDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "staffMemberId": {
+            "type": "string"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "leaveTypeId": {
+            "type": "string"
+          },
+          "leaveTypeName": {
+            "type": "string"
+          },
+          "academicYearId": {
+            "type": "string"
+          },
+          "allocated": {
+            "type": "number"
+          },
+          "used": {
+            "type": "number"
+          },
+          "carriedForward": {
+            "type": "number"
+          },
+          "remaining": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "id",
+          "staffMemberId",
+          "staffName",
+          "leaveTypeId",
+          "leaveTypeName",
+          "academicYearId",
+          "allocated",
+          "used",
+          "carriedForward",
+          "remaining"
+        ]
+      },
+      "AllocateLeaveBalancesBodyDto": {
+        "type": "object",
+        "properties": {
+          "academicYearId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "academicYearId"
+        ]
+      },
+      "TeamLeaveCalendarEntryDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "approved"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "staffMemberId": {
+            "type": "string"
+          },
+          "staffName": {
+            "type": "string"
+          },
+          "leaveTypeName": {
+            "type": "string"
+          },
+          "fromDate": {
+            "type": "string"
+          },
+          "toDate": {
+            "type": "string"
+          },
+          "daysCount": {
+            "type": "number"
+          },
+          "isHalfDay": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "status",
+          "id",
+          "staffMemberId",
+          "staffName",
+          "leaveTypeName",
+          "fromDate",
+          "toDate",
+          "daysCount",
+          "isHalfDay"
         ]
       },
       "BookDto": {

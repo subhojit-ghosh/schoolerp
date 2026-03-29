@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Patch,
   Post,
@@ -173,6 +175,27 @@ export class StudentsController {
       authSession,
       scopes,
       parseUpdateStudent(body),
+    );
+  }
+
+  @Post(`:studentId/transfer-section`)
+  @RequirePermission(PERMISSIONS.STUDENTS_MANAGE)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Transfer a student to a different class/section mid-year",
+  })
+  transferSection(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @Body()
+    body: { targetClassId: string; targetSectionId: string; reason?: string },
+  ) {
+    return this.studentsService.transferSection(
+      institution.id,
+      studentId,
+      authSession,
+      body,
     );
   }
 }

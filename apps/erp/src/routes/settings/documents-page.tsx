@@ -35,7 +35,10 @@ function useSignatoriesQuery(enabled: boolean) {
 }
 
 function useCreateSignatoryMutation() {
-  return apiQueryClient.useMutation("post", DOCUMENTS_API_PATHS.CREATE_SIGNATORY);
+  return apiQueryClient.useMutation(
+    "post",
+    DOCUMENTS_API_PATHS.CREATE_SIGNATORY,
+  );
 }
 
 function useUpdateSignatoryMutation() {
@@ -55,10 +58,7 @@ function useDocumentConfigQuery(enabled: boolean) {
 }
 
 function useUpdateDocumentConfigMutation() {
-  return apiQueryClient.useMutation(
-    "patch",
-    DOCUMENTS_API_PATHS.UPDATE_CONFIG,
-  );
+  return apiQueryClient.useMutation("patch", DOCUMENTS_API_PATHS.UPDATE_CONFIG);
 }
 
 // ── Schemas ─────────────────────────────────────────────────────────────────
@@ -122,7 +122,9 @@ export function DocumentsSettingsPage() {
   }
 
   // Receipt config
-  async function handleUpdateReceiptConfig(e: React.FormEvent<HTMLFormElement>) {
+  async function handleUpdateReceiptConfig(
+    e: React.FormEvent<HTMLFormElement>,
+  ) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     try {
@@ -181,7 +183,8 @@ export function DocumentsSettingsPage() {
         <div className="border-b px-6 py-4">
           <h2 className="text-base font-semibold">Signatories</h2>
           <p className="text-sm text-muted-foreground">
-            Define authorized signatories used across certificates and documents.
+            Define authorized signatories used across certificates and
+            documents.
           </p>
         </div>
         <div className="p-6 space-y-4">
@@ -204,7 +207,9 @@ export function DocumentsSettingsPage() {
               <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {(sig as any).isActive ? (
-                  <Badge className="bg-emerald-100 text-emerald-700">Active</Badge>
+                  <Badge className="bg-emerald-100 text-emerald-700">
+                    Active
+                  </Badge>
                 ) : (
                   <Badge variant="secondary">Inactive</Badge>
                 )}
@@ -259,7 +264,11 @@ export function DocumentsSettingsPage() {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button type="submit" size="sm" disabled={createSignatory.isPending}>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={createSignatory.isPending}
+                  >
                     {createSignatory.isPending ? "Adding..." : "Add signatory"}
                   </Button>
                   <Button
@@ -331,7 +340,12 @@ export function DocumentsSettingsPage() {
                 "0",
               )}
             </p>
-            <Button type="submit" size="sm" className="mt-4" disabled={updateConfig.isPending}>
+            <Button
+              type="submit"
+              size="sm"
+              className="mt-4"
+              disabled={updateConfig.isPending}
+            >
               {updateConfig.isPending ? "Saving..." : "Save changes"}
             </Button>
           </form>

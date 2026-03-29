@@ -9,7 +9,9 @@ import {
   count,
   eq,
   isNull,
+  member,
   schoolClasses,
+  students,
   studentCurrentEnrollments,
 } from "@repo/database";
 import { STATUS } from "../../constants";
@@ -108,6 +110,42 @@ export class ReportsService {
         totalCount: Number(row.totalCount),
       })),
       grandTotal,
+    };
+  }
+
+  async getStaffStudentRatio(institutionId: string) {
+    const [studentCountResult, staffCountResult] = await Promise.all([
+      this.database
+        .select({ count: count() })
+        .from(students)
+        .where(
+          and(
+            eq(students.institutionId, institutionId),
+            isNull(students.deletedAt),
+          ),
+        ),
+      this.database
+        .select({ count: count() })
+        .from(member)
+        .where(
+          and(
+            eq(member.organizationId, institutionId),
+            eq(member.memberType, "staff"),
+            eq(member.status, STATUS.MEMBER.ACTIVE),
+          ),
+        ),
+    ]);
+
+    const studentCount = studentCountResult[0]?.count ?? 0;
+    const staffCount = staffCountResult[0]?.count ?? 0;
+
+    const ratio = staffCount > 0 ? Math.round(studentCount / staffCount) : null;
+
+    return {
+      studentCount,
+      staffCount,
+      ratio,
+      display: ratio !== null ? `1:${ratio}` : "N/A",
     };
   }
 }

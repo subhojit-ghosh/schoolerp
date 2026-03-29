@@ -78,6 +78,10 @@ import { HomeworkPage } from "@/routes/operations/homework-page";
 import { HomeworkSheetRoute } from "@/features/homework/ui/homework-sheet-route";
 import { LeaveApplicationsPage } from "@/routes/leave/leave-applications-page";
 import { LeaveTypesPage } from "@/routes/leave/leave-types-page";
+import { LeaveBalancesPage } from "@/routes/leave/leave-balances-page";
+import { LeaveTeamCalendarPage } from "@/routes/leave/leave-team-calendar-page";
+import { PtmSessionsPage } from "@/routes/ptm/ptm-sessions-page";
+import { NotificationPreferencesPage } from "@/routes/account/notification-preferences-page";
 import { LeaveApplicationSheetRoute } from "@/features/leave/ui/leave-application-sheet-route";
 import { LeaveTypeSheetRoute } from "@/features/leave/ui/leave-type-sheet-route";
 import { LibraryBooksPage } from "@/routes/library/library-books-page";
@@ -391,6 +395,22 @@ const router = createBrowserRouter([
             element: <LeaveTypeSheetRoute mode="edit" />,
           },
         ],
+      },
+      {
+        path: ERP_ROUTES.LEAVE_BALANCES,
+        element: <LeaveBalancesPage />,
+      },
+      {
+        path: ERP_ROUTES.LEAVE_TEAM_CALENDAR,
+        element: <LeaveTeamCalendarPage />,
+      },
+      {
+        path: ERP_ROUTES.PTM_SESSIONS,
+        element: <PtmSessionsPage />,
+      },
+      {
+        path: ERP_ROUTES.NOTIFICATION_PREFERENCES,
+        element: <NotificationPreferencesPage />,
       },
       {
         path: ERP_ROUTES.LIBRARY_BOOKS,
@@ -841,7 +861,10 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.SETTINGS_AUDIT, element: <AuditPage /> },
       { path: ERP_ROUTES.SETTINGS_BRANDING, element: <BrandingPage /> },
       { path: ERP_ROUTES.SETTINGS_DELIVERY, element: <DeliverySettingsPage /> },
-      { path: ERP_ROUTES.SETTINGS_DOCUMENTS, element: <DocumentsSettingsPage /> },
+      {
+        path: ERP_ROUTES.SETTINGS_DOCUMENTS,
+        element: <DocumentsSettingsPage />,
+      },
       { path: ERP_ROUTES.SETTINGS_PAYMENT, element: <PaymentSettingsPage /> },
       {
         path: ERP_ROUTES.SETTINGS_ADMISSION_FIELDS,

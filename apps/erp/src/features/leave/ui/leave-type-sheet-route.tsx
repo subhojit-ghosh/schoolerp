@@ -47,6 +47,9 @@ export function LeaveTypeSheetRoute({ mode }: LeaveTypeSheetRouteProps) {
       name: editingType.name,
       maxDaysPerYear: editingType.maxDaysPerYear ?? undefined,
       isPaid: editingType.isPaid,
+      carryForwardDays: editingType.carryForwardDays ?? 0,
+      isHalfDayAllowed: editingType.isHalfDayAllowed ?? false,
+      leaveCategory: editingType.leaveCategory ?? "other",
     };
   }, [editingType, mode]);
 
@@ -64,6 +67,9 @@ export function LeaveTypeSheetRoute({ mode }: LeaveTypeSheetRouteProps) {
             name: values.name,
             maxDaysPerYear: values.maxDaysPerYear ?? undefined,
             isPaid: values.isPaid,
+            carryForwardDays: values.carryForwardDays,
+            isHalfDayAllowed: values.isHalfDayAllowed,
+            leaveCategory: values.leaveCategory,
           },
         });
         toast.success("Leave type created.");
@@ -74,6 +80,9 @@ export function LeaveTypeSheetRoute({ mode }: LeaveTypeSheetRouteProps) {
             name: values.name,
             maxDaysPerYear: values.maxDaysPerYear ?? undefined,
             isPaid: values.isPaid,
+            carryForwardDays: values.carryForwardDays,
+            isHalfDayAllowed: values.isHalfDayAllowed,
+            leaveCategory: values.leaveCategory,
           },
         });
         toast.success("Leave type updated.");

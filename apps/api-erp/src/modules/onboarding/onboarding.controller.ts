@@ -1,6 +1,16 @@
-import { Body, Controller, Get, Post, Query, Req, Res } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  Res,
+  UseGuards,
+} from "@nestjs/common";
 import {
   ApiBody,
+  ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
@@ -10,7 +20,14 @@ import type { Request, Response } from "express";
 import { API_DOCS, API_ROUTES } from "../../constants";
 import { AuthContextDto } from "../auth/auth.dto";
 import { AuthService } from "../auth/auth.service";
-import { CreateInstitutionOnboardingBodyDto } from "./onboarding.dto";
+import { SessionAuthGuard } from "../auth/session-auth.guard";
+import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
+import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
+import type { TenantInstitution } from "../tenant-context/tenant-context.types";
+import {
+  CreateInstitutionOnboardingBodyDto,
+  SetupStatusDto,
+} from "./onboarding.dto";
 import { parseCreateInstitutionOnboarding } from "./onboarding.schemas";
 import { OnboardingService } from "./onboarding.service";
 
@@ -21,6 +38,15 @@ export class OnboardingController {
     private readonly onboardingService: OnboardingService,
     private readonly authService: AuthService,
   ) {}
+
+  @Get("setup-status")
+  @UseGuards(SessionAuthGuard, TenantInstitutionGuard)
+  @ApiCookieAuth()
+  @ApiOperation({ summary: "Get institution setup progress (entity counts)" })
+  @ApiOkResponse({ type: SetupStatusDto })
+  async getSetupStatus(@CurrentInstitution() institution: TenantInstitution) {
+    return this.onboardingService.getSetupStatus(institution.id);
+  }
 
   @Get("check-slug")
   @ApiOperation({ summary: "Check if a subdomain slug is available" })

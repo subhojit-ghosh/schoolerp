@@ -559,6 +559,18 @@ export const students = pgTable(
     sectionId: text()
       .notNull()
       .references(() => classSections.id, { onDelete: "restrict" }),
+    // Government compliance fields
+    dateOfBirth: date(),
+    gender: text({ enum: ["male", "female", "other"] }),
+    caste: text(),
+    category: text({
+      enum: ["general", "obc", "sc", "st", "ews", "other"],
+    }),
+    religion: text(),
+    nationality: text(),
+    motherTongue: text(),
+    bloodGroup: text(),
+    aadharNumber: text(),
     customFieldValues: jsonb().$type<Record<string, unknown> | null>(),
     createdAt: timestamp().notNull().defaultNow(),
     deletedAt: timestamp(),
@@ -1736,6 +1748,21 @@ export const leaveTypes = pgTable(
     name: text().notNull(),
     maxDaysPerYear: integer(),
     isPaid: boolean().notNull().default(true),
+    carryForwardDays: integer().notNull().default(0),
+    isHalfDayAllowed: boolean().notNull().default(false),
+    leaveCategory: text({
+      enum: [
+        "casual",
+        "sick",
+        "earned",
+        "comp_off",
+        "maternity",
+        "paternity",
+        "other",
+      ],
+    })
+      .notNull()
+      .default("other"),
     status: text({ enum: ["active", "inactive"] })
       .notNull()
       .default("active"),
@@ -1767,6 +1794,7 @@ export const leaveApplications = pgTable(
     fromDate: date().notNull(),
     toDate: date().notNull(),
     daysCount: integer().notNull(),
+    isHalfDay: boolean().notNull().default(false),
     reason: text(),
     status: text({ enum: ["pending", "approved", "rejected", "cancelled"] })
       .notNull()
@@ -1788,6 +1816,148 @@ export const leaveApplications = pgTable(
     index("leave_applications_leave_type_idx").on(t.leaveTypeId),
     index("leave_applications_status_idx").on(t.status),
     index("leave_applications_from_date_idx").on(t.fromDate),
+  ],
+);
+
+export const leaveBalances = pgTable(
+  "leave_balances",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    staffMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    leaveTypeId: text()
+      .notNull()
+      .references(() => leaveTypes.id, { onDelete: "restrict" }),
+    academicYearId: text()
+      .notNull()
+      .references(() => academicYears.id, { onDelete: "restrict" }),
+    allocated: integer().notNull().default(0),
+    used: integer().notNull().default(0),
+    carriedForward: integer().notNull().default(0),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("leave_balances_institution_idx").on(t.institutionId),
+    index("leave_balances_staff_idx").on(t.staffMemberId),
+    uniqueIndex("leave_balances_unique_idx").on(
+      t.staffMemberId,
+      t.leaveTypeId,
+      t.academicYearId,
+    ),
+  ],
+);
+
+// ─── PTM (Parent-Teacher Meeting) ─────────────────────────────────────────────
+
+export const ptmSessions = pgTable(
+  "ptm_sessions",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    campusId: text().references(() => campus.id, { onDelete: "restrict" }),
+    title: text().notNull(),
+    description: text(),
+    ptmDate: date().notNull(),
+    startTime: text().notNull(),
+    endTime: text().notNull(),
+    slotDurationMinutes: integer().notNull().default(15),
+    status: text({
+      enum: ["scheduled", "in_progress", "completed", "cancelled"],
+    })
+      .notNull()
+      .default("scheduled"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("ptm_sessions_institution_idx").on(t.institutionId),
+    index("ptm_sessions_date_idx").on(t.ptmDate),
+  ],
+);
+
+export const ptmSlots = pgTable(
+  "ptm_slots",
+  {
+    id: text().primaryKey(),
+    ptmSessionId: text()
+      .notNull()
+      .references(() => ptmSessions.id, { onDelete: "cascade" }),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "restrict" }),
+    teacherMembershipId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    studentMembershipId: text().references(() => member.id, {
+      onDelete: "restrict",
+    }),
+    parentMembershipId: text().references(() => member.id, {
+      onDelete: "restrict",
+    }),
+    startTime: text().notNull(),
+    endTime: text().notNull(),
+    status: text({ enum: ["available", "booked", "completed", "cancelled"] })
+      .notNull()
+      .default("available"),
+    feedback: text(),
+    attendanceMarked: boolean().notNull().default(false),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("ptm_slots_session_idx").on(t.ptmSessionId),
+    index("ptm_slots_teacher_idx").on(t.teacherMembershipId),
+    index("ptm_slots_student_idx").on(t.studentMembershipId),
+  ],
+);
+
+// ─── Notification Preferences ─────────────────────────────────────────────────
+
+export const notificationPreferences = pgTable(
+  "notification_preferences",
+  {
+    id: text().primaryKey(),
+    userId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    channelSms: boolean().notNull().default(true),
+    channelEmail: boolean().notNull().default(true),
+    channelInApp: boolean().notNull().default(true),
+    quietHoursStart: text(), // HH:mm format
+    quietHoursEnd: text(), // HH:mm format
+    digestMode: text({ enum: ["instant", "daily", "weekly"] })
+      .notNull()
+      .default("instant"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    uniqueIndex("notification_prefs_user_institution_idx").on(
+      t.userId,
+      t.institutionId,
+    ),
   ],
 );
 

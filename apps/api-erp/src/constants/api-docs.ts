@@ -44,6 +44,7 @@ export const API_DOCS = {
     HOSTEL: "hostel",
     STAFF_ATTENDANCE: "staff-attendance",
     REPORTS: "reports",
+    SEARCH: "search",
   },
   THEMES: {
     NEST: "default",

@@ -56,4 +56,11 @@ export class ReportsController {
       parseStudentStrengthQuery(query),
     );
   }
+
+  @Get("staff-student-ratio")
+  @RequirePermission(PERMISSIONS.STUDENTS_READ)
+  @ApiOperation({ summary: "Get staff-to-student ratio" })
+  getStaffStudentRatio(@CurrentInstitution() institution: TenantInstitution) {
+    return this.reportsService.getStaffStudentRatio(institution.id);
+  }
 }

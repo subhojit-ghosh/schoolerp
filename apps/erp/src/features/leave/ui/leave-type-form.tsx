@@ -10,11 +10,19 @@ import {
 import { Input } from "@repo/ui/components/ui/input";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
+import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
 } from "@/components/entities/entity-actions";
 import {
   DEFAULT_LEAVE_TYPE_FORM_VALUES,
+  LEAVE_CATEGORIES,
   leaveTypeFormSchema,
   type LeaveTypeFormValues,
 } from "@/features/leave/model/leave-form-schemas";
@@ -43,7 +51,11 @@ export function LeaveTypeForm({
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form
+      onSubmit={handleSubmit(
+        onSubmit as unknown as Parameters<typeof handleSubmit>[0],
+      )}
+    >
       <FieldGroup className="gap-4">
         <Controller
           control={control}
@@ -57,6 +69,31 @@ export function LeaveTypeForm({
                   aria-invalid={fieldState.invalid}
                   placeholder="e.g. Casual Leave, Sick Leave"
                 />
+                <FieldError>{fieldState.error?.message}</FieldError>
+              </FieldContent>
+            </Field>
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="leaveCategory"
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid || undefined}>
+              <FieldLabel required>Category</FieldLabel>
+              <FieldContent>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEAVE_CATEGORIES.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FieldError>{fieldState.error?.message}</FieldError>
               </FieldContent>
             </Field>
@@ -94,6 +131,34 @@ export function LeaveTypeForm({
 
         <Controller
           control={control}
+          name="carryForwardDays"
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid || undefined}>
+              <FieldLabel>Carry-forward days</FieldLabel>
+              <FieldContent>
+                <Input
+                  aria-invalid={fieldState.invalid}
+                  type="number"
+                  min={0}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  name={field.name}
+                  ref={field.ref}
+                  onChange={(e) =>
+                    field.onChange(parseInt(e.target.value, 10) || 0)
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Unused days that can carry over to the next academic year
+                </p>
+                <FieldError>{fieldState.error?.message}</FieldError>
+              </FieldContent>
+            </Field>
+          )}
+        />
+
+        <Controller
+          control={control}
           name="isPaid"
           render={({ field }) => (
             <Field>
@@ -104,6 +169,24 @@ export function LeaveTypeForm({
                     onCheckedChange={field.onChange}
                   />
                   <span className="text-sm">Paid leave</span>
+                </label>
+              </FieldContent>
+            </Field>
+          )}
+        />
+
+        <Controller
+          control={control}
+          name="isHalfDayAllowed"
+          render={({ field }) => (
+            <Field>
+              <FieldContent>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                  <span className="text-sm">Allow half-day leave</span>
                 </label>
               </FieldContent>
             </Field>

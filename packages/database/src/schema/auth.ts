@@ -31,6 +31,18 @@ export const organization = pgTable("organization", {
   }),
   brandingVersion: integer().notNull().default(0),
   customDomain: text().unique(),
+  // Government compliance / affiliation
+  boardAffiliation: text({
+    enum: ["cbse", "icse", "state_board", "ib", "cambridge", "other"],
+  }),
+  affiliationNumber: text(),
+  udiseCode: text(),
+  address: text(),
+  city: text(),
+  state: text(),
+  pincode: text(),
+  contactPhone: text(),
+  contactEmail: text(),
   status: text({ enum: ["active", "suspended", "deleted"] })
     .notNull()
     .default("active"),
