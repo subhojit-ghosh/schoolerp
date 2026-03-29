@@ -90,17 +90,15 @@ All pilot-ready polish done. Covers error handling, Indian formatting, UX improv
 - **Documents & print** — receipt verification reference + URL; "View history" links on detail pages; password strength indicator on change/reset password; mobile-friendly print CSS (receipts, ID cards)
 - **Visual polish** — animation transitions on sidebar, dropdowns, selects (150ms); consistent mutation loading states on submit buttons; calendar month grid view alongside list view; exams page normalized to standard layout; lazy image component for future avatar support; duplicate detection warning on student create; exam marks completion badges and warnings
 
-## Phase 0b — In Progress (backend complete, frontend UI pending)
+## Phase 0b — Complete (backend + frontend)
 
-Backend APIs and schema for all 5 Phase 0b items are implemented:
+All 5 Phase 0b items are implemented end-to-end:
 
-- **Exams depth** — configurable grading scales (CRUD, institution default), exam types (unit_test/midterm/final/practical) with weightage, grace marks, rank generation (dense ranking), class analysis (per-subject stats), pass/fail thresholds, batch report cards endpoint
-- **Attendance depth** — half-day status, holiday integration via calendar events, monthly attendance register, consolidated class-wise report, chronic absentees endpoint
-- **Fees depth** — fee categories (tuition/transport/hostel/lab/misc), mode-wise collection report, late fee rules (flat/per-day with grace period and cap), demand notice generation, batch receipts endpoint
-- **Document config** — new documents module with signatory management (CRUD), document config (receipt prefix/numbering/pad length, report card field toggles), atomic receipt number generation
-- **Batch printing** — batch report cards and batch receipts API endpoints ready; frontend batch print pages pending
-
-Frontend work remaining: grading scale management UI, class analysis view, ranks view, monthly register page, consolidated report page, mode-wise report tab, late fee rules UI, demand notice print page, documents settings page, batch print pages. API hooks and path constants are in place.
+- **Exams depth** — configurable grading scales (CRUD, institution default), exam types (unit_test/midterm/final/practical) with weightage and type badge, grace marks in marks entry, rank generation (dense ranking) with class/section rank on report cards, class analysis (per-subject avg/high/low/pass/fail/topper), pass/fail result, batch report cards print route
+- **Attendance depth** — half-day status with orange button in marking UI, holiday integration via calendar events, monthly attendance register endpoint, consolidated class-wise report endpoint, chronic absentees endpoint
+- **Fees depth** — fee categories (tuition/transport/hostel/lab/misc) dropdown on structure form, mode-wise collection report endpoint, late fee rules CRUD + calculation (flat/per-day with grace period and cap), demand notice generation endpoint, batch receipts endpoint
+- **Document config** — new Settings > Documents page with signatory management (add/activate/deactivate), receipt numbering config (prefix/next number/pad length with preview), report card field toggles (rank/remarks/attendance/grading/result), sidebar nav item
+- **Batch printing** — batch report cards page at /documents/batch-report-cards, batch receipts page at /documents/batch-receipts, both with CSS page-break-after for proper multi-page browser printing
 
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
