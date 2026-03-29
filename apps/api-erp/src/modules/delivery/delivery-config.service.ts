@@ -9,8 +9,10 @@ import {
 } from "@repo/database";
 import { DELIVERY_PROVIDERS, type DeliveryChannelType } from "@repo/contracts";
 
-type DeliveryProviderEnum = typeof institutionDeliveryConfig.$inferInsert.provider;
-type DeliveryChannelEnum = typeof institutionDeliveryConfig.$inferInsert.channel;
+type DeliveryProviderEnum =
+  typeof institutionDeliveryConfig.$inferInsert.provider;
+type DeliveryChannelEnum =
+  typeof institutionDeliveryConfig.$inferInsert.channel;
 import { randomUUID } from "node:crypto";
 import { decryptCredentials, encryptCredentials } from "./delivery-crypto";
 import {
@@ -19,7 +21,10 @@ import {
   ResendEmailProvider,
   SendGridEmailProvider,
 } from "./providers";
-import type { EmailDeliveryProvider, SmsDeliveryProvider } from "./delivery.types";
+import type {
+  EmailDeliveryProvider,
+  SmsDeliveryProvider,
+} from "./delivery.types";
 
 export type DeliveryConfigRecord = {
   id: string;
@@ -76,9 +81,7 @@ export class DeliveryConfigService {
     return rows[0] ?? null;
   }
 
-  async listConfigs(
-    institutionId: string,
-  ): Promise<DeliveryConfigRecord[]> {
+  async listConfigs(institutionId: string): Promise<DeliveryConfigRecord[]> {
     return this.db
       .select({
         id: institutionDeliveryConfig.id,
@@ -94,7 +97,9 @@ export class DeliveryConfigService {
       .where(eq(institutionDeliveryConfig.institutionId, institutionId));
   }
 
-  async upsertConfig(input: UpsertDeliveryConfigInput): Promise<DeliveryConfigRecord> {
+  async upsertConfig(
+    input: UpsertDeliveryConfigInput,
+  ): Promise<DeliveryConfigRecord> {
     const encryptionKey = this.getEncryptionKey();
     const encrypted = encryptCredentials(
       JSON.stringify(input.credentials),

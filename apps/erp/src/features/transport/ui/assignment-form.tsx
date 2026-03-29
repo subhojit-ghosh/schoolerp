@@ -67,15 +67,27 @@ export function AssignmentForm({
   }, [selectedRouteId, setValue]);
 
   const studentOptionsQuery = useStudentOptionsQuery(institutionId);
-  const routesQuery = useTransportRoutesQuery(isEnabled, { limit: 100, status: "active" });
-  const routeDetailQuery = useTransportRouteQuery(selectedRouteId, Boolean(selectedRouteId));
+  const routesQuery = useTransportRoutesQuery(isEnabled, {
+    limit: 100,
+    status: "active",
+  });
+  const routeDetailQuery = useTransportRouteQuery(
+    selectedRouteId,
+    Boolean(selectedRouteId),
+  );
 
   const students = studentOptionsQuery.data ?? [];
-  const routes: Array<{ id: string; name: string }> = routesQuery.data?.rows ?? [];
-  const stops: Array<{ id: string; name: string; sequenceNumber: number; pickupTime?: string | null; status: string }> =
-    (routeDetailQuery.data?.stops ?? []).filter(
-      (s: { status: string }) => s.status === "active",
-    );
+  const routes: Array<{ id: string; name: string }> =
+    routesQuery.data?.rows ?? [];
+  const stops: Array<{
+    id: string;
+    name: string;
+    sequenceNumber: number;
+    pickupTime?: string | null;
+    status: string;
+  }> = (routeDetailQuery.data?.stops ?? []).filter(
+    (s: { status: string }) => s.status === "active",
+  );
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -92,12 +104,18 @@ export function AssignmentForm({
                     <SelectValue placeholder="Select student" />
                   </SelectTrigger>
                   <SelectContent>
-                    {students.map((s: { id: string; fullName: string; admissionNumber: string | null }) => (
-                      <SelectItem key={s.id} value={s.id}>
-                        {s.fullName}
-                        {s.admissionNumber ? ` (${s.admissionNumber})` : ""}
-                      </SelectItem>
-                    ))}
+                    {students.map(
+                      (s: {
+                        id: string;
+                        fullName: string;
+                        admissionNumber: string | null;
+                      }) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.fullName}
+                          {s.admissionNumber ? ` (${s.admissionNumber})` : ""}
+                        </SelectItem>
+                      ),
+                    )}
                   </SelectContent>
                 </Select>
                 <FieldError>{fieldState.error?.message}</FieldError>

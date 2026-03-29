@@ -31,10 +31,7 @@ import {
   SortIcon,
 } from "@/components/data-display/server-data-table";
 import { PERMISSIONS } from "@repo/contracts";
-import {
-  ERP_ROUTES,
-  buildHomeworkEditRoute,
-} from "@/constants/routes";
+import { ERP_ROUTES, buildHomeworkEditRoute } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import { hasPermission } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -117,7 +114,10 @@ export function HomeworkPage() {
         toast.success("Homework published.");
       } catch (error) {
         toast.error(
-          extractApiError(error, "Could not publish homework. Please try again."),
+          extractApiError(
+            error,
+            "Could not publish homework. Please try again.",
+          ),
         );
       }
     },
@@ -133,7 +133,10 @@ export function HomeworkPage() {
         toast.success("Homework deleted.");
       } catch (error) {
         toast.error(
-          extractApiError(error, "Could not delete homework. Please try again."),
+          extractApiError(
+            error,
+            "Could not delete homework. Please try again.",
+          ),
         );
       }
     },

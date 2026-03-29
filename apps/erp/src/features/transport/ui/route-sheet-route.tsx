@@ -28,7 +28,9 @@ export function RouteSheetRoute({ mode }: RouteSheetRouteProps) {
   const session = useAuthStore((store) => store.session);
   const isEnabled = Boolean(session?.activeOrganization?.id);
 
-  const routesQuery = useTransportRoutesQuery(mode === "edit" && isEnabled, { limit: 100 });
+  const routesQuery = useTransportRoutesQuery(mode === "edit" && isEnabled, {
+    limit: 100,
+  });
   const createMutation = useCreateRouteMutation();
   const updateMutation = useUpdateRouteMutation();
 
@@ -37,7 +39,9 @@ export function RouteSheetRoute({ mode }: RouteSheetRouteProps) {
     [location.search],
   );
 
-  const editingRoute = routesQuery.data?.rows?.find((r: { id: string }) => r.id === routeId);
+  const editingRoute = routesQuery.data?.rows?.find(
+    (r: { id: string }) => r.id === routeId,
+  );
 
   const defaultValues = useMemo<RouteFormValues>(() => {
     if (mode === "create" || !editingRoute) {
@@ -81,7 +85,12 @@ export function RouteSheetRoute({ mode }: RouteSheetRouteProps) {
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save transport route. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save transport route. Please try again.",
+        ),
+      );
     }
   }
 
@@ -89,7 +98,7 @@ export function RouteSheetRoute({ mode }: RouteSheetRouteProps) {
   const description =
     mode === "create"
       ? "Add a transport route."
-      : editingRoute?.name ?? "Edit this route.";
+      : (editingRoute?.name ?? "Edit this route.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

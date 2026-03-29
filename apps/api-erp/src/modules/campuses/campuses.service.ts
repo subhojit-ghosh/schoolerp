@@ -138,15 +138,17 @@ export class CampusesService {
         status: campus.status,
       });
 
-    this.auditService.record({
-      institutionId: organizationId,
-      authSession,
-      action: AUDIT_ACTIONS.CREATE,
-      entityType: AUDIT_ENTITY_TYPES.CAMPUS,
-      entityId: createdCampus.id,
-      entityLabel: createdCampus.name,
-      summary: `Created campus ${createdCampus.name}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId: organizationId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.CAMPUS,
+        entityId: createdCampus.id,
+        entityLabel: createdCampus.name,
+        summary: `Created campus ${createdCampus.name}.`,
+      })
+      .catch(() => {});
 
     return createdCampus;
   }

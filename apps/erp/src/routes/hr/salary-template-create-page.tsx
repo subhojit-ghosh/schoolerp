@@ -71,7 +71,9 @@ export function SalaryTemplateCreatePage() {
   const createMutation = useCreateSalaryTemplateMutation();
 
   const componentOptions = useMemo(() => {
-    const rows = (componentsQuery.data as { rows?: unknown[] } | undefined)?.rows ?? componentsQuery.data;
+    const rows =
+      (componentsQuery.data as { rows?: unknown[] } | undefined)?.rows ??
+      componentsQuery.data;
     if (!Array.isArray(rows)) return [];
     return (rows as Array<Record<string, unknown>>)
       .filter((c) => c.status === "active")
@@ -135,7 +137,12 @@ export function SalaryTemplateCreatePage() {
       toast.success("Salary template created.");
       void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not create salary template. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not create salary template. Please try again.",
+        ),
+      );
     }
   }
 
@@ -145,7 +152,10 @@ export function SalaryTemplateCreatePage() {
         backAction={
           <Breadcrumbs
             items={[
-              { label: "Salary Templates", href: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES },
+              {
+                label: "Salary Templates",
+                href: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES,
+              },
               { label: "New Salary Template" },
             ]}
           />
@@ -282,6 +292,7 @@ function ComponentRow({
   getComponentById,
   onRemove,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: any;
   index: number;
   componentOptions: ComponentOption[];
@@ -322,7 +333,8 @@ function ComponentRow({
         name={`components.${index}.salaryComponentId`}
         render={({ field: componentField }) => {
           const selectedComponent = getComponentById(componentField.value);
-          const isPercentage = selectedComponent?.calculationType === "percentage";
+          const isPercentage =
+            selectedComponent?.calculationType === "percentage";
 
           return isPercentage ? (
             <div className="w-32">
@@ -408,9 +420,7 @@ function ComponentRow({
                   ref={field.ref}
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value === ""
-                        ? 0
-                        : parseInt(e.target.value, 10),
+                      e.target.value === "" ? 0 : parseInt(e.target.value, 10),
                     )
                   }
                 />

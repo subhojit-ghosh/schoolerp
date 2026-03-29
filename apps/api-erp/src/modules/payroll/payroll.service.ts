@@ -124,7 +124,9 @@ export class PayrollService {
     if (q) conditions.push(ilike(salaryComponents.name, `%${q}%`));
 
     if (!status) {
-      conditions.push(ne(salaryComponents.status, SALARY_COMPONENT_STATUS.DELETED));
+      conditions.push(
+        ne(salaryComponents.status, SALARY_COMPONENT_STATUS.DELETED),
+      );
     }
 
     const whereClause = and(...conditions);
@@ -272,7 +274,9 @@ export class PayrollService {
     if (q) conditions.push(ilike(salaryTemplates.name, `%${q}%`));
 
     if (!status) {
-      conditions.push(ne(salaryTemplates.status, SALARY_TEMPLATE_STATUS.DELETED));
+      conditions.push(
+        ne(salaryTemplates.status, SALARY_TEMPLATE_STATUS.DELETED),
+      );
     }
 
     const whereClause = and(...conditions);
@@ -393,7 +397,10 @@ export class PayrollService {
       .update(salaryTemplates)
       .set({
         name: updatedName,
-        description: dto.description !== undefined ? dto.description : existing.description,
+        description:
+          dto.description !== undefined
+            ? dto.description
+            : existing.description,
       })
       .where(eq(salaryTemplates.id, templateId));
 
@@ -467,12 +474,19 @@ export class PayrollService {
     const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
     const sortCol = assignmentSortColumns[sort ?? "createdAt"];
 
-    const conditions = [eq(staffSalaryAssignments.institutionId, institutionId)];
+    const conditions = [
+      eq(staffSalaryAssignments.institutionId, institutionId),
+    ];
     if (status) conditions.push(eq(staffSalaryAssignments.status, status));
-    if (q) conditions.push(or(ilike(user.name, `%${q}%`), ilike(salaryTemplates.name, `%${q}%`))!);
+    if (q)
+      conditions.push(
+        or(ilike(user.name, `%${q}%`), ilike(salaryTemplates.name, `%${q}%`))!,
+      );
 
     if (!status) {
-      conditions.push(ne(staffSalaryAssignments.status, SALARY_ASSIGNMENT_STATUS.DELETED));
+      conditions.push(
+        ne(staffSalaryAssignments.status, SALARY_ASSIGNMENT_STATUS.DELETED),
+      );
     }
 
     const whereClause = and(...conditions);
@@ -493,10 +507,16 @@ export class PayrollService {
         createdAt: staffSalaryAssignments.createdAt,
       })
       .from(staffSalaryAssignments)
-      .innerJoin(staffProfiles, eq(staffSalaryAssignments.staffProfileId, staffProfiles.id))
+      .innerJoin(
+        staffProfiles,
+        eq(staffSalaryAssignments.staffProfileId, staffProfiles.id),
+      )
       .innerJoin(member, eq(staffProfiles.membershipId, member.id))
       .innerJoin(user, eq(member.userId, user.id))
-      .innerJoin(salaryTemplates, eq(staffSalaryAssignments.salaryTemplateId, salaryTemplates.id))
+      .innerJoin(
+        salaryTemplates,
+        eq(staffSalaryAssignments.salaryTemplateId, salaryTemplates.id),
+      )
       .where(whereClause);
 
     const [allRows, totalResult] = await Promise.all([
@@ -504,10 +524,16 @@ export class PayrollService {
       this.db
         .select({ count: count() })
         .from(staffSalaryAssignments)
-        .innerJoin(staffProfiles, eq(staffSalaryAssignments.staffProfileId, staffProfiles.id))
+        .innerJoin(
+          staffProfiles,
+          eq(staffSalaryAssignments.staffProfileId, staffProfiles.id),
+        )
         .innerJoin(member, eq(staffProfiles.membershipId, member.id))
         .innerJoin(user, eq(member.userId, user.id))
-        .innerJoin(salaryTemplates, eq(staffSalaryAssignments.salaryTemplateId, salaryTemplates.id))
+        .innerJoin(
+          salaryTemplates,
+          eq(staffSalaryAssignments.salaryTemplateId, salaryTemplates.id),
+        )
         .where(whereClause),
     ]);
 
@@ -546,10 +572,16 @@ export class PayrollService {
         createdAt: staffSalaryAssignments.createdAt,
       })
       .from(staffSalaryAssignments)
-      .innerJoin(staffProfiles, eq(staffSalaryAssignments.staffProfileId, staffProfiles.id))
+      .innerJoin(
+        staffProfiles,
+        eq(staffSalaryAssignments.staffProfileId, staffProfiles.id),
+      )
       .innerJoin(member, eq(staffProfiles.membershipId, member.id))
       .innerJoin(user, eq(member.userId, user.id))
-      .innerJoin(salaryTemplates, eq(staffSalaryAssignments.salaryTemplateId, salaryTemplates.id))
+      .innerJoin(
+        salaryTemplates,
+        eq(staffSalaryAssignments.salaryTemplateId, salaryTemplates.id),
+      )
       .where(
         and(
           eq(staffSalaryAssignments.id, assignmentId),
@@ -595,7 +627,10 @@ export class PayrollService {
     await this.findTemplate(institutionId, dto.salaryTemplateId);
 
     // Calculate CTC from template components + overrides
-    const ctcInPaise = await this.calculateCtc(dto.salaryTemplateId, dto.overrides ?? undefined);
+    const ctcInPaise = await this.calculateCtc(
+      dto.salaryTemplateId,
+      dto.overrides ?? undefined,
+    );
 
     const id = randomUUID();
 
@@ -642,10 +677,14 @@ export class PayrollService {
       throw new NotFoundException(ERROR_MESSAGES.PAYROLL.ASSIGNMENT_NOT_FOUND);
     }
 
-    const overrides = dto.overrides !== undefined ? dto.overrides : existing.overrides;
+    const overrides =
+      dto.overrides !== undefined ? dto.overrides : existing.overrides;
     const ctcInPaise = await this.calculateCtc(
       existing.salaryTemplateId,
-      (overrides as Record<string, { amountInPaise?: number | null; percentage?: number | null }>) ?? undefined,
+      (overrides as Record<
+        string,
+        { amountInPaise?: number | null; percentage?: number | null }
+      >) ?? undefined,
     );
 
     await this.db
@@ -710,7 +749,7 @@ export class PayrollService {
   // ── Payroll Runs ────────────────────────────────────────────────────────
 
   async listPayrollRuns(institutionId: string, query: ListPayrollRunsQueryDto) {
-    const { q, year, status, page, limit, sort, order } = query;
+    const { year, status, page, limit, sort, order } = query;
     const pageSize = resolveTablePageSize(limit);
     const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
     const sortCol = runSortColumns[sort ?? "createdAt"];
@@ -744,10 +783,7 @@ export class PayrollService {
         .leftJoin(campus, eq(payrollRuns.campusId, campus.id))
         .where(whereClause)
         .orderBy(orderFn(sortCol)),
-      this.db
-        .select({ count: count() })
-        .from(payrollRuns)
-        .where(whereClause),
+      this.db.select({ count: count() }).from(payrollRuns).where(whereClause),
     ]);
 
     const total = totalResult[0]?.count ?? 0;
@@ -793,7 +829,10 @@ export class PayrollService {
       .from(payrollRuns)
       .leftJoin(campus, eq(payrollRuns.campusId, campus.id))
       .where(
-        and(eq(payrollRuns.id, runId), eq(payrollRuns.institutionId, institutionId)),
+        and(
+          eq(payrollRuns.id, runId),
+          eq(payrollRuns.institutionId, institutionId),
+        ),
       );
 
     const row = rows[0];
@@ -868,7 +907,10 @@ export class PayrollService {
       .select()
       .from(payrollRuns)
       .where(
-        and(eq(payrollRuns.id, runId), eq(payrollRuns.institutionId, institutionId)),
+        and(
+          eq(payrollRuns.id, runId),
+          eq(payrollRuns.institutionId, institutionId),
+        ),
       )
       .then((rows) => rows[0]);
 
@@ -900,7 +942,10 @@ export class PayrollService {
         membershipId: staffProfiles.membershipId,
       })
       .from(staffSalaryAssignments)
-      .innerJoin(staffProfiles, eq(staffSalaryAssignments.staffProfileId, staffProfiles.id))
+      .innerJoin(
+        staffProfiles,
+        eq(staffSalaryAssignments.staffProfileId, staffProfiles.id),
+      )
       .innerJoin(member, eq(staffProfiles.membershipId, member.id))
       .innerJoin(user, eq(member.userId, user.id))
       .where(and(...assignmentConditions));
@@ -925,7 +970,9 @@ export class PayrollService {
       .where(eq(payslips.payrollRunId, runId));
 
     for (const ps of existingPayslipIds) {
-      await this.db.delete(payslipLineItems).where(eq(payslipLineItems.payslipId, ps.id));
+      await this.db
+        .delete(payslipLineItems)
+        .where(eq(payslipLineItems.payslipId, ps.id));
     }
     await this.db.delete(payslips).where(eq(payslips.payrollRunId, runId));
 
@@ -959,7 +1006,10 @@ export class PayrollService {
       }
 
       const workingDays = run.workingDays;
-      const presentDays = Math.max(0, workingDays - paidLeaveDays - unpaidLeaveDays);
+      const presentDays = Math.max(
+        0,
+        workingDays - paidLeaveDays - unpaidLeaveDays,
+      );
       const effectiveDays = presentDays + paidLeaveDays;
 
       // Get template components
@@ -977,7 +1027,9 @@ export class PayrollService {
           salaryComponents,
           eq(salaryTemplateComponents.salaryComponentId, salaryComponents.id),
         )
-        .where(eq(salaryTemplateComponents.salaryTemplateId, sa.salaryTemplateId))
+        .where(
+          eq(salaryTemplateComponents.salaryTemplateId, sa.salaryTemplateId),
+        )
         .orderBy(asc(salaryTemplateComponents.sortOrder));
 
       const overrides = (sa.overrides ?? {}) as Record<
@@ -998,7 +1050,9 @@ export class PayrollService {
 
       // Pro-rate basic based on effective days
       const proRatedBasic =
-        workingDays > 0 ? Math.round((basicMonthly * effectiveDays) / workingDays) : 0;
+        workingDays > 0
+          ? Math.round((basicMonthly * effectiveDays) / workingDays)
+          : 0;
 
       // Second pass: calculate all line items
       const lineItems: {
@@ -1013,7 +1067,7 @@ export class PayrollService {
 
       for (const tc of templateComps) {
         const override = overrides[tc.componentId];
-        let amount = 0;
+        let amount: number;
 
         if (tc.calculationType === "fixed") {
           const fullAmount = override?.amountInPaise ?? tc.amountInPaise ?? 0;
@@ -1127,7 +1181,10 @@ export class PayrollService {
       .select()
       .from(payrollRuns)
       .where(
-        and(eq(payrollRuns.id, runId), eq(payrollRuns.institutionId, institutionId)),
+        and(
+          eq(payrollRuns.id, runId),
+          eq(payrollRuns.institutionId, institutionId),
+        ),
       )
       .then((rows) => rows[0]);
 
@@ -1177,7 +1234,10 @@ export class PayrollService {
       .select()
       .from(payrollRuns)
       .where(
-        and(eq(payrollRuns.id, runId), eq(payrollRuns.institutionId, institutionId)),
+        and(
+          eq(payrollRuns.id, runId),
+          eq(payrollRuns.institutionId, institutionId),
+        ),
       )
       .then((rows) => rows[0]);
 
@@ -1224,7 +1284,10 @@ export class PayrollService {
     ];
     if (q) {
       conditions.push(
-        or(ilike(payslips.staffName, `%${q}%`), ilike(payslips.staffEmployeeId, `%${q}%`))!,
+        or(
+          ilike(payslips.staffName, `%${q}%`),
+          ilike(payslips.staffEmployeeId, `%${q}%`),
+        )!,
       );
     }
 
@@ -1236,10 +1299,7 @@ export class PayrollService {
         .from(payslips)
         .where(whereClause)
         .orderBy(orderFn(sortCol)),
-      this.db
-        .select({ count: count() })
-        .from(payslips)
-        .where(whereClause),
+      this.db.select({ count: count() }).from(payslips).where(whereClause),
     ]);
 
     const total = totalResult[0]?.count ?? 0;
@@ -1302,7 +1362,8 @@ export class PayrollService {
       )
       .then((rows) => rows[0]);
 
-    if (!row) throw new NotFoundException(ERROR_MESSAGES.PAYROLL.PAYSLIP_NOT_FOUND);
+    if (!row)
+      throw new NotFoundException(ERROR_MESSAGES.PAYROLL.PAYSLIP_NOT_FOUND);
 
     const lineItems = await this.db
       .select()
@@ -1324,7 +1385,10 @@ export class PayrollService {
 
   // ── Reports ─────────────────────────────────────────────────────────────
 
-  async getMonthlySummary(institutionId: string, query: MonthlySummaryQueryDto) {
+  async getMonthlySummary(
+    institutionId: string,
+    query: MonthlySummaryQueryDto,
+  ) {
     const runs = await this.db
       .select({
         id: payrollRuns.id,
@@ -1382,10 +1446,7 @@ export class PayrollService {
         .innerJoin(payrollRuns, eq(payslips.payrollRunId, payrollRuns.id))
         .where(whereClause)
         .orderBy(desc(payrollRuns.year), desc(payrollRuns.month)),
-      this.db
-        .select({ count: count() })
-        .from(payslips)
-        .where(whereClause),
+      this.db.select({ count: count() }).from(payslips).where(whereClause),
     ]);
 
     const total = totalResult[0]?.count ?? 0;
@@ -1444,7 +1505,10 @@ export class PayrollService {
 
   private async calculateCtc(
     templateId: string,
-    overrides?: Record<string, { amountInPaise?: number | null; percentage?: number | null }>,
+    overrides?: Record<
+      string,
+      { amountInPaise?: number | null; percentage?: number | null }
+    >,
   ): Promise<number> {
     const components = await this.db
       .select({
@@ -1476,7 +1540,7 @@ export class PayrollService {
 
     for (const c of components) {
       const override = overrides?.[c.componentId];
-      let amount = 0;
+      let amount: number;
 
       if (c.calculationType === "fixed") {
         amount = override?.amountInPaise ?? c.amountInPaise ?? 0;

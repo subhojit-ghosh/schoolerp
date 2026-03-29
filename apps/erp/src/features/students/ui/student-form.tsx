@@ -2,7 +2,11 @@ import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconAlertTriangle, IconTrash, IconUserPlus } from "@tabler/icons-react";
+import {
+  IconAlertTriangle,
+  IconTrash,
+  IconUserPlus,
+} from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import { Checkbox } from "@repo/ui/components/ui/checkbox";
@@ -421,10 +425,14 @@ export function StudentForm({
             <IconAlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-600 dark:text-amber-400" />
             <p className="text-amber-800 dark:text-amber-200">
               A student named{" "}
-              <span className="font-medium">{duplicateCheck.match.fullName}</span>{" "}
+              <span className="font-medium">
+                {duplicateCheck.match.fullName}
+              </span>{" "}
               already exists in{" "}
-              <span className="font-medium">{duplicateCheck.match.className}</span>.
-              Are you sure this isn't a duplicate?
+              <span className="font-medium">
+                {duplicateCheck.match.className}
+              </span>
+              . Are you sure this isn't a duplicate?
             </p>
           </div>
         ) : null}

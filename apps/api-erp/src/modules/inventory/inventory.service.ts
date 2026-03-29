@@ -87,7 +87,9 @@ export class InventoryService {
     if (status) {
       conditions.push(eq(inventoryCategories.status, status));
     } else {
-      conditions.push(ne(inventoryCategories.status, INVENTORY_CATEGORY_STATUS.DELETED));
+      conditions.push(
+        ne(inventoryCategories.status, INVENTORY_CATEGORY_STATUS.DELETED),
+      );
     }
     if (q) {
       conditions.push(ilike(inventoryCategories.name, `%${q}%`));
@@ -101,7 +103,11 @@ export class InventoryService {
       .where(where);
 
     const total = totalResult?.count ?? 0;
-    const { page: safePage, pageCount, offset } = resolvePagination(total, page, pageSize);
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
 
     const rows = await this.db
       .select({
@@ -264,7 +270,11 @@ export class InventoryService {
       .where(where);
 
     const total = totalResult?.count ?? 0;
-    const { page: safePage, pageCount, offset } = resolvePagination(total, page, pageSize);
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
 
     const rows = await this.db
       .select({
@@ -282,7 +292,10 @@ export class InventoryService {
         createdAt: inventoryItems.createdAt,
       })
       .from(inventoryItems)
-      .leftJoin(inventoryCategories, eq(inventoryItems.categoryId, inventoryCategories.id))
+      .leftJoin(
+        inventoryCategories,
+        eq(inventoryItems.categoryId, inventoryCategories.id),
+      )
       .where(where)
       .orderBy(orderFn(sortCol))
       .limit(pageSize)
@@ -309,7 +322,10 @@ export class InventoryService {
         updatedAt: inventoryItems.updatedAt,
       })
       .from(inventoryItems)
-      .leftJoin(inventoryCategories, eq(inventoryItems.categoryId, inventoryCategories.id))
+      .leftJoin(
+        inventoryCategories,
+        eq(inventoryItems.categoryId, inventoryCategories.id),
+      )
       .where(
         and(
           eq(inventoryItems.id, itemId),
@@ -407,7 +423,9 @@ export class InventoryService {
         );
 
       if (!category) {
-        throw new NotFoundException(ERROR_MESSAGES.INVENTORY.CATEGORY_NOT_FOUND);
+        throw new NotFoundException(
+          ERROR_MESSAGES.INVENTORY.CATEGORY_NOT_FOUND,
+        );
       }
     }
 
@@ -418,7 +436,8 @@ export class InventoryService {
     if (dto.unit !== undefined) updates.unit = dto.unit;
     if (dto.minimumStock !== undefined) updates.minimumStock = dto.minimumStock;
     if (dto.location !== undefined) updates.location = dto.location;
-    if (dto.purchasePriceInPaise !== undefined) updates.purchasePriceInPaise = dto.purchasePriceInPaise;
+    if (dto.purchasePriceInPaise !== undefined)
+      updates.purchasePriceInPaise = dto.purchasePriceInPaise;
 
     if (Object.keys(updates).length > 0) {
       await this.db
@@ -522,7 +541,9 @@ export class InventoryService {
     } else if (dto.transactionType === STOCK_TRANSACTION_TYPES.ISSUE) {
       newStock = item.currentStock - dto.quantity;
       if (newStock < 0) {
-        throw new BadRequestException(ERROR_MESSAGES.INVENTORY.INSUFFICIENT_STOCK);
+        throw new BadRequestException(
+          ERROR_MESSAGES.INVENTORY.INSUFFICIENT_STOCK,
+        );
       }
     } else if (dto.transactionType === STOCK_TRANSACTION_TYPES.ADJUSTMENT) {
       newStock = item.currentStock + dto.quantity;
@@ -575,7 +596,10 @@ export class InventoryService {
     return { id, newStock };
   }
 
-  async listTransactions(institutionId: string, query: ListTransactionsQueryDto) {
+  async listTransactions(
+    institutionId: string,
+    query: ListTransactionsQueryDto,
+  ) {
     const { q, transactionType, itemId, page, limit, sort, order } = query;
     const pageSize = resolveTablePageSize(limit);
     const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
@@ -606,7 +630,11 @@ export class InventoryService {
       .where(where);
 
     const total = totalResult?.count ?? 0;
-    const { page: safePage, pageCount, offset } = resolvePagination(total, page, pageSize);
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
 
     const rows = await this.db
       .select({
@@ -640,7 +668,7 @@ export class InventoryService {
     const enrichedRows = rows.map((row) => ({
       ...row,
       issuedToName: row.issuedToMembershipId
-        ? memberNames.get(row.issuedToMembershipId) ?? null
+        ? (memberNames.get(row.issuedToMembershipId) ?? null)
         : null,
       createdByName: memberNames.get(row.createdByMemberId) ?? "Unknown",
     }));
@@ -702,7 +730,11 @@ export class InventoryService {
       .where(where);
 
     const total = totalResult?.count ?? 0;
-    const { page: safePage, pageCount, offset } = resolvePagination(total, page, pageSize);
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
 
     const rows = await this.db
       .select({
@@ -720,7 +752,10 @@ export class InventoryService {
         createdAt: inventoryItems.createdAt,
       })
       .from(inventoryItems)
-      .leftJoin(inventoryCategories, eq(inventoryItems.categoryId, inventoryCategories.id))
+      .leftJoin(
+        inventoryCategories,
+        eq(inventoryItems.categoryId, inventoryCategories.id),
+      )
       .where(where)
       .orderBy(orderFn(sortCol))
       .limit(pageSize)
@@ -731,7 +766,9 @@ export class InventoryService {
 
   // ── Helpers ────────────────────────────────────────────────────────────
 
-  private async resolveMemberNames(memberIds: string[]): Promise<Map<string, string>> {
+  private async resolveMemberNames(
+    memberIds: string[],
+  ): Promise<Map<string, string>> {
     if (memberIds.length === 0) return new Map();
 
     const results = await this.db

@@ -41,16 +41,18 @@ import {
 } from "@repo/ui/components/ui/select";
 import { cn } from "@repo/ui/lib/utils";
 import { DEFAULT_TABLE_PAGE_SIZE, TABLE_PAGE_SIZES } from "@/constants/query";
-import {
-  useTableDensity,
-  type TableDensity,
-} from "@/hooks/use-table-density";
+import { useTableDensity, type TableDensity } from "@/hooks/use-table-density";
 
 const ROW_HOVER_DELAY_MS = 150;
 
 const DENSITY_CONFIG: Record<
   TableDensity,
-  { icon: typeof IconBaselineDensitySmall; label: string; cellClassName: string; skeletonClassName: string }
+  {
+    icon: typeof IconBaselineDensitySmall;
+    label: string;
+    cellClassName: string;
+    skeletonClassName: string;
+  }
 > = {
   compact: {
     icon: IconBaselineDensitySmall,
@@ -85,18 +87,21 @@ function DensityToggle(): ReactNode {
         if (value) setDensity(value as TableDensity);
       }}
     >
-      {(Object.entries(DENSITY_CONFIG) as [TableDensity, (typeof DENSITY_CONFIG)[TableDensity]][]).map(
-        ([key, { icon: Icon, label }]) => (
-          <ToggleGroupItem
-            key={key}
-            value={key}
-            aria-label={label}
-            className="h-7 w-7 p-0"
-          >
-            <Icon className="size-3.5" />
-          </ToggleGroupItem>
-        ),
-      )}
+      {(
+        Object.entries(DENSITY_CONFIG) as [
+          TableDensity,
+          (typeof DENSITY_CONFIG)[TableDensity],
+        ][]
+      ).map(([key, { icon: Icon, label }]) => (
+        <ToggleGroupItem
+          key={key}
+          value={key}
+          aria-label={label}
+          className="h-7 w-7 p-0"
+        >
+          <Icon className="size-3.5" />
+        </ToggleGroupItem>
+      ))}
     </ToggleGroup>
   );
 }
@@ -179,15 +184,12 @@ export function ServerDataTable<TData extends RowData>({
     [onRowHover],
   );
 
-  const handleRowMouseLeave = useCallback(
-    function handleRowMouseLeave() {
-      if (hoverTimerRef.current) {
-        clearTimeout(hoverTimerRef.current);
-        hoverTimerRef.current = null;
-      }
-    },
-    [],
-  );
+  const handleRowMouseLeave = useCallback(function handleRowMouseLeave() {
+    if (hoverTimerRef.current) {
+      clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+  }, []);
   const densityCell = DENSITY_CONFIG[density].cellClassName;
   const densitySkeleton = DENSITY_CONFIG[density].skeletonClassName;
 
@@ -241,10 +243,7 @@ export function ServerDataTable<TData extends RowData>({
             {Array.from({ length: 5 }).map((_, index) => (
               <div
                 key={index}
-                className={cn(
-                  "flex items-center gap-4 px-4",
-                  densitySkeleton,
-                )}
+                className={cn("flex items-center gap-4 px-4", densitySkeleton)}
               >
                 <Skeleton className="h-5 w-32" />
                 <Skeleton className="h-5 w-16" />

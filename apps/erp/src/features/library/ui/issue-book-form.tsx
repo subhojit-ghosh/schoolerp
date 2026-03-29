@@ -48,7 +48,10 @@ export function IssueBookForm({
   const institutionId = session?.activeOrganization?.id;
   const isEnabled = Boolean(institutionId);
 
-  const booksQuery = useLibraryBooksQuery(isEnabled, { status: "active", limit: 200 });
+  const booksQuery = useLibraryBooksQuery(isEnabled, {
+    status: "active",
+    limit: 200,
+  });
   const staffQuery = useStaffQuery(institutionId, { limit: 200 });
 
   const availableBooks = (booksQuery.data?.rows ?? []).filter(

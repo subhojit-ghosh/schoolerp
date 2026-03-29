@@ -252,17 +252,22 @@ export const ERROR_MESSAGES = {
   },
   PAYROLL: {
     COMPONENT_NOT_FOUND: "Salary component not found.",
-    COMPONENT_IN_USE: "This salary component is used in one or more templates and cannot be deleted.",
+    COMPONENT_IN_USE:
+      "This salary component is used in one or more templates and cannot be deleted.",
     TEMPLATE_NOT_FOUND: "Salary template not found.",
-    TEMPLATE_IN_USE: "This salary template is assigned to one or more staff members and cannot be deleted.",
+    TEMPLATE_IN_USE:
+      "This salary template is assigned to one or more staff members and cannot be deleted.",
     ASSIGNMENT_NOT_FOUND: "Salary assignment not found.",
-    STAFF_ALREADY_ASSIGNED: "This staff member already has an active salary assignment.",
+    STAFF_ALREADY_ASSIGNED:
+      "This staff member already has an active salary assignment.",
     RUN_NOT_FOUND: "Payroll run not found.",
-    RUN_ALREADY_EXISTS: "A payroll run already exists for this month and campus.",
+    RUN_ALREADY_EXISTS:
+      "A payroll run already exists for this month and campus.",
     RUN_NOT_DRAFT: "This payroll run is no longer in draft status.",
     RUN_NOT_PROCESSED: "This payroll run has not been processed yet.",
     RUN_NOT_APPROVED: "This payroll run has not been approved yet.",
-    NO_STAFF_TO_PROCESS: "No staff members with active salary assignments found for this payroll run.",
+    NO_STAFF_TO_PROCESS:
+      "No staff members with active salary assignments found for this payroll run.",
     PAYSLIP_NOT_FOUND: "Payslip not found.",
   },
   TRANSPORT: {
@@ -288,8 +293,7 @@ export const ERROR_MESSAGES = {
       "Cannot delete an item that has stock transactions. Deactivate it instead.",
     ITEM_SKU_EXISTS:
       "That SKU is already in use for another item in this institution.",
-    INSUFFICIENT_STOCK:
-      "Insufficient stock to complete this transaction.",
+    INSUFFICIENT_STOCK: "Insufficient stock to complete this transaction.",
     TRANSACTION_NOT_FOUND: "Stock transaction not found.",
     MEMBER_NOT_FOUND: "Member not found in this institution.",
   },
@@ -300,15 +304,13 @@ export const ERROR_MESSAGES = {
     BUILDING_HAS_ROOMS:
       "Cannot delete a building that has rooms. Remove or deactivate the rooms first.",
     ROOM_NOT_FOUND: "Hostel room not found.",
-    ROOM_NUMBER_EXISTS:
-      "That room number already exists in this building.",
+    ROOM_NUMBER_EXISTS: "That room number already exists in this building.",
     ROOM_FULL:
       "This room has reached its capacity. No more beds can be allocated.",
     ALLOCATION_NOT_FOUND: "Bed allocation not found.",
     STUDENT_ALREADY_ALLOCATED:
       "This student already has an active bed allocation.",
-    ALLOCATION_ALREADY_VACATED:
-      "This bed allocation has already been vacated.",
+    ALLOCATION_ALREADY_VACATED: "This bed allocation has already been vacated.",
     MESS_PLAN_NOT_FOUND: "Mess plan not found.",
     MESS_PLAN_NAME_EXISTS:
       "That mess plan name is already in use for this institution.",

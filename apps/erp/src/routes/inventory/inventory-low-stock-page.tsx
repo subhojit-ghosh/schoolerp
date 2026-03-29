@@ -182,7 +182,8 @@ export function InventoryLowStockPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (lowStockQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (lowStockQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <EntityListPage

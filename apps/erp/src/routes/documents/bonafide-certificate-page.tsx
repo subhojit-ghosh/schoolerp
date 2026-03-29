@@ -65,7 +65,9 @@ export function BonafideCertificatePage() {
           {student.currentEnrollment ? (
             <PrintDetailItem
               label="Academic Year"
-              value={formatAcademicYear(student.currentEnrollment.academicYearName)}
+              value={formatAcademicYear(
+                student.currentEnrollment.academicYearName,
+              )}
             />
           ) : null}
         </div>

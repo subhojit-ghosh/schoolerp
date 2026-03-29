@@ -24,10 +24,16 @@ export const listRoutesQuerySchema = z.object({
   campusId: z.string().optional(),
   status: z.enum(["active", "inactive"]).optional(),
   page: z
-    .union([z.number().int().positive(), z.string().regex(/^\d+/).transform(Number)])
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
     .optional(),
   limit: z
-    .union([z.number().int().positive(), z.string().regex(/^\d+/).transform(Number)])
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
     .optional(),
   sort: z.enum(["name", "createdAt"]).optional(),
   order: z.enum(["asc", "desc"]).optional(),
@@ -86,10 +92,16 @@ export const listVehiclesQuerySchema = z.object({
   routeId: z.string().optional(),
   status: z.enum(["active", "inactive"]).optional(),
   page: z
-    .union([z.number().int().positive(), z.string().regex(/^\d+/).transform(Number)])
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
     .optional(),
   limit: z
-    .union([z.number().int().positive(), z.string().regex(/^\d+/).transform(Number)])
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
     .optional(),
   sort: z.enum(["registrationNumber", "type", "createdAt"]).optional(),
   order: z.enum(["asc", "desc"]).optional(),
@@ -128,16 +140,24 @@ export const listAssignmentsQuerySchema = z.object({
   studentId: z.string().optional(),
   status: z.enum(["active", "inactive"]).optional(),
   page: z
-    .union([z.number().int().positive(), z.string().regex(/^\d+/).transform(Number)])
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
     .optional(),
   limit: z
-    .union([z.number().int().positive(), z.string().regex(/^\d+/).transform(Number)])
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
     .optional(),
   sort: z.enum(["startDate", "createdAt"]).optional(),
   order: z.enum(["asc", "desc"]).optional(),
 });
 
-export type ListAssignmentsQueryDto = z.infer<typeof listAssignmentsQuerySchema>;
+export type ListAssignmentsQueryDto = z.infer<
+  typeof listAssignmentsQuerySchema
+>;
 
 // ── Parsers ────────────────────────────────────────────────────────────────
 

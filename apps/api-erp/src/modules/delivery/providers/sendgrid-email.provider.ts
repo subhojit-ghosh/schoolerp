@@ -27,26 +27,23 @@ export class SendGridEmailProvider implements EmailDeliveryProvider {
         content.push({ type: "text/html", value: message.html });
       }
 
-      const response = await fetch(
-        "https://api.sendgrid.com/v3/mail/send",
-        {
-          method: "POST",
-          headers: {
-            authorization: `Bearer ${apiKey}`,
-            "content-type": "application/json",
-          },
-          body: JSON.stringify({
-            personalizations: [{ to: [{ email: message.to }] }],
-            from: {
-              email: message.fromAddress,
-              name: message.fromName ?? undefined,
-            },
-            subject: message.subject,
-            content,
-          }),
-          signal: AbortSignal.timeout(DELIVERY_TIMEOUT_MS),
+      const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${apiKey}`,
+          "content-type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          personalizations: [{ to: [{ email: message.to }] }],
+          from: {
+            email: message.fromAddress,
+            name: message.fromName ?? undefined,
+          },
+          subject: message.subject,
+          content,
+        }),
+        signal: AbortSignal.timeout(DELIVERY_TIMEOUT_MS),
+      });
 
       if (!response.ok) {
         const errorBody = await response.text().catch(() => "");

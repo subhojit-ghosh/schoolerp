@@ -80,7 +80,9 @@ export function LeaveTypeSheetRoute({ mode }: LeaveTypeSheetRouteProps) {
       }
       void navigate(closeTo);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save leave type. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not save leave type. Please try again."),
+      );
     }
   }
 
@@ -88,7 +90,7 @@ export function LeaveTypeSheetRoute({ mode }: LeaveTypeSheetRouteProps) {
   const description =
     mode === "create"
       ? "Define a leave category for staff."
-      : editingType?.name ?? "Edit this leave type.";
+      : (editingType?.name ?? "Edit this leave type.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

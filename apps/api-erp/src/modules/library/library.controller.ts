@@ -123,7 +123,9 @@ export class LibraryController {
     return this.libraryService.issueBook(institution.id, session, dto);
   }
 
-  @Post(`${API_ROUTES.LIBRARY_TRANSACTIONS}/:transactionId/${API_ROUTES.RETURN}`)
+  @Post(
+    `${API_ROUTES.LIBRARY_TRANSACTIONS}/:transactionId/${API_ROUTES.RETURN}`,
+  )
   @RequirePermission(PERMISSIONS.LIBRARY_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Return a borrowed book" })
@@ -135,6 +137,11 @@ export class LibraryController {
     @Body() body: ReturnBookBodyDto,
   ) {
     const dto = parseReturnBook(body);
-    return this.libraryService.returnBook(institution.id, transactionId, session, dto);
+    return this.libraryService.returnBook(
+      institution.id,
+      transactionId,
+      session,
+      dto,
+    );
   }
 }

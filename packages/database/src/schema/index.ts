@@ -1546,12 +1546,19 @@ export const homework = pgTable(
       .default("draft"),
     publishedAt: timestamp(),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
     deletedAt: timestamp(),
   },
   (t) => [
     index("homework_institution_idx").on(t.institutionId),
-    index("homework_class_section_idx").on(t.institutionId, t.classId, t.sectionId),
+    index("homework_class_section_idx").on(
+      t.institutionId,
+      t.classId,
+      t.sectionId,
+    ),
     index("homework_subject_idx").on(t.subjectId),
     index("homework_status_idx").on(t.status),
     index("homework_due_date_idx").on(t.dueDate),
@@ -1575,7 +1582,9 @@ export const libraryBooks = pgTable(
     genre: text(),
     totalCopies: integer().notNull().default(1),
     availableCopies: integer().notNull().default(1),
-    status: text({ enum: ["active", "inactive"] }).notNull().default("active"),
+    status: text({ enum: ["active", "inactive"] })
+      .notNull()
+      .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()
@@ -1640,7 +1649,10 @@ export const leaveTypes = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (t) => [
     index("leave_types_institution_idx").on(t.institutionId),
@@ -1674,7 +1686,10 @@ export const leaveApplications = pgTable(
     reviewedAt: timestamp(),
     reviewNote: text(),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (t) => [
     index("leave_applications_institution_idx").on(t.institutionId),
@@ -1715,8 +1730,15 @@ export const staffAttendanceRecords = pgTable(
       table.staffMembershipId,
       table.attendanceDate,
     ),
-    index("staff_att_institution_date_idx").on(table.institutionId, table.attendanceDate),
-    index("staff_att_campus_date_idx").on(table.institutionId, table.campusId, table.attendanceDate),
+    index("staff_att_institution_date_idx").on(
+      table.institutionId,
+      table.attendanceDate,
+    ),
+    index("staff_att_campus_date_idx").on(
+      table.institutionId,
+      table.campusId,
+      table.attendanceDate,
+    ),
   ],
 );
 
@@ -1736,7 +1758,10 @@ export const transportRoutes = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (t) => [
     index("transport_routes_institution_idx").on(t.institutionId),
@@ -1763,13 +1788,19 @@ export const transportStops = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (t) => [
     index("transport_stops_institution_idx").on(t.institutionId),
     index("transport_stops_route_idx").on(t.routeId),
     index("transport_stops_status_idx").on(t.status),
-    uniqueIndex("transport_stops_route_seq_unique_idx").on(t.routeId, t.sequenceNumber),
+    uniqueIndex("transport_stops_route_seq_unique_idx").on(
+      t.routeId,
+      t.sequenceNumber,
+    ),
   ],
 );
 
@@ -1792,7 +1823,10 @@ export const transportVehicles = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (t) => [
     index("transport_vehicles_institution_idx").on(t.institutionId),
@@ -1830,7 +1864,10 @@ export const studentTransportAssignments = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (t) => [
     index("student_transport_institution_idx").on(t.institutionId),
@@ -1866,7 +1903,10 @@ export const salaryComponents = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
     deletedAt: timestamp(),
   },
   (t) => [
@@ -1892,7 +1932,10 @@ export const salaryTemplates = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
     deletedAt: timestamp(),
   },
   (t) => [
@@ -1949,7 +1992,10 @@ export const staffSalaryAssignments = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
     deletedAt: timestamp(),
   },
   (t) => [
@@ -1973,9 +2019,7 @@ export const payrollRuns = pgTable(
     year: integer().notNull(),
     campusId: text().references(() => campus.id, { onDelete: "restrict" }), // null = all campuses
     // Tier 4 workflow: draft → processed → approved → paid
-    status: text({ enum: PAYROLL_RUN_STATUS_ENUM })
-      .notNull()
-      .default("draft"),
+    status: text({ enum: PAYROLL_RUN_STATUS_ENUM }).notNull().default("draft"),
     totalEarningsInPaise: integer().notNull().default(0),
     totalDeductionsInPaise: integer().notNull().default(0),
     totalNetPayInPaise: integer().notNull().default(0),
@@ -2073,7 +2117,10 @@ export const inventoryCategories = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
     deletedAt: timestamp(),
   },
   (t) => [
@@ -2107,7 +2154,10 @@ export const inventoryItems = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
     deletedAt: timestamp(),
   },
   (t) => [
@@ -2172,7 +2222,10 @@ export const hostelBuildings = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
     deletedAt: timestamp(),
   },
   (t) => [
@@ -2200,18 +2253,21 @@ export const hostelRooms = pgTable(
     capacity: integer().notNull().default(1),
     occupancy: integer().notNull().default(0),
     // Tier 3: active | inactive only — no delete
-    status: text({ enum: HOSTEL_ROOM_STATUS_ENUM })
-      .notNull()
-      .default("active"),
+    status: text({ enum: HOSTEL_ROOM_STATUS_ENUM }).notNull().default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (t) => [
     index("hostel_rooms_institution_idx").on(t.institutionId),
     index("hostel_rooms_building_idx").on(t.buildingId),
     index("hostel_rooms_status_idx").on(t.status),
-    uniqueIndex("hostel_rooms_number_unique_idx")
-      .on(t.buildingId, t.roomNumber),
+    uniqueIndex("hostel_rooms_number_unique_idx").on(
+      t.buildingId,
+      t.roomNumber,
+    ),
   ],
 );
 
@@ -2235,7 +2291,10 @@ export const bedAllocations = pgTable(
       .notNull()
       .default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (t) => [
     index("bed_allocations_institution_idx").on(t.institutionId),
@@ -2258,16 +2317,16 @@ export const messPlans = pgTable(
     name: text().notNull(),
     monthlyFeeInPaise: integer().notNull(),
     description: text(),
-    status: text({ enum: MESS_PLAN_STATUS_ENUM })
-      .notNull()
-      .default("active"),
+    status: text({ enum: MESS_PLAN_STATUS_ENUM }).notNull().default("active"),
     createdAt: timestamp().notNull().defaultNow(),
-    updatedAt: timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   },
   (t) => [
     index("mess_plans_institution_idx").on(t.institutionId),
     index("mess_plans_status_idx").on(t.status),
-    uniqueIndex("mess_plans_name_unique_idx")
-      .on(t.institutionId, t.name),
+    uniqueIndex("mess_plans_name_unique_idx").on(t.institutionId, t.name),
   ],
 );

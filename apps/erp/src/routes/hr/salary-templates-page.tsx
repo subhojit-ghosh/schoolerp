@@ -47,7 +47,7 @@ import {
 } from "@/features/payroll/model/payroll-constants";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
-import { appendSearch, } from "@/lib/routes";
+import { appendSearch } from "@/lib/routes";
 import { buildSalaryTemplateDetailRoute } from "@/constants/routes";
 
 type SalaryTemplateRow = {
@@ -114,7 +114,12 @@ export function SalaryTemplatesPage() {
             : "Salary template archived.",
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update salary template status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update salary template status. Please try again.",
+          ),
+        );
       }
     },
     [statusMutation],

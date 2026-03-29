@@ -208,7 +208,10 @@ export class ListAllocationsQueryParamsDto {
   page?: number;
   limit?: number;
 
-  @ApiProperty({ enum: ["bedNumber", "startDate", "createdAt"], required: false })
+  @ApiProperty({
+    enum: ["bedNumber", "startDate", "createdAt"],
+    required: false,
+  })
   sort?: "bedNumber" | "startDate" | "createdAt";
 
   @ApiProperty({ enum: ["asc", "desc"], required: false })

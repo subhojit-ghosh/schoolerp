@@ -71,8 +71,7 @@ export function ClassDetailPage() {
       sections: schoolClass.sections.map((section) => ({
         id: section.id,
         name: section.name,
-        classTeacherMembershipId:
-          section.classTeacherMembershipId ?? undefined,
+        classTeacherMembershipId: section.classTeacherMembershipId ?? undefined,
       })),
     };
   }, [classQuery.data]);
@@ -90,7 +89,9 @@ export function ClassDetailPage() {
 
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.CLASS));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update class. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not update class. Please try again."),
+      );
     }
   }
 

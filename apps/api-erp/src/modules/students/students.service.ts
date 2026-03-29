@@ -578,15 +578,17 @@ export class StudentsService {
       .filter(Boolean)
       .join(" ");
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.UPDATE,
-      entityType: AUDIT_ENTITY_TYPES.STUDENT,
-      entityId: studentId,
-      entityLabel: fullName,
-      summary: `Updated student ${fullName}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.STUDENT,
+        entityId: studentId,
+        entityLabel: fullName,
+        summary: `Updated student ${fullName}.`,
+      })
+      .catch(() => {});
 
     return this.getStudent(
       institutionId,
@@ -1280,15 +1282,17 @@ export class StudentsService {
       .filter(Boolean)
       .join(" ");
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.CREATE,
-      entityType: AUDIT_ENTITY_TYPES.STUDENT,
-      entityId: createdStudent.id,
-      entityLabel: fullName,
-      summary: `Created student ${fullName}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.STUDENT,
+        entityId: createdStudent.id,
+        entityLabel: fullName,
+        summary: `Created student ${fullName}.`,
+      })
+      .catch(() => {});
 
     return studentRecord;
   }

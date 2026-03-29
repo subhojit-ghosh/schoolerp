@@ -22,9 +22,7 @@ export class TwilioSmsProvider implements SmsDeliveryProvider {
 
     try {
       const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-      const auth = Buffer.from(`${accountSid}:${authToken}`).toString(
-        "base64",
-      );
+      const auth = Buffer.from(`${accountSid}:${authToken}`).toString("base64");
 
       const body = new URLSearchParams({
         To: message.to,

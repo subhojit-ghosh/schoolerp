@@ -1,10 +1,12 @@
 import { Badge } from "@repo/ui/components/ui/badge";
 
 const STATUS_STYLES = {
-  active: "bg-green-500/10 text-green-700 border-green-200 dark:text-green-400 dark:border-green-800",
+  active:
+    "bg-green-500/10 text-green-700 border-green-200 dark:text-green-400 dark:border-green-800",
   inactive: "",
   archived: "",
-  deleted: "bg-red-500/10 text-red-700 border-red-200 dark:text-red-400 dark:border-red-800",
+  deleted:
+    "bg-red-500/10 text-red-700 border-red-200 dark:text-red-400 dark:border-red-800",
 } as const;
 
 const STATUS_VARIANTS = {
@@ -27,7 +29,8 @@ type StatusBadgeProps = {
 };
 
 export function StatusBadge({ status, label }: StatusBadgeProps) {
-  const variant = STATUS_VARIANTS[status as keyof typeof STATUS_VARIANTS] ?? "outline";
+  const variant =
+    STATUS_VARIANTS[status as keyof typeof STATUS_VARIANTS] ?? "outline";
   const className = STATUS_STYLES[status as keyof typeof STATUS_STYLES] ?? "";
   const displayLabel = label ?? STATUS_LABELS[status] ?? status;
 

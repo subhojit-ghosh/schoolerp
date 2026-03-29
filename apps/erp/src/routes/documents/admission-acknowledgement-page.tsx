@@ -177,7 +177,10 @@ export function AdmissionAcknowledgementPage() {
                 label="Guardian Name"
                 value={application.guardianName}
               />
-              <PrintDetailItem label="Mobile" value={formatPhone(application.mobile)} />
+              <PrintDetailItem
+                label="Mobile"
+                value={formatPhone(application.mobile)}
+              />
               <PrintDetailItem
                 label="Email"
                 value={application.email ?? "Not provided"}

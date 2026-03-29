@@ -23,15 +23,16 @@ export function AccountPage() {
     changePasswordMutation.error,
     "Incorrect current password or something went wrong.",
   );
-  const { control, handleSubmit, reset, watch } = useForm<ChangePasswordFormValues>({
-    resolver: zodResolver(changePasswordFormSchema),
-    mode: "onTouched",
-    defaultValues: {
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
-  });
+  const { control, handleSubmit, reset, watch } =
+    useForm<ChangePasswordFormValues>({
+      resolver: zodResolver(changePasswordFormSchema),
+      mode: "onTouched",
+      defaultValues: {
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      },
+    });
 
   async function onSubmit(values: ChangePasswordFormValues) {
     try {
@@ -44,7 +45,12 @@ export function AccountPage() {
       reset();
       toast.success("Password changed successfully.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not change password. Please check your current password and try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not change password. Please check your current password and try again.",
+        ),
+      );
     }
   }
 

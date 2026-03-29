@@ -119,7 +119,12 @@ export function SalaryComponentsPage() {
             : "Salary component archived.",
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update salary component status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update salary component status. Please try again.",
+          ),
+        );
       }
     },
     [statusMutation],

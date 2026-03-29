@@ -1,8 +1,5 @@
 import { DATABASE } from "@repo/backend-core";
-import {
-  AUDIT_ACTIONS,
-  AUDIT_ENTITY_TYPES,
-} from "@repo/contracts";
+import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import {
   and,
   asc,

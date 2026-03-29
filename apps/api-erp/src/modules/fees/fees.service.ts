@@ -1344,7 +1344,8 @@ export class FeesService {
         tone: NOTIFICATION_TONES.POSITIVE,
         audience: "guardians",
         title: "Fee payment received",
-        message: `Payment of ₹${(paymentAmountInPaise / 100).toFixed(2)} recorded for ${assignment.studentFirstName} ${assignment.studentLastName ?? ""}.`.trim(),
+        message:
+          `Payment of ₹${(paymentAmountInPaise / 100).toFixed(2)} recorded for ${assignment.studentFirstName} ${assignment.studentLastName ?? ""}.`.trim(),
         senderLabel: authSession.user.name,
       })
       .catch(() => {});
@@ -1740,29 +1741,7 @@ export class FeesService {
 
     const where = and(...conditions)!;
 
-    // First, get the total count of defaulter students
-    const [countRow] = await this.database
-      .selectDistinctOn([students.id], {
-        studentId: students.id,
-      })
-      .from(feeAssignments)
-      .innerJoin(
-        feeStructures,
-        eq(feeAssignments.feeStructureId, feeStructures.id),
-      )
-      .innerJoin(students, eq(feeAssignments.studentId, students.id))
-      .innerJoin(member, eq(students.membershipId, member.id))
-      .leftJoin(
-        paymentSummaryByAssignment,
-        eq(paymentSummaryByAssignment.feeAssignmentId, feeAssignments.id),
-      )
-      .leftJoin(
-        adjustmentSummaryByAssignment,
-        eq(adjustmentSummaryByAssignment.feeAssignmentId, feeAssignments.id),
-      )
-      .where(where);
-
-    // Use a different approach: group by student to get summary
+    // Group by student to get summary
     const defaulterAggQuery = this.database
       .select({
         studentId: students.id,

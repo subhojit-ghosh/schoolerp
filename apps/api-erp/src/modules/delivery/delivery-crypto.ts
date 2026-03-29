@@ -77,7 +77,5 @@ export function decryptCredentials(
  */
 function deriveKey(rawKey: string): Buffer {
   const keyMaterial = Buffer.from(rawKey, "utf8");
-  return Buffer.from(
-    hkdfSync("sha256", keyMaterial, HKDF_SALT, HKDF_INFO, 32),
-  );
+  return Buffer.from(hkdfSync("sha256", keyMaterial, HKDF_SALT, HKDF_INFO, 32));
 }

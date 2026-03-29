@@ -86,12 +86,17 @@ const overrideEntrySchema = z.object({
 export const createSalaryAssignmentSchema = z.object({
   staffProfileId: z.uuid(),
   salaryTemplateId: z.uuid(),
-  effectiveFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format"),
+  effectiveFrom: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format"),
   overrides: z.record(z.string(), overrideEntrySchema).optional(),
 });
 
 export const updateSalaryAssignmentSchema = z.object({
-  effectiveFrom: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format").optional(),
+  effectiveFrom: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD format")
+    .optional(),
   overrides: z.record(z.string(), overrideEntrySchema).optional().nullable(),
 });
 
@@ -104,7 +109,9 @@ export const listSalaryAssignmentsQuerySchema = z.object({
   status: salaryAssignmentStatusSchema.optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().default(20),
-  sort: z.enum(["staffName", "effectiveFrom", "ctcInPaise", "createdAt"]).default("createdAt"),
+  sort: z
+    .enum(["staffName", "effectiveFrom", "ctcInPaise", "createdAt"])
+    .default("createdAt"),
   order: z.enum(["asc", "desc"]).default("desc"),
 });
 
@@ -133,7 +140,9 @@ export const listPayslipsQuerySchema = z.object({
   q: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().default(20),
-  sort: z.enum(["staffName", "netPayInPaise", "createdAt"]).default("staffName"),
+  sort: z
+    .enum(["staffName", "netPayInPaise", "createdAt"])
+    .default("staffName"),
   order: z.enum(["asc", "desc"]).default("asc"),
 });
 
@@ -151,20 +160,46 @@ export const staffHistoryQuerySchema = z.object({
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
-export type CreateSalaryComponentDto = z.infer<typeof createSalaryComponentSchema>;
-export type UpdateSalaryComponentDto = z.infer<typeof updateSalaryComponentSchema>;
-export type UpdateSalaryComponentStatusDto = z.infer<typeof updateSalaryComponentStatusSchema>;
-export type ListSalaryComponentsQueryDto = z.infer<typeof listSalaryComponentsQuerySchema>;
-export type CreateSalaryTemplateDto = z.infer<typeof createSalaryTemplateSchema>;
-export type UpdateSalaryTemplateDto = z.infer<typeof updateSalaryTemplateSchema>;
-export type UpdateSalaryTemplateStatusDto = z.infer<typeof updateSalaryTemplateStatusSchema>;
-export type ListSalaryTemplatesQueryDto = z.infer<typeof listSalaryTemplatesQuerySchema>;
-export type CreateSalaryAssignmentDto = z.infer<typeof createSalaryAssignmentSchema>;
-export type UpdateSalaryAssignmentDto = z.infer<typeof updateSalaryAssignmentSchema>;
-export type UpdateSalaryAssignmentStatusDto = z.infer<typeof updateSalaryAssignmentStatusSchema>;
-export type ListSalaryAssignmentsQueryDto = z.infer<typeof listSalaryAssignmentsQuerySchema>;
+export type CreateSalaryComponentDto = z.infer<
+  typeof createSalaryComponentSchema
+>;
+export type UpdateSalaryComponentDto = z.infer<
+  typeof updateSalaryComponentSchema
+>;
+export type UpdateSalaryComponentStatusDto = z.infer<
+  typeof updateSalaryComponentStatusSchema
+>;
+export type ListSalaryComponentsQueryDto = z.infer<
+  typeof listSalaryComponentsQuerySchema
+>;
+export type CreateSalaryTemplateDto = z.infer<
+  typeof createSalaryTemplateSchema
+>;
+export type UpdateSalaryTemplateDto = z.infer<
+  typeof updateSalaryTemplateSchema
+>;
+export type UpdateSalaryTemplateStatusDto = z.infer<
+  typeof updateSalaryTemplateStatusSchema
+>;
+export type ListSalaryTemplatesQueryDto = z.infer<
+  typeof listSalaryTemplatesQuerySchema
+>;
+export type CreateSalaryAssignmentDto = z.infer<
+  typeof createSalaryAssignmentSchema
+>;
+export type UpdateSalaryAssignmentDto = z.infer<
+  typeof updateSalaryAssignmentSchema
+>;
+export type UpdateSalaryAssignmentStatusDto = z.infer<
+  typeof updateSalaryAssignmentStatusSchema
+>;
+export type ListSalaryAssignmentsQueryDto = z.infer<
+  typeof listSalaryAssignmentsQuerySchema
+>;
 export type CreatePayrollRunDto = z.infer<typeof createPayrollRunSchema>;
-export type ListPayrollRunsQueryDto = z.infer<typeof listPayrollRunsQuerySchema>;
+export type ListPayrollRunsQueryDto = z.infer<
+  typeof listPayrollRunsQuerySchema
+>;
 export type ListPayslipsQueryDto = z.infer<typeof listPayslipsQuerySchema>;
 export type MonthlySummaryQueryDto = z.infer<typeof monthlySummaryQuerySchema>;
 export type StaffHistoryQueryDto = z.infer<typeof staffHistoryQuerySchema>;

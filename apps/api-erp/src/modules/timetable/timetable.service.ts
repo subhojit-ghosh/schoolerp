@@ -363,15 +363,17 @@ export class TimetableService {
       );
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.CREATE,
-      entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
-      entityId: versionId,
-      entityLabel: payload.name,
-      summary: `Created timetable version ${payload.name}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
+        entityId: versionId,
+        entityLabel: payload.name,
+        summary: `Created timetable version ${payload.name}.`,
+      })
+      .catch(() => {});
 
     return this.getTimetableVersionById(institutionId, versionId);
   }
@@ -492,15 +494,17 @@ export class TimetableService {
       });
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.EXECUTE,
-      entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
-      entityId: versionId,
-      entityLabel: version.name,
-      summary: `Published timetable version ${version.name}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.EXECUTE,
+        entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
+        entityId: versionId,
+        entityLabel: version.name,
+        summary: `Published timetable version ${version.name}.`,
+      })
+      .catch(() => {});
 
     return this.getTimetableVersionById(institutionId, versionId);
   }
@@ -529,15 +533,17 @@ export class TimetableService {
       })
       .where(eq(timetableVersions.id, versionId));
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.UPDATE,
-      entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
-      entityId: versionId,
-      entityLabel: version.name,
-      summary: `Set timetable version ${version.name} status to ${payload.status}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
+        entityId: versionId,
+        entityLabel: version.name,
+        summary: `Set timetable version ${version.name} status to ${payload.status}.`,
+      })
+      .catch(() => {});
 
     return this.getTimetableVersionById(institutionId, versionId);
   }
@@ -932,15 +938,17 @@ export class TimetableService {
       );
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.EXECUTE,
-      entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
-      entityId: payload.versionId,
-      entityLabel: targetVersion.name,
-      summary: `Copied timetable from ${sourceScope.className} ${sourceScope.sectionName} to ${targetScope.className} ${targetScope.sectionName}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.EXECUTE,
+        entityType: AUDIT_ENTITY_TYPES.TIMETABLE,
+        entityId: payload.versionId,
+        entityLabel: targetVersion.name,
+        summary: `Copied timetable from ${sourceScope.className} ${sourceScope.sectionName} to ${targetScope.className} ${targetScope.sectionName}.`,
+      })
+      .catch(() => {});
 
     return this.getSectionTimetableSnapshot(
       institutionId,

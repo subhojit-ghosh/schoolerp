@@ -94,7 +94,9 @@ export class HostelService {
     if (status) {
       conditions.push(eq(hostelBuildings.status, status));
     } else {
-      conditions.push(ne(hostelBuildings.status, HOSTEL_BUILDING_STATUS.DELETED));
+      conditions.push(
+        ne(hostelBuildings.status, HOSTEL_BUILDING_STATUS.DELETED),
+      );
     }
     if (q) {
       conditions.push(ilike(hostelBuildings.name, `%${q}%`));
@@ -108,7 +110,11 @@ export class HostelService {
       .where(where);
 
     const total = totalResult?.count ?? 0;
-    const { page: safePage, pageCount, offset } = resolvePagination(total, page, pageSize);
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
 
     const rows = await this.db
       .select({
@@ -216,7 +222,8 @@ export class HostelService {
     if (dto.name !== undefined) updates.name = dto.name;
     if (dto.buildingType !== undefined) updates.buildingType = dto.buildingType;
     if (dto.campusId !== undefined) updates.campusId = dto.campusId;
-    if (dto.wardenMembershipId !== undefined) updates.wardenMembershipId = dto.wardenMembershipId;
+    if (dto.wardenMembershipId !== undefined)
+      updates.wardenMembershipId = dto.wardenMembershipId;
     if (dto.capacity !== undefined) updates.capacity = dto.capacity;
     if (dto.description !== undefined) updates.description = dto.description;
 
@@ -306,7 +313,11 @@ export class HostelService {
       .where(where);
 
     const total = totalResult?.count ?? 0;
-    const { page: safePage, pageCount, offset } = resolvePagination(total, page, pageSize);
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
 
     const rows = await this.db
       .select({
@@ -493,7 +504,11 @@ export class HostelService {
       .where(where);
 
     const total = totalResult?.count ?? 0;
-    const { page: safePage, pageCount, offset } = resolvePagination(total, page, pageSize);
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
 
     const rows = await this.db
       .select({
@@ -579,7 +594,9 @@ export class HostelService {
       );
 
     if (existingAllocation) {
-      throw new BadRequestException(ERROR_MESSAGES.HOSTEL.STUDENT_ALREADY_ALLOCATED);
+      throw new BadRequestException(
+        ERROR_MESSAGES.HOSTEL.STUDENT_ALREADY_ALLOCATED,
+      );
     }
 
     const id = randomUUID();
@@ -632,10 +649,12 @@ export class HostelService {
     }
 
     if (allocation.status === BED_ALLOCATION_STATUS.VACATED) {
-      throw new BadRequestException(ERROR_MESSAGES.HOSTEL.ALLOCATION_ALREADY_VACATED);
+      throw new BadRequestException(
+        ERROR_MESSAGES.HOSTEL.ALLOCATION_ALREADY_VACATED,
+      );
     }
 
-    const today = new Date().toISOString().split("T")[0]!;
+    const today = new Date().toISOString().split("T")[0];
 
     await this.db
       .update(bedAllocations)
@@ -692,7 +711,11 @@ export class HostelService {
       .where(where);
 
     const total = totalResult?.count ?? 0;
-    const { page: safePage, pageCount, offset } = resolvePagination(total, page, pageSize);
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
 
     const rows = await this.db
       .select({
@@ -761,7 +784,8 @@ export class HostelService {
 
     const updates: Record<string, unknown> = {};
     if (dto.name !== undefined) updates.name = dto.name;
-    if (dto.monthlyFeeInPaise !== undefined) updates.monthlyFeeInPaise = dto.monthlyFeeInPaise;
+    if (dto.monthlyFeeInPaise !== undefined)
+      updates.monthlyFeeInPaise = dto.monthlyFeeInPaise;
     if (dto.description !== undefined) updates.description = dto.description;
 
     if (Object.keys(updates).length > 0) {
@@ -824,7 +848,9 @@ export class HostelService {
 
   // ── Helpers ────────────────────────────────────────────────────────────
 
-  private async resolveStudentNames(studentIds: string[]): Promise<Map<string, string>> {
+  private async resolveStudentNames(
+    studentIds: string[],
+  ): Promise<Map<string, string>> {
     if (studentIds.length === 0) return new Map();
 
     const results = await this.db

@@ -131,8 +131,7 @@ export class FeeReminderService {
     const amountStr = `₹${(assignment.assignedAmountInPaise / 100).toFixed(2)}`;
     const message = `Reminder: A fee of ${amountStr} for ${studentName} is due on ${assignment.dueDate}. Please pay at the earliest.`;
 
-    const primaryContact =
-      contacts.find((c) => c.isPrimary) ?? contacts[0]!;
+    const primaryContact = contacts.find((c) => c.isPrimary) ?? contacts[0];
 
     // Create in-app notification once (for staff-facing feed)
     this.notificationFactory
@@ -260,7 +259,7 @@ export class FeeReminderService {
       .filter((r) => r.mobile)
       .map((r) => ({
         name: r.name ?? "Guardian",
-        mobile: r.mobile!,
+        mobile: r.mobile,
         email: r.email,
         isPrimary: r.isPrimary,
       }));

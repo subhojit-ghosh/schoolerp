@@ -24,7 +24,9 @@ type SalaryAssignmentSheetRouteProps = {
   mode: "create" | "edit";
 };
 
-export function SalaryAssignmentSheetRoute({ mode }: SalaryAssignmentSheetRouteProps) {
+export function SalaryAssignmentSheetRoute({
+  mode,
+}: SalaryAssignmentSheetRouteProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { assignmentId } = useParams();
@@ -49,7 +51,9 @@ export function SalaryAssignmentSheetRoute({ mode }: SalaryAssignmentSheetRouteP
   );
 
   const templateOptions = useMemo(() => {
-    const rows = (templatesQuery.data as { rows?: unknown[] } | undefined)?.rows ?? templatesQuery.data;
+    const rows =
+      (templatesQuery.data as { rows?: unknown[] } | undefined)?.rows ??
+      templatesQuery.data;
     if (!Array.isArray(rows)) return [];
     return (rows as Array<Record<string, unknown>>)
       .filter((t) => t.status === "active")
@@ -116,7 +120,12 @@ export function SalaryAssignmentSheetRoute({ mode }: SalaryAssignmentSheetRouteP
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save salary assignment. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save salary assignment. Please try again.",
+        ),
+      );
     }
   }
 
@@ -124,7 +133,8 @@ export function SalaryAssignmentSheetRoute({ mode }: SalaryAssignmentSheetRouteP
   const description =
     mode === "create"
       ? "Assign a salary template to a staff member."
-      : (editingAssignment?.staffName as string) ?? "Edit this salary assignment.";
+      : ((editingAssignment?.staffName as string) ??
+        "Edit this salary assignment.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

@@ -65,9 +65,7 @@ const CREDENTIAL_FIELDS: Record<
     { key: "merchantSalt", label: "Merchant Salt", type: "password" },
     { key: "environment", label: "Environment (sandbox / production)" },
   ],
-  custom: [
-    { key: "webhookSecret", label: "Webhook Secret", type: "password" },
-  ],
+  custom: [{ key: "webhookSecret", label: "Webhook Secret", type: "password" }],
 };
 
 const configFormSchema = z.object({
@@ -155,7 +153,9 @@ function PaymentConfigCard() {
           </div>
           {config?.isActive ? (
             <Badge variant="default">
-              Active — {PAYMENT_PROVIDERS.find((p) => p.value === config.provider)?.label ?? config.provider}
+              Active —{" "}
+              {PAYMENT_PROVIDERS.find((p) => p.value === config.provider)
+                ?.label ?? config.provider}
             </Badge>
           ) : (
             <Badge variant="secondary">Not configured</Badge>

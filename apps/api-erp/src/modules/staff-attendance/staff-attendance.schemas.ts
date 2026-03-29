@@ -4,9 +4,7 @@ import { z } from "zod";
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-function hasUniqueStaffMembershipIds(
-  entries: { staffMembershipId: string }[],
-) {
+function hasUniqueStaffMembershipIds(entries: { staffMembershipId: string }[]) {
   return (
     new Set(entries.map((entry) => entry.staffMembershipId)).size ===
     entries.length
@@ -32,7 +30,9 @@ export const upsertStaffAttendanceDaySchema = z
   .object({
     campusId: z.uuid(),
     attendanceDate: staffAttendanceDateSchema,
-    entries: z.array(staffAttendanceEntrySchema).min(1, "At least one entry is required"),
+    entries: z
+      .array(staffAttendanceEntrySchema)
+      .min(1, "At least one entry is required"),
   })
   .refine((value) => hasUniqueStaffMembershipIds(value.entries), {
     path: ["entries"],

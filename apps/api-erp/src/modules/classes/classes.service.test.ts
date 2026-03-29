@@ -66,7 +66,10 @@ function createClassesService() {
     db,
     tx,
     txInsertValues,
-    service: new ClassesService(db as never, { record: async () => {} } as never),
+    service: new ClassesService(
+      db as never,
+      { record: async () => {} } as never,
+    ),
   };
 }
 

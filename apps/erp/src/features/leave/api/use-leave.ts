@@ -19,17 +19,22 @@ function invalidateLeaveApplicationQueries(
   queryClient: ReturnType<typeof useQueryClient>,
 ) {
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", LEAVE_API_PATHS.LIST_APPLICATIONS)
-      .queryKey,
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      LEAVE_API_PATHS.LIST_APPLICATIONS,
+    ).queryKey,
   });
 }
 
-export function useLeaveTypesQuery(enabled: boolean, status?: "active" | "inactive") {
+export function useLeaveTypesQuery(
+  enabled: boolean,
+  status?: "active" | "inactive",
+) {
   return apiQueryClient.useQuery(
     "get",
     LEAVE_API_PATHS.LIST_TYPES,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    { params: { query: status ? { status } : {} as any } },
+    { params: { query: status ? { status } : ({} as any) } },
     { enabled },
   );
 }
@@ -38,9 +43,10 @@ function invalidateLeaveTypeQueries(
   queryClient: ReturnType<typeof useQueryClient>,
 ) {
   void queryClient.invalidateQueries({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    queryKey: apiQueryClient.queryOptions("get", LEAVE_API_PATHS.LIST_TYPES, { params: { query: {} as any } })
-      .queryKey,
+    queryKey: apiQueryClient.queryOptions("get", LEAVE_API_PATHS.LIST_TYPES, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      params: { query: {} as any },
+    }).queryKey,
   });
 }
 

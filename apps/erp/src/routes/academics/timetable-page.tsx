@@ -378,7 +378,12 @@ export function TimetablePage() {
       setSelectedVersionId(version.id);
       toast.success("Draft timetable version created.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not create timetable version. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not create timetable version. Please try again.",
+        ),
+      );
     }
   }
 
@@ -438,7 +443,9 @@ export function TimetablePage() {
 
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.TIMETABLE));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save timetable. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not save timetable. Please try again."),
+      );
     }
   }
 
@@ -467,7 +474,9 @@ export function TimetablePage() {
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.TIMETABLE));
       setCopyDialogOpen(false);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not copy timetable. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not copy timetable. Please try again."),
+      );
     }
   }
 
@@ -493,7 +502,12 @@ export function TimetablePage() {
       setPublishDialogOpen(false);
       setPublishEffectiveTo("");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not publish timetable version. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not publish timetable version. Please try again.",
+        ),
+      );
     }
   }
 
@@ -515,7 +529,12 @@ export function TimetablePage() {
       });
       toast.success("Timetable version archived.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not archive timetable version. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not archive timetable version. Please try again.",
+        ),
+      );
     }
   }
 

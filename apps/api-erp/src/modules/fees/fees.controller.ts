@@ -448,7 +448,12 @@ export class FeesController {
   @RequirePermission(PERMISSIONS.FEES_MANAGE)
   @ApiOperation({ summary: "Manually send a fee reminder to the guardian" })
   @ApiOkResponse({
-    schema: { properties: { sentAt: { type: "string" }, recipientCount: { type: "number" } } },
+    schema: {
+      properties: {
+        sentAt: { type: "string" },
+        recipientCount: { type: "number" },
+      },
+    },
   })
   sendFeeReminder(
     @CurrentInstitution() institution: TenantInstitution,
@@ -506,7 +511,9 @@ export class FeesController {
 
   @Get(DEFAULTERS_PATH)
   @RequirePermission(PERMISSIONS.FEES_READ)
-  @ApiOperation({ summary: "Get fee defaulter report with overdue outstanding amounts" })
+  @ApiOperation({
+    summary: "Get fee defaulter report with overdue outstanding amounts",
+  })
   @ApiOkResponse({ type: FeeDefaulterResultDto })
   getFeeDefaulters(
     @CurrentInstitution() institution: TenantInstitution,

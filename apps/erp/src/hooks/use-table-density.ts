@@ -25,8 +25,7 @@ function subscribe(listener: Listener): () => void {
 
 function isValidDensity(value: unknown): value is TableDensity {
   return (
-    typeof value === "string" &&
-    TABLE_DENSITIES.includes(value as TableDensity)
+    typeof value === "string" && TABLE_DENSITIES.includes(value as TableDensity)
   );
 }
 

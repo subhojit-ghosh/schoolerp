@@ -46,7 +46,9 @@ export function SignInPage() {
           ERP_ROUTES.DASHBOARD,
         );
 
-        if (dashboardUrl !== `${window.location.origin}${ERP_ROUTES.DASHBOARD}`) {
+        if (
+          dashboardUrl !== `${window.location.origin}${ERP_ROUTES.DASHBOARD}`
+        ) {
           window.location.assign(dashboardUrl);
           return;
         }
@@ -56,7 +58,12 @@ export function SignInPage() {
         void navigate(ERP_ROUTES.DASHBOARD);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Unable to sign in. Please check your credentials and try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Unable to sign in. Please check your credentials and try again.",
+        ),
+      );
     }
   }
 

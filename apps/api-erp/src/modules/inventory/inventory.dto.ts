@@ -78,7 +78,10 @@ export class UpdateItemBodyDto {
   @ApiProperty({ nullable: true })
   sku?: string | null;
 
-  @ApiProperty({ enum: ["piece", "box", "pack", "set", "kg", "liter"], required: false })
+  @ApiProperty({
+    enum: ["piece", "box", "pack", "set", "kg", "liter"],
+    required: false,
+  })
   unit?: "piece" | "box" | "pack" | "set" | "kg" | "liter";
 
   minimumStock?: number;
@@ -203,7 +206,10 @@ export class StockTransactionListResultDto {
 export class ListTransactionsQueryParamsDto {
   q?: string;
 
-  @ApiProperty({ enum: ["purchase", "issue", "return", "adjustment"], required: false })
+  @ApiProperty({
+    enum: ["purchase", "issue", "return", "adjustment"],
+    required: false,
+  })
   transactionType?: "purchase" | "issue" | "return" | "adjustment";
 
   itemId?: string;

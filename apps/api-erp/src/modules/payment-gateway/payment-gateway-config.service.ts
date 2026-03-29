@@ -1,11 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { DATABASE } from "@repo/backend-core";
-import {
-  eq,
-  institutionPaymentConfig,
-  type AppDatabase,
-} from "@repo/database";
+import { eq, institutionPaymentConfig, type AppDatabase } from "@repo/database";
 import { PAYMENT_PROVIDERS, type PaymentProvider } from "@repo/contracts";
 import { randomUUID } from "node:crypto";
 import {

@@ -120,7 +120,9 @@ export function LibraryTransactionsPage() {
         });
         toast.success("Book returned successfully.");
       } catch (error) {
-        toast.error(extractApiError(error, "Could not return book. Please try again."));
+        toast.error(
+          extractApiError(error, "Could not return book. Please try again."),
+        );
       }
     },
     [returnMutation],
@@ -234,7 +236,13 @@ export function LibraryTransactionsPage() {
           ) : null,
       }),
     ],
-    [canManage, queryState.sortBy, queryState.sortOrder, setSorting, handleReturn],
+    [
+      canManage,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+      handleReturn,
+    ],
   );
 
   const table = useServerDataTable({
@@ -308,7 +316,9 @@ export function LibraryTransactionsPage() {
               : "Issue a book to record the first library transaction."
           }
           emptyTitle={
-            queryState.search ? "No transactions found" : "No library transactions"
+            queryState.search
+              ? "No transactions found"
+              : "No library transactions"
           }
           errorTitle="Failed to load transactions"
           isLoading={transactionsQuery.isLoading}

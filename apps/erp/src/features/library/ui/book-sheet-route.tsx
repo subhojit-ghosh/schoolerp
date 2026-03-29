@@ -28,7 +28,9 @@ export function BookSheetRoute({ mode }: BookSheetRouteProps) {
   const session = useAuthStore((store) => store.session);
   const isEnabled = Boolean(session?.activeOrganization?.id);
 
-  const booksQuery = useLibraryBooksQuery(mode === "edit" && isEnabled, { limit: 100 });
+  const booksQuery = useLibraryBooksQuery(mode === "edit" && isEnabled, {
+    limit: 100,
+  });
   const createMutation = useCreateBookMutation();
   const updateMutation = useUpdateBookMutation();
 
@@ -90,7 +92,9 @@ export function BookSheetRoute({ mode }: BookSheetRouteProps) {
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save book. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not save book. Please try again."),
+      );
     }
   }
 
@@ -98,7 +102,7 @@ export function BookSheetRoute({ mode }: BookSheetRouteProps) {
   const description =
     mode === "create"
       ? "Add a book to the library catalog."
-      : editingBook?.title ?? "Edit this book.";
+      : (editingBook?.title ?? "Edit this book.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

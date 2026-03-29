@@ -14,10 +14,8 @@ import {
   IconLayoutGrid,
 } from "@tabler/icons-react";
 import { AppSidebar } from "@/components/layout/app-sidebar";
-import {
-  KeyboardShortcutsDialog,
-  useKeyboardShortcutsDialog,
-} from "@/components/feedback/keyboard-shortcuts-dialog";
+import { KeyboardShortcutsDialog } from "@/components/feedback/keyboard-shortcuts-dialog";
+import { useKeyboardShortcutsDialog } from "@/hooks/use-keyboard-shortcuts-dialog";
 import { SessionExpiryWarning } from "@/components/feedback/session-expiry-warning";
 import { SiteHeader } from "@/components/layout/site-header";
 import { NavSearch } from "@/components/navigation/nav-search";

@@ -313,7 +313,8 @@ export const PAYROLL_API_PATHS = {
   LIST_SALARY_COMPONENTS: "/payroll/salary-components",
   CREATE_SALARY_COMPONENT: "/payroll/salary-components",
   UPDATE_SALARY_COMPONENT: "/payroll/salary-components/{componentId}",
-  UPDATE_SALARY_COMPONENT_STATUS: "/payroll/salary-components/{componentId}/status",
+  UPDATE_SALARY_COMPONENT_STATUS:
+    "/payroll/salary-components/{componentId}/status",
   LIST_SALARY_TEMPLATES: "/payroll/templates",
   CREATE_SALARY_TEMPLATE: "/payroll/templates",
   GET_SALARY_TEMPLATE: "/payroll/templates/{templateId}",

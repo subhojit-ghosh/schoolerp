@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -44,45 +43,12 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
   },
 ];
 
-function isEditableTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable) return true;
-
-  const tagName = target.tagName;
-  return tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT";
-}
-
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
     <kbd className="inline-flex h-6 min-w-6 items-center justify-center rounded-md border border-border bg-muted px-1.5 font-mono text-xs font-medium text-muted-foreground">
       {children}
     </kbd>
   );
-}
-
-export function useKeyboardShortcutsDialog(): {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-} {
-  const [open, setOpen] = useState(false);
-
-  const handleKeyDown = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key !== "?") return;
-      if (isEditableTarget(event.target)) return;
-
-      event.preventDefault();
-      setOpen((prev) => !prev);
-    },
-    [],
-  );
-
-  useEffect(() => {
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyDown]);
-
-  return { open, onOpenChange: setOpen };
 }
 
 export function KeyboardShortcutsDialog({

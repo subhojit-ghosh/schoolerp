@@ -21,7 +21,9 @@ type InventoryCategorySheetRouteProps = {
   mode: "create" | "edit";
 };
 
-export function InventoryCategorySheetRoute({ mode }: InventoryCategorySheetRouteProps) {
+export function InventoryCategorySheetRoute({
+  mode,
+}: InventoryCategorySheetRouteProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { categoryId } = useParams();
@@ -37,7 +39,9 @@ export function InventoryCategorySheetRoute({ mode }: InventoryCategorySheetRout
     [location.search],
   );
 
-  const rows = (categoriesQuery.data as { rows?: unknown[] } | undefined)?.rows ?? categoriesQuery.data;
+  const rows =
+    (categoriesQuery.data as { rows?: unknown[] } | undefined)?.rows ??
+    categoriesQuery.data;
   const editingCategory = Array.isArray(rows)
     ? (rows as Array<Record<string, unknown>>).find((c) => c.id === categoryId)
     : undefined;
@@ -81,7 +85,9 @@ export function InventoryCategorySheetRoute({ mode }: InventoryCategorySheetRout
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save category. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not save category. Please try again."),
+      );
     }
   }
 
@@ -89,7 +95,7 @@ export function InventoryCategorySheetRoute({ mode }: InventoryCategorySheetRout
   const description =
     mode === "create"
       ? "Add a new inventory category."
-      : (editingCategory?.name as string) ?? "Edit this category.";
+      : ((editingCategory?.name as string) ?? "Edit this category.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

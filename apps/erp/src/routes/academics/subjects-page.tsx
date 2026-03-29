@@ -143,7 +143,12 @@ export function SubjectsPage() {
             : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.SUBJECT),
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update subject status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update subject status. Please try again.",
+          ),
+        );
       }
     },
     [institutionId, setStatusMutation],
@@ -313,7 +318,9 @@ export function SubjectsPage() {
       toast.success(ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.SUBJECT));
       setDeleteTarget(null);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not delete subject. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not delete subject. Please try again."),
+      );
     }
   }
 

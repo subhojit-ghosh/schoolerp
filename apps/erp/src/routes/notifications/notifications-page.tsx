@@ -100,7 +100,12 @@ export function NotificationsPage() {
               });
               toast.success("All notifications marked as read.");
             } catch (error) {
-              toast.error(extractApiError(error, "Could not mark notifications as read. Please try again."));
+              toast.error(
+                extractApiError(
+                  error,
+                  "Could not mark notifications as read. Please try again.",
+                ),
+              );
             }
           }}
         >

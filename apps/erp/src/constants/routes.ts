@@ -315,7 +315,10 @@ export function buildTransportRouteStopCreateRoute(routeId: string) {
   return `/transport/routes/${routeId}/${ERP_ROUTE_SEGMENTS.STOPS}/${ERP_ROUTE_SEGMENTS.NEW}`;
 }
 
-export function buildTransportRouteStopEditRoute(routeId: string, stopId: string) {
+export function buildTransportRouteStopEditRoute(
+  routeId: string,
+  stopId: string,
+) {
   return `/transport/routes/${routeId}/${ERP_ROUTE_SEGMENTS.STOPS}/${stopId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
 }
 

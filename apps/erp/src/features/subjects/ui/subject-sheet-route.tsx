@@ -85,7 +85,14 @@ export function SubjectSheetRoute({ mode }: SubjectSheetRouteProps) {
 
       void navigate(appendSearch(ERP_ROUTES.SUBJECTS, location.search));
     } catch (error) {
-      toast.error(extractApiError(error, mode === "create" ? "Could not create subject. Please try again." : "Could not update subject. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          mode === "create"
+            ? "Could not create subject. Please try again."
+            : "Could not update subject. Please try again.",
+        ),
+      );
     }
   }
 

@@ -1,4 +1,7 @@
-import { STAFF_ATTENDANCE_STATUSES, STAFF_ATTENDANCE_STATUS_LABELS } from "@repo/contracts";
+import {
+  STAFF_ATTENDANCE_STATUSES,
+  STAFF_ATTENDANCE_STATUS_LABELS,
+} from "@repo/contracts";
 import { ApiProperty } from "@nestjs/swagger";
 
 // ── Query DTOs ──────────────────────────────────────────────────────────────

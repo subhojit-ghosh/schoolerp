@@ -178,7 +178,10 @@ export class ListVehiclesQueryParamsDto {
   page?: number;
   limit?: number;
 
-  @ApiProperty({ enum: ["registrationNumber", "type", "createdAt"], required: false })
+  @ApiProperty({
+    enum: ["registrationNumber", "type", "createdAt"],
+    required: false,
+  })
   sort?: "registrationNumber" | "type" | "createdAt";
 
   @ApiProperty({ enum: ["asc", "desc"], required: false })

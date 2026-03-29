@@ -80,7 +80,9 @@ export function PrintDocumentShell({
             </div>
           </div>
 
-          <div className="px-6 py-6 sm:px-8 sm:py-8 print:px-0 print:py-3">{children}</div>
+          <div className="px-6 py-6 sm:px-8 sm:py-8 print:px-0 print:py-3">
+            {children}
+          </div>
         </article>
       </div>
     </div>
@@ -98,7 +100,9 @@ export function PrintDetailItem({ label, value }: DetailItemProps) {
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground print:text-[9px] print:tracking-wider">
         {label}
       </p>
-      <div className="text-sm font-medium text-foreground print:text-[11px]">{value}</div>
+      <div className="text-sm font-medium text-foreground print:text-[11px]">
+        {value}
+      </div>
     </div>
   );
 }

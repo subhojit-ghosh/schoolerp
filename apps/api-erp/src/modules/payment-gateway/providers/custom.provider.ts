@@ -27,6 +27,7 @@ export class CustomProvider implements PaymentGatewayProvider {
     this.webhookSecret = credentials.webhookSecret;
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async createOrder(input: CreateOrderInput): Promise<CreateOrderResult> {
     // For custom providers, the external order ID is our internal order ID
     // The PG or custom integration will call our webhook with this ID
@@ -43,13 +44,13 @@ export class CustomProvider implements PaymentGatewayProvider {
     };
   }
 
-  async verifyPayment(
-    input: VerifyPaymentInput,
-  ): Promise<VerifyPaymentResult> {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentResult> {
     // Custom providers must use webhooks — client-side verify is a pass-through
     return { success: true, externalPaymentId: input.externalPaymentId };
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async parseWebhookEvent(
     payload: Buffer,
     signature: string,
@@ -76,10 +77,7 @@ export class CustomProvider implements PaymentGatewayProvider {
       amountInPaise: number;
     };
 
-    if (
-      event.type === "payment.captured" ||
-      event.type === "payment.failed"
-    ) {
+    if (event.type === "payment.captured" || event.type === "payment.failed") {
       return {
         type: event.type,
         externalOrderId: event.orderId,

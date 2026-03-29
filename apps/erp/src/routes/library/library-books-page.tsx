@@ -57,7 +57,12 @@ type BookRow = {
 };
 
 const columnHelper = createColumnHelper<BookRow>();
-const VALID_SORT_FIELDS = ["title", "author", "createdAt", "availableCopies"] as const;
+const VALID_SORT_FIELDS = [
+  "title",
+  "author",
+  "createdAt",
+  "availableCopies",
+] as const;
 
 export function LibraryBooksPage() {
   useDocumentTitle("Library Books");
@@ -101,9 +106,16 @@ export function LibraryBooksPage() {
         params: { path: { bookId: book.id } },
         body: { status: newStatus },
       });
-      toast.success(newStatus === "active" ? "Book activated." : "Book deactivated.");
+      toast.success(
+        newStatus === "active" ? "Book activated." : "Book deactivated.",
+      );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update book status. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not update book status. Please try again.",
+        ),
+      );
     }
   }
 
@@ -128,10 +140,14 @@ export function LibraryBooksPage() {
           <div className="min-w-0 space-y-0.5">
             <p className="text-sm font-medium">{row.original.title}</p>
             {row.original.author ? (
-              <p className="text-xs text-muted-foreground">{row.original.author}</p>
+              <p className="text-xs text-muted-foreground">
+                {row.original.author}
+              </p>
             ) : null}
             {row.original.isbn ? (
-              <p className="text-xs text-muted-foreground">ISBN: {row.original.isbn}</p>
+              <p className="text-xs text-muted-foreground">
+                ISBN: {row.original.isbn}
+              </p>
             ) : null}
           </div>
         ),
@@ -217,7 +233,13 @@ export function LibraryBooksPage() {
           ) : null,
       }),
     ],
-    [canManage, location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManage,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -244,7 +266,10 @@ export function LibraryBooksPage() {
           canManage ? (
             <EntityPagePrimaryAction asChild>
               <Link
-                to={appendSearch(ERP_ROUTES.LIBRARY_BOOKS_CREATE, location.search)}
+                to={appendSearch(
+                  ERP_ROUTES.LIBRARY_BOOKS_CREATE,
+                  location.search,
+                )}
               >
                 <IconPlus className="size-4" />
                 New book
@@ -271,7 +296,10 @@ export function LibraryBooksPage() {
             !queryState.search && canManage ? (
               <EntityEmptyStateAction asChild>
                 <Link
-                  to={appendSearch(ERP_ROUTES.LIBRARY_BOOKS_CREATE, location.search)}
+                  to={appendSearch(
+                    ERP_ROUTES.LIBRARY_BOOKS_CREATE,
+                    location.search,
+                  )}
                 >
                   <IconBook className="size-5" />
                   New book
@@ -284,7 +312,9 @@ export function LibraryBooksPage() {
               ? "No books match your search."
               : "Add books to the library catalog."
           }
-          emptyTitle={queryState.search ? "No books found" : "No books in catalog"}
+          emptyTitle={
+            queryState.search ? "No books found" : "No books in catalog"
+          }
           errorTitle="Failed to load books"
           isLoading={booksQuery.isLoading}
           isError={Boolean(errorMessage)}

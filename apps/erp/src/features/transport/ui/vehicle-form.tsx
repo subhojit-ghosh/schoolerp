@@ -118,7 +118,9 @@ export function VehicleForm({
                     ref={field.ref}
                     onChange={(e) =>
                       field.onChange(
-                        e.target.value === "" ? 1 : parseInt(e.target.value, 10),
+                        e.target.value === ""
+                          ? 1
+                          : parseInt(e.target.value, 10),
                       )
                     }
                   />
@@ -177,7 +179,9 @@ export function VehicleForm({
                 <FieldLabel>Assigned route</FieldLabel>
                 <FieldContent>
                   <Select
-                    onValueChange={(v) => field.onChange(v === "_none" ? "" : v)}
+                    onValueChange={(v) =>
+                      field.onChange(v === "_none" ? "" : v)
+                    }
                     value={field.value || "_none"}
                   >
                     <SelectTrigger aria-invalid={fieldState.invalid}>

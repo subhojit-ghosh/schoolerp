@@ -62,7 +62,8 @@ export function FeeDefaultersPage() {
   const institutionId = session?.activeOrganization?.id;
   const canManageFees = isStaffContext(session);
   const canQuery = canManageFees && Boolean(institutionId);
-  const [academicYearId, setAcademicYearId] = useState<string>(ALL_FILTER_VALUE);
+  const [academicYearId, setAcademicYearId] =
+    useState<string>(ALL_FILTER_VALUE);
   const [campusId, setCampusId] = useState<string>(ALL_FILTER_VALUE);
   const [classId, setClassId] = useState<string>(ALL_FILTER_VALUE);
   const [page, setPage] = useState(1);
@@ -241,9 +242,7 @@ export function FeeDefaultersPage() {
               label="Total defaulters"
               value={String(data.summaryDefaulterCount)}
               valueClass={
-                data.summaryDefaulterCount > 0
-                  ? "text-destructive"
-                  : undefined
+                data.summaryDefaulterCount > 0 ? "text-destructive" : undefined
               }
             />
             <SummaryCard
@@ -262,7 +261,9 @@ export function FeeDefaultersPage() {
               <CardTitle className="text-base">Defaulter Details</CardTitle>
               <CardDescription>
                 Showing {data.rows.length} of {data.total} defaulters
-                {data.pageCount > 1 ? ` (page ${data.page} of ${data.pageCount})` : ""}
+                {data.pageCount > 1
+                  ? ` (page ${data.page} of ${data.pageCount})`
+                  : ""}
               </CardDescription>
             </CardHeader>
             <CardContent className="p-0">
@@ -301,10 +302,7 @@ export function FeeDefaultersPage() {
                       </thead>
                       <tbody className="divide-y">
                         {data.rows.map((row) => (
-                          <tr
-                            key={row.studentId}
-                            className="hover:bg-muted/20"
-                          >
+                          <tr key={row.studentId} className="hover:bg-muted/20">
                             <td className="px-6 py-3 font-medium">
                               {row.studentName}
                             </td>

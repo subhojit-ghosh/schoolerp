@@ -106,7 +106,12 @@ export class InventoryController {
     @Body() body: UpdateCategoryBodyDto,
   ) {
     const dto = parseUpdateCategory(body);
-    return this.inventoryService.updateCategory(institution.id, categoryId, session, dto);
+    return this.inventoryService.updateCategory(
+      institution.id,
+      categoryId,
+      session,
+      dto,
+    );
   }
 
   @Patch(`${API_ROUTES.CATEGORIES}/:categoryId/${API_ROUTES.STATUS}`)
@@ -177,7 +182,12 @@ export class InventoryController {
     @Body() body: UpdateItemBodyDto,
   ) {
     const dto = parseUpdateItem(body);
-    return this.inventoryService.updateItem(institution.id, itemId, session, dto);
+    return this.inventoryService.updateItem(
+      institution.id,
+      itemId,
+      session,
+      dto,
+    );
   }
 
   @Patch(`${API_ROUTES.ITEMS}/:itemId/${API_ROUTES.STATUS}`)
@@ -191,7 +201,12 @@ export class InventoryController {
     @Body() body: UpdateItemStatusBodyDto,
   ) {
     const dto = parseUpdateItemStatus(body);
-    return this.inventoryService.updateItemStatus(institution.id, itemId, session, dto);
+    return this.inventoryService.updateItemStatus(
+      institution.id,
+      itemId,
+      session,
+      dto,
+    );
   }
 
   @Get(`${API_ROUTES.ITEMS}/:itemId/${API_ROUTES.TRANSACTIONS}`)
@@ -204,7 +219,11 @@ export class InventoryController {
     @Query() query: ListItemTransactionsQueryParamsDto,
   ) {
     const parsed = parseListItemTransactions(query);
-    return this.inventoryService.listItemTransactions(institution.id, itemId, parsed);
+    return this.inventoryService.listItemTransactions(
+      institution.id,
+      itemId,
+      parsed,
+    );
   }
 
   // ── Transactions ───────────────────────────────────────────────────────
@@ -219,7 +238,11 @@ export class InventoryController {
     @Body() body: CreateStockTransactionBodyDto,
   ) {
     const dto = parseCreateStockTransaction(body);
-    return this.inventoryService.createStockTransaction(institution.id, session, dto);
+    return this.inventoryService.createStockTransaction(
+      institution.id,
+      session,
+      dto,
+    );
   }
 
   @Get(API_ROUTES.TRANSACTIONS)

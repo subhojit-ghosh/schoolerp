@@ -778,7 +778,9 @@ export const inventoryUnitSchema = z.enum([
   INVENTORY_UNITS.LITER,
 ]);
 
-export type InventoryCategoryStatus = z.infer<typeof inventoryCategoryStatusSchema>;
+export type InventoryCategoryStatus = z.infer<
+  typeof inventoryCategoryStatusSchema
+>;
 export type InventoryItemStatus = z.infer<typeof inventoryItemStatusSchema>;
 export type StockTransactionType = z.infer<typeof stockTransactionTypeSchema>;
 export type InventoryUnit = z.infer<typeof inventoryUnitSchema>;

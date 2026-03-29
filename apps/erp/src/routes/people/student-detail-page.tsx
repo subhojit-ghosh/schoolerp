@@ -290,7 +290,12 @@ export function StudentDetailPage() {
 
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STUDENT));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update student record. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not update student record. Please try again.",
+        ),
+      );
     }
   }
 
@@ -349,7 +354,10 @@ export function StudentDetailPage() {
         <CardContent>
           <Breadcrumbs
             items={[
-              { label: "Students", href: appendSearch(ERP_ROUTES.STUDENTS, location.search) },
+              {
+                label: "Students",
+                href: appendSearch(ERP_ROUTES.STUDENTS, location.search),
+              },
               { label: "Not found" },
             ]}
           />
@@ -405,10 +413,7 @@ export function StudentDetailPage() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline">
-                  <Link
-                    to={buildStudentIdCardRoute(studentId)}
-                    target="_blank"
-                  >
+                  <Link to={buildStudentIdCardRoute(studentId)} target="_blank">
                     <IconCertificate className="size-4" />
                     ID Card
                   </Link>
@@ -443,7 +448,10 @@ export function StudentDetailPage() {
         backAction={
           <Breadcrumbs
             items={[
-              { label: "Students", href: appendSearch(ERP_ROUTES.STUDENTS, location.search) },
+              {
+                label: "Students",
+                href: appendSearch(ERP_ROUTES.STUDENTS, location.search),
+              },
               { label: student.fullName },
             ]}
           />
@@ -735,8 +743,8 @@ export function StudentDetailPage() {
                             {latestExam.examTermName}
                           </p>
                           <p className="text-sm text-muted-foreground">
-                            {formatAcademicYear(latestExam.academicYearName)} • Closed on{" "}
-                            {formatDate(latestExam.endDate)}
+                            {formatAcademicYear(latestExam.academicYearName)} •
+                            Closed on {formatDate(latestExam.endDate)}
                           </p>
                         </div>
                         <Badge variant="default">
@@ -987,7 +995,9 @@ export function StudentDetailPage() {
                     <>
                       <div>
                         <p className="text-sm font-medium">
-                          {formatAcademicYear(student.currentEnrollment.academicYearName)}
+                          {formatAcademicYear(
+                            student.currentEnrollment.academicYearName,
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground">
                           Academic year

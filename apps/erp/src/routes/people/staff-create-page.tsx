@@ -115,7 +115,9 @@ export function StaffCreatePage() {
       }
 
       clearDraftRef.current?.();
-      toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.STAFF_RECORD));
+      toast.success(
+        ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.STAFF_RECORD),
+      );
       void navigate(
         appendSearch(
           buildStaffDetailRoute(createResult.staff.id),
@@ -123,7 +125,12 @@ export function StaffCreatePage() {
         ),
       );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not create staff record. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not create staff record. Please try again.",
+        ),
+      );
     }
   }
 
@@ -160,7 +167,10 @@ export function StaffCreatePage() {
         backAction={
           <Breadcrumbs
             items={[
-              { label: "Staff", href: appendSearch(ERP_ROUTES.STAFF, location.search) },
+              {
+                label: "Staff",
+                href: appendSearch(ERP_ROUTES.STAFF, location.search),
+              },
               { label: "New Staff" },
             ]}
           />

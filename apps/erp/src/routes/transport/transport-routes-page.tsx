@@ -105,9 +105,16 @@ export function TransportRoutesPage() {
         params: { path: { routeId: row.id } },
         body: { status: newStatus },
       });
-      toast.success(newStatus === "active" ? "Route activated." : "Route deactivated.");
+      toast.success(
+        newStatus === "active" ? "Route activated." : "Route deactivated.",
+      );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update route status. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not update route status. Please try again.",
+        ),
+      );
     }
   }
 
@@ -132,7 +139,9 @@ export function TransportRoutesPage() {
           <div className="min-w-0 space-y-0.5">
             <p className="text-sm font-medium">{row.original.name}</p>
             {row.original.description ? (
-              <p className="text-xs text-muted-foreground">{row.original.description}</p>
+              <p className="text-xs text-muted-foreground">
+                {row.original.description}
+              </p>
             ) : null}
             {row.original.campusName ? (
               <Badge variant="outline" className="text-xs">
@@ -196,7 +205,13 @@ export function TransportRoutesPage() {
           ) : null,
       }),
     ],
-    [canManage, location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManage,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -223,7 +238,10 @@ export function TransportRoutesPage() {
           canManage ? (
             <EntityPagePrimaryAction asChild>
               <Link
-                to={appendSearch(ERP_ROUTES.TRANSPORT_ROUTES_CREATE, location.search)}
+                to={appendSearch(
+                  ERP_ROUTES.TRANSPORT_ROUTES_CREATE,
+                  location.search,
+                )}
               >
                 <IconPlus className="size-4" />
                 New route
@@ -250,7 +268,10 @@ export function TransportRoutesPage() {
             !queryState.search && canManage ? (
               <EntityEmptyStateAction asChild>
                 <Link
-                  to={appendSearch(ERP_ROUTES.TRANSPORT_ROUTES_CREATE, location.search)}
+                  to={appendSearch(
+                    ERP_ROUTES.TRANSPORT_ROUTES_CREATE,
+                    location.search,
+                  )}
                 >
                   <IconMap className="size-5" />
                   New route

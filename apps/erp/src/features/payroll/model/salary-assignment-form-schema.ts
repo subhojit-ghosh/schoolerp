@@ -6,7 +6,9 @@ export const salaryAssignmentFormSchema = z.object({
   effectiveFrom: z.string().min(1, "Enter an effective date"),
 });
 
-export type SalaryAssignmentFormValues = z.infer<typeof salaryAssignmentFormSchema>;
+export type SalaryAssignmentFormValues = z.infer<
+  typeof salaryAssignmentFormSchema
+>;
 
 export const SALARY_ASSIGNMENT_DEFAULT_VALUES: SalaryAssignmentFormValues = {
   staffProfileId: "",

@@ -2,7 +2,6 @@ import { Inject, Injectable } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
 import type { AppDatabase } from "@repo/database";
 import {
-  academicYears,
   and,
   asc,
   campus,
@@ -11,7 +10,6 @@ import {
   eq,
   isNull,
   schoolClasses,
-  sql,
   studentCurrentEnrollments,
 } from "@repo/database";
 import { STATUS } from "../../constants";

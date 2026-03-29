@@ -67,8 +67,7 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
       sections: classQuery.data.sections.map((section) => ({
         id: section.id,
         name: section.name,
-        classTeacherMembershipId:
-          section.classTeacherMembershipId ?? undefined,
+        classTeacherMembershipId: section.classTeacherMembershipId ?? undefined,
       })),
     };
   }, [classQuery.data, mode]);
@@ -105,7 +104,14 @@ export function ClassSheetRoute({ mode }: ClassSheetRouteProps) {
 
       void navigate(appendSearch(ERP_ROUTES.CLASSES, location.search));
     } catch (error) {
-      toast.error(extractApiError(error, mode === "create" ? "Could not create class. Please try again." : "Could not update class. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          mode === "create"
+            ? "Could not create class. Please try again."
+            : "Could not update class. Please try again.",
+        ),
+      );
     }
   }
 

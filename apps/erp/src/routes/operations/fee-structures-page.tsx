@@ -138,11 +138,16 @@ export function FeeStructuresPage() {
           params: { path: { feeStructureId: structureId } },
         });
         toast.success(
-          ERP_TOAST_MESSAGES.created(`${ERP_TOAST_SUBJECTS.FEE_STRUCTURE} copy`),
+          ERP_TOAST_MESSAGES.created(
+            `${ERP_TOAST_SUBJECTS.FEE_STRUCTURE} copy`,
+          ),
         );
       } catch (error) {
         toast.error(
-          extractApiError(error, "Could not duplicate fee structure. Please try again."),
+          extractApiError(
+            error,
+            "Could not duplicate fee structure. Please try again.",
+          ),
         );
       }
     },
@@ -376,11 +381,16 @@ export function FeeStructuresPage() {
       await deleteMutation.mutateAsync({
         params: { path: { feeStructureId: deleteTarget.id } },
       });
-      toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.FEE_STRUCTURE));
+      toast.success(
+        ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.FEE_STRUCTURE),
+      );
       setDeleteTarget(null);
     } catch (error) {
       toast.error(
-        extractApiError(error, "Could not delete fee structure. Please try again."),
+        extractApiError(
+          error,
+          "Could not delete fee structure. Please try again.",
+        ),
       );
     }
   }, [deleteTarget, deleteMutation]);

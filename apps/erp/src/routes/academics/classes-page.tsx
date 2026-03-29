@@ -138,7 +138,12 @@ export function ClassesPage() {
             : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CLASS),
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update class status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update class status. Please try again.",
+          ),
+        );
       }
     },
     [institutionId, setStatusMutation],
@@ -319,7 +324,9 @@ export function ClassesPage() {
       toast.success(ERP_TOAST_MESSAGES.archived(ERP_TOAST_SUBJECTS.CLASS));
       setDeleteTarget(null);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not delete class. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not delete class. Please try again."),
+      );
     }
   }
 

@@ -34,10 +34,15 @@ export type TransportAssignmentsQuery = {
   order?: "asc" | "desc";
 };
 
-function invalidateRouteQueries(queryClient: ReturnType<typeof useQueryClient>) {
+function invalidateRouteQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", TRANSPORT_API_PATHS.LIST_ROUTES, { params: { query: {} } })
-      .queryKey,
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      TRANSPORT_API_PATHS.LIST_ROUTES,
+      { params: { query: {} } },
+    ).queryKey,
   });
 }
 
@@ -46,29 +51,46 @@ function invalidateRouteDetailQuery(
   routeId: string,
 ) {
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", TRANSPORT_API_PATHS.GET_ROUTE, {
-      params: { path: { routeId } },
-    }).queryKey,
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      TRANSPORT_API_PATHS.GET_ROUTE,
+      {
+        params: { path: { routeId } },
+      },
+    ).queryKey,
   });
 }
 
-function invalidateVehicleQueries(queryClient: ReturnType<typeof useQueryClient>) {
+function invalidateVehicleQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", TRANSPORT_API_PATHS.LIST_VEHICLES, { params: { query: {} } })
-      .queryKey,
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      TRANSPORT_API_PATHS.LIST_VEHICLES,
+      { params: { query: {} } },
+    ).queryKey,
   });
 }
 
-function invalidateAssignmentQueries(queryClient: ReturnType<typeof useQueryClient>) {
+function invalidateAssignmentQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions("get", TRANSPORT_API_PATHS.LIST_ASSIGNMENTS, { params: { query: {} } })
-      .queryKey,
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      TRANSPORT_API_PATHS.LIST_ASSIGNMENTS,
+      { params: { query: {} } },
+    ).queryKey,
   });
 }
 
 // ── Routes ──────────────────────────────────────────────────────────────────
 
-export function useTransportRoutesQuery(enabled: boolean, query: TransportRoutesQuery = {}) {
+export function useTransportRoutesQuery(
+  enabled: boolean,
+  query: TransportRoutesQuery = {},
+) {
   return apiQueryClient.useQuery(
     "get",
     TRANSPORT_API_PATHS.LIST_ROUTES,
@@ -140,11 +162,15 @@ export function useTransportVehiclesQuery(
 
 export function useCreateVehicleMutation() {
   const queryClient = useQueryClient();
-  return apiQueryClient.useMutation("post", TRANSPORT_API_PATHS.CREATE_VEHICLE, {
-    onSuccess: () => {
-      invalidateVehicleQueries(queryClient);
+  return apiQueryClient.useMutation(
+    "post",
+    TRANSPORT_API_PATHS.CREATE_VEHICLE,
+    {
+      onSuccess: () => {
+        invalidateVehicleQueries(queryClient);
+      },
     },
-  });
+  );
 }
 
 export function useUpdateVehicleMutation() {
@@ -172,18 +198,26 @@ export function useTransportAssignmentsQuery(
 
 export function useCreateAssignmentMutation() {
   const queryClient = useQueryClient();
-  return apiQueryClient.useMutation("post", TRANSPORT_API_PATHS.CREATE_ASSIGNMENT, {
-    onSuccess: () => {
-      invalidateAssignmentQueries(queryClient);
+  return apiQueryClient.useMutation(
+    "post",
+    TRANSPORT_API_PATHS.CREATE_ASSIGNMENT,
+    {
+      onSuccess: () => {
+        invalidateAssignmentQueries(queryClient);
+      },
     },
-  });
+  );
 }
 
 export function useUpdateAssignmentMutation() {
   const queryClient = useQueryClient();
-  return apiQueryClient.useMutation("put", TRANSPORT_API_PATHS.UPDATE_ASSIGNMENT, {
-    onSuccess: () => {
-      invalidateAssignmentQueries(queryClient);
+  return apiQueryClient.useMutation(
+    "put",
+    TRANSPORT_API_PATHS.UPDATE_ASSIGNMENT,
+    {
+      onSuccess: () => {
+        invalidateAssignmentQueries(queryClient);
+      },
     },
-  });
+  );
 }

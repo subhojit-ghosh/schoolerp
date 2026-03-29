@@ -118,7 +118,12 @@ export class TransportController {
     @Body() body: UpdateRouteBodyDto,
   ) {
     const dto = parseUpdateRoute(body);
-    return this.transportService.updateRoute(institution.id, routeId, session, dto);
+    return this.transportService.updateRoute(
+      institution.id,
+      routeId,
+      session,
+      dto,
+    );
   }
 
   // ── Stops ──────────────────────────────────────────────────────────────────
@@ -135,7 +140,12 @@ export class TransportController {
     @Body() body: CreateStopBodyDto,
   ) {
     const dto = parseCreateStop(body);
-    return this.transportService.createStop(institution.id, routeId, session, dto);
+    return this.transportService.createStop(
+      institution.id,
+      routeId,
+      session,
+      dto,
+    );
   }
 
   @Put(
@@ -152,7 +162,13 @@ export class TransportController {
     @Body() body: UpdateStopBodyDto,
   ) {
     const dto = parseUpdateStop(body);
-    return this.transportService.updateStop(institution.id, routeId, stopId, session, dto);
+    return this.transportService.updateStop(
+      institution.id,
+      routeId,
+      stopId,
+      session,
+      dto,
+    );
   }
 
   // ── Vehicles ───────────────────────────────────────────────────────────────
@@ -193,7 +209,12 @@ export class TransportController {
     @Body() body: UpdateVehicleBodyDto,
   ) {
     const dto = parseUpdateVehicle(body);
-    return this.transportService.updateVehicle(institution.id, vehicleId, session, dto);
+    return this.transportService.updateVehicle(
+      institution.id,
+      vehicleId,
+      session,
+      dto,
+    );
   }
 
   // ── Assignments ────────────────────────────────────────────────────────────

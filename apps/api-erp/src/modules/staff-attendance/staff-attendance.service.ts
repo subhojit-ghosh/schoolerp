@@ -7,7 +7,6 @@ import {
 } from "@repo/contracts";
 import {
   BadRequestException,
-  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
@@ -56,10 +55,7 @@ export class StaffAttendanceService {
     private readonly auditService: AuditService,
   ) {}
 
-  async getRoster(
-    institutionId: string,
-    query: StaffAttendanceRosterQueryDto,
-  ) {
+  async getRoster(institutionId: string, query: StaffAttendanceRosterQueryDto) {
     const matchedCampus = await this.getCampus(institutionId, query.campusId);
 
     // Get all active staff members for this campus
@@ -139,10 +135,7 @@ export class StaffAttendanceService {
     authSession: AuthenticatedSession,
     payload: UpsertStaffAttendanceDayDto,
   ) {
-    const matchedCampus = await this.getCampus(
-      institutionId,
-      payload.campusId,
-    );
+    const matchedCampus = await this.getCampus(institutionId, payload.campusId);
 
     const membership = await this.authService.getMembershipForOrganization(
       authSession.user.id,
@@ -181,12 +174,8 @@ export class StaffAttendanceService {
     }
 
     // Verify roster matches
-    const rosterIds = staffRows
-      .map((s) => s.membershipId)
-      .sort();
-    const submittedIds = payload.entries
-      .map((e) => e.staffMembershipId)
-      .sort();
+    const rosterIds = staffRows.map((s) => s.membershipId).sort();
+    const submittedIds = payload.entries.map((e) => e.staffMembershipId).sort();
 
     if (
       rosterIds.length !== submittedIds.length ||
@@ -315,11 +304,10 @@ export class StaffAttendanceService {
     // Build per-campus counts
     const recordsByCampus = new Map<string, StaffAttendanceCounts>();
     for (const row of records) {
-      const current =
-        recordsByCampus.get(row.campusId) ?? {
-          ...EMPTY_STAFF_ATTENDANCE_COUNTS,
-        };
-      current[row.status as StaffAttendanceStatus] += 1;
+      const current = recordsByCampus.get(row.campusId) ?? {
+        ...EMPTY_STAFF_ATTENDANCE_COUNTS,
+      };
+      current[row.status] += 1;
       recordsByCampus.set(row.campusId, current);
     }
 
@@ -344,14 +332,8 @@ export class StaffAttendanceService {
     };
   }
 
-  async getReport(
-    institutionId: string,
-    query: StaffAttendanceReportQueryDto,
-  ) {
-    const matchedCampus = await this.getCampus(
-      institutionId,
-      query.campusId,
-    );
+  async getReport(institutionId: string, query: StaffAttendanceReportQueryDto) {
+    const matchedCampus = await this.getCampus(institutionId, query.campusId);
 
     // Get all active staff for the campus
     const staffRows = await this.db
@@ -401,11 +383,10 @@ export class StaffAttendanceService {
     // Aggregate per staff
     const countsMap = new Map<string, StaffAttendanceCounts>();
     for (const row of records) {
-      const current =
-        countsMap.get(row.staffMembershipId) ?? {
-          ...EMPTY_STAFF_ATTENDANCE_COUNTS,
-        };
-      current[row.status as StaffAttendanceStatus] += 1;
+      const current = countsMap.get(row.staffMembershipId) ?? {
+        ...EMPTY_STAFF_ATTENDANCE_COUNTS,
+      };
+      current[row.status] += 1;
       countsMap.set(row.staffMembershipId, current);
     }
 
@@ -470,9 +451,7 @@ export class StaffAttendanceService {
     return matchedCampus;
   }
 
-  private computeSummary(
-    roster: { status: string | null }[],
-  ) {
+  private computeSummary(roster: { status: string | null }[]) {
     let present = 0;
     let absent = 0;
     let halfDay = 0;
@@ -482,8 +461,7 @@ export class StaffAttendanceService {
       if (item.status === STAFF_ATTENDANCE_STATUSES.PRESENT) present += 1;
       else if (item.status === STAFF_ATTENDANCE_STATUSES.ABSENT) absent += 1;
       else if (item.status === STAFF_ATTENDANCE_STATUSES.HALF_DAY) halfDay += 1;
-      else if (item.status === STAFF_ATTENDANCE_STATUSES.ON_LEAVE)
-        onLeave += 1;
+      else if (item.status === STAFF_ATTENDANCE_STATUSES.ON_LEAVE) onLeave += 1;
     }
 
     return {

@@ -118,7 +118,12 @@ export function InventoryItemsPage() {
           newStatus === "active" ? "Item activated." : "Item deactivated.",
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update item status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update item status. Please try again.",
+          ),
+        );
       }
     },
     [statusMutation],
@@ -178,7 +183,9 @@ export function InventoryItemsPage() {
         cell: ({ row }) => {
           const isLow = row.original.currentStock <= row.original.minimumStock;
           return (
-            <span className={`text-sm ${isLow ? "text-destructive font-medium" : ""}`}>
+            <span
+              className={`text-sm ${isLow ? "text-destructive font-medium" : ""}`}
+            >
               {row.original.currentStock}
               {isLow ? " (Low)" : ""}
             </span>
@@ -269,7 +276,14 @@ export function InventoryItemsPage() {
         },
       }),
     ],
-    [canManage, handleToggleStatus, location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManage,
+      handleToggleStatus,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -342,9 +356,7 @@ export function InventoryItemsPage() {
             : ITEMS_PAGE_COPY.EMPTY_DESCRIPTION
         }
         emptyTitle={
-          queryState.search
-            ? "No matching items"
-            : ITEMS_PAGE_COPY.EMPTY_TITLE
+          queryState.search ? "No matching items" : ITEMS_PAGE_COPY.EMPTY_TITLE
         }
         errorTitle="Failed to load items"
         isLoading={itemsQuery.isLoading}

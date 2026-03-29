@@ -51,7 +51,9 @@ export function NavUser() {
       await signOutMutation.mutateAsync({});
       void navigate("/sign-in");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not sign out. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not sign out. Please try again."),
+      );
     }
   }
 

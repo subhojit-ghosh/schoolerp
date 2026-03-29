@@ -137,7 +137,14 @@ export function BellScheduleSheetRoute({ mode }: BellScheduleSheetRouteProps) {
 
       void navigate(appendSearch(ERP_ROUTES.BELL_SCHEDULES, location.search));
     } catch (error) {
-      toast.error(extractApiError(error, mode === "create" ? "Could not create bell schedule. Please try again." : "Could not update bell schedule. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          mode === "create"
+            ? "Could not create bell schedule. Please try again."
+            : "Could not update bell schedule. Please try again.",
+        ),
+      );
     }
   }
 

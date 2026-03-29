@@ -199,15 +199,17 @@ export class CalendarService {
       status: STATUS.CALENDAR_EVENT.ACTIVE,
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.CREATE,
-      entityType: AUDIT_ENTITY_TYPES.CALENDAR_EVENT,
-      entityId: eventId,
-      entityLabel: payload.title,
-      summary: `Created calendar event ${payload.title}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.CALENDAR_EVENT,
+        entityId: eventId,
+        entityLabel: payload.title,
+        summary: `Created calendar event ${payload.title}.`,
+      })
+      .catch(() => {});
 
     return this.getEvent(institutionId, eventId, authSession, scopes);
   }
@@ -241,15 +243,17 @@ export class CalendarService {
         ),
       );
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.UPDATE,
-      entityType: AUDIT_ENTITY_TYPES.CALENDAR_EVENT,
-      entityId: eventId,
-      entityLabel: payload.title,
-      summary: `Updated calendar event ${payload.title}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.CALENDAR_EVENT,
+        entityId: eventId,
+        entityLabel: payload.title,
+        summary: `Updated calendar event ${payload.title}.`,
+      })
+      .catch(() => {});
 
     return this.getEvent(institutionId, eventId, authSession, scopes);
   }
@@ -301,14 +305,16 @@ export class CalendarService {
         ),
       );
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.DELETE,
-      entityType: AUDIT_ENTITY_TYPES.CALENDAR_EVENT,
-      entityId: eventId,
-      summary: `Deleted calendar event.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.DELETE,
+        entityType: AUDIT_ENTITY_TYPES.CALENDAR_EVENT,
+        entityId: eventId,
+        summary: `Deleted calendar event.`,
+      })
+      .catch(() => {});
   }
 
   private async getEventOrThrow(

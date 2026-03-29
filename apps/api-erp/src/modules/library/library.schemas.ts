@@ -27,10 +27,16 @@ export const listBooksQuerySchema = z.object({
   q: z.string().trim().optional(),
   status: z.enum(["active", "inactive"]).optional(),
   page: z
-    .union([z.number().int().positive(), z.string().regex(/^\d+/).transform(Number)])
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
     .optional(),
   limit: z
-    .union([z.number().int().positive(), z.string().regex(/^\d+/).transform(Number)])
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
     .optional(),
   sort: z.enum(["title", "author", "createdAt", "availableCopies"]).optional(),
   order: z.enum(["asc", "desc"]).optional(),
@@ -52,16 +58,24 @@ export const listTransactionsQuerySchema = z.object({
   memberId: z.string().optional(),
   bookId: z.string().optional(),
   page: z
-    .union([z.number().int().positive(), z.string().regex(/^\d+/).transform(Number)])
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
     .optional(),
   limit: z
-    .union([z.number().int().positive(), z.string().regex(/^\d+/).transform(Number)])
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
     .optional(),
   sort: z.enum(["issuedAt", "dueDate", "status"]).optional(),
   order: z.enum(["asc", "desc"]).optional(),
 });
 
-export type ListTransactionsQueryDto = z.infer<typeof listTransactionsQuerySchema>;
+export type ListTransactionsQueryDto = z.infer<
+  typeof listTransactionsQuerySchema
+>;
 
 export const returnBookSchema = z.object({
   fineAmount: z.number().int().min(0).optional(),

@@ -26,9 +26,7 @@ import {
   PaymentConfigDto,
   UpsertPaymentConfigBodyDto,
 } from "./payment-gateway-config.dto";
-import {
-  parseUpsertPaymentConfig,
-} from "./payment-gateway-config.schemas";
+import { parseUpsertPaymentConfig } from "./payment-gateway-config.schemas";
 
 @ApiTags(API_DOCS.TAGS.SETTINGS)
 @ApiCookieAuth()
@@ -40,9 +38,7 @@ import {
 )
 @Controller(`${API_ROUTES.SETTINGS}/${API_ROUTES.PAYMENT}`)
 export class PaymentGatewayConfigController {
-  constructor(
-    private readonly configService: PaymentGatewayConfigService,
-  ) {}
+  constructor(private readonly configService: PaymentGatewayConfigService) {}
 
   @Get()
   @RequirePermission(PERMISSIONS.INSTITUTION_PAYMENT_MANAGE)
@@ -85,7 +81,9 @@ export class PaymentGatewayConfigController {
 
   @Post("test")
   @RequirePermission(PERMISSIONS.INSTITUTION_PAYMENT_MANAGE)
-  @ApiOperation({ summary: "Verify provider credentials by resolving the provider" })
+  @ApiOperation({
+    summary: "Verify provider credentials by resolving the provider",
+  })
   async testConfig(
     @CurrentInstitution() institution: TenantInstitution,
   ): Promise<{ provider: string; active: boolean }> {

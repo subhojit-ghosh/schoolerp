@@ -38,7 +38,9 @@ export function IssueBookSheetRoute() {
       toast.success("Book issued successfully.");
       void navigate(closeTo);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not issue book. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not issue book. Please try again."),
+      );
     }
   }
 

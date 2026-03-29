@@ -115,10 +115,17 @@ export function TransportAssignmentsPage() {
         body: { status: newStatus },
       });
       toast.success(
-        newStatus === "active" ? "Assignment activated." : "Assignment deactivated.",
+        newStatus === "active"
+          ? "Assignment activated."
+          : "Assignment deactivated.",
       );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update assignment status. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not update assignment status. Please try again.",
+        ),
+      );
     }
   }
 
@@ -142,7 +149,9 @@ export function TransportAssignmentsPage() {
         cell: ({ row }) => (
           <div className="min-w-0 space-y-0.5">
             <p className="text-sm">{row.original.routeName}</p>
-            <p className="text-xs text-muted-foreground">{row.original.stopName}</p>
+            <p className="text-xs text-muted-foreground">
+              {row.original.stopName}
+            </p>
           </div>
         ),
       }),
@@ -217,7 +226,13 @@ export function TransportAssignmentsPage() {
           ) : null,
       }),
     ],
-    [canManage, location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManage,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -233,7 +248,8 @@ export function TransportAssignmentsPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (assignmentsQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (assignmentsQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <>

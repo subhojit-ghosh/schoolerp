@@ -78,9 +78,7 @@ export class HomeworkService {
 
     const where = and(...conditions)!;
     const pageSize = resolveTablePageSize(query.limit);
-    const sortCol =
-      sortableColumns[query.sort as keyof typeof sortableColumns] ??
-      sortableColumns.dueDate;
+    const sortCol = sortableColumns[query.sort] ?? sortableColumns.dueDate;
     const sortDir = query.order === SORT_ORDERS.DESC ? desc : asc;
 
     const createdByUser = alias(user, "created_by_user");
@@ -249,9 +247,7 @@ export class HomeworkService {
     this.assertScopeAccess(existing.sectionId, scopes);
 
     if (existing.status === "published") {
-      throw new BadRequestException(
-        ERROR_MESSAGES.HOMEWORK.ALREADY_PUBLISHED,
-      );
+      throw new BadRequestException(ERROR_MESSAGES.HOMEWORK.ALREADY_PUBLISHED);
     }
 
     const publishedAt = new Date();

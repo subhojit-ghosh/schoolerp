@@ -60,18 +60,15 @@ export function useSidebarFavorites(): {
     [favorites],
   );
 
-  const toggleFavorite = useCallback(
-    (url: string): void => {
-      const current = getSnapshot();
-      const index = current.indexOf(url);
-      if (index >= 0) {
-        writeFavorites(current.filter((u) => u !== url));
-      } else if (current.length < MAX_FAVORITES) {
-        writeFavorites([...current, url]);
-      }
-    },
-    [],
-  );
+  const toggleFavorite = useCallback((url: string): void => {
+    const current = getSnapshot();
+    const index = current.indexOf(url);
+    if (index >= 0) {
+      writeFavorites(current.filter((u) => u !== url));
+    } else if (current.length < MAX_FAVORITES) {
+      writeFavorites([...current, url]);
+    }
+  }, []);
 
   return { favorites, isFavorite, toggleFavorite };
 }

@@ -35,7 +35,8 @@ export function StudentStrengthPage() {
   const institutionId = session?.activeOrganization?.id;
   const canView = isStaffContext(session);
   const canQuery = canView && Boolean(institutionId);
-  const [academicYearId, setAcademicYearId] = useState<string>(ALL_FILTER_VALUE);
+  const [academicYearId, setAcademicYearId] =
+    useState<string>(ALL_FILTER_VALUE);
   const [campusId, setCampusId] = useState<string>(ALL_FILTER_VALUE);
 
   const academicYearsQuery = useAcademicYearsQuery(institutionId, {
@@ -176,9 +177,7 @@ export function StudentStrengthPage() {
             <CardTitle className="text-base">
               Strength by Class and Section
             </CardTitle>
-            <CardDescription>
-              Total students: {data.grandTotal}
-            </CardDescription>
+            <CardDescription>Total students: {data.grandTotal}</CardDescription>
           </CardHeader>
           <CardContent className="p-0">
             {data.rows.length === 0 ? (
@@ -227,10 +226,7 @@ export function StudentStrengthPage() {
                   </tbody>
                   <tfoot>
                     <tr className="border-t-2 bg-muted/20">
-                      <td
-                        className="px-6 py-3 font-semibold"
-                        colSpan={3}
-                      >
+                      <td className="px-6 py-3 font-semibold" colSpan={3}>
                         Grand Total
                       </td>
                       <td className="px-6 py-3 text-right tabular-nums font-semibold">

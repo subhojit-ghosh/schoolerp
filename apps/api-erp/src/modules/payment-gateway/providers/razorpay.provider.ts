@@ -67,9 +67,8 @@ export class RazorpayProvider implements PaymentGatewayProvider {
     };
   }
 
-  async verifyPayment(
-    input: VerifyPaymentInput,
-  ): Promise<VerifyPaymentResult> {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentResult> {
     const payload = `${input.externalOrderId}|${input.externalPaymentId}`;
     const expectedSignature = createHmac("sha256", this.keySecret)
       .update(payload)
@@ -85,6 +84,7 @@ export class RazorpayProvider implements PaymentGatewayProvider {
     return { success: match, externalPaymentId: input.externalPaymentId };
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async parseWebhookEvent(
     payload: Buffer,
     signature: string,

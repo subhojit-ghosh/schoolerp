@@ -3,9 +3,7 @@ import { useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import { extractApiError } from "@/lib/api-error";
 import { RouteEntitySheet } from "@/components/entities/route-entity-sheet";
-import {
-  buildTransportRouteDetailRoute,
-} from "@/constants/routes";
+import { buildTransportRouteDetailRoute } from "@/constants/routes";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {
   useCreateStopMutation,
@@ -93,7 +91,9 @@ export function StopSheetRoute({ mode }: StopSheetRouteProps) {
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save stop. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not save stop. Please try again."),
+      );
     }
   }
 
@@ -101,7 +101,7 @@ export function StopSheetRoute({ mode }: StopSheetRouteProps) {
   const description =
     mode === "create"
       ? "Add a stop to this route."
-      : editingStop?.name ?? "Edit this stop.";
+      : (editingStop?.name ?? "Edit this stop.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

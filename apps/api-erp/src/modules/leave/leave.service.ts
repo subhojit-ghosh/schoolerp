@@ -225,10 +225,7 @@ export class LeaveService {
           createdAt: leaveApplications.createdAt,
         })
         .from(leaveApplications)
-        .innerJoin(
-          leaveTypes,
-          eq(leaveApplications.leaveTypeId, leaveTypes.id),
-        )
+        .innerJoin(leaveTypes, eq(leaveApplications.leaveTypeId, leaveTypes.id))
         .innerJoin(member, eq(leaveApplications.staffMemberId, member.id))
         .innerJoin(staffUser, eq(member.userId, staffUser.id))
         .leftJoin(
@@ -250,10 +247,7 @@ export class LeaveService {
         .from(leaveApplications)
         .innerJoin(member, eq(leaveApplications.staffMemberId, member.id))
         .innerJoin(staffUser, eq(member.userId, staffUser.id))
-        .innerJoin(
-          leaveTypes,
-          eq(leaveApplications.leaveTypeId, leaveTypes.id),
-        )
+        .innerJoin(leaveTypes, eq(leaveApplications.leaveTypeId, leaveTypes.id))
         .where(whereClause),
     ]);
 
@@ -308,10 +302,7 @@ export class LeaveService {
         reviewedByMember,
         eq(leaveApplications.reviewedByMemberId, reviewedByMember.id),
       )
-      .leftJoin(
-        reviewedByUser,
-        eq(reviewedByMember.userId, reviewedByUser.id),
-      )
+      .leftJoin(reviewedByUser, eq(reviewedByMember.userId, reviewedByUser.id))
       .where(
         and(
           eq(leaveApplications.id, applicationId),

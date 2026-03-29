@@ -32,13 +32,13 @@ export function InventoryTransactionSheetRoute() {
 
   const itemsData = itemsQuery.data;
   const itemOptions = useMemo(
-    () =>
-      ((itemsData?.rows ?? []) as Array<{ id: string; name: string }>),
+    () => (itemsData?.rows ?? []) as Array<{ id: string; name: string }>,
     [itemsData?.rows],
   );
 
   const isPending = createMutation.isPending;
-  const errorMessage = (createMutation.error as Error | null | undefined)?.message ?? undefined;
+  const errorMessage =
+    (createMutation.error as Error | null | undefined)?.message ?? undefined;
 
   async function handleSubmit(values: TransactionFormValues) {
     try {
@@ -55,7 +55,12 @@ export function InventoryTransactionSheetRoute() {
       toast.success("Stock transaction recorded.");
       void navigate(closeTo);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not record stock transaction. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not record stock transaction. Please try again.",
+        ),
+      );
     }
   }
 

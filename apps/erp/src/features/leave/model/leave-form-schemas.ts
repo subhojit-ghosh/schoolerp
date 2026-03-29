@@ -21,10 +21,13 @@ export const leaveApplicationFormSchema = z
     toDate: z.string().min(1, "To date is required"),
     reason: z.string().trim().max(2000).optional(),
   })
-  .refine((data) => !data.fromDate || !data.toDate || data.fromDate <= data.toDate, {
-    message: "To date must be on or after from date.",
-    path: ["toDate"],
-  });
+  .refine(
+    (data) => !data.fromDate || !data.toDate || data.fromDate <= data.toDate,
+    {
+      message: "To date must be on or after from date.",
+      path: ["toDate"],
+    },
+  );
 
 export type LeaveApplicationFormValues = z.infer<
   typeof leaveApplicationFormSchema

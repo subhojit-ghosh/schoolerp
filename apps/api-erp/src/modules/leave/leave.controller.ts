@@ -121,10 +121,7 @@ export class LeaveController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("applicationId") applicationId: string,
   ) {
-    return this.leaveService.getLeaveApplication(
-      institution.id,
-      applicationId,
-    );
+    return this.leaveService.getLeaveApplication(institution.id, applicationId);
   }
 
   @Post(API_ROUTES.LEAVE_APPLICATIONS)

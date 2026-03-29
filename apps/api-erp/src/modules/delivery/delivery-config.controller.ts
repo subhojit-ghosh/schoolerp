@@ -8,7 +8,12 @@ import {
   Put,
   UseGuards,
 } from "@nestjs/common";
-import { ApiCookieAuth, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import {
+  ApiCookieAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from "@nestjs/swagger";
 import { DELIVERY_CHANNELS } from "@repo/contracts";
 import { API_DOCS, API_ROUTES, PERMISSIONS } from "../../constants";
 import { PermissionGuard } from "../auth/permission.guard";
@@ -50,19 +55,25 @@ export class DeliveryConfigController {
 
   @Get()
   @RequirePermission(PERMISSIONS.INSTITUTION_DELIVERY_MANAGE)
-  @ApiOperation({ summary: "List delivery provider configs for current tenant" })
+  @ApiOperation({
+    summary: "List delivery provider configs for current tenant",
+  })
   @ApiOkResponse({ type: ListDeliveryConfigsResultDto })
   async listConfigs(
     @CurrentInstitution() institution: TenantInstitution,
   ): Promise<ListDeliveryConfigsResultDto> {
-    const configs = await this.deliveryConfigService.listConfigs(institution.id);
+    const configs = await this.deliveryConfigService.listConfigs(
+      institution.id,
+    );
 
     return { configs };
   }
 
   @Put(":channel")
   @RequirePermission(PERMISSIONS.INSTITUTION_DELIVERY_MANAGE)
-  @ApiOperation({ summary: "Create or update delivery provider config for a channel" })
+  @ApiOperation({
+    summary: "Create or update delivery provider config for a channel",
+  })
   @ApiOkResponse({ type: DeliveryConfigDto })
   async upsertConfig(
     @CurrentInstitution() institution: TenantInstitution,
@@ -83,7 +94,9 @@ export class DeliveryConfigController {
 
   @Delete(":channel")
   @RequirePermission(PERMISSIONS.INSTITUTION_DELIVERY_MANAGE)
-  @ApiOperation({ summary: "Deactivate delivery provider config for a channel" })
+  @ApiOperation({
+    summary: "Deactivate delivery provider config for a channel",
+  })
   async deactivateConfig(
     @CurrentInstitution() institution: TenantInstitution,
     @Param("channel") channelParam: string,
@@ -95,7 +108,9 @@ export class DeliveryConfigController {
 
   @Post(API_ROUTES.TEST)
   @RequirePermission(PERMISSIONS.INSTITUTION_DELIVERY_MANAGE)
-  @ApiOperation({ summary: "Send a test message using the configured provider" })
+  @ApiOperation({
+    summary: "Send a test message using the configured provider",
+  })
   @ApiOkResponse({ type: TestDeliveryResultDto })
   async testDelivery(
     @CurrentInstitution() institution: TenantInstitution,

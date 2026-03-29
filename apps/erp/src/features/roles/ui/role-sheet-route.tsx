@@ -46,7 +46,9 @@ function CreateRoleSheet() {
       toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.ROLE));
       void navigate(appendSearch(ERP_ROUTES.SETTINGS_ROLES, location.search));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not create role. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not create role. Please try again."),
+      );
     }
   }
 
@@ -110,7 +112,9 @@ function EditRoleSheet() {
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.ROLE));
       void navigate(appendSearch(ERP_ROUTES.SETTINGS_ROLES, location.search));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update role. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not update role. Please try again."),
+      );
     }
   }
 

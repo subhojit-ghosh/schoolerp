@@ -20,7 +20,10 @@ import {
   EntityFormPrimaryAction,
   EntityFormSecondaryAction,
 } from "@/components/entities/entity-actions";
-import { useClassesQuery, useClassQuery } from "@/features/classes/api/use-classes";
+import {
+  useClassesQuery,
+  useClassQuery,
+} from "@/features/classes/api/use-classes";
 import { useSubjectsQuery } from "@/features/subjects/api/use-subjects";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import {

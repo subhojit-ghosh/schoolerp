@@ -107,7 +107,10 @@ export function PayslipDetailPage() {
           <Breadcrumbs
             items={[
               { label: "Payroll Runs", href: ERP_ROUTES.PAYROLL_RUNS },
-              { label: "Run", href: buildPayrollRunDetailRoute(payslip.payrollRunId) },
+              {
+                label: "Run",
+                href: buildPayrollRunDetailRoute(payslip.payrollRunId),
+              },
               { label: payslip.staffName },
             ]}
           />
@@ -137,7 +140,10 @@ export function PayslipDetailPage() {
         <InfoCard label="Working Days" value={String(payslip.workingDays)} />
         <InfoCard label="Present Days" value={String(payslip.presentDays)} />
         <InfoCard label="Paid Leave" value={String(payslip.paidLeaveDays)} />
-        <InfoCard label="Unpaid Leave" value={String(payslip.unpaidLeaveDays)} />
+        <InfoCard
+          label="Unpaid Leave"
+          value={String(payslip.unpaidLeaveDays)}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">

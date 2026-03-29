@@ -97,7 +97,10 @@ export function PayrollRunDetailPage() {
 
   const run = runQuery.data as PayrollRunDetail | undefined;
   const payslips = useMemo(
-    () => ((payslipsQuery.data as { rows?: unknown[] } | undefined)?.rows ?? payslipsQuery.data ?? []) as PayslipRow[],
+    () =>
+      ((payslipsQuery.data as { rows?: unknown[] } | undefined)?.rows ??
+        payslipsQuery.data ??
+        []) as PayslipRow[],
     [payslipsQuery.data],
   );
 
@@ -107,7 +110,12 @@ export function PayrollRunDetailPage() {
       await processMutation.mutateAsync({ params: { path: { runId } } });
       toast.success("Payroll run processed.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not process payroll run. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not process payroll run. Please try again.",
+        ),
+      );
     }
   }
 
@@ -117,7 +125,12 @@ export function PayrollRunDetailPage() {
       await approveMutation.mutateAsync({ params: { path: { runId } } });
       toast.success("Payroll run approved.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not approve payroll run. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not approve payroll run. Please try again.",
+        ),
+      );
     }
   }
 
@@ -127,7 +140,12 @@ export function PayrollRunDetailPage() {
       await markPaidMutation.mutateAsync({ params: { path: { runId } } });
       toast.success("Payroll run marked as paid.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not mark payroll run as paid. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not mark payroll run as paid. Please try again.",
+        ),
+      );
     }
   }
 
@@ -299,7 +317,12 @@ export function PayrollRunDetailPage() {
                       {formatPaiseToRupees(slip.netPayInPaise)}
                     </TableCell>
                     <TableCell>
-                      <Button asChild size="icon" variant="ghost" className="size-8">
+                      <Button
+                        asChild
+                        size="icon"
+                        variant="ghost"
+                        className="size-8"
+                      >
                         <Link to={buildPayslipDetailRoute(slip.id)}>
                           <IconEye className="size-4" />
                           <span className="sr-only">View payslip</span>

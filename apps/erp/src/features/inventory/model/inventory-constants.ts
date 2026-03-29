@@ -40,7 +40,8 @@ export const TRANSACTIONS_PAGE_COPY = {
   TITLE: "Stock Transactions",
   DESCRIPTION: "View all stock movements across inventory items.",
   EMPTY_TITLE: "No transactions yet",
-  EMPTY_DESCRIPTION: "Stock transactions will appear here when items are purchased, issued, or returned.",
+  EMPTY_DESCRIPTION:
+    "Stock transactions will appear here when items are purchased, issued, or returned.",
   SEARCH_PLACEHOLDER: "Search transactions...",
 } as const;
 

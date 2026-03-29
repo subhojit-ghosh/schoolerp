@@ -27,7 +27,10 @@ import {
   EntityDetailPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
-import { EntityPagePrimaryAction, EntityRowAction } from "@/components/entities/entity-actions";
+import {
+  EntityPagePrimaryAction,
+  EntityRowAction,
+} from "@/components/entities/entity-actions";
 import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import { PERMISSIONS } from "@repo/contracts";
 import {
@@ -62,7 +65,10 @@ export function TransportRouteDetailPage() {
   const canRead = hasPermission(session, PERMISSIONS.TRANSPORT_READ);
   const canManage = hasPermission(session, PERMISSIONS.TRANSPORT_MANAGE);
 
-  const routeQuery = useTransportRouteQuery(routeId ?? "", canRead && Boolean(routeId));
+  const routeQuery = useTransportRouteQuery(
+    routeId ?? "",
+    canRead && Boolean(routeId),
+  );
   const updateStopMutation = useUpdateStopMutation(routeId ?? "");
 
   const route = routeQuery.data;
@@ -88,7 +94,12 @@ export function TransportRouteDetailPage() {
         newStatus === "active" ? "Stop activated." : "Stop deactivated.",
       );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update stop status. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not update stop status. Please try again.",
+        ),
+      );
     }
   }
 
@@ -120,7 +131,13 @@ export function TransportRouteDetailPage() {
           backAction={
             <Breadcrumbs
               items={[
-                { label: "Transport Routes", href: appendSearch(ERP_ROUTES.TRANSPORT_ROUTES, location.search) },
+                {
+                  label: "Transport Routes",
+                  href: appendSearch(
+                    ERP_ROUTES.TRANSPORT_ROUTES,
+                    location.search,
+                  ),
+                },
                 { label: route.name },
               ]}
             />
@@ -255,9 +272,7 @@ export function TransportRouteDetailPage() {
                               </Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                              onClick={() =>
-                                void handleToggleStopStatus(stop)
-                              }
+                              onClick={() => void handleToggleStopStatus(stop)}
                             >
                               {stop.status === "active"
                                 ? "Deactivate"

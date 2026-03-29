@@ -109,7 +109,12 @@ export function HostelAllocationsPage() {
         });
         toast.success("Bed allocation vacated.");
       } catch (error) {
-        toast.error(extractApiError(error, "Could not vacate bed allocation. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not vacate bed allocation. Please try again.",
+          ),
+        );
       }
     },
     [vacateMutation],
@@ -227,7 +232,13 @@ export function HostelAllocationsPage() {
         },
       }),
     ],
-    [canManage, handleVacate, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManage,
+      handleVacate,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -243,7 +254,8 @@ export function HostelAllocationsPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (allocationsQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (allocationsQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <EntityListPage

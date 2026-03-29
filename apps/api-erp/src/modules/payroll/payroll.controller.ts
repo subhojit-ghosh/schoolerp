@@ -109,7 +109,11 @@ export class PayrollController {
     @Body() body: CreateSalaryComponentBodyDto,
   ) {
     const dto = parseCreateSalaryComponent(body);
-    return this.payrollService.createSalaryComponent(institution.id, session, dto);
+    return this.payrollService.createSalaryComponent(
+      institution.id,
+      session,
+      dto,
+    );
   }
 
   @Patch(`${API_ROUTES.SALARY_COMPONENTS}/:componentId`)
@@ -123,7 +127,12 @@ export class PayrollController {
     @Body() body: UpdateSalaryComponentBodyDto,
   ) {
     const dto = parseUpdateSalaryComponent(body);
-    return this.payrollService.updateSalaryComponent(institution.id, componentId, session, dto);
+    return this.payrollService.updateSalaryComponent(
+      institution.id,
+      componentId,
+      session,
+      dto,
+    );
   }
 
   @Patch(`${API_ROUTES.SALARY_COMPONENTS}/:componentId/${API_ROUTES.STATUS}`)
@@ -169,7 +178,11 @@ export class PayrollController {
     @Body() body: CreateSalaryTemplateBodyDto,
   ) {
     const dto = parseCreateSalaryTemplate(body);
-    return this.payrollService.createSalaryTemplate(institution.id, session, dto);
+    return this.payrollService.createSalaryTemplate(
+      institution.id,
+      session,
+      dto,
+    );
   }
 
   @Get(`${API_ROUTES.SALARY_TEMPLATES}/:templateId`)
@@ -194,7 +207,12 @@ export class PayrollController {
     @Body() body: UpdateSalaryTemplateBodyDto,
   ) {
     const dto = parseUpdateSalaryTemplate(body);
-    return this.payrollService.updateSalaryTemplate(institution.id, templateId, session, dto);
+    return this.payrollService.updateSalaryTemplate(
+      institution.id,
+      templateId,
+      session,
+      dto,
+    );
   }
 
   @Patch(`${API_ROUTES.SALARY_TEMPLATES}/:templateId/${API_ROUTES.STATUS}`)
@@ -240,7 +258,11 @@ export class PayrollController {
     @Body() body: CreateSalaryAssignmentBodyDto,
   ) {
     const dto = parseCreateSalaryAssignment(body);
-    return this.payrollService.createSalaryAssignment(institution.id, session, dto);
+    return this.payrollService.createSalaryAssignment(
+      institution.id,
+      session,
+      dto,
+    );
   }
 
   @Get(`${API_ROUTES.SALARY_ASSIGNMENTS}/:assignmentId`)
@@ -251,7 +273,10 @@ export class PayrollController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("assignmentId") assignmentId: string,
   ) {
-    return this.payrollService.getSalaryAssignment(institution.id, assignmentId);
+    return this.payrollService.getSalaryAssignment(
+      institution.id,
+      assignmentId,
+    );
   }
 
   @Patch(`${API_ROUTES.SALARY_ASSIGNMENTS}/:assignmentId`)
@@ -340,7 +365,11 @@ export class PayrollController {
     @CurrentSession() session: AuthenticatedSession,
     @Param("runId") runId: string,
   ) {
-    return this.payrollService.processPayrollRun(institution.id, runId, session);
+    return this.payrollService.processPayrollRun(
+      institution.id,
+      runId,
+      session,
+    );
   }
 
   @Post(`${API_ROUTES.PAYROLL_RUNS}/:runId/${API_ROUTES.APPROVE}`)
@@ -353,7 +382,11 @@ export class PayrollController {
     @CurrentSession() session: AuthenticatedSession,
     @Param("runId") runId: string,
   ) {
-    return this.payrollService.approvePayrollRun(institution.id, runId, session);
+    return this.payrollService.approvePayrollRun(
+      institution.id,
+      runId,
+      session,
+    );
   }
 
   @Post(`${API_ROUTES.PAYROLL_RUNS}/:runId/${API_ROUTES.MARK_PAID}`)
@@ -366,7 +399,11 @@ export class PayrollController {
     @CurrentSession() session: AuthenticatedSession,
     @Param("runId") runId: string,
   ) {
-    return this.payrollService.markPayrollRunPaid(institution.id, runId, session);
+    return this.payrollService.markPayrollRunPaid(
+      institution.id,
+      runId,
+      session,
+    );
   }
 
   // ── Payslips ────────────────────────────────────────────────────────────
@@ -419,6 +456,10 @@ export class PayrollController {
     @Query() query: StaffHistoryQueryParamsDto,
   ) {
     const parsed = parseStaffHistory(query);
-    return this.payrollService.getStaffHistory(institution.id, staffProfileId, parsed);
+    return this.payrollService.getStaffHistory(
+      institution.id,
+      staffProfileId,
+      parsed,
+    );
   }
 }

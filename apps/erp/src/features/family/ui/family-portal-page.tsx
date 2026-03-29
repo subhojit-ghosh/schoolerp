@@ -478,7 +478,8 @@ function ExamsPanel({ summary }: { summary: FamilyStudentSummary }) {
                   <div>
                     <p className="text-sm font-medium">{term.examTermName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {formatAcademicYear(term.academicYearName)} • Ends {formatDate(term.endDate)}
+                      {formatAcademicYear(term.academicYearName)} • Ends{" "}
+                      {formatDate(term.endDate)}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">

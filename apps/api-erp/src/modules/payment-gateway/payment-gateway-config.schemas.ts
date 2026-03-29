@@ -4,7 +4,7 @@ import { PAYMENT_PROVIDERS } from "@repo/contracts";
 const allProviders = Object.values(PAYMENT_PROVIDERS) as [string, ...string[]];
 
 const upsertPaymentConfigSchema = z.object({
-  provider: z.enum(allProviders as [string, ...string[]]),
+  provider: z.enum(allProviders),
   credentials: z.record(z.string(), z.string().min(1)),
   displayLabel: z.string().optional().nullable(),
 });
@@ -29,15 +29,11 @@ export type UpsertPaymentConfig = z.infer<typeof upsertPaymentConfigSchema>;
 export type CreatePaymentOrderInput = z.infer<typeof createPaymentOrderSchema>;
 export type VerifyPaymentInput = z.infer<typeof verifyPaymentSchema>;
 
-export function parseUpsertPaymentConfig(
-  raw: unknown,
-): UpsertPaymentConfig {
+export function parseUpsertPaymentConfig(raw: unknown): UpsertPaymentConfig {
   return upsertPaymentConfigSchema.parse(raw);
 }
 
-export function parseCreatePaymentOrder(
-  raw: unknown,
-): CreatePaymentOrderInput {
+export function parseCreatePaymentOrder(raw: unknown): CreatePaymentOrderInput {
   return createPaymentOrderSchema.parse(raw);
 }
 

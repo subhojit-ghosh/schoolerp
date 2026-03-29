@@ -154,7 +154,12 @@ export function SalaryTemplateEditPage() {
       toast.success("Salary template updated.");
       void navigate(ERP_ROUTES.PAYROLL_SALARY_TEMPLATES);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update salary template. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not update salary template. Please try again.",
+        ),
+      );
     }
   }
 
@@ -184,7 +189,10 @@ export function SalaryTemplateEditPage() {
         backAction={
           <Breadcrumbs
             items={[
-              { label: "Salary Templates", href: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES },
+              {
+                label: "Salary Templates",
+                href: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES,
+              },
               { label: `Edit ${templateData?.name ?? "Template"}` },
             ]}
           />
@@ -315,6 +323,7 @@ function ComponentRow({
   getComponentById,
   onRemove,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: any;
   index: number;
   componentOptions: ComponentOption[];
@@ -442,9 +451,7 @@ function ComponentRow({
                   ref={field.ref}
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value === ""
-                        ? 0
-                        : parseInt(e.target.value, 10),
+                      e.target.value === "" ? 0 : parseInt(e.target.value, 10),
                     )
                   }
                 />

@@ -50,9 +50,7 @@ export function PayrollReportsPage() {
   const monthlySummary = useMemo(() => {
     return MONTH_LABELS.map((label, i) => {
       const month = i + 1;
-      const run = runs.find(
-        (r: Record<string, unknown>) => r.month === month,
-      );
+      const run = runs.find((r: Record<string, unknown>) => r.month === month);
       return {
         month,
         label,
@@ -153,9 +151,7 @@ export function PayrollReportsPage() {
                           {m.status.charAt(0).toUpperCase() + m.status.slice(1)}
                         </span>
                       ) : (
-                        <span className="text-xs text-muted-foreground">
-                          —
-                        </span>
+                        <span className="text-xs text-muted-foreground">—</span>
                       )}
                     </TableCell>
                     <TableCell className="text-center text-sm">
@@ -172,9 +168,7 @@ export function PayrollReportsPage() {
                         : "—"}
                     </TableCell>
                     <TableCell className="text-right text-sm font-medium">
-                      {m.totalNetPay
-                        ? formatPaiseToRupees(m.totalNetPay)
-                        : "—"}
+                      {m.totalNetPay ? formatPaiseToRupees(m.totalNetPay) : "—"}
                     </TableCell>
                   </TableRow>
                 ))}

@@ -98,7 +98,12 @@ export class HomeworkController {
     @Body() body: CreateHomeworkBodyDto,
   ) {
     const dto = parseCreateHomework(body);
-    return this.homeworkService.createHomework(institution.id, session, scopes, dto);
+    return this.homeworkService.createHomework(
+      institution.id,
+      session,
+      scopes,
+      dto,
+    );
   }
 
   @Put(`:homeworkId`)

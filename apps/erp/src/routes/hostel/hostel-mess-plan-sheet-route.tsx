@@ -21,7 +21,9 @@ type HostelMessPlanSheetRouteProps = {
   mode: "create" | "edit";
 };
 
-export function HostelMessPlanSheetRoute({ mode }: HostelMessPlanSheetRouteProps) {
+export function HostelMessPlanSheetRoute({
+  mode,
+}: HostelMessPlanSheetRouteProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { planId } = useParams();
@@ -37,7 +39,9 @@ export function HostelMessPlanSheetRoute({ mode }: HostelMessPlanSheetRouteProps
     [location.search],
   );
 
-  const rows = (messPlansQuery.data as { rows?: unknown[] } | undefined)?.rows ?? messPlansQuery.data;
+  const rows =
+    (messPlansQuery.data as { rows?: unknown[] } | undefined)?.rows ??
+    messPlansQuery.data;
   const editingPlan = Array.isArray(rows)
     ? (rows as Array<Record<string, unknown>>).find((c) => c.id === planId)
     : undefined;
@@ -84,7 +88,9 @@ export function HostelMessPlanSheetRoute({ mode }: HostelMessPlanSheetRouteProps
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save mess plan. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not save mess plan. Please try again."),
+      );
     }
   }
 
@@ -92,7 +98,7 @@ export function HostelMessPlanSheetRoute({ mode }: HostelMessPlanSheetRouteProps
   const description =
     mode === "create"
       ? "Add a new mess plan."
-      : (editingPlan?.name as string) ?? "Edit this mess plan.";
+      : ((editingPlan?.name as string) ?? "Edit this mess plan.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

@@ -94,7 +94,8 @@ export function GuardianDetailPage() {
     }
 
     return {
-      honorific: ((guardian as { honorific?: string | null }).honorific ?? "") as GuardianFormValues["honorific"],
+      honorific: ((guardian as { honorific?: string | null }).honorific ??
+        "") as GuardianFormValues["honorific"],
       name: guardian.name,
       mobile: guardian.mobile,
       email: guardian.email ?? "",
@@ -152,7 +153,9 @@ export function GuardianDetailPage() {
 
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.GUARDIAN));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update guardian. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not update guardian. Please try again."),
+      );
     }
   }
 
@@ -175,7 +178,9 @@ export function GuardianDetailPage() {
 
       toast.success(ERP_TOAST_MESSAGES.linked(ERP_TOAST_SUBJECTS.STUDENT));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not link student. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not link student. Please try again."),
+      );
     }
   }
 
@@ -235,7 +240,10 @@ export function GuardianDetailPage() {
         <CardContent>
           <Breadcrumbs
             items={[
-              { label: "Guardians", href: appendSearch(ERP_ROUTES.GUARDIANS, location.search) },
+              {
+                label: "Guardians",
+                href: appendSearch(ERP_ROUTES.GUARDIANS, location.search),
+              },
               { label: "Not found" },
             ]}
           />
@@ -279,7 +287,10 @@ export function GuardianDetailPage() {
         backAction={
           <Breadcrumbs
             items={[
-              { label: "Guardians", href: appendSearch(ERP_ROUTES.GUARDIANS, location.search) },
+              {
+                label: "Guardians",
+                href: appendSearch(ERP_ROUTES.GUARDIANS, location.search),
+              },
               { label: guardianDisplayName },
             ]}
           />
@@ -403,10 +414,17 @@ export function GuardianDetailPage() {
                         });
 
                         toast.success(
-                          ERP_TOAST_MESSAGES.unlinked(ERP_TOAST_SUBJECTS.STUDENT),
+                          ERP_TOAST_MESSAGES.unlinked(
+                            ERP_TOAST_SUBJECTS.STUDENT,
+                          ),
                         );
                       } catch (error) {
-                        toast.error(extractApiError(error, "Could not unlink student. Please try again."));
+                        toast.error(
+                          extractApiError(
+                            error,
+                            "Could not unlink student. Please try again.",
+                          ),
+                        );
                       }
                     }}
                     onSubmit={async (values) => {
@@ -434,7 +452,12 @@ export function GuardianDetailPage() {
                           ),
                         );
                       } catch (error) {
-                        toast.error(extractApiError(error, "Could not update student link. Please try again."));
+                        toast.error(
+                          extractApiError(
+                            error,
+                            "Could not update student link. Please try again.",
+                          ),
+                        );
                       }
                     }}
                     showStudentSelect={false}

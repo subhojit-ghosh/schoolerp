@@ -72,14 +72,14 @@ export class CashfreeProvider implements PaymentGatewayProvider {
       checkoutData: {
         paymentSessionId: data.payment_session_id,
         orderId: data.order_id,
-        environment: this.baseUrl.includes("sandbox") ? "sandbox" : "production",
+        environment: this.baseUrl.includes("sandbox")
+          ? "sandbox"
+          : "production",
       },
     };
   }
 
-  async verifyPayment(
-    input: VerifyPaymentInput,
-  ): Promise<VerifyPaymentResult> {
+  async verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentResult> {
     // Cashfree uses a different verification — fetch order status from API
     const response = await fetch(
       `${this.baseUrl}/orders/${input.externalOrderId}`,
@@ -104,6 +104,7 @@ export class CashfreeProvider implements PaymentGatewayProvider {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async parseWebhookEvent(
     payload: Buffer,
     signature: string,

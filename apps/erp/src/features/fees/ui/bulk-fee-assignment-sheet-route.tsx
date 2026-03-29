@@ -128,7 +128,10 @@ export function BulkFeeAssignmentSheetRoute() {
       void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
     } catch (error) {
       toast.error(
-        extractApiError(error, "Could not assign fees in bulk. Please try again."),
+        extractApiError(
+          error,
+          "Could not assign fees in bulk. Please try again.",
+        ),
       );
     }
   }

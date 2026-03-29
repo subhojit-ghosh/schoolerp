@@ -73,7 +73,10 @@ export function hasPermission(
   session: AuthSession | null,
   permission: PermissionSlug,
 ) {
-  return (session?.permissions as string[] | undefined)?.includes(permission) ?? false;
+  return (
+    (session?.permissions as string[] | undefined)?.includes(permission) ??
+    false
+  );
 }
 
 export function hasAnyPermission(

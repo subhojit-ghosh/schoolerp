@@ -119,9 +119,9 @@ export function useStaffAttendanceReportQuery(
     {
       enabled: Boolean(
         institutionId &&
-          filters?.campusId &&
-          filters?.fromDate &&
-          filters?.toDate,
+        filters?.campusId &&
+        filters?.fromDate &&
+        filters?.toDate,
       ),
     },
   );

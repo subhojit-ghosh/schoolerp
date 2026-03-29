@@ -178,15 +178,17 @@ export class SubjectsService {
       status: STATUS.SUBJECT.ACTIVE,
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.CREATE,
-      entityType: AUDIT_ENTITY_TYPES.SUBJECT,
-      entityId: subjectId,
-      entityLabel: normalizeSubjectName(payload.name),
-      summary: `Created subject ${normalizeSubjectName(payload.name)}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.SUBJECT,
+        entityId: subjectId,
+        entityLabel: normalizeSubjectName(payload.name),
+        summary: `Created subject ${normalizeSubjectName(payload.name)}.`,
+      })
+      .catch(() => {});
 
     return this.getSubject(institutionId, subjectId, authSession, scopes);
   }
@@ -221,15 +223,17 @@ export class SubjectsService {
         ),
       );
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.UPDATE,
-      entityType: AUDIT_ENTITY_TYPES.SUBJECT,
-      entityId: subjectId,
-      entityLabel: normalizeSubjectName(payload.name),
-      summary: `Updated subject ${normalizeSubjectName(payload.name)}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.SUBJECT,
+        entityId: subjectId,
+        entityLabel: normalizeSubjectName(payload.name),
+        summary: `Updated subject ${normalizeSubjectName(payload.name)}.`,
+      })
+      .catch(() => {});
 
     return this.getSubject(institutionId, subjectId, authSession, scopes);
   }
@@ -288,15 +292,17 @@ export class SubjectsService {
         ),
       );
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.DELETE,
-      entityType: AUDIT_ENTITY_TYPES.SUBJECT,
-      entityId: subjectId,
-      entityLabel: subjectId,
-      summary: `Deleted subject ${subjectId}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.DELETE,
+        entityType: AUDIT_ENTITY_TYPES.SUBJECT,
+        entityId: subjectId,
+        entityLabel: subjectId,
+        summary: `Deleted subject ${subjectId}.`,
+      })
+      .catch(() => {});
   }
 
   private async getCampus(institutionId: string, campusId: string) {

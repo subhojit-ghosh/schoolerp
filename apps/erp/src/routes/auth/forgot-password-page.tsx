@@ -41,7 +41,12 @@ export function ForgotPasswordPage() {
       });
       reset();
     } catch (error) {
-      toast.error(extractApiError(error, "Unable to start password recovery right now. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Unable to start password recovery right now. Please try again.",
+        ),
+      );
     }
   }
 

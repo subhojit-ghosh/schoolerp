@@ -117,7 +117,12 @@ export function HostelMessPlansPage() {
             : "Mess plan deactivated.",
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update mess plan status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update mess plan status. Please try again.",
+          ),
+        );
       }
     },
     [statusMutation],
@@ -149,7 +154,9 @@ export function HostelMessPlansPage() {
       columnHelper.accessor("monthlyFeeInPaise", {
         header: "Monthly Fee",
         cell: ({ row }) => (
-          <span className="text-sm">{formatPaise(row.original.monthlyFeeInPaise)}</span>
+          <span className="text-sm">
+            {formatPaise(row.original.monthlyFeeInPaise)}
+          </span>
         ),
       }),
       columnHelper.accessor("description", {
@@ -220,7 +227,14 @@ export function HostelMessPlansPage() {
         },
       }),
     ],
-    [canManage, handleToggleStatus, location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManage,
+      handleToggleStatus,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -236,7 +250,8 @@ export function HostelMessPlansPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (messPlansQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (messPlansQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <EntityListPage

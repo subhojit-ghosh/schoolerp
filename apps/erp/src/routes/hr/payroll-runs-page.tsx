@@ -137,7 +137,12 @@ export function PayrollRunsPage() {
         });
         toast.success("Payroll run processed.");
       } catch (error) {
-        toast.error(extractApiError(error, "Could not process payroll run. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not process payroll run. Please try again.",
+          ),
+        );
       }
     },
     [processMutation],
@@ -151,7 +156,12 @@ export function PayrollRunsPage() {
         });
         toast.success("Payroll run approved.");
       } catch (error) {
-        toast.error(extractApiError(error, "Could not approve payroll run. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not approve payroll run. Please try again.",
+          ),
+        );
       }
     },
     [approveMutation],
@@ -165,7 +175,12 @@ export function PayrollRunsPage() {
         });
         toast.success("Payroll run marked as paid.");
       } catch (error) {
-        toast.error(extractApiError(error, "Could not mark payroll run as paid. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not mark payroll run as paid. Please try again.",
+          ),
+        );
       }
     },
     [markPaidMutation],
@@ -178,9 +193,7 @@ export function PayrollRunsPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() =>
-              setSorting(PAYROLL_RUN_LIST_SORT_FIELDS.MONTH)
-            }
+            onClick={() => setSorting(PAYROLL_RUN_LIST_SORT_FIELDS.MONTH)}
             type="button"
           >
             Month / Year
@@ -211,9 +224,7 @@ export function PayrollRunsPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() =>
-              setSorting(PAYROLL_RUN_LIST_SORT_FIELDS.STATUS)
-            }
+            onClick={() => setSorting(PAYROLL_RUN_LIST_SORT_FIELDS.STATUS)}
             type="button"
           >
             Status
@@ -334,10 +345,7 @@ export function PayrollRunsPage() {
         canManagePayroll ? (
           <EntityPagePrimaryAction asChild>
             <Link
-              to={appendSearch(
-                ERP_ROUTES.PAYROLL_RUN_CREATE,
-                location.search,
-              )}
+              to={appendSearch(ERP_ROUTES.PAYROLL_RUN_CREATE, location.search)}
             >
               <IconPlus className="size-4" />
               New payroll run

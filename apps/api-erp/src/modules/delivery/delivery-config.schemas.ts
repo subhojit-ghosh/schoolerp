@@ -1,9 +1,19 @@
 import { z } from "zod";
 import { DELIVERY_PROVIDERS, DELIVERY_CHANNELS } from "@repo/contracts";
 
-const smsProviders = [DELIVERY_PROVIDERS.MSG91, DELIVERY_PROVIDERS.TWILIO] as const;
-const emailProviders = [DELIVERY_PROVIDERS.RESEND, DELIVERY_PROVIDERS.SENDGRID] as const;
-const allProviders = [...smsProviders, ...emailProviders, DELIVERY_PROVIDERS.DISABLED] as const;
+const smsProviders = [
+  DELIVERY_PROVIDERS.MSG91,
+  DELIVERY_PROVIDERS.TWILIO,
+] as const;
+const emailProviders = [
+  DELIVERY_PROVIDERS.RESEND,
+  DELIVERY_PROVIDERS.SENDGRID,
+] as const;
+const allProviders = [
+  ...smsProviders,
+  ...emailProviders,
+  DELIVERY_PROVIDERS.DISABLED,
+] as const;
 
 const channelSchema = z.enum([DELIVERY_CHANNELS.SMS, DELIVERY_CHANNELS.EMAIL]);
 

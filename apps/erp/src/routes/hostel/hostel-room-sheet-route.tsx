@@ -30,7 +30,10 @@ export function HostelRoomSheetRoute({ mode }: HostelRoomSheetRouteProps) {
   const isEnabled = Boolean(session?.activeOrganization?.id);
 
   const roomsQuery = useRoomsQuery(mode === "edit" && isEnabled);
-  const buildingsQuery = useBuildingsQuery(isEnabled, { limit: 100, status: "active" });
+  const buildingsQuery = useBuildingsQuery(isEnabled, {
+    limit: 100,
+    status: "active",
+  });
   const createMutation = useCreateRoomMutation();
   const updateMutation = useUpdateRoomMutation();
 
@@ -41,12 +44,13 @@ export function HostelRoomSheetRoute({ mode }: HostelRoomSheetRouteProps) {
 
   const buildingsData = buildingsQuery.data;
   const buildingOptions = useMemo(
-    () =>
-      ((buildingsData?.rows ?? []) as Array<{ id: string; name: string }>),
+    () => (buildingsData?.rows ?? []) as Array<{ id: string; name: string }>,
     [buildingsData?.rows],
   );
 
-  const rows = (roomsQuery.data as { rows?: unknown[] } | undefined)?.rows ?? roomsQuery.data;
+  const rows =
+    (roomsQuery.data as { rows?: unknown[] } | undefined)?.rows ??
+    roomsQuery.data;
   const editingRoom = Array.isArray(rows)
     ? (rows as Array<Record<string, unknown>>).find((c) => c.id === roomId)
     : undefined;
@@ -59,7 +63,8 @@ export function HostelRoomSheetRoute({ mode }: HostelRoomSheetRouteProps) {
       buildingId: editingRoom.buildingId as string,
       roomNumber: editingRoom.roomNumber as string,
       floor: (editingRoom.floor as number) ?? 0,
-      roomType: (editingRoom.roomType as RoomFormValues["roomType"]) ?? "double",
+      roomType:
+        (editingRoom.roomType as RoomFormValues["roomType"]) ?? "double",
       capacity: (editingRoom.capacity as number) ?? 1,
     };
   }, [editingRoom, mode]);
@@ -98,7 +103,9 @@ export function HostelRoomSheetRoute({ mode }: HostelRoomSheetRouteProps) {
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save room. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not save room. Please try again."),
+      );
     }
   }
 
@@ -106,7 +113,7 @@ export function HostelRoomSheetRoute({ mode }: HostelRoomSheetRouteProps) {
   const description =
     mode === "create"
       ? "Add a new hostel room."
-      : (editingRoom?.roomNumber as string) ?? "Edit this room.";
+      : ((editingRoom?.roomNumber as string) ?? "Edit this room.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

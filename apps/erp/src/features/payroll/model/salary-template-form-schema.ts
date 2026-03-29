@@ -10,11 +10,15 @@ const templateComponentSchema = z.object({
 export const salaryTemplateFormSchema = z.object({
   name: z.string().trim().min(1, "Template name is required").max(200),
   description: z.string().trim().optional().or(z.literal("")),
-  components: z.array(templateComponentSchema).min(1, "Add at least one component"),
+  components: z
+    .array(templateComponentSchema)
+    .min(1, "Add at least one component"),
 });
 
 export type SalaryTemplateFormValues = z.infer<typeof salaryTemplateFormSchema>;
-export type TemplateComponentFormValues = z.infer<typeof templateComponentSchema>;
+export type TemplateComponentFormValues = z.infer<
+  typeof templateComponentSchema
+>;
 
 export const SALARY_TEMPLATE_DEFAULT_VALUES: SalaryTemplateFormValues = {
   name: "",

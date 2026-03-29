@@ -55,7 +55,9 @@ export class PaymentOrderController {
     ScopeGuard,
   )
   @RequirePermission(PERMISSIONS.FEES_PAYMENT_ONLINE)
-  @ApiOperation({ summary: "Create an online payment order with the configured PG" })
+  @ApiOperation({
+    summary: "Create an online payment order with the configured PG",
+  })
   @ApiCreatedResponse({ type: PaymentOrderResultDto })
   async createOrder(
     @CurrentInstitution() institution: TenantInstitution,

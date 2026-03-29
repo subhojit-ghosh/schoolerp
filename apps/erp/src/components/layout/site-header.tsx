@@ -145,7 +145,9 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
         body: { campusId },
       });
     } catch (error) {
-      toast.error(extractApiError(error, "Could not switch campus. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not switch campus. Please try again."),
+      );
     }
   }
 

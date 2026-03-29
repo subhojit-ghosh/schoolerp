@@ -97,7 +97,12 @@ export function AssignmentSheetRoute({ mode }: AssignmentSheetRouteProps) {
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save transport assignment. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save transport assignment. Please try again.",
+        ),
+      );
     }
   }
 
@@ -105,7 +110,7 @@ export function AssignmentSheetRoute({ mode }: AssignmentSheetRouteProps) {
   const description =
     mode === "create"
       ? "Assign a student to a transport route."
-      : editingAssignment?.studentName ?? "Edit this assignment.";
+      : (editingAssignment?.studentName ?? "Edit this assignment.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

@@ -132,9 +132,7 @@ export function SalaryComponentForm({
                   ref={field.ref}
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value === ""
-                        ? 0
-                        : parseInt(e.target.value, 10),
+                      e.target.value === "" ? 0 : parseInt(e.target.value, 10),
                     )
                   }
                 />

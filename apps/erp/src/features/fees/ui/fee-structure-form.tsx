@@ -1,10 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import {
-  Controller,
-  useFieldArray,
-  useForm,
-  useWatch,
-} from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FEE_STRUCTURE_SCOPES } from "@repo/contracts";
 import {
@@ -261,10 +256,10 @@ export function FeeStructureForm({
 }: FeeStructureFormProps) {
   const { control, handleSubmit, reset, watch, formState } =
     useForm<FeeStructureFormValues>({
-    resolver: zodResolver(feeStructureFormSchema),
-    mode: "onTouched",
-    defaultValues,
-  });
+      resolver: zodResolver(feeStructureFormSchema),
+      mode: "onTouched",
+      defaultValues,
+    });
   const selectedScope = useWatch({ control, name: "scope" });
 
   const autoSave = useFormAutoSave({

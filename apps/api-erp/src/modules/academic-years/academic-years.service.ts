@@ -166,15 +166,17 @@ export class AcademicYearsService {
       return this.toAcademicYearDto(createdYear);
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.CREATE,
-      entityType: AUDIT_ENTITY_TYPES.ACADEMIC_YEAR,
-      entityId: academicYearId,
-      entityLabel: payload.name,
-      summary: `Created academic year ${payload.name}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.ACADEMIC_YEAR,
+        entityId: academicYearId,
+        entityLabel: payload.name,
+        summary: `Created academic year ${payload.name}.`,
+      })
+      .catch(() => {});
 
     return result;
   }
@@ -229,17 +231,21 @@ export class AcademicYearsService {
       return this.toAcademicYearDto(updatedYear);
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: payload.isCurrent ? AUDIT_ACTIONS.EXECUTE : AUDIT_ACTIONS.UPDATE,
-      entityType: AUDIT_ENTITY_TYPES.ACADEMIC_YEAR,
-      entityId: academicYearId,
-      entityLabel: payload.name,
-      summary: payload.isCurrent
-        ? `Set academic year ${payload.name} as current.`
-        : `Updated academic year ${payload.name}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: payload.isCurrent
+          ? AUDIT_ACTIONS.EXECUTE
+          : AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.ACADEMIC_YEAR,
+        entityId: academicYearId,
+        entityLabel: payload.name,
+        summary: payload.isCurrent
+          ? `Set academic year ${payload.name} as current.`
+          : `Updated academic year ${payload.name}.`,
+      })
+      .catch(() => {});
 
     return result;
   }

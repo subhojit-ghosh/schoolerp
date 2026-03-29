@@ -116,7 +116,12 @@ export function HostelBuildingsPage() {
             : "Building deactivated.",
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update building status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update building status. Please try again.",
+          ),
+        );
       }
     },
     [statusMutation],
@@ -149,7 +154,8 @@ export function HostelBuildingsPage() {
         header: "Type",
         cell: ({ row }) => (
           <Badge variant="outline">
-            {HOSTEL_BUILDING_TYPE_LABELS[row.original.buildingType] ?? row.original.buildingType}
+            {HOSTEL_BUILDING_TYPE_LABELS[row.original.buildingType] ??
+              row.original.buildingType}
           </Badge>
         ),
       }),
@@ -219,7 +225,14 @@ export function HostelBuildingsPage() {
         },
       }),
     ],
-    [canManage, handleToggleStatus, location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManage,
+      handleToggleStatus,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -235,7 +248,8 @@ export function HostelBuildingsPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (buildingsQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (buildingsQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <EntityListPage

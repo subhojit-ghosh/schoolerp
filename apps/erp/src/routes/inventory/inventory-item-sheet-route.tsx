@@ -22,7 +22,9 @@ type InventoryItemSheetRouteProps = {
   mode: "create" | "edit";
 };
 
-export function InventoryItemSheetRoute({ mode }: InventoryItemSheetRouteProps) {
+export function InventoryItemSheetRoute({
+  mode,
+}: InventoryItemSheetRouteProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { itemId } = useParams();
@@ -30,7 +32,10 @@ export function InventoryItemSheetRoute({ mode }: InventoryItemSheetRouteProps) 
   const isEnabled = Boolean(session?.activeOrganization?.id);
 
   const itemsQuery = useItemsQuery(mode === "edit" && isEnabled);
-  const categoriesQuery = useCategoriesQuery(isEnabled, { limit: 100, status: "active" });
+  const categoriesQuery = useCategoriesQuery(isEnabled, {
+    limit: 100,
+    status: "active",
+  });
   const createMutation = useCreateItemMutation();
   const updateMutation = useUpdateItemMutation();
 
@@ -41,12 +46,13 @@ export function InventoryItemSheetRoute({ mode }: InventoryItemSheetRouteProps) 
 
   const categoriesData = categoriesQuery.data;
   const categoryOptions = useMemo(
-    () =>
-      ((categoriesData?.rows ?? []) as Array<{ id: string; name: string }>),
+    () => (categoriesData?.rows ?? []) as Array<{ id: string; name: string }>,
     [categoriesData?.rows],
   );
 
-  const rows = (itemsQuery.data as { rows?: unknown[] } | undefined)?.rows ?? itemsQuery.data;
+  const rows =
+    (itemsQuery.data as { rows?: unknown[] } | undefined)?.rows ??
+    itemsQuery.data;
   const editingItem = Array.isArray(rows)
     ? (rows as Array<Record<string, unknown>>).find((c) => c.id === itemId)
     : undefined;
@@ -62,7 +68,8 @@ export function InventoryItemSheetRoute({ mode }: InventoryItemSheetRouteProps) 
       unit: (editingItem.unit as ItemFormValues["unit"]) ?? "piece",
       minimumStock: (editingItem.minimumStock as number) ?? 0,
       location: (editingItem.location as string) ?? "",
-      purchasePriceInPaise: (editingItem.purchasePriceInPaise as number | undefined) ?? undefined,
+      purchasePriceInPaise:
+        (editingItem.purchasePriceInPaise as number | undefined) ?? undefined,
     };
   }, [editingItem, mode]);
 
@@ -105,7 +112,9 @@ export function InventoryItemSheetRoute({ mode }: InventoryItemSheetRouteProps) 
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save item. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not save item. Please try again."),
+      );
     }
   }
 
@@ -113,7 +122,7 @@ export function InventoryItemSheetRoute({ mode }: InventoryItemSheetRouteProps) 
   const description =
     mode === "create"
       ? "Add a new inventory item."
-      : (editingItem?.name as string) ?? "Edit this item.";
+      : ((editingItem?.name as string) ?? "Edit this item.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

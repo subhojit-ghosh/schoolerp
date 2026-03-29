@@ -1,4 +1,11 @@
-import { boolean, index, pgTable, text, timestamp, uniqueIndex } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  pgTable,
+  text,
+  timestamp,
+  uniqueIndex,
+} from "drizzle-orm/pg-core";
 import { organization } from "./auth";
 
 const DELIVERY_CHANNEL_ENUM = ["sms", "email"] as const;
@@ -31,9 +38,8 @@ export const institutionDeliveryConfig = pgTable(
   },
   (t) => [
     index("institution_delivery_config_institution_idx").on(t.institutionId),
-    uniqueIndex("institution_delivery_config_institution_channel_unique_idx").on(
-      t.institutionId,
-      t.channel,
-    ),
+    uniqueIndex(
+      "institution_delivery_config_institution_channel_unique_idx",
+    ).on(t.institutionId, t.channel),
   ],
 );

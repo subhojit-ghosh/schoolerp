@@ -21,14 +21,18 @@ type SalaryComponentSheetRouteProps = {
   mode: "create" | "edit";
 };
 
-export function SalaryComponentSheetRoute({ mode }: SalaryComponentSheetRouteProps) {
+export function SalaryComponentSheetRoute({
+  mode,
+}: SalaryComponentSheetRouteProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { componentId } = useParams();
   const session = useAuthStore((store) => store.session);
   const isEnabled = Boolean(session?.activeOrganization?.id);
 
-  const componentsQuery = useSalaryComponentsQuery(mode === "edit" && isEnabled);
+  const componentsQuery = useSalaryComponentsQuery(
+    mode === "edit" && isEnabled,
+  );
   const createMutation = useCreateSalaryComponentMutation();
   const updateMutation = useUpdateSalaryComponentMutation();
 
@@ -37,7 +41,9 @@ export function SalaryComponentSheetRoute({ mode }: SalaryComponentSheetRoutePro
     [location.search],
   );
 
-  const rows = (componentsQuery.data as { rows?: unknown[] } | undefined)?.rows ?? componentsQuery.data;
+  const rows =
+    (componentsQuery.data as { rows?: unknown[] } | undefined)?.rows ??
+    componentsQuery.data;
   const editingComponent = Array.isArray(rows)
     ? (rows as Array<Record<string, unknown>>).find((c) => c.id === componentId)
     : undefined;
@@ -49,7 +55,9 @@ export function SalaryComponentSheetRoute({ mode }: SalaryComponentSheetRoutePro
     return {
       name: editingComponent.name as string,
       type: editingComponent.type as "earning" | "deduction",
-      calculationType: editingComponent.calculationType as "fixed" | "percentage",
+      calculationType: editingComponent.calculationType as
+        | "fixed"
+        | "percentage",
       isTaxable: editingComponent.isTaxable as boolean,
       isStatutory: editingComponent.isStatutory as boolean,
       sortOrder: (editingComponent.sortOrder as number) ?? 0,
@@ -93,7 +101,12 @@ export function SalaryComponentSheetRoute({ mode }: SalaryComponentSheetRoutePro
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save salary component. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save salary component. Please try again.",
+        ),
+      );
     }
   }
 
@@ -101,7 +114,7 @@ export function SalaryComponentSheetRoute({ mode }: SalaryComponentSheetRoutePro
   const description =
     mode === "create"
       ? "Define an earning or deduction component."
-      : (editingComponent?.name as string) ?? "Edit this salary component.";
+      : ((editingComponent?.name as string) ?? "Edit this salary component.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

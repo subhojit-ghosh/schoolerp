@@ -85,7 +85,14 @@ export function AcademicYearSheetRoute({ mode }: AcademicYearSheetRouteProps) {
 
       void navigate(appendSearch(ERP_ROUTES.ACADEMIC_YEARS, location.search));
     } catch (error) {
-      toast.error(extractApiError(error, mode === "create" ? "Could not create academic year. Please try again." : "Could not update academic year. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          mode === "create"
+            ? "Could not create academic year. Please try again."
+            : "Could not update academic year. Please try again.",
+        ),
+      );
     }
   }
 

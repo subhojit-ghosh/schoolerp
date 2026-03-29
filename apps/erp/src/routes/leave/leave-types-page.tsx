@@ -49,10 +49,17 @@ export function LeaveTypesPage() {
         body: { status: newStatus },
       });
       toast.success(
-        newStatus === "active" ? "Leave type activated." : "Leave type deactivated.",
+        newStatus === "active"
+          ? "Leave type activated."
+          : "Leave type deactivated.",
       );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update leave type status. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not update leave type status. Please try again.",
+        ),
+      );
     }
   }
 

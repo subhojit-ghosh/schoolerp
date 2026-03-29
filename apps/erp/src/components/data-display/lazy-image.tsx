@@ -8,11 +8,6 @@ type LazyImageProps = Omit<
 
 export function LazyImage({ className, ...props }: LazyImageProps) {
   return (
-    <img
-      loading="lazy"
-      decoding="async"
-      className={cn(className)}
-      {...props}
-    />
+    <img loading="lazy" decoding="async" className={cn(className)} {...props} />
   );
 }

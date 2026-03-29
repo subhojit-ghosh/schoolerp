@@ -34,20 +34,17 @@ export function HostelAllocationSheetRoute() {
   );
 
   const roomsData = roomsQuery.data;
-  const roomOptions = useMemo(
-    () => roomsData?.rows ?? [],
-    [roomsData?.rows],
-  );
+  const roomOptions = useMemo(() => roomsData?.rows ?? [], [roomsData?.rows]);
 
   const studentsData = studentsQuery.data;
   const studentOptions = useMemo(
-    () =>
-      (studentsData ?? []).map((s) => ({ id: s.id, name: s.fullName })),
+    () => (studentsData ?? []).map((s) => ({ id: s.id, name: s.fullName })),
     [studentsData],
   );
 
   const isPending = createMutation.isPending;
-  const errorMessage = (createMutation.error as Error | null | undefined)?.message ?? undefined;
+  const errorMessage =
+    (createMutation.error as Error | null | undefined)?.message ?? undefined;
 
   async function handleSubmit(values: AllocationFormValues) {
     try {
@@ -62,7 +59,12 @@ export function HostelAllocationSheetRoute() {
       toast.success("Bed allocation created.");
       void navigate(closeTo);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not create bed allocation. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not create bed allocation. Please try again.",
+        ),
+      );
     }
   }
 

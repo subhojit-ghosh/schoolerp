@@ -17,9 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
-import {
-  useCreateAcademicYearMutation,
-} from "@/features/academic-years/api/use-academic-years";
+import { useCreateAcademicYearMutation } from "@/features/academic-years/api/use-academic-years";
 import {
   ACADEMIC_YEAR_FORM_DEFAULT_VALUES,
   type AcademicYearFormValues,
@@ -116,7 +114,12 @@ export function SetupWizardPage() {
       toast.success("Academic year created");
       setStep("first-class");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not create academic year. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not create academic year. Please try again.",
+        ),
+      );
     }
   }
 
@@ -126,7 +129,9 @@ export function SetupWizardPage() {
       toast.success("Class created");
       setStep("done");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not create class. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not create class. Please try again."),
+      );
     }
   }
 
@@ -192,12 +197,8 @@ export function SetupWizardPage() {
                   isCurrent: true,
                 }}
                 errorMessage={
-                  (
-                    createAcademicYearMutation.error as
-                      | Error
-                      | null
-                      | undefined
-                  )?.message
+                  (createAcademicYearMutation.error as Error | null | undefined)
+                    ?.message
                 }
                 isPending={createAcademicYearMutation.isPending}
                 onSubmit={handleAcademicYearSubmit}
@@ -289,9 +290,9 @@ export function SetupWizardPage() {
                   Setup complete
                 </h2>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                  You can now start adding students, recording attendance, setting
-                  up fees, and running exams. Visit Settings anytime to configure
-                  branding and delivery.
+                  You can now start adding students, recording attendance,
+                  setting up fees, and running exams. Visit Settings anytime to
+                  configure branding and delivery.
                 </p>
               </div>
               <Button

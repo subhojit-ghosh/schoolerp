@@ -118,7 +118,12 @@ export function HostelRoomsPage() {
           newStatus === "active" ? "Room activated." : "Room deactivated.",
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update room status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update room status. Please try again.",
+          ),
+        );
       }
     },
     [statusMutation],
@@ -178,7 +183,8 @@ export function HostelRoomsPage() {
         header: "Type",
         cell: ({ row }) => (
           <Badge variant="outline">
-            {HOSTEL_ROOM_TYPE_LABELS[row.original.roomType] ?? row.original.roomType}
+            {HOSTEL_ROOM_TYPE_LABELS[row.original.roomType] ??
+              row.original.roomType}
           </Badge>
         ),
       }),
@@ -251,7 +257,14 @@ export function HostelRoomsPage() {
         },
       }),
     ],
-    [canManage, handleToggleStatus, location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManage,
+      handleToggleStatus,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -277,10 +290,7 @@ export function HostelRoomsPage() {
         canManage ? (
           <EntityPagePrimaryAction asChild>
             <Link
-              to={appendSearch(
-                ERP_ROUTES.HOSTEL_ROOM_CREATE,
-                location.search,
-              )}
+              to={appendSearch(ERP_ROUTES.HOSTEL_ROOM_CREATE, location.search)}
             >
               <IconPlus className="size-4" />
               New room
@@ -324,9 +334,7 @@ export function HostelRoomsPage() {
             : ROOMS_PAGE_COPY.EMPTY_DESCRIPTION
         }
         emptyTitle={
-          queryState.search
-            ? "No matching rooms"
-            : ROOMS_PAGE_COPY.EMPTY_TITLE
+          queryState.search ? "No matching rooms" : ROOMS_PAGE_COPY.EMPTY_TITLE
         }
         errorTitle="Failed to load rooms"
         isLoading={roomsQuery.isLoading}

@@ -7,7 +7,11 @@ import {
 } from "@/features/documents/ui/print-document-shell";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useStudentSummaryQuery } from "@/features/students/api/use-students";
-import { formatAcademicYear, formatNameWithHonorific, formatPhone } from "@/lib/format";
+import {
+  formatAcademicYear,
+  formatNameWithHonorific,
+  formatPhone,
+} from "@/lib/format";
 
 export function StudentIdCardPage() {
   useDocumentTitle("Student ID Card");
@@ -34,14 +38,16 @@ export function StudentIdCardPage() {
     );
   }
 
-  const primaryGuardian = student.guardians?.find(
-    (g: { isPrimary: boolean }) => g.isPrimary,
-  ) ?? student.guardians?.[0];
+  const primaryGuardian =
+    student.guardians?.find((g: { isPrimary: boolean }) => g.isPrimary) ??
+    student.guardians?.[0];
 
   return (
     <PrintDocumentShell
       backHref={`/students/${studentId}`}
-      subtitle={student.admissionNumber ? `Adm. No. ${student.admissionNumber}` : ""}
+      subtitle={
+        student.admissionNumber ? `Adm. No. ${student.admissionNumber}` : ""
+      }
       title={DOCUMENT_TITLES.STUDENT_ID_CARD}
     >
       <div className="space-y-6 print:space-y-3">
@@ -61,7 +67,9 @@ export function StudentIdCardPage() {
               />
               <PrintDetailItem
                 label="Academic Year"
-                value={formatAcademicYear(student.currentEnrollment.academicYearName)}
+                value={formatAcademicYear(
+                  student.currentEnrollment.academicYearName,
+                )}
               />
             </>
           ) : (
@@ -75,7 +83,10 @@ export function StudentIdCardPage() {
             <>
               <PrintDetailItem
                 label="Guardian Name"
-                value={formatNameWithHonorific(primaryGuardian.name, (primaryGuardian as { honorific?: string | null }).honorific)}
+                value={formatNameWithHonorific(
+                  primaryGuardian.name,
+                  (primaryGuardian as { honorific?: string | null }).honorific,
+                )}
               />
               <PrintDetailItem
                 label="Guardian Mobile"

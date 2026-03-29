@@ -37,9 +37,13 @@ export function CampusSheetRoute() {
         body: toCampusMutationBody(values),
       });
       toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.CAMPUS));
-      void navigate(appendSearch(ERP_ROUTES.SETTINGS_CAMPUSES, location.search));
+      void navigate(
+        appendSearch(ERP_ROUTES.SETTINGS_CAMPUSES, location.search),
+      );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not create campus. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not create campus. Please try again."),
+      );
     }
   }
 

@@ -21,7 +21,9 @@ type HostelBuildingSheetRouteProps = {
   mode: "create" | "edit";
 };
 
-export function HostelBuildingSheetRoute({ mode }: HostelBuildingSheetRouteProps) {
+export function HostelBuildingSheetRoute({
+  mode,
+}: HostelBuildingSheetRouteProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { buildingId } = useParams();
@@ -37,7 +39,9 @@ export function HostelBuildingSheetRoute({ mode }: HostelBuildingSheetRouteProps
     [location.search],
   );
 
-  const rows = (buildingsQuery.data as { rows?: unknown[] } | undefined)?.rows ?? buildingsQuery.data;
+  const rows =
+    (buildingsQuery.data as { rows?: unknown[] } | undefined)?.rows ??
+    buildingsQuery.data;
   const editingBuilding = Array.isArray(rows)
     ? (rows as Array<Record<string, unknown>>).find((c) => c.id === buildingId)
     : undefined;
@@ -48,7 +52,8 @@ export function HostelBuildingSheetRoute({ mode }: HostelBuildingSheetRouteProps
     }
     return {
       name: editingBuilding.name as string,
-      buildingType: editingBuilding.buildingType as BuildingFormValues["buildingType"],
+      buildingType:
+        editingBuilding.buildingType as BuildingFormValues["buildingType"],
       campusId: (editingBuilding.campusId as string) ?? "",
       wardenMembershipId: (editingBuilding.wardenMembershipId as string) ?? "",
       capacity: (editingBuilding.capacity as number) ?? 0,
@@ -93,7 +98,9 @@ export function HostelBuildingSheetRoute({ mode }: HostelBuildingSheetRouteProps
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save building. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not save building. Please try again."),
+      );
     }
   }
 
@@ -101,7 +108,7 @@ export function HostelBuildingSheetRoute({ mode }: HostelBuildingSheetRouteProps
   const description =
     mode === "create"
       ? "Add a new hostel building."
-      : (editingBuilding?.name as string) ?? "Edit this building.";
+      : ((editingBuilding?.name as string) ?? "Edit this building.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

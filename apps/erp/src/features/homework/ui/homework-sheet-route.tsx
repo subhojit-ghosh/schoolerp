@@ -50,14 +50,12 @@ export function HomeworkSheetRoute({ mode }: HomeworkSheetRouteProps) {
       subjectId: detailQuery.data.subjectId,
       title: detailQuery.data.title,
       description: detailQuery.data.description ?? "",
-      attachmentInstructions:
-        detailQuery.data.attachmentInstructions ?? "",
+      attachmentInstructions: detailQuery.data.attachmentInstructions ?? "",
       dueDate: detailQuery.data.dueDate,
     };
   }, [detailQuery.data, mode]);
 
-  const isPending =
-    createMutation.isPending || updateMutation.isPending;
+  const isPending = createMutation.isPending || updateMutation.isPending;
   const errorMessage =
     (createMutation.error as Error | null | undefined)?.message ??
     (updateMutation.error as Error | null | undefined)?.message ??
@@ -73,8 +71,7 @@ export function HomeworkSheetRoute({ mode }: HomeworkSheetRouteProps) {
             subjectId: values.subjectId,
             title: values.title,
             description: values.description || undefined,
-            attachmentInstructions:
-              values.attachmentInstructions || undefined,
+            attachmentInstructions: values.attachmentInstructions || undefined,
             dueDate: values.dueDate,
           },
         });
@@ -88,8 +85,7 @@ export function HomeworkSheetRoute({ mode }: HomeworkSheetRouteProps) {
             subjectId: values.subjectId,
             title: values.title,
             description: values.description || null,
-            attachmentInstructions:
-              values.attachmentInstructions || null,
+            attachmentInstructions: values.attachmentInstructions || null,
             dueDate: values.dueDate,
           },
         });

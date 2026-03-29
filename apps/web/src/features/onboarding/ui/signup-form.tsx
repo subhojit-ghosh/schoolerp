@@ -207,7 +207,8 @@ export function SignupForm() {
       <CardHeader>
         <CardTitle>Create school</CardTitle>
         <CardDescription>
-          Set up your institution, default campus, and admin account in one step.
+          Set up your institution, default campus, and admin account in one
+          step.
         </CardDescription>
       </CardHeader>
       <CardContent>

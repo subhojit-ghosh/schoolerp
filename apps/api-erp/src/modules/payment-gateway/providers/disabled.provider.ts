@@ -14,6 +14,7 @@ import type {
 export class DisabledProvider implements PaymentGatewayProvider {
   readonly provider = "disabled" as const;
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async createOrder(_input: CreateOrderInput): Promise<CreateOrderResult> {
     throw new Error(
       "Online payment is not configured for this institution. " +
@@ -21,12 +22,14 @@ export class DisabledProvider implements PaymentGatewayProvider {
     );
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async verifyPayment(
     _input: VerifyPaymentInput,
   ): Promise<VerifyPaymentResult> {
     throw new Error("Online payment is not configured for this institution.");
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async parseWebhookEvent(
     _payload: Buffer,
     _signature: string,

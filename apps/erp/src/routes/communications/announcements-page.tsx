@@ -133,7 +133,12 @@ export function AnnouncementsPage() {
         });
         toast.success("Announcement published.");
       } catch (error) {
-        toast.error(extractApiError(error, "Could not publish announcement. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not publish announcement. Please try again.",
+          ),
+        );
       }
     },
     [publishAnnouncementMutation],
@@ -161,7 +166,12 @@ export function AnnouncementsPage() {
             : "Announcement moved back to draft.",
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update announcement status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update announcement status. Please try again.",
+          ),
+        );
       }
     },
     [setAnnouncementStatusMutation],

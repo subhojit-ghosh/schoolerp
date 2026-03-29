@@ -161,7 +161,10 @@ export function FeeAssignmentSheetRoute({
       void navigate(appendSearch(ERP_ROUTES.FEE_ASSIGNMENTS, location.search));
     } catch (error) {
       toast.error(
-        extractApiError(error, "Could not save fee assignment. Please try again."),
+        extractApiError(
+          error,
+          "Could not save fee assignment. Please try again.",
+        ),
       );
     }
   }

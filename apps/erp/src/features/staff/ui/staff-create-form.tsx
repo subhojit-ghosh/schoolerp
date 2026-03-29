@@ -290,13 +290,17 @@ export function StaffCreateForm({
 
           <TabsContent value="employment">
             <div className="pt-6">
-              <StaffEmploymentFields control={control as unknown as Control<StaffFormValues>} />
+              <StaffEmploymentFields
+                control={control as unknown as Control<StaffFormValues>}
+              />
             </div>
           </TabsContent>
 
           <TabsContent value="personal">
             <div className="pt-6">
-              <StaffPersonalFields control={control as unknown as Control<StaffFormValues>} />
+              <StaffPersonalFields
+                control={control as unknown as Control<StaffFormValues>}
+              />
             </div>
           </TabsContent>
         </Tabs>

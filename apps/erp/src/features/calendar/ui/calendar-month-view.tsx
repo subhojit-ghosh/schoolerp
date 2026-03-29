@@ -134,9 +134,7 @@ function buildMonthGrid(year: number, month: number): DayCell[] {
 }
 
 function getEventTypeLabel(eventType: string): string {
-  const option = CALENDAR_EVENT_TYPE_OPTIONS.find(
-    (o) => o.value === eventType,
-  );
+  const option = CALENDAR_EVENT_TYPE_OPTIONS.find((o) => o.value === eventType);
   return option?.label ?? eventType;
 }
 
@@ -285,7 +283,8 @@ export function CalendarMonthView({
                   "group relative min-h-[88px] border-b border-r border-border/40 p-1.5 text-left transition-colors hover:bg-accent/30",
                   cell.isWeekend && "bg-muted/20",
                   !cell.isCurrentMonth && "bg-muted/10",
-                  isSelected && "bg-accent/40 ring-1 ring-inset ring-primary/30",
+                  isSelected &&
+                    "bg-accent/40 ring-1 ring-inset ring-primary/30",
                 )}
                 key={cell.dateKey}
                 onClick={() => setSelectedDate(cell.dateKey)}
@@ -298,9 +297,7 @@ export function CalendarMonthView({
                     cell.isToday &&
                       "bg-primary text-primary-foreground font-semibold",
                     !cell.isCurrentMonth && "text-muted-foreground/40",
-                    cell.isCurrentMonth &&
-                      !cell.isToday &&
-                      "text-foreground",
+                    cell.isCurrentMonth && !cell.isToday && "text-foreground",
                   )}
                 >
                   {cell.dayOfMonth}
@@ -312,8 +309,7 @@ export function CalendarMonthView({
                     <div
                       className={cn(
                         "flex items-center gap-1 rounded px-1 py-0.5 text-[10px] leading-tight",
-                        EVENT_TYPE_BG_COLORS[event.eventType] ??
-                          "bg-muted",
+                        EVENT_TYPE_BG_COLORS[event.eventType] ?? "bg-muted",
                         EVENT_TYPE_TEXT_COLORS[event.eventType] ??
                           "text-foreground",
                         event.status === "inactive" && "opacity-50",

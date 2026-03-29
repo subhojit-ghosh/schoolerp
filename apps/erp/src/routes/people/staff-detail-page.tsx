@@ -1,10 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import {
-  IconCertificate,
-  IconHistory,
-} from "@tabler/icons-react";
+import { IconCertificate, IconHistory } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -120,7 +117,8 @@ export function StaffDetailPage() {
     const profile = staffRecord.profile;
 
     return {
-      honorific: ((staffRecord as { honorific?: string | null }).honorific ?? "") as StaffFormValues["honorific"],
+      honorific: ((staffRecord as { honorific?: string | null }).honorific ??
+        "") as StaffFormValues["honorific"],
       name: staffRecord.name,
       mobile: staffRecord.mobile,
       email: staffRecord.email ?? "",
@@ -162,9 +160,16 @@ export function StaffDetailPage() {
         body: values as any,
       });
 
-      toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_RECORD));
+      toast.success(
+        ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_RECORD),
+      );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update staff record. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not update staff record. Please try again.",
+        ),
+      );
     }
   }
 
@@ -190,7 +195,12 @@ export function StaffDetailPage() {
 
       toast.success("Role assignment added.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not add role assignment. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not add role assignment. Please try again.",
+        ),
+      );
     }
   }
 
@@ -211,7 +221,12 @@ export function StaffDetailPage() {
 
       toast.success("Role assignment removed.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not remove role assignment. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not remove role assignment. Please try again.",
+        ),
+      );
     }
   }
 
@@ -232,7 +247,9 @@ export function StaffDetailPage() {
       setResetPasswordOpen(false);
       toast.success("Password reset successfully.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not reset password. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not reset password. Please try again."),
+      );
     }
   }
 
@@ -256,7 +273,12 @@ export function StaffDetailPage() {
 
       toast.success("Subject assignment added.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not add subject assignment. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not add subject assignment. Please try again.",
+        ),
+      );
     }
   }
 
@@ -277,7 +299,12 @@ export function StaffDetailPage() {
 
       toast.success("Subject assignment removed.");
     } catch (error) {
-      toast.error(extractApiError(error, "Could not remove subject assignment. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not remove subject assignment. Please try again.",
+        ),
+      );
     }
   }
 
@@ -335,7 +362,10 @@ export function StaffDetailPage() {
         <CardContent>
           <Breadcrumbs
             items={[
-              { label: "Staff", href: appendSearch(ERP_ROUTES.STAFF, location.search) },
+              {
+                label: "Staff",
+                href: appendSearch(ERP_ROUTES.STAFF, location.search),
+              },
               { label: "Not found" },
             ]}
           />
@@ -357,10 +387,7 @@ export function StaffDetailPage() {
           <div className="flex gap-2">
             {staffId ? (
               <Button asChild variant="outline">
-                <Link
-                  to={buildStaffIdCardRoute(staffId)}
-                  target="_blank"
-                >
+                <Link to={buildStaffIdCardRoute(staffId)} target="_blank">
                   <IconCertificate className="size-4" />
                   ID Card
                 </Link>
@@ -399,7 +426,10 @@ export function StaffDetailPage() {
         backAction={
           <Breadcrumbs
             items={[
-              { label: "Staff", href: appendSearch(ERP_ROUTES.STAFF, location.search) },
+              {
+                label: "Staff",
+                href: appendSearch(ERP_ROUTES.STAFF, location.search),
+              },
               { label: staffDisplayName },
             ]}
           />

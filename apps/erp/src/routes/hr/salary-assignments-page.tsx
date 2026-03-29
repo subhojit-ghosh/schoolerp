@@ -173,9 +173,7 @@ export function SalaryAssignmentsPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() =>
-              setSorting(SALARY_ASSIGNMENT_LIST_SORT_FIELDS.CTC)
-            }
+            onClick={() => setSorting(SALARY_ASSIGNMENT_LIST_SORT_FIELDS.CTC)}
             type="button"
           >
             CTC

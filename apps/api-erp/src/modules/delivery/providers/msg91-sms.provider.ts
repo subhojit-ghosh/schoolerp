@@ -21,24 +21,21 @@ export class Msg91SmsProvider implements SmsDeliveryProvider {
     const { authKey, senderId, templateId } = this.credentials;
 
     try {
-      const response = await fetch(
-        "https://control.msg91.com/api/v5/flow/",
-        {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-            authkey: authKey,
-          },
-          body: JSON.stringify({
-            template_id: templateId,
-            sender: senderId,
-            short_url: "0",
-            mobiles: message.to,
-            VAR1: message.text,
-          }),
-          signal: AbortSignal.timeout(DELIVERY_TIMEOUT_MS),
+      const response = await fetch("https://control.msg91.com/api/v5/flow/", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authkey: authKey,
         },
-      );
+        body: JSON.stringify({
+          template_id: templateId,
+          sender: senderId,
+          short_url: "0",
+          mobiles: message.to,
+          VAR1: message.text,
+        }),
+        signal: AbortSignal.timeout(DELIVERY_TIMEOUT_MS),
+      });
 
       if (!response.ok) {
         const body = await response.text().catch(() => "");

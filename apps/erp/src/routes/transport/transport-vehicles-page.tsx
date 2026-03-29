@@ -29,10 +29,7 @@ import {
 } from "@/components/data-display/server-data-table";
 import { StatusBadge } from "@/components/data-display/status-badge";
 import { PERMISSIONS } from "@repo/contracts";
-import {
-  ERP_ROUTES,
-  buildTransportVehicleEditRoute,
-} from "@/constants/routes";
+import { ERP_ROUTES, buildTransportVehicleEditRoute } from "@/constants/routes";
 import { SORT_ORDERS } from "@/constants/query";
 import { hasPermission } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -115,7 +112,12 @@ export function TransportVehiclesPage() {
         newStatus === "active" ? "Vehicle activated." : "Vehicle deactivated.",
       );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update vehicle status. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not update vehicle status. Please try again.",
+        ),
+      );
     }
   }
 
@@ -140,7 +142,9 @@ export function TransportVehiclesPage() {
         ),
         cell: ({ row }) => (
           <div className="min-w-0 space-y-0.5">
-            <p className="text-sm font-medium">{row.original.registrationNumber}</p>
+            <p className="text-sm font-medium">
+              {row.original.registrationNumber}
+            </p>
             {row.original.driverName ? (
               <p className="text-xs text-muted-foreground">
                 Driver: {row.original.driverName}
@@ -222,7 +226,13 @@ export function TransportVehiclesPage() {
           ) : null,
       }),
     ],
-    [canManage, location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManage,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -238,7 +248,8 @@ export function TransportVehiclesPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (vehiclesQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (vehiclesQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <>
@@ -295,7 +306,9 @@ export function TransportVehiclesPage() {
               ? "No vehicles match your search."
               : "Add vehicles to manage your transport fleet."
           }
-          emptyTitle={queryState.search ? "No vehicles found" : "No vehicles yet"}
+          emptyTitle={
+            queryState.search ? "No vehicles found" : "No vehicles yet"
+          }
           errorTitle="Failed to load vehicles"
           isLoading={vehiclesQuery.isLoading}
           isError={Boolean(errorMessage)}

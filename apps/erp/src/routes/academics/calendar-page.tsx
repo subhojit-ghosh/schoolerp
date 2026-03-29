@@ -186,7 +186,12 @@ export function CalendarPage() {
             : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.CALENDAR_EVENT),
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update calendar event status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update calendar event status. Please try again.",
+          ),
+        );
       }
     },
     [institutionId, setStatusMutation],
@@ -407,7 +412,12 @@ export function CalendarPage() {
       );
       setDeleteTarget(null);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not delete calendar event. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not delete calendar event. Please try again.",
+        ),
+      );
     }
   }
 

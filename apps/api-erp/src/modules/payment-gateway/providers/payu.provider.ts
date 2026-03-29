@@ -29,6 +29,7 @@ export class PayUProvider implements PaymentGatewayProvider {
         : "https://test.payu.in/_payment";
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async createOrder(input: CreateOrderInput): Promise<CreateOrderResult> {
     // PayU uses a hash-based form POST, not an API call
     const txnId = input.internalOrderId;
@@ -76,9 +77,8 @@ export class PayUProvider implements PaymentGatewayProvider {
     };
   }
 
-  async verifyPayment(
-    input: VerifyPaymentInput,
-  ): Promise<VerifyPaymentResult> {
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async verifyPayment(input: VerifyPaymentInput): Promise<VerifyPaymentResult> {
     // PayU reverse hash for success verification
     // Reverse hash: salt|status||||||udf5|udf4|udf3|udf2|udf1|email|firstname|productinfo|amount|txnid|key
     // We don't have all params at this point — trust the webhook for production,
@@ -86,6 +86,7 @@ export class PayUProvider implements PaymentGatewayProvider {
     return { success: true, externalPaymentId: input.externalPaymentId };
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async parseWebhookEvent(
     payload: Buffer,
     _signature: string,

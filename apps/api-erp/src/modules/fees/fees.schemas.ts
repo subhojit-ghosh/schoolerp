@@ -313,8 +313,6 @@ export function parseCollectionSummaryQuery(
   return parseWithBadRequest(collectionSummaryQuerySchema, query);
 }
 
-export function parseFeeDefaulterQuery(
-  query: unknown,
-): FeeDefaulterQueryInput {
+export function parseFeeDefaulterQuery(query: unknown): FeeDefaulterQueryInput {
   return parseWithBadRequest(feeDefaulterQuerySchema, query);
 }

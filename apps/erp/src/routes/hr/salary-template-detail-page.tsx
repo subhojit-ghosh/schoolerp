@@ -2,7 +2,11 @@ import { useMemo } from "react";
 import { Link, useParams } from "react-router";
 import { toast } from "sonner";
 import { extractApiError } from "@/lib/api-error";
-import { IconPencil, IconToggleLeft, IconToggleRight } from "@tabler/icons-react";
+import {
+  IconPencil,
+  IconToggleLeft,
+  IconToggleRight,
+} from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
 import {
@@ -27,7 +31,10 @@ import {
   useSalaryTemplateDetailQuery,
   useUpdateSalaryTemplateStatusMutation,
 } from "@/features/payroll/api/use-payroll";
-import { formatPaiseToRupees, formatBasisPointsToPercent } from "@/features/payroll/model/payroll-formatters";
+import {
+  formatPaiseToRupees,
+  formatBasisPointsToPercent,
+} from "@/features/payroll/model/payroll-formatters";
 
 type TemplateComponent = {
   id: string;
@@ -83,7 +90,12 @@ export function SalaryTemplateDetailPage() {
           : "Salary template archived.",
       );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not update salary template status. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not update salary template status. Please try again.",
+        ),
+      );
     }
   }
 
@@ -116,7 +128,10 @@ export function SalaryTemplateDetailPage() {
         backAction={
           <Breadcrumbs
             items={[
-              { label: "Salary Templates", href: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES },
+              {
+                label: "Salary Templates",
+                href: ERP_ROUTES.PAYROLL_SALARY_TEMPLATES,
+              },
               { label: template.name },
             ]}
           />

@@ -24,21 +24,30 @@ export type LibraryTransactionsQuery = {
 
 function invalidateBookQueries(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    queryKey: apiQueryClient.queryOptions("get", LIBRARY_API_PATHS.LIST_BOOKS, { params: { query: {} as any } })
-      .queryKey,
+    queryKey: apiQueryClient.queryOptions("get", LIBRARY_API_PATHS.LIST_BOOKS, {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      params: { query: {} as any },
+    }).queryKey,
   });
 }
 
-function invalidateTransactionQueries(queryClient: ReturnType<typeof useQueryClient>) {
+function invalidateTransactionQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
   void queryClient.invalidateQueries({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    queryKey: apiQueryClient.queryOptions("get", LIBRARY_API_PATHS.LIST_TRANSACTIONS, { params: { query: {} as any } })
-      .queryKey,
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      LIBRARY_API_PATHS.LIST_TRANSACTIONS,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { params: { query: {} as any } },
+    ).queryKey,
   });
 }
 
-export function useLibraryBooksQuery(enabled: boolean, query: LibraryBooksQuery = {}) {
+export function useLibraryBooksQuery(
+  enabled: boolean,
+  query: LibraryBooksQuery = {},
+) {
   return apiQueryClient.useQuery(
     "get",
     LIBRARY_API_PATHS.LIST_BOOKS,

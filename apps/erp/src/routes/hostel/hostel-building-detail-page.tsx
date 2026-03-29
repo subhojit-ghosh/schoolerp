@@ -65,17 +65,14 @@ export function HostelBuildingDetailPage() {
     validSorts: VALID_SORT_FIELDS,
   });
 
-  const roomsQuery = useRoomsQuery(
-    canRead && Boolean(buildingId),
-    {
-      buildingId,
-      limit: queryState.pageSize,
-      order: queryState.sortOrder,
-      page: queryState.page,
-      q: queryState.search || undefined,
-      sort: queryState.sortBy,
-    },
-  );
+  const roomsQuery = useRoomsQuery(canRead && Boolean(buildingId), {
+    buildingId,
+    limit: queryState.pageSize,
+    order: queryState.sortOrder,
+    page: queryState.page,
+    q: queryState.search || undefined,
+    sort: queryState.sortBy,
+  });
 
   const roomsData = roomsQuery.data;
   const rooms = useMemo(
@@ -116,9 +113,7 @@ export function HostelBuildingDetailPage() {
             Floor
             <SortIcon
               direction={
-                queryState.sortBy === "floor"
-                  ? queryState.sortOrder
-                  : false
+                queryState.sortBy === "floor" ? queryState.sortOrder : false
               }
             />
           </button>
@@ -131,7 +126,8 @@ export function HostelBuildingDetailPage() {
         header: "Type",
         cell: ({ row }) => (
           <Badge variant="outline">
-            {HOSTEL_ROOM_TYPE_LABELS[row.original.roomType] ?? row.original.roomType}
+            {HOSTEL_ROOM_TYPE_LABELS[row.original.roomType] ??
+              row.original.roomType}
           </Badge>
         ),
       }),
@@ -186,7 +182,9 @@ export function HostelBuildingDetailPage() {
         </h1>
         {buildingData ? (
           <p className="text-sm text-muted-foreground">
-            {HOSTEL_BUILDING_TYPE_LABELS[buildingData.buildingType] ?? buildingData.buildingType} | Capacity: {buildingData.capacity}
+            {HOSTEL_BUILDING_TYPE_LABELS[buildingData.buildingType] ??
+              buildingData.buildingType}{" "}
+            | Capacity: {buildingData.capacity}
             {buildingData.description ? ` | ${buildingData.description}` : ""}
           </p>
         ) : null}

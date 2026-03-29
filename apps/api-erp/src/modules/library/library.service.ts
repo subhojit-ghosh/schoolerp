@@ -73,7 +73,9 @@ export class LibraryService {
 
     const filters = [
       eq(libraryBooks.institutionId, institutionId),
-      ...(query.status ? [eq(libraryBooks.status, query.status)] : [ne(libraryBooks.status, "inactive")]),
+      ...(query.status
+        ? [eq(libraryBooks.status, query.status)]
+        : [ne(libraryBooks.status, "inactive")]),
       ...(query.q
         ? [
             or(
@@ -160,7 +162,12 @@ export class LibraryService {
     const [existing] = await this.db
       .select()
       .from(libraryBooks)
-      .where(and(eq(libraryBooks.id, bookId), eq(libraryBooks.institutionId, institutionId)));
+      .where(
+        and(
+          eq(libraryBooks.id, bookId),
+          eq(libraryBooks.institutionId, institutionId),
+        ),
+      );
 
     if (!existing) {
       throw new NotFoundException(ERROR_MESSAGES.LIBRARY.BOOK_NOT_FOUND);
@@ -179,7 +186,8 @@ export class LibraryService {
         title: dto.title ?? existing.title,
         author: dto.author !== undefined ? dto.author : existing.author,
         isbn: dto.isbn !== undefined ? dto.isbn : existing.isbn,
-        publisher: dto.publisher !== undefined ? dto.publisher : existing.publisher,
+        publisher:
+          dto.publisher !== undefined ? dto.publisher : existing.publisher,
         genre: dto.genre !== undefined ? dto.genre : existing.genre,
         totalCopies: dto.totalCopies ?? existing.totalCopies,
         availableCopies: newAvailableCopies,
@@ -202,7 +210,10 @@ export class LibraryService {
 
   // ── Transactions ──────────────────────────────────────────────────────────
 
-  async listTransactions(institutionId: string, query: ListTransactionsQueryDto) {
+  async listTransactions(
+    institutionId: string,
+    query: ListTransactionsQueryDto,
+  ) {
     const page = query.page ?? 1;
     const pageSize = resolveTablePageSize(query.limit);
     const sortField = query.sort ?? "issuedAt";
@@ -213,7 +224,9 @@ export class LibraryService {
     const filters = [
       eq(libraryTransactions.institutionId, institutionId),
       ...(query.status ? [eq(libraryTransactions.status, query.status)] : []),
-      ...(query.memberId ? [eq(libraryTransactions.memberId, query.memberId)] : []),
+      ...(query.memberId
+        ? [eq(libraryTransactions.memberId, query.memberId)]
+        : []),
       ...(query.bookId ? [eq(libraryTransactions.bookId, query.bookId)] : []),
       ...(query.q
         ? [
@@ -257,7 +270,10 @@ export class LibraryService {
       .innerJoin(libraryBooks, eq(libraryTransactions.bookId, libraryBooks.id))
       .innerJoin(bookMember, eq(libraryTransactions.memberId, bookMember.id))
       .innerJoin(bookUser, eq(bookMember.userId, bookUser.id))
-      .leftJoin(staffProfiles, eq(staffProfiles.membershipId, libraryTransactions.memberId))
+      .leftJoin(
+        staffProfiles,
+        eq(staffProfiles.membershipId, libraryTransactions.memberId),
+      )
       .where(and(...filters))
       .orderBy(orderFn(sortCol))
       .limit(pageSize)
@@ -277,7 +293,7 @@ export class LibraryService {
         returnedAt: r.returnedAt?.toISOString() ?? null,
         fineAmount: r.fineAmount,
         finePaid: r.finePaid,
-        status: r.status as "issued" | "returned" | "overdue",
+        status: r.status,
         createdAt: r.createdAt.toISOString(),
       })),
       total,
@@ -296,7 +312,12 @@ export class LibraryService {
     const [book] = await this.db
       .select()
       .from(libraryBooks)
-      .where(and(eq(libraryBooks.id, dto.bookId), eq(libraryBooks.institutionId, institutionId)));
+      .where(
+        and(
+          eq(libraryBooks.id, dto.bookId),
+          eq(libraryBooks.institutionId, institutionId),
+        ),
+      );
 
     if (!book) {
       throw new NotFoundException(ERROR_MESSAGES.LIBRARY.BOOK_NOT_FOUND);
@@ -312,7 +333,12 @@ export class LibraryService {
     const [memberRecord] = await this.db
       .select({ id: member.id })
       .from(member)
-      .where(and(eq(member.id, dto.memberId), eq(member.organizationId, institutionId)));
+      .where(
+        and(
+          eq(member.id, dto.memberId),
+          eq(member.organizationId, institutionId),
+        ),
+      );
 
     if (!memberRecord) {
       throw new NotFoundException(ERROR_MESSAGES.LIBRARY.MEMBER_NOT_FOUND);

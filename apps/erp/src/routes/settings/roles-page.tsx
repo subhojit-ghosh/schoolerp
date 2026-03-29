@@ -115,7 +115,9 @@ export function RolesPage() {
       toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.ROLE));
       setDeleteDialog(null);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not delete role. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not delete role. Please try again."),
+      );
     }
   }
 

@@ -201,15 +201,17 @@ export class ClassesService {
       );
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.CREATE,
-      entityType: AUDIT_ENTITY_TYPES.CLASS,
-      entityId: createdClassId,
-      entityLabel: payload.name.trim(),
-      summary: `Created class ${payload.name.trim()}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.CLASS,
+        entityId: createdClassId,
+        entityLabel: payload.name.trim(),
+        summary: `Created class ${payload.name.trim()}.`,
+      })
+      .catch(() => {});
 
     return this.getClass(institutionId, createdClassId, authSession, scopes);
   }
@@ -339,15 +341,17 @@ export class ClassesService {
       }
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.UPDATE,
-      entityType: AUDIT_ENTITY_TYPES.CLASS,
-      entityId: classId,
-      entityLabel: payload.name.trim(),
-      summary: `Updated class ${payload.name.trim()}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.CLASS,
+        entityId: classId,
+        entityLabel: payload.name.trim(),
+        summary: `Updated class ${payload.name.trim()}.`,
+      })
+      .catch(() => {});
 
     return this.getClass(institutionId, classId, authSession, scopes);
   }
@@ -398,15 +402,17 @@ export class ClassesService {
         ),
       );
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.DELETE,
-      entityType: AUDIT_ENTITY_TYPES.CLASS,
-      entityId: classId,
-      entityLabel: classId,
-      summary: `Deleted class ${classId}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.DELETE,
+        entityType: AUDIT_ENTITY_TYPES.CLASS,
+        entityId: classId,
+        entityLabel: classId,
+        summary: `Deleted class ${classId}.`,
+      })
+      .catch(() => {});
   }
 
   private async listClassesForInstitution(

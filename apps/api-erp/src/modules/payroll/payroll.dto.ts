@@ -81,7 +81,10 @@ export class ListSalaryComponentsQueryParamsDto {
   page?: number;
   limit?: number;
 
-  @ApiProperty({ enum: ["name", "type", "sortOrder", "createdAt"], required: false })
+  @ApiProperty({
+    enum: ["name", "type", "sortOrder", "createdAt"],
+    required: false,
+  })
   sort?: "name" | "type" | "sortOrder" | "createdAt";
 
   @ApiProperty({ enum: ["asc", "desc"], required: false })
@@ -193,14 +196,20 @@ export class CreateSalaryAssignmentBodyDto {
   staffProfileId!: string;
   salaryTemplateId!: string;
   effectiveFrom!: string;
-  overrides?: Record<string, { amountInPaise?: number | null; percentage?: number | null }>;
+  overrides?: Record<
+    string,
+    { amountInPaise?: number | null; percentage?: number | null }
+  >;
 }
 
 export class UpdateSalaryAssignmentBodyDto {
   effectiveFrom?: string;
 
   @ApiProperty({ nullable: true })
-  overrides?: Record<string, { amountInPaise?: number | null; percentage?: number | null }> | null;
+  overrides?: Record<
+    string,
+    { amountInPaise?: number | null; percentage?: number | null }
+  > | null;
 }
 
 export class UpdateSalaryAssignmentStatusBodyDto {
@@ -225,7 +234,10 @@ export class SalaryAssignmentDto {
   ctcInPaise!: number;
 
   @ApiProperty({ nullable: true })
-  overrides!: Record<string, { amountInPaise?: number | null; percentage?: number | null }> | null;
+  overrides!: Record<
+    string,
+    { amountInPaise?: number | null; percentage?: number | null }
+  > | null;
 
   @ApiProperty({ enum: ["active", "archived", "deleted"] })
   status!: "active" | "archived" | "deleted";
@@ -250,7 +262,10 @@ export class ListSalaryAssignmentsQueryParamsDto {
   page?: number;
   limit?: number;
 
-  @ApiProperty({ enum: ["staffName", "effectiveFrom", "ctcInPaise", "createdAt"], required: false })
+  @ApiProperty({
+    enum: ["staffName", "effectiveFrom", "ctcInPaise", "createdAt"],
+    required: false,
+  })
   sort?: "staffName" | "effectiveFrom" | "ctcInPaise" | "createdAt";
 
   @ApiProperty({ enum: ["asc", "desc"], required: false })
@@ -313,13 +328,19 @@ export class ListPayrollRunsQueryParamsDto {
   q?: string;
   year?: number;
 
-  @ApiProperty({ enum: ["draft", "processed", "approved", "paid"], required: false })
+  @ApiProperty({
+    enum: ["draft", "processed", "approved", "paid"],
+    required: false,
+  })
   status?: "draft" | "processed" | "approved" | "paid";
 
   page?: number;
   limit?: number;
 
-  @ApiProperty({ enum: ["month", "year", "status", "createdAt"], required: false })
+  @ApiProperty({
+    enum: ["month", "year", "status", "createdAt"],
+    required: false,
+  })
   sort?: "month" | "year" | "status" | "createdAt";
 
   @ApiProperty({ enum: ["asc", "desc"], required: false })
@@ -385,7 +406,10 @@ export class ListPayslipsQueryParamsDto {
   page?: number;
   limit?: number;
 
-  @ApiProperty({ enum: ["staffName", "netPayInPaise", "createdAt"], required: false })
+  @ApiProperty({
+    enum: ["staffName", "netPayInPaise", "createdAt"],
+    required: false,
+  })
   sort?: "staffName" | "netPayInPaise" | "createdAt";
 
   @ApiProperty({ enum: ["asc", "desc"], required: false })

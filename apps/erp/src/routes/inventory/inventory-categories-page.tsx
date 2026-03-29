@@ -112,7 +112,12 @@ export function InventoryCategoriesPage() {
             : "Category deactivated.",
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update category status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update category status. Please try again.",
+          ),
+        );
       }
     },
     [statusMutation],
@@ -209,7 +214,14 @@ export function InventoryCategoriesPage() {
         },
       }),
     ],
-    [canManage, handleToggleStatus, location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManage,
+      handleToggleStatus,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -225,7 +237,8 @@ export function InventoryCategoriesPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (categoriesQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (categoriesQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <EntityListPage

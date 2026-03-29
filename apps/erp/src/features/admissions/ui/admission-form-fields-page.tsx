@@ -156,7 +156,12 @@ export function AdmissionFormFieldsPage() {
       setEditingField(null);
       reset(ADMISSION_FORM_FIELD_BUILDER_DEFAULT_VALUES);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save admission field. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save admission field. Please try again.",
+        ),
+      );
     }
   }
 

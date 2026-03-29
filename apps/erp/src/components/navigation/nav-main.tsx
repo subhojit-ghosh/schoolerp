@@ -253,7 +253,9 @@ export function NavMain({
                             to={item.url}
                           >
                             {item.icon ? <item.icon /> : null}
-                            <span className="flex-1 truncate">{item.title}</span>
+                            <span className="flex-1 truncate">
+                              {item.title}
+                            </span>
                             {onToggleFavorite && isFavorite ? (
                               <FavoriteToggle
                                 isFavorited={isFavorite(item.url)}

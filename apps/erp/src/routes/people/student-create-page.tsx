@@ -97,7 +97,9 @@ export function StudentCreatePage() {
       toast.success(ERP_TOAST_MESSAGES.created(ERP_TOAST_SUBJECTS.STUDENT));
       void navigate(appendSearch(ERP_ROUTES.STUDENTS, location.search));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not create student. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not create student. Please try again."),
+      );
     }
   }
 
@@ -135,7 +137,10 @@ export function StudentCreatePage() {
         backAction={
           <Breadcrumbs
             items={[
-              { label: "Students", href: appendSearch(ERP_ROUTES.STUDENTS, location.search) },
+              {
+                label: "Students",
+                href: appendSearch(ERP_ROUTES.STUDENTS, location.search),
+              },
               { label: "New Student" },
             ]}
           />

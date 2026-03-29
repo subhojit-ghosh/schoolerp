@@ -124,17 +124,23 @@ export const listMessPlansQuerySchema = z.object({
 
 export type CreateBuildingDto = z.infer<typeof createBuildingSchema>;
 export type UpdateBuildingDto = z.infer<typeof updateBuildingSchema>;
-export type UpdateBuildingStatusDto = z.infer<typeof updateBuildingStatusSchema>;
+export type UpdateBuildingStatusDto = z.infer<
+  typeof updateBuildingStatusSchema
+>;
 export type ListBuildingsQueryDto = z.infer<typeof listBuildingsQuerySchema>;
 export type CreateRoomDto = z.infer<typeof createRoomSchema>;
 export type UpdateRoomDto = z.infer<typeof updateRoomSchema>;
 export type UpdateRoomStatusDto = z.infer<typeof updateRoomStatusSchema>;
 export type ListRoomsQueryDto = z.infer<typeof listRoomsQuerySchema>;
 export type CreateAllocationDto = z.infer<typeof createAllocationSchema>;
-export type ListAllocationsQueryDto = z.infer<typeof listAllocationsQuerySchema>;
+export type ListAllocationsQueryDto = z.infer<
+  typeof listAllocationsQuerySchema
+>;
 export type CreateMessPlanDto = z.infer<typeof createMessPlanSchema>;
 export type UpdateMessPlanDto = z.infer<typeof updateMessPlanSchema>;
-export type UpdateMessPlanStatusDto = z.infer<typeof updateMessPlanStatusSchema>;
+export type UpdateMessPlanStatusDto = z.infer<
+  typeof updateMessPlanStatusSchema
+>;
 export type ListMessPlansQueryDto = z.infer<typeof listMessPlansQuerySchema>;
 
 // ── Parse helpers ────────────────────────────────────────────────────────────

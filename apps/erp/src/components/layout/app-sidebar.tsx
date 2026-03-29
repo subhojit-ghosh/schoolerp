@@ -379,9 +379,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     getActionableNavItems(NAV_COMMUNICATION),
   );
   const libraryItems = filterByPermission(getActionableNavItems(NAV_LIBRARY));
-  const transportItems = filterByPermission(getActionableNavItems(NAV_TRANSPORT));
+  const transportItems = filterByPermission(
+    getActionableNavItems(NAV_TRANSPORT),
+  );
   const servicesItems = filterByPermission(getActionableNavItems(NAV_SERVICES));
-  const inventoryNavItems = filterByPermission(getActionableNavItems(NAV_INVENTORY));
+  const inventoryNavItems = filterByPermission(
+    getActionableNavItems(NAV_INVENTORY),
+  );
   const hrItems = getActionableNavItems(NAV_HR);
   const reportItems = filterByPermission(getActionableNavItems(NAV_REPORTS));
   const settingsItems = filterByPermission(getActionableNavItems(NAV_SETTINGS));

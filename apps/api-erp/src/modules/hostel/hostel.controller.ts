@@ -122,7 +122,12 @@ export class HostelController {
     @Body() body: UpdateBuildingBodyDto,
   ) {
     const dto = parseUpdateBuilding(body);
-    return this.hostelService.updateBuilding(institution.id, buildingId, session, dto);
+    return this.hostelService.updateBuilding(
+      institution.id,
+      buildingId,
+      session,
+      dto,
+    );
   }
 
   @Patch(`${API_ROUTES.BUILDINGS}/:buildingId/${API_ROUTES.STATUS}`)
@@ -196,7 +201,12 @@ export class HostelController {
     @Body() body: UpdateRoomStatusBodyDto,
   ) {
     const dto = parseUpdateRoomStatus(body);
-    return this.hostelService.updateRoomStatus(institution.id, roomId, session, dto);
+    return this.hostelService.updateRoomStatus(
+      institution.id,
+      roomId,
+      session,
+      dto,
+    );
   }
 
   // ── Allocations ────────────────────────────────────────────────────────
@@ -235,7 +245,11 @@ export class HostelController {
     @CurrentSession() session: AuthenticatedSession,
     @Param("allocationId") allocationId: string,
   ) {
-    return this.hostelService.vacateAllocation(institution.id, allocationId, session);
+    return this.hostelService.vacateAllocation(
+      institution.id,
+      allocationId,
+      session,
+    );
   }
 
   // ── Mess Plans ─────────────────────────────────────────────────────────
@@ -276,7 +290,12 @@ export class HostelController {
     @Body() body: UpdateMessPlanBodyDto,
   ) {
     const dto = parseUpdateMessPlan(body);
-    return this.hostelService.updateMessPlan(institution.id, planId, session, dto);
+    return this.hostelService.updateMessPlan(
+      institution.id,
+      planId,
+      session,
+      dto,
+    );
   }
 
   @Patch(`${API_ROUTES.MESS_PLANS}/:planId/${API_ROUTES.STATUS}`)
@@ -290,6 +309,11 @@ export class HostelController {
     @Body() body: UpdateMessPlanStatusBodyDto,
   ) {
     const dto = parseUpdateMessPlanStatus(body);
-    return this.hostelService.updateMessPlanStatus(institution.id, planId, session, dto);
+    return this.hostelService.updateMessPlanStatus(
+      institution.id,
+      planId,
+      session,
+      dto,
+    );
   }
 }

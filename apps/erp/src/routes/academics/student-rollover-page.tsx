@@ -299,7 +299,12 @@ export function StudentRolloverPage() {
         }),
       );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not load source roster. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not load source roster. Please try again.",
+        ),
+      );
     }
   }
 
@@ -312,7 +317,12 @@ export function StudentRolloverPage() {
       setPreview(nextPreview);
       setLastPreviewSignature(getStudentRolloverPreviewSignature(formValues));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not refresh rollover preview. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not refresh rollover preview. Please try again.",
+        ),
+      );
     }
   });
 
@@ -328,7 +338,12 @@ export function StudentRolloverPage() {
       setPreview(result);
       setLastPreviewSignature(getStudentRolloverPreviewSignature(formValues));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not execute student rollover. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not execute student rollover. Please try again.",
+        ),
+      );
     }
   });
 
@@ -454,9 +469,7 @@ export function StudentRolloverPage() {
               type="button"
             >
               <IconChevronsUp className="size-4" />
-              {previewMutation.isPending
-                ? "Loading..."
-                : "Load source roster"}
+              {previewMutation.isPending ? "Loading..." : "Load source roster"}
             </Button>
             <Button
               className="h-10 rounded-lg"
@@ -466,9 +479,7 @@ export function StudentRolloverPage() {
               variant="outline"
             >
               <IconRefresh className="size-4" />
-              {previewMutation.isPending
-                ? "Refreshing..."
-                : "Refresh preview"}
+              {previewMutation.isPending ? "Refreshing..." : "Refresh preview"}
             </Button>
             <Button
               className="h-10 rounded-lg"
@@ -482,9 +493,7 @@ export function StudentRolloverPage() {
               type="button"
             >
               <IconCheck className="size-4" />
-              {executeMutation.isPending
-                ? "Processing..."
-                : "Run rollover"}
+              {executeMutation.isPending ? "Processing..." : "Run rollover"}
             </Button>
           </div>
 

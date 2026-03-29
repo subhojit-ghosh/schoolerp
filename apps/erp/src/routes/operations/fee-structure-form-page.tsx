@@ -48,7 +48,10 @@ type FeeStructureFormPageProps = {
   mode: "create" | "edit";
 };
 
-function buildAutoSaveKey(mode: "create" | "edit", feeStructureId?: string): string {
+function buildAutoSaveKey(
+  mode: "create" | "edit",
+  feeStructureId?: string,
+): string {
   if (mode === "edit" && feeStructureId) {
     return `fee-structure-edit-${feeStructureId}`;
   }
@@ -56,7 +59,9 @@ function buildAutoSaveKey(mode: "create" | "edit", feeStructureId?: string): str
 }
 
 export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
-  useDocumentTitle(mode === "create" ? "New Fee Structure" : "Edit Fee Structure");
+  useDocumentTitle(
+    mode === "create" ? "New Fee Structure" : "Edit Fee Structure",
+  );
   const [isDirty, setIsDirty] = useState(false);
   const blocker = useUnsavedChangesGuard(isDirty);
   const location = useLocation();
@@ -187,7 +192,10 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
       void navigate(appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search));
     } catch (error) {
       toast.error(
-        extractApiError(error, "Could not save fee structure. Please try again."),
+        extractApiError(
+          error,
+          "Could not save fee structure. Please try again.",
+        ),
       );
     }
   }
@@ -243,7 +251,11 @@ export function FeeStructureFormPage({ mode }: FeeStructureFormPageProps) {
       <EntityPageHeader
         backAction={
           <FeeStructureBreadcrumbs
-            label={mode === "create" ? "New Fee Structure" : `Edit ${feeStructureQuery.data?.name ?? "Fee Structure"}`}
+            label={
+              mode === "create"
+                ? "New Fee Structure"
+                : `Edit ${feeStructureQuery.data?.name ?? "Fee Structure"}`
+            }
             location={location}
           />
         }
@@ -310,7 +322,10 @@ function FeeStructureBreadcrumbs({
   return (
     <Breadcrumbs
       items={[
-        { label: "Fee Structures", href: appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search) },
+        {
+          label: "Fee Structures",
+          href: appendSearch(ERP_ROUTES.FEE_STRUCTURES, location.search),
+        },
         { label },
       ]}
     />

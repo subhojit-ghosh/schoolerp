@@ -109,15 +109,23 @@ export const listLowStockQuerySchema = z.object({
 
 export type CreateCategoryDto = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryDto = z.infer<typeof updateCategorySchema>;
-export type UpdateCategoryStatusDto = z.infer<typeof updateCategoryStatusSchema>;
+export type UpdateCategoryStatusDto = z.infer<
+  typeof updateCategoryStatusSchema
+>;
 export type ListCategoriesQueryDto = z.infer<typeof listCategoriesQuerySchema>;
 export type CreateItemDto = z.infer<typeof createItemSchema>;
 export type UpdateItemDto = z.infer<typeof updateItemSchema>;
 export type UpdateItemStatusDto = z.infer<typeof updateItemStatusSchema>;
 export type ListItemsQueryDto = z.infer<typeof listItemsQuerySchema>;
-export type CreateStockTransactionDto = z.infer<typeof createStockTransactionSchema>;
-export type ListTransactionsQueryDto = z.infer<typeof listTransactionsQuerySchema>;
-export type ListItemTransactionsQueryDto = z.infer<typeof listItemTransactionsQuerySchema>;
+export type CreateStockTransactionDto = z.infer<
+  typeof createStockTransactionSchema
+>;
+export type ListTransactionsQueryDto = z.infer<
+  typeof listTransactionsQuerySchema
+>;
+export type ListItemTransactionsQueryDto = z.infer<
+  typeof listItemTransactionsQuerySchema
+>;
 export type ListLowStockQueryDto = z.infer<typeof listLowStockQuerySchema>;
 
 // ── Parse helpers ────────────────────────────────────────────────────────────

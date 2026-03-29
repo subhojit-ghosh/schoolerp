@@ -33,15 +33,16 @@ export function ResetPasswordPage() {
   );
   const initialToken = searchParams.get("token") ?? "";
   const isSetupFlow = searchParams.get("setup") === "1";
-  const { control, handleSubmit, setValue, watch } = useForm<ResetPasswordFormValues>({
-    resolver: zodResolver(resetPasswordFormSchema),
-    mode: "onTouched",
-    defaultValues: {
-      token: initialToken,
-      password: "",
-      confirmPassword: "",
-    },
-  });
+  const { control, handleSubmit, setValue, watch } =
+    useForm<ResetPasswordFormValues>({
+      resolver: zodResolver(resetPasswordFormSchema),
+      mode: "onTouched",
+      defaultValues: {
+        token: initialToken,
+        password: "",
+        confirmPassword: "",
+      },
+    });
 
   useEffect(() => {
     setValue("token", initialToken);
@@ -57,7 +58,12 @@ export function ResetPasswordPage() {
       });
       void navigate(ERP_ROUTES.SIGN_IN);
     } catch (error) {
-      toast.error(extractApiError(error, "Unable to reset the password. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Unable to reset the password. Please try again.",
+        ),
+      );
     }
   }
 

@@ -115,7 +115,14 @@ export function CalendarEventSheetRoute({
 
       void navigate(appendSearch(ERP_ROUTES.CALENDAR, location.search));
     } catch (error) {
-      toast.error(extractApiError(error, mode === "create" ? "Could not create calendar event. Please try again." : "Could not update calendar event. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          mode === "create"
+            ? "Could not create calendar event. Please try again."
+            : "Could not update calendar event. Please try again.",
+        ),
+      );
     }
   }
 

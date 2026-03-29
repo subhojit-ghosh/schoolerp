@@ -28,9 +28,12 @@ export function VehicleSheetRoute({ mode }: VehicleSheetRouteProps) {
   const session = useAuthStore((store) => store.session);
   const isEnabled = Boolean(session?.activeOrganization?.id);
 
-  const vehiclesQuery = useTransportVehiclesQuery(mode === "edit" && isEnabled, {
-    limit: 100,
-  });
+  const vehiclesQuery = useTransportVehiclesQuery(
+    mode === "edit" && isEnabled,
+    {
+      limit: 100,
+    },
+  );
   const createMutation = useCreateVehicleMutation();
   const updateMutation = useUpdateVehicleMutation();
 
@@ -39,7 +42,9 @@ export function VehicleSheetRoute({ mode }: VehicleSheetRouteProps) {
     [location.search],
   );
 
-  const editingVehicle = vehiclesQuery.data?.rows?.find((v: { id: string }) => v.id === vehicleId);
+  const editingVehicle = vehiclesQuery.data?.rows?.find(
+    (v: { id: string }) => v.id === vehicleId,
+  );
 
   const defaultValues = useMemo<VehicleFormValues>(() => {
     if (mode === "create" || !editingVehicle) {
@@ -92,7 +97,9 @@ export function VehicleSheetRoute({ mode }: VehicleSheetRouteProps) {
         void navigate(closeTo);
       }
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save vehicle. Please try again."));
+      toast.error(
+        extractApiError(error, "Could not save vehicle. Please try again."),
+      );
     }
   }
 
@@ -100,7 +107,7 @@ export function VehicleSheetRoute({ mode }: VehicleSheetRouteProps) {
   const description =
     mode === "create"
       ? "Add a transport vehicle."
-      : editingVehicle?.registrationNumber ?? "Edit this vehicle.";
+      : (editingVehicle?.registrationNumber ?? "Edit this vehicle.");
 
   return (
     <RouteEntitySheet closeTo={closeTo} description={description} title={title}>

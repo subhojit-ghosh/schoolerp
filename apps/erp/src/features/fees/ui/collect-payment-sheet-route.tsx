@@ -438,7 +438,8 @@ export function CollectPaymentSheetRoute() {
                   <div className="text-sm">
                     <p className="font-medium">Send payment reminder</p>
                     <p className="text-muted-foreground">
-                      Notify the guardian via SMS and email about this outstanding fee.
+                      Notify the guardian via SMS and email about this
+                      outstanding fee.
                     </p>
                   </div>
                   <EntityFormSecondaryAction
@@ -447,7 +448,9 @@ export function CollectPaymentSheetRoute() {
                     onClick={() => void handleSendReminder()}
                     type="button"
                   >
-                    {reminderMutation.isPending ? "Sending..." : "Send reminder"}
+                    {reminderMutation.isPending
+                      ? "Sending..."
+                      : "Send reminder"}
                   </EntityFormSecondaryAction>
                 </div>
               </CardContent>

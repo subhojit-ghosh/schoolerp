@@ -52,24 +52,21 @@ export function StaffIdCardPage() {
     >
       <div className="space-y-6 print:space-y-3">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 print:grid-cols-3 print:gap-2">
-          <PrintDetailItem label="Staff Name" value={formatNameWithHonorific(staff.name, (staff as { honorific?: string | null }).honorific)} />
+          <PrintDetailItem
+            label="Staff Name"
+            value={formatNameWithHonorific(
+              staff.name,
+              (staff as { honorific?: string | null }).honorific,
+            )}
+          />
           {profile?.employeeId ? (
-            <PrintDetailItem
-              label="Employee ID"
-              value={profile.employeeId}
-            />
+            <PrintDetailItem label="Employee ID" value={profile.employeeId} />
           ) : null}
           {profile?.designation ? (
-            <PrintDetailItem
-              label="Designation"
-              value={profile.designation}
-            />
+            <PrintDetailItem label="Designation" value={profile.designation} />
           ) : null}
           {profile?.department ? (
-            <PrintDetailItem
-              label="Department"
-              value={profile.department}
-            />
+            <PrintDetailItem label="Department" value={profile.department} />
           ) : null}
           {staff.campusName ? (
             <PrintDetailItem label="Campus" value={staff.campusName} />

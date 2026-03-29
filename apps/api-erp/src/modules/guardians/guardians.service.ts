@@ -243,15 +243,17 @@ export class GuardiansService {
         );
       });
 
-      this.auditService.record({
-        institutionId,
-        authSession,
-        action: AUDIT_ACTIONS.UPDATE,
-        entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
-        entityId: existingGuardian.id,
-        entityLabel: payload.name.trim(),
-        summary: `Updated guardian ${payload.name.trim()}.`,
-      }).catch(() => {});
+      this.auditService
+        .record({
+          institutionId,
+          authSession,
+          action: AUDIT_ACTIONS.UPDATE,
+          entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
+          entityId: existingGuardian.id,
+          entityLabel: payload.name.trim(),
+          summary: `Updated guardian ${payload.name.trim()}.`,
+        })
+        .catch(() => {});
 
       return this.getGuardian(
         institutionId,
@@ -312,15 +314,17 @@ export class GuardiansService {
       );
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.CREATE,
-      entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
-      entityId: createdGuardianId,
-      entityLabel: payload.name.trim(),
-      summary: `Created guardian ${payload.name.trim()}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
+        entityId: createdGuardianId,
+        entityLabel: payload.name.trim(),
+        summary: `Created guardian ${payload.name.trim()}.`,
+      })
+      .catch(() => {});
 
     return this.getGuardian(
       institutionId,
@@ -381,15 +385,17 @@ export class GuardiansService {
       );
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.UPDATE,
-      entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
-      entityId: guardianId,
-      entityLabel: payload.name.trim(),
-      summary: `Updated guardian ${payload.name.trim()}.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
+        entityId: guardianId,
+        entityLabel: payload.name.trim(),
+        summary: `Updated guardian ${payload.name.trim()}.`,
+      })
+      .catch(() => {});
 
     return this.getGuardian(institutionId, guardianId, authSession, scopes);
   }
@@ -485,15 +491,17 @@ export class GuardiansService {
       );
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.UPDATE,
-      entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
-      entityId: guardianId,
-      entityLabel: guardianId,
-      summary: `Linked student ${payload.studentId} to guardian.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
+        entityId: guardianId,
+        entityLabel: guardianId,
+        summary: `Linked student ${payload.studentId} to guardian.`,
+      })
+      .catch(() => {});
 
     return this.getGuardian(institutionId, guardianId, authSession, scopes);
   }
@@ -606,15 +614,17 @@ export class GuardiansService {
       );
     });
 
-    this.auditService.record({
-      institutionId,
-      authSession,
-      action: AUDIT_ACTIONS.DELETE,
-      entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
-      entityId: guardianId,
-      entityLabel: guardianId,
-      summary: `Unlinked student ${studentId} from guardian.`,
-    }).catch(() => {});
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.DELETE,
+        entityType: AUDIT_ENTITY_TYPES.GUARDIAN,
+        entityId: guardianId,
+        entityLabel: guardianId,
+        summary: `Unlinked student ${studentId} from guardian.`,
+      })
+      .catch(() => {});
 
     return this.getGuardian(institutionId, guardianId, authSession, scopes);
   }

@@ -92,7 +92,12 @@ export function AnnouncementSheetRoute({ mode }: AnnouncementSheetRouteProps) {
 
       void navigate(appendSearch(ERP_ROUTES.ANNOUNCEMENTS, location.search));
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save announcement. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save announcement. Please try again.",
+        ),
+      );
     }
   }
 

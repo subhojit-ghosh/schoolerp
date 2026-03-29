@@ -26,9 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/ui/select";
-import {
-  EntityPagePrimaryAction,
-} from "@/components/entities/entity-actions";
+import { EntityPagePrimaryAction } from "@/components/entities/entity-actions";
 import {
   EntityPageHeader,
   EntityPageShell,
@@ -293,9 +291,7 @@ export function ExamsPage() {
         description="Manage exam terms, enter marks, and view report cards."
         title="Exams"
         actions={
-          <EntityPagePrimaryAction
-            onClick={() => setIsCreateDialogOpen(true)}
-          >
+          <EntityPagePrimaryAction onClick={() => setIsCreateDialogOpen(true)}>
             <IconPlus className="size-4" />
             New exam term
           </EntityPagePrimaryAction>
@@ -327,9 +323,7 @@ export function ExamsPage() {
                     type="button"
                   >
                     <div className="flex items-center justify-between gap-3">
-                      <p className="font-medium text-foreground">
-                        {term.name}
-                      </p>
+                      <p className="font-medium text-foreground">{term.name}</p>
                       {isSelected ? <Badge>Selected</Badge> : null}
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
@@ -413,9 +407,7 @@ export function ExamsPage() {
         </div>
         <div className="p-4">
           {!selectedExamTermId ? (
-            <EmptyState>
-              Select an exam term to review saved marks.
-            </EmptyState>
+            <EmptyState>Select an exam term to review saved marks.</EmptyState>
           ) : examMarksQuery.isLoading ? (
             <EmptyState>Loading marks...</EmptyState>
           ) : (examMarksQuery.data?.length ?? 0) > 0 ? (
@@ -457,9 +449,7 @@ export function ExamsPage() {
         </div>
         <div className="p-6">
           {!selectedExamTermId ? (
-            <EmptyState>
-              Select an exam term to view report cards.
-            </EmptyState>
+            <EmptyState>Select an exam term to view report cards.</EmptyState>
           ) : (studentOptionsQuery.data?.length ?? 0) === 0 ? (
             <EmptyState>
               Add students before generating report cards.

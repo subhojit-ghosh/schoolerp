@@ -123,9 +123,7 @@ export class PaymentOrderService {
     );
 
     if (order.status !== PAYMENT_ORDER_STATUSES.PENDING) {
-      throw new BadRequestException(
-        `Payment order is already ${order.status}`,
-      );
+      throw new BadRequestException(`Payment order is already ${order.status}`);
     }
 
     if (new Date() > new Date(order.expiresAt)) {
@@ -310,18 +308,10 @@ export class PaymentOrderService {
             ),
           );
 
-        const totalPaid = paidRows.reduce(
-          (sum, r) => sum + r.amountInPaise,
-          0,
-        );
-        const outstanding =
-          assignment.assignedAmountInPaise - totalPaid;
+        const totalPaid = paidRows.reduce((sum, r) => sum + r.amountInPaise, 0);
+        const outstanding = assignment.assignedAmountInPaise - totalPaid;
         const newStatus =
-          outstanding <= 0
-            ? "paid"
-            : totalPaid > 0
-              ? "partial"
-              : "pending";
+          outstanding <= 0 ? "paid" : totalPaid > 0 ? "partial" : "pending";
 
         await tx
           .update(feeAssignments)

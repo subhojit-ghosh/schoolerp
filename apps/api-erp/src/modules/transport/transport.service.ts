@@ -58,7 +58,10 @@ export class TransportService {
     const sortField = query.sort ?? "name";
     const sortOrder = query.order ?? SORT_ORDERS.ASC;
     const orderFn = sortOrder === SORT_ORDERS.ASC ? asc : desc;
-    const sortCol = sortField === "createdAt" ? transportRoutes.createdAt : transportRoutes.name;
+    const sortCol =
+      sortField === "createdAt"
+        ? transportRoutes.createdAt
+        : transportRoutes.name;
 
     const filters = [
       eq(transportRoutes.institutionId, institutionId),
@@ -85,7 +88,9 @@ export class TransportService {
       .where(eq(transportStops.institutionId, institutionId))
       .groupBy(transportStops.routeId);
 
-    const stopCountMap = new Map(stopCounts.map((s) => [s.routeId, s.stopCount]));
+    const stopCountMap = new Map(
+      stopCounts.map((s) => [s.routeId, s.stopCount]),
+    );
 
     const rows = await this.db
       .select({
@@ -111,7 +116,7 @@ export class TransportService {
         description: r.description ?? null,
         campusId: r.campusId ?? null,
         campusName: r.campusName ?? null,
-        status: r.status as "active" | "inactive",
+        status: r.status,
         stopCount: stopCountMap.get(r.id) ?? 0,
         createdAt: r.createdAt.toISOString(),
       })),
@@ -163,7 +168,7 @@ export class TransportService {
       description: route.description ?? null,
       campusId: route.campusId ?? null,
       campusName: route.campusName ?? null,
-      status: route.status as "active" | "inactive",
+      status: route.status,
       createdAt: route.createdAt.toISOString(),
       stops: stops.map((s) => ({
         id: s.id,
@@ -172,7 +177,7 @@ export class TransportService {
         sequenceNumber: s.sequenceNumber,
         pickupTime: s.pickupTime ?? null,
         dropTime: s.dropTime ?? null,
-        status: s.status as "active" | "inactive",
+        status: s.status,
         createdAt: s.createdAt.toISOString(),
       })),
     };
@@ -232,7 +237,10 @@ export class TransportService {
       .update(transportRoutes)
       .set({
         name: dto.name ?? existing.name,
-        description: dto.description !== undefined ? dto.description : existing.description,
+        description:
+          dto.description !== undefined
+            ? dto.description
+            : existing.description,
         campusId: dto.campusId !== undefined ? dto.campusId : existing.campusId,
         status: dto.status ?? existing.status,
       })
@@ -287,7 +295,9 @@ export class TransportService {
       );
 
     if (existingStop) {
-      throw new ConflictException(ERROR_MESSAGES.TRANSPORT.STOP_SEQUENCE_EXISTS);
+      throw new ConflictException(
+        ERROR_MESSAGES.TRANSPORT.STOP_SEQUENCE_EXISTS,
+      );
     }
 
     const id = randomUUID();
@@ -339,7 +349,10 @@ export class TransportService {
       throw new NotFoundException(ERROR_MESSAGES.TRANSPORT.STOP_NOT_FOUND);
     }
 
-    if (dto.sequenceNumber !== undefined && dto.sequenceNumber !== existing.sequenceNumber) {
+    if (
+      dto.sequenceNumber !== undefined &&
+      dto.sequenceNumber !== existing.sequenceNumber
+    ) {
       const [conflict] = await this.db
         .select({ id: transportStops.id })
         .from(transportStops)
@@ -350,7 +363,9 @@ export class TransportService {
           ),
         );
       if (conflict) {
-        throw new ConflictException(ERROR_MESSAGES.TRANSPORT.STOP_SEQUENCE_EXISTS);
+        throw new ConflictException(
+          ERROR_MESSAGES.TRANSPORT.STOP_SEQUENCE_EXISTS,
+        );
       }
     }
 
@@ -359,7 +374,8 @@ export class TransportService {
       .set({
         name: dto.name ?? existing.name,
         sequenceNumber: dto.sequenceNumber ?? existing.sequenceNumber,
-        pickupTime: dto.pickupTime !== undefined ? dto.pickupTime : existing.pickupTime,
+        pickupTime:
+          dto.pickupTime !== undefined ? dto.pickupTime : existing.pickupTime,
         dropTime: dto.dropTime !== undefined ? dto.dropTime : existing.dropTime,
         status: dto.status ?? existing.status,
       })
@@ -432,7 +448,10 @@ export class TransportService {
         createdAt: transportVehicles.createdAt,
       })
       .from(transportVehicles)
-      .leftJoin(transportRoutes, eq(transportVehicles.routeId, transportRoutes.id))
+      .leftJoin(
+        transportRoutes,
+        eq(transportVehicles.routeId, transportRoutes.id),
+      )
       .where(and(...filters))
       .orderBy(orderFn(sortCol))
       .limit(pageSize)
@@ -442,13 +461,13 @@ export class TransportService {
       rows: rows.map((v) => ({
         id: v.id,
         registrationNumber: v.registrationNumber,
-        type: v.type as "bus" | "van" | "auto",
+        type: v.type,
         capacity: v.capacity,
         driverName: v.driverName ?? null,
         driverContact: v.driverContact ?? null,
         routeId: v.routeId ?? null,
         routeName: v.routeName ?? null,
-        status: v.status as "active" | "inactive",
+        status: v.status,
         createdAt: v.createdAt.toISOString(),
       })),
       total,
@@ -539,19 +558,25 @@ export class TransportService {
           ),
         );
       if (conflict) {
-        throw new ConflictException(ERROR_MESSAGES.TRANSPORT.VEHICLE_REG_EXISTS);
+        throw new ConflictException(
+          ERROR_MESSAGES.TRANSPORT.VEHICLE_REG_EXISTS,
+        );
       }
     }
 
     await this.db
       .update(transportVehicles)
       .set({
-        registrationNumber: dto.registrationNumber ?? existing.registrationNumber,
+        registrationNumber:
+          dto.registrationNumber ?? existing.registrationNumber,
         type: dto.type ?? existing.type,
         capacity: dto.capacity ?? existing.capacity,
-        driverName: dto.driverName !== undefined ? dto.driverName : existing.driverName,
+        driverName:
+          dto.driverName !== undefined ? dto.driverName : existing.driverName,
         driverContact:
-          dto.driverContact !== undefined ? dto.driverContact : existing.driverContact,
+          dto.driverContact !== undefined
+            ? dto.driverContact
+            : existing.driverContact,
         routeId: dto.routeId !== undefined ? dto.routeId : existing.routeId,
         status: dto.status ?? existing.status,
       })
@@ -590,9 +615,15 @@ export class TransportService {
       ...(query.status
         ? [eq(studentTransportAssignments.status, query.status)]
         : [ne(studentTransportAssignments.status, "inactive")]),
-      ...(query.routeId ? [eq(studentTransportAssignments.routeId, query.routeId)] : []),
-      ...(query.stopId ? [eq(studentTransportAssignments.stopId, query.stopId)] : []),
-      ...(query.studentId ? [eq(studentTransportAssignments.studentId, query.studentId)] : []),
+      ...(query.routeId
+        ? [eq(studentTransportAssignments.routeId, query.routeId)]
+        : []),
+      ...(query.stopId
+        ? [eq(studentTransportAssignments.stopId, query.stopId)]
+        : []),
+      ...(query.studentId
+        ? [eq(studentTransportAssignments.studentId, query.studentId)]
+        : []),
       ...(query.q
         ? [
             or(
@@ -607,7 +638,10 @@ export class TransportService {
     const [{ total }] = await this.db
       .select({ total: count() })
       .from(studentTransportAssignments)
-      .innerJoin(students, eq(studentTransportAssignments.studentId, students.id))
+      .innerJoin(
+        students,
+        eq(studentTransportAssignments.studentId, students.id),
+      )
       .where(and(...filters));
 
     const pagination = resolvePagination(total, page, pageSize);
@@ -630,9 +664,18 @@ export class TransportService {
         createdAt: studentTransportAssignments.createdAt,
       })
       .from(studentTransportAssignments)
-      .innerJoin(students, eq(studentTransportAssignments.studentId, students.id))
-      .innerJoin(transportRoutes, eq(studentTransportAssignments.routeId, transportRoutes.id))
-      .innerJoin(transportStops, eq(studentTransportAssignments.stopId, transportStops.id))
+      .innerJoin(
+        students,
+        eq(studentTransportAssignments.studentId, students.id),
+      )
+      .innerJoin(
+        transportRoutes,
+        eq(studentTransportAssignments.routeId, transportRoutes.id),
+      )
+      .innerJoin(
+        transportStops,
+        eq(studentTransportAssignments.stopId, transportStops.id),
+      )
       .where(and(...filters))
       .orderBy(orderFn(sortCol))
       .limit(pageSize)
@@ -648,10 +691,10 @@ export class TransportService {
         routeName: r.routeName,
         stopId: r.stopId,
         stopName: r.stopName,
-        assignmentType: r.assignmentType as "pickup" | "dropoff" | "both",
+        assignmentType: r.assignmentType,
         startDate: r.startDate,
         endDate: r.endDate ?? null,
-        status: r.status as "active" | "inactive",
+        status: r.status,
         createdAt: r.createdAt.toISOString(),
       })),
       total,
@@ -724,7 +767,9 @@ export class TransportService {
       );
 
     if (activeAssignment) {
-      throw new ConflictException(ERROR_MESSAGES.TRANSPORT.STUDENT_ALREADY_ASSIGNED);
+      throw new ConflictException(
+        ERROR_MESSAGES.TRANSPORT.STUDENT_ALREADY_ASSIGNED,
+      );
     }
 
     const id = randomUUID();
@@ -773,7 +818,9 @@ export class TransportService {
       );
 
     if (!existing) {
-      throw new NotFoundException(ERROR_MESSAGES.TRANSPORT.ASSIGNMENT_NOT_FOUND);
+      throw new NotFoundException(
+        ERROR_MESSAGES.TRANSPORT.ASSIGNMENT_NOT_FOUND,
+      );
     }
 
     // If changing stop, verify it belongs to the (possibly new) route
@@ -784,7 +831,12 @@ export class TransportService {
       const [stop] = await this.db
         .select()
         .from(transportStops)
-        .where(and(eq(transportStops.id, stopId), eq(transportStops.routeId, routeId)));
+        .where(
+          and(
+            eq(transportStops.id, stopId),
+            eq(transportStops.routeId, routeId),
+          ),
+        );
 
       if (!stop) {
         throw new NotFoundException(ERROR_MESSAGES.TRANSPORT.STOP_NOT_FOUND);

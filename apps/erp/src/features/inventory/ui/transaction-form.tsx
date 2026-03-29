@@ -129,9 +129,7 @@ export function TransactionForm({
                   ref={field.ref}
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value === ""
-                        ? 1
-                        : parseInt(e.target.value, 10),
+                      e.target.value === "" ? 1 : parseInt(e.target.value, 10),
                     )
                   }
                 />

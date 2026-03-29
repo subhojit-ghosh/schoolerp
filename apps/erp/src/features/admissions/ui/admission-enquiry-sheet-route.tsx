@@ -94,7 +94,12 @@ export function AdmissionEnquirySheetRoute({
         appendSearch(ERP_ROUTES.ADMISSIONS_ENQUIRIES, location.search),
       );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save admission enquiry. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save admission enquiry. Please try again.",
+        ),
+      );
     }
   }
 

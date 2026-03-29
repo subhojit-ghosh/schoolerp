@@ -171,7 +171,12 @@ export function StaffPage() {
             : ERP_TOAST_MESSAGES.enabled(ERP_TOAST_SUBJECTS.STAFF_RECORD),
         );
       } catch (error) {
-        toast.error(extractApiError(error, "Could not update staff status. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update staff status. Please try again.",
+          ),
+        );
       }
     },
     [managedInstitutionId, setStatusMutation],
@@ -387,10 +392,17 @@ export function StaffPage() {
         },
       });
 
-      toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.STAFF_RECORD));
+      toast.success(
+        ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.STAFF_RECORD),
+      );
       setDeleteTarget(null);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not delete staff record. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not delete staff record. Please try again.",
+        ),
+      );
     }
   }
 

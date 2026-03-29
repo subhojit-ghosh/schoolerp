@@ -16,7 +16,10 @@ import { SessionAuthGuard } from "../auth/session-auth.guard";
 import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
-import { StudentStrengthQueryDto, StudentStrengthResultDto } from "./reports.dto";
+import {
+  StudentStrengthQueryDto,
+  StudentStrengthResultDto,
+} from "./reports.dto";
 import { parseStudentStrengthQuery } from "./reports.schemas";
 import { ReportsService } from "./reports.service";
 
@@ -36,7 +39,9 @@ export class ReportsController {
 
   @Get(STUDENT_STRENGTH_PATH)
   @RequirePermission(PERMISSIONS.STUDENTS_READ)
-  @ApiOperation({ summary: "Get student strength grouped by class and section" })
+  @ApiOperation({
+    summary: "Get student strength grouped by class and section",
+  })
   @ApiOkResponse({ type: StudentStrengthResultDto })
   getStudentStrength(
     @CurrentInstitution() institution: TenantInstitution,

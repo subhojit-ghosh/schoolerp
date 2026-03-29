@@ -36,8 +36,14 @@ export function useStudentDuplicateCheck(
     return last ? `${first} ${last}` : first;
   }, [input.firstName, input.lastName]);
 
-  const debouncedQuery = useDebouncedValue(searchQuery, DUPLICATE_CHECK_DEBOUNCE_MS);
-  const debouncedClassId = useDebouncedValue(input.classId, DUPLICATE_CHECK_DEBOUNCE_MS);
+  const debouncedQuery = useDebouncedValue(
+    searchQuery,
+    DUPLICATE_CHECK_DEBOUNCE_MS,
+  );
+  const debouncedClassId = useDebouncedValue(
+    input.classId,
+    DUPLICATE_CHECK_DEBOUNCE_MS,
+  );
 
   const enabled = Boolean(
     institutionId && debouncedQuery.length > 0 && debouncedClassId,

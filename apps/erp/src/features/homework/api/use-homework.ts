@@ -66,11 +66,15 @@ export function useUpdateHomeworkMutation() {
     onSuccess: (_, variables) => {
       invalidateHomeworkQueries(queryClient);
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", HOMEWORK_API_PATHS.DETAIL, {
-          params: {
-            path: { homeworkId: variables.params.path.homeworkId },
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          HOMEWORK_API_PATHS.DETAIL,
+          {
+            params: {
+              path: { homeworkId: variables.params.path.homeworkId },
+            },
           },
-        }).queryKey,
+        ).queryKey,
       });
     },
   });
@@ -83,11 +87,15 @@ export function usePublishHomeworkMutation() {
     onSuccess: (_, variables) => {
       invalidateHomeworkQueries(queryClient);
       void queryClient.invalidateQueries({
-        queryKey: apiQueryClient.queryOptions("get", HOMEWORK_API_PATHS.DETAIL, {
-          params: {
-            path: { homeworkId: variables.params.path.homeworkId },
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          HOMEWORK_API_PATHS.DETAIL,
+          {
+            params: {
+              path: { homeworkId: variables.params.path.homeworkId },
+            },
           },
-        }).queryKey,
+        ).queryKey,
       });
     },
   });

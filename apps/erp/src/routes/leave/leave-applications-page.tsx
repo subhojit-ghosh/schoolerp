@@ -73,7 +73,11 @@ const VALID_SORT_FIELDS = [
 function StatusBadge({ status }: { status: LeaveApplicationRow["status"] }) {
   switch (status) {
     case "approved":
-      return <Badge className="bg-green-500/10 text-green-700 border-green-200">Approved</Badge>;
+      return (
+        <Badge className="bg-green-500/10 text-green-700 border-green-200">
+          Approved
+        </Badge>
+      );
     case "rejected":
       return <Badge variant="destructive">Rejected</Badge>;
     case "cancelled":
@@ -129,7 +133,12 @@ export function LeaveApplicationsPage() {
         });
         toast.success("Leave application approved.");
       } catch (error) {
-        toast.error(extractApiError(error, "Could not approve leave application. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not approve leave application. Please try again.",
+          ),
+        );
       }
     },
     [reviewMutation],
@@ -144,7 +153,12 @@ export function LeaveApplicationsPage() {
         });
         toast.success("Leave application rejected.");
       } catch (error) {
-        toast.error(extractApiError(error, "Could not reject leave application. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not reject leave application. Please try again.",
+          ),
+        );
       }
     },
     [reviewMutation],
@@ -158,7 +172,12 @@ export function LeaveApplicationsPage() {
         });
         toast.success("Leave application cancelled.");
       } catch (error) {
-        toast.error(extractApiError(error, "Could not cancel leave application. Please try again."));
+        toast.error(
+          extractApiError(
+            error,
+            "Could not cancel leave application. Please try again.",
+          ),
+        );
       }
     },
     [cancelMutation],

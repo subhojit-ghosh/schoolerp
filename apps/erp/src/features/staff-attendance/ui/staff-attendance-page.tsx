@@ -217,7 +217,7 @@ export function StaffAttendancePage() {
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       await saveMutation.mutateAsync({
         body: {
           campusId: activeCampusId,
@@ -226,13 +226,19 @@ export function StaffAttendancePage() {
             staffMembershipId: e.staffMembershipId,
             status: e.status as string,
           })),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } as any,
       });
       toast.success(
         ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_ATTENDANCE),
       );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save staff attendance. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save staff attendance. Please try again.",
+        ),
+      );
     }
   }
 
@@ -306,9 +312,7 @@ export function StaffAttendancePage() {
                     Loading staff...
                   </div>
                 ) : currentRoster ? (
-                  <form
-                    onSubmit={entryForm.handleSubmit(handleSaveAttendance)}
-                  >
+                  <form onSubmit={entryForm.handleSubmit(handleSaveAttendance)}>
                     {/* Header */}
                     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-5 py-3">
                       <div className="flex flex-wrap items-center gap-2">

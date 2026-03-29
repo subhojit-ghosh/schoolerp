@@ -39,7 +39,12 @@ export function LeaveApplicationSheetRoute() {
       toast.success("Leave application submitted.");
       void navigate(closeTo);
     } catch (error) {
-      toast.error(extractApiError(error, "Could not submit leave application. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not submit leave application. Please try again.",
+        ),
+      );
     }
   }
 

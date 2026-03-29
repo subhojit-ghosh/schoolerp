@@ -154,7 +154,12 @@ export function AdmissionApplicationSheetRoute({
         appendSearch(ERP_ROUTES.ADMISSIONS_APPLICATIONS, location.search),
       );
     } catch (error) {
-      toast.error(extractApiError(error, "Could not save admission application. Please try again."));
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save admission application. Please try again.",
+        ),
+      );
     }
   }
 

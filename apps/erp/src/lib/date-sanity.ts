@@ -69,9 +69,7 @@ export function checkFeeDueDateNotPast(dueDate: string): string | null {
 }
 
 /** Warn if a fee amount looks unreasonably large (> ₹50,00,000). */
-export function checkFeeAmountReasonable(
-  amountInPaise: number,
-): string | null {
+export function checkFeeAmountReasonable(amountInPaise: number): string | null {
   const MAX_REASONABLE_PAISE = 50_00_000_00; // ₹50,00,000
   if (amountInPaise > MAX_REASONABLE_PAISE)
     return "Amount is over ₹50,00,000. Is this correct?";

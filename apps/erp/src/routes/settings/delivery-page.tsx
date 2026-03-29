@@ -97,7 +97,10 @@ function ChannelConfigCard({
   channelLabel: string;
   icon: typeof IconMessageCircle;
   providers: ReadonlyArray<{ value: string; label: string }>;
-  credentialFields: Record<string, { key: string; label: string; type?: string }[]>;
+  credentialFields: Record<
+    string,
+    { key: string; label: string; type?: string }[]
+  >;
   config: DeliveryConfig | null;
 }) {
   const [testRecipient, setTestRecipient] = useState("");
@@ -199,20 +202,14 @@ function ChannelConfigCard({
         </div>
       </CardHeader>
       <CardContent>
-        <form
-          className="flex flex-col gap-5"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
           <Controller
             control={control}
             name="provider"
             render={({ field }) => (
               <Field>
                 <FieldLabel required>Provider</FieldLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                >
+                <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -253,9 +250,7 @@ function ChannelConfigCard({
             name="senderIdentity"
             render={({ field }) => (
               <Field>
-                <FieldLabel>
-                  Sender Identity
-                </FieldLabel>
+                <FieldLabel>Sender Identity</FieldLabel>
                 <Input
                   {...field}
                   value={field.value ?? ""}
@@ -329,10 +324,8 @@ export function DeliverySettingsPage() {
   useDocumentTitle("Delivery Settings");
   const { data, isLoading } = useDeliveryConfigsQuery();
 
-  const smsConfig =
-    data?.configs?.find((c) => c.channel === "sms") ?? null;
-  const emailConfig =
-    data?.configs?.find((c) => c.channel === "email") ?? null;
+  const smsConfig = data?.configs?.find((c) => c.channel === "sms") ?? null;
+  const emailConfig = data?.configs?.find((c) => c.channel === "email") ?? null;
 
   return (
     <EntityPageShell>

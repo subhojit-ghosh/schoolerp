@@ -100,8 +100,13 @@ export function InventoryTransactionsPage() {
       columnHelper.accessor("transactionType", {
         header: "Type",
         cell: ({ row }) => (
-          <Badge className={TRANSACTION_TYPE_BADGE_CLASSES[row.original.transactionType] ?? ""}>
-            {TRANSACTION_TYPE_LABELS[row.original.transactionType] ?? row.original.transactionType}
+          <Badge
+            className={
+              TRANSACTION_TYPE_BADGE_CLASSES[row.original.transactionType] ?? ""
+            }
+          >
+            {TRANSACTION_TYPE_LABELS[row.original.transactionType] ??
+              row.original.transactionType}
           </Badge>
         ),
       }),
@@ -188,7 +193,8 @@ export function InventoryTransactionsPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (transactionsQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (transactionsQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <EntityListPage

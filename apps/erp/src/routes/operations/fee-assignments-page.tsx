@@ -370,7 +370,10 @@ export function FeeAssignmentsPage() {
       setDeleteTarget(null);
     } catch (error) {
       toast.error(
-        extractApiError(error, "Could not delete fee assignment. Please try again."),
+        extractApiError(
+          error,
+          "Could not delete fee assignment. Please try again.",
+        ),
       );
     }
   }, [deleteTarget, deleteMutation]);

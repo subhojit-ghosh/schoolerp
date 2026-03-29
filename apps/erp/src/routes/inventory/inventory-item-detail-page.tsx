@@ -95,8 +95,13 @@ export function InventoryItemDetailPage() {
       columnHelper.accessor("transactionType", {
         header: "Type",
         cell: ({ row }) => (
-          <Badge className={TRANSACTION_TYPE_BADGE_CLASSES[row.original.transactionType] ?? ""}>
-            {TRANSACTION_TYPE_LABELS[row.original.transactionType] ?? row.original.transactionType}
+          <Badge
+            className={
+              TRANSACTION_TYPE_BADGE_CLASSES[row.original.transactionType] ?? ""
+            }
+          >
+            {TRANSACTION_TYPE_LABELS[row.original.transactionType] ??
+              row.original.transactionType}
           </Badge>
         ),
       }),
@@ -110,9 +115,7 @@ export function InventoryItemDetailPage() {
             Quantity
             <SortIcon
               direction={
-                queryState.sortBy === "quantity"
-                  ? queryState.sortOrder
-                  : false
+                queryState.sortBy === "quantity" ? queryState.sortOrder : false
               }
             />
           </button>
@@ -161,9 +164,7 @@ export function InventoryItemDetailPage() {
             Date
             <SortIcon
               direction={
-                queryState.sortBy === "createdAt"
-                  ? queryState.sortOrder
-                  : false
+                queryState.sortBy === "createdAt" ? queryState.sortOrder : false
               }
             />
           </button>
@@ -191,7 +192,8 @@ export function InventoryItemDetailPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (transactionsQuery.error as Error | null | undefined)?.message;
+  const errorMessage = (transactionsQuery.error as Error | null | undefined)
+    ?.message;
 
   return (
     <div className="space-y-6">
@@ -207,7 +209,9 @@ export function InventoryItemDetailPage() {
         </h1>
         {itemData ? (
           <p className="text-sm text-muted-foreground">
-            {itemData.categoryName} | {INVENTORY_UNIT_LABELS[itemData.unit] ?? itemData.unit} | Stock: {itemData.currentStock} (min: {itemData.minimumStock})
+            {itemData.categoryName} |{" "}
+            {INVENTORY_UNIT_LABELS[itemData.unit] ?? itemData.unit} | Stock:{" "}
+            {itemData.currentStock} (min: {itemData.minimumStock})
             {itemData.location ? ` | ${itemData.location}` : ""}
           </p>
         ) : null}
@@ -216,7 +220,8 @@ export function InventoryItemDetailPage() {
       {itemData && itemData.currentStock <= itemData.minimumStock ? (
         <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3">
           <p className="text-sm text-destructive font-medium">
-            Stock is at or below minimum level. Current: {itemData.currentStock}, Minimum: {itemData.minimumStock}
+            Stock is at or below minimum level. Current: {itemData.currentStock}
+            , Minimum: {itemData.minimumStock}
           </p>
         </div>
       ) : null}
