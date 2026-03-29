@@ -563,7 +563,10 @@ export class FeesController {
     @CurrentInstitution() institution: TenantInstitution,
     @Body() body: Record<string, unknown>,
   ) {
-    return this.feesService.createLateFeeRule(institution.id, body as any);
+    return this.feesService.createLateFeeRule(
+      institution.id,
+      body as Parameters<typeof this.feesService.createLateFeeRule>[1],
+    );
   }
 
   @Patch(`${API_ROUTES.LATE_FEE_RULES}/:ruleId`)
@@ -577,7 +580,7 @@ export class FeesController {
     return this.feesService.updateLateFeeRule(
       institution.id,
       ruleId,
-      body as any,
+      body as Parameters<typeof this.feesService.updateLateFeeRule>[2],
     );
   }
 

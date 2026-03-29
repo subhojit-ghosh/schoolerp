@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import {
   IconDotsVertical,
@@ -107,27 +107,30 @@ export function TransportAssignmentsPage() {
     [assignmentsQuery.data],
   );
 
-  async function handleToggleStatus(row: AssignmentRow) {
-    const newStatus = row.status === "active" ? "inactive" : "active";
-    try {
-      await updateMutation.mutateAsync({
-        params: { path: { assignmentId: row.id } },
-        body: { status: newStatus },
-      });
-      toast.success(
-        newStatus === "active"
-          ? "Assignment activated."
-          : "Assignment deactivated.",
-      );
-    } catch (error) {
-      toast.error(
-        extractApiError(
-          error,
-          "Could not update assignment status. Please try again.",
-        ),
-      );
-    }
-  }
+  const handleToggleStatus = useCallback(
+    async (row: AssignmentRow) => {
+      const newStatus = row.status === "active" ? "inactive" : "active";
+      try {
+        await updateMutation.mutateAsync({
+          params: { path: { assignmentId: row.id } },
+          body: { status: newStatus },
+        });
+        toast.success(
+          newStatus === "active"
+            ? "Assignment activated."
+            : "Assignment deactivated.",
+        );
+      } catch (error) {
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update assignment status. Please try again.",
+          ),
+        );
+      }
+    },
+    [updateMutation],
+  );
 
   const columns = useMemo(
     () => [
@@ -228,6 +231,7 @@ export function TransportAssignmentsPage() {
     ],
     [
       canManage,
+      handleToggleStatus,
       location.search,
       queryState.sortBy,
       queryState.sortOrder,

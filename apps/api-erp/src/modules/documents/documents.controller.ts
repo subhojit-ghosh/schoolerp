@@ -93,7 +93,7 @@ export class DocumentsController {
   ) {
     return this.documentsService.updateDocumentConfig(
       institution.id,
-      body as any,
+      body as Parameters<typeof this.documentsService.updateDocumentConfig>[1],
     );
   }
 }

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import {
   IconBook,
@@ -99,25 +99,28 @@ export function LibraryBooksPage() {
     [booksQuery.data?.rows],
   );
 
-  async function handleToggleStatus(book: BookRow) {
-    const newStatus = book.status === "active" ? "inactive" : "active";
-    try {
-      await updateMutation.mutateAsync({
-        params: { path: { bookId: book.id } },
-        body: { status: newStatus },
-      });
-      toast.success(
-        newStatus === "active" ? "Book activated." : "Book deactivated.",
-      );
-    } catch (error) {
-      toast.error(
-        extractApiError(
-          error,
-          "Could not update book status. Please try again.",
-        ),
-      );
-    }
-  }
+  const handleToggleStatus = useCallback(
+    async (book: BookRow) => {
+      const newStatus = book.status === "active" ? "inactive" : "active";
+      try {
+        await updateMutation.mutateAsync({
+          params: { path: { bookId: book.id } },
+          body: { status: newStatus },
+        });
+        toast.success(
+          newStatus === "active" ? "Book activated." : "Book deactivated.",
+        );
+      } catch (error) {
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update book status. Please try again.",
+          ),
+        );
+      }
+    },
+    [updateMutation],
+  );
 
   const columns = useMemo(
     () => [
@@ -235,6 +238,7 @@ export function LibraryBooksPage() {
     ],
     [
       canManage,
+      handleToggleStatus,
       location.search,
       queryState.sortBy,
       queryState.sortOrder,

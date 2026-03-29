@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import {
   IconDotsVertical,
@@ -101,25 +101,30 @@ export function TransportVehiclesPage() {
     [vehiclesQuery.data],
   );
 
-  async function handleToggleStatus(row: VehicleRow) {
-    const newStatus = row.status === "active" ? "inactive" : "active";
-    try {
-      await updateMutation.mutateAsync({
-        params: { path: { vehicleId: row.id } },
-        body: { status: newStatus },
-      });
-      toast.success(
-        newStatus === "active" ? "Vehicle activated." : "Vehicle deactivated.",
-      );
-    } catch (error) {
-      toast.error(
-        extractApiError(
-          error,
-          "Could not update vehicle status. Please try again.",
-        ),
-      );
-    }
-  }
+  const handleToggleStatus = useCallback(
+    async (row: VehicleRow) => {
+      const newStatus = row.status === "active" ? "inactive" : "active";
+      try {
+        await updateMutation.mutateAsync({
+          params: { path: { vehicleId: row.id } },
+          body: { status: newStatus },
+        });
+        toast.success(
+          newStatus === "active"
+            ? "Vehicle activated."
+            : "Vehicle deactivated.",
+        );
+      } catch (error) {
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update vehicle status. Please try again.",
+          ),
+        );
+      }
+    },
+    [updateMutation],
+  );
 
   const columns = useMemo(
     () => [
@@ -228,6 +233,7 @@ export function TransportVehiclesPage() {
     ],
     [
       canManage,
+      handleToggleStatus,
       location.search,
       queryState.sortBy,
       queryState.sortOrder,

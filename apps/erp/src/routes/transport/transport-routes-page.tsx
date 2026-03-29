@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import {
   IconDotsVertical,
@@ -98,25 +98,28 @@ export function TransportRoutesPage() {
     [routesQuery.data],
   );
 
-  async function handleToggleStatus(row: RouteRow) {
-    const newStatus = row.status === "active" ? "inactive" : "active";
-    try {
-      await updateMutation.mutateAsync({
-        params: { path: { routeId: row.id } },
-        body: { status: newStatus },
-      });
-      toast.success(
-        newStatus === "active" ? "Route activated." : "Route deactivated.",
-      );
-    } catch (error) {
-      toast.error(
-        extractApiError(
-          error,
-          "Could not update route status. Please try again.",
-        ),
-      );
-    }
-  }
+  const handleToggleStatus = useCallback(
+    async (row: RouteRow) => {
+      const newStatus = row.status === "active" ? "inactive" : "active";
+      try {
+        await updateMutation.mutateAsync({
+          params: { path: { routeId: row.id } },
+          body: { status: newStatus },
+        });
+        toast.success(
+          newStatus === "active" ? "Route activated." : "Route deactivated.",
+        );
+      } catch (error) {
+        toast.error(
+          extractApiError(
+            error,
+            "Could not update route status. Please try again.",
+          ),
+        );
+      }
+    },
+    [updateMutation],
+  );
 
   const columns = useMemo(
     () => [
@@ -207,6 +210,7 @@ export function TransportRoutesPage() {
     ],
     [
       canManage,
+      handleToggleStatus,
       location.search,
       queryState.sortBy,
       queryState.sortOrder,

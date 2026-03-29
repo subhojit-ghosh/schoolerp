@@ -17,9 +17,13 @@ import { randomUUID } from "node:crypto";
 import { decryptCredentials, encryptCredentials } from "./delivery-crypto";
 import {
   Msg91SmsProvider,
+  type Msg91Credentials,
   TwilioSmsProvider,
+  type TwilioCredentials,
   ResendEmailProvider,
+  type ResendCredentials,
   SendGridEmailProvider,
+  type SendGridCredentials,
 } from "./providers";
 import type {
   EmailDeliveryProvider,
@@ -184,9 +188,11 @@ export class DeliveryConfigService {
 
     switch (provider) {
       case DELIVERY_PROVIDERS.MSG91:
-        return new Msg91SmsProvider(credentials as any);
+        return new Msg91SmsProvider(credentials as unknown as Msg91Credentials);
       case DELIVERY_PROVIDERS.TWILIO:
-        return new TwilioSmsProvider(credentials as any);
+        return new TwilioSmsProvider(
+          credentials as unknown as TwilioCredentials,
+        );
       default:
         this.logger.warn(`Unsupported institution SMS provider: ${provider}`);
         return null;
@@ -205,9 +211,13 @@ export class DeliveryConfigService {
 
     switch (provider) {
       case DELIVERY_PROVIDERS.RESEND:
-        return new ResendEmailProvider(credentials as any);
+        return new ResendEmailProvider(
+          credentials as unknown as ResendCredentials,
+        );
       case DELIVERY_PROVIDERS.SENDGRID:
-        return new SendGridEmailProvider(credentials as any);
+        return new SendGridEmailProvider(
+          credentials as unknown as SendGridCredentials,
+        );
       default:
         this.logger.warn(`Unsupported institution email provider: ${provider}`);
         return null;
