@@ -41,10 +41,13 @@ import { useAcademicYearsQuery } from "@/features/academic-years/api/use-academi
 import { ERP_ROUTES } from "@/constants/routes";
 import { DOCUMENT_QUERY_PARAMS } from "@/features/documents/model/document.constants";
 import {
+  useClassAnalysisQuery,
   useCreateExamTermMutation,
   useExamMarksQuery,
   useExamReportCardQuery,
   useExamTermsQuery,
+  useGradingScalesQuery,
+  useRanksQuery,
   useReplaceExamMarksMutation,
 } from "@/features/exams/api/use-exams";
 import {
@@ -63,7 +66,15 @@ const EMPTY_MARKS_ENTRY: ExamMarksFormValues["entries"][number] = {
   subjectName: "",
   maxMarks: 100,
   obtainedMarks: 0,
+  graceMarks: 0,
   remarks: "",
+};
+
+const EXAM_TYPE_LABELS: Record<string, string> = {
+  unit_test: "Unit Test",
+  midterm: "Mid-Term",
+  final: "Final",
+  practical: "Practical",
 };
 
 function buildExamReportCardHref(
@@ -110,7 +121,11 @@ export function ExamsPage() {
     useCreateExamTermMutation(managedInstitutionId);
   const replaceMarksMutation =
     useReplaceExamMarksMutation(managedInstitutionId);
+  const gradingScalesQuery = useGradingScalesQuery(
+    Boolean(managedInstitutionId),
+  );
   const [selectedExamTermId, setSelectedExamTermId] = useState<string>();
+  const [selectedClassId, setSelectedClassId] = useState<string>();
   const [selectedReportStudentId, setSelectedReportStudentId] =
     useState<string>();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -133,6 +148,11 @@ export function ExamsPage() {
     selectedExamTermId,
     selectedReportStudentId,
   );
+  const classAnalysisQuery = useClassAnalysisQuery(
+    selectedExamTermId,
+    selectedClassId,
+  );
+  const ranksQuery = useRanksQuery(selectedExamTermId, selectedClassId);
 
   useEffect(() => {
     if (examTerms.length === 0) {
@@ -169,6 +189,10 @@ export function ExamsPage() {
         academicYears[0]?.id ??
         "",
       name: "",
+      examType: "final" as const,
+      weightageInBp: 10000,
+      gradingScaleId: "",
+      defaultPassingPercent: 33,
       startDate: "",
       endDate: "",
     }),
@@ -181,6 +205,7 @@ export function ExamsPage() {
       subjectName: mark.subjectName,
       maxMarks: mark.maxMarks,
       obtainedMarks: mark.obtainedMarks,
+      graceMarks: mark.graceMarks ?? 0,
       remarks: mark.remarks ?? "",
     }));
 
@@ -324,7 +349,12 @@ export function ExamsPage() {
                   >
                     <div className="flex items-center justify-between gap-3">
                       <p className="font-medium text-foreground">{term.name}</p>
-                      {isSelected ? <Badge>Selected</Badge> : null}
+                      <div className="flex items-center gap-1.5">
+                        <Badge variant="outline">
+                          {EXAM_TYPE_LABELS[term.examType] ?? term.examType}
+                        </Badge>
+                        {isSelected ? <Badge>Selected</Badge> : null}
+                      </div>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
                       {formatAcademicYear(term.academicYearName)}
@@ -426,9 +456,16 @@ export function ExamsPage() {
                       {mark.remarks ? ` · ${mark.remarks}` : ""}
                     </p>
                   </div>
-                  <Badge variant="outline">
-                    {mark.obtainedMarks}/{mark.maxMarks}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    {mark.graceMarks > 0 ? (
+                      <Badge variant="secondary" className="text-xs">
+                        +{mark.graceMarks} grace
+                      </Badge>
+                    ) : null}
+                    <Badge variant="outline">
+                      {mark.obtainedMarks}/{mark.maxMarks}
+                    </Badge>
+                  </div>
                 </div>
               ))}
             </div>
@@ -556,14 +593,15 @@ export function ExamsPage() {
                     </div>
                   </div>
 
-                  <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="rounded-lg border bg-muted/20 px-3 py-2">
                       <p className="text-xs uppercase tracking-wide text-muted-foreground">
                         Total marks
                       </p>
                       <p className="text-base font-semibold tabular-nums">
-                        {examReportCardQuery.data.summary.totalObtainedMarks}/
-                        {examReportCardQuery.data.summary.totalMaxMarks}
+                        {examReportCardQuery.data.summary.totalEffectiveMarks ??
+                          examReportCardQuery.data.summary.totalObtainedMarks}
+                        /{examReportCardQuery.data.summary.totalMaxMarks}
                       </p>
                     </div>
                     <div className="rounded-lg border bg-muted/20 px-3 py-2">
@@ -576,12 +614,36 @@ export function ExamsPage() {
                     </div>
                     <div className="rounded-lg border bg-muted/20 px-3 py-2">
                       <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                        Overall grade
+                        Grade / Result
                       </p>
                       <p className="text-base font-semibold">
                         {examReportCardQuery.data.summary.overallGrade}
+                        {examReportCardQuery.data.summary.result ? (
+                          <span
+                            className={
+                              examReportCardQuery.data.summary.result === "Pass"
+                                ? "ml-2 text-emerald-600"
+                                : "ml-2 text-destructive"
+                            }
+                          >
+                            {examReportCardQuery.data.summary.result}
+                          </span>
+                        ) : null}
                       </p>
                     </div>
+                    {examReportCardQuery.data.classRank ? (
+                      <div className="rounded-lg border bg-muted/20 px-3 py-2">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          Class rank
+                        </p>
+                        <p className="text-base font-semibold">
+                          #{examReportCardQuery.data.classRank}
+                          {examReportCardQuery.data.sectionRank
+                            ? ` (Section #${examReportCardQuery.data.sectionRank})`
+                            : ""}
+                        </p>
+                      </div>
+                    ) : null}
                   </div>
 
                   {examReportCardQuery.data.subjects.length > 0 ? (
@@ -655,6 +717,233 @@ export function ExamsPage() {
         </div>
       </section>
 
+      {/* Class analysis + ranks */}
+      <section className="overflow-hidden rounded-lg border bg-card">
+        <div className="border-b px-6 py-4">
+          <h2 className="text-base font-semibold">Class Analysis & Ranks</h2>
+          <p className="text-sm text-muted-foreground">
+            Subject-wise stats and ranked student list for the selected term.
+          </p>
+        </div>
+        <div className="p-6">
+          {!selectedExamTermId ? (
+            <EmptyState>Select an exam term to view analysis.</EmptyState>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="grid gap-3 md:grid-cols-[280px_minmax(0,1fr)] md:items-end">
+                <div className="space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Class
+                  </p>
+                  <Select
+                    onValueChange={setSelectedClassId}
+                    value={selectedClassId}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select class for analysis" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {(studentOptionsQuery.data ?? [])
+                          .reduce<{ id: string; name: string }[]>(
+                            (acc, s) => {
+                              if (
+                                "classId" in s &&
+                                !acc.some((c) => c.id === (s as Record<string, string>).classId)
+                              ) {
+                                acc.push({
+                                  id: (s as Record<string, string>).classId,
+                                  name: (s as Record<string, string>).className ?? "Class",
+                                });
+                              }
+                              return acc;
+                            },
+                            [],
+                          )
+                          .map((cls) => (
+                            <SelectItem key={cls.id} value={cls.id}>
+                              {cls.name}
+                            </SelectItem>
+                          ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {classAnalysisQuery.data ? (
+                <div className="space-y-4">
+                  <div className="grid gap-3 sm:grid-cols-4">
+                    <div className="rounded-lg border bg-muted/20 px-3 py-2">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        Students
+                      </p>
+                      <p className="text-base font-semibold tabular-nums">
+                        {classAnalysisQuery.data.studentCount}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border bg-muted/20 px-3 py-2">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        Class average
+                      </p>
+                      <p className="text-base font-semibold tabular-nums">
+                        {classAnalysisQuery.data.classAverage}%
+                      </p>
+                    </div>
+                    <div className="rounded-lg border bg-emerald-50 px-3 py-2 dark:bg-emerald-950">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        Pass
+                      </p>
+                      <p className="text-base font-semibold text-emerald-700 tabular-nums dark:text-emerald-300">
+                        {classAnalysisQuery.data.passCount}
+                      </p>
+                    </div>
+                    <div className="rounded-lg border bg-red-50 px-3 py-2 dark:bg-red-950">
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                        Fail
+                      </p>
+                      <p className="text-base font-semibold text-destructive tabular-nums">
+                        {classAnalysisQuery.data.failCount}
+                      </p>
+                    </div>
+                  </div>
+
+                  {classAnalysisQuery.data.classTopperName ? (
+                    <p className="text-sm text-muted-foreground">
+                      Class topper:{" "}
+                      <span className="font-medium text-foreground">
+                        {classAnalysisQuery.data.classTopperName}
+                      </span>{" "}
+                      ({classAnalysisQuery.data.classTopperPercent}%)
+                    </p>
+                  ) : null}
+
+                  {classAnalysisQuery.data.subjects.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b bg-muted/30">
+                            <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                              Subject
+                            </th>
+                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                              Avg
+                            </th>
+                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                              Highest
+                            </th>
+                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                              Lowest
+                            </th>
+                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                              Pass
+                            </th>
+                            <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                              Fail
+                            </th>
+                            <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                              Topper
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                          {classAnalysisQuery.data.subjects.map((subject) => (
+                            <tr key={subject.subjectName}>
+                              <td className="px-3 py-2 font-medium">
+                                {subject.subjectName}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums">
+                                {subject.average}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums">
+                                {subject.highest}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums">
+                                {subject.lowest}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums text-emerald-600">
+                                {subject.passCount}
+                              </td>
+                              <td className="px-3 py-2 text-right tabular-nums text-destructive">
+                                {subject.failCount}
+                              </td>
+                              <td className="px-3 py-2 text-muted-foreground">
+                                {subject.topperName}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : null}
+                </div>
+              ) : selectedClassId ? (
+                <EmptyState>Loading analysis...</EmptyState>
+              ) : null}
+
+              {ranksQuery.data?.students &&
+              ranksQuery.data.students.length > 0 ? (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Ranked Student List
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b bg-muted/30">
+                          <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                            Rank
+                          </th>
+                          <th className="px-3 py-2 text-left font-medium text-muted-foreground">
+                            Student
+                          </th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                            Marks
+                          </th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                            %
+                          </th>
+                          <th className="px-3 py-2 text-right font-medium text-muted-foreground">
+                            Grade
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {ranksQuery.data.students.map((student) => (
+                          <tr key={student.studentId}>
+                            <td className="px-3 py-2 font-semibold tabular-nums">
+                              #{student.rank}
+                            </td>
+                            <td className="px-3 py-2">
+                              <p className="font-medium">
+                                {student.studentFullName}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {student.admissionNumber}
+                              </p>
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums">
+                              {student.totalEffectiveMarks}/
+                              {student.totalMaxMarks}
+                            </td>
+                            <td className="px-3 py-2 text-right tabular-nums">
+                              {student.percentage}%
+                            </td>
+                            <td className="px-3 py-2 text-right">
+                              <Badge variant="outline">{student.grade}</Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Create exam term dialog */}
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent className="sm:max-w-lg">
@@ -668,6 +957,11 @@ export function ExamsPage() {
             academicYears={academicYears.map((academicYear) => ({
               id: academicYear.id,
               name: academicYear.name,
+            }))}
+            gradingScales={(gradingScalesQuery.data ?? []).map((scale) => ({
+              id: scale.id,
+              name: scale.name,
+              isDefault: scale.isDefault,
             }))}
             defaultValues={termDefaultValues}
             errorMessage={

@@ -165,6 +165,9 @@ export const ERP_ROUTES = {
   DOCUMENT_STUDENT_ID_CARD: "/documents/student-id-card/:studentId",
   DOCUMENT_STAFF_ID_CARD: "/documents/staff-id-card/:staffId",
   DOCUMENTS: "/documents",
+  DOCUMENTS_DEMAND_NOTICE: "/documents/demand-notice/:studentId",
+  DOCUMENTS_BATCH_REPORT_CARDS: "/documents/batch-report-cards",
+  DOCUMENTS_BATCH_RECEIPTS: "/documents/batch-receipts",
   CERTIFICATES: "/certificates",
   // Parent portal
   FAMILY_CHILDREN: "/family/children",
@@ -200,6 +203,7 @@ export const ERP_ROUTES = {
   SETTINGS_AUDIT: "/settings/audit",
   SETTINGS_DELIVERY: "/settings/delivery",
   SETTINGS_PAYMENT: "/settings/payment",
+  SETTINGS_DOCUMENTS: "/settings/documents",
   SETTINGS_ROLES_CREATE: `/settings/roles/${ERP_ROUTE_SEGMENTS.NEW}`,
   SETTINGS_ROLES_EDIT: `/settings/roles/:roleId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   // Auth

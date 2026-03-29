@@ -44,6 +44,7 @@ const DEFAULT_ENTRY: ExamMarksFormValues["entries"][number] = {
   subjectName: "",
   maxMarks: 100,
   obtainedMarks: 0,
+  graceMarks: 0,
   remarks: "",
 };
 

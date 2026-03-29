@@ -74,6 +74,10 @@ const STATUS_CONFIG = {
     active: "bg-amber-500 text-white border-amber-500 hover:bg-amber-500",
     idle: "border-border text-muted-foreground hover:border-amber-400 hover:text-amber-600",
   },
+  [ATTENDANCE_STATUSES.HALF_DAY]: {
+    active: "bg-orange-500 text-white border-orange-500 hover:bg-orange-500",
+    idle: "border-border text-muted-foreground hover:border-orange-400 hover:text-orange-600",
+  },
   [ATTENDANCE_STATUSES.EXCUSED]: {
     active: "bg-blue-600 text-white border-blue-600 hover:bg-blue-600",
     idle: "border-border text-muted-foreground hover:border-blue-500 hover:text-blue-600",
@@ -84,6 +88,7 @@ const STATUS_OPTIONS = [
   ATTENDANCE_STATUSES.PRESENT,
   ATTENDANCE_STATUSES.ABSENT,
   ATTENDANCE_STATUSES.LATE,
+  ATTENDANCE_STATUSES.HALF_DAY,
   ATTENDANCE_STATUSES.EXCUSED,
 ] as const;
 

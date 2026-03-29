@@ -1,5 +1,6 @@
 import {
   FEE_ADJUSTMENT_TYPES,
+  FEE_CATEGORIES,
   FEE_PAYMENT_METHODS,
   FEE_STRUCTURE_SCOPES,
   FEE_STRUCTURE_STATUSES,
@@ -45,11 +46,20 @@ const installmentSchema = z.object({
   dueDate: dateFieldSchema,
 });
 
+export const FEE_CATEGORY_OPTIONS = [
+  FEE_CATEGORIES.TUITION,
+  FEE_CATEGORIES.TRANSPORT,
+  FEE_CATEGORIES.HOSTEL,
+  FEE_CATEGORIES.LAB,
+  FEE_CATEGORIES.MISC,
+] as const;
+
 export const feeStructureFormSchema = z.object({
   academicYearId: z.uuid("Select an academic year"),
   name: z.string().trim().min(1, "Structure name is required"),
   description: optionalTextSchema,
   scope: z.enum(FEE_STRUCTURE_SCOPE_OPTIONS),
+  category: z.string().optional().or(z.literal("")),
   installments: z
     .array(installmentSchema)
     .min(1, "Add at least one installment"),

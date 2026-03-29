@@ -38,6 +38,7 @@ import { BrandingPage } from "@/routes/settings/branding-page";
 import { AdmissionFormFieldsPage } from "@/routes/settings/admission-form-fields-page";
 import { AuditPage } from "@/routes/settings/audit-page";
 import { DeliverySettingsPage } from "@/routes/settings/delivery-page";
+import { DocumentsSettingsPage } from "@/routes/settings/documents-page";
 import { PaymentSettingsPage } from "@/routes/settings/payment-page";
 import { CampusesPage } from "@/routes/settings/campuses-page";
 import { RolesPage } from "@/routes/settings/roles-page";
@@ -126,6 +127,8 @@ import { StudentPortalPage } from "@/features/student-portal/ui/student-portal-p
 import { AdmissionAcknowledgementPage } from "@/routes/documents/admission-acknowledgement-page";
 import { BonafideCertificatePage } from "@/routes/documents/bonafide-certificate-page";
 import { CharacterCertificatePage } from "@/routes/documents/character-certificate-page";
+import { BatchReceiptsPage } from "@/routes/documents/batch-receipts-page";
+import { BatchReportCardsPage } from "@/routes/documents/batch-report-cards-page";
 import { ExamReportCardPage } from "@/routes/documents/exam-report-card-page";
 import { FeeReceiptPage } from "@/routes/documents/fee-receipt-page";
 import { StaffIdCardPage } from "@/routes/documents/staff-id-card-page";
@@ -207,6 +210,24 @@ const router = createBrowserRouter([
     element: (
       <RequireSession>
         <ExamReportCardPage />
+      </RequireSession>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.DOCUMENTS_BATCH_REPORT_CARDS,
+    element: (
+      <RequireSession>
+        <BatchReportCardsPage />
+      </RequireSession>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.DOCUMENTS_BATCH_RECEIPTS,
+    element: (
+      <RequireSession>
+        <BatchReceiptsPage />
       </RequireSession>
     ),
     errorElement: <RouteErrorBoundary />,
@@ -820,6 +841,7 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.SETTINGS_AUDIT, element: <AuditPage /> },
       { path: ERP_ROUTES.SETTINGS_BRANDING, element: <BrandingPage /> },
       { path: ERP_ROUTES.SETTINGS_DELIVERY, element: <DeliverySettingsPage /> },
+      { path: ERP_ROUTES.SETTINGS_DOCUMENTS, element: <DocumentsSettingsPage /> },
       { path: ERP_ROUTES.SETTINGS_PAYMENT, element: <PaymentSettingsPage /> },
       {
         path: ERP_ROUTES.SETTINGS_ADMISSION_FIELDS,

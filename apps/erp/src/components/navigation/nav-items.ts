@@ -455,6 +455,12 @@ export const NAV_SETTINGS: readonly (NavItem & {
     url: ERP_ROUTES.SETTINGS_PAYMENT,
   },
   {
+    icon: IconFileDescription,
+    permission: PERMISSIONS.INSTITUTION_SETTINGS_MANAGE,
+    title: "Documents",
+    url: ERP_ROUTES.SETTINGS_DOCUMENTS,
+  },
+  {
     icon: IconClipboardList,
     permission: PERMISSIONS.AUDIT_READ,
     title: "Audit Trail",

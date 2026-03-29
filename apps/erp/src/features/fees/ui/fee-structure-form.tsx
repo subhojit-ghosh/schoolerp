@@ -474,6 +474,38 @@ export function FeeStructureForm({
                   </Field>
                 )}
               />
+
+              <Controller
+                control={control}
+                name="category"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid || undefined}>
+                    <FieldLabel>Category</FieldLabel>
+                    <FieldContent>
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value ?? ""}
+                        disabled={isReadOnly}
+                      >
+                        <SelectTrigger aria-invalid={fieldState.invalid}>
+                          <SelectValue placeholder="No category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="">No category</SelectItem>
+                            <SelectItem value="tuition">Tuition</SelectItem>
+                            <SelectItem value="transport">Transport</SelectItem>
+                            <SelectItem value="hostel">Hostel</SelectItem>
+                            <SelectItem value="lab">Lab</SelectItem>
+                            <SelectItem value="misc">Miscellaneous</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FieldError>{fieldState.error?.message}</FieldError>
+                    </FieldContent>
+                  </Field>
+                )}
+              />
             </div>
           </FieldGroup>
         </div>

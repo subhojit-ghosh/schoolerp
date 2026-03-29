@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { EXAM_TYPE_LABELS } from "@repo/contracts";
 import { Button } from "@repo/ui/components/ui/button";
 import {
   Field,
@@ -29,16 +30,28 @@ type AcademicYearOption = {
   name: string;
 };
 
+type GradingScaleOption = {
+  id: string;
+  name: string;
+  isDefault: boolean;
+};
+
 type ExamTermFormProps = {
   academicYears: AcademicYearOption[];
+  gradingScales?: GradingScaleOption[];
   defaultValues: ExamTermFormValues;
   errorMessage?: string;
   isPending?: boolean;
   onSubmit: (values: ExamTermFormValues) => Promise<void> | void;
 };
 
+const EXAM_TYPE_OPTIONS = Object.entries(EXAM_TYPE_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
+
 export function ExamTermForm({
   academicYears,
+  gradingScales = [],
   defaultValues,
   errorMessage,
   isPending = false,
@@ -113,13 +126,100 @@ export function ExamTermForm({
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
-                  placeholder="Exam term name"
+                  placeholder="e.g. Mid-Term, Final"
                 />
                 <FieldError>{fieldState.error?.message}</FieldError>
               </FieldContent>
             </Field>
           )}
         />
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Controller
+            control={control}
+            name="examType"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel required>Exam type</FieldLabel>
+                <FieldContent>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value ?? "final"}
+                  >
+                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Select exam type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        {EXAM_TYPE_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {opt.label}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="defaultPassingPercent"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel required>Passing %</FieldLabel>
+                <FieldContent>
+                  <Input
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    aria-invalid={fieldState.invalid}
+                    type="number"
+                    min={0}
+                    max={100}
+                  />
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+        </div>
+
+        {gradingScales.length > 0 ? (
+          <Controller
+            control={control}
+            name="gradingScaleId"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel>Grading scale</FieldLabel>
+                <FieldContent>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value ?? ""}
+                  >
+                    <SelectTrigger aria-invalid={fieldState.invalid}>
+                      <SelectValue placeholder="Use institution default" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="">Institution default</SelectItem>
+                        {gradingScales.map((scale) => (
+                          <SelectItem key={scale.id} value={scale.id}>
+                            {scale.name}
+                            {scale.isDefault ? " (default)" : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FieldError>{fieldState.error?.message}</FieldError>
+                </FieldContent>
+              </Field>
+            )}
+          />
+        ) : null}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Controller
