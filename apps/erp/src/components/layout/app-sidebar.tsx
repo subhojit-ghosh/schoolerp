@@ -239,7 +239,7 @@ function FlyoutPanel({
         color: "hsl(var(--foreground))",
         borderRight: "1px solid rgba(15,23,42,0.08)",
         background:
-          "linear-gradient(180deg, var(--sidebar-panel, color-mix(in srgb, var(--card) 92%, var(--sidebar-accent) 8%)) 0%, hsl(var(--card)) 32%, hsl(var(--card)) 100%)",
+          "linear-gradient(180deg, oklch(0.965 0 0) 0%, oklch(0.97 0 0) 100%)",
       }}
     >
       <div className="border-b border-black/[0.06] px-4 pt-3.5 pb-2.5">
@@ -929,7 +929,7 @@ export function AppSidebar() {
             )}
             style={{
               background:
-                "linear-gradient(180deg, var(--sidebar-panel, color-mix(in srgb, var(--card) 92%, var(--sidebar-accent) 8%)) 0%, hsl(var(--card)) 100%)",
+                "linear-gradient(180deg, oklch(0.965 0 0) 0%, oklch(0.97 0 0) 100%)",
               borderTop: "1px solid rgba(15,23,42,0.06)",
               borderRight: "1px solid rgba(15,23,42,0.08)",
               borderBottom: "1px solid rgba(15,23,42,0.08)",
