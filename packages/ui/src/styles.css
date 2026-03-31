@@ -75,6 +75,17 @@
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
+  --sidebar-rail: color-mix(in srgb, var(--sidebar) 72%, black 28%);
+  --sidebar-panel: color-mix(
+    in srgb,
+    var(--card) 92%,
+    var(--sidebar-accent) 8%
+  );
+  --sidebar-item-active: color-mix(
+    in srgb,
+    var(--sidebar-primary) 10%,
+    white 90%
+  );
   --sidebar-ring: oklch(0.708 0 0);
 }
 
@@ -106,6 +117,17 @@
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-rail: color-mix(in srgb, var(--sidebar) 72%, black 28%);
+  --sidebar-panel: color-mix(
+    in srgb,
+    var(--card) 86%,
+    var(--sidebar-accent) 14%
+  );
+  --sidebar-item-active: color-mix(
+    in srgb,
+    var(--sidebar-primary) 14%,
+    black 86%
+  );
   --sidebar-ring: oklch(0.556 0 0);
 }
 

@@ -70,6 +70,9 @@ export function applyBrandingColorPreview(
       tokens.accentForeground,
     );
     root.style.setProperty("--sidebar-border", tokens.border);
+    root.style.setProperty("--sidebar-rail", tokens.rail);
+    root.style.setProperty("--sidebar-panel", tokens.panel);
+    root.style.setProperty("--sidebar-item-active", tokens.itemActive);
   }
 }
 

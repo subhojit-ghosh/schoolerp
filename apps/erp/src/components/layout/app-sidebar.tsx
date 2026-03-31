@@ -11,6 +11,7 @@ import {
   IconSchool,
   IconStar,
   IconStarFilled,
+  IconX,
   IconUserHeart,
   IconUserStar,
   type Icon,
@@ -62,7 +63,9 @@ import type { NavItem } from "@/components/navigation/nav-items";
 // ---------------------------------------------------------------------------
 
 const RAIL_WIDTH = 64;
-const FLYOUT_WIDTH = 240;
+const FLYOUT_WIDTH = 252;
+const SIDEBAR_RAIL_SURFACE =
+  "linear-gradient(180deg, var(--sidebar-rail, color-mix(in srgb, var(--sidebar) 72%, black 28%)) 0%, color-mix(in srgb, var(--sidebar-rail, var(--sidebar)) 88%, black 12%) 100%)";
 
 const CONTEXT_META: Record<
   AuthContextKey,
@@ -90,7 +93,7 @@ function InstitutionLogo({
     return (
       <img
         alt={institutionName}
-        className="size-8 shrink-0 rounded-[10px] object-contain"
+        className="size-8 shrink-0 rounded-[12px] object-contain ring-1 ring-white/10"
         src={logoUrl}
       />
     );
@@ -100,9 +103,10 @@ function InstitutionLogo({
     <span
       className="flex size-8 shrink-0 items-center justify-center rounded-[10px] text-xs font-bold text-white"
       style={{
-        background: "var(--primary, #8a5a44)",
+        background:
+          "linear-gradient(160deg, var(--primary, #8a5a44) 0%, color-mix(in srgb, var(--primary, #8a5a44) 78%, black 22%) 100%)",
         boxShadow:
-          "0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)",
+          "0 10px 20px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.22)",
       }}
     >
       {initial}
@@ -124,7 +128,7 @@ function FavoriteToggle({
         "ml-auto flex size-5 shrink-0 items-center justify-center rounded transition-all duration-150",
         isFavorited
           ? "text-amber-400 opacity-100"
-          : "opacity-0 hover:text-amber-400 group-hover/flyout-item:opacity-70",
+          : "text-foreground/65 opacity-0 hover:text-amber-400 focus-visible:opacity-100 group-hover/flyout-item:opacity-100 group-focus-within/flyout-item:opacity-100",
       )}
       onClick={(event) => {
         event.preventDefault();
@@ -150,13 +154,11 @@ function RailIcon({
   icon: ItemIcon,
   label,
   isActive,
-  isModuleActive,
   onClick,
 }: {
   icon: Icon;
   label: string;
   isActive: boolean;
-  isModuleActive: boolean;
   onClick: () => void;
 }) {
   return (
@@ -164,31 +166,32 @@ function RailIcon({
       <TooltipTrigger asChild>
         <button
           aria-label={label}
-          className="group/rail-icon relative flex size-10 items-center justify-center rounded-xl transition-all duration-150"
+          className="group/rail-icon relative flex size-10 items-center justify-center rounded-[14px] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
           onClick={onClick}
           style={{
-            color: isActive ? "var(--accent, #a78bfa)" : "white",
-            opacity: isActive || isModuleActive ? 1 : 0.55,
+            color: "rgba(255,255,255,0.96)",
             background: isActive
-              ? "rgba(255,255,255,0.1)"
-              : isModuleActive
-                ? "rgba(255,255,255,0.07)"
-                : undefined,
+              ? "color-mix(in srgb, var(--sidebar-primary, var(--sidebar)) 22%, rgba(255,255,255,0.12) 78%)"
+              : undefined,
+            boxShadow: isActive
+              ? "0 10px 22px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(255,255,255,0.08)"
+              : undefined,
+            transform: isActive ? "translateY(-0.5px)" : undefined,
           }}
           type="button"
         >
-          {/* Active pip — left edge accent indicator */}
-          {isActive || isModuleActive ? (
-            <span
-              className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full"
-              style={{
-                background: isActive
-                  ? "var(--accent, #a78bfa)"
-                  : "rgba(255,255,255,0.35)",
-              }}
-            />
-          ) : null}
-          <ItemIcon className="size-[18px] transition-opacity duration-150 group-hover/rail-icon:opacity-100" />
+          <ItemIcon
+            className="size-[18px] transition-opacity duration-150 group-hover/rail-icon:opacity-100"
+            style={{
+              color: isActive
+                ? "rgba(255,255,255,0.98)"
+                : "rgba(255,255,255,0.96)",
+              opacity: isActive ? 1 : 0.72,
+              filter: isActive
+                ? "drop-shadow(0 2px 4px rgba(0,0,0,0.22))"
+                : undefined,
+            }}
+          />
         </button>
       </TooltipTrigger>
       <TooltipContent side="right" sideOffset={12}>
@@ -206,12 +209,12 @@ function FlyoutPanel({
   module,
   isFavorite,
   onToggleFavorite,
-  onNavigate,
+  onClose,
 }: {
   module: NavModule;
   isFavorite: (url: string) => boolean;
   onToggleFavorite: (url: string) => void;
-  onNavigate: () => void;
+  onClose: () => void;
 }) {
   const location = useLocation();
 
@@ -223,49 +226,86 @@ function FlyoutPanel({
   }
 
   return (
-    <div
+    <aside
       className="flex h-full flex-col overflow-hidden"
-      style={{ color: "white" }}
+      aria-label={`${module.label} navigation`}
+      style={{
+        color: "hsl(var(--foreground))",
+        borderRight: "1px solid rgba(15,23,42,0.08)",
+        background:
+          "linear-gradient(180deg, var(--sidebar-panel, color-mix(in srgb, var(--card) 92%, var(--sidebar-accent) 8%)) 0%, hsl(var(--card)) 32%, hsl(var(--card)) 100%)",
+      }}
     >
-      {/* Module header */}
-      <div className="px-4 pt-5 pb-2">
-        <h2
-          className="text-[11px] font-semibold uppercase tracking-[0.08em]"
-          style={{ opacity: 0.5 }}
-        >
-          {module.label}
-        </h2>
+      <div className="border-b border-black/[0.06] px-4 pt-3.5 pb-2.5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <span
+              className="flex size-9 shrink-0 items-center justify-center rounded-[18px]"
+              style={{
+                background:
+                  "linear-gradient(180deg, color-mix(in srgb, var(--sidebar-primary, var(--primary)) 12%, white 88%) 0%, color-mix(in srgb, var(--sidebar-primary, var(--primary)) 8%, white 92%) 100%)",
+                color: "var(--sidebar-primary, var(--primary))",
+                boxShadow:
+                  "inset 0 1px 0 rgba(255,255,255,0.85), 0 6px 20px rgba(15,23,42,0.08)",
+              }}
+            >
+              <module.icon className="size-[18px]" />
+            </span>
+            <div className="min-w-0">
+              <h2
+                className="truncate text-[17px] font-semibold tracking-[-0.025em]"
+                style={{ fontFamily: "var(--font-heading)" }}
+              >
+                {module.label}
+              </h2>
+            </div>
+          </div>
+          <button
+            aria-label={`Close ${module.label} navigation`}
+            className="mt-0.5 flex size-7 items-center justify-center rounded-xl text-foreground/65 transition-colors hover:bg-black/[0.05] hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/30"
+            onClick={onClose}
+            type="button"
+          >
+            <IconX className="size-4" />
+          </button>
+        </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-2 pb-4">
+      <nav className="flex-1 overflow-y-auto px-3 pt-2.5 pb-4">
         {module.sections.map((section, sectionIndex) => (
-          <div key={section.label ?? sectionIndex} className="mb-0.5">
+          <div key={section.label ?? sectionIndex} className="mb-3.5 last:mb-0">
             {section.label ? (
-              <p
-                className="mb-1 px-2.5 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.1em]"
-                style={{ opacity: 0.35 }}
-              >
-                {section.label}
-              </p>
+              <div className="mb-1.5 px-2.5 pt-2.5">
+                <p
+                  className="text-[9px] font-semibold uppercase tracking-[0.16em]"
+                  style={{ opacity: 0.46 }}
+                >
+                  {section.label}
+                </p>
+              </div>
             ) : null}
-            <ul className="space-y-px">
+            <ul className="space-y-0.5">
               {section.items.map((item) => (
                 <li key={item.url}>
                   {item.disabled ? (
                     <span
-                      className="flex h-9 w-full cursor-not-allowed items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-medium"
-                      style={{ opacity: 0.25 }}
+                      className="flex h-[38px] w-full cursor-not-allowed items-center gap-2.5 rounded-xl border border-dashed px-3 text-[12.5px] font-medium tracking-[-0.01em]"
+                      style={{
+                        opacity: 0.42,
+                        borderColor: "rgba(15,23,42,0.1)",
+                        background: "rgba(255,255,255,0.35)",
+                      }}
                     >
                       {item.icon ? (
                         <item.icon className="size-4 shrink-0" />
                       ) : null}
                       <span className="flex-1 truncate">{item.title}</span>
                       <span
-                        className="rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em]"
+                        className="rounded px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-[0.12em]"
                         style={{
-                          opacity: 0.6,
-                          background: "rgba(255,255,255,0.06)",
-                          border: "1px solid rgba(255,255,255,0.06)",
+                          opacity: 0.7,
+                          background: "rgba(15,23,42,0.05)",
+                          border: "1px solid rgba(15,23,42,0.06)",
                         }}
                       >
                         {item.badgeLabel ?? "Soon"}
@@ -273,27 +313,33 @@ function FlyoutPanel({
                     </span>
                   ) : (
                     <Link
-                      className="group/flyout-item flex h-9 w-full items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-medium transition-all duration-100"
-                      onClick={onNavigate}
+                      className="group/flyout-item flex h-[38px] w-full items-center gap-2.5 rounded-xl px-3 text-[13px] font-medium tracking-[-0.012em] transition-all duration-150 hover:bg-black/[0.04]"
                       style={{
-                        opacity: isActivePath(item.url) ? 1 : 0.7,
+                        color: "hsl(var(--foreground))",
+                        opacity: 1,
                         background: isActivePath(item.url)
-                          ? "rgba(255,255,255,0.1)"
+                          ? "var(--sidebar-item-active, color-mix(in srgb, var(--sidebar-primary, var(--primary)) 10%, white 90%))"
                           : undefined,
-                        borderLeft: isActivePath(item.url)
-                          ? "2px solid var(--accent, #a78bfa)"
-                          : "2px solid transparent",
+                        border: isActivePath(item.url)
+                          ? "1px solid color-mix(in srgb, var(--sidebar-primary, var(--primary)) 18%, white 82%)"
+                          : "1px solid transparent",
+                        boxShadow: isActivePath(item.url)
+                          ? "0 8px 18px rgba(15,23,42,0.06), inset 0 1px 0 rgba(255,255,255,0.85)"
+                          : undefined,
+                        transform: isActivePath(item.url)
+                          ? "translateX(2px)"
+                          : undefined,
                       }}
                       to={item.url}
                     >
                       {item.icon ? (
                         <item.icon
-                          className="size-4 shrink-0"
+                          className="size-[15px] shrink-0"
                           style={{
                             color: isActivePath(item.url)
-                              ? "var(--accent, #a78bfa)"
-                              : undefined,
-                            opacity: isActivePath(item.url) ? 1 : 0.5,
+                              ? "var(--sidebar-primary, var(--primary))"
+                              : "hsl(var(--muted-foreground))",
+                            opacity: 1,
                           }}
                         />
                       ) : null}
@@ -310,7 +356,7 @@ function FlyoutPanel({
           </div>
         ))}
       </nav>
-    </div>
+    </aside>
   );
 }
 
@@ -347,8 +393,9 @@ function ContextSwitcher({ compact }: { compact?: boolean }) {
           )}
           style={{
             color: "white",
-            opacity: 0.6,
-            background: "rgba(255,255,255,0.06)",
+            opacity: 0.72,
+            background: "rgba(255,255,255,0.08)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.08)",
           }}
           type="button"
         >
@@ -447,11 +494,14 @@ function UserAvatar() {
     <Tooltip>
       <TooltipTrigger asChild>
         <button
+          aria-label={`${user.name} account`}
           className="flex size-9 items-center justify-center rounded-[10px] text-[11px] font-bold tracking-wide transition-all duration-150"
           style={{
             color: "white",
-            background: "rgba(255,255,255,0.08)",
-            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.08) 100%)",
+            boxShadow:
+              "0 10px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)",
           }}
           onClick={() => void navigate(ERP_ROUTES.ACCOUNT)}
           type="button"
@@ -481,15 +531,15 @@ function FavoriteRailItems({
 
   return (
     <>
-      <div
-        className="mx-auto my-2 w-5"
-        style={{ height: 1, background: "rgba(255,255,255,0.1)" }}
-      />
+      <div className="mt-3 mb-2 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/35">
+        Fav
+      </div>
       {favorites.map((item) => (
         <Tooltip key={item.url}>
           <TooltipTrigger asChild>
             <button
-              className="flex size-8 items-center justify-center rounded-lg text-amber-400/80 transition-colors hover:bg-white/[0.06] hover:text-amber-400"
+              aria-label={item.title}
+              className="flex size-8 items-center justify-center rounded-xl text-amber-300/85 transition-colors hover:bg-white/[0.06] hover:text-amber-200"
               onClick={() => onNavigate(item.url)}
               type="button"
             >
@@ -506,8 +556,8 @@ function FavoriteRailItems({
         </Tooltip>
       ))}
       <div
-        className="mx-auto my-2 w-5"
-        style={{ height: 1, background: "rgba(255,255,255,0.1)" }}
+        className="mx-auto my-2 h-px w-5"
+        style={{ background: "rgba(255,255,255,0.12)" }}
       />
     </>
   );
@@ -553,7 +603,7 @@ function MobileSidebar({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="left"
-        className="w-[280px] bg-sidebar p-0 [&>button]:hidden"
+        className="w-[280px] bg-sidebar p-0 [&>[data-slot=sheet-close]]:right-3 [&>[data-slot=sheet-close]]:top-3 [&>[data-slot=sheet-close]]:rounded-lg [&>[data-slot=sheet-close]]:bg-white/8 [&>[data-slot=sheet-close]]:text-white [&>[data-slot=sheet-close]]:opacity-100 [&>[data-slot=sheet-close]]:ring-0 [&>[data-slot=sheet-close]]:hover:bg-white/14"
         style={{ color: "white" }}
         aria-describedby={undefined}
       >
@@ -683,9 +733,6 @@ export function AppSidebar() {
     .toUpperCase();
   const logoProps = { logoUrl, institutionName, initial };
 
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [openModuleKey, setOpenModuleKey] = React.useState<string | null>(null);
-
   // Filter by permission
   const modules = React.useMemo(() => {
     // Select the right module set based on context
@@ -712,10 +759,32 @@ export function AppSidebar() {
     [location.pathname, modules],
   );
 
-  // Close flyout on route change
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [openModuleKey, setOpenModuleKey] = React.useState<string | null>(
+    activeModule?.directUrl ? null : (activeModule?.key ?? null),
+  );
+
+  // Keep the panel aligned with the current route so sibling navigation remains visible.
   React.useEffect(() => {
-    setOpenModuleKey(null);
-  }, [location.pathname]);
+    setOpenModuleKey(
+      activeModule?.directUrl ? null : (activeModule?.key ?? null),
+    );
+  }, [activeModule?.directUrl, activeModule?.key]);
+
+  React.useEffect(() => {
+    if (!openModuleKey) {
+      return;
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpenModuleKey(null);
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [openModuleKey]);
 
   // Favorite items resolved from URLs
   const favoriteNavItems = React.useMemo(() => {
@@ -726,6 +795,7 @@ export function AppSidebar() {
   }, [favorites, modules]);
 
   const openModule = modules.find((m) => m.key === openModuleKey) ?? null;
+  const railActiveKey = openModuleKey ?? activeModule?.key ?? null;
 
   function handleRailClick(mod: NavModule) {
     if (mod.directUrl) {
@@ -734,10 +804,6 @@ export function AppSidebar() {
       return;
     }
     setOpenModuleKey((prev) => (prev === mod.key ? null : mod.key));
-  }
-
-  function handleFlyoutNavigate() {
-    setOpenModuleKey(null);
   }
 
   // ---- Mobile ----
@@ -783,13 +849,15 @@ export function AppSidebar() {
             className="relative z-10 flex h-full flex-col items-center py-3"
             style={{
               width: RAIL_WIDTH,
-              background: "var(--sidebar)",
+              background: SIDEBAR_RAIL_SURFACE,
+              borderRight: "1px solid rgba(255,255,255,0.12)",
               boxShadow:
-                "3px 0 16px rgba(0,0,0,0.35), 1px 0 0 rgba(255,255,255,0.04)",
+                "inset -1px 0 0 rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.05)",
             }}
           >
             {/* Logo */}
             <Link
+              aria-label={`${institutionName} dashboard`}
               className="mb-3 flex size-10 items-center justify-center rounded-xl transition-all duration-150 hover:scale-105"
               to={ERP_ROUTES.DASHBOARD}
             >
@@ -799,25 +867,13 @@ export function AppSidebar() {
             {/* Context switcher (if multiple contexts) */}
             <ContextSwitcher compact />
 
-            {/* Favorites */}
-            <FavoriteRailItems
-              favorites={favoriteNavItems}
-              onNavigate={(url) => {
-                setOpenModuleKey(null);
-                void navigate(url);
-              }}
-            />
-
             {/* Module icons */}
             <div className="mt-1 flex flex-1 flex-col items-center gap-1 overflow-y-auto">
               {modules.map((mod) => (
                 <RailIcon
                   key={mod.key}
                   icon={mod.icon}
-                  isActive={openModuleKey === mod.key}
-                  isModuleActive={
-                    activeModule?.key === mod.key && openModuleKey !== mod.key
-                  }
+                  isActive={railActiveKey === mod.key}
                   label={mod.label}
                   onClick={() => handleRailClick(mod)}
                 />
@@ -825,7 +881,14 @@ export function AppSidebar() {
             </div>
 
             {/* User avatar */}
-            <div className="mt-auto pt-2">
+            <div className="mt-auto flex flex-col items-center gap-2 pt-2">
+              <FavoriteRailItems
+                favorites={favoriteNavItems}
+                onNavigate={(url) => {
+                  setOpenModuleKey(null);
+                  void navigate(url);
+                }}
+              />
               <UserAvatar />
             </div>
           </div>
@@ -837,9 +900,14 @@ export function AppSidebar() {
               openModule ? "w-[240px] opacity-100" : "w-0 opacity-0",
             )}
             style={{
-              background: "color-mix(in srgb, var(--sidebar) 85%, #4a4a6a)",
-              borderRight: "1px solid rgba(255,255,255,0.05)",
-              borderLeft: "1px solid rgba(255,255,255,0.06)",
+              background:
+                "linear-gradient(180deg, var(--sidebar-panel, color-mix(in srgb, var(--card) 92%, var(--sidebar-accent) 8%)) 0%, hsl(var(--card)) 100%)",
+              borderTop: "1px solid rgba(15,23,42,0.06)",
+              borderRight: "1px solid rgba(15,23,42,0.08)",
+              borderBottom: "1px solid rgba(15,23,42,0.08)",
+              borderLeft: "1px solid rgba(15,23,42,0.14)",
+              boxShadow:
+                "18px 0 40px rgba(15,23,42,0.06), inset -1px 0 0 rgba(15,23,42,0.08)",
               transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
             }}
           >
@@ -847,23 +915,13 @@ export function AppSidebar() {
               <FlyoutPanel
                 isFavorite={isFavorite}
                 module={openModule}
-                onNavigate={handleFlyoutNavigate}
+                onClose={() => setOpenModuleKey(null)}
                 onToggleFavorite={toggleFavorite}
               />
             ) : null}
           </div>
         </div>
       </div>
-
-      {/* Backdrop for flyout (click to close) */}
-      {openModule ? (
-        <div
-          aria-hidden
-          className="fixed inset-0 z-20 transition-opacity duration-200"
-          style={{ background: "rgba(0,0,0,0.15)" }}
-          onClick={() => setOpenModuleKey(null)}
-        />
-      ) : null}
     </TooltipProvider>
   );
 }

@@ -88,6 +88,9 @@ export function deriveSidebarTokens(hex: string) {
     accent: isDark ? mixToward(hex, 255, 0.28) : mixToward(hex, 0, 0.14),
     accentForeground: fg,
     border: isDark ? mixToward(hex, 255, 0.12) : mixToward(hex, 0, 0.08),
+    rail: isDark ? mixToward(hex, 0, 0.18) : mixToward(hex, 0, 0.22),
+    panel: isDark ? mixToward(hex, 255, 0.94) : mixToward(hex, 255, 0.9),
+    itemActive: isDark ? mixToward(hex, 255, 0.86) : mixToward(hex, 255, 0.8),
   };
 }
 
@@ -208,6 +211,9 @@ export function applyTenantBranding(branding: TenantBranding) {
     sidebar.accentForeground,
   );
   root.style.setProperty("--sidebar-border", sidebar.border);
+  root.style.setProperty("--sidebar-rail", sidebar.rail);
+  root.style.setProperty("--sidebar-panel", sidebar.panel);
+  root.style.setProperty("--sidebar-item-active", sidebar.itemActive);
   root.style.setProperty("--sidebar-ring", branding.primaryColor);
 
   // Always load fonts — even if no custom fonts are set, Noto Sans must be fetched
