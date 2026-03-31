@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { DATABASE } from "@repo/backend-core";
 import {
   and,
@@ -28,10 +23,7 @@ import {
 } from "@repo/contracts";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS } from "../../constants";
-import {
-  resolvePagination,
-  resolveTablePageSize,
-} from "../../lib/list-query";
+import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import { AuditService } from "../audit/audit.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import type {
@@ -126,12 +118,12 @@ export class DpdpaService {
         institutionId,
         authSession,
         AUDIT_ACTIONS.UPDATE,
-        updated!.id,
+        updated.id,
         purpose,
         "Re-granted consent.",
       );
 
-      return this.formatConsent(updated!);
+      return this.formatConsent(updated);
     }
 
     const [created] = await this.db
@@ -150,12 +142,12 @@ export class DpdpaService {
       institutionId,
       authSession,
       AUDIT_ACTIONS.CREATE,
-      created!.id,
+      created.id,
       purpose,
       "Granted consent.",
     );
 
-    return this.formatConsent(created!);
+    return this.formatConsent(created);
   }
 
   async withdrawConsent(
@@ -189,12 +181,12 @@ export class DpdpaService {
       institutionId,
       authSession,
       AUDIT_ACTIONS.UPDATE,
-      updated!.id,
+      updated.id,
       purpose,
       "Withdrew consent.",
     );
 
-    return this.formatConsent(updated!);
+    return this.formatConsent(updated);
   }
 
   // ── Sensitive data access logging ───────────────────────────────────
@@ -220,13 +212,9 @@ export class DpdpaService {
     });
   }
 
-  async listAccessLogs(
-    institutionId: string,
-    query: ListSensitiveAccessQuery,
-  ) {
+  async listAccessLogs(institutionId: string, query: ListSensitiveAccessQuery) {
     const pageSize = resolveTablePageSize(query.limit);
-    const sortKey =
-      query.sort ?? sortableSensitiveAccessColumns.createdAt;
+    const sortKey = query.sort ?? sortableSensitiveAccessColumns.createdAt;
     const sortDirection = query.order === SORT_ORDERS.ASC ? asc : desc;
     const conditions: SQL[] = [
       eq(sensitiveDataAccessLogs.institutionId, institutionId),
@@ -237,9 +225,7 @@ export class DpdpaService {
     }
 
     if (query.entityType) {
-      conditions.push(
-        eq(sensitiveDataAccessLogs.entityType, query.entityType),
-      );
+      conditions.push(eq(sensitiveDataAccessLogs.entityType, query.entityType));
     }
 
     if (query.accessedByUserId) {
@@ -263,10 +249,7 @@ export class DpdpaService {
     const [totalRow] = await this.db
       .select({ count: count() })
       .from(sensitiveDataAccessLogs)
-      .innerJoin(
-        user,
-        eq(sensitiveDataAccessLogs.accessedByUserId, user.id),
-      )
+      .innerJoin(user, eq(sensitiveDataAccessLogs.accessedByUserId, user.id))
       .where(where);
 
     const total = totalRow?.count ?? 0;
@@ -277,8 +260,7 @@ export class DpdpaService {
         sensitiveDataAccessLogs.createdAt,
       [sortableSensitiveAccessColumns.dataType]:
         sensitiveDataAccessLogs.dataType,
-      [sortableSensitiveAccessColumns.action]:
-        sensitiveDataAccessLogs.action,
+      [sortableSensitiveAccessColumns.action]: sensitiveDataAccessLogs.action,
     };
 
     const rows = await this.db
@@ -295,10 +277,7 @@ export class DpdpaService {
         createdAt: sensitiveDataAccessLogs.createdAt,
       })
       .from(sensitiveDataAccessLogs)
-      .innerJoin(
-        user,
-        eq(sensitiveDataAccessLogs.accessedByUserId, user.id),
-      )
+      .innerJoin(user, eq(sensitiveDataAccessLogs.accessedByUserId, user.id))
       .where(where)
       .orderBy(
         sortDirection(sortableColumns[sortKey]),

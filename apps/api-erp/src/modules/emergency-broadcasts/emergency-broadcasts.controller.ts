@@ -49,9 +49,7 @@ const BROADCAST_DELIVERY_LOGS_PATH = `${BROADCAST_DETAIL_PATH}/${API_ROUTES.DELI
 @UseGuards(SessionAuthGuard, TenantInstitutionGuard, PermissionGuard)
 @Controller()
 export class EmergencyBroadcastsController {
-  constructor(
-    private readonly broadcastsService: EmergencyBroadcastsService,
-  ) {}
+  constructor(private readonly broadcastsService: EmergencyBroadcastsService) {}
 
   // ── CRUD ───────────────────────────────────────────────────────────────
 
@@ -77,11 +75,7 @@ export class EmergencyBroadcastsController {
     @Body() body: CreateBroadcastBodyDto,
   ) {
     const dto = parseCreateBroadcast(body);
-    return this.broadcastsService.createBroadcast(
-      institution.id,
-      session,
-      dto,
-    );
+    return this.broadcastsService.createBroadcast(institution.id, session, dto);
   }
 
   @Patch(BROADCAST_DETAIL_PATH)
@@ -146,10 +140,7 @@ export class EmergencyBroadcastsController {
     @CurrentInstitution() institution: TenantInstitution,
     @Param("broadcastId") broadcastId: string,
   ) {
-    return this.broadcastsService.getDeliveryStats(
-      institution.id,
-      broadcastId,
-    );
+    return this.broadcastsService.getDeliveryStats(institution.id, broadcastId);
   }
 
   // ── Templates ──────────────────────────────────────────────────────────

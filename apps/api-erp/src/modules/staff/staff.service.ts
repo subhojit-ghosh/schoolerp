@@ -2002,8 +2002,6 @@ export class StaffService {
     const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
     await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
 
-    const fromCampus = campus;
-
     const rows = await this.db
       .select({
         id: staffCampusTransfers.id,
@@ -2048,9 +2046,7 @@ export class StaffService {
         .where(inArray(member.id, transferrerMemberIds)),
     ]);
 
-    const campusNameById = new Map(
-      campusRows.map((c) => [c.id, c.name]),
-    );
+    const campusNameById = new Map(campusRows.map((c) => [c.id, c.name]));
     const transferrerNameById = new Map(
       transferrerRows.map((t) => [t.id, t.name]),
     );
@@ -2065,7 +2061,8 @@ export class StaffService {
       transferDate: row.transferDate,
       reason: row.reason ?? null,
       transferredByMemberId: row.transferredByMemberId,
-      transferredByName: transferrerNameById.get(row.transferredByMemberId) ?? "",
+      transferredByName:
+        transferrerNameById.get(row.transferredByMemberId) ?? "",
       createdAt: row.createdAt.toISOString(),
     }));
   }
@@ -2087,9 +2084,7 @@ export class StaffService {
     const fromCampusId = staffMembership.primaryCampusId;
 
     if (!fromCampusId) {
-      throw new BadRequestException(
-        ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED,
-      );
+      throw new BadRequestException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
     }
 
     if (fromCampusId === payload.toCampusId) {

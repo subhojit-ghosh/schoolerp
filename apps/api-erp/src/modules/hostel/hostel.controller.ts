@@ -364,9 +364,7 @@ export class HostelController {
     );
   }
 
-  @Post(
-    `${API_ROUTES.MESS_ASSIGNMENTS}/:assignmentId/${API_ROUTES.DEACTIVATE}`,
-  )
+  @Post(`${API_ROUTES.MESS_ASSIGNMENTS}/:assignmentId/${API_ROUTES.DEACTIVATE}`)
   @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
   @ApiOperation({ summary: "Deactivate a mess plan assignment" })
   @ApiOkResponse({ type: MessAssignmentDto })
@@ -406,11 +404,7 @@ export class HostelController {
     @Body() body: CreateRoomTransferBodyDto,
   ) {
     const dto = parseCreateRoomTransfer(body);
-    return this.hostelService.createRoomTransfer(
-      institution.id,
-      session,
-      dto,
-    );
+    return this.hostelService.createRoomTransfer(institution.id, session, dto);
   }
 
   // ── Occupancy Dashboard ───────────────────────────────────────────────

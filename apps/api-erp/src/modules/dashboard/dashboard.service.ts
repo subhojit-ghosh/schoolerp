@@ -53,7 +53,10 @@ export class DashboardService {
     const promises: Promise<void>[] = [];
 
     // 1. Unmarked attendance — classes with no attendance record for today
-    if (permissions.has(PERMISSIONS.ATTENDANCE_READ) || permissions.has(PERMISSIONS.ATTENDANCE_WRITE)) {
+    if (
+      permissions.has(PERMISSIONS.ATTENDANCE_READ) ||
+      permissions.has(PERMISSIONS.ATTENDANCE_WRITE)
+    ) {
       promises.push(
         this.getUnmarkedAttendance(institutionId, today).then((item) => {
           if (item) items.push(item);
@@ -71,7 +74,10 @@ export class DashboardService {
     }
 
     // 3. Overdue fee assignments
-    if (permissions.has(PERMISSIONS.FEES_READ) || permissions.has(PERMISSIONS.FEES_MANAGE)) {
+    if (
+      permissions.has(PERMISSIONS.FEES_READ) ||
+      permissions.has(PERMISSIONS.FEES_MANAGE)
+    ) {
       promises.push(
         this.getOverdueFees(institutionId, today).then((item) => {
           if (item) items.push(item);
@@ -80,7 +86,10 @@ export class DashboardService {
     }
 
     // 4. Absence streaks (3+ consecutive days)
-    if (permissions.has(PERMISSIONS.ATTENDANCE_READ) || permissions.has(PERMISSIONS.ATTENDANCE_WRITE)) {
+    if (
+      permissions.has(PERMISSIONS.ATTENDANCE_READ) ||
+      permissions.has(PERMISSIONS.ATTENDANCE_WRITE)
+    ) {
       promises.push(
         this.getAbsenceStreaks(institutionId).then((item) => {
           if (item) items.push(item);
@@ -89,7 +98,10 @@ export class DashboardService {
     }
 
     // 5. Pending admission applications
-    if (permissions.has(PERMISSIONS.ADMISSIONS_READ) || permissions.has(PERMISSIONS.ADMISSIONS_MANAGE)) {
+    if (
+      permissions.has(PERMISSIONS.ADMISSIONS_READ) ||
+      permissions.has(PERMISSIONS.ADMISSIONS_MANAGE)
+    ) {
       promises.push(
         this.getPendingAdmissions(institutionId).then((item) => {
           if (item) items.push(item);
@@ -128,9 +140,7 @@ export class DashboardService {
     return { items: filtered };
   }
 
-  async getTrends(
-    institutionId: string,
-  ): Promise<{ trends: TrendItem[] }> {
+  async getTrends(institutionId: string): Promise<{ trends: TrendItem[] }> {
     const trends: TrendItem[] = [];
     const now = new Date();
 
@@ -152,7 +162,7 @@ export class DashboardService {
         unit: "percent",
       });
     } catch (error) {
-      this.logger.warn(`Failed to compute attendance trend: ${error}`);
+      this.logger.warn(`Failed to compute attendance trend: ${String(error)}`);
     }
 
     // Fee collection: this month vs total assigned
@@ -179,7 +189,7 @@ export class DashboardService {
         unit: "percent",
       });
     } catch (error) {
-      this.logger.warn(`Failed to compute fee trend: ${error}`);
+      this.logger.warn(`Failed to compute fee trend: ${String(error)}`);
     }
 
     // Student enrollment: current count
@@ -201,7 +211,7 @@ export class DashboardService {
         unit: "count",
       });
     } catch (error) {
-      this.logger.warn(`Failed to compute enrollment trend: ${error}`);
+      this.logger.warn(`Failed to compute enrollment trend: ${String(error)}`);
     }
 
     return { trends };
@@ -229,10 +239,7 @@ export class DashboardService {
     const [totalSections] = await this.db
       .select({ count: count() })
       .from(classSections)
-      .innerJoin(
-        schoolClasses,
-        eq(classSections.classId, schoolClasses.id),
-      )
+      .innerJoin(schoolClasses, eq(classSections.classId, schoolClasses.id))
       .where(
         and(
           eq(schoolClasses.institutionId, institutionId),
@@ -486,9 +493,7 @@ export class DashboardService {
     return Number(row?.totalPaise ?? 0);
   }
 
-  private async getFeeTotalAssigned(
-    institutionId: string,
-  ): Promise<number> {
+  private async getFeeTotalAssigned(institutionId: string): Promise<number> {
     const [row] = await this.db
       .select({
         totalPaise: sum(feeAssignments.assignedAmountInPaise),

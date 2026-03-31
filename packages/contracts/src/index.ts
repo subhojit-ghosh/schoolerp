@@ -1072,10 +1072,7 @@ export const TC_STATUS = {
   CANCELLED: "cancelled",
 } as const;
 
-export const tcStatusSchema = z.enum([
-  TC_STATUS.ISSUED,
-  TC_STATUS.CANCELLED,
-]);
+export const tcStatusSchema = z.enum([TC_STATUS.ISSUED, TC_STATUS.CANCELLED]);
 
 export type TcStatus = z.infer<typeof tcStatusSchema>;
 

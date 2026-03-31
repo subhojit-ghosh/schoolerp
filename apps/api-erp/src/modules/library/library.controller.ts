@@ -158,9 +158,7 @@ export class LibraryController {
 
   // ── Fine collection ────────────────────────────────────────────────────────
 
-  @Post(
-    `${API_ROUTES.LIBRARY_TRANSACTIONS}/:transactionId/${API_ROUTES.FINE}`,
-  )
+  @Post(`${API_ROUTES.LIBRARY_TRANSACTIONS}/:transactionId/${API_ROUTES.FINE}`)
   @RequirePermission(PERMISSIONS.LIBRARY_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Collect or waive fine on a transaction" })
@@ -204,11 +202,7 @@ export class LibraryController {
     @Body() body: CreateReservationBodyDto,
   ) {
     const dto = parseCreateReservation(body);
-    return this.libraryService.createReservation(
-      institution.id,
-      session,
-      dto,
-    );
+    return this.libraryService.createReservation(institution.id, session, dto);
   }
 
   @Post(`${API_ROUTES.RESERVATIONS}/:reservationId/${API_ROUTES.FULFILL}`)
@@ -270,9 +264,7 @@ export class LibraryController {
   @RequirePermission(PERMISSIONS.LIBRARY_READ)
   @ApiOperation({ summary: "List all overdue transactions" })
   @ApiOkResponse({ type: [TransactionDto] })
-  async listOverdue(
-    @CurrentInstitution() institution: TenantInstitution,
-  ) {
+  async listOverdue(@CurrentInstitution() institution: TenantInstitution) {
     return this.libraryService.listOverdueTransactions(institution.id);
   }
 
@@ -280,9 +272,7 @@ export class LibraryController {
   @RequirePermission(PERMISSIONS.LIBRARY_MANAGE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: "Mark all past-due transactions as overdue" })
-  async markOverdue(
-    @CurrentInstitution() institution: TenantInstitution,
-  ) {
+  async markOverdue(@CurrentInstitution() institution: TenantInstitution) {
     return this.libraryService.markOverdue(institution.id);
   }
 
@@ -292,9 +282,7 @@ export class LibraryController {
   @RequirePermission(PERMISSIONS.LIBRARY_READ)
   @ApiOperation({ summary: "Library dashboard statistics" })
   @ApiOkResponse({ type: LibraryDashboardDto })
-  async dashboard(
-    @CurrentInstitution() institution: TenantInstitution,
-  ) {
+  async dashboard(@CurrentInstitution() institution: TenantInstitution) {
     return this.libraryService.getDashboard(institution.id);
   }
 }

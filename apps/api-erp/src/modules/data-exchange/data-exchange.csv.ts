@@ -136,12 +136,7 @@ export const DATA_EXCHANGE_TEMPLATE_ROWS = {
     ],
   ],
   [DATA_EXCHANGE_ENTITY_TYPES.CALENDAR_HOLIDAYS]: [
-    [
-      "Republic Day",
-      "2027-01-26",
-      "2027-01-26",
-      "National holiday",
-    ],
+    ["Republic Day", "2027-01-26", "2027-01-26", "National holiday"],
   ],
   [DATA_EXCHANGE_ENTITY_TYPES.INVENTORY_ITEMS]: [
     [

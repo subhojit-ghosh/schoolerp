@@ -123,8 +123,9 @@ export class FileUploadsController {
       institution.id,
       fileId,
     );
-    const absolutePath =
-      this.fileUploadsService.getAbsoluteFilePath(record.storagePath);
+    const absolutePath = this.fileUploadsService.getAbsoluteFilePath(
+      record.storagePath,
+    );
 
     res.setHeader("Content-Type", record.mimeType);
     res.setHeader(
@@ -145,10 +146,6 @@ export class FileUploadsController {
     @Param("fileId") fileId: string,
     @CurrentSession() session: AuthenticatedSession,
   ) {
-    return this.fileUploadsService.deleteFile(
-      institution.id,
-      fileId,
-      session,
-    );
+    return this.fileUploadsService.deleteFile(institution.id, fileId, session);
   }
 }

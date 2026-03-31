@@ -3568,9 +3568,7 @@ export const scholarships = pgTable(
     }),
     renewalRequired: boolean().notNull().default(false),
     renewalPeriodMonths: integer(), // how often to renew
-    status: text({ enum: SCHOLARSHIP_STATUS_ENUM })
-      .notNull()
-      .default("active"),
+    status: text({ enum: SCHOLARSHIP_STATUS_ENUM }).notNull().default("active"),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()
@@ -3611,9 +3609,7 @@ export const scholarshipApplications = pgTable(
     reviewedAt: timestamp(),
     reviewNotes: text(),
     // DBT tracking for government scholarships
-    dbtStatus: text({ enum: DBT_STATUS_ENUM })
-      .notNull()
-      .default("not_applied"),
+    dbtStatus: text({ enum: DBT_STATUS_ENUM }).notNull().default("not_applied"),
     dbtTransactionId: text(),
     dbtDisbursedAt: timestamp(),
     // Auto-created fee concession

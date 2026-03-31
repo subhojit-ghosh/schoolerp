@@ -18,13 +18,13 @@ import { randomUUID } from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { ERROR_MESSAGES } from "../../constants";
-import {
-  resolvePagination,
-  resolveTablePageSize,
-} from "../../lib/list-query";
+import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import { AuditService } from "../audit/audit.service";
 import type { AuthenticatedSession } from "../auth/auth.types";
-import type { ListFileUploadsQuery, UploadFileInput } from "./file-uploads.schemas";
+import type {
+  ListFileUploadsQuery,
+  UploadFileInput,
+} from "./file-uploads.schemas";
 import {
   FILE_UPLOAD_MAX_SIZE_BYTES,
   ALLOWED_MIME_TYPES,
@@ -48,14 +48,11 @@ export class FileUploadsService {
     this.validateFile(file);
 
     const fileId = randomUUID();
-    const ext = path.extname(file.originalname) || this.mimeToExt(file.mimetype);
+    const ext =
+      path.extname(file.originalname) || this.mimeToExt(file.mimetype);
     const uploadDir = this.getUploadPath(institutionId, input.entityType);
     const filename = `${fileId}${ext}`;
-    const storagePath = path.join(
-      institutionId,
-      input.entityType,
-      filename,
-    );
+    const storagePath = path.join(institutionId, input.entityType, filename);
     const fullPath = path.join(uploadDir, filename);
 
     fs.mkdirSync(uploadDir, { recursive: true });
@@ -88,7 +85,7 @@ export class FileUploadsService {
       })
       .catch(() => {});
 
-    return this.formatRecord(record!);
+    return this.formatRecord(record);
   }
 
   async getFile(institutionId: string, fileId: string) {

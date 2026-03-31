@@ -22,19 +22,15 @@ export function useTrendsQuery(enabled: boolean) {
 
 export function useDismissItemMutation() {
   const queryClient = useQueryClient();
-  return apiQueryClient.useMutation(
-    "post",
-    DASHBOARD_API_PATHS.DISMISS_ITEM,
-    {
-      onSuccess: () => {
-        void queryClient.invalidateQueries({
-          queryKey: apiQueryClient.queryOptions(
-            "get",
-            DASHBOARD_API_PATHS.NEEDS_ATTENTION,
-            {},
-          ).queryKey,
-        });
-      },
+  return apiQueryClient.useMutation("post", DASHBOARD_API_PATHS.DISMISS_ITEM, {
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: apiQueryClient.queryOptions(
+          "get",
+          DASHBOARD_API_PATHS.NEEDS_ATTENTION,
+          {},
+        ).queryKey,
+      });
     },
-  );
+  });
 }

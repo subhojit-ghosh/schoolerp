@@ -1,10 +1,6 @@
 import { useMemo } from "react";
 import { Link, Outlet, useLocation } from "react-router";
-import {
-  IconPlus,
-  IconSearch,
-  IconTool,
-} from "@tabler/icons-react";
+import { IconPlus, IconSearch, IconTool } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Input } from "@repo/ui/components/ui/input";

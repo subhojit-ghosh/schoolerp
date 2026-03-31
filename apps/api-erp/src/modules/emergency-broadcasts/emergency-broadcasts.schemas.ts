@@ -24,7 +24,10 @@ export const updateBroadcastSchema = z.object({
   targetType: broadcastTargetTypeSchema.optional(),
   targetId: z.uuid().optional().nullable(),
   priority: broadcastPrioritySchema.optional(),
-  channels: z.array(z.enum(["sms", "email", "in_app"])).min(1).optional(),
+  channels: z
+    .array(z.enum(["sms", "email", "in_app"]))
+    .min(1)
+    .optional(),
 });
 
 export const listBroadcastsQuerySchema = z.object({

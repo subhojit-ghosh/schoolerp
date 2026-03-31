@@ -246,9 +246,7 @@ export type VerifyRejectApplicationDocumentDto = z.infer<
   typeof verifyRejectApplicationDocumentSchema
 >;
 export type ConvertToStudentDto = z.infer<typeof convertToStudentSchema>;
-export type WaitlistApplicationDto = z.infer<
-  typeof waitlistApplicationSchema
->;
+export type WaitlistApplicationDto = z.infer<typeof waitlistApplicationSchema>;
 export type RecordRegistrationFeeDto = z.infer<
   typeof recordRegistrationFeeSchema
 >;

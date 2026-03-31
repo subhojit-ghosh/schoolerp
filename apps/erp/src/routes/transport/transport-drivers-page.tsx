@@ -103,9 +103,7 @@ export function TransportDriversPage() {
           body: { status: newStatus },
         });
         toast.success(
-          newStatus === "active"
-            ? "Driver activated."
-            : "Driver deactivated.",
+          newStatus === "active" ? "Driver activated." : "Driver deactivated.",
         );
       } catch (error) {
         toast.error(
@@ -285,9 +283,7 @@ export function TransportDriversPage() {
               ? "No drivers match your search."
               : "Add drivers to manage your transport team."
           }
-          emptyTitle={
-            queryState.search ? "No drivers found" : "No drivers yet"
-          }
+          emptyTitle={queryState.search ? "No drivers found" : "No drivers yet"}
           errorTitle="Failed to load drivers"
           isLoading={driversQuery.isLoading}
           isError={Boolean(errorMessage)}

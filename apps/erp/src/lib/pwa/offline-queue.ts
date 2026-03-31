@@ -28,7 +28,9 @@ function openDb(): Promise<IDBDatabase> {
   });
 }
 
-export async function addToQueue(entry: Omit<QueuedRequest, "id">): Promise<void> {
+export async function addToQueue(
+  entry: Omit<QueuedRequest, "id">,
+): Promise<void> {
   const db = await openDb();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, "readwrite");

@@ -22,8 +22,6 @@ export class WorkflowsService implements OnModuleInit {
       this.domainEventsService.registerListener(eventType, handler);
     }
 
-    this.logger.log(
-      `Registered ${listenerMap.size} workflow listeners`,
-    );
+    this.logger.log(`Registered ${listenerMap.size} workflow listeners`);
   }
 }

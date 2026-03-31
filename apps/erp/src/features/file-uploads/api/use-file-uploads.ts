@@ -7,7 +7,12 @@ import { APP_FALLBACKS } from "@/constants/api";
 
 export function useFileUploadsQuery(
   enabled: boolean,
-  query: { entityType: string; entityId?: string; page?: number; limit?: number },
+  query: {
+    entityType: string;
+    entityId?: string;
+    page?: number;
+    limit?: number;
+  },
 ) {
   return apiQueryClient.useQuery(
     "get",
@@ -32,17 +37,13 @@ export function useFileUploadQuery(enabled: boolean, fileId?: string) {
 
 export function useDeleteFileUploadMutation() {
   const queryClient = useQueryClient();
-  return apiQueryClient.useMutation(
-    "delete",
-    FILE_UPLOADS_API_PATHS.DELETE,
-    {
-      onSuccess: () => {
-        void queryClient.invalidateQueries({
-          queryKey: ["get", FILE_UPLOADS_API_PATHS.LIST],
-        });
-      },
+  return apiQueryClient.useMutation("delete", FILE_UPLOADS_API_PATHS.DELETE, {
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["get", FILE_UPLOADS_API_PATHS.LIST],
+      });
     },
-  );
+  });
 }
 
 // ── Upload (multipart) ─────────────────────────────────────────────────────
@@ -99,8 +100,7 @@ export function uploadFile(
     });
 
     // Build the full URL using the same base as the fetch client
-    const baseUrl =
-      import.meta.env.VITE_API_URL ?? APP_FALLBACKS.API_URL;
+    const baseUrl = import.meta.env.VITE_API_URL ?? APP_FALLBACKS.API_URL;
     xhr.open("POST", `${baseUrl}${FILE_UPLOADS_API_PATHS.UPLOAD}`);
     xhr.withCredentials = true;
     xhr.send(formData);
@@ -111,7 +111,6 @@ export function uploadFile(
  * Build a download URL for a given file ID.
  */
 export function buildDownloadUrl(fileId: string): string {
-  const baseUrl =
-    import.meta.env.VITE_API_URL ?? "/api";
+  const baseUrl = import.meta.env.VITE_API_URL ?? "/api";
   return `${baseUrl}${FILE_UPLOADS_API_PATHS.DOWNLOAD.replace("{fileId}", fileId)}`;
 }

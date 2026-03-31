@@ -360,8 +360,7 @@ export class ExpensesService {
       referenceNumber: r.referenceNumber,
       status: r.status,
       submittedByMemberId: r.submittedByMemberId,
-      submittedByName:
-        memberNames.get(r.submittedByMemberId) ?? "Unknown",
+      submittedByName: memberNames.get(r.submittedByMemberId) ?? "Unknown",
       approvedByMemberId: r.approvedByMemberId,
       approvedByName: r.approvedByMemberId
         ? (memberNames.get(r.approvedByMemberId) ?? null)
@@ -485,8 +484,7 @@ export class ExpensesService {
 
     return {
       ...r,
-      submittedByName:
-        memberNames.get(r.submittedByMemberId) ?? "Unknown",
+      submittedByName: memberNames.get(r.submittedByMemberId) ?? "Unknown",
       approvedByName: r.approvedByMemberId
         ? (memberNames.get(r.approvedByMemberId) ?? null)
         : null,
@@ -795,8 +793,7 @@ export class ExpensesService {
     // By department
     const byDepartment = await this.db
       .select({
-        departmentName:
-          sql<string>`coalesce(${expenses.departmentName}, 'Unspecified')`,
+        departmentName: sql<string>`coalesce(${expenses.departmentName}, 'Unspecified')`,
         totalAmountInPaise: sum(expenses.amountInPaise),
         count: count(),
       })

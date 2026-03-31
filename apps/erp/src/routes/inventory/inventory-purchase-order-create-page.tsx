@@ -41,7 +41,10 @@ const ORDER_NUMBER_MIN = 1;
 
 const purchaseOrderFormSchema = z.object({
   vendorId: z.string().min(1, "Vendor is required"),
-  orderNumber: z.string().trim().min(ORDER_NUMBER_MIN, "Order number is required"),
+  orderNumber: z
+    .string()
+    .trim()
+    .min(ORDER_NUMBER_MIN, "Order number is required"),
   orderDate: z.string().min(1, "Order date is required"),
   expectedDeliveryDate: z.string().optional().or(z.literal("")),
   notes: z.string().optional().or(z.literal("")),
@@ -85,13 +88,12 @@ export function InventoryPurchaseOrderCreatePage() {
 
   const vendorOptions = useMemo(
     () =>
-      ((vendorsQuery.data?.rows ?? []) as Array<{ id: string; name: string }>),
+      (vendorsQuery.data?.rows ?? []) as Array<{ id: string; name: string }>,
     [vendorsQuery.data?.rows],
   );
 
   const itemOptions = useMemo(
-    () =>
-      ((itemsQuery.data?.rows ?? []) as Array<{ id: string; name: string }>),
+    () => (itemsQuery.data?.rows ?? []) as Array<{ id: string; name: string }>,
     [itemsQuery.data?.rows],
   );
 
@@ -155,10 +157,7 @@ export function InventoryPurchaseOrderCreatePage() {
         </p>
       </div>
 
-      <form
-        className="max-w-3xl space-y-6"
-        onSubmit={handleSubmit(onSubmit)}
-      >
+      <form className="max-w-3xl space-y-6" onSubmit={handleSubmit(onSubmit)}>
         <div className="rounded-lg border bg-card p-6">
           <FieldGroup className="gap-4">
             <Controller
@@ -168,10 +167,7 @@ export function InventoryPurchaseOrderCreatePage() {
                 <Field data-invalid={fieldState.invalid || undefined}>
                   <FieldLabel required>Vendor</FieldLabel>
                   <FieldContent>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                    >
+                    <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger aria-invalid={fieldState.invalid}>
                         <SelectValue placeholder="Select a vendor" />
                       </SelectTrigger>
@@ -398,15 +394,11 @@ export function InventoryPurchaseOrderCreatePage() {
             disabled={createMutation.isPending}
             type="submit"
           >
-            {createMutation.isPending
-              ? "Creating..."
-              : "Create purchase order"}
+            {createMutation.isPending ? "Creating..." : "Create purchase order"}
           </EntityFormPrimaryAction>
           <EntityFormSecondaryAction
             disabled={createMutation.isPending}
-            onClick={() =>
-              void navigate(ERP_ROUTES.INVENTORY_PURCHASE_ORDERS)
-            }
+            onClick={() => void navigate(ERP_ROUTES.INVENTORY_PURCHASE_ORDERS)}
             type="button"
           >
             Cancel

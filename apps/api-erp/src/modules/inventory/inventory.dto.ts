@@ -381,13 +381,7 @@ export class UpdatePurchaseOrderBodyDto {
 
 export class UpdatePurchaseOrderStatusBodyDto {
   @ApiProperty({
-    enum: [
-      "draft",
-      "ordered",
-      "partially_received",
-      "received",
-      "cancelled",
-    ],
+    enum: ["draft", "ordered", "partially_received", "received", "cancelled"],
   })
   status!:
     | "draft"
@@ -419,13 +413,7 @@ export class PurchaseOrderDto {
   totalAmountInPaise!: number;
 
   @ApiProperty({
-    enum: [
-      "draft",
-      "ordered",
-      "partially_received",
-      "received",
-      "cancelled",
-    ],
+    enum: ["draft", "ordered", "partially_received", "received", "cancelled"],
   })
   status!: string;
 
@@ -456,13 +444,7 @@ export class ListPurchaseOrdersQueryParamsDto {
   q?: string;
 
   @ApiProperty({
-    enum: [
-      "draft",
-      "ordered",
-      "partially_received",
-      "received",
-      "cancelled",
-    ],
+    enum: ["draft", "ordered", "partially_received", "received", "cancelled"],
     required: false,
   })
   status?:

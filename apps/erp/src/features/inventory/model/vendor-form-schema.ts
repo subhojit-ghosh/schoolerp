@@ -6,7 +6,11 @@ const GST_LENGTH = 15;
 const PHONE_MIN = 10;
 
 export const vendorFormSchema = z.object({
-  name: z.string().trim().min(1, "Vendor name is required").max(VENDOR_NAME_MAX),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Vendor name is required")
+    .max(VENDOR_NAME_MAX),
   contactPerson: z.string().max(VENDOR_FIELD_MAX).optional().or(z.literal("")),
   phone: z
     .string()
@@ -14,7 +18,11 @@ export const vendorFormSchema = z.object({
     .max(VENDOR_FIELD_MAX)
     .optional()
     .or(z.literal("")),
-  email: z.email("Invalid email").max(VENDOR_FIELD_MAX).optional().or(z.literal("")),
+  email: z
+    .email("Invalid email")
+    .max(VENDOR_FIELD_MAX)
+    .optional()
+    .or(z.literal("")),
   address: z.string().max(VENDOR_FIELD_MAX).optional().or(z.literal("")),
   gstNumber: z
     .string()

@@ -165,10 +165,7 @@ export function ScholarshipsPage() {
         canManage ? (
           <EntityPagePrimaryAction asChild>
             <Link
-              to={appendSearch(
-                ERP_ROUTES.SCHOLARSHIP_CREATE,
-                location.search,
-              )}
+              to={appendSearch(ERP_ROUTES.SCHOLARSHIP_CREATE, location.search)}
             >
               <IconPlus className="size-4" />
               New scholarship

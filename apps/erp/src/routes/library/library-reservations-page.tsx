@@ -214,9 +214,7 @@ export function LibraryReservationsPage() {
             Reserved
             <SortIcon
               direction={
-                queryState.sortBy === "createdAt"
-                  ? queryState.sortOrder
-                  : false
+                queryState.sortBy === "createdAt" ? queryState.sortOrder : false
               }
             />
           </button>
@@ -316,9 +314,7 @@ export function LibraryReservationsPage() {
             : "When members reserve books, they will appear here."
         }
         emptyTitle={
-          queryState.search
-            ? "No reservations found"
-            : "No reservations"
+          queryState.search ? "No reservations found" : "No reservations"
         }
         errorTitle="Failed to load reservations"
         isLoading={reservationsQuery.isLoading}

@@ -98,7 +98,11 @@ const LICENSE_MAX = 50;
 const ADDRESS_MAX = 500;
 
 export const driverFormSchema = z.object({
-  name: z.string().trim().min(1, "Driver name is required").max(DRIVER_NAME_MAX),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Driver name is required")
+    .max(DRIVER_NAME_MAX),
   mobile: z.string().trim().min(1, "Mobile number is required").max(MOBILE_MAX),
   licenseNumber: z.string().trim().max(LICENSE_MAX).optional(),
   licenseExpiry: z.string().trim().optional(),

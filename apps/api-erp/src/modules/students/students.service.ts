@@ -1855,7 +1855,10 @@ export class StudentsService {
         createdAt: studentSiblingLinks.createdAt,
       })
       .from(studentSiblingLinks)
-      .innerJoin(students, eq(studentSiblingLinks.siblingStudentId, students.id))
+      .innerJoin(
+        students,
+        eq(studentSiblingLinks.siblingStudentId, students.id),
+      )
       .innerJoin(member, eq(students.membershipId, member.id))
       .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
       .innerJoin(classSections, eq(students.sectionId, classSections.id))
@@ -1918,10 +1921,7 @@ export class StudentsService {
         and(
           eq(studentSiblingLinks.institutionId, institutionId),
           eq(studentSiblingLinks.studentId, studentId),
-          eq(
-            studentSiblingLinks.siblingStudentId,
-            payload.siblingStudentId,
-          ),
+          eq(studentSiblingLinks.siblingStudentId, payload.siblingStudentId),
         ),
       )
       .limit(1);
@@ -2271,10 +2271,7 @@ export class StudentsService {
         createdAt: transferCertificates.createdAt,
       })
       .from(transferCertificates)
-      .innerJoin(
-        member,
-        eq(transferCertificates.issuedByMemberId, member.id),
-      )
+      .innerJoin(member, eq(transferCertificates.issuedByMemberId, member.id))
       .innerJoin(user, eq(member.userId, user.id))
       .where(
         and(

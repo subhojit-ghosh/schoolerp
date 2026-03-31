@@ -71,7 +71,9 @@ export const listExpensesQuerySchema = z.object({
   dateTo: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().default(20),
-  sort: z.enum(["expenseDate", "amountInPaise", "createdAt"]).default("createdAt"),
+  sort: z
+    .enum(["expenseDate", "amountInPaise", "createdAt"])
+    .default("createdAt"),
   order: z.enum(["asc", "desc"]).default("desc"),
 });
 
@@ -98,7 +100,9 @@ export const expenseSummaryQuerySchema = z.object({
 
 export type CreateCategoryDto = z.infer<typeof createCategorySchema>;
 export type UpdateCategoryDto = z.infer<typeof updateCategorySchema>;
-export type UpdateCategoryStatusDto = z.infer<typeof updateCategoryStatusSchema>;
+export type UpdateCategoryStatusDto = z.infer<
+  typeof updateCategoryStatusSchema
+>;
 export type ListCategoriesQueryDto = z.infer<typeof listCategoriesQuerySchema>;
 export type CreateExpenseDto = z.infer<typeof createExpenseSchema>;
 export type UpdateExpenseDto = z.infer<typeof updateExpenseSchema>;

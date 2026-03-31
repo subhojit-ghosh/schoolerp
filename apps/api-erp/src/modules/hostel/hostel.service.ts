@@ -875,9 +875,7 @@ export class HostelService {
     const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
     const sortCol = messAssignmentSortColumns[sort ?? "createdAt"];
 
-    const conditions = [
-      eq(messPlanAssignments.institutionId, institutionId),
-    ];
+    const conditions = [eq(messPlanAssignments.institutionId, institutionId)];
     if (status) {
       conditions.push(eq(messPlanAssignments.status, status));
     }
@@ -1069,9 +1067,7 @@ export class HostelService {
     const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
     const sortCol = roomTransferSortColumns[sort ?? "createdAt"];
 
-    const conditions = [
-      eq(hostelRoomTransfers.institutionId, institutionId),
-    ];
+    const conditions = [eq(hostelRoomTransfers.institutionId, institutionId)];
     if (studentId) {
       conditions.push(eq(hostelRoomTransfers.studentId, studentId));
     }
@@ -1272,7 +1268,10 @@ export class HostelService {
         totalOccupancy: sum(hostelRooms.occupancy),
       })
       .from(hostelRooms)
-      .innerJoin(hostelBuildings, eq(hostelRooms.buildingId, hostelBuildings.id))
+      .innerJoin(
+        hostelBuildings,
+        eq(hostelRooms.buildingId, hostelBuildings.id),
+      )
       .where(
         and(
           eq(hostelRooms.institutionId, institutionId),
@@ -1309,7 +1308,10 @@ export class HostelService {
         totalOccupancy: sum(hostelRooms.occupancy),
       })
       .from(hostelRooms)
-      .innerJoin(hostelBuildings, eq(hostelRooms.buildingId, hostelBuildings.id))
+      .innerJoin(
+        hostelBuildings,
+        eq(hostelRooms.buildingId, hostelBuildings.id),
+      )
       .where(
         and(
           eq(hostelRooms.institutionId, institutionId),
@@ -1376,8 +1378,7 @@ export class HostelService {
         });
         created++;
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : "Unknown error";
+        const message = err instanceof Error ? err.message : "Unknown error";
         errors.push(`Student ${item.studentId}: ${message}`);
       }
     }

@@ -1,7 +1,6 @@
 import { BadRequestException } from "@nestjs/common";
 import {
   scholarshipTypeSchema,
-  scholarshipStatusSchema,
   scholarshipApplicationStatusSchema,
   dbtStatusSchema,
 } from "@repo/contracts";

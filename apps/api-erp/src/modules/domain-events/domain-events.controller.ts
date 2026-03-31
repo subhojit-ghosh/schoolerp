@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Query,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Get, Param, Post, Query, UseGuards } from "@nestjs/common";
 import {
   ApiCookieAuth,
   ApiOkResponse,
@@ -39,9 +32,7 @@ import { DomainEventsService } from "./domain-events.service";
 )
 @Controller(API_ROUTES.DOMAIN_EVENTS)
 export class DomainEventsController {
-  constructor(
-    private readonly domainEventsService: DomainEventsService,
-  ) {}
+  constructor(private readonly domainEventsService: DomainEventsService) {}
 
   @Get()
   @RequirePermission(PERMISSIONS.AUDIT_READ)

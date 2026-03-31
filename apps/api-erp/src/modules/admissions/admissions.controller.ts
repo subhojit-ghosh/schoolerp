@@ -296,9 +296,7 @@ export class AdmissionsController {
   @RequirePermission(PERMISSIONS.ADMISSIONS_READ)
   @ApiOperation({ summary: "List document checklist items for institution" })
   @ApiOkResponse({ type: ListDocumentChecklistResultDto })
-  listDocumentChecklist(
-    @CurrentInstitution() institution: TenantInstitution,
-  ) {
+  listDocumentChecklist(@CurrentInstitution() institution: TenantInstitution) {
     return this.admissionsService.listDocumentChecklist(institution.id);
   }
 
@@ -340,7 +338,9 @@ export class AdmissionsController {
 
   // ── Application documents ─────────────────────────────────────────────────
 
-  @Get(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.APPLICATION_DOCUMENTS}`)
+  @Get(
+    `${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.APPLICATION_DOCUMENTS}`,
+  )
   @RequirePermission(PERMISSIONS.ADMISSIONS_READ)
   @ApiOperation({ summary: "List documents for an application" })
   @ApiOkResponse({ type: ListApplicationDocumentsResultDto })
@@ -358,7 +358,9 @@ export class AdmissionsController {
     );
   }
 
-  @Post(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.APPLICATION_DOCUMENTS}`)
+  @Post(
+    `${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.APPLICATION_DOCUMENTS}`,
+  )
   @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
   @ApiOperation({ summary: "Add or update a document on an application" })
   @ApiBody({ type: UpsertApplicationDocumentBodyDto })
@@ -379,7 +381,9 @@ export class AdmissionsController {
     );
   }
 
-  @Patch(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.APPLICATION_DOCUMENTS}/:documentId`)
+  @Patch(
+    `${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.APPLICATION_DOCUMENTS}/:documentId`,
+  )
   @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
   @ApiOperation({ summary: "Verify or reject an application document" })
   @ApiBody({ type: VerifyRejectApplicationDocumentBodyDto })
@@ -400,9 +404,13 @@ export class AdmissionsController {
 
   // ── Convert to student ────────────────────────────────────────────────────
 
-  @Post(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.CONVERT_TO_STUDENT}`)
+  @Post(
+    `${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.CONVERT_TO_STUDENT}`,
+  )
   @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
-  @ApiOperation({ summary: "Convert an approved application to a student record" })
+  @ApiOperation({
+    summary: "Convert an approved application to a student record",
+  })
   @ApiBody({ type: ConvertToStudentBodyDto })
   @ApiOkResponse({ type: ConvertToStudentResultDto })
   convertToStudent(
@@ -446,7 +454,9 @@ export class AdmissionsController {
 
   @Post(API_ROUTES.PROMOTE)
   @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
-  @ApiOperation({ summary: "Promote the next waitlisted application to approved" })
+  @ApiOperation({
+    summary: "Promote the next waitlisted application to approved",
+  })
   @ApiOkResponse({ type: PromoteWaitlistResultDto })
   promoteNextWaitlisted(
     @CurrentInstitution() institution: TenantInstitution,
@@ -462,9 +472,13 @@ export class AdmissionsController {
 
   // ── Registration fee ──────────────────────────────────────────────────────
 
-  @Post(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.REGISTRATION_FEE}`)
+  @Post(
+    `${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.REGISTRATION_FEE}`,
+  )
   @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
-  @ApiOperation({ summary: "Record registration fee payment on an application" })
+  @ApiOperation({
+    summary: "Record registration fee payment on an application",
+  })
   @ApiBody({ type: RecordRegistrationFeeBodyDto })
   @ApiOkResponse({ type: RegistrationFeeResultDto })
   recordRegistrationFee(

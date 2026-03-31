@@ -322,13 +322,9 @@ export function useOccupancyDashboardQuery(enabled: boolean) {
 
 export function useBatchAllocateMutation() {
   const queryClient = useQueryClient();
-  return apiQueryClient.useMutation(
-    "post",
-    HOSTEL_API_PATHS.BATCH_ALLOCATE,
-    {
-      onSuccess: () => {
-        invalidateHostelLists(queryClient);
-      },
+  return apiQueryClient.useMutation("post", HOSTEL_API_PATHS.BATCH_ALLOCATE, {
+    onSuccess: () => {
+      invalidateHostelLists(queryClient);
     },
-  );
+  });
 }

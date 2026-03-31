@@ -212,15 +212,11 @@ export function useVendorsQuery(
 
 export function useCreateVendorMutation() {
   const queryClient = useQueryClient();
-  return apiQueryClient.useMutation(
-    "post",
-    INVENTORY_API_PATHS.CREATE_VENDOR,
-    {
-      onSuccess: () => {
-        invalidateInventoryLists(queryClient);
-      },
+  return apiQueryClient.useMutation("post", INVENTORY_API_PATHS.CREATE_VENDOR, {
+    onSuccess: () => {
+      invalidateInventoryLists(queryClient);
     },
-  );
+  });
 }
 
 export function useUpdateVendorMutation() {
@@ -263,10 +259,7 @@ export function usePurchaseOrdersQuery(
   );
 }
 
-export function useGetPurchaseOrderQuery(
-  enabled: boolean,
-  orderId?: string,
-) {
+export function useGetPurchaseOrderQuery(enabled: boolean, orderId?: string) {
   return apiQueryClient.useQuery(
     "get",
     INVENTORY_API_PATHS.GET_PURCHASE_ORDER,

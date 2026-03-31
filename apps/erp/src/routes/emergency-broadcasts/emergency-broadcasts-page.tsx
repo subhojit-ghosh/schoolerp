@@ -40,18 +40,13 @@ type BroadcastRow = {
 };
 
 const columnHelper = createColumnHelper<BroadcastRow>();
-const VALID_SORT_FIELDS = [
-  BROADCAST_LIST_SORT_FIELDS.CREATED_AT,
-] as const;
+const VALID_SORT_FIELDS = [BROADCAST_LIST_SORT_FIELDS.CREATED_AT] as const;
 
 export function EmergencyBroadcastsPage() {
   useDocumentTitle("Emergency Broadcasts");
   const location = useLocation();
   const session = useAuthStore((store) => store.session);
-  const canSend = hasPermission(
-    session,
-    PERMISSIONS.EMERGENCY_BROADCAST_SEND,
-  );
+  const canSend = hasPermission(session, PERMISSIONS.EMERGENCY_BROADCAST_SEND);
 
   const {
     queryState,

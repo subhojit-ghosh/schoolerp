@@ -295,7 +295,9 @@ export class StudentsController {
 
   @Put(`:studentId/${API_ROUTES.MEDICAL}`)
   @RequirePermission(PERMISSIONS.STUDENTS_MANAGE)
-  @ApiOperation({ summary: "Create or update the medical record for a student" })
+  @ApiOperation({
+    summary: "Create or update the medical record for a student",
+  })
   @ApiBody({ type: UpsertMedicalRecordBodyDto })
   @ApiOkResponse({ type: StudentMedicalRecordDto })
   upsertMedicalRecord(

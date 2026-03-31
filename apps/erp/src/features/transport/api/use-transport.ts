@@ -268,15 +268,11 @@ export function useGetDriverQuery(driverId: string, enabled: boolean) {
 
 export function useCreateDriverMutation() {
   const queryClient = useQueryClient();
-  return apiQueryClient.useMutation(
-    "post",
-    TRANSPORT_API_PATHS.CREATE_DRIVER,
-    {
-      onSuccess: () => {
-        invalidateDriverQueries(queryClient);
-      },
+  return apiQueryClient.useMutation("post", TRANSPORT_API_PATHS.CREATE_DRIVER, {
+    onSuccess: () => {
+      invalidateDriverQueries(queryClient);
     },
-  );
+  });
 }
 
 export function useUpdateDriverMutation() {

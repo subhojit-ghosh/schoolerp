@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-  DOMAIN_EVENT_STATUS,
-  DOMAIN_EVENT_TYPES,
-} from "@repo/contracts";
+import { DOMAIN_EVENT_STATUS, DOMAIN_EVENT_TYPES } from "@repo/contracts";
 import {
   baseListQuerySchema,
   parseListQuerySchema,

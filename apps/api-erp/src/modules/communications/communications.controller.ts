@@ -190,7 +190,9 @@ export class CommunicationsController {
     `${API_ROUTES.ANNOUNCEMENTS}/:announcementId/${API_ROUTES.READ_RECEIPTS}`,
   )
   @RequirePermission(PERMISSIONS.COMMUNICATION_READ)
-  @ApiOperation({ summary: "Mark an announcement as read for the current user" })
+  @ApiOperation({
+    summary: "Mark an announcement as read for the current user",
+  })
   @ApiBody({ type: MarkAnnouncementReadBodyDto })
   @ApiOkResponse({
     schema: {

@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
 import {
   ApiCookieAuth,
   ApiOkResponse,
@@ -61,16 +55,14 @@ export class DashboardController {
     return this.dashboardService.getNeedsAttention(
       institution.id,
       session.user.id,
-      permissions as Set<PermissionSlug>,
+      permissions,
     );
   }
 
   @Get(API_ROUTES.TRENDS)
   @ApiOperation({ summary: "Get dashboard trend data" })
   @ApiOkResponse({ type: TrendsResultDto })
-  getTrends(
-    @CurrentInstitution() institution: TenantInstitution,
-  ) {
+  getTrends(@CurrentInstitution() institution: TenantInstitution) {
     return this.dashboardService.getTrends(institution.id);
   }
 

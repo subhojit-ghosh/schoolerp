@@ -973,7 +973,9 @@ export class AdmissionsService {
       scopes,
     );
 
-    if (application.status !== ADMISSION_APPLICATION_STATUSES_EXTENDED.APPROVED) {
+    if (
+      application.status !== ADMISSION_APPLICATION_STATUSES_EXTENDED.APPROVED
+    ) {
       throw new BadRequestException(
         ERROR_MESSAGES.ADMISSIONS_DEPTH.APPLICATION_NOT_APPROVED,
       );

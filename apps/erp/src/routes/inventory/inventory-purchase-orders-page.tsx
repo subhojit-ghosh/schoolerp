@@ -1,10 +1,6 @@
 import { useMemo } from "react";
 import { Link, useLocation } from "react-router";
-import {
-  IconEye,
-  IconPlus,
-  IconSearch,
-} from "@tabler/icons-react";
+import { IconEye, IconPlus, IconSearch } from "@tabler/icons-react";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Input } from "@repo/ui/components/ui/input";
@@ -153,8 +149,7 @@ export function InventoryPurchaseOrdersPage() {
             Date
             <SortIcon
               direction={
-                queryState.sortBy ===
-                PURCHASE_ORDER_LIST_SORT_FIELDS.ORDER_DATE
+                queryState.sortBy === PURCHASE_ORDER_LIST_SORT_FIELDS.ORDER_DATE
                   ? queryState.sortOrder
                   : false
               }
@@ -178,11 +173,7 @@ export function InventoryPurchaseOrdersPage() {
       columnHelper.accessor("status", {
         header: "Status",
         cell: ({ row }) => (
-          <Badge
-            className={
-              PO_STATUS_BADGE_CLASSES[row.original.status] ?? ""
-            }
-          >
+          <Badge className={PO_STATUS_BADGE_CLASSES[row.original.status] ?? ""}>
             {PURCHASE_ORDER_STATUS_LABELS[row.original.status] ??
               row.original.status}
           </Badge>
@@ -227,8 +218,7 @@ export function InventoryPurchaseOrdersPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (ordersQuery.error as Error | null | undefined)
-    ?.message;
+  const errorMessage = (ordersQuery.error as Error | null | undefined)?.message;
 
   return (
     <EntityListPage

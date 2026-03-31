@@ -196,7 +196,15 @@ export const PARENT_MODULES: readonly NavModule[] = [
     icon: IconDashboard,
     directUrl: ERP_ROUTES.DASHBOARD,
     sections: [
-      { items: [{ icon: IconDashboard, title: "Dashboard", url: ERP_ROUTES.DASHBOARD }] },
+      {
+        items: [
+          {
+            icon: IconDashboard,
+            title: "Dashboard",
+            url: ERP_ROUTES.DASHBOARD,
+          },
+        ],
+      },
     ],
   },
   {
@@ -260,8 +268,16 @@ export const STUDENT_MODULES: readonly NavModule[] = [
     sections: [
       {
         items: [
-          { icon: IconDashboard, title: "Dashboard", url: ERP_ROUTES.DASHBOARD },
-          { icon: IconCalendar, title: "Calendar", url: ERP_ROUTES.STUDENT_CALENDAR },
+          {
+            icon: IconDashboard,
+            title: "Dashboard",
+            url: ERP_ROUTES.DASHBOARD,
+          },
+          {
+            icon: IconCalendar,
+            title: "Calendar",
+            url: ERP_ROUTES.STUDENT_CALENDAR,
+          },
         ],
       },
     ],

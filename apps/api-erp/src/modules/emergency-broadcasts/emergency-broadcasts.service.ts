@@ -34,10 +34,7 @@ import {
 } from "@repo/database";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS } from "../../constants";
-import {
-  resolvePagination,
-  resolveTablePageSize,
-} from "../../lib/list-query";
+import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { AuditService } from "../audit/audit.service";
 import type {
@@ -102,10 +99,7 @@ export class EmergencyBroadcastsService {
 
   // ── CRUD ───────────────────────────────────────────────────────────────
 
-  async listBroadcasts(
-    institutionId: string,
-    query: ListBroadcastsQueryDto,
-  ) {
+  async listBroadcasts(institutionId: string, query: ListBroadcastsQueryDto) {
     const { q, status, priority, page, limit, sort, order } = query;
     const pageSize = resolveTablePageSize(limit);
     const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
@@ -117,9 +111,7 @@ export class EmergencyBroadcastsService {
       .innerJoin(user, eq(member.userId, user.id))
       .as("sent_by_member");
 
-    const conditions = [
-      eq(emergencyBroadcasts.institutionId, institutionId),
-    ];
+    const conditions = [eq(emergencyBroadcasts.institutionId, institutionId)];
     if (q) {
       conditions.push(ilike(emergencyBroadcasts.title, `%${q}%`));
     }
@@ -341,7 +333,7 @@ export class EmergencyBroadcastsService {
       );
     }
 
-    const channels = broadcast.channels as string[];
+    const channels = broadcast.channels;
 
     // Create delivery logs for each recipient per channel
     const deliveryLogValues = recipientUserIds.flatMap((userId) =>
@@ -363,7 +355,7 @@ export class EmergencyBroadcastsService {
 
     // Create in-app notifications for each recipient
     if (channels.includes("in_app")) {
-      const notificationValues = recipientUserIds.map((userId) => ({
+      const notificationValues = recipientUserIds.map((_userId) => ({
         id: randomUUID(),
         institutionId,
         createdByUserId: session.user.id,
@@ -513,10 +505,7 @@ export class EmergencyBroadcastsService {
     return row;
   }
 
-  private async getBroadcastById(
-    institutionId: string,
-    broadcastId: string,
-  ) {
+  private async getBroadcastById(institutionId: string, broadcastId: string) {
     const sentByMember = this.db
       .select({ id: member.id, userName: user.name })
       .from(member)
@@ -645,10 +634,7 @@ export class EmergencyBroadcastsService {
       .innerJoin(
         students,
         and(
-          eq(
-            students.membershipId,
-            studentGuardianLinks.studentMembershipId,
-          ),
+          eq(students.membershipId, studentGuardianLinks.studentMembershipId),
           isNull(students.deletedAt),
         ),
       )
@@ -678,10 +664,7 @@ export class EmergencyBroadcastsService {
       .innerJoin(
         students,
         and(
-          eq(
-            students.membershipId,
-            studentGuardianLinks.studentMembershipId,
-          ),
+          eq(students.membershipId, studentGuardianLinks.studentMembershipId),
           isNull(students.deletedAt),
         ),
       )
@@ -711,10 +694,7 @@ export class EmergencyBroadcastsService {
       .innerJoin(
         students,
         and(
-          eq(
-            students.membershipId,
-            studentGuardianLinks.studentMembershipId,
-          ),
+          eq(students.membershipId, studentGuardianLinks.studentMembershipId),
           isNull(students.deletedAt),
         ),
       )

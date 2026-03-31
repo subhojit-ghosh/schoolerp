@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CONSENT_PURPOSES, consentPurposeSchema } from "@repo/contracts";
+import { consentPurposeSchema } from "@repo/contracts";
 import {
   baseListQuerySchema,
   parseListQuerySchema,

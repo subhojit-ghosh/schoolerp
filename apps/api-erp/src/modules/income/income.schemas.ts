@@ -36,7 +36,9 @@ export const listRecordsQuerySchema = z.object({
   dateTo: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().default(20),
-  sort: z.enum(["incomeDate", "amountInPaise", "createdAt"]).default("createdAt"),
+  sort: z
+    .enum(["incomeDate", "amountInPaise", "createdAt"])
+    .default("createdAt"),
   order: z.enum(["asc", "desc"]).default("desc"),
 });
 

@@ -500,7 +500,8 @@ export class DataExchangeService {
       const payload = this.resolveCalendarHolidayPayload(row);
       const activeCampusId =
         authSession.activeCampusId ??
-        (context.campusByName.values().next().value?.id ?? null);
+        context.campusByName.values().next().value?.id ??
+        null;
       const eventId = randomUUID();
       await this.db.insert(calendarEvents).values({
         id: eventId,

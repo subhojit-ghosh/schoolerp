@@ -101,7 +101,8 @@ function InstitutionLogo({
       className="flex size-8 shrink-0 items-center justify-center rounded-[10px] text-xs font-bold text-white"
       style={{
         background: "var(--primary, #8a5a44)",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)",
+        boxShadow:
+          "0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)",
       }}
     >
       {initial}
@@ -177,7 +178,7 @@ function RailIcon({
           type="button"
         >
           {/* Active pip — left edge accent indicator */}
-          {(isActive || isModuleActive) ? (
+          {isActive || isModuleActive ? (
             <span
               className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full"
               style={{
@@ -222,7 +223,10 @@ function FlyoutPanel({
   }
 
   return (
-    <div className="flex h-full flex-col overflow-hidden" style={{ color: "white" }}>
+    <div
+      className="flex h-full flex-col overflow-hidden"
+      style={{ color: "white" }}
+    >
       {/* Module header */}
       <div className="px-4 pt-5 pb-2">
         <h2
@@ -314,11 +318,7 @@ function FlyoutPanel({
 // ContextSwitcher — dropdown for staff/parent/student
 // ---------------------------------------------------------------------------
 
-function ContextSwitcher({
-  compact,
-}: {
-  compact?: boolean;
-}) {
+function ContextSwitcher({ compact }: { compact?: boolean }) {
   const navigate = useNavigate();
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
@@ -527,7 +527,11 @@ function MobileSidebar({
   modules: NavModule[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  logoProps: { logoUrl: string | null; institutionName: string; initial: string };
+  logoProps: {
+    logoUrl: string | null;
+    institutionName: string;
+    initial: string;
+  };
   institutionName: string;
 }) {
   const location = useLocation();
@@ -682,27 +686,25 @@ export function AppSidebar() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [openModuleKey, setOpenModuleKey] = React.useState<string | null>(null);
 
-  // Select the right module set based on context
-  const rawModules = showStaffNavigation
-    ? STAFF_MODULES
-    : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT
-      ? PARENT_MODULES
-      : activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT
-        ? STUDENT_MODULES
-        : [];
-
   // Filter by permission
-  const modules = React.useMemo(
-    () =>
-      rawModules
-        .map((mod) =>
-          filterModuleByPermission(mod, (perm: PermissionSlug) =>
-            hasPermission(session, perm),
-          ),
-        )
-        .filter((mod) => mod.sections.length > 0),
-    [rawModules, session],
-  );
+  const modules = React.useMemo(() => {
+    // Select the right module set based on context
+    const rawModules = showStaffNavigation
+      ? STAFF_MODULES
+      : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT
+        ? PARENT_MODULES
+        : activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT
+          ? STUDENT_MODULES
+          : [];
+
+    return rawModules
+      .map((mod) =>
+        filterModuleByPermission(mod, (perm: PermissionSlug) =>
+          hasPermission(session, perm),
+        ),
+      )
+      .filter((mod) => mod.sections.length > 0);
+  }, [showStaffNavigation, activeContext?.key, session]);
 
   // Determine which module contains the current route
   const activeModule = React.useMemo(
@@ -717,9 +719,7 @@ export function AppSidebar() {
 
   // Favorite items resolved from URLs
   const favoriteNavItems = React.useMemo(() => {
-    const allItems = modules.flatMap((m) =>
-      m.sections.flatMap((s) => s.items),
-    );
+    const allItems = modules.flatMap((m) => m.sections.flatMap((s) => s.items));
     return favorites
       .map((url) => allItems.find((item) => item.url === url))
       .filter((item): item is NavItem => item !== undefined && !item.disabled);
@@ -784,7 +784,8 @@ export function AppSidebar() {
             style={{
               width: RAIL_WIDTH,
               background: "var(--sidebar)",
-              boxShadow: "3px 0 16px rgba(0,0,0,0.35), 1px 0 0 rgba(255,255,255,0.04)",
+              boxShadow:
+                "3px 0 16px rgba(0,0,0,0.35), 1px 0 0 rgba(255,255,255,0.04)",
             }}
           >
             {/* Logo */}
@@ -814,7 +815,9 @@ export function AppSidebar() {
                   key={mod.key}
                   icon={mod.icon}
                   isActive={openModuleKey === mod.key}
-                  isModuleActive={activeModule?.key === mod.key && openModuleKey !== mod.key}
+                  isModuleActive={
+                    activeModule?.key === mod.key && openModuleKey !== mod.key
+                  }
                   label={mod.label}
                   onClick={() => handleRailClick(mod)}
                 />
@@ -831,9 +834,7 @@ export function AppSidebar() {
           <div
             className={cn(
               "h-full overflow-hidden transition-[width,opacity] duration-220 ease-out",
-              openModule
-                ? "w-[240px] opacity-100"
-                : "w-0 opacity-0",
+              openModule ? "w-[240px] opacity-100" : "w-0 opacity-0",
             )}
             style={{
               background: "color-mix(in srgb, var(--sidebar) 85%, #4a4a6a)",

@@ -182,9 +182,7 @@ export function ExpensesPage() {
       actions={
         canManage ? (
           <EntityPagePrimaryAction asChild>
-            <Link
-              to={appendSearch(ERP_ROUTES.EXPENSE_CREATE, location.search)}
-            >
+            <Link to={appendSearch(ERP_ROUTES.EXPENSE_CREATE, location.search)}>
               <IconPlus className="size-4" />
               New expense
             </Link>

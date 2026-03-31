@@ -410,10 +410,7 @@ function NeedsAttentionSection({ enabled }: { enabled: boolean }) {
       </p>
       <div className="grid grid-cols-1 gap-3 @xl/main:grid-cols-2 @4xl/main:grid-cols-3">
         {items.map((item) => (
-          <Card
-            key={item.id}
-            className="relative overflow-hidden"
-          >
+          <Card key={item.id} className="relative overflow-hidden">
             {item.severity === "high" ? (
               <div
                 className="absolute inset-x-0 top-0 h-[3px]"

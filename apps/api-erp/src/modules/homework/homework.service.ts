@@ -95,9 +95,7 @@ export class HomeworkService {
     const createdByUser = alias(user, "created_by_user");
     const createdByMember = alias(member, "created_by_member");
 
-    const countQuery = this.db
-      .select({ count: count() })
-      .from(homework);
+    const countQuery = this.db.select({ count: count() }).from(homework);
     if (query.campusId) {
       countQuery.innerJoin(
         schoolClasses,
@@ -564,7 +562,7 @@ export class HomeworkService {
       .from(homework)
       .innerJoin(schoolClasses, eq(homework.classId, schoolClasses.id))
       .innerJoin(classSections, eq(homework.sectionId, classSections.id))
-      .where(and(...conditions)!);
+      .where(and(...conditions));
 
     if (homeworkRows.length === 0) return [];
 

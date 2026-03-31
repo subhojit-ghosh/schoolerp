@@ -7,10 +7,7 @@ import {
 } from "@nestjs/common";
 import { Interval } from "@nestjs/schedule";
 import { DATABASE } from "@repo/backend-core";
-import {
-  DOMAIN_EVENT_STATUS,
-  type DomainEventType,
-} from "@repo/contracts";
+import { DOMAIN_EVENT_STATUS, type DomainEventType } from "@repo/contracts";
 import {
   and,
   asc,
@@ -174,9 +171,7 @@ export class DomainEventsService {
     }
 
     if (event.status !== DOMAIN_EVENT_STATUS.FAILED) {
-      throw new ConflictException(
-        "Only failed events can be manually retried",
-      );
+      throw new ConflictException("Only failed events can be manually retried");
     }
 
     await this.db
@@ -196,38 +191,34 @@ export class DomainEventsService {
   async listEvents(
     institutionId: string,
     query: ListDomainEventsQuery,
-  ): Promise<PaginatedResult<{
-    id: string;
-    institutionId: string;
-    eventType: string;
-    payload: Record<string, unknown>;
-    status: string;
-    attempts: number;
-    maxAttempts: number;
-    lastError: string | null;
-    processedAt: string | null;
-    scheduledFor: string | null;
-    createdAt: string;
-    updatedAt: string;
-  }>> {
+  ): Promise<
+    PaginatedResult<{
+      id: string;
+      institutionId: string;
+      eventType: string;
+      payload: Record<string, unknown>;
+      status: string;
+      attempts: number;
+      maxAttempts: number;
+      lastError: string | null;
+      processedAt: string | null;
+      scheduledFor: string | null;
+      createdAt: string;
+      updatedAt: string;
+    }>
+  > {
     const pageSize = resolveTablePageSize(query.limit);
     const sortKey = query.sort ?? sortableDomainEventColumns.createdAt;
     const sortDirection = query.order === SORT_ORDERS.ASC ? asc : desc;
 
-    const conditions: SQL[] = [
-      eq(domainEvents.institutionId, institutionId),
-    ];
+    const conditions: SQL[] = [eq(domainEvents.institutionId, institutionId)];
 
     if (query.eventType) {
-      conditions.push(
-        sql`${domainEvents.eventType} = ${query.eventType}`,
-      );
+      conditions.push(sql`${domainEvents.eventType} = ${query.eventType}`);
     }
 
     if (query.status) {
-      conditions.push(
-        sql`${domainEvents.status} = ${query.status}`,
-      );
+      conditions.push(sql`${domainEvents.status} = ${query.status}`);
     }
 
     if (query.search) {
@@ -246,21 +237,21 @@ export class DomainEventsService {
     const total = totalRow?.count ?? 0;
     const pagination = resolvePagination(total, query.page, pageSize);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sortableColumns: Record<string, any> = {
+    const sortableColumns = {
       [sortableDomainEventColumns.createdAt]: domainEvents.createdAt,
       [sortableDomainEventColumns.eventType]: domainEvents.eventType,
       [sortableDomainEventColumns.status]: domainEvents.status,
-    };
+    } as const;
+
+    const sortColumn =
+      sortableColumns[sortKey as keyof typeof sortableColumns];
+    const orderColumn = sortColumn ?? domainEvents.createdAt;
 
     const rows = await this.db
       .select()
       .from(domainEvents)
       .where(where)
-      .orderBy(
-        sortDirection(sortableColumns[sortKey]),
-        desc(domainEvents.createdAt),
-      )
+      .orderBy(sortDirection(orderColumn), desc(domainEvents.createdAt))
       .limit(pageSize)
       .offset(pagination.offset);
 

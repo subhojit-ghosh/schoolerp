@@ -128,9 +128,7 @@ export function HostelOccupancyPage() {
             <p className="text-destructive font-medium">
               Failed to load occupancy data
             </p>
-            <p className="text-sm text-muted-foreground mt-1">
-              {errorMessage}
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">{errorMessage}</p>
           </CardContent>
         </Card>
       </div>
@@ -211,8 +209,8 @@ export function HostelOccupancyPage() {
                 <div className="flex items-center justify-between text-sm">
                   <span className="font-medium">{building.buildingName}</span>
                   <span className="text-muted-foreground">
-                    {building.totalOccupancy} / {building.totalCapacity} beds
-                    ({building.availableBeds} free)
+                    {building.totalOccupancy} / {building.totalCapacity} beds (
+                    {building.availableBeds} free)
                   </span>
                 </div>
                 <OccupancyBar percent={building.occupancyPercent} />

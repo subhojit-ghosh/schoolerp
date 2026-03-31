@@ -157,10 +157,8 @@ function invalidateDashboardQueries(
   queryClient: ReturnType<typeof useQueryClient>,
 ) {
   void queryClient.invalidateQueries({
-    queryKey: apiQueryClient.queryOptions(
-      "get",
-      LIBRARY_API_PATHS.DASHBOARD,
-    ).queryKey,
+    queryKey: apiQueryClient.queryOptions("get", LIBRARY_API_PATHS.DASHBOARD)
+      .queryKey,
   });
 }
 
@@ -232,10 +230,7 @@ export function useCollectFineMutation() {
   });
 }
 
-export function useBorrowingHistoryQuery(
-  enabled: boolean,
-  memberId: string,
-) {
+export function useBorrowingHistoryQuery(enabled: boolean, memberId: string) {
   return apiQueryClient.useQuery(
     "get",
     LIBRARY_API_PATHS.BORROWING_HISTORY,

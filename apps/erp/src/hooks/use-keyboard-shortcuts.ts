@@ -27,9 +27,7 @@ const CONTEXT_NEW_ENTITY_MAP: Record<string, string> = {
   [ERP_ROUTES.HOMEWORK]: ERP_ROUTES.HOMEWORK_CREATE,
 };
 
-export function useKeyboardShortcuts(
-  onOpenSearch?: () => void,
-): void {
+export function useKeyboardShortcuts(onOpenSearch?: () => void): void {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -81,11 +79,7 @@ export function useKeyboardShortcuts(
           ? event.ctrlKey || event.metaKey
           : !(event.ctrlKey || event.metaKey);
 
-        if (
-          event.key.toLowerCase() === shortcut.key &&
-          altMatch &&
-          ctrlMatch
-        ) {
+        if (event.key.toLowerCase() === shortcut.key && altMatch && ctrlMatch) {
           event.preventDefault();
           shortcut.action();
           return;

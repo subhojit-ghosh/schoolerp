@@ -1132,10 +1132,8 @@ export class GuardiansService {
       };
 
       current.totalDue += assignment.assignedAmountInPaise;
-      current.totalPaid +=
-        paymentByAssignment.get(assignment.id) ?? 0;
-      current.totalAdjustment +=
-        adjustmentByAssignment.get(assignment.id) ?? 0;
+      current.totalPaid += paymentByAssignment.get(assignment.id) ?? 0;
+      current.totalAdjustment += adjustmentByAssignment.get(assignment.id) ?? 0;
 
       studentSummaryMap.set(assignment.studentId, current);
     }
@@ -1175,8 +1173,7 @@ export class GuardiansService {
       totalDueInPaise: grandTotalDue,
       totalPaidInPaise: grandTotalPaid,
       totalAdjustmentInPaise: grandTotalAdjustment,
-      outstandingInPaise:
-        grandTotalDue - grandTotalPaid - grandTotalAdjustment,
+      outstandingInPaise: grandTotalDue - grandTotalPaid - grandTotalAdjustment,
       students: studentSummaries,
     };
   }

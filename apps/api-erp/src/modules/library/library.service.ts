@@ -558,10 +558,7 @@ export class LibraryService {
           eq(libraryReservations.institutionId, institutionId),
           eq(libraryReservations.bookId, dto.bookId),
           eq(libraryReservations.memberId, dto.memberId),
-          eq(
-            libraryReservations.status,
-            LIBRARY_RESERVATION_STATUS.PENDING,
-          ),
+          eq(libraryReservations.status, LIBRARY_RESERVATION_STATUS.PENDING),
         ),
       );
 
@@ -573,16 +570,15 @@ export class LibraryService {
 
     // Determine queue position
     const [{ maxPos }] = await this.db
-      .select({ maxPos: sql<number>`coalesce(max(${libraryReservations.queuePosition}), 0)` })
+      .select({
+        maxPos: sql<number>`coalesce(max(${libraryReservations.queuePosition}), 0)`,
+      })
       .from(libraryReservations)
       .where(
         and(
           eq(libraryReservations.institutionId, institutionId),
           eq(libraryReservations.bookId, dto.bookId),
-          eq(
-            libraryReservations.status,
-            LIBRARY_RESERVATION_STATUS.PENDING,
-          ),
+          eq(libraryReservations.status, LIBRARY_RESERVATION_STATUS.PENDING),
         ),
       );
 
@@ -622,12 +618,8 @@ export class LibraryService {
 
     const filters = [
       eq(libraryReservations.institutionId, institutionId),
-      ...(query.status
-        ? [eq(libraryReservations.status, query.status)]
-        : []),
-      ...(query.bookId
-        ? [eq(libraryReservations.bookId, query.bookId)]
-        : []),
+      ...(query.status ? [eq(libraryReservations.status, query.status)] : []),
+      ...(query.bookId ? [eq(libraryReservations.bookId, query.bookId)] : []),
       ...(query.memberId
         ? [eq(libraryReservations.memberId, query.memberId)]
         : []),
@@ -644,10 +636,7 @@ export class LibraryService {
     const [{ total }] = await this.db
       .select({ total: count() })
       .from(libraryReservations)
-      .innerJoin(
-        libraryBooks,
-        eq(libraryReservations.bookId, libraryBooks.id),
-      )
+      .innerJoin(libraryBooks, eq(libraryReservations.bookId, libraryBooks.id))
       .innerJoin(
         reservationMember,
         eq(libraryReservations.memberId, reservationMember.id),
@@ -674,10 +663,7 @@ export class LibraryService {
         createdAt: libraryReservations.createdAt,
       })
       .from(libraryReservations)
-      .innerJoin(
-        libraryBooks,
-        eq(libraryReservations.bookId, libraryBooks.id),
-      )
+      .innerJoin(libraryBooks, eq(libraryReservations.bookId, libraryBooks.id))
       .innerJoin(
         reservationMember,
         eq(libraryReservations.memberId, reservationMember.id),
@@ -827,10 +813,7 @@ export class LibraryService {
       .select({ id: member.id })
       .from(member)
       .where(
-        and(
-          eq(member.id, memberId),
-          eq(member.organizationId, institutionId),
-        ),
+        and(eq(member.id, memberId), eq(member.organizationId, institutionId)),
       );
 
     if (!memberRecord) {
@@ -1025,10 +1008,7 @@ export class LibraryService {
       .where(
         and(
           eq(libraryReservations.institutionId, institutionId),
-          eq(
-            libraryReservations.status,
-            LIBRARY_RESERVATION_STATUS.PENDING,
-          ),
+          eq(libraryReservations.status, LIBRARY_RESERVATION_STATUS.PENDING),
         ),
       );
 

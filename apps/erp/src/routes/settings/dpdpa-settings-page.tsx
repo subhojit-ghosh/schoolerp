@@ -131,10 +131,7 @@ function SessionConfigCard() {
         </div>
       </CardHeader>
       <CardContent>
-        <form
-          className="flex flex-col gap-5"
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className="flex flex-col gap-5" onSubmit={handleSubmit(onSubmit)}>
           <Controller
             control={control}
             name="maxConcurrentSessions"
@@ -160,9 +157,7 @@ function SessionConfigCard() {
             name="sessionTimeoutMinutes"
             render={({ field, fieldState }) => (
               <Field>
-                <FieldLabel required>
-                  Session timeout (minutes)
-                </FieldLabel>
+                <FieldLabel required>Session timeout (minutes)</FieldLabel>
                 <Input
                   {...field}
                   type="number"
@@ -205,9 +200,7 @@ function SessionConfigCard() {
           <div>
             <Button
               className="h-10 rounded-lg"
-              disabled={
-                updateMutation.isPending || !formState.isDirty
-              }
+              disabled={updateMutation.isPending || !formState.isDirty}
               type="submit"
             >
               {updateMutation.isPending ? (
@@ -226,8 +219,9 @@ function SessionConfigCard() {
 
 function AccessLogsCard() {
   const { data, isLoading } = useAccessLogsQuery(true);
-  const logs = (data as unknown as { rows?: Array<Record<string, unknown>> })
-    ?.rows ?? (Array.isArray(data) ? data : []);
+  const logs =
+    (data as unknown as { rows?: Array<Record<string, unknown>> })?.rows ??
+    (Array.isArray(data) ? data : []);
 
   return (
     <Card>
@@ -246,7 +240,9 @@ function AccessLogsCard() {
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <IconLoader2 className="mr-2 size-5 animate-spin text-muted-foreground" />
-            <span className="text-muted-foreground">Loading access logs...</span>
+            <span className="text-muted-foreground">
+              Loading access logs...
+            </span>
           </div>
         ) : logs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">

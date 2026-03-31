@@ -82,9 +82,7 @@ export function ExpenseCategoriesPage() {
         header: () => (
           <button
             className="flex items-center font-medium hover:text-foreground"
-            onClick={() =>
-              setSorting(EXPENSE_CATEGORY_LIST_SORT_FIELDS.NAME)
-            }
+            onClick={() => setSorting(EXPENSE_CATEGORY_LIST_SORT_FIELDS.NAME)}
             type="button"
           >
             Name

@@ -6,9 +6,7 @@ import {
   NOTIFICATION_TYPES,
   type DomainEventType,
 } from "@repo/contracts";
-import {
-  ANNOUNCEMENT_AUDIENCE,
-} from "../../constants";
+import { ANNOUNCEMENT_AUDIENCE } from "../../constants";
 import {
   NotificationFactory,
   type NotifyInput,
@@ -27,15 +25,19 @@ const SYSTEM_SENDER = "School ERP";
 export class WorkflowListeners {
   private readonly logger = new Logger(WorkflowListeners.name);
 
-  constructor(
-    private readonly notificationFactory: NotificationFactory,
-  ) {}
+  constructor(private readonly notificationFactory: NotificationFactory) {}
 
   /**
    * Returns a map of event type -> handler for registration.
    */
-  getListenerMap(): Map<DomainEventType, (event: EventPayload) => Promise<void>> {
-    const map = new Map<DomainEventType, (event: EventPayload) => Promise<void>>();
+  getListenerMap(): Map<
+    DomainEventType,
+    (event: EventPayload) => Promise<void>
+  > {
+    const map = new Map<
+      DomainEventType,
+      (event: EventPayload) => Promise<void>
+    >();
 
     map.set(
       DOMAIN_EVENT_TYPES.ATTENDANCE_ABSENT,
@@ -45,10 +47,7 @@ export class WorkflowListeners {
       DOMAIN_EVENT_TYPES.ATTENDANCE_ABSENT_STREAK,
       this.handleAttendanceAbsentStreak.bind(this),
     );
-    map.set(
-      DOMAIN_EVENT_TYPES.FEE_OVERDUE,
-      this.handleFeeOverdue.bind(this),
-    );
+    map.set(DOMAIN_EVENT_TYPES.FEE_OVERDUE, this.handleFeeOverdue.bind(this));
     map.set(
       DOMAIN_EVENT_TYPES.FEE_PAYMENT_RECEIVED,
       this.handleFeePaymentReceived.bind(this),
@@ -100,7 +99,9 @@ export class WorkflowListeners {
   /**
    * attendance.absent.streak -> notify class teacher of consecutive absences
    */
-  private async handleAttendanceAbsentStreak(event: EventPayload): Promise<void> {
+  private async handleAttendanceAbsentStreak(
+    event: EventPayload,
+  ): Promise<void> {
     const { institutionId, payload } = event;
     const studentName = (payload.studentName as string) ?? "A student";
     const streakDays = (payload.streakDays as number) ?? 3;
@@ -245,7 +246,9 @@ export class WorkflowListeners {
   /**
    * announcement.published -> create announcement notification
    */
-  private async handleAnnouncementPublished(event: EventPayload): Promise<void> {
+  private async handleAnnouncementPublished(
+    event: EventPayload,
+  ): Promise<void> {
     const { institutionId, payload } = event;
     const title = (payload.title as string) ?? "New Announcement";
     const audience = (payload.audience as string) ?? ANNOUNCEMENT_AUDIENCE.ALL;

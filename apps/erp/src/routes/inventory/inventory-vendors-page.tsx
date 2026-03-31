@@ -110,9 +110,7 @@ export function InventoryVendorsPage() {
           body: { status: newStatus },
         });
         toast.success(
-          newStatus === "active"
-            ? "Vendor activated."
-            : "Vendor deactivated.",
+          newStatus === "active" ? "Vendor activated." : "Vendor deactivated.",
         );
       } catch (error) {
         toast.error(

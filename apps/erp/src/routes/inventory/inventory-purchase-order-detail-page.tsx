@@ -17,13 +17,9 @@ import {
   useUpdatePurchaseOrderStatusMutation,
   useReceivePurchaseOrderMutation,
 } from "@/features/inventory/api/use-inventory";
-import {
-  PURCHASE_ORDER_STATUS_LABELS,
-} from "@/features/inventory/model/inventory-constants";
+import { PURCHASE_ORDER_STATUS_LABELS } from "@/features/inventory/model/inventory-constants";
 import { useDocumentTitle } from "@/hooks/use-document-title";
-import {
-  ServerDataTable,
-} from "@/components/data-display/server-data-table";
+import { ServerDataTable } from "@/components/data-display/server-data-table";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
 
 type POItemRow = {
@@ -129,7 +125,9 @@ export function InventoryPurchaseOrderDetailPage() {
           params: { path: { orderId } },
           body: { status: newStatus },
         });
-        toast.success(`Order status updated to ${PURCHASE_ORDER_STATUS_LABELS[newStatus]}.`);
+        toast.success(
+          `Order status updated to ${PURCHASE_ORDER_STATUS_LABELS[newStatus]}.`,
+        );
       } catch (error) {
         toast.error(
           extractApiError(error, "Could not update status. Please try again."),
@@ -218,11 +216,7 @@ export function InventoryPurchaseOrderDetailPage() {
           ]
         : []),
     ],
-    [
-      showReceiveForm,
-      receiveQuantities,
-      handleReceiveQuantityChange,
-    ],
+    [showReceiveForm, receiveQuantities, handleReceiveQuantityChange],
   );
 
   const table = useServerDataTable({
@@ -244,8 +238,7 @@ export function InventoryPurchaseOrderDetailPage() {
     (orderData.status === "ordered" ||
       orderData.status === "partially_received");
 
-  const canMarkOrdered =
-    canManage && orderData && orderData.status === "draft";
+  const canMarkOrdered = canManage && orderData && orderData.status === "draft";
 
   const canCancel =
     canManage &&
@@ -271,17 +264,14 @@ export function InventoryPurchaseOrderDetailPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
-              {orderData
-                ? `PO ${orderData.orderNumber}`
-                : "Purchase Order"}
+              {orderData ? `PO ${orderData.orderNumber}` : "Purchase Order"}
             </h1>
             {orderData ? (
               <div className="mt-1 flex items-center gap-3 text-sm text-muted-foreground">
                 <span>Vendor: {orderData.vendorName}</span>
                 <span>|</span>
                 <span>
-                  Date:{" "}
-                  {new Date(orderData.orderDate).toLocaleDateString()}
+                  Date: {new Date(orderData.orderDate).toLocaleDateString()}
                 </span>
                 {orderData.expectedDeliveryDate ? (
                   <>
@@ -296,9 +286,7 @@ export function InventoryPurchaseOrderDetailPage() {
                 ) : null}
                 <span>|</span>
                 <Badge
-                  className={
-                    PO_STATUS_BADGE_CLASSES[orderData.status] ?? ""
-                  }
+                  className={PO_STATUS_BADGE_CLASSES[orderData.status] ?? ""}
                 >
                   {PURCHASE_ORDER_STATUS_LABELS[orderData.status] ??
                     orderData.status}
@@ -318,10 +306,7 @@ export function InventoryPurchaseOrderDetailPage() {
               </Button>
             ) : null}
             {canReceive && !showReceiveForm ? (
-              <Button
-                size="sm"
-                onClick={() => setShowReceiveForm(true)}
-              >
+              <Button size="sm" onClick={() => setShowReceiveForm(true)}>
                 <IconPackage className="mr-1 size-4" />
                 Receive Goods
               </Button>

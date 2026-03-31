@@ -21,13 +21,15 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((names) =>
-      Promise.all(
-        names
-          .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name)),
+    caches
+      .keys()
+      .then((names) =>
+        Promise.all(
+          names
+            .filter((name) => name !== CACHE_NAME)
+            .map((name) => caches.delete(name)),
+        ),
       ),
-    ),
   );
   self.clients.claim();
 });
@@ -101,7 +103,12 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(
       fetch(request.clone()).catch(async () => {
         const body = await request.clone().text();
-        await addToOfflineQueue(request.url, request.method, request.headers, body);
+        await addToOfflineQueue(
+          request.url,
+          request.method,
+          request.headers,
+          body,
+        );
         return new Response(
           JSON.stringify({
             queued: true,
@@ -154,9 +161,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Everything else: network-first
-  event.respondWith(
-    fetch(request).catch(() => caches.match(request)),
-  );
+  event.respondWith(fetch(request).catch(() => caches.match(request)));
 });
 
 // ── Sync: replay queued requests when back online ──────────────────────────

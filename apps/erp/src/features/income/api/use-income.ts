@@ -2,9 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { INCOME_API_PATHS } from "@/features/auth/api/auth.constants";
 import { apiQueryClient } from "@/lib/api/client";
 
-function invalidateIncomeLists(
-  queryClient: ReturnType<typeof useQueryClient>,
-) {
+function invalidateIncomeLists(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({
     queryKey: apiQueryClient.queryOptions("get", INCOME_API_PATHS.LIST, {
       params: { query: {} },

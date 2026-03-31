@@ -169,8 +169,7 @@ export function IncomeRecordsPage() {
     sortOrder: queryState.sortOrder,
   });
 
-  const errorMessage = (incomeQuery.error as Error | null | undefined)
-    ?.message;
+  const errorMessage = (incomeQuery.error as Error | null | undefined)?.message;
 
   return (
     <EntityListPage

@@ -21,7 +21,10 @@ import { hasPermission } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useLibraryDashboardQuery } from "@/features/library/api/use-library";
-import { EntityPageShell, EntityPageHeader } from "@/components/entities/entity-page-shell";
+import {
+  EntityPageShell,
+  EntityPageHeader,
+} from "@/components/entities/entity-page-shell";
 
 const LOADING_VALUE = "\u2014";
 
@@ -95,9 +98,7 @@ export function LibraryDashboardPage() {
     },
     {
       label: "Pending Reservations",
-      value: isLoading
-        ? LOADING_VALUE
-        : String(data?.pendingReservations ?? 0),
+      value: isLoading ? LOADING_VALUE : String(data?.pendingReservations ?? 0),
       badge: isLoading ? "Syncing..." : "In queue",
       Icon: IconBookmark,
     },
@@ -213,9 +214,7 @@ export function LibraryDashboardPage() {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <Badge
-                        variant={
-                          txn.type === "issue" ? "secondary" : "outline"
-                        }
+                        variant={txn.type === "issue" ? "secondary" : "outline"}
                         className={
                           txn.type === "return"
                             ? "bg-green-500/10 text-green-700 border-green-200"

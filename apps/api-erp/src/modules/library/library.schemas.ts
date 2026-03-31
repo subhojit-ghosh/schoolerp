@@ -159,9 +159,7 @@ export type ListReservationsQueryDto = z.infer<
   typeof listReservationsQuerySchema
 >;
 
-export function parseListReservations(
-  data: unknown,
-): ListReservationsQueryDto {
+export function parseListReservations(data: unknown): ListReservationsQueryDto {
   return listReservationsQuerySchema.parse(data);
 }
 
@@ -188,8 +186,6 @@ export type BorrowingHistoryQueryDto = z.infer<
   typeof borrowingHistoryQuerySchema
 >;
 
-export function parseBorrowingHistory(
-  data: unknown,
-): BorrowingHistoryQueryDto {
+export function parseBorrowingHistory(data: unknown): BorrowingHistoryQueryDto {
   return borrowingHistoryQuerySchema.parse(data);
 }

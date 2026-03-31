@@ -53,13 +53,18 @@ export const ADMISSIONS_API_PATHS = {
   LIST_DOCUMENT_CHECKLIST: "/admissions/document-checklist",
   CREATE_DOCUMENT_CHECKLIST: "/admissions/document-checklist",
   UPDATE_DOCUMENT_CHECKLIST: "/admissions/document-checklist/{itemId}",
-  LIST_APPLICATION_DOCUMENTS: "/admissions/applications/{applicationId}/application-documents",
-  UPSERT_APPLICATION_DOCUMENT: "/admissions/applications/{applicationId}/application-documents",
-  VERIFY_APPLICATION_DOCUMENT: "/admissions/applications/{applicationId}/application-documents/{documentId}",
-  CONVERT_TO_STUDENT: "/admissions/applications/{applicationId}/convert-to-student",
+  LIST_APPLICATION_DOCUMENTS:
+    "/admissions/applications/{applicationId}/application-documents",
+  UPSERT_APPLICATION_DOCUMENT:
+    "/admissions/applications/{applicationId}/application-documents",
+  VERIFY_APPLICATION_DOCUMENT:
+    "/admissions/applications/{applicationId}/application-documents/{documentId}",
+  CONVERT_TO_STUDENT:
+    "/admissions/applications/{applicationId}/convert-to-student",
   WAITLIST_APPLICATION: "/admissions/applications/{applicationId}/waitlist",
   PROMOTE_WAITLISTED: "/admissions/promote",
-  RECORD_REGISTRATION_FEE: "/admissions/applications/{applicationId}/registration-fee",
+  RECORD_REGISTRATION_FEE:
+    "/admissions/applications/{applicationId}/registration-fee",
 } as const;
 
 export const STAFF_API_PATHS = {
@@ -166,8 +171,10 @@ export const COMMUNICATIONS_API_PATHS = {
   LIST_NOTIFICATIONS: "/communications/notifications",
   MARK_ALL_NOTIFICATIONS_READ: "/communications/notifications/mark-all-read",
   // Phase 2 depth
-  MARK_ANNOUNCEMENT_READ: "/communications/announcements/{announcementId}/read-receipts",
-  ANNOUNCEMENT_READ_COUNT: "/communications/announcements/{announcementId}/read-receipts",
+  MARK_ANNOUNCEMENT_READ:
+    "/communications/announcements/{announcementId}/read-receipts",
+  ANNOUNCEMENT_READ_COUNT:
+    "/communications/announcements/{announcementId}/read-receipts",
 } as const;
 
 export const FAMILY_API_PATHS = {
@@ -398,7 +405,8 @@ export const HOSTEL_API_PATHS = {
   // Phase 2 depth
   LIST_MESS_ASSIGNMENTS: "/hostel/mess-assignments",
   CREATE_MESS_ASSIGNMENT: "/hostel/mess-assignments",
-  DEACTIVATE_MESS_ASSIGNMENT: "/hostel/mess-assignments/{assignmentId}/deactivate",
+  DEACTIVATE_MESS_ASSIGNMENT:
+    "/hostel/mess-assignments/{assignmentId}/deactivate",
   LIST_ROOM_TRANSFERS: "/hostel/room-transfers",
   CREATE_ROOM_TRANSFER: "/hostel/room-transfers",
   OCCUPANCY_DASHBOARD: "/hostel/occupancy",
@@ -472,14 +480,10 @@ export const SCHOLARSHIPS_API_PATHS = {
   UPDATE_STATUS: "/scholarships/{scholarshipId}/status",
   LIST_APPLICATIONS: "/scholarship-applications",
   CREATE_APPLICATION: "/scholarship-applications",
-  APPROVE_APPLICATION:
-    "/scholarship-applications/{applicationId}/approve",
-  REJECT_APPLICATION:
-    "/scholarship-applications/{applicationId}/reject",
-  UPDATE_DBT:
-    "/scholarship-applications/{applicationId}/dbt",
-  RENEW_APPLICATION:
-    "/scholarship-applications/{applicationId}/renew",
+  APPROVE_APPLICATION: "/scholarship-applications/{applicationId}/approve",
+  REJECT_APPLICATION: "/scholarship-applications/{applicationId}/reject",
+  UPDATE_DBT: "/scholarship-applications/{applicationId}/dbt",
+  RENEW_APPLICATION: "/scholarship-applications/{applicationId}/renew",
 } as const;
 
 export const EMERGENCY_BROADCASTS_API_PATHS = {

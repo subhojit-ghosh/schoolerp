@@ -35,10 +35,7 @@ import {
 } from "@repo/database";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS } from "../../constants";
-import {
-  resolvePagination,
-  resolveTablePageSize,
-} from "../../lib/list-query";
+import { resolvePagination, resolveTablePageSize } from "../../lib/list-query";
 import type { AuthenticatedSession } from "../auth/auth.types";
 import { AuditService } from "../audit/audit.service";
 import type {
@@ -77,8 +74,16 @@ export class ScholarshipsService {
     institutionId: string,
     query: ListScholarshipsQueryDto,
   ) {
-    const { q, scholarshipType, status, academicYearId, page, limit, sort, order } =
-      query;
+    const {
+      q,
+      scholarshipType,
+      status,
+      academicYearId,
+      page,
+      limit,
+      sort,
+      order,
+    } = query;
     const pageSize = resolveTablePageSize(limit);
     const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
     const sortCol = scholarshipSortColumns[sort ?? "name"];
@@ -108,11 +113,11 @@ export class ScholarshipsService {
       .where(where);
 
     const total = totalResult?.count ?? 0;
-    const { page: safePage, pageCount, offset } = resolvePagination(
-      total,
-      page,
-      pageSize,
-    );
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
 
     const rows = await this.db
       .select({
@@ -138,7 +143,10 @@ export class ScholarshipsService {
         createdAt: scholarships.createdAt,
       })
       .from(scholarships)
-      .leftJoin(academicYears, eq(scholarships.academicYearId, academicYears.id))
+      .leftJoin(
+        academicYears,
+        eq(scholarships.academicYearId, academicYears.id),
+      )
       .where(where)
       .orderBy(orderFn(sortCol))
       .limit(pageSize)
@@ -323,9 +331,7 @@ export class ScholarshipsService {
       );
     }
     if (scholarshipId) {
-      conditions.push(
-        eq(scholarshipApplications.scholarshipId, scholarshipId),
-      );
+      conditions.push(eq(scholarshipApplications.scholarshipId, scholarshipId));
     }
     if (status) {
       conditions.push(eq(scholarshipApplications.status, status));
@@ -339,10 +345,7 @@ export class ScholarshipsService {
     const baseQuery = this.db
       .select({ count: count() })
       .from(scholarshipApplications)
-      .innerJoin(
-        students,
-        eq(scholarshipApplications.studentId, students.id),
-      )
+      .innerJoin(students, eq(scholarshipApplications.studentId, students.id))
       .innerJoin(
         scholarships,
         eq(scholarshipApplications.scholarshipId, scholarships.id),
@@ -384,10 +387,7 @@ export class ScholarshipsService {
         createdAt: scholarshipApplications.createdAt,
       })
       .from(scholarshipApplications)
-      .innerJoin(
-        students,
-        eq(scholarshipApplications.studentId, students.id),
-      )
+      .innerJoin(students, eq(scholarshipApplications.studentId, students.id))
       .innerJoin(
         scholarships,
         eq(scholarshipApplications.scholarshipId, scholarships.id),
@@ -398,10 +398,7 @@ export class ScholarshipsService {
       )
       .leftJoin(
         reviewedByMember,
-        eq(
-          scholarshipApplications.reviewedByMemberId,
-          reviewedByMember.id,
-        ),
+        eq(scholarshipApplications.reviewedByMemberId, reviewedByMember.id),
       )
       .where(where)
       .orderBy(orderFn(sortCol))
@@ -580,7 +577,10 @@ export class ScholarshipsService {
     // If there's a concession amount, try to find and adjust the student's fee assignment
     if (concessionAmountInPaise) {
       const [activeAssignment] = await this.db
-        .select({ id: feeAssignments.id, institutionId: feeAssignments.institutionId })
+        .select({
+          id: feeAssignments.id,
+          institutionId: feeAssignments.institutionId,
+        })
         .from(feeAssignments)
         .where(
           and(
@@ -886,10 +886,7 @@ export class ScholarshipsService {
         createdAt: scholarshipApplications.createdAt,
       })
       .from(scholarshipApplications)
-      .innerJoin(
-        students,
-        eq(scholarshipApplications.studentId, students.id),
-      )
+      .innerJoin(students, eq(scholarshipApplications.studentId, students.id))
       .innerJoin(
         scholarships,
         eq(scholarshipApplications.scholarshipId, scholarships.id),
@@ -900,10 +897,7 @@ export class ScholarshipsService {
       )
       .leftJoin(
         reviewedByMember,
-        eq(
-          scholarshipApplications.reviewedByMemberId,
-          reviewedByMember.id,
-        ),
+        eq(scholarshipApplications.reviewedByMemberId, reviewedByMember.id),
       )
       .where(where)
       .orderBy(asc(scholarshipApplications.expiresAt))
@@ -940,10 +934,7 @@ export class ScholarshipsService {
     return row;
   }
 
-  private async findApplication(
-    institutionId: string,
-    applicationId: string,
-  ) {
+  private async findApplication(institutionId: string, applicationId: string) {
     const [row] = await this.db
       .select()
       .from(scholarshipApplications)
@@ -991,7 +982,10 @@ export class ScholarshipsService {
         createdAt: scholarships.createdAt,
       })
       .from(scholarships)
-      .leftJoin(academicYears, eq(scholarships.academicYearId, academicYears.id))
+      .leftJoin(
+        academicYears,
+        eq(scholarships.academicYearId, academicYears.id),
+      )
       .where(
         and(
           eq(scholarships.id, scholarshipId),
@@ -1053,10 +1047,7 @@ export class ScholarshipsService {
         createdAt: scholarshipApplications.createdAt,
       })
       .from(scholarshipApplications)
-      .innerJoin(
-        students,
-        eq(scholarshipApplications.studentId, students.id),
-      )
+      .innerJoin(students, eq(scholarshipApplications.studentId, students.id))
       .innerJoin(
         scholarships,
         eq(scholarshipApplications.scholarshipId, scholarships.id),
@@ -1067,10 +1058,7 @@ export class ScholarshipsService {
       )
       .leftJoin(
         reviewedByMember,
-        eq(
-          scholarshipApplications.reviewedByMemberId,
-          reviewedByMember.id,
-        ),
+        eq(scholarshipApplications.reviewedByMemberId, reviewedByMember.id),
       )
       .where(
         and(

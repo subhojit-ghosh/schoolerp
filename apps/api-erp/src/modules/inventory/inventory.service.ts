@@ -893,10 +893,7 @@ export class InventoryService {
       .select()
       .from(vendors)
       .where(
-        and(
-          eq(vendors.id, vendorId),
-          eq(vendors.institutionId, institutionId),
-        ),
+        and(eq(vendors.id, vendorId), eq(vendors.institutionId, institutionId)),
       );
 
     if (!existing) {
@@ -907,7 +904,8 @@ export class InventoryService {
 
     const updates: Record<string, unknown> = {};
     if (dto.name !== undefined) updates.name = dto.name;
-    if (dto.contactPerson !== undefined) updates.contactPerson = dto.contactPerson;
+    if (dto.contactPerson !== undefined)
+      updates.contactPerson = dto.contactPerson;
     if (dto.phone !== undefined) updates.phone = dto.phone;
     if (dto.email !== undefined) updates.email = dto.email;
     if (dto.address !== undefined) updates.address = dto.address;
@@ -943,10 +941,7 @@ export class InventoryService {
       .select()
       .from(vendors)
       .where(
-        and(
-          eq(vendors.id, vendorId),
-          eq(vendors.institutionId, institutionId),
-        ),
+        and(eq(vendors.id, vendorId), eq(vendors.institutionId, institutionId)),
       );
 
     if (!existing) {
@@ -1128,8 +1123,7 @@ export class InventoryService {
 
     return {
       ...order,
-      createdByName:
-        memberNames.get(order.createdByMemberId) ?? "Unknown",
+      createdByName: memberNames.get(order.createdByMemberId) ?? "Unknown",
       items,
     };
   }

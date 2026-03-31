@@ -60,7 +60,10 @@ export const createStudentSchema = z
     currentEnrollment: currentEnrollmentSchema
       .nullish()
       .transform((value) => value ?? null),
-    photoUrl: z.url().nullish().transform((value) => value ?? null),
+    photoUrl: z
+      .url()
+      .nullish()
+      .transform((value) => value ?? null),
     previousSchoolName: z
       .string()
       .trim()

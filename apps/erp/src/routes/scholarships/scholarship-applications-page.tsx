@@ -160,9 +160,7 @@ export function ScholarshipApplicationsPage() {
           <EntityPagePrimaryAction asChild>
             <Link
               to={appendSearch(
-                `${ERP_ROUTES.SCHOLARSHIP_APPLICATIONS}/${
-                  "new" as const
-                }`,
+                `${ERP_ROUTES.SCHOLARSHIP_APPLICATIONS}/${"new" as const}`,
                 location.search,
               )}
             >
