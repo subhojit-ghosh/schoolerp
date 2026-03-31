@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -14,13 +15,16 @@ import {
   eq,
   ilike,
   isNull,
+  member,
   ne,
   or,
   studentTransportAssignments,
   students,
+  transportDrivers,
   transportRoutes,
   transportStops,
   transportVehicles,
+  vehicleMaintenanceLogs,
   type AppDatabase,
 } from "@repo/database";
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
@@ -31,13 +35,19 @@ import type { AuthenticatedSession } from "../auth/auth.types";
 import { AuditService } from "../audit/audit.service";
 import type {
   CreateAssignmentDto,
+  CreateDriverDto,
+  CreateMaintenanceLogDto,
   CreateRouteDto,
   CreateStopDto,
   CreateVehicleDto,
   ListAssignmentsQueryDto,
+  ListDriversQueryDto,
+  ListMaintenanceLogsQueryDto,
+  ListRouteStudentsQueryDto,
   ListRoutesQueryDto,
   ListVehiclesQueryDto,
   UpdateAssignmentDto,
+  UpdateDriverDto,
   UpdateRouteDto,
   UpdateStopDto,
   UpdateVehicleDto,
@@ -868,5 +878,590 @@ export class TransportService {
       .catch(() => {});
 
     return { id: assignmentId };
+  }
+
+  // ── Drivers ──────────────────────────────────────────────────────────────
+
+  async listDrivers(institutionId: string, query: ListDriversQueryDto) {
+    const page = query.page ?? 1;
+    const pageSize = resolveTablePageSize(query.limit);
+    const sortField = query.sort ?? "name";
+    const sortOrder = query.order ?? SORT_ORDERS.ASC;
+    const orderFn = sortOrder === SORT_ORDERS.ASC ? asc : desc;
+    const sortCol =
+      sortField === "createdAt"
+        ? transportDrivers.createdAt
+        : transportDrivers.name;
+
+    const filters = [
+      eq(transportDrivers.institutionId, institutionId),
+      ...(query.status
+        ? [eq(transportDrivers.status, query.status)]
+        : [ne(transportDrivers.status, "inactive")]),
+      ...(query.q
+        ? [
+            or(
+              ilike(transportDrivers.name, `%${query.q}%`),
+              ilike(transportDrivers.mobile, `%${query.q}%`),
+              ilike(transportDrivers.licenseNumber, `%${query.q}%`),
+            ),
+          ]
+        : []),
+    ];
+
+    const [{ total }] = await this.db
+      .select({ total: count() })
+      .from(transportDrivers)
+      .where(and(...filters));
+
+    const pagination = resolvePagination(total, page, pageSize);
+
+    // Count vehicles per driver
+    const vehicleCounts = await this.db
+      .select({
+        driverId: transportVehicles.driverId,
+        vehicleCount: count(),
+      })
+      .from(transportVehicles)
+      .where(eq(transportVehicles.institutionId, institutionId))
+      .groupBy(transportVehicles.driverId);
+
+    const vehicleCountMap = new Map(
+      vehicleCounts
+        .filter((v) => v.driverId !== null)
+        .map((v) => [v.driverId, v.vehicleCount]),
+    );
+
+    const rows = await this.db
+      .select()
+      .from(transportDrivers)
+      .where(and(...filters))
+      .orderBy(orderFn(sortCol))
+      .limit(pageSize)
+      .offset(pagination.offset);
+
+    return {
+      rows: rows.map((d) => ({
+        id: d.id,
+        name: d.name,
+        mobile: d.mobile,
+        licenseNumber: d.licenseNumber ?? null,
+        licenseExpiry: d.licenseExpiry ?? null,
+        address: d.address ?? null,
+        emergencyContact: d.emergencyContact ?? null,
+        status: d.status,
+        vehicleCount: vehicleCountMap.get(d.id) ?? 0,
+        createdAt: d.createdAt.toISOString(),
+      })),
+      total,
+      page: pagination.page,
+      pageSize,
+      pageCount: pagination.pageCount,
+    };
+  }
+
+  async getDriver(institutionId: string, driverId: string) {
+    const [driver] = await this.db
+      .select()
+      .from(transportDrivers)
+      .where(
+        and(
+          eq(transportDrivers.id, driverId),
+          eq(transportDrivers.institutionId, institutionId),
+        ),
+      );
+
+    if (!driver) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.TRANSPORT_DEPTH.DRIVER_NOT_FOUND,
+      );
+    }
+
+    return {
+      id: driver.id,
+      name: driver.name,
+      mobile: driver.mobile,
+      licenseNumber: driver.licenseNumber ?? null,
+      licenseExpiry: driver.licenseExpiry ?? null,
+      address: driver.address ?? null,
+      emergencyContact: driver.emergencyContact ?? null,
+      status: driver.status,
+      createdAt: driver.createdAt.toISOString(),
+      updatedAt: driver.updatedAt.toISOString(),
+    };
+  }
+
+  async createDriver(
+    institutionId: string,
+    session: AuthenticatedSession,
+    dto: CreateDriverDto,
+  ) {
+    const id = randomUUID();
+
+    await this.db.insert(transportDrivers).values({
+      id,
+      institutionId,
+      name: dto.name,
+      mobile: dto.mobile,
+      licenseNumber: dto.licenseNumber ?? null,
+      licenseExpiry: dto.licenseExpiry ?? null,
+      address: dto.address ?? null,
+      emergencyContact: dto.emergencyContact ?? null,
+    });
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession: session,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.TRANSPORT_DRIVER,
+        entityId: id,
+        entityLabel: dto.name,
+        summary: `Created transport driver "${dto.name}"`,
+      })
+      .catch(() => {});
+
+    return { id };
+  }
+
+  async updateDriver(
+    institutionId: string,
+    driverId: string,
+    session: AuthenticatedSession,
+    dto: UpdateDriverDto,
+  ) {
+    const [existing] = await this.db
+      .select()
+      .from(transportDrivers)
+      .where(
+        and(
+          eq(transportDrivers.id, driverId),
+          eq(transportDrivers.institutionId, institutionId),
+        ),
+      );
+
+    if (!existing) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.TRANSPORT_DEPTH.DRIVER_NOT_FOUND,
+      );
+    }
+
+    // If deactivating, check for active vehicles assigned to this driver
+    if (dto.status === "inactive" && existing.status === "active") {
+      const [activeVehicle] = await this.db
+        .select({ id: transportVehicles.id })
+        .from(transportVehicles)
+        .where(
+          and(
+            eq(transportVehicles.driverId, driverId),
+            eq(transportVehicles.status, "active"),
+          ),
+        );
+
+      if (activeVehicle) {
+        throw new ConflictException(
+          ERROR_MESSAGES.TRANSPORT_DEPTH.DRIVER_HAS_VEHICLES,
+        );
+      }
+    }
+
+    await this.db
+      .update(transportDrivers)
+      .set({
+        name: dto.name ?? existing.name,
+        mobile: dto.mobile ?? existing.mobile,
+        licenseNumber:
+          dto.licenseNumber !== undefined
+            ? dto.licenseNumber
+            : existing.licenseNumber,
+        licenseExpiry:
+          dto.licenseExpiry !== undefined
+            ? dto.licenseExpiry
+            : existing.licenseExpiry,
+        address: dto.address !== undefined ? dto.address : existing.address,
+        emergencyContact:
+          dto.emergencyContact !== undefined
+            ? dto.emergencyContact
+            : existing.emergencyContact,
+        status: dto.status ?? existing.status,
+      })
+      .where(eq(transportDrivers.id, driverId));
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession: session,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.TRANSPORT_DRIVER,
+        entityId: driverId,
+        entityLabel: dto.name ?? existing.name,
+        summary: `Updated transport driver "${dto.name ?? existing.name}"`,
+      })
+      .catch(() => {});
+
+    return { id: driverId };
+  }
+
+  // ── Maintenance Logs ─────────────────────────────────────────────────────
+
+  async listMaintenanceLogs(
+    institutionId: string,
+    query: ListMaintenanceLogsQueryDto,
+  ) {
+    const page = query.page ?? 1;
+    const pageSize = resolveTablePageSize(query.limit);
+    const sortField = query.sort ?? "maintenanceDate";
+    const sortOrder = query.order ?? SORT_ORDERS.DESC;
+    const orderFn = sortOrder === SORT_ORDERS.ASC ? asc : desc;
+    const sortCol =
+      sortField === "createdAt"
+        ? vehicleMaintenanceLogs.createdAt
+        : vehicleMaintenanceLogs.maintenanceDate;
+
+    const filters = [
+      eq(vehicleMaintenanceLogs.institutionId, institutionId),
+      ...(query.vehicleId
+        ? [eq(vehicleMaintenanceLogs.vehicleId, query.vehicleId)]
+        : []),
+      ...(query.maintenanceType
+        ? [eq(vehicleMaintenanceLogs.maintenanceType, query.maintenanceType)]
+        : []),
+    ];
+
+    const [{ total }] = await this.db
+      .select({ total: count() })
+      .from(vehicleMaintenanceLogs)
+      .where(and(...filters));
+
+    const pagination = resolvePagination(total, page, pageSize);
+
+    const rows = await this.db
+      .select({
+        id: vehicleMaintenanceLogs.id,
+        vehicleId: vehicleMaintenanceLogs.vehicleId,
+        vehicleRegistrationNumber: transportVehicles.registrationNumber,
+        maintenanceType: vehicleMaintenanceLogs.maintenanceType,
+        description: vehicleMaintenanceLogs.description,
+        costInPaise: vehicleMaintenanceLogs.costInPaise,
+        maintenanceDate: vehicleMaintenanceLogs.maintenanceDate,
+        nextDueDate: vehicleMaintenanceLogs.nextDueDate,
+        vendorName: vehicleMaintenanceLogs.vendorName,
+        createdByMemberId: vehicleMaintenanceLogs.createdByMemberId,
+        createdAt: vehicleMaintenanceLogs.createdAt,
+      })
+      .from(vehicleMaintenanceLogs)
+      .innerJoin(
+        transportVehicles,
+        eq(vehicleMaintenanceLogs.vehicleId, transportVehicles.id),
+      )
+      .where(and(...filters))
+      .orderBy(orderFn(sortCol))
+      .limit(pageSize)
+      .offset(pagination.offset);
+
+    return {
+      rows: rows.map((r) => ({
+        id: r.id,
+        vehicleId: r.vehicleId,
+        vehicleRegistrationNumber: r.vehicleRegistrationNumber,
+        maintenanceType: r.maintenanceType,
+        description: r.description,
+        costInPaise: r.costInPaise ?? null,
+        maintenanceDate: r.maintenanceDate,
+        nextDueDate: r.nextDueDate ?? null,
+        vendorName: r.vendorName ?? null,
+        createdByMemberId: r.createdByMemberId,
+        createdAt: r.createdAt.toISOString(),
+      })),
+      total,
+      page: pagination.page,
+      pageSize,
+      pageCount: pagination.pageCount,
+    };
+  }
+
+  async createMaintenanceLog(
+    institutionId: string,
+    session: AuthenticatedSession,
+    dto: CreateMaintenanceLogDto,
+  ) {
+    // Verify vehicle belongs to institution
+    const [vehicle] = await this.db
+      .select()
+      .from(transportVehicles)
+      .where(
+        and(
+          eq(transportVehicles.id, dto.vehicleId),
+          eq(transportVehicles.institutionId, institutionId),
+        ),
+      );
+
+    if (!vehicle) {
+      throw new NotFoundException(ERROR_MESSAGES.TRANSPORT.VEHICLE_NOT_FOUND);
+    }
+
+    // Look up the current user's membership to use as createdByMemberId
+    const [createdByMember] = await this.db
+      .select({ id: member.id })
+      .from(member)
+      .where(
+        and(
+          eq(member.userId, session.user.id),
+          eq(member.organizationId, institutionId),
+        ),
+      );
+
+    if (!createdByMember) {
+      throw new BadRequestException("Active membership is required.");
+    }
+
+    const id = randomUUID();
+
+    await this.db.insert(vehicleMaintenanceLogs).values({
+      id,
+      institutionId,
+      vehicleId: dto.vehicleId,
+      maintenanceType: dto.maintenanceType,
+      description: dto.description,
+      costInPaise: dto.costInPaise ?? null,
+      maintenanceDate: dto.maintenanceDate,
+      nextDueDate: dto.nextDueDate ?? null,
+      vendorName: dto.vendorName ?? null,
+      createdByMemberId: createdByMember.id,
+    });
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession: session,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.TRANSPORT_MAINTENANCE,
+        entityId: id,
+        entityLabel: vehicle.registrationNumber,
+        summary: `Logged ${dto.maintenanceType} maintenance for vehicle "${vehicle.registrationNumber}"`,
+      })
+      .catch(() => {});
+
+    return { id };
+  }
+
+  // ── Route Students Report ────────────────────────────────────────────────
+
+  async listRouteStudents(
+    institutionId: string,
+    routeId: string,
+    query: ListRouteStudentsQueryDto,
+  ) {
+    const [route] = await this.db
+      .select({ id: transportRoutes.id, name: transportRoutes.name })
+      .from(transportRoutes)
+      .where(
+        and(
+          eq(transportRoutes.id, routeId),
+          eq(transportRoutes.institutionId, institutionId),
+        ),
+      );
+
+    if (!route) {
+      throw new NotFoundException(ERROR_MESSAGES.TRANSPORT.ROUTE_NOT_FOUND);
+    }
+
+    const page = query.page ?? 1;
+    const pageSize = resolveTablePageSize(query.limit);
+
+    const filters = [
+      eq(studentTransportAssignments.routeId, routeId),
+      eq(studentTransportAssignments.institutionId, institutionId),
+      eq(studentTransportAssignments.status, "active"),
+    ];
+
+    const [{ total }] = await this.db
+      .select({ total: count() })
+      .from(studentTransportAssignments)
+      .where(and(...filters));
+
+    const pagination = resolvePagination(total, page, pageSize);
+
+    const rows = await this.db
+      .select({
+        studentId: studentTransportAssignments.studentId,
+        studentFirstName: students.firstName,
+        studentLastName: students.lastName,
+        admissionNumber: students.admissionNumber,
+        stopId: studentTransportAssignments.stopId,
+        stopName: transportStops.name,
+        sequenceNumber: transportStops.sequenceNumber,
+        assignmentType: studentTransportAssignments.assignmentType,
+        startDate: studentTransportAssignments.startDate,
+        endDate: studentTransportAssignments.endDate,
+      })
+      .from(studentTransportAssignments)
+      .innerJoin(
+        students,
+        eq(studentTransportAssignments.studentId, students.id),
+      )
+      .innerJoin(
+        transportStops,
+        eq(studentTransportAssignments.stopId, transportStops.id),
+      )
+      .where(and(...filters))
+      .orderBy(asc(transportStops.sequenceNumber))
+      .limit(pageSize)
+      .offset(pagination.offset);
+
+    return {
+      routeId: route.id,
+      routeName: route.name,
+      rows: rows.map((r) => ({
+        studentId: r.studentId,
+        studentName: `${r.studentFirstName} ${r.studentLastName ?? ""}`.trim(),
+        admissionNumber: r.admissionNumber,
+        stopId: r.stopId,
+        stopName: r.stopName,
+        sequenceNumber: r.sequenceNumber,
+        assignmentType: r.assignmentType,
+        startDate: r.startDate,
+        endDate: r.endDate ?? null,
+      })),
+      total,
+      page: pagination.page,
+      pageSize,
+      pageCount: pagination.pageCount,
+    };
+  }
+
+  // ── Deactivate Route (with dependency checks) ───────────────────────────
+
+  async deactivateRoute(
+    institutionId: string,
+    routeId: string,
+    session: AuthenticatedSession,
+  ) {
+    const [existing] = await this.db
+      .select()
+      .from(transportRoutes)
+      .where(
+        and(
+          eq(transportRoutes.id, routeId),
+          eq(transportRoutes.institutionId, institutionId),
+        ),
+      );
+
+    if (!existing) {
+      throw new NotFoundException(ERROR_MESSAGES.TRANSPORT.ROUTE_NOT_FOUND);
+    }
+
+    // Check for active student assignments
+    const [activeAssignment] = await this.db
+      .select({ id: studentTransportAssignments.id })
+      .from(studentTransportAssignments)
+      .where(
+        and(
+          eq(studentTransportAssignments.routeId, routeId),
+          eq(studentTransportAssignments.status, "active"),
+        ),
+      );
+
+    if (activeAssignment) {
+      throw new ConflictException(
+        ERROR_MESSAGES.TRANSPORT.ROUTE_HAS_ACTIVE_ASSIGNMENTS,
+      );
+    }
+
+    // Check for active vehicles
+    const [activeVehicle] = await this.db
+      .select({ id: transportVehicles.id })
+      .from(transportVehicles)
+      .where(
+        and(
+          eq(transportVehicles.routeId, routeId),
+          eq(transportVehicles.status, "active"),
+        ),
+      );
+
+    if (activeVehicle) {
+      throw new ConflictException(
+        ERROR_MESSAGES.TRANSPORT.ROUTE_HAS_ACTIVE_VEHICLES,
+      );
+    }
+
+    await this.db
+      .update(transportRoutes)
+      .set({ status: "inactive" })
+      .where(eq(transportRoutes.id, routeId));
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession: session,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.TRANSPORT_ROUTE,
+        entityId: routeId,
+        entityLabel: existing.name,
+        summary: `Deactivated transport route "${existing.name}"`,
+      })
+      .catch(() => {});
+
+    return { id: routeId };
+  }
+
+  // ── Deactivate Vehicle (with dependency checks) ─────────────────────────
+
+  async deactivateVehicle(
+    institutionId: string,
+    vehicleId: string,
+    session: AuthenticatedSession,
+  ) {
+    const [existing] = await this.db
+      .select()
+      .from(transportVehicles)
+      .where(
+        and(
+          eq(transportVehicles.id, vehicleId),
+          eq(transportVehicles.institutionId, institutionId),
+        ),
+      );
+
+    if (!existing) {
+      throw new NotFoundException(ERROR_MESSAGES.TRANSPORT.VEHICLE_NOT_FOUND);
+    }
+
+    // If vehicle is assigned to a route, check for active student assignments on that route
+    if (existing.routeId) {
+      const [activeAssignment] = await this.db
+        .select({ id: studentTransportAssignments.id })
+        .from(studentTransportAssignments)
+        .where(
+          and(
+            eq(studentTransportAssignments.routeId, existing.routeId),
+            eq(studentTransportAssignments.status, "active"),
+          ),
+        );
+
+      if (activeAssignment) {
+        throw new ConflictException(
+          ERROR_MESSAGES.TRANSPORT.VEHICLE_HAS_ACTIVE_ASSIGNMENTS,
+        );
+      }
+    }
+
+    await this.db
+      .update(transportVehicles)
+      .set({ status: "inactive" })
+      .where(eq(transportVehicles.id, vehicleId));
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession: session,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.TRANSPORT_VEHICLE,
+        entityId: vehicleId,
+        entityLabel: existing.registrationNumber,
+        summary: `Deactivated vehicle "${existing.registrationNumber}"`,
+      })
+      .catch(() => {});
+
+    return { id: vehicleId };
   }
 }

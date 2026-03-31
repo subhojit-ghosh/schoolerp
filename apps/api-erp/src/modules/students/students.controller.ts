@@ -1,12 +1,14 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from "@nestjs/common";
@@ -29,18 +31,30 @@ import { CurrentInstitution } from "../tenant-context/current-institution.decora
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
+  CreateDisciplinaryRecordBodyDto,
+  CreateSiblingLinkBodyDto,
   CreateStudentBodyDto,
+  DisciplinaryRecordDto,
+  IssueTransferCertificateBodyDto,
   ListStudentsQueryDto,
   ListStudentsResultDto,
-  StudentOptionDto,
+  SiblingLinkDto,
   StudentDto,
+  StudentMedicalRecordDto,
+  StudentOptionDto,
   StudentSummaryDto,
+  TransferCertificateDto,
   UpdateStudentBodyDto,
+  UpsertMedicalRecordBodyDto,
 } from "./students.dto";
 import {
+  parseCreateDisciplinaryRecord,
+  parseCreateSiblingLink,
   parseCreateStudent,
+  parseIssueTransferCertificate,
   parseListStudentsQuery,
   parseUpdateStudent,
+  parseUpsertMedicalRecord,
 } from "./students.schemas";
 import { StudentsService } from "./students.service";
 
@@ -196,6 +210,190 @@ export class StudentsController {
       studentId,
       authSession,
       body,
+    );
+  }
+
+  // ── Sibling Links ──────────────────────────────────────────────────────────
+
+  @Get(`:studentId/${API_ROUTES.SIBLINGS}`)
+  @RequirePermission(PERMISSIONS.STUDENTS_READ)
+  @ApiOperation({ summary: "List sibling links for a student" })
+  @ApiOkResponse({ type: SiblingLinkDto, isArray: true })
+  listSiblingLinks(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.studentsService.listSiblingLinks(
+      institution.id,
+      studentId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Post(`:studentId/${API_ROUTES.SIBLINGS}`)
+  @RequirePermission(PERMISSIONS.STUDENTS_MANAGE)
+  @ApiOperation({ summary: "Link a sibling to a student" })
+  @ApiBody({ type: CreateSiblingLinkBodyDto })
+  createSiblingLink(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Body() body: CreateSiblingLinkBodyDto,
+  ) {
+    return this.studentsService.createSiblingLink(
+      institution.id,
+      studentId,
+      authSession,
+      scopes,
+      parseCreateSiblingLink(body),
+    );
+  }
+
+  @Delete(`:studentId/${API_ROUTES.SIBLINGS}/:linkId`)
+  @RequirePermission(PERMISSIONS.STUDENTS_MANAGE)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Remove a sibling link" })
+  deleteSiblingLink(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @Param("linkId") linkId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.studentsService.deleteSiblingLink(
+      institution.id,
+      studentId,
+      linkId,
+      authSession,
+      scopes,
+    );
+  }
+
+  // ── Medical Records ────────────────────────────────────────────────────────
+
+  @Get(`:studentId/${API_ROUTES.MEDICAL}`)
+  @RequirePermission(PERMISSIONS.STUDENTS_READ)
+  @ApiOperation({ summary: "Get the medical record for a student" })
+  @ApiOkResponse({ type: StudentMedicalRecordDto })
+  getMedicalRecord(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.studentsService.getMedicalRecord(
+      institution.id,
+      studentId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Put(`:studentId/${API_ROUTES.MEDICAL}`)
+  @RequirePermission(PERMISSIONS.STUDENTS_MANAGE)
+  @ApiOperation({ summary: "Create or update the medical record for a student" })
+  @ApiBody({ type: UpsertMedicalRecordBodyDto })
+  @ApiOkResponse({ type: StudentMedicalRecordDto })
+  upsertMedicalRecord(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Body() body: UpsertMedicalRecordBodyDto,
+  ) {
+    return this.studentsService.upsertMedicalRecord(
+      institution.id,
+      studentId,
+      authSession,
+      scopes,
+      parseUpsertMedicalRecord(body),
+    );
+  }
+
+  // ── Disciplinary Records ───────────────────────────────────────────────────
+
+  @Get(`:studentId/${API_ROUTES.DISCIPLINARY}`)
+  @RequirePermission(PERMISSIONS.STUDENTS_READ)
+  @ApiOperation({ summary: "List disciplinary records for a student" })
+  @ApiOkResponse({ type: DisciplinaryRecordDto, isArray: true })
+  listDisciplinaryRecords(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.studentsService.listDisciplinaryRecords(
+      institution.id,
+      studentId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Post(`:studentId/${API_ROUTES.DISCIPLINARY}`)
+  @RequirePermission(PERMISSIONS.STUDENTS_MANAGE)
+  @ApiOperation({ summary: "Record a disciplinary incident for a student" })
+  @ApiBody({ type: CreateDisciplinaryRecordBodyDto })
+  createDisciplinaryRecord(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Body() body: CreateDisciplinaryRecordBodyDto,
+  ) {
+    return this.studentsService.createDisciplinaryRecord(
+      institution.id,
+      studentId,
+      authSession,
+      scopes,
+      parseCreateDisciplinaryRecord(body),
+    );
+  }
+
+  // ── Transfer Certificates ──────────────────────────────────────────────────
+
+  @Get(`:studentId/${API_ROUTES.TRANSFER_CERTIFICATE}`)
+  @RequirePermission(PERMISSIONS.STUDENTS_READ)
+  @ApiOperation({ summary: "List transfer certificates for a student" })
+  @ApiOkResponse({ type: TransferCertificateDto, isArray: true })
+  listTransferCertificates(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.studentsService.listTransferCertificates(
+      institution.id,
+      studentId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Post(`:studentId/${API_ROUTES.TRANSFER_CERTIFICATE}`)
+  @RequirePermission(PERMISSIONS.STUDENTS_MANAGE)
+  @ApiOperation({
+    summary:
+      "Issue a transfer certificate for a student and deactivate enrollment",
+  })
+  @ApiBody({ type: IssueTransferCertificateBodyDto })
+  issueTransferCertificate(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Body() body: IssueTransferCertificateBodyDto,
+  ) {
+    return this.studentsService.issueTransferCertificate(
+      institution.id,
+      studentId,
+      authSession,
+      scopes,
+      parseIssueTransferCertificate(body),
     );
   }
 }

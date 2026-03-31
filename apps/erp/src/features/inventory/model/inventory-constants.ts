@@ -68,3 +68,42 @@ export const TRANSACTION_TYPE_LABELS: Record<string, string> = {
   return: "Return",
   adjustment: "Adjustment",
 } as const;
+
+// ── Vendors ─────────────────────────────────────────────────────────────────
+
+export const VENDOR_LIST_SORT_FIELDS = {
+  NAME: "name",
+  CREATED_AT: "createdAt",
+} as const;
+
+export const VENDORS_PAGE_COPY = {
+  TITLE: "Vendors",
+  DESCRIPTION: "Manage suppliers and vendors for inventory procurement.",
+  EMPTY_TITLE: "No vendors yet",
+  EMPTY_DESCRIPTION: "Add a vendor to start creating purchase orders.",
+  SEARCH_PLACEHOLDER: "Search vendors...",
+} as const;
+
+// ── Purchase Orders ─────────────────────────────────────────────────────────
+
+export const PURCHASE_ORDER_LIST_SORT_FIELDS = {
+  ORDER_DATE: "orderDate",
+  ORDER_NUMBER: "orderNumber",
+  CREATED_AT: "createdAt",
+} as const;
+
+export const PURCHASE_ORDERS_PAGE_COPY = {
+  TITLE: "Purchase Orders",
+  DESCRIPTION: "Create and track purchase orders for inventory items.",
+  EMPTY_TITLE: "No purchase orders yet",
+  EMPTY_DESCRIPTION: "Create a purchase order to procure inventory items.",
+  SEARCH_PLACEHOLDER: "Search purchase orders...",
+} as const;
+
+export const PURCHASE_ORDER_STATUS_LABELS: Record<string, string> = {
+  draft: "Draft",
+  ordered: "Ordered",
+  partially_received: "Partially Received",
+  received: "Received",
+  cancelled: "Cancelled",
+} as const;

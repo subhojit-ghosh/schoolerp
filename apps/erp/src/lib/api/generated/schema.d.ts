@@ -401,6 +401,144 @@ export interface paths {
         patch: operations["AdmissionsController_updateAdmissionApplication"];
         trace?: never;
     };
+    "/admissions/document-checklist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List document checklist items for institution */
+        get: operations["AdmissionsController_listDocumentChecklist"];
+        put?: never;
+        /** Create a document checklist item */
+        post: operations["AdmissionsController_createDocumentChecklistItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/document-checklist/{itemId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a document checklist item */
+        patch: operations["AdmissionsController_updateDocumentChecklistItem"];
+        trace?: never;
+    };
+    "/admissions/applications/{applicationId}/application-documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List documents for an application */
+        get: operations["AdmissionsController_listApplicationDocuments"];
+        put?: never;
+        /** Add or update a document on an application */
+        post: operations["AdmissionsController_upsertApplicationDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/applications/{applicationId}/application-documents/{documentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Verify or reject an application document */
+        patch: operations["AdmissionsController_verifyRejectApplicationDocument"];
+        trace?: never;
+    };
+    "/admissions/applications/{applicationId}/convert-to-student": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Convert an approved application to a student record */
+        post: operations["AdmissionsController_convertToStudent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/applications/{applicationId}/waitlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Place an application on the waitlist */
+        post: operations["AdmissionsController_waitlistApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/promote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Promote the next waitlisted application to approved */
+        post: operations["AdmissionsController_promoteNextWaitlisted"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admissions/applications/{applicationId}/registration-fee": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record registration fee payment on an application */
+        post: operations["AdmissionsController_recordRegistrationFee"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/communications/announcements": {
         parameters: {
             query?: never;
@@ -465,6 +603,24 @@ export interface paths {
         put?: never;
         /** Publish an announcement and emit a notification */
         post: operations["CommunicationsController_publishAnnouncement"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/communications/announcements/{announcementId}/read-receipts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get read count for an announcement */
+        get: operations["CommunicationsController_getAnnouncementReadCount"];
+        put?: never;
+        /** Mark an announcement as read for the current user */
+        post: operations["CommunicationsController_markAnnouncementRead"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1115,6 +1271,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/data-exchange/exports/full-dump": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export all institution data as a combined CSV bundle */
+        get: operations["DataExchangeController_exportFullDump"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/data-exchange/exports/{entityType}": {
         parameters: {
             query?: never;
@@ -1200,6 +1373,112 @@ export interface paths {
         head?: never;
         /** Update a student and reconcile guardians for the current tenant */
         patch: operations["StudentsController_updateStudent"];
+        trace?: never;
+    };
+    "/students/{studentId}/transfer-section": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Transfer a student to a different class/section mid-year */
+        post: operations["StudentsController_transferSection"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/students/{studentId}/siblings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List sibling links for a student */
+        get: operations["StudentsController_listSiblingLinks"];
+        put?: never;
+        /** Link a sibling to a student */
+        post: operations["StudentsController_createSiblingLink"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/students/{studentId}/siblings/{linkId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a sibling link */
+        delete: operations["StudentsController_deleteSiblingLink"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/students/{studentId}/medical": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the medical record for a student */
+        get: operations["StudentsController_getMedicalRecord"];
+        /** Create or update the medical record for a student */
+        put: operations["StudentsController_upsertMedicalRecord"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/students/{studentId}/disciplinary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List disciplinary records for a student */
+        get: operations["StudentsController_listDisciplinaryRecords"];
+        put?: never;
+        /** Record a disciplinary incident for a student */
+        post: operations["StudentsController_createDisciplinaryRecord"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/students/{studentId}/transfer-certificate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List transfer certificates for a student */
+        get: operations["StudentsController_listTransferCertificates"];
+        put?: never;
+        /** Issue a transfer certificate for a student and deactivate enrollment */
+        post: operations["StudentsController_issueTransferCertificate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/students/rollover/preview": {
@@ -1394,6 +1673,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/staff/{staffId}/staff-documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List documents for a staff member */
+        get: operations["StaffController_listStaffDocuments"];
+        put?: never;
+        /** Add a document to a staff member */
+        post: operations["StaffController_createStaffDocument"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/{staffId}/staff-documents/{documentId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a staff document */
+        delete: operations["StaffController_deleteStaffDocument"];
+        options?: never;
+        head?: never;
+        /** Update a staff document */
+        patch: operations["StaffController_updateStaffDocument"];
+        trace?: never;
+    };
+    "/staff/{staffId}/teaching-load": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get teaching load analysis for a staff member */
+        get: operations["StaffController_getTeachingLoad"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/staff/{staffId}/campus-transfer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List campus transfer history for a staff member */
+        get: operations["StaffController_listCampusTransfers"];
+        put?: never;
+        /** Transfer a staff member to another campus */
+        post: operations["StaffController_createCampusTransfer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/guardians": {
         parameters: {
             query?: never;
@@ -1440,6 +1790,23 @@ export interface paths {
         put?: never;
         /** Reset a guardian's password to their mobile number */
         post: operations["GuardiansController_resetPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/guardians/{guardianId}/cross-student-fees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get combined fee summary across all students linked to a guardian */
+        get: operations["GuardiansController_getCrossStudentFeeSummary"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2315,6 +2682,58 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/homework/{homeworkId}/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List submissions for a homework assignment */
+        get: operations["HomeworkController_listSubmissions"];
+        put?: never;
+        /** Bulk upsert homework submissions */
+        post: operations["HomeworkController_bulkUpsertSubmissions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/homework/{homeworkId}/analytics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get submission analytics for a homework */
+        get: operations["HomeworkController_getHomeworkAnalytics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/homework/analytics/{classId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get class-wise homework completion analytics */
+        get: operations["HomeworkController_getClassAnalytics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/leave/leave-types": {
         parameters: {
             query?: never;
@@ -2557,6 +2976,127 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/library/transactions/{transactionId}/fine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Collect or waive fine on a transaction */
+        post: operations["LibraryController_collectFine"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/reservations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List book reservations */
+        get: operations["LibraryController_listReservations"];
+        put?: never;
+        /** Reserve a book */
+        post: operations["LibraryController_createReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/reservations/{reservationId}/fulfill": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Fulfill a book reservation */
+        post: operations["LibraryController_fulfillReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/reservations/{reservationId}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a book reservation */
+        post: operations["LibraryController_cancelReservation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/borrowing-history/{memberId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get borrowing history for a member */
+        get: operations["LibraryController_memberBorrowingHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/overdue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all overdue transactions */
+        get: operations["LibraryController_listOverdue"];
+        put?: never;
+        /** Mark all past-due transactions as overdue */
+        post: operations["LibraryController_markOverdue"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/library/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Library dashboard statistics */
+        get: operations["LibraryController_dashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/transport/routes": {
         parameters: {
             query?: never;
@@ -2587,7 +3127,8 @@ export interface paths {
         /** Update a transport route */
         put: operations["TransportController_updateRoute"];
         post?: never;
-        delete?: never;
+        /** Deactivate a route (with dependency checks) */
+        delete: operations["TransportController_deactivateRoute"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2656,7 +3197,8 @@ export interface paths {
         /** Update a vehicle */
         put: operations["TransportController_updateVehicle"];
         post?: never;
-        delete?: never;
+        /** Deactivate a vehicle (with dependency checks) */
+        delete: operations["TransportController_deactivateVehicle"];
         options?: never;
         head?: never;
         patch?: never;
@@ -2690,6 +3232,77 @@ export interface paths {
         get?: never;
         /** Update a student transport assignment */
         put: operations["TransportController_updateAssignment"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/drivers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List transport drivers */
+        get: operations["TransportController_listDrivers"];
+        put?: never;
+        /** Create a transport driver */
+        post: operations["TransportController_createDriver"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/drivers/{driverId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a transport driver */
+        get: operations["TransportController_getDriver"];
+        /** Update a transport driver */
+        put: operations["TransportController_updateDriver"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/maintenance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List vehicle maintenance logs */
+        get: operations["TransportController_listMaintenanceLogs"];
+        put?: never;
+        /** Log a vehicle maintenance event */
+        post: operations["TransportController_createMaintenanceLog"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/transport/route-students/{routeId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List students assigned to a route */
+        get: operations["TransportController_listRouteStudents"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -3009,6 +3622,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/payroll/runs/{runId}/bank-file": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download bank transfer file (CSV) */
+        get: operations["PayrollController_downloadBankFile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payroll/seed-statutory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Seed Indian statutory salary components (PF, ESI, PT, TDS, Basic, HRA, DA) */
+        post: operations["PayrollController_seedStatutoryComponents"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/inventory/categories": {
         parameters: {
             query?: never;
@@ -3160,6 +3807,128 @@ export interface paths {
         get: operations["InventoryController_listLowStock"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/vendors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List vendors */
+        get: operations["InventoryController_listVendors"];
+        put?: never;
+        /** Create a vendor */
+        post: operations["InventoryController_createVendor"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/vendors/{vendorId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a vendor */
+        patch: operations["InventoryController_updateVendor"];
+        trace?: never;
+    };
+    "/inventory/vendors/{vendorId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update vendor status */
+        patch: operations["InventoryController_updateVendorStatus"];
+        trace?: never;
+    };
+    "/inventory/purchase-orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List purchase orders */
+        get: operations["InventoryController_listPurchaseOrders"];
+        put?: never;
+        /** Create a purchase order */
+        post: operations["InventoryController_createPurchaseOrder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/inventory/purchase-orders/{orderId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get purchase order detail */
+        get: operations["InventoryController_getPurchaseOrder"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a purchase order (draft only) */
+        patch: operations["InventoryController_updatePurchaseOrder"];
+        trace?: never;
+    };
+    "/inventory/purchase-orders/{orderId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update purchase order status */
+        patch: operations["InventoryController_updatePurchaseOrderStatus"];
+        trace?: never;
+    };
+    "/inventory/purchase-orders/{orderId}/receive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Receive goods against a purchase order (GRN) */
+        post: operations["InventoryController_receivePurchaseOrder"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3358,6 +4127,93 @@ export interface paths {
         patch: operations["HostelController_updateMessPlanStatus"];
         trace?: never;
     };
+    "/hostel/mess-assignments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List mess plan assignments */
+        get: operations["HostelController_listMessAssignments"];
+        put?: never;
+        /** Assign a mess plan to a student */
+        post: operations["HostelController_createMessAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hostel/mess-assignments/{assignmentId}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deactivate a mess plan assignment */
+        post: operations["HostelController_deactivateMessAssignment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hostel/room-transfers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List room transfers */
+        get: operations["HostelController_listRoomTransfers"];
+        put?: never;
+        /** Transfer a student between rooms */
+        post: operations["HostelController_createRoomTransfer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hostel/occupancy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get hostel occupancy dashboard */
+        get: operations["HostelController_getOccupancyDashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/hostel/allocations/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Batch allocate beds to multiple students */
+        post: operations["HostelController_createBatchAllocation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/staff-attendance/roster": {
         parameters: {
             query?: never;
@@ -3435,6 +4291,23 @@ export interface paths {
         };
         /** Get student strength grouped by class and section */
         get: operations["ReportsController_getStudentStrength"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/staff-student-ratio": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get staff-to-student ratio */
+        get: operations["ReportsController_getStaffStudentRatio"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3582,6 +4455,838 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/file-uploads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List files for an entity */
+        get: operations["FileUploadsController_listFiles"];
+        put?: never;
+        /** Upload a file */
+        post: operations["FileUploadsController_uploadFile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/file-uploads/{fileId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get file metadata */
+        get: operations["FileUploadsController_getFile"];
+        put?: never;
+        post?: never;
+        /** Delete a file */
+        delete: operations["FileUploadsController_deleteFile"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/file-uploads/{fileId}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download a file */
+        get: operations["FileUploadsController_downloadFile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dpdpa/consents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List current user's data consents */
+        get: operations["DpdpaController_listConsents"];
+        put?: never;
+        /** Grant a data consent */
+        post: operations["DpdpaController_grantConsent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dpdpa/consents/{purpose}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Withdraw a data consent */
+        delete: operations["DpdpaController_withdrawConsent"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dpdpa/sensitive-access": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List sensitive data access logs */
+        get: operations["DpdpaController_listSensitiveAccessLogs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dpdpa/session-config": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get institution session configuration */
+        get: operations["DpdpaController_getSessionConfig"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update institution session configuration */
+        patch: operations["DpdpaController_updateSessionConfig"];
+        trace?: never;
+    };
+    "/expense-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List expense categories */
+        get: operations["ExpensesController_listCategories"];
+        put?: never;
+        /** Create an expense category */
+        post: operations["ExpensesController_createCategory"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/expense-categories/{categoryId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an expense category */
+        patch: operations["ExpensesController_updateCategory"];
+        trace?: never;
+    };
+    "/expense-categories/{categoryId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update expense category status */
+        patch: operations["ExpensesController_updateCategoryStatus"];
+        trace?: never;
+    };
+    "/expenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List expenses */
+        get: operations["ExpensesController_listExpenses"];
+        put?: never;
+        /** Create an expense */
+        post: operations["ExpensesController_createExpense"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/expenses/{expenseId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get expense detail */
+        get: operations["ExpensesController_getExpense"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an expense (draft only) */
+        patch: operations["ExpensesController_updateExpense"];
+        trace?: never;
+    };
+    "/expenses/{expenseId}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit expense for approval */
+        post: operations["ExpensesController_submitExpense"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/expenses/{expenseId}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve a submitted expense */
+        post: operations["ExpensesController_approveExpense"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/expenses/{expenseId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a submitted expense */
+        post: operations["ExpensesController_rejectExpense"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/expenses/{expenseId}/mark-paid": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark an approved expense as paid */
+        post: operations["ExpensesController_markPaid"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/expenses/reports/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get expense summary report */
+        get: operations["ExpensesController_expenseSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/income/records": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List income records */
+        get: operations["IncomeController_listRecords"];
+        put?: never;
+        /** Create an income record */
+        post: operations["IncomeController_createRecord"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/income/records/{recordId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get income record detail */
+        get: operations["IncomeController_getRecord"];
+        put?: never;
+        post?: never;
+        /** Delete an income record */
+        delete: operations["IncomeController_deleteRecord"];
+        options?: never;
+        head?: never;
+        /** Update an income record */
+        patch: operations["IncomeController_updateRecord"];
+        trace?: never;
+    };
+    "/income/income-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get income summary report */
+        get: operations["IncomeController_getSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/domain-events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List domain events for the current tenant */
+        get: operations["DomainEventsController_listEvents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/domain-events/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Manually retry a failed domain event */
+        post: operations["DomainEventsController_retryEvent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/needs-attention": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get items needing attention for the current user */
+        get: operations["DashboardController_getNeedsAttention"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/trends": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get dashboard trend data */
+        get: operations["DashboardController_getTrends"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboard/needs-attention/{itemId}/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Dismiss a needs-attention item */
+        post: operations["DashboardController_dismissItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scholarships": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List scholarships */
+        get: operations["ScholarshipsController_listScholarships"];
+        put?: never;
+        /** Create a scholarship */
+        post: operations["ScholarshipsController_createScholarship"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scholarships/{scholarshipId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a scholarship */
+        patch: operations["ScholarshipsController_updateScholarship"];
+        trace?: never;
+    };
+    "/scholarships/{scholarshipId}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update scholarship status */
+        patch: operations["ScholarshipsController_updateScholarshipStatus"];
+        trace?: never;
+    };
+    "/scholarship-applications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List scholarship applications */
+        get: operations["ScholarshipsController_listApplications"];
+        put?: never;
+        /** Create a scholarship application */
+        post: operations["ScholarshipsController_createApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scholarship-applications/{applicationId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a scholarship application */
+        get: operations["ScholarshipsController_getApplication"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scholarship-applications/{applicationId}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Approve a scholarship application */
+        post: operations["ScholarshipsController_approveApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scholarship-applications/{applicationId}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a scholarship application */
+        post: operations["ScholarshipsController_rejectApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scholarship-applications/{applicationId}/dbt": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update DBT status for a scholarship application */
+        patch: operations["ScholarshipsController_updateDbtStatus"];
+        trace?: never;
+    };
+    "/scholarship-applications/{applicationId}/renew": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Renew an expiring scholarship application */
+        post: operations["ScholarshipsController_renewApplication"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/scholarship-applications/expiring": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List scholarship applications expiring soon */
+        get: operations["ScholarshipsController_listExpiringApplications"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/emergency-broadcasts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List emergency broadcasts */
+        get: operations["EmergencyBroadcastsController_listBroadcasts"];
+        put?: never;
+        /** Create an emergency broadcast draft */
+        post: operations["EmergencyBroadcastsController_createBroadcast"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/emergency-broadcasts/{broadcastId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get an emergency broadcast */
+        get: operations["EmergencyBroadcastsController_getBroadcast"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update an emergency broadcast (draft only) */
+        patch: operations["EmergencyBroadcastsController_updateBroadcast"];
+        trace?: never;
+    };
+    "/emergency-broadcasts/{broadcastId}/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send an emergency broadcast to resolved recipients */
+        post: operations["EmergencyBroadcastsController_sendBroadcast"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/emergency-broadcasts/{broadcastId}/delivery-logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get delivery statistics for a broadcast */
+        get: operations["EmergencyBroadcastsController_getDeliveryStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/broadcast-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List broadcast message templates */
+        get: operations["EmergencyBroadcastsController_listTemplates"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/notification-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get notification preferences for current user */
+        get: operations["NotificationPreferencesController_getPreferences"];
+        /** Update notification preferences for current user */
+        put: operations["NotificationPreferencesController_updatePreferences"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ptm/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List PTM sessions */
+        get: operations["PtmController_listSessions"];
+        put?: never;
+        /** Create a PTM session */
+        post: operations["PtmController_createSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ptm/sessions/{sessionId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a PTM session */
+        patch: operations["PtmController_updateSession"];
+        trace?: never;
+    };
+    "/ptm/sessions/{sessionId}/slots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List slots for a PTM session */
+        get: operations["PtmController_listSlots"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ptm/sessions/{sessionId}/generate-slots": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate time slots for teachers */
+        post: operations["PtmController_generateSlots"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ptm/slots/{slotId}/book": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Book a PTM slot (parent or admin) */
+        post: operations["PtmController_bookSlot"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/ptm/slots/{slotId}/feedback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Record feedback and attendance for a PTM slot */
+        post: operations["PtmController_recordFeedback"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Global search across students, staff, receipts */
+        get: operations["SearchController_globalSearch"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/tenant-branding": {
         parameters: {
             query?: never;
@@ -3619,7 +5324,7 @@ export interface components {
             /** @enum {string} */
             action: "create" | "update" | "delete" | "mark" | "replace" | "reverse" | "execute";
             /** @enum {string} */
-            entityType: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction" | "transport_route" | "transport_stop" | "transport_vehicle" | "transport_assignment" | "salary_component" | "salary_template" | "staff_salary_assignment" | "payroll_run" | "payslip" | "inventory_category" | "inventory_item" | "stock_transaction" | "hostel_building" | "hostel_room" | "bed_allocation" | "mess_plan" | "staff_attendance_day";
+            entityType: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction" | "transport_route" | "transport_stop" | "transport_vehicle" | "transport_assignment" | "salary_component" | "salary_template" | "staff_salary_assignment" | "payroll_run" | "payslip" | "inventory_category" | "inventory_item" | "stock_transaction" | "hostel_building" | "hostel_room" | "bed_allocation" | "mess_plan" | "staff_attendance_day" | "library_reservation" | "library_fine" | "admission_document" | "admission_conversion" | "hostel_mess_assignment" | "hostel_room_transfer" | "transport_driver" | "transport_maintenance" | "vendor" | "purchase_order" | "homework_submission" | "student_sibling_link" | "student_medical_record" | "student_disciplinary" | "transfer_certificate" | "staff_document" | "staff_campus_transfer" | "domain_event" | "expense_category" | "expense" | "scholarship" | "scholarship_application" | "emergency_broadcast" | "income_record" | "data_consent" | "file_upload" | "sensitive_data_access";
             entityId?: string | null;
             entityLabel?: string | null;
             summary: string;
@@ -3714,7 +5419,7 @@ export interface components {
             activeOrganization: components["schemas"]["AuthOrganizationDto"] | null;
             availableContexts: components["schemas"]["AuthAccessContextDto"][];
             activeContext: components["schemas"]["AuthAccessContextDto"] | null;
-            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "audit:read" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage" | "institution:delivery:manage" | "institution:payment:manage" | "fees:payment:online" | "homework:read" | "homework:manage" | "leave:read" | "leave:manage" | "leave:apply" | "library:read" | "library:manage" | "transport:read" | "transport:manage" | "payroll:read" | "payroll:manage" | "inventory:read" | "inventory:manage" | "hostel:read" | "hostel:manage" | "staff_attendance:read" | "staff_attendance:manage")[];
+            permissions: ("institution:settings:read" | "institution:settings:manage" | "institution:roles:manage" | "institution:users:manage" | "audit:read" | "campus:read" | "campus:manage" | "academics:read" | "academics:manage" | "students:read" | "students:manage" | "guardians:read" | "guardians:manage" | "staff:read" | "staff:manage" | "admissions:read" | "admissions:manage" | "attendance:read" | "attendance:write" | "exams:read" | "exams:manage" | "marks:write" | "fees:read" | "fees:manage" | "fees:collect" | "communication:read" | "communication:manage" | "institution:delivery:manage" | "institution:payment:manage" | "fees:payment:online" | "homework:read" | "homework:manage" | "leave:read" | "leave:manage" | "leave:apply" | "library:read" | "library:manage" | "transport:read" | "transport:manage" | "payroll:read" | "payroll:manage" | "inventory:read" | "inventory:manage" | "hostel:read" | "hostel:manage" | "staff_attendance:read" | "staff_attendance:manage" | "expenses:read" | "expenses:manage" | "expenses:approve" | "scholarships:read" | "scholarships:manage" | "emergency_broadcast:send" | "income:read" | "income:manage" | "dpdpa:manage")[];
             activeStaffRoles: components["schemas"]["AuthStaffRoleDto"][];
             activeCampus: components["schemas"]["AuthCampusDto"] | null;
             campuses: components["schemas"]["AuthCampusDto"][];
@@ -3940,6 +5645,91 @@ export interface components {
             guardianName: string;
             mobile: string;
         };
+        DocumentChecklistItemDto: {
+            id: string;
+            institutionId: string;
+            documentName: string;
+            isRequired: boolean;
+            sortOrder: number;
+            isActive: boolean;
+            createdAt: string;
+            updatedAt: string;
+        };
+        ListDocumentChecklistResultDto: {
+            rows: components["schemas"]["DocumentChecklistItemDto"][];
+        };
+        CreateDocumentChecklistItemBodyDto: {
+            documentName: string;
+            isRequired: boolean;
+            sortOrder: number;
+            isActive: boolean;
+        };
+        UpdateDocumentChecklistItemBodyDto: {
+            documentName: string;
+            isRequired: boolean;
+            sortOrder: number;
+            isActive: boolean;
+        };
+        ApplicationDocumentDto: {
+            /** @enum {string} */
+            status: "pending" | "uploaded" | "verified" | "rejected";
+            uploadUrl?: string | null;
+            verifiedByMemberId?: string | null;
+            verifiedAt?: string | null;
+            notes?: string | null;
+            id: string;
+            institutionId: string;
+            applicationId: string;
+            checklistItemId: string;
+            createdAt: string;
+            updatedAt: string;
+        };
+        ListApplicationDocumentsResultDto: {
+            rows: components["schemas"]["ApplicationDocumentDto"][];
+        };
+        UpsertApplicationDocumentBodyDto: {
+            /** @enum {string} */
+            status: "pending" | "uploaded" | "verified" | "rejected";
+            uploadUrl?: string | null;
+            notes?: string | null;
+            checklistItemId: string;
+        };
+        VerifyRejectApplicationDocumentBodyDto: {
+            /** @enum {string} */
+            status: "verified" | "rejected";
+            notes?: string | null;
+        };
+        ConvertToStudentBodyDto: {
+            admissionNumber: string;
+            classId: string;
+            sectionId: string;
+        };
+        ConvertToStudentResultDto: {
+            applicationId: string;
+            studentId: string;
+        };
+        WaitlistApplicationBodyDto: {
+            waitlistPosition: number;
+        };
+        WaitlistResultDto: {
+            /** @enum {string} */
+            status: "waitlisted";
+            applicationId: string;
+            waitlistPosition: number;
+        };
+        PromoteWaitlistResultDto: {
+            /** @enum {string} */
+            status: "approved";
+            promotedApplicationId: string;
+        };
+        RecordRegistrationFeeBodyDto: {
+            amountInPaise: number;
+        };
+        RegistrationFeeResultDto: {
+            applicationId: string;
+            registrationFeeAmountInPaise: number;
+            registrationFeePaidAt: string;
+        };
         AnnouncementDto: {
             id: string;
             institutionId: string;
@@ -3950,6 +5740,11 @@ export interface components {
             body: string;
             /** @enum {string} */
             audience: "all" | "staff" | "guardians" | "students";
+            /** @enum {string|null} */
+            category?: "academic" | "disciplinary" | "general" | "urgent" | null;
+            targetClassId?: string | null;
+            targetSectionId?: string | null;
+            scheduledPublishAt?: string | null;
             /** @enum {string} */
             status: "draft" | "published" | "archived" | "deleted";
             publishedAt?: string | null;
@@ -3970,6 +5765,11 @@ export interface components {
             body: string;
             /** @enum {string} */
             audience: "all" | "staff" | "guardians" | "students";
+            /** @enum {string} */
+            category?: "academic" | "disciplinary" | "general" | "urgent";
+            targetClassId?: string;
+            targetSectionId?: string;
+            scheduledPublishAt?: string | null;
             /** @default false */
             publishNow: boolean;
         };
@@ -3979,6 +5779,11 @@ export interface components {
             body: string;
             /** @enum {string} */
             audience: "all" | "staff" | "guardians" | "students";
+            /** @enum {string} */
+            category?: "academic" | "disciplinary" | "general" | "urgent";
+            targetClassId?: string;
+            targetSectionId?: string;
+            scheduledPublishAt?: string | null;
             /** @default false */
             publishNow: boolean;
         };
@@ -3986,13 +5791,20 @@ export interface components {
             /** @enum {string} */
             status: "draft" | "archived";
         };
+        MarkAnnouncementReadBodyDto: {
+            announcementId: string;
+        };
+        AnnouncementReadCountDto: {
+            announcementId: string;
+            readCount: number;
+        };
         NotificationDto: {
             id: string;
             campusId?: string | null;
             campusName?: string | null;
             announcementId?: string | null;
             /** @enum {string} */
-            type: "announcement_published" | "fee_payment_received" | "fee_payment_reversed" | "attendance_absent" | "attendance_absent_streak" | "password_setup_required" | "admission_application_received" | "admission_status_changed" | "exam_results_published" | "fee_reminder_sent";
+            type: "announcement_published" | "fee_payment_received" | "fee_payment_reversed" | "attendance_absent" | "attendance_absent_streak" | "password_setup_required" | "admission_application_received" | "admission_status_changed" | "exam_results_published" | "fee_reminder_sent" | "leave_approved" | "leave_rejected" | "admission_conversion_suggested";
             /** @enum {string} */
             channel: "system" | "academics" | "operations" | "finance" | "community";
             /** @enum {string} */
@@ -4399,7 +6211,7 @@ export interface components {
         };
         DataExchangeCapabilityDto: {
             /** @enum {string} */
-            entityType: "students" | "staff" | "guardians" | "feeAssignments";
+            entityType: "students" | "staff" | "guardians" | "feeAssignments" | "libraryBooks" | "calendarHolidays" | "inventoryItems";
             actions: ("import" | "export")[];
         };
         DataExchangeCapabilitiesDto: {
@@ -4407,7 +6219,7 @@ export interface components {
         };
         DataExchangeBodyRequestDto: {
             /** @enum {string} */
-            entityType: "students" | "staff" | "guardians" | "feeAssignments";
+            entityType: "students" | "staff" | "guardians" | "feeAssignments" | "libraryBooks" | "calendarHolidays" | "inventoryItems";
             csvContent: string;
         };
         DataExchangePreviewSummaryDto: {
@@ -4424,7 +6236,7 @@ export interface components {
         };
         DataExchangePreviewResultDto: {
             /** @enum {string} */
-            entityType: "students" | "staff" | "guardians" | "feeAssignments";
+            entityType: "students" | "staff" | "guardians" | "feeAssignments" | "libraryBooks" | "calendarHolidays" | "inventoryItems";
             summary: components["schemas"]["DataExchangePreviewSummaryDto"];
             rows: components["schemas"]["DataExchangeRowResultDto"][];
         };
@@ -4435,7 +6247,7 @@ export interface components {
         };
         DataExchangeExecuteResultDto: {
             /** @enum {string} */
-            entityType: "students" | "staff" | "guardians" | "feeAssignments";
+            entityType: "students" | "staff" | "guardians" | "feeAssignments" | "libraryBooks" | "calendarHolidays" | "inventoryItems";
             summary: components["schemas"]["DataExchangeExecuteSummaryDto"];
             rows: components["schemas"]["DataExchangeRowResultDto"][];
         };
@@ -4466,6 +6278,10 @@ export interface components {
             customFieldValues?: {
                 [key: string]: unknown;
             } | null;
+            photoUrl?: string | null;
+            previousSchoolName?: string | null;
+            previousSchoolBoard?: string | null;
+            previousSchoolClass?: string | null;
             id: string;
             membershipId: string;
             institutionId: string;
@@ -4512,6 +6328,10 @@ export interface components {
                 [key: string]: unknown;
             } | null;
             currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
+            photoUrl?: string | null;
+            previousSchoolName?: string | null;
+            previousSchoolBoard?: string | null;
+            previousSchoolClass?: string | null;
             admissionNumber: string;
             firstName: string;
             classId: string;
@@ -4606,10 +6426,94 @@ export interface components {
                 [key: string]: unknown;
             } | null;
             currentEnrollment?: components["schemas"]["CurrentStudentEnrollmentBodyDto"] | null;
+            photoUrl?: string | null;
+            previousSchoolName?: string | null;
+            previousSchoolBoard?: string | null;
+            previousSchoolClass?: string | null;
             admissionNumber: string;
             firstName: string;
             classId: string;
             sectionId: string;
+        };
+        SiblingLinkDto: {
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            studentId: string;
+            siblingStudentId: string;
+            siblingFullName: string;
+            siblingAdmissionNumber: string;
+            siblingClassName: string;
+            siblingSectionName: string;
+        };
+        CreateSiblingLinkBodyDto: {
+            siblingStudentId: string;
+        };
+        StudentMedicalRecordDto: {
+            allergies?: string | null;
+            conditions?: string | null;
+            medications?: string | null;
+            emergencyMedicalInfo?: string | null;
+            doctorName?: string | null;
+            doctorPhone?: string | null;
+            insuranceInfo?: string | null;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            studentId: string;
+        };
+        UpsertMedicalRecordBodyDto: {
+            allergies?: string | null;
+            conditions?: string | null;
+            medications?: string | null;
+            emergencyMedicalInfo?: string | null;
+            doctorName?: string | null;
+            doctorPhone?: string | null;
+            insuranceInfo?: string | null;
+        };
+        DisciplinaryRecordDto: {
+            /** @enum {string} */
+            severity: "minor" | "moderate" | "major";
+            actionTaken?: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            studentId: string;
+            incidentDate: string;
+            description: string;
+            reportedByMemberId: string;
+            reportedByName: string;
+            parentNotified: boolean;
+        };
+        CreateDisciplinaryRecordBodyDto: {
+            /** @enum {string} */
+            severity: "minor" | "moderate" | "major";
+            actionTaken?: string | null;
+            incidentDate: string;
+            description: string;
+            parentNotified: boolean;
+        };
+        TransferCertificateDto: {
+            reason?: string | null;
+            conductRemarks?: string | null;
+            /** @enum {string} */
+            status: "issued" | "cancelled";
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            studentId: string;
+            tcNumber: string;
+            issueDate: string;
+            issuedByMemberId: string;
+            issuedByName: string;
+        };
+        IssueTransferCertificateBodyDto: {
+            reason?: string | null;
+            conductRemarks?: string | null;
+            tcNumber: string;
+            issueDate: string;
         };
         StudentRolloverSectionMappingBodyDto: {
             sourceClassId: string;
@@ -4702,6 +6606,9 @@ export interface components {
             address?: string | null;
             emergencyContactName?: string | null;
             emergencyContactMobile?: string | null;
+            emergencyContactRelation?: string | null;
+            reportingToMemberId?: string | null;
+            reportingToMemberName?: string | null;
             qualification?: string | null;
             experienceYears?: number | null;
             /** @enum {string|null} */
@@ -4760,6 +6667,8 @@ export interface components {
             address?: string;
             emergencyContactName?: string;
             emergencyContactMobile?: string;
+            emergencyContactRelation?: string;
+            reportingToMemberId?: string;
             qualification?: string;
             experienceYears?: number;
             /** @enum {string} */
@@ -4821,6 +6730,64 @@ export interface components {
             academicYearId?: string | null;
             subjectId: string;
         };
+        StaffDocumentDto: {
+            /** @enum {string} */
+            documentType: "appointment_letter" | "qualification_cert" | "id_proof" | "experience_letter" | "address_proof" | "other";
+            uploadUrl?: string | null;
+            notes?: string | null;
+            id: string;
+            staffMemberId: string;
+            documentName: string;
+            createdAt: string;
+            updatedAt: string;
+        };
+        CreateStaffDocumentBodyDto: {
+            /** @enum {string} */
+            documentType: "appointment_letter" | "qualification_cert" | "id_proof" | "experience_letter" | "address_proof" | "other";
+            uploadUrl?: string;
+            notes?: string;
+            documentName: string;
+        };
+        UpdateStaffDocumentBodyDto: {
+            /** @enum {string} */
+            documentType: "appointment_letter" | "qualification_cert" | "id_proof" | "experience_letter" | "address_proof" | "other";
+            uploadUrl?: string;
+            notes?: string;
+            documentName: string;
+        };
+        TeachingLoadEntryDto: {
+            room?: string | null;
+            dayOfWeek: string;
+            periodIndex: number;
+            startTime: string;
+            endTime: string;
+            subjectName: string;
+            className: string;
+            sectionName: string;
+        };
+        TeachingLoadResultDto: {
+            entries: components["schemas"]["TeachingLoadEntryDto"][];
+            staffMemberId: string;
+            totalPeriodsPerWeek: number;
+        };
+        StaffCampusTransferDto: {
+            reason?: string | null;
+            id: string;
+            staffMemberId: string;
+            fromCampusId: string;
+            fromCampusName: string;
+            toCampusId: string;
+            toCampusName: string;
+            transferDate: string;
+            transferredByMemberId: string;
+            transferredByName: string;
+            createdAt: string;
+        };
+        CreateCampusTransferBodyDto: {
+            reason?: string;
+            toCampusId: string;
+            transferDate: string;
+        };
         GuardianLinkedStudentDto: {
             /** @enum {string} */
             relationship: "father" | "mother" | "guardian";
@@ -4837,6 +6804,10 @@ export interface components {
             /** @enum {string|null} */
             honorific?: "Mr." | "Mrs." | "Ms." | "Dr." | "Shri" | "Smt." | "Prof." | null;
             email?: string | null;
+            /** @enum {string|null} */
+            communicationPreference?: "sms" | "whatsapp" | "email" | null;
+            occupation?: string | null;
+            annualIncomeRange?: string | null;
             /** @enum {string} */
             status: "active" | "deleted" | "inactive" | "suspended";
             linkedStudents: components["schemas"]["GuardianLinkedStudentDto"][];
@@ -4854,10 +6825,31 @@ export interface components {
             pageSize: number;
             pageCount: number;
         };
+        CrossStudentFeeSummaryStudentDto: {
+            studentId: string;
+            fullName: string;
+            admissionNumber: string;
+            totalDueInPaise: number;
+            totalPaidInPaise: number;
+            totalAdjustmentInPaise: number;
+            outstandingInPaise: number;
+        };
+        CrossStudentFeeSummaryDto: {
+            students: components["schemas"]["CrossStudentFeeSummaryStudentDto"][];
+            guardianId: string;
+            totalDueInPaise: number;
+            totalPaidInPaise: number;
+            totalAdjustmentInPaise: number;
+            outstandingInPaise: number;
+        };
         UpdateGuardianBodyDto: {
             /** @enum {string} */
             honorific?: "Mr." | "Mrs." | "Ms." | "Dr." | "Shri" | "Smt." | "Prof.";
             email?: string | null;
+            /** @enum {string|null} */
+            communicationPreference?: "sms" | "whatsapp" | "email" | null;
+            occupation?: string | null;
+            annualIncomeRange?: string | null;
             name: string;
             mobile: string;
         };
@@ -5436,6 +7428,7 @@ export interface components {
         HomeworkDto: {
             description?: string | null;
             attachmentInstructions?: string | null;
+            attachmentUrl?: string | null;
             /** Format: date-time */
             publishedAt?: string | null;
             id: string;
@@ -5451,6 +7444,7 @@ export interface components {
             title: string;
             dueDate: string;
             status: string;
+            parentVisible: boolean;
             createdAt: string;
             updatedAt: string;
         };
@@ -5464,6 +7458,8 @@ export interface components {
         CreateHomeworkBodyDto: {
             description?: string | null;
             attachmentInstructions?: string | null;
+            parentVisible?: boolean;
+            attachmentUrl?: string | null;
             classId: string;
             sectionId: string;
             subjectId: string;
@@ -5478,6 +7474,57 @@ export interface components {
             description?: string | null;
             attachmentInstructions?: string | null;
             dueDate?: string;
+            parentVisible?: boolean;
+            attachmentUrl?: string | null;
+        };
+        SubmissionEntryDto: {
+            /** @enum {string} */
+            status?: "submitted" | "not_submitted" | "late";
+            remarks?: string | null;
+            attachmentUrl?: string | null;
+            studentId: string;
+        };
+        BulkUpsertSubmissionsBodyDto: {
+            submissions: components["schemas"]["SubmissionEntryDto"][];
+        };
+        HomeworkSubmissionDto: {
+            /** Format: date-time */
+            submittedAt?: string | null;
+            remarks?: string | null;
+            attachmentUrl?: string | null;
+            markedByMemberId?: string | null;
+            markedByName?: string | null;
+            id: string;
+            homeworkId: string;
+            studentId: string;
+            studentName: string;
+            admissionNumber: string;
+            status: string;
+            createdAt: string;
+            updatedAt: string;
+        };
+        SubmissionListResultDto: {
+            rows: components["schemas"]["HomeworkSubmissionDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        HomeworkAnalyticsDto: {
+            homeworkId: string;
+            totalStudents: number;
+            submitted: number;
+            notSubmitted: number;
+            late: number;
+            submissionRate: number;
+        };
+        ClassHomeworkAnalyticsDto: {
+            classId: string;
+            className: string;
+            sectionId: string;
+            sectionName: string;
+            totalHomework: number;
+            avgSubmissionRate: number;
         };
         LeaveTypeDto: {
             maxDaysPerYear: number | null;
@@ -5647,6 +7694,57 @@ export interface components {
         ReturnBookBodyDto: {
             fineAmount?: number;
         };
+        CollectFineBodyDto: {
+            waive?: boolean;
+        };
+        ReservationDto: {
+            /** @enum {string} */
+            status: "pending" | "fulfilled" | "cancelled";
+            fulfilledAt: string | null;
+            cancelledAt: string | null;
+            id: string;
+            bookId: string;
+            bookTitle: string;
+            memberId: string;
+            memberName: string;
+            queuePosition: number;
+            createdAt: string;
+        };
+        ReservationListResultDto: {
+            rows: components["schemas"]["ReservationDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateReservationBodyDto: {
+            bookId: string;
+            memberId: string;
+        };
+        PopularBookDto: {
+            bookId: string;
+            title: string;
+            issueCount: number;
+        };
+        RecentTransactionDto: {
+            /** @enum {string} */
+            status: "issued" | "returned" | "overdue";
+            id: string;
+            bookTitle: string;
+            memberName: string;
+            issuedAt: string;
+        };
+        LibraryDashboardDto: {
+            totalBooks: number;
+            totalCopies: number;
+            availableCopies: number;
+            issuedToday: number;
+            returnedToday: number;
+            overdueCount: number;
+            pendingReservations: number;
+            popularBooks: components["schemas"]["PopularBookDto"][];
+            recentTransactions: components["schemas"]["RecentTransactionDto"][];
+        };
         RouteDto: {
             description: string | null;
             campusId: string | null;
@@ -5797,6 +7895,96 @@ export interface components {
             stopId?: string;
             startDate?: string;
             endDate?: string;
+        };
+        DriverDto: {
+            licenseNumber: string | null;
+            licenseExpiry: string | null;
+            address: string | null;
+            emergencyContact: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            name: string;
+            mobile: string;
+            vehicleCount: number;
+            createdAt: string;
+        };
+        DriverListResultDto: {
+            rows: components["schemas"]["DriverDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateDriverBodyDto: {
+            name: string;
+            mobile: string;
+            licenseNumber?: string;
+            licenseExpiry?: string;
+            address?: string;
+            emergencyContact?: string;
+        };
+        UpdateDriverBodyDto: {
+            /** @enum {string} */
+            status?: "active" | "inactive";
+            name?: string;
+            mobile?: string;
+            licenseNumber?: string;
+            licenseExpiry?: string;
+            address?: string;
+            emergencyContact?: string;
+        };
+        MaintenanceLogDto: {
+            /** @enum {string} */
+            maintenanceType: "regular" | "repair" | "inspection";
+            costInPaise: number | null;
+            nextDueDate: string | null;
+            vendorName: string | null;
+            id: string;
+            vehicleId: string;
+            vehicleRegistrationNumber: string;
+            description: string;
+            maintenanceDate: string;
+            createdByMemberId: string;
+            createdAt: string;
+        };
+        MaintenanceLogListResultDto: {
+            rows: components["schemas"]["MaintenanceLogDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateMaintenanceLogBodyDto: {
+            /** @enum {string} */
+            maintenanceType: "regular" | "repair" | "inspection";
+            vehicleId: string;
+            description: string;
+            costInPaise?: number;
+            maintenanceDate: string;
+            nextDueDate?: string;
+            vendorName?: string;
+        };
+        RouteStudentDto: {
+            admissionNumber: string | null;
+            /** @enum {string} */
+            assignmentType: "pickup" | "dropoff" | "both";
+            endDate: string | null;
+            studentId: string;
+            studentName: string;
+            stopId: string;
+            stopName: string;
+            sequenceNumber: number;
+            startDate: string;
+        };
+        RouteStudentListResultDto: {
+            routeId: string;
+            routeName: string;
+            rows: components["schemas"]["RouteStudentDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
         };
         SalaryComponentDto: {
             /** @enum {string} */
@@ -6075,9 +8263,13 @@ export interface components {
         CreateCategoryBodyDto: {
             name: string;
             description?: string;
+            budgetHeadCode?: string;
+            parentCategoryId?: string;
         };
         UpdateCategoryBodyDto: {
             description?: string | null;
+            budgetHeadCode?: string | null;
+            parentCategoryId?: string | null;
             name?: string;
         };
         UpdateCategoryStatusBodyDto: {
@@ -6155,6 +8347,9 @@ export interface components {
             issuedToMembershipId: string | null;
             issuedToName: string | null;
             notes: string | null;
+            departmentName: string | null;
+            purchaseOrderId: string | null;
+            unitPriceInPaise: number | null;
             id: string;
             itemId: string;
             itemName: string;
@@ -6177,6 +8372,128 @@ export interface components {
             quantity: number;
             referenceNumber?: string;
             issuedToMembershipId?: string;
+            departmentName?: string;
+            purchaseOrderId?: string;
+            unitPriceInPaise?: number;
+            notes?: string;
+        };
+        VendorDto: {
+            contactPerson: string | null;
+            phone: string | null;
+            email: string | null;
+            address: string | null;
+            gstNumber: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            name: string;
+            createdAt: string;
+        };
+        VendorListResultDto: {
+            rows: components["schemas"]["VendorDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateVendorBodyDto: {
+            name: string;
+            contactPerson?: string;
+            phone?: string;
+            email?: string;
+            address?: string;
+            gstNumber?: string;
+        };
+        UpdateVendorBodyDto: {
+            contactPerson?: string | null;
+            phone?: string | null;
+            email?: string | null;
+            address?: string | null;
+            gstNumber?: string | null;
+            name?: string;
+        };
+        UpdateVendorStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        PurchaseOrderDto: {
+            expectedDeliveryDate: string | null;
+            /** @enum {string} */
+            status: "draft" | "ordered" | "partially_received" | "received" | "cancelled";
+            notes: string | null;
+            id: string;
+            vendorId: string;
+            vendorName: string;
+            orderNumber: string;
+            orderDate: string;
+            totalAmountInPaise: number;
+            createdByMemberId: string;
+            createdByName: string;
+            createdAt: string;
+        };
+        PurchaseOrderListResultDto: {
+            rows: components["schemas"]["PurchaseOrderDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        PurchaseOrderItemBodyDto: {
+            itemId: string;
+            quantityOrdered: number;
+            unitPriceInPaise: number;
+        };
+        CreatePurchaseOrderBodyDto: {
+            items: components["schemas"]["PurchaseOrderItemBodyDto"][];
+            vendorId: string;
+            orderNumber: string;
+            orderDate: string;
+            expectedDeliveryDate?: string;
+            notes?: string;
+        };
+        PurchaseOrderItemDto: {
+            id: string;
+            itemId: string;
+            itemName: string;
+            quantityOrdered: number;
+            quantityReceived: number;
+            unitPriceInPaise: number;
+        };
+        PurchaseOrderDetailDto: {
+            expectedDeliveryDate: string | null;
+            /** @enum {string} */
+            status: "draft" | "ordered" | "partially_received" | "received" | "cancelled";
+            notes: string | null;
+            items: components["schemas"]["PurchaseOrderItemDto"][];
+            updatedAt: string;
+            id: string;
+            vendorId: string;
+            vendorName: string;
+            orderNumber: string;
+            orderDate: string;
+            totalAmountInPaise: number;
+            createdByMemberId: string;
+            createdByName: string;
+            createdAt: string;
+        };
+        UpdatePurchaseOrderBodyDto: {
+            expectedDeliveryDate?: string | null;
+            notes?: string | null;
+            items?: components["schemas"]["PurchaseOrderItemBodyDto"][];
+            vendorId?: string;
+            orderNumber?: string;
+            orderDate?: string;
+        };
+        UpdatePurchaseOrderStatusBodyDto: {
+            /** @enum {string} */
+            status: "draft" | "ordered" | "partially_received" | "received" | "cancelled";
+        };
+        ReceiveLineBodyDto: {
+            purchaseOrderItemId: string;
+            quantityReceived: number;
+        };
+        ReceivePurchaseOrderBodyDto: {
+            lines: components["schemas"]["ReceiveLineBodyDto"][];
             notes?: string;
         };
         BuildingDto: {
@@ -6317,6 +8634,100 @@ export interface components {
         UpdateMessPlanStatusBodyDto: {
             /** @enum {string} */
             status: "active" | "inactive";
+        };
+        MessAssignmentDto: {
+            bedAllocationId: string | null;
+            endDate: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            studentId: string;
+            studentName: string;
+            messPlanId: string;
+            messPlanName: string;
+            startDate: string;
+            createdAt: string;
+        };
+        MessAssignmentListResultDto: {
+            rows: components["schemas"]["MessAssignmentDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateMessAssignmentBodyDto: {
+            bedAllocationId?: string | null;
+            studentId: string;
+            messPlanId: string;
+            startDate: string;
+        };
+        RoomTransferDto: {
+            reason: string | null;
+            id: string;
+            studentId: string;
+            studentName: string;
+            fromRoomId: string;
+            fromRoomNumber: string;
+            toRoomId: string;
+            toRoomNumber: string;
+            fromBedNumber: string;
+            toBedNumber: string;
+            transferDate: string;
+            transferredByMemberId: string;
+            createdAt: string;
+        };
+        RoomTransferListResultDto: {
+            rows: components["schemas"]["RoomTransferDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateRoomTransferBodyDto: {
+            studentId: string;
+            toRoomId: string;
+            toBedNumber: string;
+            transferDate: string;
+            reason?: string;
+        };
+        BuildingOccupancyDto: {
+            buildingId: string;
+            buildingName: string;
+            totalCapacity: number;
+            totalOccupancy: number;
+            availableBeds: number;
+            occupancyPercent: number;
+        };
+        FloorOccupancyDto: {
+            buildingId: string;
+            buildingName: string;
+            floor: number;
+            totalCapacity: number;
+            totalOccupancy: number;
+            availableBeds: number;
+            occupancyPercent: number;
+        };
+        OccupancyDashboardDto: {
+            buildings: components["schemas"]["BuildingOccupancyDto"][];
+            floors: components["schemas"]["FloorOccupancyDto"][];
+            totalCapacity: number;
+            totalOccupancy: number;
+            totalAvailable: number;
+            overallOccupancyPercent: number;
+        };
+        BatchAllocationItemDto: {
+            roomId: string;
+            studentId: string;
+            bedNumber: string;
+            startDate: string;
+        };
+        CreateBatchAllocationBodyDto: {
+            allocations: components["schemas"]["BatchAllocationItemDto"][];
+        };
+        BatchAllocationResultDto: {
+            errors: string[];
+            created: number;
+            failed: number;
         };
         StaffRosterItemDto: {
             designation: string | null;
@@ -6496,6 +8907,509 @@ export interface components {
             publicUrl: string;
             key: string;
         };
+        FileUploadDto: {
+            id: string;
+            institutionId: string;
+            entityType: string;
+            entityId: string | null;
+            originalFilename: string;
+            storagePath: string;
+            mimeType: string;
+            sizeBytes: number;
+            uploadedByUserId: string;
+            createdAt: string;
+        };
+        ListFileUploadsResultDto: {
+            rows: components["schemas"]["FileUploadDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        ConsentDto: {
+            id: string;
+            institutionId: string;
+            userId: string;
+            purpose: string;
+            status: string;
+            consentedAt: string;
+            withdrawnAt: string | null;
+            ipAddress: string | null;
+            createdAt: string;
+            updatedAt: string;
+        };
+        GrantConsentBodyDto: {
+            purpose: string;
+        };
+        SensitiveAccessLogDto: {
+            id: string;
+            institutionId: string;
+            accessedByUserId: string;
+            accessedByName: string;
+            dataType: string;
+            entityType: string;
+            entityId: string;
+            action: string;
+            ipAddress: string | null;
+            createdAt: string;
+        };
+        ListSensitiveAccessResultDto: {
+            rows: components["schemas"]["SensitiveAccessLogDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        SessionConfigDto: {
+            id: string;
+            institutionId: string;
+            maxConcurrentSessions: number;
+            sessionTimeoutMinutes: number;
+            requireReauthForSensitiveOps: boolean;
+            createdAt: string;
+            updatedAt: string;
+        };
+        UpdateSessionConfigBodyDto: {
+            maxConcurrentSessions?: number;
+            sessionTimeoutMinutes?: number;
+            requireReauthForSensitiveOps?: boolean;
+        };
+        ExpenseCategoryDto: {
+            description: string | null;
+            budgetHeadCode: string | null;
+            parentCategoryId: string | null;
+            /** @enum {string} */
+            status: "active" | "inactive";
+            id: string;
+            name: string;
+            createdAt: string;
+        };
+        ExpenseCategoryListResultDto: {
+            rows: components["schemas"]["ExpenseCategoryDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        ExpenseDto: {
+            campusId: string | null;
+            description: string | null;
+            departmentName: string | null;
+            vendorName: string | null;
+            referenceNumber: string | null;
+            /** @enum {string} */
+            status: "draft" | "submitted" | "approved" | "rejected" | "paid";
+            approvedByMemberId: string | null;
+            approvedByName: string | null;
+            approvedAt: string | null;
+            rejectionReason: string | null;
+            paidAt: string | null;
+            paymentMethod: string | null;
+            paymentReference: string | null;
+            id: string;
+            categoryId: string;
+            categoryName: string;
+            title: string;
+            amountInPaise: number;
+            expenseDate: string;
+            submittedByMemberId: string;
+            submittedByName: string;
+            createdAt: string;
+        };
+        ExpenseListResultDto: {
+            rows: components["schemas"]["ExpenseDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateExpenseBodyDto: {
+            campusId?: string;
+            categoryId: string;
+            title: string;
+            description?: string;
+            amountInPaise: number;
+            expenseDate: string;
+            departmentName?: string;
+            vendorName?: string;
+            referenceNumber?: string;
+            receiptUploadId?: string;
+        };
+        ExpenseDetailDto: {
+            campusId: string | null;
+            description: string | null;
+            departmentName: string | null;
+            vendorName: string | null;
+            referenceNumber: string | null;
+            /** @enum {string} */
+            status: "draft" | "submitted" | "approved" | "rejected" | "paid";
+            approvedByMemberId: string | null;
+            approvedByName: string | null;
+            approvedAt: string | null;
+            rejectionReason: string | null;
+            paidAt: string | null;
+            paymentMethod: string | null;
+            paymentReference: string | null;
+            receiptUploadId: string | null;
+            updatedAt: string;
+            id: string;
+            categoryId: string;
+            categoryName: string;
+            title: string;
+            amountInPaise: number;
+            expenseDate: string;
+            submittedByMemberId: string;
+            submittedByName: string;
+            createdAt: string;
+        };
+        UpdateExpenseBodyDto: {
+            campusId?: string | null;
+            description?: string | null;
+            departmentName?: string | null;
+            vendorName?: string | null;
+            referenceNumber?: string | null;
+            receiptUploadId?: string | null;
+            categoryId?: string;
+            title?: string;
+            amountInPaise?: number;
+            expenseDate?: string;
+        };
+        RejectExpenseBodyDto: {
+            rejectionReason: string;
+        };
+        MarkPaidBodyDto: {
+            paymentMethod: string;
+            paymentReference?: string;
+        };
+        ExpenseSummaryByCategoryDto: {
+            categoryId: string;
+            categoryName: string;
+            totalAmountInPaise: number;
+            count: number;
+        };
+        ExpenseSummaryByMonthDto: {
+            month: string;
+            totalAmountInPaise: number;
+            count: number;
+        };
+        ExpenseSummaryByDepartmentDto: {
+            departmentName: string;
+            totalAmountInPaise: number;
+            count: number;
+        };
+        ExpenseSummaryDto: {
+            byCategory: components["schemas"]["ExpenseSummaryByCategoryDto"][];
+            byMonth: components["schemas"]["ExpenseSummaryByMonthDto"][];
+            byDepartment: components["schemas"]["ExpenseSummaryByDepartmentDto"][];
+            totalAmountInPaise: number;
+            totalCount: number;
+        };
+        IncomeRecordDto: {
+            campusId: string | null;
+            /** @enum {string} */
+            category: "donation" | "grant" | "government_aid" | "rental" | "canteen" | "admission_fee" | "other";
+            description: string | null;
+            sourceEntity: string | null;
+            referenceNumber: string | null;
+            id: string;
+            title: string;
+            amountInPaise: number;
+            incomeDate: string;
+            recordedByMemberId: string;
+            recordedByName: string;
+            createdAt: string;
+        };
+        IncomeRecordListResultDto: {
+            rows: components["schemas"]["IncomeRecordDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateRecordBodyDto: {
+            /** @enum {string} */
+            category: "donation" | "grant" | "government_aid" | "rental" | "canteen" | "admission_fee" | "other";
+            campusId?: string;
+            title: string;
+            description?: string;
+            amountInPaise: number;
+            incomeDate: string;
+            sourceEntity?: string;
+            referenceNumber?: string;
+            receiptUploadId?: string;
+        };
+        IncomeRecordDetailDto: {
+            campusId: string | null;
+            /** @enum {string} */
+            category: "donation" | "grant" | "government_aid" | "rental" | "canteen" | "admission_fee" | "other";
+            description: string | null;
+            sourceEntity: string | null;
+            referenceNumber: string | null;
+            receiptUploadId: string | null;
+            updatedAt: string;
+            id: string;
+            title: string;
+            amountInPaise: number;
+            incomeDate: string;
+            recordedByMemberId: string;
+            recordedByName: string;
+            createdAt: string;
+        };
+        UpdateRecordBodyDto: {
+            campusId?: string | null;
+            /** @enum {string} */
+            category?: "donation" | "grant" | "government_aid" | "rental" | "canteen" | "admission_fee" | "other";
+            description?: string | null;
+            sourceEntity?: string | null;
+            referenceNumber?: string | null;
+            receiptUploadId?: string | null;
+            title?: string;
+            amountInPaise?: number;
+            incomeDate?: string;
+        };
+        IncomeSummaryByCategoryDto: {
+            category: string;
+            totalAmountInPaise: number;
+            count: number;
+        };
+        IncomeSummaryByMonthDto: {
+            month: string;
+            totalAmountInPaise: number;
+            count: number;
+        };
+        IncomeSummaryDto: {
+            byCategory: components["schemas"]["IncomeSummaryByCategoryDto"][];
+            byMonth: components["schemas"]["IncomeSummaryByMonthDto"][];
+            totalAmountInPaise: number;
+            totalCount: number;
+        };
+        DomainEventDto: {
+            id: string;
+            institutionId: string;
+            /** @enum {string} */
+            eventType: "attendance.marked" | "attendance.absent" | "attendance.absent.streak" | "fee.payment.received" | "fee.overdue" | "admission.approved" | "student.created" | "announcement.published" | "leave.approved" | "leave.rejected" | "emergency.broadcast";
+            payload: {
+                [key: string]: unknown;
+            };
+            /** @enum {string} */
+            status: "pending" | "processing" | "processed" | "failed";
+            attempts: number;
+            maxAttempts: number;
+            lastError?: string | null;
+            processedAt?: string | null;
+            scheduledFor?: string | null;
+            createdAt: string;
+            updatedAt: string;
+        };
+        ListDomainEventsResultDto: {
+            rows: components["schemas"]["DomainEventDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        RetryDomainEventResultDto: {
+            id: string;
+            status: string;
+        };
+        NeedsAttentionItemDto: {
+            id: string;
+            type: string;
+            title: string;
+            count: number;
+            actionUrl: string;
+            priority: string;
+            metadata?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        NeedsAttentionResultDto: {
+            items: components["schemas"]["NeedsAttentionItemDto"][];
+        };
+        TrendItemDto: {
+            label: string;
+            current: number;
+            previous: number;
+            unit: string;
+        };
+        TrendsResultDto: {
+            trends: components["schemas"]["TrendItemDto"][];
+        };
+        DismissResultDto: {
+            dismissed: boolean;
+        };
+        ScholarshipDto: {
+            description?: string | null;
+            /** @enum {string} */
+            scholarshipType: "merit" | "need_based" | "sports" | "government_pre_matric" | "government_post_matric" | "minority" | "sc_st" | "other";
+            amountInPaise?: number | null;
+            percentageDiscount?: number | null;
+            eligibilityCriteria?: string | null;
+            maxRecipients?: number | null;
+            academicYearId?: string | null;
+            academicYearName?: string | null;
+            renewalPeriodMonths?: number | null;
+            /** @enum {string} */
+            status: "active" | "inactive" | "deleted";
+            id: string;
+            institutionId: string;
+            name: string;
+            renewalRequired: boolean;
+            activeApplicationCount: number;
+            createdAt: string;
+        };
+        ScholarshipListResultDto: {
+            rows: components["schemas"]["ScholarshipDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateScholarshipBodyDto: {
+            /** @enum {string} */
+            scholarshipType: "merit" | "need_based" | "sports" | "government_pre_matric" | "government_post_matric" | "minority" | "sc_st" | "other";
+            name: string;
+            description?: string;
+            amountInPaise?: number;
+            percentageDiscount?: number;
+            eligibilityCriteria?: string;
+            maxRecipients?: number;
+            academicYearId?: string;
+            renewalRequired?: boolean;
+            renewalPeriodMonths?: number;
+        };
+        UpdateScholarshipBodyDto: {
+            description?: string | null;
+            /** @enum {string} */
+            scholarshipType?: "merit" | "need_based" | "sports" | "government_pre_matric" | "government_post_matric" | "minority" | "sc_st" | "other";
+            amountInPaise?: number | null;
+            percentageDiscount?: number | null;
+            eligibilityCriteria?: string | null;
+            maxRecipients?: number | null;
+            academicYearId?: string | null;
+            renewalPeriodMonths?: number | null;
+            name?: string;
+            renewalRequired?: boolean;
+        };
+        UpdateScholarshipStatusBodyDto: {
+            /** @enum {string} */
+            status: "active" | "inactive";
+        };
+        ScholarshipApplicationDto: {
+            /** @enum {string} */
+            status: "pending" | "approved" | "rejected" | "expired";
+            reviewedByMemberName?: string | null;
+            reviewedAt?: string | null;
+            reviewNotes?: string | null;
+            /** @enum {string} */
+            dbtStatus: "not_applied" | "applied" | "sanctioned" | "disbursed" | "rejected";
+            dbtTransactionId?: string | null;
+            dbtDisbursedAt?: string | null;
+            feeAdjustmentId?: string | null;
+            concessionAmountInPaise?: number | null;
+            expiresAt?: string | null;
+            renewedFromApplicationId?: string | null;
+            id: string;
+            institutionId: string;
+            scholarshipId: string;
+            scholarshipName: string;
+            studentId: string;
+            studentName: string;
+            studentAdmissionNumber: string;
+            appliedByMemberName: string;
+            createdAt: string;
+        };
+        ScholarshipApplicationListResultDto: {
+            rows: components["schemas"]["ScholarshipApplicationDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateApplicationBodyDto: {
+            scholarshipId: string;
+            studentId: string;
+        };
+        ReviewApplicationBodyDto: {
+            reviewNotes?: string;
+        };
+        UpdateDbtStatusBodyDto: {
+            /** @enum {string} */
+            dbtStatus: "not_applied" | "applied" | "sanctioned" | "disbursed" | "rejected";
+            dbtTransactionId?: string;
+        };
+        BroadcastDto: {
+            templateKey?: string | null;
+            /** @enum {string} */
+            targetType: "all" | "campus" | "class" | "section" | "transport_route";
+            targetId?: string | null;
+            /** @enum {string} */
+            priority: "normal" | "high" | "critical";
+            channels: string[];
+            /** @enum {string} */
+            status: "draft" | "sending" | "sent" | "failed";
+            sentAt?: string | null;
+            id: string;
+            institutionId: string;
+            title: string;
+            message: string;
+            sentByMemberName: string;
+            totalRecipients: number;
+            deliveredCount: number;
+            failedCount: number;
+            createdAt: string;
+        };
+        BroadcastListResultDto: {
+            rows: components["schemas"]["BroadcastDto"][];
+            total: number;
+            page: number;
+            pageSize: number;
+            pageCount: number;
+        };
+        CreateBroadcastBodyDto: {
+            /** @enum {string} */
+            targetType: "all" | "campus" | "class" | "section" | "transport_route";
+            /** @enum {string} */
+            priority?: "normal" | "high" | "critical";
+            channels: string[];
+            title: string;
+            message: string;
+            templateKey?: string;
+            targetId?: string;
+        };
+        UpdateBroadcastBodyDto: {
+            templateKey?: string | null;
+            /** @enum {string} */
+            targetType?: "all" | "campus" | "class" | "section" | "transport_route";
+            targetId?: string | null;
+            /** @enum {string} */
+            priority?: "normal" | "high" | "critical";
+            channels?: string[];
+            title?: string;
+            message?: string;
+        };
+        DeliveryStatsChannelDto: {
+            channel: string;
+            pending: number;
+            delivered: number;
+            failed: number;
+        };
+        DeliveryStatsDto: {
+            byChannel: components["schemas"]["DeliveryStatsChannelDto"][];
+            totalRecipients: number;
+            deliveredCount: number;
+            failedCount: number;
+            pendingCount: number;
+        };
+        BroadcastTemplateDto: {
+            key: string;
+            label: string;
+            defaultTitle: string;
+            defaultMessage: string;
+        };
+        BroadcastTemplateListDto: {
+            templates: components["schemas"]["BroadcastTemplateDto"][];
+        };
         TenantBrandingDto: {
             logoUrl: string | null;
             faviconUrl: string | null;
@@ -6543,7 +9457,7 @@ export interface operations {
                 sort?: "createdAt" | "action" | "entityType" | "actor";
                 order?: "asc" | "desc";
                 action?: "create" | "update" | "delete" | "mark" | "replace" | "reverse" | "execute";
-                entityType?: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction" | "transport_route" | "transport_stop" | "transport_vehicle" | "transport_assignment" | "salary_component" | "salary_template" | "staff_salary_assignment" | "payroll_run" | "payslip" | "inventory_category" | "inventory_item" | "stock_transaction" | "hostel_building" | "hostel_room" | "bed_allocation" | "mess_plan" | "staff_attendance_day";
+                entityType?: "role" | "attendance_day" | "exam_marks" | "fee_payment" | "student_rollover" | "student" | "staff" | "guardian" | "class" | "section" | "subject" | "campus" | "institution_settings" | "fee_structure" | "fee_assignment" | "admission_enquiry" | "admission_application" | "announcement" | "calendar_event" | "timetable" | "bell_schedule" | "academic_year" | "delivery_config" | "payment_config" | "payment_order" | "homework" | "leave_type" | "leave_application" | "library_book" | "library_transaction" | "transport_route" | "transport_stop" | "transport_vehicle" | "transport_assignment" | "salary_component" | "salary_template" | "staff_salary_assignment" | "payroll_run" | "payslip" | "inventory_category" | "inventory_item" | "stock_transaction" | "hostel_building" | "hostel_room" | "bed_allocation" | "mess_plan" | "staff_attendance_day" | "library_reservation" | "library_fine" | "admission_document" | "admission_conversion" | "hostel_mess_assignment" | "hostel_room_transfer" | "transport_driver" | "transport_maintenance" | "vendor" | "purchase_order" | "homework_submission" | "student_sibling_link" | "student_medical_record" | "student_disciplinary" | "transfer_certificate" | "staff_document" | "staff_campus_transfer" | "domain_event" | "expense_category" | "expense" | "scholarship" | "scholarship_application" | "emergency_broadcast" | "income_record" | "data_consent" | "file_upload" | "sensitive_data_access";
                 actorUserId?: string;
             };
             header?: never;
@@ -7171,6 +10085,238 @@ export interface operations {
             };
         };
     };
+    AdmissionsController_listDocumentChecklist: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListDocumentChecklistResultDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_createDocumentChecklistItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDocumentChecklistItemBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentChecklistItemDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_updateDocumentChecklistItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDocumentChecklistItemBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentChecklistItemDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_listApplicationDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListApplicationDocumentsResultDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_upsertApplicationDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertApplicationDocumentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationDocumentDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_verifyRejectApplicationDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyRejectApplicationDocumentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApplicationDocumentDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_convertToStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConvertToStudentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConvertToStudentResultDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_waitlistApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WaitlistApplicationBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WaitlistResultDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_promoteNextWaitlisted: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PromoteWaitlistResultDto"];
+                };
+            };
+        };
+    };
+    AdmissionsController_recordRegistrationFee: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordRegistrationFeeBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegistrationFeeResultDto"];
+                };
+            };
+        };
+    };
     CommunicationsController_listAnnouncements: {
         parameters: {
             query?: {
@@ -7181,6 +10327,7 @@ export interface operations {
                 order?: "asc" | "desc";
                 audience?: "all" | "staff" | "guardians" | "students";
                 status?: "draft" | "published" | "archived";
+                category?: "academic" | "disciplinary" | "general" | "urgent";
             };
             header?: never;
             path?: never;
@@ -7309,6 +10456,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AnnouncementDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_getAnnouncementReadCount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AnnouncementReadCountDto"];
+                };
+            };
+        };
+    };
+    CommunicationsController_markAnnouncementRead: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                announcementId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkAnnouncementReadBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success?: boolean;
+                    };
                 };
             };
         };
@@ -8499,6 +11694,23 @@ export interface operations {
             };
         };
     };
+    DataExchangeController_exportFullDump: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     DataExchangeController_exportData: {
         parameters: {
             query?: never;
@@ -8649,6 +11861,223 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["StudentDto"];
                 };
+            };
+        };
+    };
+    StudentsController_transferSection: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StudentsController_listSiblingLinks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SiblingLinkDto"][];
+                };
+            };
+        };
+    };
+    StudentsController_createSiblingLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSiblingLinkBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StudentsController_deleteSiblingLink: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+                linkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StudentsController_getMedicalRecord: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentMedicalRecordDto"];
+                };
+            };
+        };
+    };
+    StudentsController_upsertMedicalRecord: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpsertMedicalRecordBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StudentMedicalRecordDto"];
+                };
+            };
+        };
+    };
+    StudentsController_listDisciplinaryRecords: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DisciplinaryRecordDto"][];
+                };
+            };
+        };
+    };
+    StudentsController_createDisciplinaryRecord: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDisciplinaryRecordBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StudentsController_listTransferCertificates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransferCertificateDto"][];
+                };
+            };
+        };
+    };
+    StudentsController_issueTransferCertificate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["IssueTransferCertificateBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -9007,6 +12436,165 @@ export interface operations {
             };
         };
     };
+    StaffController_listStaffDocuments: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffDocumentDto"][];
+                };
+            };
+        };
+    };
+    StaffController_createStaffDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStaffDocumentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffDocumentDto"];
+                };
+            };
+        };
+    };
+    StaffController_deleteStaffDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StaffController_updateStaffDocument: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+                documentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStaffDocumentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffDocumentDto"];
+                };
+            };
+        };
+    };
+    StaffController_getTeachingLoad: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TeachingLoadResultDto"];
+                };
+            };
+        };
+    };
+    StaffController_listCampusTransfers: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffCampusTransferDto"][];
+                };
+            };
+        };
+    };
+    StaffController_createCampusTransfer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                staffId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCampusTransferBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffCampusTransferDto"];
+                };
+            };
+        };
+    };
     GuardiansController_listGuardians: {
         parameters: {
             query?: {
@@ -9094,6 +12682,27 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    GuardiansController_getCrossStudentFeeSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                guardianId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrossStudentFeeSummaryDto"];
+                };
             };
         };
     };
@@ -10497,6 +14106,7 @@ export interface operations {
         parameters: {
             query?: {
                 q?: string;
+                campusId?: string;
                 classId?: string;
                 sectionId?: string;
                 subjectId?: string;
@@ -10629,6 +14239,96 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HomeworkDto"];
+                };
+            };
+        };
+    };
+    HomeworkController_listSubmissions: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                homeworkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubmissionListResultDto"];
+                };
+            };
+        };
+    };
+    HomeworkController_bulkUpsertSubmissions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                homeworkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkUpsertSubmissionsBodyDto"];
+            };
+        };
+        responses: {
+            /** @description Number of submissions updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    HomeworkController_getHomeworkAnalytics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                homeworkId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeworkAnalyticsDto"];
+                };
+            };
+        };
+    };
+    HomeworkController_getClassAnalytics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                classId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassHomeworkAnalyticsDto"][];
                 };
             };
         };
@@ -10919,6 +14619,7 @@ export interface operations {
                 sort?: "title" | "author" | "createdAt" | "availableCopies";
                 order?: "asc" | "desc";
                 q?: string;
+                campusId?: string;
                 page?: number;
                 limit?: number;
             };
@@ -10993,6 +14694,7 @@ export interface operations {
                 sort?: "issuedAt" | "dueDate" | "status";
                 order?: "asc" | "desc";
                 q?: string;
+                campusId?: string;
                 memberId?: string;
                 bookId?: string;
                 page?: number;
@@ -11058,6 +14760,207 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TransactionDto"];
+                };
+            };
+        };
+    };
+    LibraryController_collectFine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                transactionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CollectFineBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionDto"];
+                };
+            };
+        };
+    };
+    LibraryController_listReservations: {
+        parameters: {
+            query?: {
+                status?: "pending" | "fulfilled" | "cancelled";
+                sort?: "createdAt" | "queuePosition";
+                order?: "asc" | "desc";
+                q?: string;
+                bookId?: string;
+                memberId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationListResultDto"];
+                };
+            };
+        };
+    };
+    LibraryController_createReservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateReservationBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    LibraryController_fulfillReservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reservationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    LibraryController_cancelReservation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reservationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReservationDto"];
+                };
+            };
+        };
+    };
+    LibraryController_memberBorrowingHistory: {
+        parameters: {
+            query?: {
+                sort?: "issuedAt" | "dueDate" | "status";
+                order?: "asc" | "desc";
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                memberId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionListResultDto"];
+                };
+            };
+        };
+    };
+    LibraryController_listOverdue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TransactionDto"][];
+                };
+            };
+        };
+    };
+    LibraryController_markOverdue: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    LibraryController_dashboard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LibraryDashboardDto"];
                 };
             };
         };
@@ -11147,6 +15050,27 @@ export interface operations {
                 "application/json": components["schemas"]["UpdateRouteBodyDto"];
             };
         };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteDto"];
+                };
+            };
+        };
+    };
+    TransportController_deactivateRoute: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                routeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             200: {
                 headers: {
@@ -11284,6 +15208,27 @@ export interface operations {
             };
         };
     };
+    TransportController_deactivateVehicle: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vehicleId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VehicleDto"];
+                };
+            };
+        };
+    };
     TransportController_listAssignments: {
         parameters: {
             query?: {
@@ -11357,6 +15302,174 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AssignmentDto"];
+                };
+            };
+        };
+    };
+    TransportController_listDrivers: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive";
+                sort?: "name" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriverListResultDto"];
+                };
+            };
+        };
+    };
+    TransportController_createDriver: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDriverBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriverDto"];
+                };
+            };
+        };
+    };
+    TransportController_getDriver: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driverId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriverDto"];
+                };
+            };
+        };
+    };
+    TransportController_updateDriver: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                driverId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDriverBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DriverDto"];
+                };
+            };
+        };
+    };
+    TransportController_listMaintenanceLogs: {
+        parameters: {
+            query?: {
+                maintenanceType?: "regular" | "repair" | "inspection";
+                sort?: "maintenanceDate" | "createdAt";
+                order?: "asc" | "desc";
+                vehicleId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaintenanceLogListResultDto"];
+                };
+            };
+        };
+    };
+    TransportController_createMaintenanceLog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMaintenanceLogBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MaintenanceLogDto"];
+                };
+            };
+        };
+    };
+    TransportController_listRouteStudents: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                routeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RouteStudentListResultDto"];
                 };
             };
         };
@@ -11929,6 +16042,42 @@ export interface operations {
             };
         };
     };
+    PayrollController_downloadBankFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                runId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PayrollController_seedStatutoryComponents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     InventoryController_listCategories: {
         parameters: {
             query?: {
@@ -12035,6 +16184,7 @@ export interface operations {
                 sort?: "name" | "currentStock" | "createdAt";
                 order?: "asc" | "desc";
                 q?: string;
+                campusId?: string;
                 categoryId?: string;
                 page?: number;
                 limit?: number;
@@ -12183,6 +16333,7 @@ export interface operations {
                 sort?: "createdAt" | "quantity";
                 order?: "asc" | "desc";
                 q?: string;
+                campusId?: string;
                 itemId?: string;
                 page?: number;
                 limit?: number;
@@ -12247,6 +16398,251 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ItemListResultDto"];
+                };
+            };
+        };
+    };
+    InventoryController_listVendors: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive";
+                sort?: "name" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorListResultDto"];
+                };
+            };
+        };
+    };
+    InventoryController_createVendor: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateVendorBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorDto"];
+                };
+            };
+        };
+    };
+    InventoryController_updateVendor: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vendorId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateVendorBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorDto"];
+                };
+            };
+        };
+    };
+    InventoryController_updateVendorStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                vendorId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateVendorStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VendorDto"];
+                };
+            };
+        };
+    };
+    InventoryController_listPurchaseOrders: {
+        parameters: {
+            query?: {
+                status?: "draft" | "ordered" | "partially_received" | "received" | "cancelled";
+                sort?: "orderDate" | "createdAt" | "orderNumber";
+                order?: "asc" | "desc";
+                q?: string;
+                vendorId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrderListResultDto"];
+                };
+            };
+        };
+    };
+    InventoryController_createPurchaseOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreatePurchaseOrderBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrderDto"];
+                };
+            };
+        };
+    };
+    InventoryController_getPurchaseOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrderDetailDto"];
+                };
+            };
+        };
+    };
+    InventoryController_updatePurchaseOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePurchaseOrderBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrderDto"];
+                };
+            };
+        };
+    };
+    InventoryController_updatePurchaseOrderStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdatePurchaseOrderStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrderDto"];
+                };
+            };
+        };
+    };
+    InventoryController_receivePurchaseOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReceivePurchaseOrderBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PurchaseOrderDto"];
                 };
             };
         };
@@ -12642,6 +17038,168 @@ export interface operations {
             };
         };
     };
+    HostelController_listMessAssignments: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive";
+                sort?: "startDate" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                messPlanId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessAssignmentListResultDto"];
+                };
+            };
+        };
+    };
+    HostelController_createMessAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateMessAssignmentBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessAssignmentDto"];
+                };
+            };
+        };
+    };
+    HostelController_deactivateMessAssignment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assignmentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessAssignmentDto"];
+                };
+            };
+        };
+    };
+    HostelController_listRoomTransfers: {
+        parameters: {
+            query?: {
+                sort?: "transferDate" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                studentId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomTransferListResultDto"];
+                };
+            };
+        };
+    };
+    HostelController_createRoomTransfer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRoomTransferBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoomTransferDto"];
+                };
+            };
+        };
+    };
+    HostelController_getOccupancyDashboard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OccupancyDashboardDto"];
+                };
+            };
+        };
+    };
+    HostelController_createBatchAllocation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBatchAllocationBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchAllocationResultDto"];
+                };
+            };
+        };
+    };
     StaffAttendanceController_getRoster: {
         parameters: {
             query: {
@@ -12750,6 +17308,23 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["StudentStrengthResultDto"];
                 };
+            };
+        };
+    };
+    ReportsController_getStaffStudentRatio: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -12997,6 +17572,1443 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PresignUploadResponseDto"];
                 };
+            };
+        };
+    };
+    FileUploadsController_listFiles: {
+        parameters: {
+            query: {
+                entityId?: string;
+                page?: number;
+                limit?: number;
+                entityType: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListFileUploadsResultDto"];
+                };
+            };
+        };
+    };
+    FileUploadsController_uploadFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    entityType: string;
+                    entityId?: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileUploadDto"];
+                };
+            };
+        };
+    };
+    FileUploadsController_getFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FileUploadDto"];
+                };
+            };
+        };
+    };
+    FileUploadsController_deleteFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FileUploadsController_downloadFile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                fileId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DpdpaController_listConsents: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentDto"][];
+                };
+            };
+        };
+    };
+    DpdpaController_grantConsent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GrantConsentBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentDto"];
+                };
+            };
+        };
+    };
+    DpdpaController_withdrawConsent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                purpose: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConsentDto"];
+                };
+            };
+        };
+    };
+    DpdpaController_listSensitiveAccessLogs: {
+        parameters: {
+            query?: {
+                page?: number;
+                limit?: number;
+                q?: string;
+                sort?: "createdAt" | "dataType" | "action";
+                order?: "asc" | "desc";
+                dataType?: string;
+                entityType?: string;
+                accessedByUserId?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListSensitiveAccessResultDto"];
+                };
+            };
+        };
+    };
+    DpdpaController_getSessionConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionConfigDto"];
+                };
+            };
+        };
+    };
+    DpdpaController_updateSessionConfig: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateSessionConfigBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionConfigDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_listCategories: {
+        parameters: {
+            query?: {
+                status?: "active" | "inactive";
+                sort?: "name" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategoryListResultDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_createCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCategoryBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategoryDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_updateCategory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                categoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCategoryBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategoryDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_updateCategoryStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                categoryId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCategoryStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseCategoryDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_listExpenses: {
+        parameters: {
+            query?: {
+                status?: "draft" | "submitted" | "approved" | "rejected" | "paid";
+                sort?: "expenseDate" | "amountInPaise" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                categoryId?: string;
+                campusId?: string;
+                dateFrom?: string;
+                dateTo?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseListResultDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_createExpense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateExpenseBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_getExpense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expenseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseDetailDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_updateExpense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expenseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateExpenseBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_submitExpense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expenseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_approveExpense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expenseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_rejectExpense: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expenseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectExpenseBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_markPaid: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expenseId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MarkPaidBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseDto"];
+                };
+            };
+        };
+    };
+    ExpensesController_expenseSummary: {
+        parameters: {
+            query?: {
+                campusId?: string;
+                dateFrom?: string;
+                dateTo?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseSummaryDto"];
+                };
+            };
+        };
+    };
+    IncomeController_listRecords: {
+        parameters: {
+            query?: {
+                category?: "donation" | "grant" | "government_aid" | "rental" | "canteen" | "admission_fee" | "other";
+                sort?: "incomeDate" | "amountInPaise" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                campusId?: string;
+                dateFrom?: string;
+                dateTo?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IncomeRecordListResultDto"];
+                };
+            };
+        };
+    };
+    IncomeController_createRecord: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateRecordBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IncomeRecordDto"];
+                };
+            };
+        };
+    };
+    IncomeController_getRecord: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recordId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IncomeRecordDetailDto"];
+                };
+            };
+        };
+    };
+    IncomeController_deleteRecord: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recordId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    IncomeController_updateRecord: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                recordId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateRecordBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IncomeRecordDto"];
+                };
+            };
+        };
+    };
+    IncomeController_getSummary: {
+        parameters: {
+            query?: {
+                campusId?: string;
+                dateFrom?: string;
+                dateTo?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IncomeSummaryDto"];
+                };
+            };
+        };
+    };
+    DomainEventsController_listEvents: {
+        parameters: {
+            query?: {
+                q?: string;
+                page?: number;
+                limit?: number;
+                sort?: "createdAt" | "eventType" | "status";
+                order?: "asc" | "desc";
+                eventType?: "attendance.marked" | "attendance.absent" | "attendance.absent.streak" | "fee.payment.received" | "fee.overdue" | "admission.approved" | "student.created" | "announcement.published" | "leave.approved" | "leave.rejected" | "emergency.broadcast";
+                status?: "pending" | "processing" | "processed" | "failed";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ListDomainEventsResultDto"];
+                };
+            };
+        };
+    };
+    DomainEventsController_retryEvent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RetryDomainEventResultDto"];
+                };
+            };
+        };
+    };
+    DashboardController_getNeedsAttention: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NeedsAttentionResultDto"];
+                };
+            };
+        };
+    };
+    DashboardController_getTrends: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TrendsResultDto"];
+                };
+            };
+        };
+    };
+    DashboardController_dismissItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                itemId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DismissResultDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_listScholarships: {
+        parameters: {
+            query?: {
+                scholarshipType?: "merit" | "need_based" | "sports" | "government_pre_matric" | "government_post_matric" | "minority" | "sc_st" | "other";
+                status?: "active" | "inactive";
+                sort?: "name" | "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                academicYearId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipListResultDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_createScholarship: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateScholarshipBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_updateScholarship: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scholarshipId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateScholarshipBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_updateScholarshipStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                scholarshipId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateScholarshipStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_listApplications: {
+        parameters: {
+            query?: {
+                status?: "pending" | "approved" | "rejected" | "expired";
+                dbtStatus?: "not_applied" | "applied" | "sanctioned" | "disbursed" | "rejected";
+                sort?: "createdAt";
+                order?: "asc" | "desc";
+                q?: string;
+                scholarshipId?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipApplicationListResultDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_createApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateApplicationBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipApplicationDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_getApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipApplicationDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_approveApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewApplicationBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipApplicationDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_rejectApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewApplicationBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipApplicationDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_updateDbtStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDbtStatusBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipApplicationDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_renewApplication: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                applicationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipApplicationDto"];
+                };
+            };
+        };
+    };
+    ScholarshipsController_listExpiringApplications: {
+        parameters: {
+            query?: {
+                daysUntilExpiry?: number;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ScholarshipApplicationListResultDto"];
+                };
+            };
+        };
+    };
+    EmergencyBroadcastsController_listBroadcasts: {
+        parameters: {
+            query?: {
+                status?: "draft" | "sending" | "sent" | "failed";
+                priority?: "normal" | "high" | "critical";
+                sort?: "createdAt" | "sentAt";
+                order?: "asc" | "desc";
+                q?: string;
+                page?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BroadcastListResultDto"];
+                };
+            };
+        };
+    };
+    EmergencyBroadcastsController_createBroadcast: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBroadcastBodyDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BroadcastDto"];
+                };
+            };
+        };
+    };
+    EmergencyBroadcastsController_getBroadcast: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                broadcastId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BroadcastDto"];
+                };
+            };
+        };
+    };
+    EmergencyBroadcastsController_updateBroadcast: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                broadcastId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateBroadcastBodyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BroadcastDto"];
+                };
+            };
+        };
+    };
+    EmergencyBroadcastsController_sendBroadcast: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                broadcastId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BroadcastDto"];
+                };
+            };
+        };
+    };
+    EmergencyBroadcastsController_getDeliveryStats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                broadcastId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeliveryStatsDto"];
+                };
+            };
+        };
+    };
+    EmergencyBroadcastsController_listTemplates: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BroadcastTemplateListDto"];
+                };
+            };
+        };
+    };
+    NotificationPreferencesController_getPreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+        };
+    };
+    NotificationPreferencesController_updatePreferences: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PtmController_listSessions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PtmController_createSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PtmController_updateSession: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PtmController_listSlots: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PtmController_generateSlots: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                sessionId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PtmController_bookSlot: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PtmController_recordFeedback: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slotId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SearchController_globalSearch: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

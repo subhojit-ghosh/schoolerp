@@ -31,15 +31,22 @@ import { CurrentInstitution } from "../tenant-context/current-institution.decora
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
+  BulkUpsertSubmissionsBodyDto,
+  ClassHomeworkAnalyticsDto,
   CreateHomeworkBodyDto,
+  HomeworkAnalyticsDto,
   HomeworkDto,
   HomeworkListResultDto,
   ListHomeworkQueryParamsDto,
+  ListSubmissionsQueryParamsDto,
+  SubmissionListResultDto,
   UpdateHomeworkBodyDto,
 } from "./homework.dto";
 import {
+  parseBulkUpsertSubmissions,
   parseCreateHomework,
   parseListHomeworkQuery,
+  parseListSubmissionsQuery,
   parseUpdateHomework,
 } from "./homework.schemas";
 import { HomeworkService } from "./homework.service";
@@ -162,6 +169,85 @@ export class HomeworkController {
       session,
       scopes,
       homeworkId,
+    );
+  }
+
+  // ── Submissions ────────────────────────────────────────────────────────
+
+  @Post(`:homeworkId/${API_ROUTES.SUBMISSIONS}`)
+  @RequirePermission(PERMISSIONS.HOMEWORK_MANAGE)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: "Bulk upsert homework submissions" })
+  @ApiOkResponse({ description: "Number of submissions updated" })
+  async bulkUpsertSubmissions(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("homeworkId") homeworkId: string,
+    @Body() body: BulkUpsertSubmissionsBodyDto,
+  ) {
+    const dto = parseBulkUpsertSubmissions(body);
+    return this.homeworkService.bulkUpsertSubmissions(
+      institution.id,
+      session,
+      scopes,
+      homeworkId,
+      dto,
+    );
+  }
+
+  @Get(`:homeworkId/${API_ROUTES.SUBMISSIONS}`)
+  @RequirePermission(PERMISSIONS.HOMEWORK_READ)
+  @ApiOperation({ summary: "List submissions for a homework assignment" })
+  @ApiOkResponse({ type: SubmissionListResultDto })
+  async listSubmissions(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("homeworkId") homeworkId: string,
+    @Query() query: ListSubmissionsQueryParamsDto,
+  ) {
+    const parsed = parseListSubmissionsQuery(query);
+    return this.homeworkService.listSubmissions(
+      institution.id,
+      scopes,
+      homeworkId,
+      parsed,
+    );
+  }
+
+  // ── Analytics ──────────────────────────────────────────────────────────
+
+  @Get(`:homeworkId/${API_ROUTES.ANALYTICS}`)
+  @RequirePermission(PERMISSIONS.HOMEWORK_READ)
+  @ApiOperation({ summary: "Get submission analytics for a homework" })
+  @ApiOkResponse({ type: HomeworkAnalyticsDto })
+  async getHomeworkAnalytics(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("homeworkId") homeworkId: string,
+  ) {
+    return this.homeworkService.getHomeworkAnalytics(
+      institution.id,
+      scopes,
+      homeworkId,
+    );
+  }
+
+  @Get(`${API_ROUTES.ANALYTICS}/:classId`)
+  @RequirePermission(PERMISSIONS.HOMEWORK_READ)
+  @ApiOperation({
+    summary: "Get class-wise homework completion analytics",
+  })
+  @ApiOkResponse({ type: [ClassHomeworkAnalyticsDto] })
+  async getClassAnalytics(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("classId") classId: string,
+  ) {
+    return this.homeworkService.getClassAnalytics(
+      institution.id,
+      scopes,
+      classId,
     );
   }
 }

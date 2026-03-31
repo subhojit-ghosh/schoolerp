@@ -29,6 +29,27 @@ function invalidateHostelLists(queryClient: ReturnType<typeof useQueryClient>) {
       { params: { query: {} } },
     ).queryKey,
   });
+  void queryClient.invalidateQueries({
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      HOSTEL_API_PATHS.LIST_MESS_ASSIGNMENTS,
+      { params: { query: {} } },
+    ).queryKey,
+  });
+  void queryClient.invalidateQueries({
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      HOSTEL_API_PATHS.LIST_ROOM_TRANSFERS,
+      { params: { query: {} } },
+    ).queryKey,
+  });
+  void queryClient.invalidateQueries({
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      HOSTEL_API_PATHS.OCCUPANCY_DASHBOARD,
+      {},
+    ).queryKey,
+  });
 }
 
 // ── Buildings ────────────────────────────────────────────────────────────────
@@ -211,6 +232,99 @@ export function useUpdateMessPlanStatusMutation() {
   return apiQueryClient.useMutation(
     "patch",
     HOSTEL_API_PATHS.UPDATE_MESS_PLAN_STATUS,
+    {
+      onSuccess: () => {
+        invalidateHostelLists(queryClient);
+      },
+    },
+  );
+}
+
+// ── Mess Assignments ────────────────────────────────────────────────────────
+
+export function useMessAssignmentsQuery(
+  enabled: boolean,
+  query: Record<string, unknown> = {},
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    HOSTEL_API_PATHS.LIST_MESS_ASSIGNMENTS,
+    { params: { query } },
+    { enabled },
+  );
+}
+
+export function useCreateMessAssignmentMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "post",
+    HOSTEL_API_PATHS.CREATE_MESS_ASSIGNMENT,
+    {
+      onSuccess: () => {
+        invalidateHostelLists(queryClient);
+      },
+    },
+  );
+}
+
+export function useDeactivateMessAssignmentMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "post",
+    HOSTEL_API_PATHS.DEACTIVATE_MESS_ASSIGNMENT,
+    {
+      onSuccess: () => {
+        invalidateHostelLists(queryClient);
+      },
+    },
+  );
+}
+
+// ── Room Transfers ──────────────────────────────────────────────────────────
+
+export function useRoomTransfersQuery(
+  enabled: boolean,
+  query: Record<string, unknown> = {},
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    HOSTEL_API_PATHS.LIST_ROOM_TRANSFERS,
+    { params: { query } },
+    { enabled },
+  );
+}
+
+export function useCreateRoomTransferMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "post",
+    HOSTEL_API_PATHS.CREATE_ROOM_TRANSFER,
+    {
+      onSuccess: () => {
+        invalidateHostelLists(queryClient);
+      },
+    },
+  );
+}
+
+// ── Occupancy Dashboard ─────────────────────────────────────────────────────
+
+export function useOccupancyDashboardQuery(enabled: boolean) {
+  return apiQueryClient.useQuery(
+    "get",
+    HOSTEL_API_PATHS.OCCUPANCY_DASHBOARD,
+    {},
+    { enabled },
+  );
+}
+
+// ── Batch Allocate ──────────────────────────────────────────────────────────
+
+export function useBatchAllocateMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "post",
+    HOSTEL_API_PATHS.BATCH_ALLOCATE,
     {
       onSuccess: () => {
         invalidateHostelLists(queryClient);

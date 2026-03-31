@@ -10,12 +10,15 @@ import {
   applyTenantBranding,
   readCachedTenantBranding,
 } from "@/lib/tenant-branding";
+import { registerServiceWorker } from "@/lib/pwa/register-sw";
 
 const cachedBranding = readCachedTenantBranding();
 
 if (cachedBranding) {
   applyTenantBranding(cachedBranding);
 }
+
+registerServiceWorker();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

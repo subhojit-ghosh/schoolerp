@@ -29,9 +29,12 @@ import {
   or,
   roles,
   schoolClasses,
+  staffCampusTransfers,
+  staffDocuments,
   staffProfiles,
   subjectTeacherAssignments,
   subjects,
+  timetableEntries,
   type SQL,
   user,
 } from "@repo/database";
@@ -60,18 +63,25 @@ import { AuthService } from "../auth/auth.service";
 import { TimetableService } from "../timetable/timetable.service";
 import type {
   CreateStaffResultDto,
+  StaffCampusTransferDto,
+  StaffDocumentDto,
   StaffDto,
   StaffProfileDto,
   StaffRoleAssignmentDto,
   StaffRoleAssignmentScopeDto,
   SubjectTeacherAssignmentDto,
+  TeachingLoadEntryDto,
+  TeachingLoadResultDto,
 } from "./staff.dto";
 import type {
+  CreateCampusTransferDto,
+  CreateStaffDocumentDto,
   CreateStaffDto,
   CreateStaffRoleAssignmentDto,
   CreateSubjectTeacherAssignmentDto,
   ListStaffQueryDto,
   SetStaffStatusDto,
+  UpdateStaffDocumentDto,
   UpdateStaffDto,
 } from "./staff.schemas";
 import { sortableStaffColumns } from "./staff.schemas";
@@ -913,6 +923,8 @@ export class StaffService {
     profileAddress: staffProfiles.address,
     profileEmergencyContactName: staffProfiles.emergencyContactName,
     profileEmergencyContactMobile: staffProfiles.emergencyContactMobile,
+    profileEmergencyContactRelation: staffProfiles.emergencyContactRelation,
+    profileReportingToMemberId: staffProfiles.reportingToMemberId,
     profileQualification: staffProfiles.qualification,
     profileExperienceYears: staffProfiles.experienceYears,
     profileEmploymentType: staffProfiles.employmentType,
@@ -929,6 +941,8 @@ export class StaffService {
     profileAddress: string | null;
     profileEmergencyContactName: string | null;
     profileEmergencyContactMobile: string | null;
+    profileEmergencyContactRelation: string | null;
+    profileReportingToMemberId: string | null;
     profileQualification: string | null;
     profileExperienceYears: number | null;
     profileEmploymentType: string | null;
@@ -950,6 +964,9 @@ export class StaffService {
       address: row.profileAddress,
       emergencyContactName: row.profileEmergencyContactName,
       emergencyContactMobile: row.profileEmergencyContactMobile,
+      emergencyContactRelation: row.profileEmergencyContactRelation,
+      reportingToMemberId: row.profileReportingToMemberId,
+      reportingToMemberName: null,
       qualification: row.profileQualification,
       experienceYears: row.profileExperienceYears,
       employmentType: row.profileEmploymentType,
@@ -970,6 +987,8 @@ export class StaffService {
     | "profileAddress"
     | "profileEmergencyContactName"
     | "profileEmergencyContactMobile"
+    | "profileEmergencyContactRelation"
+    | "profileReportingToMemberId"
     | "profileQualification"
     | "profileExperienceYears"
     | "profileEmploymentType"
@@ -985,9 +1004,11 @@ export class StaffService {
       profileAddress: _8,
       profileEmergencyContactName: _9,
       profileEmergencyContactMobile: _10,
-      profileQualification: _11,
-      profileExperienceYears: _12,
-      profileEmploymentType: _13,
+      profileEmergencyContactRelation: _11,
+      profileReportingToMemberId: _12,
+      profileQualification: _13,
+      profileExperienceYears: _14,
+      profileEmploymentType: _15,
       ...rest
     } = row as Record<string, unknown>;
     return rest as Omit<
@@ -1002,6 +1023,8 @@ export class StaffService {
       | "profileAddress"
       | "profileEmergencyContactName"
       | "profileEmergencyContactMobile"
+      | "profileEmergencyContactRelation"
+      | "profileReportingToMemberId"
       | "profileQualification"
       | "profileExperienceYears"
       | "profileEmploymentType"
@@ -1704,6 +1727,453 @@ export class StaffService {
       staffMembership.userId,
       institutionId,
     );
+  }
+
+  // ── Staff documents ───────────────────────────────────────────────────────
+
+  async listStaffDocuments(
+    institutionId: string,
+    staffId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): Promise<StaffDocumentDto[]> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
+
+    const rows = await this.db
+      .select({
+        id: staffDocuments.id,
+        staffMemberId: staffDocuments.staffMemberId,
+        documentType: staffDocuments.documentType,
+        documentName: staffDocuments.documentName,
+        uploadUrl: staffDocuments.uploadUrl,
+        notes: staffDocuments.notes,
+        createdAt: staffDocuments.createdAt,
+        updatedAt: staffDocuments.updatedAt,
+      })
+      .from(staffDocuments)
+      .where(
+        and(
+          eq(staffDocuments.staffMemberId, staffId),
+          eq(staffDocuments.institutionId, institutionId),
+        ),
+      )
+      .orderBy(desc(staffDocuments.createdAt));
+
+    return rows.map((row) => ({
+      ...row,
+      uploadUrl: row.uploadUrl ?? null,
+      notes: row.notes ?? null,
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
+    }));
+  }
+
+  async createStaffDocument(
+    institutionId: string,
+    staffId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: CreateStaffDocumentDto,
+  ): Promise<StaffDocumentDto> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
+
+    const documentId = randomUUID();
+    const now = new Date();
+
+    await this.db.insert(staffDocuments).values({
+      id: documentId,
+      institutionId,
+      staffMemberId: staffId,
+      documentType: payload.documentType,
+      documentName: payload.documentName,
+      uploadUrl: payload.uploadUrl ?? null,
+      notes: payload.notes ?? null,
+    });
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.STAFF_DOCUMENT,
+        entityId: documentId,
+        entityLabel: payload.documentName,
+        summary: `Added staff document "${payload.documentName}".`,
+      })
+      .catch(() => {});
+
+    return {
+      id: documentId,
+      staffMemberId: staffId,
+      documentType: payload.documentType,
+      documentName: payload.documentName,
+      uploadUrl: payload.uploadUrl ?? null,
+      notes: payload.notes ?? null,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+    };
+  }
+
+  async updateStaffDocument(
+    institutionId: string,
+    staffId: string,
+    documentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: UpdateStaffDocumentDto,
+  ): Promise<StaffDocumentDto> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
+
+    const existingDoc = await this.getStaffDocument(
+      institutionId,
+      staffId,
+      documentId,
+    );
+
+    await this.db
+      .update(staffDocuments)
+      .set({
+        documentType: payload.documentType,
+        documentName: payload.documentName,
+        uploadUrl: payload.uploadUrl ?? null,
+        notes: payload.notes ?? null,
+      })
+      .where(eq(staffDocuments.id, documentId));
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.UPDATE,
+        entityType: AUDIT_ENTITY_TYPES.STAFF_DOCUMENT,
+        entityId: documentId,
+        entityLabel: payload.documentName,
+        summary: `Updated staff document "${payload.documentName}".`,
+      })
+      .catch(() => {});
+
+    return {
+      id: documentId,
+      staffMemberId: staffId,
+      documentType: payload.documentType,
+      documentName: payload.documentName,
+      uploadUrl: payload.uploadUrl ?? null,
+      notes: payload.notes ?? null,
+      createdAt: existingDoc.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+  }
+
+  async deleteStaffDocument(
+    institutionId: string,
+    staffId: string,
+    documentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): Promise<void> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
+
+    const existingDoc = await this.getStaffDocument(
+      institutionId,
+      staffId,
+      documentId,
+    );
+
+    await this.db
+      .delete(staffDocuments)
+      .where(eq(staffDocuments.id, documentId));
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.DELETE,
+        entityType: AUDIT_ENTITY_TYPES.STAFF_DOCUMENT,
+        entityId: documentId,
+        entityLabel: existingDoc.documentName,
+        summary: `Deleted staff document "${existingDoc.documentName}".`,
+      })
+      .catch(() => {});
+  }
+
+  private async getStaffDocument(
+    institutionId: string,
+    staffMemberId: string,
+    documentId: string,
+  ) {
+    const [doc] = await this.db
+      .select({
+        id: staffDocuments.id,
+        documentName: staffDocuments.documentName,
+        createdAt: staffDocuments.createdAt,
+      })
+      .from(staffDocuments)
+      .where(
+        and(
+          eq(staffDocuments.id, documentId),
+          eq(staffDocuments.staffMemberId, staffMemberId),
+          eq(staffDocuments.institutionId, institutionId),
+        ),
+      )
+      .limit(1);
+
+    if (!doc) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.STAFF_DEPTH.DOCUMENT_NOT_FOUND,
+      );
+    }
+
+    return { ...doc, createdAt: doc.createdAt.toISOString() };
+  }
+
+  // ── Teaching load analysis ─────────────────────────────────────────────────
+
+  async getTeachingLoad(
+    institutionId: string,
+    staffId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): Promise<TeachingLoadResultDto> {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
+
+    const rows = await this.db
+      .select({
+        dayOfWeek: timetableEntries.dayOfWeek,
+        periodIndex: timetableEntries.periodIndex,
+        startTime: timetableEntries.startTime,
+        endTime: timetableEntries.endTime,
+        subjectName: subjects.name,
+        className: schoolClasses.name,
+        sectionName: classSections.name,
+        room: timetableEntries.room,
+      })
+      .from(timetableEntries)
+      .innerJoin(subjects, eq(timetableEntries.subjectId, subjects.id))
+      .innerJoin(schoolClasses, eq(timetableEntries.classId, schoolClasses.id))
+      .innerJoin(
+        classSections,
+        eq(timetableEntries.sectionId, classSections.id),
+      )
+      .where(
+        and(
+          eq(timetableEntries.institutionId, institutionId),
+          eq(timetableEntries.campusId, activeCampusId),
+          eq(timetableEntries.staffId, staffId),
+          ne(timetableEntries.status, STATUS.TIMETABLE.DELETED),
+        ),
+      )
+      .orderBy(
+        asc(timetableEntries.dayOfWeek),
+        asc(timetableEntries.periodIndex),
+      );
+
+    const entries: TeachingLoadEntryDto[] = rows.map((row) => ({
+      dayOfWeek: row.dayOfWeek,
+      periodIndex: row.periodIndex,
+      startTime: row.startTime,
+      endTime: row.endTime,
+      subjectName: row.subjectName,
+      className: row.className,
+      sectionName: row.sectionName,
+      room: row.room ?? null,
+    }));
+
+    return {
+      staffMemberId: staffId,
+      totalPeriodsPerWeek: entries.length,
+      entries,
+    };
+  }
+
+  // ── Campus transfer ────────────────────────────────────────────────────────
+
+  async listCampusTransfers(
+    institutionId: string,
+    staffId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ): Promise<StaffCampusTransferDto[]> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    await this.getStaffMembership(institutionId, staffId, activeCampusScopes);
+
+    const fromCampus = campus;
+
+    const rows = await this.db
+      .select({
+        id: staffCampusTransfers.id,
+        staffMemberId: staffCampusTransfers.staffMemberId,
+        fromCampusId: staffCampusTransfers.fromCampusId,
+        toCampusId: staffCampusTransfers.toCampusId,
+        transferDate: staffCampusTransfers.transferDate,
+        reason: staffCampusTransfers.reason,
+        transferredByMemberId: staffCampusTransfers.transferredByMemberId,
+        createdAt: staffCampusTransfers.createdAt,
+      })
+      .from(staffCampusTransfers)
+      .where(
+        and(
+          eq(staffCampusTransfers.staffMemberId, staffId),
+          eq(staffCampusTransfers.institutionId, institutionId),
+        ),
+      )
+      .orderBy(desc(staffCampusTransfers.createdAt));
+
+    if (rows.length === 0) {
+      return [];
+    }
+
+    // Resolve campus names and transferrer names
+    const allCampusIds = [
+      ...new Set(rows.flatMap((r) => [r.fromCampusId, r.toCampusId])),
+    ];
+    const transferrerMemberIds = [
+      ...new Set(rows.map((r) => r.transferredByMemberId)),
+    ];
+
+    const [campusRows, transferrerRows] = await Promise.all([
+      this.db
+        .select({ id: campus.id, name: campus.name })
+        .from(campus)
+        .where(inArray(campus.id, allCampusIds)),
+      this.db
+        .select({ id: member.id, name: user.name })
+        .from(member)
+        .innerJoin(user, eq(member.userId, user.id))
+        .where(inArray(member.id, transferrerMemberIds)),
+    ]);
+
+    const campusNameById = new Map(
+      campusRows.map((c) => [c.id, c.name]),
+    );
+    const transferrerNameById = new Map(
+      transferrerRows.map((t) => [t.id, t.name]),
+    );
+
+    return rows.map((row) => ({
+      id: row.id,
+      staffMemberId: row.staffMemberId,
+      fromCampusId: row.fromCampusId,
+      fromCampusName: campusNameById.get(row.fromCampusId) ?? "",
+      toCampusId: row.toCampusId,
+      toCampusName: campusNameById.get(row.toCampusId) ?? "",
+      transferDate: row.transferDate,
+      reason: row.reason ?? null,
+      transferredByMemberId: row.transferredByMemberId,
+      transferredByName: transferrerNameById.get(row.transferredByMemberId) ?? "",
+      createdAt: row.createdAt.toISOString(),
+    }));
+  }
+
+  async createCampusTransfer(
+    institutionId: string,
+    staffId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: CreateCampusTransferDto,
+  ): Promise<StaffCampusTransferDto> {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    const staffMembership = await this.getStaffMembership(
+      institutionId,
+      staffId,
+      activeCampusScopes,
+    );
+
+    const fromCampusId = staffMembership.primaryCampusId;
+
+    if (!fromCampusId) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED,
+      );
+    }
+
+    if (fromCampusId === payload.toCampusId) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.STAFF_DEPTH.CAMPUS_TRANSFER_SAME,
+      );
+    }
+
+    // Verify destination campus exists
+    const destinationCampus = await this.getCampus(
+      institutionId,
+      payload.toCampusId,
+    );
+    const sourceCampus = await this.getCampus(institutionId, fromCampusId);
+
+    // Resolve the current user's membership id for transferredByMemberId
+    const [currentMember] = await this.db
+      .select({ id: member.id })
+      .from(member)
+      .where(
+        and(
+          eq(member.userId, authSession.user.id),
+          eq(member.organizationId, institutionId),
+          eq(member.memberType, MEMBER_TYPES.STAFF),
+          ne(member.status, STATUS.MEMBER.DELETED),
+        ),
+      )
+      .limit(1);
+
+    if (!currentMember) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    const transferId = randomUUID();
+    const now = new Date();
+
+    await this.db.transaction(async (tx) => {
+      // Record the transfer
+      await tx.insert(staffCampusTransfers).values({
+        id: transferId,
+        institutionId,
+        staffMemberId: staffId,
+        fromCampusId,
+        toCampusId: payload.toCampusId,
+        transferDate: payload.transferDate,
+        reason: payload.reason ?? null,
+        transferredByMemberId: currentMember.id,
+      });
+
+      // Update the member's primary campus
+      await tx
+        .update(member)
+        .set({ primaryCampusId: payload.toCampusId })
+        .where(eq(member.id, staffId));
+
+      // Ensure campus membership for the new campus
+      await this.ensureCampusMembership(tx, staffId, payload.toCampusId);
+    });
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.STAFF_CAMPUS_TRANSFER,
+        entityId: transferId,
+        entityLabel: `${sourceCampus.name} → ${destinationCampus.name}`,
+        summary: `Transferred staff from ${sourceCampus.name} to ${destinationCampus.name}.`,
+      })
+      .catch(() => {});
+
+    return {
+      id: transferId,
+      staffMemberId: staffId,
+      fromCampusId,
+      fromCampusName: sourceCampus.name,
+      toCampusId: payload.toCampusId,
+      toCampusName: destinationCampus.name,
+      transferDate: payload.transferDate,
+      reason: payload.reason ?? null,
+      transferredByMemberId: currentMember.id,
+      transferredByName: authSession.user.name,
+      createdAt: now.toISOString(),
+    };
   }
 
   private scopeToActiveCampus(

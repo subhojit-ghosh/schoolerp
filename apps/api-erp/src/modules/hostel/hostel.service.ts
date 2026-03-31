@@ -13,11 +13,14 @@ import {
   eq,
   ilike,
   ne,
+  sum,
   sql,
   hostelBuildings,
   hostelRooms,
   bedAllocations,
   messPlans,
+  messPlanAssignments,
+  hostelRoomTransfers,
   students,
   member,
   user,
@@ -49,6 +52,11 @@ import type {
   UpdateMessPlanDto,
   UpdateMessPlanStatusDto,
   ListMessPlansQueryDto,
+  CreateMessAssignmentDto,
+  ListMessAssignmentsQueryDto,
+  CreateRoomTransferDto,
+  ListRoomTransfersQueryDto,
+  CreateBatchAllocationDto,
 } from "./hostel.schemas";
 
 // ── Sort maps ─────────────────────────────────────────────────────────────
@@ -73,6 +81,16 @@ const allocationSortColumns = {
 const messPlanSortColumns = {
   name: messPlans.name,
   createdAt: messPlans.createdAt,
+} as const;
+
+const messAssignmentSortColumns = {
+  startDate: messPlanAssignments.startDate,
+  createdAt: messPlanAssignments.createdAt,
+} as const;
+
+const roomTransferSortColumns = {
+  transferDate: hostelRoomTransfers.transferDate,
+  createdAt: hostelRoomTransfers.createdAt,
 } as const;
 
 @Injectable()
@@ -846,6 +864,527 @@ export class HostelService {
     return { id: planId };
   }
 
+  // ── Mess Plan Assignments ──────────────────────────────────────────────
+
+  async listMessAssignments(
+    institutionId: string,
+    query: ListMessAssignmentsQueryDto,
+  ) {
+    const { q, messPlanId, status, page, limit, sort, order } = query;
+    const pageSize = resolveTablePageSize(limit);
+    const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
+    const sortCol = messAssignmentSortColumns[sort ?? "createdAt"];
+
+    const conditions = [
+      eq(messPlanAssignments.institutionId, institutionId),
+    ];
+    if (status) {
+      conditions.push(eq(messPlanAssignments.status, status));
+    }
+    if (messPlanId) {
+      conditions.push(eq(messPlanAssignments.messPlanId, messPlanId));
+    }
+    if (q) {
+      conditions.push(ilike(messPlans.name, `%${q}%`));
+    }
+
+    const where = and(...conditions);
+
+    const [totalResult] = await this.db
+      .select({ count: count() })
+      .from(messPlanAssignments)
+      .leftJoin(messPlans, eq(messPlanAssignments.messPlanId, messPlans.id))
+      .where(where);
+
+    const total = totalResult?.count ?? 0;
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
+
+    const rows = await this.db
+      .select({
+        id: messPlanAssignments.id,
+        studentId: messPlanAssignments.studentId,
+        messPlanId: messPlanAssignments.messPlanId,
+        messPlanName: messPlans.name,
+        bedAllocationId: messPlanAssignments.bedAllocationId,
+        startDate: messPlanAssignments.startDate,
+        endDate: messPlanAssignments.endDate,
+        status: messPlanAssignments.status,
+        createdAt: messPlanAssignments.createdAt,
+      })
+      .from(messPlanAssignments)
+      .leftJoin(messPlans, eq(messPlanAssignments.messPlanId, messPlans.id))
+      .where(where)
+      .orderBy(orderFn(sortCol))
+      .limit(pageSize)
+      .offset(offset);
+
+    // Resolve student names
+    const studentIds = [...new Set(rows.map((r) => r.studentId))];
+    const studentNames = await this.resolveStudentNames(studentIds);
+
+    const enrichedRows = rows.map((row) => ({
+      ...row,
+      studentName: studentNames.get(row.studentId) ?? "Unknown",
+      messPlanName: row.messPlanName ?? "Unknown",
+    }));
+
+    return { rows: enrichedRows, total, page: safePage, pageSize, pageCount };
+  }
+
+  async createMessAssignment(
+    institutionId: string,
+    session: AuthenticatedSession,
+    dto: CreateMessAssignmentDto,
+  ) {
+    // Verify student exists
+    const [student] = await this.db
+      .select({ id: students.id })
+      .from(students)
+      .where(
+        and(
+          eq(students.id, dto.studentId),
+          eq(students.institutionId, institutionId),
+        ),
+      );
+
+    if (!student) {
+      throw new NotFoundException(ERROR_MESSAGES.HOSTEL.STUDENT_NOT_FOUND);
+    }
+
+    // Verify mess plan exists
+    const [plan] = await this.db
+      .select({ id: messPlans.id, name: messPlans.name })
+      .from(messPlans)
+      .where(
+        and(
+          eq(messPlans.id, dto.messPlanId),
+          eq(messPlans.institutionId, institutionId),
+        ),
+      );
+
+    if (!plan) {
+      throw new NotFoundException(ERROR_MESSAGES.HOSTEL.MESS_PLAN_NOT_FOUND);
+    }
+
+    // Check for existing active assignment
+    const [existing] = await this.db
+      .select({ id: messPlanAssignments.id })
+      .from(messPlanAssignments)
+      .where(
+        and(
+          eq(messPlanAssignments.studentId, dto.studentId),
+          eq(messPlanAssignments.status, "active"),
+        ),
+      );
+
+    if (existing) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.HOSTEL_DEPTH.STUDENT_ALREADY_HAS_MESS,
+      );
+    }
+
+    const id = randomUUID();
+
+    await this.db.insert(messPlanAssignments).values({
+      id,
+      institutionId,
+      studentId: dto.studentId,
+      messPlanId: dto.messPlanId,
+      bedAllocationId: dto.bedAllocationId ?? null,
+      startDate: dto.startDate,
+    });
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.HOSTEL_MESS_ASSIGNMENT,
+      entityId: id,
+      entityLabel: plan.name,
+      summary: `Assigned mess plan "${plan.name}" to student`,
+    });
+
+    return { id };
+  }
+
+  async deactivateMessAssignment(
+    institutionId: string,
+    assignmentId: string,
+    session: AuthenticatedSession,
+  ) {
+    const [assignment] = await this.db
+      .select()
+      .from(messPlanAssignments)
+      .where(
+        and(
+          eq(messPlanAssignments.id, assignmentId),
+          eq(messPlanAssignments.institutionId, institutionId),
+        ),
+      );
+
+    if (!assignment) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.HOSTEL_DEPTH.MESS_ASSIGNMENT_NOT_FOUND,
+      );
+    }
+
+    if (assignment.status === "inactive") {
+      throw new BadRequestException(
+        ERROR_MESSAGES.HOSTEL_DEPTH.MESS_ASSIGNMENT_ALREADY_INACTIVE,
+      );
+    }
+
+    const today = new Date().toISOString().split("T")[0];
+
+    await this.db
+      .update(messPlanAssignments)
+      .set({ status: "inactive", endDate: today })
+      .where(eq(messPlanAssignments.id, assignmentId));
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.HOSTEL_MESS_ASSIGNMENT,
+      entityId: assignmentId,
+      entityLabel: assignmentId,
+      summary: `Deactivated mess plan assignment`,
+    });
+
+    return { id: assignmentId };
+  }
+
+  // ── Room Transfers ────────────────────────────────────────────────────────
+
+  async listRoomTransfers(
+    institutionId: string,
+    query: ListRoomTransfersQueryDto,
+  ) {
+    const { q, studentId, page, limit, sort, order } = query;
+    const pageSize = resolveTablePageSize(limit);
+    const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
+    const sortCol = roomTransferSortColumns[sort ?? "createdAt"];
+
+    const conditions = [
+      eq(hostelRoomTransfers.institutionId, institutionId),
+    ];
+    if (studentId) {
+      conditions.push(eq(hostelRoomTransfers.studentId, studentId));
+    }
+    if (q) {
+      conditions.push(ilike(hostelRoomTransfers.reason, `%${q}%`));
+    }
+
+    const where = and(...conditions);
+
+    const [totalResult] = await this.db
+      .select({ count: count() })
+      .from(hostelRoomTransfers)
+      .where(where);
+
+    const total = totalResult?.count ?? 0;
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
+
+    const rows = await this.db
+      .select({
+        id: hostelRoomTransfers.id,
+        studentId: hostelRoomTransfers.studentId,
+        fromRoomId: hostelRoomTransfers.fromRoomId,
+        toRoomId: hostelRoomTransfers.toRoomId,
+        fromBedNumber: hostelRoomTransfers.fromBedNumber,
+        toBedNumber: hostelRoomTransfers.toBedNumber,
+        transferDate: hostelRoomTransfers.transferDate,
+        reason: hostelRoomTransfers.reason,
+        transferredByMemberId: hostelRoomTransfers.transferredByMemberId,
+        createdAt: hostelRoomTransfers.createdAt,
+      })
+      .from(hostelRoomTransfers)
+      .where(where)
+      .orderBy(orderFn(sortCol))
+      .limit(pageSize)
+      .offset(offset);
+
+    // Resolve student names and room numbers
+    const studentIds = [...new Set(rows.map((r) => r.studentId))];
+    const studentNames = await this.resolveStudentNames(studentIds);
+
+    const allRoomIds = [
+      ...new Set(rows.flatMap((r) => [r.fromRoomId, r.toRoomId])),
+    ];
+    const roomNumbers = await this.resolveRoomNumbers(allRoomIds);
+
+    const enrichedRows = rows.map((row) => ({
+      ...row,
+      studentName: studentNames.get(row.studentId) ?? "Unknown",
+      fromRoomNumber: roomNumbers.get(row.fromRoomId) ?? "Unknown",
+      toRoomNumber: roomNumbers.get(row.toRoomId) ?? "Unknown",
+    }));
+
+    return { rows: enrichedRows, total, page: safePage, pageSize, pageCount };
+  }
+
+  async createRoomTransfer(
+    institutionId: string,
+    session: AuthenticatedSession,
+    dto: CreateRoomTransferDto,
+  ) {
+    // Find the student's current active bed allocation
+    const [currentAllocation] = await this.db
+      .select()
+      .from(bedAllocations)
+      .where(
+        and(
+          eq(bedAllocations.studentId, dto.studentId),
+          eq(bedAllocations.institutionId, institutionId),
+          eq(bedAllocations.status, BED_ALLOCATION_STATUS.ACTIVE),
+        ),
+      );
+
+    if (!currentAllocation) {
+      throw new NotFoundException(ERROR_MESSAGES.HOSTEL.ALLOCATION_NOT_FOUND);
+    }
+
+    // Verify source and destination are different
+    if (currentAllocation.roomId === dto.toRoomId) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.HOSTEL_DEPTH.TRANSFER_SAME_ROOM,
+      );
+    }
+
+    // Verify destination room exists and has capacity
+    const [toRoom] = await this.db
+      .select()
+      .from(hostelRooms)
+      .where(
+        and(
+          eq(hostelRooms.id, dto.toRoomId),
+          eq(hostelRooms.institutionId, institutionId),
+        ),
+      );
+
+    if (!toRoom) {
+      throw new NotFoundException(ERROR_MESSAGES.HOSTEL.ROOM_NOT_FOUND);
+    }
+
+    if (toRoom.occupancy >= toRoom.capacity) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.HOSTEL_DEPTH.ROOM_TRANSFER_FAILED,
+      );
+    }
+
+    // Get from room for occupancy update
+    const [fromRoom] = await this.db
+      .select({ id: hostelRooms.id, occupancy: hostelRooms.occupancy })
+      .from(hostelRooms)
+      .where(eq(hostelRooms.id, currentAllocation.roomId));
+
+    // Resolve the performing member
+    const [performingMember] = await this.db
+      .select({ id: member.id })
+      .from(member)
+      .where(
+        and(
+          eq(member.userId, session.user.id),
+          eq(member.organizationId, institutionId),
+        ),
+      );
+
+    if (!performingMember) {
+      throw new BadRequestException("Active membership is required.");
+    }
+
+    const transferId = randomUUID();
+    const newAllocationId = randomUUID();
+    const today = dto.transferDate;
+
+    // Vacate old allocation
+    await this.db
+      .update(bedAllocations)
+      .set({ status: BED_ALLOCATION_STATUS.VACATED, endDate: today })
+      .where(eq(bedAllocations.id, currentAllocation.id));
+
+    // Create new allocation
+    await this.db.insert(bedAllocations).values({
+      id: newAllocationId,
+      institutionId,
+      roomId: dto.toRoomId,
+      studentId: dto.studentId,
+      bedNumber: dto.toBedNumber,
+      startDate: today,
+    });
+
+    // Record transfer history
+    await this.db.insert(hostelRoomTransfers).values({
+      id: transferId,
+      institutionId,
+      studentId: dto.studentId,
+      fromRoomId: currentAllocation.roomId,
+      toRoomId: dto.toRoomId,
+      fromBedNumber: currentAllocation.bedNumber,
+      toBedNumber: dto.toBedNumber,
+      transferDate: today,
+      reason: dto.reason ?? null,
+      transferredByMemberId: performingMember.id,
+    });
+
+    // Adjust occupancy: decrement from room, increment to room
+    if (fromRoom && fromRoom.occupancy > 0) {
+      await this.db
+        .update(hostelRooms)
+        .set({ occupancy: fromRoom.occupancy - 1 })
+        .where(eq(hostelRooms.id, currentAllocation.roomId));
+    }
+    await this.db
+      .update(hostelRooms)
+      .set({ occupancy: toRoom.occupancy + 1 })
+      .where(eq(hostelRooms.id, dto.toRoomId));
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.HOSTEL_ROOM_TRANSFER,
+      entityId: transferId,
+      entityLabel: `Transfer to room`,
+      summary: `Transferred student from bed "${currentAllocation.bedNumber}" to bed "${dto.toBedNumber}"`,
+    });
+
+    return { id: transferId };
+  }
+
+  // ── Occupancy Dashboard ───────────────────────────────────────────────────
+
+  async getOccupancyDashboard(institutionId: string) {
+    // Building-wise occupancy
+    const buildingRows = await this.db
+      .select({
+        buildingId: hostelBuildings.id,
+        buildingName: hostelBuildings.name,
+        totalCapacity: sum(hostelRooms.capacity),
+        totalOccupancy: sum(hostelRooms.occupancy),
+      })
+      .from(hostelRooms)
+      .innerJoin(hostelBuildings, eq(hostelRooms.buildingId, hostelBuildings.id))
+      .where(
+        and(
+          eq(hostelRooms.institutionId, institutionId),
+          ne(hostelBuildings.status, HOSTEL_BUILDING_STATUS.DELETED),
+        ),
+      )
+      .groupBy(hostelBuildings.id, hostelBuildings.name);
+
+    const buildings = buildingRows.map((r) => {
+      const totalCapacity = Number(r.totalCapacity) || 0;
+      const totalOccupancy = Number(r.totalOccupancy) || 0;
+      const availableBeds = totalCapacity - totalOccupancy;
+      const occupancyPercent =
+        totalCapacity > 0
+          ? Math.round((totalOccupancy / totalCapacity) * 100)
+          : 0;
+      return {
+        buildingId: r.buildingId,
+        buildingName: r.buildingName,
+        totalCapacity,
+        totalOccupancy,
+        availableBeds,
+        occupancyPercent,
+      };
+    });
+
+    // Floor-wise occupancy
+    const floorRows = await this.db
+      .select({
+        buildingId: hostelBuildings.id,
+        buildingName: hostelBuildings.name,
+        floor: hostelRooms.floor,
+        totalCapacity: sum(hostelRooms.capacity),
+        totalOccupancy: sum(hostelRooms.occupancy),
+      })
+      .from(hostelRooms)
+      .innerJoin(hostelBuildings, eq(hostelRooms.buildingId, hostelBuildings.id))
+      .where(
+        and(
+          eq(hostelRooms.institutionId, institutionId),
+          ne(hostelBuildings.status, HOSTEL_BUILDING_STATUS.DELETED),
+        ),
+      )
+      .groupBy(hostelBuildings.id, hostelBuildings.name, hostelRooms.floor);
+
+    const floors = floorRows.map((r) => {
+      const totalCapacity = Number(r.totalCapacity) || 0;
+      const totalOccupancy = Number(r.totalOccupancy) || 0;
+      const availableBeds = totalCapacity - totalOccupancy;
+      const occupancyPercent =
+        totalCapacity > 0
+          ? Math.round((totalOccupancy / totalCapacity) * 100)
+          : 0;
+      return {
+        buildingId: r.buildingId,
+        buildingName: r.buildingName,
+        floor: r.floor,
+        totalCapacity,
+        totalOccupancy,
+        availableBeds,
+        occupancyPercent,
+      };
+    });
+
+    // Grand totals
+    const totalCapacity = buildings.reduce((s, b) => s + b.totalCapacity, 0);
+    const totalOccupancy = buildings.reduce((s, b) => s + b.totalOccupancy, 0);
+    const totalAvailable = totalCapacity - totalOccupancy;
+    const overallOccupancyPercent =
+      totalCapacity > 0
+        ? Math.round((totalOccupancy / totalCapacity) * 100)
+        : 0;
+
+    return {
+      buildings,
+      floors,
+      totalCapacity,
+      totalOccupancy,
+      totalAvailable,
+      overallOccupancyPercent,
+    };
+  }
+
+  // ── Batch Allocation ──────────────────────────────────────────────────────
+
+  async createBatchAllocation(
+    institutionId: string,
+    session: AuthenticatedSession,
+    dto: CreateBatchAllocationDto,
+  ) {
+    let created = 0;
+    const errors: string[] = [];
+
+    for (const item of dto.allocations) {
+      try {
+        await this.createAllocation(institutionId, session, {
+          roomId: item.roomId,
+          studentId: item.studentId,
+          bedNumber: item.bedNumber,
+          startDate: item.startDate,
+        });
+        created++;
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Unknown error";
+        errors.push(`Student ${item.studentId}: ${message}`);
+      }
+    }
+
+    return { created, failed: errors.length, errors };
+  }
+
   // ── Helpers ────────────────────────────────────────────────────────────
 
   private async resolveStudentNames(
@@ -871,6 +1410,31 @@ export class HostelService {
     const map = new Map<string, string>();
     for (const r of results) {
       map.set(r.studentId, r.memberName ?? "Unknown");
+    }
+    return map;
+  }
+
+  private async resolveRoomNumbers(
+    roomIds: string[],
+  ): Promise<Map<string, string>> {
+    if (roomIds.length === 0) return new Map();
+
+    const results = await this.db
+      .select({
+        id: hostelRooms.id,
+        roomNumber: hostelRooms.roomNumber,
+      })
+      .from(hostelRooms)
+      .where(
+        sql`${hostelRooms.id} IN (${sql.join(
+          roomIds.map((id) => sql`${id}`),
+          sql`, `,
+        )})`,
+      );
+
+    const map = new Map<string, string>();
+    for (const r of results) {
+      map.set(r.id, r.roomNumber);
     }
     return map;
   }

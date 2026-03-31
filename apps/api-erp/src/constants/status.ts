@@ -3,12 +3,14 @@ import {
   ADMISSION_APPLICATION_STATUSES,
   ADMISSION_ENQUIRY_STATUSES,
   ANNOUNCEMENT_AUDIENCE,
+  ANNOUNCEMENT_CATEGORIES,
   ANNOUNCEMENT_STATUS,
   ATTENDANCE_STATUSES,
   BELL_SCHEDULE_PERIOD_STATUS,
   BELL_SCHEDULE_STATUS,
   CALENDAR_EVENT_STATUS,
   CLASS_STATUS,
+  COMMUNICATION_PREFERENCES,
   FEE_STRUCTURE_STATUSES,
   GRADING_SCALE_STATUS,
   GUARDIAN_RELATIONSHIPS,
@@ -27,6 +29,7 @@ import {
   type AttendanceStatus,
   type CalendarEventStatus,
   type ClassStatus,
+  type CommunicationPreference,
   type GuardianRelationship,
   type SectionStatus,
   type SubjectStatus,
@@ -36,6 +39,7 @@ import {
 } from "@repo/contracts";
 
 export {
+  COMMUNICATION_PREFERENCES,
   GUARDIAN_RELATIONSHIPS,
   ROLE_NAMES,
   ROLE_SLUGS,
@@ -96,7 +100,12 @@ export type {
   TimetableEntryStatus,
   TimetableVersionStatus,
 };
-export type { ClassStatus, GuardianRelationship, SectionStatus };
+export type {
+  ClassStatus,
+  CommunicationPreference,
+  GuardianRelationship,
+  SectionStatus,
+};
 export type AttendanceRecordStatus = AttendanceStatus;
 export const HONORIFICS = [
   "Mr.",
@@ -112,6 +121,7 @@ export type Honorific = (typeof HONORIFICS)[number];
 
 export {
   ANNOUNCEMENT_AUDIENCE,
+  ANNOUNCEMENT_CATEGORIES,
   NOTIFICATION_CHANNELS,
   NOTIFICATION_TONES,
   NOTIFICATION_TYPES,

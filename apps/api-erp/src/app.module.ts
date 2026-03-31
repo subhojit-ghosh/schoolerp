@@ -52,6 +52,15 @@ import { NotificationPreferencesModule } from "./modules/notification-preference
 import { PtmModule } from "./modules/ptm/ptm.module";
 import { SearchModule } from "./modules/search/search.module";
 import { UploadsModule } from "./modules/uploads/uploads.module";
+import { FileUploadsModule } from "./modules/file-uploads/file-uploads.module";
+import { DpdpaModule } from "./modules/dpdpa/dpdpa.module";
+import { ExpensesModule } from "./modules/expenses/expenses.module";
+import { IncomeModule } from "./modules/income/income.module";
+import { DomainEventsModule } from "./modules/domain-events/domain-events.module";
+import { WorkflowsModule } from "./modules/workflows/workflows.module";
+import { DashboardModule } from "./modules/dashboard/dashboard.module";
+import { ScholarshipsModule } from "./modules/scholarships/scholarships.module";
+import { EmergencyBroadcastsModule } from "./modules/emergency-broadcasts/emergency-broadcasts.module";
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -108,6 +117,15 @@ import { UploadsModule } from "./modules/uploads/uploads.module";
     RolesModule,
     InstitutionsModule,
     UploadsModule,
+    FileUploadsModule,
+    DpdpaModule,
+    ExpensesModule,
+    IncomeModule,
+    DomainEventsModule,
+    WorkflowsModule,
+    DashboardModule,
+    ScholarshipsModule,
+    EmergencyBroadcastsModule,
     NotificationPreferencesModule,
     PtmModule,
     SearchModule,

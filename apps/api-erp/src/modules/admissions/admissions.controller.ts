@@ -30,27 +30,49 @@ import {
   AdmissionApplicationDto,
   AdmissionFormFieldDto,
   AdmissionEnquiryDto,
+  ApplicationDocumentDto,
+  ConvertToStudentBodyDto,
+  ConvertToStudentResultDto,
   CreateAdmissionApplicationBodyDto,
   CreateAdmissionEnquiryBodyDto,
+  CreateDocumentChecklistItemBodyDto,
+  DocumentChecklistItemDto,
   ListAdmissionFormFieldsQueryDto,
   ListAdmissionFormFieldsResultDto,
   ListAdmissionApplicationsQueryDto,
   ListAdmissionApplicationsResultDto,
   ListAdmissionEnquiriesQueryDto,
   ListAdmissionEnquiriesResultDto,
+  ListApplicationDocumentsResultDto,
+  ListDocumentChecklistResultDto,
+  PromoteWaitlistResultDto,
+  RecordRegistrationFeeBodyDto,
+  RegistrationFeeResultDto,
   UpsertAdmissionFormFieldBodyDto,
+  UpsertApplicationDocumentBodyDto,
   UpdateAdmissionApplicationBodyDto,
   UpdateAdmissionEnquiryBodyDto,
+  UpdateDocumentChecklistItemBodyDto,
+  VerifyRejectApplicationDocumentBodyDto,
+  WaitlistApplicationBodyDto,
+  WaitlistResultDto,
 } from "./admissions.dto";
 import {
+  parseConvertToStudent,
   parseCreateAdmissionApplication,
   parseCreateAdmissionEnquiry,
+  parseCreateDocumentChecklistItem,
   parseListAdmissionFormFieldsQuery,
   parseListAdmissionApplicationsQuery,
   parseListAdmissionEnquiriesQuery,
+  parseRecordRegistrationFee,
+  parseUpdateDocumentChecklistItem,
   parseUpsertAdmissionFormField,
+  parseUpsertApplicationDocument,
   parseUpdateAdmissionApplication,
   parseUpdateAdmissionEnquiry,
+  parseVerifyRejectApplicationDocument,
+  parseWaitlistApplication,
 } from "./admissions.schemas";
 import { AdmissionsService } from "./admissions.service";
 
@@ -265,6 +287,199 @@ export class AdmissionsController {
       authSession,
       scopes,
       parseUpdateAdmissionApplication(body),
+    );
+  }
+
+  // ── Document checklist ───────────────────────────────────────────────────
+
+  @Get(API_ROUTES.DOCUMENT_CHECKLIST)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_READ)
+  @ApiOperation({ summary: "List document checklist items for institution" })
+  @ApiOkResponse({ type: ListDocumentChecklistResultDto })
+  listDocumentChecklist(
+    @CurrentInstitution() institution: TenantInstitution,
+  ) {
+    return this.admissionsService.listDocumentChecklist(institution.id);
+  }
+
+  @Post(API_ROUTES.DOCUMENT_CHECKLIST)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: "Create a document checklist item" })
+  @ApiBody({ type: CreateDocumentChecklistItemBodyDto })
+  @ApiOkResponse({ type: DocumentChecklistItemDto })
+  createDocumentChecklistItem(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @Body() body: CreateDocumentChecklistItemBodyDto,
+  ) {
+    return this.admissionsService.createDocumentChecklistItem(
+      institution.id,
+      authSession,
+      parseCreateDocumentChecklistItem(body),
+    );
+  }
+
+  @Patch(`${API_ROUTES.DOCUMENT_CHECKLIST}/:itemId`)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: "Update a document checklist item" })
+  @ApiBody({ type: UpdateDocumentChecklistItemBodyDto })
+  @ApiOkResponse({ type: DocumentChecklistItemDto })
+  updateDocumentChecklistItem(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @Param("itemId") itemId: string,
+    @Body() body: UpdateDocumentChecklistItemBodyDto,
+  ) {
+    return this.admissionsService.updateDocumentChecklistItem(
+      institution.id,
+      itemId,
+      authSession,
+      parseUpdateDocumentChecklistItem(body),
+    );
+  }
+
+  // ── Application documents ─────────────────────────────────────────────────
+
+  @Get(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.APPLICATION_DOCUMENTS}`)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_READ)
+  @ApiOperation({ summary: "List documents for an application" })
+  @ApiOkResponse({ type: ListApplicationDocumentsResultDto })
+  listApplicationDocuments(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("applicationId") applicationId: string,
+  ) {
+    return this.admissionsService.listApplicationDocuments(
+      institution.id,
+      applicationId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Post(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.APPLICATION_DOCUMENTS}`)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: "Add or update a document on an application" })
+  @ApiBody({ type: UpsertApplicationDocumentBodyDto })
+  @ApiOkResponse({ type: ApplicationDocumentDto })
+  upsertApplicationDocument(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("applicationId") applicationId: string,
+    @Body() body: UpsertApplicationDocumentBodyDto,
+  ) {
+    return this.admissionsService.upsertApplicationDocument(
+      institution.id,
+      applicationId,
+      authSession,
+      scopes,
+      parseUpsertApplicationDocument(body),
+    );
+  }
+
+  @Patch(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.APPLICATION_DOCUMENTS}/:documentId`)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: "Verify or reject an application document" })
+  @ApiBody({ type: VerifyRejectApplicationDocumentBodyDto })
+  @ApiOkResponse({ type: ApplicationDocumentDto })
+  verifyRejectApplicationDocument(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @Param("documentId") documentId: string,
+    @Body() body: VerifyRejectApplicationDocumentBodyDto,
+  ) {
+    return this.admissionsService.verifyRejectApplicationDocument(
+      institution.id,
+      documentId,
+      authSession,
+      parseVerifyRejectApplicationDocument(body),
+    );
+  }
+
+  // ── Convert to student ────────────────────────────────────────────────────
+
+  @Post(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.CONVERT_TO_STUDENT}`)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: "Convert an approved application to a student record" })
+  @ApiBody({ type: ConvertToStudentBodyDto })
+  @ApiOkResponse({ type: ConvertToStudentResultDto })
+  convertToStudent(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("applicationId") applicationId: string,
+    @Body() body: ConvertToStudentBodyDto,
+  ) {
+    return this.admissionsService.convertToStudent(
+      institution.id,
+      applicationId,
+      authSession,
+      scopes,
+      parseConvertToStudent(body),
+    );
+  }
+
+  // ── Waitlist ──────────────────────────────────────────────────────────────
+
+  @Post(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.WAITLIST}`)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: "Place an application on the waitlist" })
+  @ApiBody({ type: WaitlistApplicationBodyDto })
+  @ApiOkResponse({ type: WaitlistResultDto })
+  waitlistApplication(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("applicationId") applicationId: string,
+    @Body() body: WaitlistApplicationBodyDto,
+  ) {
+    return this.admissionsService.waitlistApplication(
+      institution.id,
+      applicationId,
+      authSession,
+      scopes,
+      parseWaitlistApplication(body),
+    );
+  }
+
+  @Post(API_ROUTES.PROMOTE)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: "Promote the next waitlisted application to approved" })
+  @ApiOkResponse({ type: PromoteWaitlistResultDto })
+  promoteNextWaitlisted(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.admissionsService.promoteNextWaitlisted(
+      institution.id,
+      authSession,
+      scopes,
+    );
+  }
+
+  // ── Registration fee ──────────────────────────────────────────────────────
+
+  @Post(`${API_ROUTES.APPLICATIONS}/:applicationId/${API_ROUTES.REGISTRATION_FEE}`)
+  @RequirePermission(PERMISSIONS.ADMISSIONS_MANAGE)
+  @ApiOperation({ summary: "Record registration fee payment on an application" })
+  @ApiBody({ type: RecordRegistrationFeeBodyDto })
+  @ApiOkResponse({ type: RegistrationFeeResultDto })
+  recordRegistrationFee(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("applicationId") applicationId: string,
+    @Body() body: RecordRegistrationFeeBodyDto,
+  ) {
+    return this.admissionsService.recordRegistrationFee(
+      institution.id,
+      applicationId,
+      authSession,
+      scopes,
+      parseRecordRegistrationFee(body),
     );
   }
 }

@@ -16,6 +16,9 @@ import {
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { KeyboardShortcutsDialog } from "@/components/feedback/keyboard-shortcuts-dialog";
 import { useKeyboardShortcutsDialog } from "@/hooks/use-keyboard-shortcuts-dialog";
+import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { OfflineIndicator } from "@/components/pwa/offline-indicator";
 import { SessionExpiryWarning } from "@/components/feedback/session-expiry-warning";
 import { SiteHeader } from "@/components/layout/site-header";
 import { NavSearch } from "@/components/navigation/nav-search";
@@ -38,8 +41,6 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { SidebarInset, SidebarProvider } from "@repo/ui/components/ui/sidebar";
-import { useIsTablet } from "@repo/ui/hooks/use-mobile";
 import { ERP_ROUTES } from "@/constants/routes";
 
 const ALL_QUICK_ACTIONS = [
@@ -114,9 +115,9 @@ const ALL_QUICK_ACTIONS = [
 export function DashboardLayout() {
   const [commandOpen, setCommandOpen] = useState(false);
   const shortcutsDialog = useKeyboardShortcutsDialog();
+  useKeyboardShortcuts(() => setCommandOpen(true));
   const session = useAuthStore((store) => store.session);
   const showStaffNav = isStaffContext(session);
-  const isTablet = useIsTablet();
 
   function filterByPermission(items: ReturnType<typeof getActionableNavItems>) {
     return items.filter(
@@ -181,17 +182,14 @@ export function DashboardLayout() {
   ];
 
   return (
-    <SidebarProvider
-      className="[--header-height:calc(var(--spacing)*12)]"
-      defaultOpen={!isTablet}
-    >
+    <div className="flex min-h-dvh w-full [--header-height:calc(var(--spacing)*12)]">
       <AppSidebar />
-      <SidebarInset>
+      <div className="flex min-w-0 flex-1 flex-col">
         <SiteHeader onOpenSearch={() => setCommandOpen(true)} />
         <div className="flex flex-1 flex-col gap-4 p-4 lg:p-6 @container/main">
           <Outlet />
         </div>
-      </SidebarInset>
+      </div>
       <NavSearch
         groups={commandGroups}
         open={commandOpen}
@@ -202,6 +200,8 @@ export function DashboardLayout() {
         onOpenChange={shortcutsDialog.onOpenChange}
       />
       <SessionExpiryWarning />
-    </SidebarProvider>
+      <InstallPrompt />
+      <OfflineIndicator />
+    </div>
   );
 }

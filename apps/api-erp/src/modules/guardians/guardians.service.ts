@@ -17,6 +17,10 @@ import {
   count,
   desc,
   eq,
+  feeAssignmentAdjustments,
+  feeAssignments,
+  feePaymentReversals,
+  feePayments,
   ilike,
   inArray,
   isNotNull,
@@ -24,6 +28,7 @@ import {
   member,
   ne,
   or,
+  sql,
   studentGuardianLinks,
   students,
   type SQL,
@@ -82,6 +87,9 @@ type GuardianSummary = {
   name: string;
   mobile: string;
   email: string | null;
+  communicationPreference: string | null;
+  occupation: string | null;
+  annualIncomeRange: string | null;
   campusId: string;
   campusName: string;
   status: MemberStatus;
@@ -226,6 +234,9 @@ export class GuardiansService {
             name: payload.name.trim(),
             mobile: normalizedMobile,
             email: normalizedEmail,
+            communicationPreference: payload.communicationPreference ?? null,
+            occupation: payload.occupation ?? null,
+            annualIncomeRange: payload.annualIncomeRange ?? null,
           })
           .where(eq(user.id, existingGuardian.userId));
 
@@ -292,6 +303,9 @@ export class GuardiansService {
           name: payload.name.trim(),
           mobile: normalizedMobile,
           email: normalizedEmail,
+          communicationPreference: payload.communicationPreference ?? null,
+          occupation: payload.occupation ?? null,
+          annualIncomeRange: payload.annualIncomeRange ?? null,
           passwordHash: await hash(normalizedMobile, 12),
           mustChangePassword: true,
         });
@@ -368,6 +382,9 @@ export class GuardiansService {
           name: payload.name.trim(),
           mobile: normalizedMobile,
           email: normalizedEmail,
+          communicationPreference: payload.communicationPreference ?? null,
+          occupation: payload.occupation ?? null,
+          annualIncomeRange: payload.annualIncomeRange ?? null,
         })
         .where(eq(user.id, guardianUserId));
 
@@ -966,6 +983,9 @@ export class GuardiansService {
     name: user.name,
     mobile: user.mobile,
     email: user.email,
+    communicationPreference: user.communicationPreference,
+    occupation: user.occupation,
+    annualIncomeRange: user.annualIncomeRange,
     campusId: campus.id,
     campusName: campus.name,
     status: member.status,
@@ -987,6 +1007,178 @@ export class GuardiansService {
     if (!scopes.campusIds.includes(campusId)) {
       throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
     }
+  }
+
+  async getCrossStudentFeeSummary(
+    institutionId: string,
+    guardianId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    await this.getGuardianMembership(institutionId, guardianId, activeCampusId);
+
+    // Get all linked students for this guardian
+    const linkedStudentRows = await this.db
+      .select({
+        studentId: students.id,
+        firstName: students.firstName,
+        lastName: students.lastName,
+        admissionNumber: students.admissionNumber,
+      })
+      .from(studentGuardianLinks)
+      .innerJoin(
+        students,
+        eq(studentGuardianLinks.studentMembershipId, students.membershipId),
+      )
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .where(
+        and(
+          eq(studentGuardianLinks.parentMembershipId, guardianId),
+          isNull(studentGuardianLinks.deletedAt),
+          ne(member.status, STATUS.MEMBER.DELETED),
+        ),
+      );
+
+    if (linkedStudentRows.length === 0) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.GUARDIANS_DEPTH.NO_LINKED_STUDENTS,
+      );
+    }
+
+    const studentIds = linkedStudentRows.map((s) => s.studentId);
+
+    // Get fee assignments for all linked students
+    const assignmentRows = await this.db
+      .select({
+        id: feeAssignments.id,
+        studentId: feeAssignments.studentId,
+        assignedAmountInPaise: feeAssignments.assignedAmountInPaise,
+      })
+      .from(feeAssignments)
+      .where(
+        and(
+          eq(feeAssignments.institutionId, institutionId),
+          inArray(feeAssignments.studentId, studentIds),
+          isNull(feeAssignments.deletedAt),
+        ),
+      );
+
+    const assignmentIds = assignmentRows.map((a) => a.id);
+
+    const [paymentSummaryRows, adjustmentSummaryRows] =
+      assignmentIds.length === 0
+        ? [[], []]
+        : await Promise.all([
+            this.db
+              .select({
+                feeAssignmentId: feePayments.feeAssignmentId,
+                totalPaidInPaise: sql<number>`coalesce(sum(${feePayments.amountInPaise}), 0)`,
+              })
+              .from(feePayments)
+              .leftJoin(
+                feePaymentReversals,
+                eq(feePaymentReversals.feePaymentId, feePayments.id),
+              )
+              .where(
+                and(
+                  inArray(feePayments.feeAssignmentId, assignmentIds),
+                  isNull(feePayments.deletedAt),
+                  isNull(feePaymentReversals.id),
+                ),
+              )
+              .groupBy(feePayments.feeAssignmentId),
+            this.db
+              .select({
+                feeAssignmentId: feeAssignmentAdjustments.feeAssignmentId,
+                totalAdjustmentInPaise: sql<number>`coalesce(sum(${feeAssignmentAdjustments.amountInPaise}), 0)`,
+              })
+              .from(feeAssignmentAdjustments)
+              .where(
+                inArray(
+                  feeAssignmentAdjustments.feeAssignmentId,
+                  assignmentIds,
+                ),
+              )
+              .groupBy(feeAssignmentAdjustments.feeAssignmentId),
+          ]);
+
+    const paymentByAssignment = new Map(
+      paymentSummaryRows.map((r) => [r.feeAssignmentId, r.totalPaidInPaise]),
+    );
+    const adjustmentByAssignment = new Map(
+      adjustmentSummaryRows.map((r) => [
+        r.feeAssignmentId,
+        r.totalAdjustmentInPaise,
+      ]),
+    );
+
+    // Aggregate per student
+    const studentSummaryMap = new Map<
+      string,
+      {
+        totalDue: number;
+        totalPaid: number;
+        totalAdjustment: number;
+      }
+    >();
+
+    for (const assignment of assignmentRows) {
+      const current = studentSummaryMap.get(assignment.studentId) ?? {
+        totalDue: 0,
+        totalPaid: 0,
+        totalAdjustment: 0,
+      };
+
+      current.totalDue += assignment.assignedAmountInPaise;
+      current.totalPaid +=
+        paymentByAssignment.get(assignment.id) ?? 0;
+      current.totalAdjustment +=
+        adjustmentByAssignment.get(assignment.id) ?? 0;
+
+      studentSummaryMap.set(assignment.studentId, current);
+    }
+
+    let grandTotalDue = 0;
+    let grandTotalPaid = 0;
+    let grandTotalAdjustment = 0;
+
+    const studentSummaries = linkedStudentRows.map((student) => {
+      const summary = studentSummaryMap.get(student.studentId) ?? {
+        totalDue: 0,
+        totalPaid: 0,
+        totalAdjustment: 0,
+      };
+      const outstanding =
+        summary.totalDue - summary.totalPaid - summary.totalAdjustment;
+
+      grandTotalDue += summary.totalDue;
+      grandTotalPaid += summary.totalPaid;
+      grandTotalAdjustment += summary.totalAdjustment;
+
+      return {
+        studentId: student.studentId,
+        fullName: [student.firstName, student.lastName]
+          .filter(Boolean)
+          .join(" "),
+        admissionNumber: student.admissionNumber,
+        totalDueInPaise: summary.totalDue,
+        totalPaidInPaise: summary.totalPaid,
+        totalAdjustmentInPaise: summary.totalAdjustment,
+        outstandingInPaise: outstanding,
+      };
+    });
+
+    return {
+      guardianId,
+      totalDueInPaise: grandTotalDue,
+      totalPaidInPaise: grandTotalPaid,
+      totalAdjustmentInPaise: grandTotalAdjustment,
+      outstandingInPaise:
+        grandTotalDue - grandTotalPaid - grandTotalAdjustment,
+      students: studentSummaries,
+    };
   }
 
   async resetMemberPassword(

@@ -220,3 +220,25 @@ export function useUnlinkGuardianStudentMutation(
     },
   );
 }
+
+// --- Phase 2: Cross-Student Fees ---
+
+export function useCrossStudentFeesQuery(
+  institutionId: string | undefined,
+  guardianId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    GUARDIANS_API_PATHS.CROSS_STUDENT_FEES,
+    {
+      params: {
+        path: {
+          guardianId: guardianId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && guardianId),
+    },
+  );
+}

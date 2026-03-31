@@ -146,6 +146,8 @@ export const ERROR_MESSAGES = {
     ANNOUNCEMENT_NOT_FOUND: "The selected announcement was not found.",
     ANNOUNCEMENT_ALREADY_PUBLISHED:
       "That announcement has already been published.",
+    ANNOUNCEMENT_NOT_PUBLISHED:
+      "Only published announcements can be marked as read.",
   },
   ATTENDANCE: {
     CLASS_SECTION_REQUIRED: "Class and section are required for attendance.",
@@ -286,6 +288,12 @@ export const ERROR_MESSAGES = {
     ASSIGNMENT_NOT_FOUND: "The selected transport assignment was not found.",
     STUDENT_ALREADY_ASSIGNED:
       "This student already has an active transport assignment. Update or deactivate the existing assignment first.",
+    ROUTE_HAS_ACTIVE_ASSIGNMENTS:
+      "Cannot deactivate a route that has active student assignments. Deactivate or reassign the students first.",
+    ROUTE_HAS_ACTIVE_VEHICLES:
+      "Cannot deactivate a route that has active vehicles assigned. Reassign the vehicles first.",
+    VEHICLE_HAS_ACTIVE_ASSIGNMENTS:
+      "Cannot deactivate a vehicle that is assigned to a route with active student assignments.",
   },
   INVENTORY: {
     CATEGORY_NOT_FOUND: "Inventory category not found.",
@@ -320,5 +328,101 @@ export const ERROR_MESSAGES = {
     MESS_PLAN_NAME_EXISTS:
       "That mess plan name is already in use for this institution.",
     STUDENT_NOT_FOUND: "Student not found in this institution.",
+  },
+  // Phase 2 depth
+  LIBRARY_DEPTH: {
+    RESERVATION_NOT_FOUND: "Library reservation not found.",
+    ALREADY_RESERVED: "This member already has a pending reservation for this book.",
+    RESERVATION_CANCELLED: "This reservation has already been cancelled.",
+    RESERVATION_FULFILLED: "This reservation has already been fulfilled.",
+    FINE_ALREADY_PAID: "This fine has already been paid.",
+    NO_OVERDUE_TRANSACTIONS: "No overdue transactions found.",
+  },
+  ADMISSIONS_DEPTH: {
+    CHECKLIST_ITEM_NOT_FOUND: "Document checklist item not found.",
+    APPLICATION_DOCUMENT_NOT_FOUND: "Application document not found.",
+    APPLICATION_NOT_APPROVED: "Only approved applications can be converted to students.",
+    APPLICATION_ALREADY_CONVERTED: "This application has already been converted to a student.",
+    WAITLIST_POSITION_EXISTS: "This application is already on the waitlist.",
+    NO_WAITLISTED_APPLICATIONS: "No waitlisted applications found to promote.",
+  },
+  INVENTORY_DEPTH: {
+    VENDOR_NOT_FOUND: "Vendor not found.",
+    VENDOR_HAS_ORDERS: "Cannot deactivate a vendor with active purchase orders.",
+    PURCHASE_ORDER_NOT_FOUND: "Purchase order not found.",
+    PURCHASE_ORDER_NUMBER_EXISTS: "That order number is already in use.",
+    PURCHASE_ORDER_NOT_DRAFT: "Only draft purchase orders can be edited.",
+    PURCHASE_ORDER_ITEM_NOT_FOUND: "Purchase order item not found.",
+    RECEIVE_EXCEEDS_ORDERED: "Received quantity cannot exceed ordered quantity.",
+  },
+  TRANSPORT_DEPTH: {
+    DRIVER_NOT_FOUND: "Transport driver not found.",
+    DRIVER_HAS_VEHICLES: "Cannot deactivate a driver assigned to active vehicles.",
+    MAINTENANCE_LOG_NOT_FOUND: "Vehicle maintenance log not found.",
+  },
+  HOSTEL_DEPTH: {
+    MESS_ASSIGNMENT_NOT_FOUND: "Mess plan assignment not found.",
+    STUDENT_ALREADY_HAS_MESS: "This student already has an active mess plan assignment.",
+    MESS_ASSIGNMENT_ALREADY_INACTIVE: "This mess plan assignment is already inactive.",
+    ROOM_TRANSFER_FAILED: "Room transfer failed. Check room capacity.",
+    TRANSFER_SAME_ROOM: "Source and destination rooms must be different.",
+  },
+  HOMEWORK_DEPTH: {
+    SUBMISSION_NOT_FOUND: "Homework submission not found.",
+    HOMEWORK_NOT_PUBLISHED: "Submissions can only be recorded for published homework.",
+  },
+  STUDENTS_DEPTH: {
+    SIBLING_LINK_EXISTS: "These students are already linked as siblings.",
+    SIBLING_SELF_LINK: "A student cannot be linked as their own sibling.",
+    SIBLING_LINK_NOT_FOUND: "Sibling link not found.",
+    MEDICAL_RECORD_NOT_FOUND: "Student medical record not found.",
+    DISCIPLINARY_RECORD_NOT_FOUND: "Disciplinary record not found.",
+    TC_NOT_FOUND: "Transfer certificate not found.",
+    TC_NUMBER_EXISTS: "That TC number is already in use.",
+    TC_ALREADY_ISSUED: "A transfer certificate has already been issued for this student.",
+  },
+  STAFF_DEPTH: {
+    DOCUMENT_NOT_FOUND: "Staff document not found.",
+    CAMPUS_TRANSFER_SAME: "Source and destination campuses must be different.",
+  },
+  GUARDIANS_DEPTH: {
+    NO_LINKED_STUDENTS: "This guardian has no linked students.",
+  },
+  EXPENSES: {
+    CATEGORY_NOT_FOUND: "Expense category not found.",
+    CATEGORY_NAME_EXISTS: "That expense category name is already in use.",
+    CATEGORY_HAS_EXPENSES: "Cannot deactivate a category that has expense records.",
+    EXPENSE_NOT_FOUND: "Expense not found.",
+    EXPENSE_NOT_DRAFT: "Only draft expenses can be edited.",
+    EXPENSE_NOT_SUBMITTED: "Only submitted expenses can be approved or rejected.",
+    EXPENSE_NOT_APPROVED: "Only approved expenses can be marked as paid.",
+    ALREADY_SUBMITTED: "This expense has already been submitted.",
+  },
+  SCHOLARSHIPS: {
+    NOT_FOUND: "Scholarship not found.",
+    APPLICATION_NOT_FOUND: "Scholarship application not found.",
+    STUDENT_ALREADY_APPLIED: "This student already has an active application for this scholarship.",
+    APPLICATION_NOT_PENDING: "Only pending applications can be approved or rejected.",
+    MAX_RECIPIENTS_REACHED: "This scholarship has reached its maximum number of recipients.",
+    SCHOLARSHIP_INACTIVE: "This scholarship is currently inactive.",
+  },
+  EMERGENCY_BROADCASTS: {
+    NOT_FOUND: "Emergency broadcast not found.",
+    ALREADY_SENT: "This broadcast has already been sent.",
+    NOT_DRAFT: "Only draft broadcasts can be edited.",
+    NO_RECIPIENTS: "No recipients found for the selected target.",
+  },
+  INCOME: {
+    RECORD_NOT_FOUND: "Income record not found.",
+  },
+  DPDPA: {
+    CONSENT_NOT_FOUND: "Consent record not found.",
+    SESSION_CONFIG_NOT_FOUND: "Session configuration not found.",
+    MAX_SESSIONS_REACHED: "Maximum concurrent sessions reached. Please sign out from another device.",
+  },
+  FILE_UPLOADS: {
+    FILE_NOT_FOUND: "Uploaded file not found.",
+    FILE_TOO_LARGE: "File size exceeds the maximum allowed limit.",
+    INVALID_FILE_TYPE: "This file type is not allowed.",
   },
 } as const;

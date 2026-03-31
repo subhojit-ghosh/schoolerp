@@ -159,6 +159,112 @@ export type ListAssignmentsQueryDto = z.infer<
   typeof listAssignmentsQuerySchema
 >;
 
+// ── Drivers ───────────────────────────────────────────────────────────────
+
+export const createDriverSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  mobile: z.string().trim().min(10).max(15),
+  licenseNumber: z.string().trim().max(50).optional(),
+  licenseExpiry: z.string().optional(),
+  address: z.string().trim().max(500).optional(),
+  emergencyContact: z.string().trim().max(15).optional(),
+});
+
+export type CreateDriverDto = z.infer<typeof createDriverSchema>;
+
+export const updateDriverSchema = z.object({
+  name: z.string().trim().min(1).max(200).optional(),
+  mobile: z.string().trim().min(10).max(15).optional(),
+  licenseNumber: z.string().trim().max(50).optional(),
+  licenseExpiry: z.string().optional(),
+  address: z.string().trim().max(500).optional(),
+  emergencyContact: z.string().trim().max(15).optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+});
+
+export type UpdateDriverDto = z.infer<typeof updateDriverSchema>;
+
+export const listDriversQuerySchema = z.object({
+  q: z.string().trim().optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+  page: z
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
+    .optional(),
+  limit: z
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
+    .optional(),
+  sort: z.enum(["name", "createdAt"]).optional(),
+  order: z.enum(["asc", "desc"]).optional(),
+});
+
+export type ListDriversQueryDto = z.infer<typeof listDriversQuerySchema>;
+
+// ── Maintenance Logs ──────────────────────────────────────────────────────
+
+export const createMaintenanceLogSchema = z.object({
+  vehicleId: z.string().min(1),
+  maintenanceType: z.enum(["regular", "repair", "inspection"]),
+  description: z.string().trim().min(1).max(1000),
+  costInPaise: z.number().int().nonnegative().optional(),
+  maintenanceDate: z.string().min(1),
+  nextDueDate: z.string().optional(),
+  vendorName: z.string().trim().max(200).optional(),
+});
+
+export type CreateMaintenanceLogDto = z.infer<
+  typeof createMaintenanceLogSchema
+>;
+
+export const listMaintenanceLogsQuerySchema = z.object({
+  vehicleId: z.string().optional(),
+  maintenanceType: z.enum(["regular", "repair", "inspection"]).optional(),
+  page: z
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
+    .optional(),
+  limit: z
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
+    .optional(),
+  sort: z.enum(["maintenanceDate", "createdAt"]).optional(),
+  order: z.enum(["asc", "desc"]).optional(),
+});
+
+export type ListMaintenanceLogsQueryDto = z.infer<
+  typeof listMaintenanceLogsQuerySchema
+>;
+
+// ── Route Students Report ─────────────────────────────────────────────────
+
+export const listRouteStudentsQuerySchema = z.object({
+  page: z
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
+    .optional(),
+  limit: z
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
+    .optional(),
+});
+
+export type ListRouteStudentsQueryDto = z.infer<
+  typeof listRouteStudentsQuerySchema
+>;
+
 // ── Parsers ────────────────────────────────────────────────────────────────
 
 export function parseCreateRoute(data: unknown): CreateRouteDto {
@@ -193,4 +299,28 @@ export function parseUpdateAssignment(data: unknown): UpdateAssignmentDto {
 }
 export function parseListAssignments(data: unknown): ListAssignmentsQueryDto {
   return listAssignmentsQuerySchema.parse(data);
+}
+export function parseCreateDriver(data: unknown): CreateDriverDto {
+  return createDriverSchema.parse(data);
+}
+export function parseUpdateDriver(data: unknown): UpdateDriverDto {
+  return updateDriverSchema.parse(data);
+}
+export function parseListDrivers(data: unknown): ListDriversQueryDto {
+  return listDriversQuerySchema.parse(data);
+}
+export function parseCreateMaintenanceLog(
+  data: unknown,
+): CreateMaintenanceLogDto {
+  return createMaintenanceLogSchema.parse(data);
+}
+export function parseListMaintenanceLogs(
+  data: unknown,
+): ListMaintenanceLogsQueryDto {
+  return listMaintenanceLogsQuerySchema.parse(data);
+}
+export function parseListRouteStudents(
+  data: unknown,
+): ListRouteStudentsQueryDto {
+  return listRouteStudentsQuerySchema.parse(data);
 }

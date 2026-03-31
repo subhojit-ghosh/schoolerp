@@ -1,4 +1,7 @@
-import { guardianRelationshipSchema } from "@repo/contracts";
+import {
+  communicationPreferenceSchema,
+  guardianRelationshipSchema,
+} from "@repo/contracts";
 import { z } from "zod";
 import { HONORIFICS } from "../../constants";
 import {
@@ -35,6 +38,22 @@ export const updateGuardianSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((value) => value || undefined),
+  communicationPreference: communicationPreferenceSchema
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
+  occupation: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
+  annualIncomeRange: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
 });
 
 export const linkGuardianStudentSchema = z.object({

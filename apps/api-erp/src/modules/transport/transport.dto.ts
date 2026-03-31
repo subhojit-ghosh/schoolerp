@@ -269,3 +269,178 @@ export class ListAssignmentsQueryParamsDto {
   @ApiProperty({ enum: ["asc", "desc"], required: false })
   order?: "asc" | "desc";
 }
+
+// ── Drivers ───────────────────────────────────────────────────────────────
+
+export class CreateDriverBodyDto {
+  name!: string;
+  mobile!: string;
+  licenseNumber?: string;
+  licenseExpiry?: string;
+  address?: string;
+  emergencyContact?: string;
+}
+
+export class UpdateDriverBodyDto {
+  name?: string;
+  mobile?: string;
+  licenseNumber?: string;
+  licenseExpiry?: string;
+  address?: string;
+  emergencyContact?: string;
+
+  @ApiProperty({ enum: ["active", "inactive"], required: false })
+  status?: "active" | "inactive";
+}
+
+export class DriverDto {
+  id!: string;
+  name!: string;
+  mobile!: string;
+
+  @ApiProperty({ nullable: true })
+  licenseNumber!: string | null;
+
+  @ApiProperty({ nullable: true })
+  licenseExpiry!: string | null;
+
+  @ApiProperty({ nullable: true })
+  address!: string | null;
+
+  @ApiProperty({ nullable: true })
+  emergencyContact!: string | null;
+
+  @ApiProperty({ enum: ["active", "inactive"] })
+  status!: "active" | "inactive";
+
+  vehicleCount!: number;
+  createdAt!: string;
+}
+
+export class DriverListResultDto {
+  rows!: DriverDto[];
+  total!: number;
+  page!: number;
+  pageSize!: number;
+  pageCount!: number;
+}
+
+export class ListDriversQueryParamsDto {
+  q?: string;
+
+  @ApiProperty({ enum: ["active", "inactive"], required: false })
+  status?: "active" | "inactive";
+
+  page?: number;
+  limit?: number;
+
+  @ApiProperty({ enum: ["name", "createdAt"], required: false })
+  sort?: "name" | "createdAt";
+
+  @ApiProperty({ enum: ["asc", "desc"], required: false })
+  order?: "asc" | "desc";
+}
+
+// ── Maintenance Logs ──────────────────────────────────────────────────────
+
+export class CreateMaintenanceLogBodyDto {
+  vehicleId!: string;
+
+  @ApiProperty({ enum: ["regular", "repair", "inspection"] })
+  maintenanceType!: "regular" | "repair" | "inspection";
+
+  description!: string;
+  costInPaise?: number;
+  maintenanceDate!: string;
+  nextDueDate?: string;
+  vendorName?: string;
+}
+
+export class MaintenanceLogDto {
+  id!: string;
+  vehicleId!: string;
+  vehicleRegistrationNumber!: string;
+
+  @ApiProperty({ enum: ["regular", "repair", "inspection"] })
+  maintenanceType!: "regular" | "repair" | "inspection";
+
+  description!: string;
+
+  @ApiProperty({ nullable: true })
+  costInPaise!: number | null;
+
+  maintenanceDate!: string;
+
+  @ApiProperty({ nullable: true })
+  nextDueDate!: string | null;
+
+  @ApiProperty({ nullable: true })
+  vendorName!: string | null;
+
+  createdByMemberId!: string;
+  createdAt!: string;
+}
+
+export class MaintenanceLogListResultDto {
+  rows!: MaintenanceLogDto[];
+  total!: number;
+  page!: number;
+  pageSize!: number;
+  pageCount!: number;
+}
+
+export class ListMaintenanceLogsQueryParamsDto {
+  vehicleId?: string;
+
+  @ApiProperty({
+    enum: ["regular", "repair", "inspection"],
+    required: false,
+  })
+  maintenanceType?: "regular" | "repair" | "inspection";
+
+  page?: number;
+  limit?: number;
+
+  @ApiProperty({ enum: ["maintenanceDate", "createdAt"], required: false })
+  sort?: "maintenanceDate" | "createdAt";
+
+  @ApiProperty({ enum: ["asc", "desc"], required: false })
+  order?: "asc" | "desc";
+}
+
+// ── Route Students Report ─────────────────────────────────────────────────
+
+export class RouteStudentDto {
+  studentId!: string;
+  studentName!: string;
+
+  @ApiProperty({ nullable: true })
+  admissionNumber!: string | null;
+
+  stopId!: string;
+  stopName!: string;
+  sequenceNumber!: number;
+
+  @ApiProperty({ enum: ["pickup", "dropoff", "both"] })
+  assignmentType!: "pickup" | "dropoff" | "both";
+
+  startDate!: string;
+
+  @ApiProperty({ nullable: true })
+  endDate!: string | null;
+}
+
+export class RouteStudentListResultDto {
+  routeId!: string;
+  routeName!: string;
+  rows!: RouteStudentDto[];
+  total!: number;
+  page!: number;
+  pageSize!: number;
+  pageCount!: number;
+}
+
+export class ListRouteStudentsQueryParamsDto {
+  page?: number;
+  limit?: number;
+}

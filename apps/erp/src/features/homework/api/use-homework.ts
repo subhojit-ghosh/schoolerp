@@ -110,3 +110,107 @@ export function useDeleteHomeworkMutation() {
     },
   });
 }
+
+// --- Phase 2: Submissions ---
+
+export function useHomeworkSubmissionsQuery(
+  enabled: boolean,
+  homeworkId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    HOMEWORK_API_PATHS.LIST_SUBMISSIONS,
+    {
+      params: {
+        path: {
+          homeworkId: homeworkId ?? "",
+        },
+      },
+    },
+    {
+      enabled: enabled && Boolean(homeworkId),
+    },
+  );
+}
+
+export function useUpsertSubmissionsMutation() {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "post",
+    HOMEWORK_API_PATHS.UPSERT_SUBMISSIONS,
+    {
+      onSuccess: (_, variables) => {
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            HOMEWORK_API_PATHS.LIST_SUBMISSIONS,
+            {
+              params: {
+                path: {
+                  homeworkId: variables.params.path.homeworkId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            HOMEWORK_API_PATHS.HOMEWORK_ANALYTICS,
+            {
+              params: {
+                path: {
+                  homeworkId: variables.params.path.homeworkId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+      },
+    },
+  );
+}
+
+// --- Phase 2: Analytics ---
+
+export function useHomeworkAnalyticsQuery(
+  enabled: boolean,
+  homeworkId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    HOMEWORK_API_PATHS.HOMEWORK_ANALYTICS,
+    {
+      params: {
+        path: {
+          homeworkId: homeworkId ?? "",
+        },
+      },
+    },
+    {
+      enabled: enabled && Boolean(homeworkId),
+    },
+  );
+}
+
+export function useClassHomeworkAnalyticsQuery(
+  enabled: boolean,
+  classId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    HOMEWORK_API_PATHS.CLASS_ANALYTICS,
+    {
+      params: {
+        path: {
+          classId: classId ?? "",
+        },
+      },
+    },
+    {
+      enabled: enabled && Boolean(classId),
+    },
+  );
+}

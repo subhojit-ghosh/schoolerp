@@ -93,6 +93,21 @@ export const ERP_ROUTES = {
   FEE_REPORTS: "/fees/reports",
   FEE_DEFAULTERS: "/fees/reports/defaulters",
   FEE_LEDGER: "/fees/ledger",
+  // Expenses
+  EXPENSE_CATEGORIES: "/expenses/categories",
+  EXPENSE_CATEGORY_CREATE: `/expenses/categories/${ERP_ROUTE_SEGMENTS.NEW}`,
+  EXPENSES: "/expenses",
+  EXPENSE_CREATE: `/expenses/${ERP_ROUTE_SEGMENTS.NEW}`,
+  // Income
+  INCOME_RECORDS: "/income",
+  INCOME_RECORD_CREATE: `/income/${ERP_ROUTE_SEGMENTS.NEW}`,
+  // Scholarships
+  SCHOLARSHIPS: "/scholarships",
+  SCHOLARSHIP_CREATE: `/scholarships/${ERP_ROUTE_SEGMENTS.NEW}`,
+  SCHOLARSHIP_APPLICATIONS: "/scholarships/applications",
+  // Emergency Broadcasts
+  EMERGENCY_BROADCASTS: "/emergency-broadcasts",
+  EMERGENCY_BROADCAST_CREATE: `/emergency-broadcasts/${ERP_ROUTE_SEGMENTS.NEW}`,
   // Communication
   MESSAGES: "/messages",
   ANNOUNCEMENTS: "/announcements",
@@ -112,6 +127,8 @@ export const ERP_ROUTES = {
   LIBRARY_BOOKS_EDIT: `/library/books/:bookId/${ERP_ROUTE_SEGMENTS.EDIT}`,
   LIBRARY_TRANSACTIONS: "/library/transactions",
   LIBRARY_TRANSACTIONS_ISSUE: `/library/transactions/${ERP_ROUTE_SEGMENTS.NEW}`,
+  LIBRARY_RESERVATIONS: "/library/reservations",
+  LIBRARY_DASHBOARD: "/library/dashboard",
   TRANSPORT: "/transport",
   TRANSPORT_ROUTES: "/transport/routes",
   TRANSPORT_ROUTES_CREATE: `/transport/routes/${ERP_ROUTE_SEGMENTS.NEW}`,
@@ -125,6 +142,11 @@ export const ERP_ROUTES = {
   TRANSPORT_ASSIGNMENTS: "/transport/assignments",
   TRANSPORT_ASSIGNMENTS_CREATE: `/transport/assignments/${ERP_ROUTE_SEGMENTS.NEW}`,
   TRANSPORT_ASSIGNMENTS_EDIT: `/transport/assignments/:assignmentId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  TRANSPORT_DRIVERS: "/transport/drivers",
+  TRANSPORT_DRIVER_CREATE: `/transport/drivers/${ERP_ROUTE_SEGMENTS.NEW}`,
+  TRANSPORT_DRIVER_EDIT: `/transport/drivers/:driverId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  TRANSPORT_MAINTENANCE: "/transport/maintenance",
+  TRANSPORT_MAINTENANCE_CREATE: `/transport/maintenance/${ERP_ROUTE_SEGMENTS.NEW}`,
   STAFF_LEAVE: "/staff/leave",
   STAFF_ATTENDANCE: "/staff/attendance",
   STAFF_ATTENDANCE_REPORT: "/staff/attendance/report",
@@ -139,6 +161,12 @@ export const ERP_ROUTES = {
   INVENTORY_TRANSACTIONS: "/inventory/transactions",
   INVENTORY_TRANSACTION_CREATE: `/inventory/transactions/${ERP_ROUTE_SEGMENTS.NEW}`,
   INVENTORY_LOW_STOCK: "/inventory/low-stock",
+  INVENTORY_VENDORS: "/inventory/vendors",
+  INVENTORY_VENDOR_CREATE: `/inventory/vendors/${ERP_ROUTE_SEGMENTS.NEW}`,
+  INVENTORY_VENDOR_EDIT: `/inventory/vendors/:vendorId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  INVENTORY_PURCHASE_ORDERS: "/inventory/purchase-orders",
+  INVENTORY_PURCHASE_ORDER_CREATE: `/inventory/purchase-orders/${ERP_ROUTE_SEGMENTS.NEW}`,
+  INVENTORY_PURCHASE_ORDER_DETAIL: "/inventory/purchase-orders/:orderId",
   PAYROLL: "/payroll",
   PAYROLL_SALARY_COMPONENTS: "/payroll/salary-components",
   PAYROLL_SALARY_COMPONENT_CREATE: `/payroll/salary-components/${ERP_ROUTE_SEGMENTS.NEW}`,
@@ -169,6 +197,9 @@ export const ERP_ROUTES = {
   HOSTEL_MESS_PLANS: "/hostel/mess-plans",
   HOSTEL_MESS_PLAN_CREATE: `/hostel/mess-plans/${ERP_ROUTE_SEGMENTS.NEW}`,
   HOSTEL_MESS_PLAN_EDIT: `/hostel/mess-plans/:planId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  HOSTEL_MESS_ASSIGNMENTS: "/hostel/mess-assignments",
+  HOSTEL_ROOM_TRANSFERS: "/hostel/room-transfers",
+  HOSTEL_OCCUPANCY: "/hostel/occupancy",
   DOCUMENT_STUDENT_ID_CARD: "/documents/student-id-card/:studentId",
   DOCUMENT_STAFF_ID_CARD: "/documents/staff-id-card/:staffId",
   DOCUMENTS: "/documents",
@@ -213,6 +244,7 @@ export const ERP_ROUTES = {
   SETTINGS_DOCUMENTS: "/settings/documents",
   SETTINGS_ROLES_CREATE: `/settings/roles/${ERP_ROUTE_SEGMENTS.NEW}`,
   SETTINGS_ROLES_EDIT: `/settings/roles/:roleId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+  SETTINGS_DPDPA: "/settings/dpdpa",
   // Auth
   SIGN_IN: "/sign-in",
   FORGOT_PASSWORD: "/forgot-password",
@@ -403,4 +435,17 @@ export function buildStudentIdCardRoute(studentId: string) {
 
 export function buildStaffIdCardRoute(staffId: string) {
   return `/documents/staff-id-card/${staffId}`;
+}
+
+// Phase 2 depth route builders
+export function buildTransportDriverEditRoute(driverId: string) {
+  return `/transport/drivers/${driverId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildInventoryVendorEditRoute(vendorId: string) {
+  return `/inventory/vendors/${vendorId}/${ERP_ROUTE_SEGMENTS.EDIT}`;
+}
+
+export function buildInventoryPurchaseOrderDetailRoute(orderId: string) {
+  return `/inventory/purchase-orders/${orderId}`;
 }

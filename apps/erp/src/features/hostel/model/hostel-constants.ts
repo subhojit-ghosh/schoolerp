@@ -68,3 +68,39 @@ export const BED_ALLOCATION_STATUS_LABELS: Record<string, string> = {
   active: "Active",
   vacated: "Vacated",
 } as const;
+
+export const MESS_ASSIGNMENT_LIST_SORT_FIELDS = {
+  START_DATE: "startDate",
+  CREATED_AT: "createdAt",
+} as const;
+
+export const ROOM_TRANSFER_LIST_SORT_FIELDS = {
+  TRANSFER_DATE: "transferDate",
+  CREATED_AT: "createdAt",
+} as const;
+
+export const MESS_ASSIGNMENT_STATUS_LABELS: Record<string, string> = {
+  active: "Active",
+  inactive: "Inactive",
+} as const;
+
+export const MESS_ASSIGNMENTS_PAGE_COPY = {
+  TITLE: "Mess Assignments",
+  DESCRIPTION: "Assign mess plans to hostel students.",
+  EMPTY_TITLE: "No mess assignments yet",
+  EMPTY_DESCRIPTION: "Assign a mess plan to a student to get started.",
+  SEARCH_PLACEHOLDER: "Search mess assignments...",
+} as const;
+
+export const ROOM_TRANSFERS_PAGE_COPY = {
+  TITLE: "Room Transfers",
+  DESCRIPTION: "View and initiate room transfers between hostel rooms.",
+  EMPTY_TITLE: "No room transfers yet",
+  EMPTY_DESCRIPTION: "No room transfers have been recorded.",
+  SEARCH_PLACEHOLDER: "Search room transfers...",
+} as const;
+
+export const OCCUPANCY_PAGE_COPY = {
+  TITLE: "Occupancy Dashboard",
+  DESCRIPTION: "Building-wise occupancy overview across all hostels.",
+} as const;

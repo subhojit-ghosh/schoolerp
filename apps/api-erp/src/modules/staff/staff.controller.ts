@@ -31,6 +31,8 @@ import { CurrentInstitution } from "../tenant-context/current-institution.decora
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
+  CreateCampusTransferBodyDto,
+  CreateStaffDocumentBodyDto,
   CreateStaffResultDto,
   CreateStaffBodyDto,
   CreateStaffRoleAssignmentBodyDto,
@@ -38,19 +40,26 @@ import {
   ListStaffQueryDto,
   ListStaffResultDto,
   SetStaffStatusBodyDto,
+  StaffCampusTransferDto,
+  StaffDocumentDto,
   StaffDto,
   StaffRoleAssignmentDto,
   StaffRoleDto,
   SubjectTeacherAssignmentDto,
+  TeachingLoadResultDto,
   UpdateStaffBodyDto,
+  UpdateStaffDocumentBodyDto,
 } from "./staff.dto";
 import {
+  parseCreateCampusTransfer,
   parseCreateStaff,
+  parseCreateStaffDocument,
   parseCreateStaffRoleAssignment,
   parseCreateSubjectTeacherAssignment,
   parseListStaffQuery,
   parseSetStaffStatus,
   parseUpdateStaff,
+  parseUpdateStaffDocument,
 } from "./staff.schemas";
 import { StaffService } from "./staff.service";
 
@@ -339,6 +348,152 @@ export class StaffController {
       assignmentId,
       authSession,
       scopes,
+    );
+  }
+
+  // ── Staff documents ──────────────────────────────────────────────────────
+
+  @Get(`:staffId/${API_ROUTES.STAFF_DOCUMENTS}`)
+  @RequirePermission(PERMISSIONS.STAFF_READ)
+  @ApiOperation({ summary: "List documents for a staff member" })
+  @ApiOkResponse({ type: StaffDocumentDto, isArray: true })
+  listStaffDocuments(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+  ) {
+    return this.staffService.listStaffDocuments(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Post(`:staffId/${API_ROUTES.STAFF_DOCUMENTS}`)
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
+  @ApiOperation({ summary: "Add a document to a staff member" })
+  @ApiBody({ type: CreateStaffDocumentBodyDto })
+  @ApiOkResponse({ type: StaffDocumentDto })
+  createStaffDocument(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+    @Body() body: CreateStaffDocumentBodyDto,
+  ) {
+    return this.staffService.createStaffDocument(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+      parseCreateStaffDocument(body),
+    );
+  }
+
+  @Patch(`:staffId/${API_ROUTES.STAFF_DOCUMENTS}/:documentId`)
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
+  @ApiOperation({ summary: "Update a staff document" })
+  @ApiBody({ type: UpdateStaffDocumentBodyDto })
+  @ApiOkResponse({ type: StaffDocumentDto })
+  updateStaffDocument(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+    @Param("documentId") documentId: string,
+    @Body() body: UpdateStaffDocumentBodyDto,
+  ) {
+    return this.staffService.updateStaffDocument(
+      institution.id,
+      staffId,
+      documentId,
+      authSession,
+      scopes,
+      parseUpdateStaffDocument(body),
+    );
+  }
+
+  @Delete(`:staffId/${API_ROUTES.STAFF_DOCUMENTS}/:documentId`)
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Delete a staff document" })
+  @ApiNoContentResponse()
+  deleteStaffDocument(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+    @Param("documentId") documentId: string,
+  ) {
+    return this.staffService.deleteStaffDocument(
+      institution.id,
+      staffId,
+      documentId,
+      authSession,
+      scopes,
+    );
+  }
+
+  // ── Teaching load ────────────────────────────────────────────────────────
+
+  @Get(`:staffId/${API_ROUTES.TEACHING_LOAD}`)
+  @RequirePermission(PERMISSIONS.STAFF_READ)
+  @ApiOperation({ summary: "Get teaching load analysis for a staff member" })
+  @ApiOkResponse({ type: TeachingLoadResultDto })
+  getTeachingLoad(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+  ) {
+    return this.staffService.getTeachingLoad(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+    );
+  }
+
+  // ── Campus transfer ──────────────────────────────────────────────────────
+
+  @Get(`:staffId/${API_ROUTES.CAMPUS_TRANSFER}`)
+  @RequirePermission(PERMISSIONS.STAFF_READ)
+  @ApiOperation({ summary: "List campus transfer history for a staff member" })
+  @ApiOkResponse({ type: StaffCampusTransferDto, isArray: true })
+  listCampusTransfers(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+  ) {
+    return this.staffService.listCampusTransfers(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Post(`:staffId/${API_ROUTES.CAMPUS_TRANSFER}`)
+  @RequirePermission(PERMISSIONS.STAFF_MANAGE)
+  @ApiOperation({ summary: "Transfer a staff member to another campus" })
+  @ApiBody({ type: CreateCampusTransferBodyDto })
+  @ApiOkResponse({ type: StaffCampusTransferDto })
+  createCampusTransfer(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("staffId") staffId: string,
+    @Body() body: CreateCampusTransferBodyDto,
+  ) {
+    return this.staffService.createCampusTransfer(
+      institution.id,
+      staffId,
+      authSession,
+      scopes,
+      parseCreateCampusTransfer(body),
     );
   }
 }

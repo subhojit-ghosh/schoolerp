@@ -47,6 +47,17 @@ import {
   ListRoomsQueryParamsDto,
   ListAllocationsQueryParamsDto,
   ListMessPlansQueryParamsDto,
+  CreateMessAssignmentBodyDto,
+  MessAssignmentDto,
+  MessAssignmentListResultDto,
+  ListMessAssignmentsQueryParamsDto,
+  CreateRoomTransferBodyDto,
+  RoomTransferDto,
+  RoomTransferListResultDto,
+  ListRoomTransfersQueryParamsDto,
+  CreateBatchAllocationBodyDto,
+  BatchAllocationResultDto,
+  OccupancyDashboardDto,
 } from "./hostel.dto";
 import {
   parseCreateBuilding,
@@ -63,6 +74,11 @@ import {
   parseUpdateMessPlan,
   parseUpdateMessPlanStatus,
   parseListMessPlans,
+  parseCreateMessAssignment,
+  parseListMessAssignments,
+  parseCreateRoomTransfer,
+  parseListRoomTransfers,
+  parseCreateBatchAllocation,
 } from "./hostel.schemas";
 import { HostelService } from "./hostel.service";
 
@@ -312,6 +328,117 @@ export class HostelController {
     return this.hostelService.updateMessPlanStatus(
       institution.id,
       planId,
+      session,
+      dto,
+    );
+  }
+
+  // ── Mess Plan Assignments ─────────────────────────────────────────────
+
+  @Get(API_ROUTES.MESS_ASSIGNMENTS)
+  @RequirePermission(PERMISSIONS.HOSTEL_READ)
+  @ApiOperation({ summary: "List mess plan assignments" })
+  @ApiOkResponse({ type: MessAssignmentListResultDto })
+  async listMessAssignments(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: ListMessAssignmentsQueryParamsDto,
+  ) {
+    const parsed = parseListMessAssignments(query);
+    return this.hostelService.listMessAssignments(institution.id, parsed);
+  }
+
+  @Post(API_ROUTES.MESS_ASSIGNMENTS)
+  @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
+  @ApiOperation({ summary: "Assign a mess plan to a student" })
+  @ApiCreatedResponse({ type: MessAssignmentDto })
+  async createMessAssignment(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Body() body: CreateMessAssignmentBodyDto,
+  ) {
+    const dto = parseCreateMessAssignment(body);
+    return this.hostelService.createMessAssignment(
+      institution.id,
+      session,
+      dto,
+    );
+  }
+
+  @Post(
+    `${API_ROUTES.MESS_ASSIGNMENTS}/:assignmentId/${API_ROUTES.DEACTIVATE}`,
+  )
+  @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
+  @ApiOperation({ summary: "Deactivate a mess plan assignment" })
+  @ApiOkResponse({ type: MessAssignmentDto })
+  async deactivateMessAssignment(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Param("assignmentId") assignmentId: string,
+  ) {
+    return this.hostelService.deactivateMessAssignment(
+      institution.id,
+      assignmentId,
+      session,
+    );
+  }
+
+  // ── Room Transfers ────────────────────────────────────────────────────
+
+  @Get(API_ROUTES.ROOM_TRANSFERS)
+  @RequirePermission(PERMISSIONS.HOSTEL_READ)
+  @ApiOperation({ summary: "List room transfers" })
+  @ApiOkResponse({ type: RoomTransferListResultDto })
+  async listRoomTransfers(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: ListRoomTransfersQueryParamsDto,
+  ) {
+    const parsed = parseListRoomTransfers(query);
+    return this.hostelService.listRoomTransfers(institution.id, parsed);
+  }
+
+  @Post(API_ROUTES.ROOM_TRANSFERS)
+  @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
+  @ApiOperation({ summary: "Transfer a student between rooms" })
+  @ApiCreatedResponse({ type: RoomTransferDto })
+  async createRoomTransfer(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Body() body: CreateRoomTransferBodyDto,
+  ) {
+    const dto = parseCreateRoomTransfer(body);
+    return this.hostelService.createRoomTransfer(
+      institution.id,
+      session,
+      dto,
+    );
+  }
+
+  // ── Occupancy Dashboard ───────────────────────────────────────────────
+
+  @Get(API_ROUTES.OCCUPANCY)
+  @RequirePermission(PERMISSIONS.HOSTEL_READ)
+  @ApiOperation({ summary: "Get hostel occupancy dashboard" })
+  @ApiOkResponse({ type: OccupancyDashboardDto })
+  async getOccupancyDashboard(
+    @CurrentInstitution() institution: TenantInstitution,
+  ) {
+    return this.hostelService.getOccupancyDashboard(institution.id);
+  }
+
+  // ── Batch Allocation ──────────────────────────────────────────────────
+
+  @Post(`${API_ROUTES.ALLOCATIONS}/${API_ROUTES.BATCH}`)
+  @RequirePermission(PERMISSIONS.HOSTEL_MANAGE)
+  @ApiOperation({ summary: "Batch allocate beds to multiple students" })
+  @ApiCreatedResponse({ type: BatchAllocationResultDto })
+  async createBatchAllocation(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Body() body: CreateBatchAllocationBodyDto,
+  ) {
+    const dto = parseCreateBatchAllocation(body);
+    return this.hostelService.createBatchAllocation(
+      institution.id,
       session,
       dto,
     );

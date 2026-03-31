@@ -16,6 +16,7 @@ import {
   IconFolder,
   IconLayoutGrid,
   IconCreditCard,
+  IconLock,
   IconMailForward,
   IconMap,
   IconMapPin,
@@ -33,6 +34,16 @@ import {
   IconAlertTriangle,
   IconArrowsExchange,
   IconUsersPlus,
+  IconSteeringWheel,
+  IconTool,
+  IconShoppingCart,
+  IconBuildingWarehouse,
+  IconTransfer,
+  IconChartPie,
+  IconReceipt,
+  IconAward,
+  IconUrgent,
+  IconCoin,
   type Icon,
 } from "@tabler/icons-react";
 import { PERMISSIONS } from "@repo/contracts";
@@ -225,6 +236,24 @@ export const NAV_FINANCE: readonly NavItem[] = [
     title: "Ledger",
     url: ERP_ROUTES.FEE_LEDGER,
   },
+  {
+    icon: IconFolder,
+    permission: PERMISSIONS.EXPENSES_READ,
+    title: "Expense Categories",
+    url: ERP_ROUTES.EXPENSE_CATEGORIES,
+  },
+  {
+    icon: IconReceipt,
+    permission: PERMISSIONS.EXPENSES_READ,
+    title: "Expenses",
+    url: ERP_ROUTES.EXPENSES,
+  },
+  {
+    icon: IconCoin,
+    permission: PERMISSIONS.INCOME_READ,
+    title: "Income",
+    url: ERP_ROUTES.INCOME_RECORDS,
+  },
 ];
 
 export const NAV_REPORTS: readonly NavItem[] = [
@@ -280,6 +309,12 @@ export const NAV_COMMUNICATION: readonly NavItem[] = [
     title: "Messages",
     url: ERP_ROUTES.MESSAGES,
   },
+  {
+    icon: IconUrgent,
+    permission: PERMISSIONS.EMERGENCY_BROADCAST_SEND,
+    title: "Emergency Broadcasts",
+    url: ERP_ROUTES.EMERGENCY_BROADCASTS,
+  },
 ];
 
 export const NAV_LIBRARY: readonly NavItem[] = [
@@ -294,6 +329,18 @@ export const NAV_LIBRARY: readonly NavItem[] = [
     permission: PERMISSIONS.LIBRARY_READ,
     title: "Transactions",
     url: ERP_ROUTES.LIBRARY_TRANSACTIONS,
+  },
+  {
+    icon: IconClockHour4,
+    permission: PERMISSIONS.LIBRARY_READ,
+    title: "Reservations",
+    url: ERP_ROUTES.LIBRARY_RESERVATIONS,
+  },
+  {
+    icon: IconChartPie,
+    permission: PERMISSIONS.LIBRARY_READ,
+    title: "Dashboard",
+    url: ERP_ROUTES.LIBRARY_DASHBOARD,
   },
 ];
 
@@ -315,6 +362,18 @@ export const NAV_TRANSPORT: readonly NavItem[] = [
     permission: PERMISSIONS.TRANSPORT_READ,
     title: "Assignments",
     url: ERP_ROUTES.TRANSPORT_ASSIGNMENTS,
+  },
+  {
+    icon: IconSteeringWheel,
+    permission: PERMISSIONS.TRANSPORT_READ,
+    title: "Drivers",
+    url: ERP_ROUTES.TRANSPORT_DRIVERS,
+  },
+  {
+    icon: IconTool,
+    permission: PERMISSIONS.TRANSPORT_READ,
+    title: "Maintenance",
+    url: ERP_ROUTES.TRANSPORT_MAINTENANCE,
   },
 ];
 
@@ -357,6 +416,24 @@ export const NAV_SERVICES: readonly NavItem[] = [
     title: "Mess Plans",
     url: ERP_ROUTES.HOSTEL_MESS_PLANS,
   },
+  {
+    icon: IconClipboardList,
+    permission: PERMISSIONS.HOSTEL_READ,
+    title: "Mess Assignments",
+    url: ERP_ROUTES.HOSTEL_MESS_ASSIGNMENTS,
+  },
+  {
+    icon: IconTransfer,
+    permission: PERMISSIONS.HOSTEL_READ,
+    title: "Room Transfers",
+    url: ERP_ROUTES.HOSTEL_ROOM_TRANSFERS,
+  },
+  {
+    icon: IconChartPie,
+    permission: PERMISSIONS.HOSTEL_READ,
+    title: "Occupancy",
+    url: ERP_ROUTES.HOSTEL_OCCUPANCY,
+  },
 ];
 
 export const NAV_INVENTORY: readonly NavItem[] = [
@@ -383,6 +460,18 @@ export const NAV_INVENTORY: readonly NavItem[] = [
     permission: PERMISSIONS.INVENTORY_READ,
     title: "Low Stock",
     url: ERP_ROUTES.INVENTORY_LOW_STOCK,
+  },
+  {
+    icon: IconBuildingWarehouse,
+    permission: PERMISSIONS.INVENTORY_READ,
+    title: "Vendors",
+    url: ERP_ROUTES.INVENTORY_VENDORS,
+  },
+  {
+    icon: IconShoppingCart,
+    permission: PERMISSIONS.INVENTORY_READ,
+    title: "Purchase Orders",
+    url: ERP_ROUTES.INVENTORY_PURCHASE_ORDERS,
   },
 ];
 
@@ -437,6 +526,21 @@ export const NAV_HR: readonly NavItem[] = [
   },
 ];
 
+export const NAV_SCHOLARSHIPS: readonly NavItem[] = [
+  {
+    icon: IconAward,
+    permission: PERMISSIONS.SCHOLARSHIPS_READ,
+    title: "Scholarships",
+    url: ERP_ROUTES.SCHOLARSHIPS,
+  },
+  {
+    icon: IconFileDescription,
+    permission: PERMISSIONS.SCHOLARSHIPS_READ,
+    title: "Applications",
+    url: ERP_ROUTES.SCHOLARSHIP_APPLICATIONS,
+  },
+];
+
 export const NAV_SETTINGS: readonly (NavItem & {
   permission: PermissionSlug;
 })[] = [
@@ -488,6 +592,12 @@ export const NAV_SETTINGS: readonly (NavItem & {
     title: "Audit Trail",
     url: ERP_ROUTES.SETTINGS_AUDIT,
   },
+  {
+    icon: IconLock,
+    permission: PERMISSIONS.DPDPA_MANAGE,
+    title: "DPDPA Compliance",
+    url: ERP_ROUTES.SETTINGS_DPDPA,
+  },
 ];
 
 /**
@@ -510,6 +620,7 @@ const ALL_STAFF_NAV_ITEMS: readonly NavItem[] = [
   ...NAV_SERVICES,
   ...NAV_INVENTORY,
   ...NAV_HR,
+  ...NAV_SCHOLARSHIPS,
   ...NAV_SETTINGS,
 ];
 

@@ -3,6 +3,7 @@ import {
   admissionFormFieldScopeSchema,
   admissionFormFieldTypeSchema,
   admissionApplicationStatusSchema,
+  admissionDocumentStatusSchema,
   admissionEnquiryStatusSchema,
 } from "@repo/contracts";
 import { z } from "zod";
@@ -13,6 +14,8 @@ import {
 
 const NAME_MIN_LENGTH = 1;
 const MOBILE_MIN_LENGTH = 10;
+const SORT_ORDER_MIN = 0;
+const FEE_AMOUNT_MIN = 1;
 
 const optionalStringSchema = z
   .string()
@@ -141,12 +144,75 @@ export const listAdmissionApplicationsQuerySchema = baseListQuerySchema.extend({
     .optional(),
 });
 
+// ── Document checklist schemas ──────────────────────────────────────────────
+
+export const createDocumentChecklistItemSchema = z.object({
+  documentName: z
+    .string()
+    .trim()
+    .min(NAME_MIN_LENGTH, "Document name is required"),
+  isRequired: z.boolean().default(true),
+  sortOrder: z.number().int().min(SORT_ORDER_MIN).default(0),
+  isActive: z.boolean().default(true),
+});
+
+export const updateDocumentChecklistItemSchema =
+  createDocumentChecklistItemSchema;
+
+// ── Application documents schemas ───────────────────────────────────────────
+
+export const upsertApplicationDocumentSchema = z.object({
+  checklistItemId: z.uuid(),
+  status: admissionDocumentStatusSchema.default("pending"),
+  uploadUrl: optionalStringSchema,
+  notes: optionalStringSchema,
+});
+
+export const verifyRejectApplicationDocumentSchema = z.object({
+  status: z.enum(["verified", "rejected"]),
+  notes: optionalStringSchema,
+});
+
+// ── Convert to student schema ───────────────────────────────────────────────
+
+export const convertToStudentSchema = z.object({
+  admissionNumber: z
+    .string()
+    .trim()
+    .min(NAME_MIN_LENGTH, "Admission number is required"),
+  classId: z.uuid(),
+  sectionId: z.uuid(),
+});
+
+// ── Waitlist schema ─────────────────────────────────────────────────────────
+
+export const waitlistApplicationSchema = z.object({
+  waitlistPosition: z.number().int().min(1, "Position must be at least 1"),
+});
+
+// ── Registration fee schema ─────────────────────────────────────────────────
+
+export const recordRegistrationFeeSchema = z.object({
+  amountInPaise: z
+    .number()
+    .int()
+    .min(FEE_AMOUNT_MIN, "Amount must be positive"),
+});
+
 export const admissionEnquiryIdSchema = z.object({
   enquiryId: z.uuid(),
 });
 
 export const admissionApplicationIdSchema = z.object({
   applicationId: z.uuid(),
+});
+
+export const checklistItemIdSchema = z.object({
+  itemId: z.uuid(),
+});
+
+export const applicationDocumentIdSchema = z.object({
+  documentId: z.uuid(),
 });
 
 export type CreateAdmissionEnquiryDto = z.infer<
@@ -166,6 +232,25 @@ export type UpsertAdmissionFormFieldDto = z.infer<
 >;
 export type ListAdmissionFormFieldsQueryDto = z.infer<
   typeof listAdmissionFormFieldsQuerySchema
+>;
+export type CreateDocumentChecklistItemDto = z.infer<
+  typeof createDocumentChecklistItemSchema
+>;
+export type UpdateDocumentChecklistItemDto = z.infer<
+  typeof updateDocumentChecklistItemSchema
+>;
+export type UpsertApplicationDocumentDto = z.infer<
+  typeof upsertApplicationDocumentSchema
+>;
+export type VerifyRejectApplicationDocumentDto = z.infer<
+  typeof verifyRejectApplicationDocumentSchema
+>;
+export type ConvertToStudentDto = z.infer<typeof convertToStudentSchema>;
+export type WaitlistApplicationDto = z.infer<
+  typeof waitlistApplicationSchema
+>;
+export type RecordRegistrationFeeDto = z.infer<
+  typeof recordRegistrationFeeSchema
 >;
 
 type ListAdmissionEnquiriesQueryInput = z.infer<
@@ -243,4 +328,32 @@ export function parseListAdmissionApplicationsQuery(
     search: result.q,
     sort: result.sort,
   };
+}
+
+export function parseCreateDocumentChecklistItem(input: unknown) {
+  return createDocumentChecklistItemSchema.parse(input);
+}
+
+export function parseUpdateDocumentChecklistItem(input: unknown) {
+  return updateDocumentChecklistItemSchema.parse(input);
+}
+
+export function parseUpsertApplicationDocument(input: unknown) {
+  return upsertApplicationDocumentSchema.parse(input);
+}
+
+export function parseVerifyRejectApplicationDocument(input: unknown) {
+  return verifyRejectApplicationDocumentSchema.parse(input);
+}
+
+export function parseConvertToStudent(input: unknown) {
+  return convertToStudentSchema.parse(input);
+}
+
+export function parseWaitlistApplication(input: unknown) {
+  return waitlistApplicationSchema.parse(input);
+}
+
+export function parseRecordRegistrationFee(input: unknown) {
+  return recordRegistrationFeeSchema.parse(input);
 }

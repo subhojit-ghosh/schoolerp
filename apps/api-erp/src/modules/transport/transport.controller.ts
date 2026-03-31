@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -30,17 +31,28 @@ import {
   AssignmentDto,
   AssignmentListResultDto,
   CreateAssignmentBodyDto,
+  CreateDriverBodyDto,
+  CreateMaintenanceLogBodyDto,
   CreateRouteBodyDto,
   CreateStopBodyDto,
   CreateVehicleBodyDto,
+  DriverDto,
+  DriverListResultDto,
   ListAssignmentsQueryParamsDto,
+  ListDriversQueryParamsDto,
+  ListMaintenanceLogsQueryParamsDto,
   ListRoutesQueryParamsDto,
+  ListRouteStudentsQueryParamsDto,
   ListVehiclesQueryParamsDto,
+  MaintenanceLogDto,
+  MaintenanceLogListResultDto,
   RouteDetailDto,
   RouteDto,
   RouteListResultDto,
+  RouteStudentListResultDto,
   StopDto,
   UpdateAssignmentBodyDto,
+  UpdateDriverBodyDto,
   UpdateRouteBodyDto,
   UpdateStopBodyDto,
   UpdateVehicleBodyDto,
@@ -49,13 +61,19 @@ import {
 } from "./transport.dto";
 import {
   parseCreateAssignment,
+  parseCreateDriver,
+  parseCreateMaintenanceLog,
   parseCreateRoute,
   parseCreateStop,
   parseCreateVehicle,
   parseListAssignments,
+  parseListDrivers,
+  parseListMaintenanceLogs,
   parseListRoutes,
+  parseListRouteStudents,
   parseListVehicles,
   parseUpdateAssignment,
+  parseUpdateDriver,
   parseUpdateRoute,
   parseUpdateStop,
   parseUpdateVehicle,
@@ -260,6 +278,153 @@ export class TransportController {
       assignmentId,
       session,
       dto,
+    );
+  }
+
+  // ── Drivers ───────────────────────────────────────────────────────────────
+
+  @Get(API_ROUTES.DRIVERS)
+  @RequirePermission(PERMISSIONS.TRANSPORT_READ)
+  @ApiOperation({ summary: "List transport drivers" })
+  @ApiOkResponse({ type: DriverListResultDto })
+  async listDrivers(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: ListDriversQueryParamsDto,
+  ) {
+    const parsed = parseListDrivers(query);
+    return this.transportService.listDrivers(institution.id, parsed);
+  }
+
+  @Get(`${API_ROUTES.DRIVERS}/:driverId`)
+  @RequirePermission(PERMISSIONS.TRANSPORT_READ)
+  @ApiOperation({ summary: "Get a transport driver" })
+  @ApiOkResponse({ type: DriverDto })
+  async getDriver(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("driverId") driverId: string,
+  ) {
+    return this.transportService.getDriver(institution.id, driverId);
+  }
+
+  @Post(API_ROUTES.DRIVERS)
+  @RequirePermission(PERMISSIONS.TRANSPORT_MANAGE)
+  @ApiOperation({ summary: "Create a transport driver" })
+  @ApiCreatedResponse({ type: DriverDto })
+  async createDriver(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Body() body: CreateDriverBodyDto,
+  ) {
+    const dto = parseCreateDriver(body);
+    return this.transportService.createDriver(institution.id, session, dto);
+  }
+
+  @Put(`${API_ROUTES.DRIVERS}/:driverId`)
+  @RequirePermission(PERMISSIONS.TRANSPORT_MANAGE)
+  @ApiOperation({ summary: "Update a transport driver" })
+  @ApiOkResponse({ type: DriverDto })
+  async updateDriver(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Param("driverId") driverId: string,
+    @Body() body: UpdateDriverBodyDto,
+  ) {
+    const dto = parseUpdateDriver(body);
+    return this.transportService.updateDriver(
+      institution.id,
+      driverId,
+      session,
+      dto,
+    );
+  }
+
+  // ── Maintenance Logs ──────────────────────────────────────────────────────
+
+  @Get(API_ROUTES.MAINTENANCE)
+  @RequirePermission(PERMISSIONS.TRANSPORT_READ)
+  @ApiOperation({ summary: "List vehicle maintenance logs" })
+  @ApiOkResponse({ type: MaintenanceLogListResultDto })
+  async listMaintenanceLogs(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: ListMaintenanceLogsQueryParamsDto,
+  ) {
+    const parsed = parseListMaintenanceLogs(query);
+    return this.transportService.listMaintenanceLogs(institution.id, parsed);
+  }
+
+  @Post(API_ROUTES.MAINTENANCE)
+  @RequirePermission(PERMISSIONS.TRANSPORT_MANAGE)
+  @ApiOperation({ summary: "Log a vehicle maintenance event" })
+  @ApiCreatedResponse({ type: MaintenanceLogDto })
+  async createMaintenanceLog(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Body() body: CreateMaintenanceLogBodyDto,
+  ) {
+    const dto = parseCreateMaintenanceLog(body);
+    return this.transportService.createMaintenanceLog(
+      institution.id,
+      session,
+      dto,
+    );
+  }
+
+  // ── Route Students Report ─────────────────────────────────────────────────
+
+  @Get(`${API_ROUTES.ROUTE_STUDENTS}/:routeId`)
+  @RequirePermission(PERMISSIONS.TRANSPORT_READ)
+  @ApiOperation({ summary: "List students assigned to a route" })
+  @ApiOkResponse({ type: RouteStudentListResultDto })
+  async listRouteStudents(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("routeId") routeId: string,
+    @Query() query: ListRouteStudentsQueryParamsDto,
+  ) {
+    const parsed = parseListRouteStudents(query);
+    return this.transportService.listRouteStudents(
+      institution.id,
+      routeId,
+      parsed,
+    );
+  }
+
+  // ── Deactivation endpoints ────────────────────────────────────────────────
+
+  @Delete(`${API_ROUTES.TRANSPORT_ROUTES}/:routeId`)
+  @RequirePermission(PERMISSIONS.TRANSPORT_MANAGE)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Deactivate a route (with dependency checks)",
+  })
+  @ApiOkResponse({ type: RouteDto })
+  async deactivateRoute(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Param("routeId") routeId: string,
+  ) {
+    return this.transportService.deactivateRoute(
+      institution.id,
+      routeId,
+      session,
+    );
+  }
+
+  @Delete(`${API_ROUTES.TRANSPORT_VEHICLES}/:vehicleId`)
+  @RequirePermission(PERMISSIONS.TRANSPORT_MANAGE)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Deactivate a vehicle (with dependency checks)",
+  })
+  @ApiOkResponse({ type: VehicleDto })
+  async deactivateVehicle(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Param("vehicleId") vehicleId: string,
+  ) {
+    return this.transportService.deactivateVehicle(
+      institution.id,
+      vehicleId,
+      session,
     );
   }
 }

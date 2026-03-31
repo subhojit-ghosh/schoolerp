@@ -69,6 +69,12 @@ export const user = pgTable(
     }),
     mobileVerifiedAt: timestamp(),
     emailVerifiedAt: timestamp(),
+    // Phase 2: Guardian depth fields (applicable when user has guardian role)
+    communicationPreference: text({
+      enum: ["sms", "whatsapp", "email"],
+    }),
+    occupation: text(),
+    annualIncomeRange: text(),
     createdAt: timestamp().defaultNow().notNull(),
     updatedAt: timestamp()
       .defaultNow()

@@ -13,6 +13,12 @@ export class CreateHomeworkBodyDto {
   attachmentInstructions?: string | null;
 
   dueDate!: string;
+
+  @ApiPropertyOptional()
+  parentVisible?: boolean;
+
+  @ApiPropertyOptional({ nullable: true })
+  attachmentUrl?: string | null;
 }
 
 export class UpdateHomeworkBodyDto {
@@ -36,6 +42,12 @@ export class UpdateHomeworkBodyDto {
 
   @ApiPropertyOptional()
   dueDate?: string;
+
+  @ApiPropertyOptional()
+  parentVisible?: boolean;
+
+  @ApiPropertyOptional({ nullable: true })
+  attachmentUrl?: string | null;
 }
 
 export class HomeworkDto {
@@ -59,6 +71,10 @@ export class HomeworkDto {
 
   dueDate!: string;
   status!: string;
+  parentVisible!: boolean;
+
+  @ApiPropertyOptional({ nullable: true })
+  attachmentUrl!: string | null;
 
   @ApiPropertyOptional({ nullable: true, type: String, format: "date-time" })
   publishedAt!: string | null;
@@ -78,6 +94,9 @@ export class HomeworkListResultDto {
 export class ListHomeworkQueryParamsDto {
   @ApiPropertyOptional()
   q?: string;
+
+  @ApiPropertyOptional()
+  campusId?: string;
 
   @ApiPropertyOptional()
   classId?: string;
@@ -108,4 +127,86 @@ export class ListHomeworkQueryParamsDto {
 
   @ApiPropertyOptional({ enum: ["asc", "desc"] })
   order?: "asc" | "desc";
+}
+
+// ── Submission DTOs ──────────────────────────────────────────────────────────
+
+export class SubmissionEntryDto {
+  studentId!: string;
+
+  @ApiPropertyOptional({ enum: ["submitted", "not_submitted", "late"] })
+  status!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  remarks?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  attachmentUrl?: string | null;
+}
+
+export class BulkUpsertSubmissionsBodyDto {
+  submissions!: SubmissionEntryDto[];
+}
+
+export class HomeworkSubmissionDto {
+  id!: string;
+  homeworkId!: string;
+  studentId!: string;
+  studentName!: string;
+  admissionNumber!: string;
+  status!: string;
+
+  @ApiPropertyOptional({ nullable: true, type: String, format: "date-time" })
+  submittedAt!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  remarks!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  attachmentUrl!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  markedByMemberId!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  markedByName!: string | null;
+
+  createdAt!: string;
+  updatedAt!: string;
+}
+
+export class SubmissionListResultDto {
+  rows!: HomeworkSubmissionDto[];
+  total!: number;
+  page!: number;
+  pageSize!: number;
+  pageCount!: number;
+}
+
+export class ListSubmissionsQueryParamsDto {
+  @ApiPropertyOptional()
+  page?: number;
+
+  @ApiPropertyOptional()
+  limit?: number;
+}
+
+// ── Analytics DTOs ───────────────────────────────────────────────────────────
+
+export class HomeworkAnalyticsDto {
+  homeworkId!: string;
+  totalStudents!: number;
+  submitted!: number;
+  notSubmitted!: number;
+  late!: number;
+  submissionRate!: number;
+}
+
+export class ClassHomeworkAnalyticsDto {
+  classId!: string;
+  className!: string;
+  sectionId!: string;
+  sectionName!: string;
+  totalHomework!: number;
+  avgSubmissionRate!: number;
 }

@@ -1,8 +1,10 @@
 import {
+  CALENDAR_EVENT_TYPES,
   DATA_EXCHANGE_ACTIONS,
   DATA_EXCHANGE_ENTITY_TYPES,
   FEE_STRUCTURE_SCOPES,
   GUARDIAN_RELATIONSHIPS,
+  INVENTORY_CATEGORY_STATUS,
   type DataExchangeAction,
   type DataExchangeEntityType,
   type GuardianRelationship,
@@ -19,6 +21,7 @@ import {
   academicYears,
   and,
   asc,
+  calendarEvents,
   campus,
   classSections,
   desc,
@@ -26,7 +29,10 @@ import {
   feeAssignments,
   feeStructures,
   inArray,
+  inventoryCategories,
+  inventoryItems,
   isNull,
+  libraryBooks,
   member,
   ne,
   schoolClasses,
@@ -35,6 +41,7 @@ import {
   students,
   user,
 } from "@repo/database";
+import { randomUUID } from "node:crypto";
 import {
   ERROR_MESSAGES,
   HONORIFICS,
@@ -87,6 +94,10 @@ type StudentImportPayload = {
     relationship: GuardianRelationship;
     isPrimary: boolean;
   }>;
+  photoUrl: string | null;
+  previousSchoolName: string | null;
+  previousSchoolBoard: string | null;
+  previousSchoolClass: string | null;
 };
 
 type StaffImportPayload = {
@@ -115,6 +126,32 @@ type FeeAssignmentImportPayload = {
   notes: string | undefined;
 };
 
+type LibraryBookImportPayload = {
+  title: string;
+  author: string | undefined;
+  isbn: string | undefined;
+  publisher: string | undefined;
+  genre: string | undefined;
+  totalCopies: number;
+};
+
+type CalendarHolidayImportPayload = {
+  title: string;
+  startDate: string;
+  endDate: string;
+  description: string | undefined;
+};
+
+type InventoryItemImportPayload = {
+  name: string;
+  categoryName: string;
+  sku: string | undefined;
+  unit: string;
+  currentStock: number;
+  minimumStock: number;
+  location: string | undefined;
+};
+
 type PreviewContext = {
   campusByName: Map<string, { id: string; name: string }>;
   academicYearByName: Map<
@@ -138,6 +175,7 @@ type PreviewContext = {
     }
   >;
   existingStudentAdmissions: Set<string>;
+  inventoryCategoryByName: Map<string, { id: string; name: string }>;
 };
 
 const ENTITY_ACTION_PERMISSIONS = {
@@ -156,6 +194,18 @@ const ENTITY_ACTION_PERMISSIONS = {
   [DATA_EXCHANGE_ENTITY_TYPES.FEE_ASSIGNMENTS]: {
     [DATA_EXCHANGE_ACTIONS.IMPORT]: PERMISSIONS.FEES_MANAGE,
     [DATA_EXCHANGE_ACTIONS.EXPORT]: PERMISSIONS.FEES_READ,
+  },
+  [DATA_EXCHANGE_ENTITY_TYPES.LIBRARY_BOOKS]: {
+    [DATA_EXCHANGE_ACTIONS.IMPORT]: PERMISSIONS.LIBRARY_MANAGE,
+    [DATA_EXCHANGE_ACTIONS.EXPORT]: PERMISSIONS.LIBRARY_READ,
+  },
+  [DATA_EXCHANGE_ENTITY_TYPES.CALENDAR_HOLIDAYS]: {
+    [DATA_EXCHANGE_ACTIONS.IMPORT]: PERMISSIONS.ACADEMICS_MANAGE,
+    [DATA_EXCHANGE_ACTIONS.EXPORT]: PERMISSIONS.ACADEMICS_READ,
+  },
+  [DATA_EXCHANGE_ENTITY_TYPES.INVENTORY_ITEMS]: {
+    [DATA_EXCHANGE_ACTIONS.IMPORT]: PERMISSIONS.INVENTORY_MANAGE,
+    [DATA_EXCHANGE_ACTIONS.EXPORT]: PERMISSIONS.INVENTORY_READ,
   },
 } as const satisfies Record<
   DataExchangeEntityType,
@@ -340,7 +390,13 @@ export class DataExchangeService {
           ? await this.exportStaff(institutionId, scopes)
           : entityType === DATA_EXCHANGE_ENTITY_TYPES.GUARDIANS
             ? await this.exportGuardians(institutionId, scopes)
-            : await this.exportFeeAssignments(institutionId, scopes);
+            : entityType === DATA_EXCHANGE_ENTITY_TYPES.LIBRARY_BOOKS
+              ? await this.exportLibraryBooks(institutionId)
+              : entityType === DATA_EXCHANGE_ENTITY_TYPES.CALENDAR_HOLIDAYS
+                ? await this.exportCalendarHolidays(institutionId)
+                : entityType === DATA_EXCHANGE_ENTITY_TYPES.INVENTORY_ITEMS
+                  ? await this.exportInventoryItems(institutionId)
+                  : await this.exportFeeAssignments(institutionId, scopes);
 
     return {
       fileName: `${entityType}-export.csv`,
@@ -392,6 +448,9 @@ export class DataExchangeService {
           name: payload.name,
           mobile: payload.mobile,
           email: payload.email,
+          communicationPreference: undefined,
+          occupation: undefined,
+          annualIncomeRange: undefined,
         },
       );
 
@@ -409,13 +468,78 @@ export class DataExchangeService {
       return;
     }
 
-    const payload = this.resolveFeeAssignmentPayload(row, context);
-    await this.feesService.createFeeAssignment(
-      institutionId,
-      authSession,
-      scopes,
-      payload,
-    );
+    if (entityType === DATA_EXCHANGE_ENTITY_TYPES.FEE_ASSIGNMENTS) {
+      const payload = this.resolveFeeAssignmentPayload(row, context);
+      await this.feesService.createFeeAssignment(
+        institutionId,
+        authSession,
+        scopes,
+        payload,
+      );
+      return;
+    }
+
+    if (entityType === DATA_EXCHANGE_ENTITY_TYPES.LIBRARY_BOOKS) {
+      const payload = this.resolveLibraryBookPayload(row);
+      const bookId = randomUUID();
+      await this.db.insert(libraryBooks).values({
+        id: bookId,
+        institutionId,
+        title: payload.title,
+        author: payload.author ?? null,
+        isbn: payload.isbn ?? null,
+        publisher: payload.publisher ?? null,
+        genre: payload.genre ?? null,
+        totalCopies: payload.totalCopies,
+        availableCopies: payload.totalCopies,
+      });
+      return;
+    }
+
+    if (entityType === DATA_EXCHANGE_ENTITY_TYPES.CALENDAR_HOLIDAYS) {
+      const payload = this.resolveCalendarHolidayPayload(row);
+      const activeCampusId =
+        authSession.activeCampusId ??
+        (context.campusByName.values().next().value?.id ?? null);
+      const eventId = randomUUID();
+      await this.db.insert(calendarEvents).values({
+        id: eventId,
+        institutionId,
+        campusId: activeCampusId,
+        title: payload.title,
+        description: payload.description ?? null,
+        eventDate: payload.startDate,
+        isAllDay: true,
+        eventType: CALENDAR_EVENT_TYPES.HOLIDAY,
+        status: "active",
+      });
+      return;
+    }
+
+    if (entityType === DATA_EXCHANGE_ENTITY_TYPES.INVENTORY_ITEMS) {
+      const payload = this.resolveInventoryItemPayload(row, context);
+      const categoryId = context.inventoryCategoryByName.get(
+        payload.categoryName.toLowerCase(),
+      );
+      if (!categoryId) {
+        throw new BadRequestException(
+          `Category "${payload.categoryName}" not found.`,
+        );
+      }
+      const itemId = randomUUID();
+      await this.db.insert(inventoryItems).values({
+        id: itemId,
+        institutionId,
+        categoryId: categoryId.id,
+        name: payload.name,
+        sku: payload.sku ?? null,
+        unit: payload.unit as "piece",
+        currentStock: payload.currentStock,
+        minimumStock: payload.minimumStock,
+        location: payload.location ?? null,
+      });
+      return;
+    }
   }
 
   private previewRow(
@@ -444,6 +568,12 @@ export class DataExchangeService {
         this.resolveGuardianPayload(row, context);
       } else if (entityType === DATA_EXCHANGE_ENTITY_TYPES.FEE_ASSIGNMENTS) {
         this.resolveFeeAssignmentPayload(row, context);
+      } else if (entityType === DATA_EXCHANGE_ENTITY_TYPES.LIBRARY_BOOKS) {
+        this.resolveLibraryBookPayload(row);
+      } else if (entityType === DATA_EXCHANGE_ENTITY_TYPES.CALENDAR_HOLIDAYS) {
+        this.resolveCalendarHolidayPayload(row);
+      } else if (entityType === DATA_EXCHANGE_ENTITY_TYPES.INVENTORY_ITEMS) {
+        this.resolveInventoryItemPayload(row, context);
       }
     } catch (error) {
       messages.push(this.toErrorMessage(error));
@@ -534,6 +664,10 @@ export class DataExchangeService {
           }
         : null,
       guardians,
+      photoUrl: null,
+      previousSchoolName: null,
+      previousSchoolBoard: null,
+      previousSchoolClass: null,
     };
   }
 
@@ -682,6 +816,7 @@ export class DataExchangeService {
       sectionRows,
       structures,
       existingAdmissions,
+      inventoryCategoryRows,
     ] = await Promise.all([
       this.db
         .select({ id: campus.id, name: campus.name })
@@ -772,6 +907,18 @@ export class DataExchangeService {
         .select({ admissionNumber: students.admissionNumber })
         .from(students)
         .where(eq(students.institutionId, institutionId)),
+      this.db
+        .select({
+          id: inventoryCategories.id,
+          name: inventoryCategories.name,
+        })
+        .from(inventoryCategories)
+        .where(
+          and(
+            eq(inventoryCategories.institutionId, institutionId),
+            ne(inventoryCategories.status, INVENTORY_CATEGORY_STATUS.DELETED),
+          ),
+        ),
     ]);
 
     return {
@@ -813,6 +960,12 @@ export class DataExchangeService {
         existingAdmissions.map((record) =>
           record.admissionNumber.toLowerCase(),
         ),
+      ),
+      inventoryCategoryByName: new Map(
+        inventoryCategoryRows.map((record) => [
+          record.name.toLowerCase(),
+          record,
+        ]),
       ),
     };
   }
@@ -989,6 +1142,18 @@ export class DataExchangeService {
 
     if (entityType === DATA_EXCHANGE_ENTITY_TYPES.GUARDIANS) {
       return row.mobile || row.name || "Guardian row";
+    }
+
+    if (entityType === DATA_EXCHANGE_ENTITY_TYPES.LIBRARY_BOOKS) {
+      return row.title || "Book row";
+    }
+
+    if (entityType === DATA_EXCHANGE_ENTITY_TYPES.CALENDAR_HOLIDAYS) {
+      return row.title || "Holiday row";
+    }
+
+    if (entityType === DATA_EXCHANGE_ENTITY_TYPES.INVENTORY_ITEMS) {
+      return row.name || "Item row";
     }
 
     return `${row.studentAdmissionNumber || "student"} / ${row.feeStructureName || "fee structure"}`;
@@ -1301,5 +1466,179 @@ export class DataExchangeService {
         row.studentAdmissionNumber,
         row.notes ?? "",
       ]);
+  }
+
+  // ── Library Books ───────────────────────────────────────────────────────
+
+  private resolveLibraryBookPayload(
+    row: Record<string, string>,
+  ): LibraryBookImportPayload {
+    const title = this.required(row.title, "Book title is required.");
+    const totalCopiesStr = row.totalCopies?.trim() || "1";
+    const totalCopies = Number.parseInt(totalCopiesStr, 10);
+    if (Number.isNaN(totalCopies) || totalCopies < 1) {
+      throw new BadRequestException("Total copies must be a positive integer.");
+    }
+    return {
+      title,
+      author: row.author || undefined,
+      isbn: row.isbn || undefined,
+      publisher: row.publisher || undefined,
+      genre: row.genre || undefined,
+      totalCopies,
+    };
+  }
+
+  private async exportLibraryBooks(institutionId: string) {
+    const rows = await this.db
+      .select({
+        title: libraryBooks.title,
+        author: libraryBooks.author,
+        isbn: libraryBooks.isbn,
+        publisher: libraryBooks.publisher,
+        genre: libraryBooks.genre,
+        totalCopies: libraryBooks.totalCopies,
+      })
+      .from(libraryBooks)
+      .where(
+        and(
+          eq(libraryBooks.institutionId, institutionId),
+          ne(libraryBooks.status, "inactive"),
+        ),
+      )
+      .orderBy(asc(libraryBooks.title));
+
+    return rows.map((row) => [
+      row.title,
+      row.author ?? "",
+      row.isbn ?? "",
+      row.publisher ?? "",
+      row.genre ?? "",
+      String(row.totalCopies),
+    ]);
+  }
+
+  // ── Calendar Holidays ─────────────────────────────────────────────────
+
+  private resolveCalendarHolidayPayload(
+    row: Record<string, string>,
+  ): CalendarHolidayImportPayload {
+    const title = this.required(row.title, "Holiday title is required.");
+    const startDate = this.required(row.startDate, "Start date is required.");
+    const endDate = row.endDate?.trim() || startDate;
+    return {
+      title,
+      startDate,
+      endDate,
+      description: row.description || undefined,
+    };
+  }
+
+  private async exportCalendarHolidays(institutionId: string) {
+    const rows = await this.db
+      .select({
+        title: calendarEvents.title,
+        eventDate: calendarEvents.eventDate,
+        description: calendarEvents.description,
+      })
+      .from(calendarEvents)
+      .where(
+        and(
+          eq(calendarEvents.institutionId, institutionId),
+          eq(calendarEvents.eventType, CALENDAR_EVENT_TYPES.HOLIDAY),
+          ne(calendarEvents.status, "deleted"),
+        ),
+      )
+      .orderBy(asc(calendarEvents.eventDate));
+
+    return rows.map((row) => [
+      row.title,
+      row.eventDate,
+      row.eventDate,
+      row.description ?? "",
+    ]);
+  }
+
+  // ── Inventory Items ───────────────────────────────────────────────────
+
+  private resolveInventoryItemPayload(
+    row: Record<string, string>,
+    context: PreviewContext,
+  ): InventoryItemImportPayload {
+    const name = this.required(row.name, "Item name is required.");
+    const categoryName = this.required(
+      row.categoryName,
+      "Category name is required.",
+    );
+
+    const category = context.inventoryCategoryByName.get(
+      categoryName.toLowerCase(),
+    );
+    if (!category) {
+      throw new BadRequestException(
+        `Inventory category "${categoryName}" not found.`,
+      );
+    }
+
+    const currentStockStr = row.currentStock?.trim() || "0";
+    const currentStock = Number.parseInt(currentStockStr, 10);
+    if (Number.isNaN(currentStock) || currentStock < 0) {
+      throw new BadRequestException(
+        "Current stock must be a non-negative integer.",
+      );
+    }
+
+    const minimumStockStr = row.minimumStock?.trim() || "0";
+    const minimumStock = Number.parseInt(minimumStockStr, 10);
+    if (Number.isNaN(minimumStock) || minimumStock < 0) {
+      throw new BadRequestException(
+        "Minimum stock must be a non-negative integer.",
+      );
+    }
+
+    return {
+      name,
+      categoryName,
+      sku: row.sku || undefined,
+      unit: row.unit?.trim() || "piece",
+      currentStock,
+      minimumStock,
+      location: row.location || undefined,
+    };
+  }
+
+  private async exportInventoryItems(institutionId: string) {
+    const rows = await this.db
+      .select({
+        name: inventoryItems.name,
+        categoryName: inventoryCategories.name,
+        sku: inventoryItems.sku,
+        unit: inventoryItems.unit,
+        currentStock: inventoryItems.currentStock,
+        minimumStock: inventoryItems.minimumStock,
+        location: inventoryItems.location,
+      })
+      .from(inventoryItems)
+      .innerJoin(
+        inventoryCategories,
+        eq(inventoryItems.categoryId, inventoryCategories.id),
+      )
+      .where(
+        and(
+          eq(inventoryItems.institutionId, institutionId),
+          ne(inventoryItems.status, "deleted"),
+        ),
+      )
+      .orderBy(asc(inventoryItems.name));
+
+    return rows.map((row) => [
+      row.name,
+      row.categoryName,
+      row.sku ?? "",
+      row.unit,
+      String(row.currentStock),
+      String(row.minimumStock),
+      row.location ?? "",
+    ]);
   }
 }

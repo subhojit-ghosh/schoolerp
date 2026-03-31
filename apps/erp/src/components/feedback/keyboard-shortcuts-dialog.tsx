@@ -30,6 +30,34 @@ const SHORTCUT_GROUPS: ShortcutGroup[] = [
         keys: [MOD_KEY_LABEL, "K"],
         description: "Search & navigate",
       },
+      {
+        keys: ["Alt", "D"],
+        description: "Go to dashboard",
+      },
+      {
+        keys: ["Alt", "A"],
+        description: "Go to attendance",
+      },
+      {
+        keys: ["Alt", "F"],
+        description: "Go to fees",
+      },
+      {
+        keys: ["Alt", "S"],
+        description: "Go to students",
+      },
+      {
+        keys: ["Alt", "M"],
+        description: "Go to exams/marks",
+      },
+      {
+        keys: ["Alt", "H"],
+        description: "Go to homework",
+      },
+      {
+        keys: ["Alt", "N"],
+        description: "New entity (context-dependent)",
+      },
     ],
   },
   {

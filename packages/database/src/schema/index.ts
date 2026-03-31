@@ -51,6 +51,31 @@ import {
   GRADING_SCALE_STATUS,
   FEE_CATEGORIES,
   LATE_FEE_CALC_TYPES,
+  LIBRARY_RESERVATION_STATUS,
+  ANNOUNCEMENT_CATEGORIES,
+  HOMEWORK_SUBMISSION_STATUS,
+  ADMISSION_DOCUMENT_STATUS,
+  PURCHASE_ORDER_STATUS,
+  VENDOR_STATUS,
+  VEHICLE_MAINTENANCE_TYPE,
+  DISCIPLINARY_SEVERITY,
+  TC_STATUS,
+  COMMUNICATION_PREFERENCES,
+  DOMAIN_EVENT_STATUS,
+  DOMAIN_EVENT_TYPES,
+  EXPENSE_STATUS,
+  EXPENSE_CATEGORY_STATUS,
+  SCHOLARSHIP_TYPES,
+  SCHOLARSHIP_STATUS,
+  SCHOLARSHIP_APPLICATION_STATUS,
+  DBT_STATUS,
+  BROADCAST_STATUS,
+  BROADCAST_TARGET_TYPES,
+  BROADCAST_PRIORITY,
+  INCOME_CATEGORIES,
+  CONSENT_PURPOSES,
+  CONSENT_STATUS,
+  UPLOAD_ENTITY_TYPES,
 } from "@repo/contracts";
 import { campus, member, organization, user } from "./auth";
 
@@ -90,6 +115,8 @@ const ADMISSION_APPLICATION_STATUS_ENUM = [
   "reviewed",
   "approved",
   "rejected",
+  "waitlisted",
+  "converted",
 ] as const;
 const ADMISSION_FORM_FIELD_SCOPE_ENUM = [
   ADMISSION_FORM_FIELD_SCOPES.APPLICATION,
@@ -182,6 +209,10 @@ const NOTIFICATION_TYPE_ENUM = [
   NOTIFICATION_TYPES.ADMISSION_APPLICATION_RECEIVED,
   NOTIFICATION_TYPES.ADMISSION_STATUS_CHANGED,
   NOTIFICATION_TYPES.EXAM_RESULTS_PUBLISHED,
+  NOTIFICATION_TYPES.FEE_REMINDER_SENT,
+  NOTIFICATION_TYPES.LEAVE_APPROVED,
+  NOTIFICATION_TYPES.LEAVE_REJECTED,
+  NOTIFICATION_TYPES.ADMISSION_CONVERSION_SUGGESTED,
 ] as const;
 const WEEKDAY_ENUM = [
   WEEKDAY_KEYS.MONDAY,
@@ -249,6 +280,33 @@ const AUDIT_ENTITY_TYPE_ENUM = [
   AUDIT_ENTITY_TYPES.BED_ALLOCATION,
   AUDIT_ENTITY_TYPES.MESS_PLAN,
   AUDIT_ENTITY_TYPES.STAFF_ATTENDANCE_DAY,
+  AUDIT_ENTITY_TYPES.LIBRARY_RESERVATION,
+  AUDIT_ENTITY_TYPES.LIBRARY_FINE,
+  AUDIT_ENTITY_TYPES.ADMISSION_DOCUMENT,
+  AUDIT_ENTITY_TYPES.ADMISSION_CONVERSION,
+  AUDIT_ENTITY_TYPES.HOSTEL_MESS_ASSIGNMENT,
+  AUDIT_ENTITY_TYPES.HOSTEL_ROOM_TRANSFER,
+  AUDIT_ENTITY_TYPES.TRANSPORT_DRIVER,
+  AUDIT_ENTITY_TYPES.TRANSPORT_MAINTENANCE,
+  AUDIT_ENTITY_TYPES.VENDOR,
+  AUDIT_ENTITY_TYPES.PURCHASE_ORDER,
+  AUDIT_ENTITY_TYPES.HOMEWORK_SUBMISSION,
+  AUDIT_ENTITY_TYPES.STUDENT_SIBLING_LINK,
+  AUDIT_ENTITY_TYPES.STUDENT_MEDICAL_RECORD,
+  AUDIT_ENTITY_TYPES.STUDENT_DISCIPLINARY,
+  AUDIT_ENTITY_TYPES.TRANSFER_CERTIFICATE,
+  AUDIT_ENTITY_TYPES.STAFF_DOCUMENT,
+  AUDIT_ENTITY_TYPES.STAFF_CAMPUS_TRANSFER,
+  AUDIT_ENTITY_TYPES.DOMAIN_EVENT,
+  AUDIT_ENTITY_TYPES.EXPENSE_CATEGORY,
+  AUDIT_ENTITY_TYPES.EXPENSE,
+  AUDIT_ENTITY_TYPES.SCHOLARSHIP,
+  AUDIT_ENTITY_TYPES.SCHOLARSHIP_APPLICATION,
+  AUDIT_ENTITY_TYPES.EMERGENCY_BROADCAST,
+  AUDIT_ENTITY_TYPES.INCOME_RECORD,
+  AUDIT_ENTITY_TYPES.DATA_CONSENT,
+  AUDIT_ENTITY_TYPES.FILE_UPLOAD,
+  AUDIT_ENTITY_TYPES.SENSITIVE_DATA_ACCESS,
 ] as const;
 
 const SALARY_COMPONENT_TYPE_ENUM = [
@@ -363,6 +421,14 @@ const FEE_CATEGORY_ENUM = [
 const LATE_FEE_CALC_TYPE_ENUM = [
   LATE_FEE_CALC_TYPES.FLAT,
   LATE_FEE_CALC_TYPES.PER_DAY,
+] as const;
+
+// Phase 2 enums (declared at top so tables defined below can reference them)
+const ANNOUNCEMENT_CATEGORY_ENUM = [
+  ANNOUNCEMENT_CATEGORIES.ACADEMIC,
+  ANNOUNCEMENT_CATEGORIES.DISCIPLINARY,
+  ANNOUNCEMENT_CATEGORIES.GENERAL,
+  ANNOUNCEMENT_CATEGORIES.URGENT,
 ] as const;
 
 export const academicYears = pgTable(
@@ -571,6 +637,11 @@ export const students = pgTable(
     motherTongue: text(),
     bloodGroup: text(),
     aadharNumber: text(),
+    // Phase 2 depth
+    photoUrl: text(),
+    previousSchoolName: text(),
+    previousSchoolBoard: text(),
+    previousSchoolClass: text(),
     customFieldValues: jsonb().$type<Record<string, unknown> | null>(),
     createdAt: timestamp().notNull().defaultNow(),
     deletedAt: timestamp(),
@@ -695,6 +766,13 @@ export const admissionApplications = pgTable(
       .default("draft"),
     notes: text(),
     customFieldValues: jsonb().$type<Record<string, unknown> | null>(),
+    // Phase 2 depth
+    registrationFeeAmountInPaise: integer(),
+    registrationFeePaidAt: timestamp(),
+    waitlistPosition: integer(),
+    convertedStudentId: text().references(() => students.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()
@@ -1181,6 +1259,15 @@ export const announcements = pgTable(
     status: text({ enum: ANNOUNCEMENT_STATUS_ENUM }).notNull().default("draft"),
     publishedAt: timestamp(),
     publishedNotificationId: text(),
+    // Phase 2 depth
+    category: text({ enum: ANNOUNCEMENT_CATEGORY_ENUM }),
+    scheduledPublishAt: timestamp(),
+    targetClassId: text().references(() => schoolClasses.id, {
+      onDelete: "set null",
+    }),
+    targetSectionId: text().references(() => classSections.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()
@@ -1193,6 +1280,7 @@ export const announcements = pgTable(
     index("announcements_campus_idx").on(table.campusId),
     index("announcements_status_idx").on(table.status),
     index("announcements_published_at_idx").on(table.publishedAt),
+    index("announcements_category_idx").on(table.category),
   ],
 );
 
@@ -1574,6 +1662,11 @@ export const staffProfiles = pgTable(
     qualification: text(),
     experienceYears: integer(),
     employmentType: text({ enum: EMPLOYMENT_TYPE_ENUM }),
+    // Phase 2 depth
+    reportingToMemberId: text().references(() => member.id, {
+      onDelete: "set null",
+    }),
+    emergencyContactRelation: text(),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()
@@ -1648,6 +1741,9 @@ export const homework = pgTable(
       .notNull()
       .default("draft"),
     publishedAt: timestamp(),
+    // Phase 2 depth
+    parentVisible: boolean().notNull().default(true),
+    attachmentUrl: text(),
     createdAt: timestamp().notNull().defaultNow(),
     updatedAt: timestamp()
       .notNull()
@@ -2077,6 +2173,8 @@ export const transportVehicles = pgTable(
     capacity: integer().notNull(),
     driverName: text(),
     driverContact: text(),
+    // Phase 2: driverId references transport_drivers (managed at app level to avoid circular ref)
+    driverId: text(),
     routeId: text().references(() => transportRoutes.id, {
       onDelete: "set null",
     }),
@@ -2447,6 +2545,10 @@ export const stockTransactions = pgTable(
     issuedToMembershipId: text().references(() => member.id, {
       onDelete: "restrict",
     }),
+    // Phase 2 depth
+    departmentName: text(),
+    purchaseOrderId: text(),
+    unitPriceInPaise: integer(),
     notes: text(),
     createdByMemberId: text()
       .notNull()
@@ -2616,6 +2718,599 @@ export const lateFeeRules = pgTable(
   ],
 );
 
+// ── Phase 2: Library depth ─────────────────────────────────────────────────
+
+const LIBRARY_RESERVATION_STATUS_ENUM = [
+  LIBRARY_RESERVATION_STATUS.PENDING,
+  LIBRARY_RESERVATION_STATUS.FULFILLED,
+  LIBRARY_RESERVATION_STATUS.CANCELLED,
+] as const;
+
+export const libraryReservations = pgTable(
+  "library_reservations",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    bookId: text()
+      .notNull()
+      .references(() => libraryBooks.id, { onDelete: "restrict" }),
+    memberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    queuePosition: integer().notNull(),
+    status: text({ enum: LIBRARY_RESERVATION_STATUS_ENUM })
+      .notNull()
+      .default("pending"),
+    fulfilledAt: timestamp(),
+    cancelledAt: timestamp(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("library_reservations_institution_idx").on(t.institutionId),
+    index("library_reservations_book_idx").on(t.bookId),
+    index("library_reservations_member_idx").on(t.memberId),
+    index("library_reservations_status_idx").on(t.status),
+  ],
+);
+
+// ── Phase 2: Announcement depth ───────────────────────────────────────────
+
+export const announcementReadReceipts = pgTable(
+  "announcement_read_receipts",
+  {
+    announcementId: text()
+      .notNull()
+      .references(() => announcements.id, { onDelete: "cascade" }),
+    userId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    readAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.announcementId, t.userId] }),
+    index("announcement_read_receipts_user_idx").on(t.userId),
+  ],
+);
+
+// ── Phase 2: Homework depth ───────────────────────────────────────────────
+
+const HOMEWORK_SUBMISSION_STATUS_ENUM = [
+  HOMEWORK_SUBMISSION_STATUS.SUBMITTED,
+  HOMEWORK_SUBMISSION_STATUS.NOT_SUBMITTED,
+  HOMEWORK_SUBMISSION_STATUS.LATE,
+] as const;
+
+export const homeworkSubmissions = pgTable(
+  "homework_submissions",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    homeworkId: text()
+      .notNull()
+      .references(() => homework.id, { onDelete: "cascade" }),
+    studentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    status: text({ enum: HOMEWORK_SUBMISSION_STATUS_ENUM })
+      .notNull()
+      .default("not_submitted"),
+    submittedAt: timestamp(),
+    remarks: text(),
+    attachmentUrl: text(),
+    markedByMemberId: text().references(() => member.id, {
+      onDelete: "set null",
+    }),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("homework_submissions_institution_idx").on(t.institutionId),
+    index("homework_submissions_homework_idx").on(t.homeworkId),
+    index("homework_submissions_student_idx").on(t.studentId),
+    uniqueIndex("homework_submissions_unique_idx").on(
+      t.homeworkId,
+      t.studentId,
+    ),
+  ],
+);
+
+// ── Phase 2: Admissions depth ─────────────────────────────────────────────
+
+const ADMISSION_DOCUMENT_STATUS_ENUM = [
+  ADMISSION_DOCUMENT_STATUS.PENDING,
+  ADMISSION_DOCUMENT_STATUS.UPLOADED,
+  ADMISSION_DOCUMENT_STATUS.VERIFIED,
+  ADMISSION_DOCUMENT_STATUS.REJECTED,
+] as const;
+
+export const admissionDocumentChecklists = pgTable(
+  "admission_document_checklists",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    documentName: text().notNull(),
+    isRequired: boolean().notNull().default(true),
+    sortOrder: integer().notNull().default(0),
+    isActive: boolean().notNull().default(true),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("admission_doc_checklists_institution_idx").on(t.institutionId),
+  ],
+);
+
+export const admissionApplicationDocuments = pgTable(
+  "admission_application_documents",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    applicationId: text()
+      .notNull()
+      .references(() => admissionApplications.id, { onDelete: "cascade" }),
+    checklistItemId: text()
+      .notNull()
+      .references(() => admissionDocumentChecklists.id, {
+        onDelete: "restrict",
+      }),
+    status: text({ enum: ADMISSION_DOCUMENT_STATUS_ENUM })
+      .notNull()
+      .default("pending"),
+    uploadUrl: text(),
+    verifiedByMemberId: text().references(() => member.id, {
+      onDelete: "set null",
+    }),
+    verifiedAt: timestamp(),
+    notes: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("admission_app_docs_institution_idx").on(t.institutionId),
+    index("admission_app_docs_application_idx").on(t.applicationId),
+    uniqueIndex("admission_app_docs_unique_idx").on(
+      t.applicationId,
+      t.checklistItemId,
+    ),
+  ],
+);
+
+// ── Phase 2: Inventory depth (Vendors, Purchase Orders) ───────────────────
+
+const VENDOR_STATUS_ENUM = [
+  VENDOR_STATUS.ACTIVE,
+  VENDOR_STATUS.INACTIVE,
+] as const;
+
+const PURCHASE_ORDER_STATUS_ENUM = [
+  PURCHASE_ORDER_STATUS.DRAFT,
+  PURCHASE_ORDER_STATUS.ORDERED,
+  PURCHASE_ORDER_STATUS.PARTIALLY_RECEIVED,
+  PURCHASE_ORDER_STATUS.RECEIVED,
+  PURCHASE_ORDER_STATUS.CANCELLED,
+] as const;
+
+export const vendors = pgTable(
+  "vendors",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    contactPerson: text(),
+    phone: text(),
+    email: text(),
+    address: text(),
+    gstNumber: text(),
+    status: text({ enum: VENDOR_STATUS_ENUM }).notNull().default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("vendors_institution_idx").on(t.institutionId),
+    index("vendors_status_idx").on(t.status),
+  ],
+);
+
+export const purchaseOrders = pgTable(
+  "purchase_orders",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    vendorId: text()
+      .notNull()
+      .references(() => vendors.id, { onDelete: "restrict" }),
+    orderNumber: text().notNull(),
+    orderDate: date().notNull(),
+    expectedDeliveryDate: date(),
+    totalAmountInPaise: integer().notNull().default(0),
+    status: text({ enum: PURCHASE_ORDER_STATUS_ENUM })
+      .notNull()
+      .default("draft"),
+    notes: text(),
+    createdByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("purchase_orders_institution_idx").on(t.institutionId),
+    index("purchase_orders_vendor_idx").on(t.vendorId),
+    index("purchase_orders_status_idx").on(t.status),
+    uniqueIndex("purchase_orders_number_unique_idx").on(
+      t.institutionId,
+      t.orderNumber,
+    ),
+  ],
+);
+
+export const purchaseOrderItems = pgTable(
+  "purchase_order_items",
+  {
+    id: text().primaryKey(),
+    purchaseOrderId: text()
+      .notNull()
+      .references(() => purchaseOrders.id, { onDelete: "cascade" }),
+    itemId: text()
+      .notNull()
+      .references(() => inventoryItems.id, { onDelete: "restrict" }),
+    quantityOrdered: integer().notNull(),
+    quantityReceived: integer().notNull().default(0),
+    unitPriceInPaise: integer().notNull(),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("purchase_order_items_order_idx").on(t.purchaseOrderId),
+    index("purchase_order_items_item_idx").on(t.itemId),
+  ],
+);
+
+// ── Phase 2: Transport depth (Drivers, Maintenance) ───────────────────────
+
+const VEHICLE_MAINTENANCE_TYPE_ENUM = [
+  VEHICLE_MAINTENANCE_TYPE.REGULAR,
+  VEHICLE_MAINTENANCE_TYPE.REPAIR,
+  VEHICLE_MAINTENANCE_TYPE.INSPECTION,
+] as const;
+
+export const transportDrivers = pgTable(
+  "transport_drivers",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    mobile: text().notNull(),
+    licenseNumber: text(),
+    licenseExpiry: date(),
+    address: text(),
+    emergencyContact: text(),
+    status: text({ enum: ["active", "inactive"] as const })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("transport_drivers_institution_idx").on(t.institutionId),
+    index("transport_drivers_status_idx").on(t.status),
+  ],
+);
+
+export const vehicleMaintenanceLogs = pgTable(
+  "vehicle_maintenance_logs",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    vehicleId: text()
+      .notNull()
+      .references(() => transportVehicles.id, { onDelete: "restrict" }),
+    maintenanceType: text({ enum: VEHICLE_MAINTENANCE_TYPE_ENUM }).notNull(),
+    description: text().notNull(),
+    costInPaise: integer(),
+    maintenanceDate: date().notNull(),
+    nextDueDate: date(),
+    vendorName: text(),
+    createdByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("vehicle_maintenance_institution_idx").on(t.institutionId),
+    index("vehicle_maintenance_vehicle_idx").on(t.vehicleId),
+    index("vehicle_maintenance_date_idx").on(t.maintenanceDate),
+  ],
+);
+
+// ── Phase 2: Hostel depth (Mess assignment, Room transfers) ───────────────
+
+export const messPlanAssignments = pgTable(
+  "mess_plan_assignments",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    studentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "restrict" }),
+    messPlanId: text()
+      .notNull()
+      .references(() => messPlans.id, { onDelete: "restrict" }),
+    bedAllocationId: text().references(() => bedAllocations.id, {
+      onDelete: "set null",
+    }),
+    startDate: date().notNull(),
+    endDate: date(),
+    status: text({ enum: ["active", "inactive"] as const })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("mess_plan_assignments_institution_idx").on(t.institutionId),
+    index("mess_plan_assignments_student_idx").on(t.studentId),
+    index("mess_plan_assignments_plan_idx").on(t.messPlanId),
+    index("mess_plan_assignments_status_idx").on(t.status),
+    uniqueIndex("mess_plan_assignments_active_student_unique_idx")
+      .on(t.studentId)
+      .where(sql`${t.status} = 'active'`),
+  ],
+);
+
+export const hostelRoomTransfers = pgTable(
+  "hostel_room_transfers",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    studentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "restrict" }),
+    fromRoomId: text()
+      .notNull()
+      .references(() => hostelRooms.id, { onDelete: "restrict" }),
+    toRoomId: text()
+      .notNull()
+      .references(() => hostelRooms.id, { onDelete: "restrict" }),
+    fromBedNumber: text().notNull(),
+    toBedNumber: text().notNull(),
+    transferDate: date().notNull(),
+    reason: text(),
+    transferredByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("hostel_room_transfers_institution_idx").on(t.institutionId),
+    index("hostel_room_transfers_student_idx").on(t.studentId),
+    index("hostel_room_transfers_date_idx").on(t.transferDate),
+  ],
+);
+
+// ── Phase 2: Student depth ────────────────────────────────────────────────
+
+const DISCIPLINARY_SEVERITY_ENUM = [
+  DISCIPLINARY_SEVERITY.MINOR,
+  DISCIPLINARY_SEVERITY.MODERATE,
+  DISCIPLINARY_SEVERITY.MAJOR,
+] as const;
+
+const TC_STATUS_ENUM = [TC_STATUS.ISSUED, TC_STATUS.CANCELLED] as const;
+
+export const studentSiblingLinks = pgTable(
+  "student_sibling_links",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    studentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    siblingStudentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("student_sibling_links_institution_idx").on(t.institutionId),
+    index("student_sibling_links_student_idx").on(t.studentId),
+    uniqueIndex("student_sibling_links_unique_idx").on(
+      t.studentId,
+      t.siblingStudentId,
+    ),
+  ],
+);
+
+export const studentMedicalRecords = pgTable(
+  "student_medical_records",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    studentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    allergies: text(),
+    conditions: text(),
+    medications: text(),
+    emergencyMedicalInfo: text(),
+    doctorName: text(),
+    doctorPhone: text(),
+    insuranceInfo: text(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("student_medical_records_institution_idx").on(t.institutionId),
+    uniqueIndex("student_medical_records_student_unique_idx").on(t.studentId),
+  ],
+);
+
+export const studentDisciplinaryRecords = pgTable(
+  "student_disciplinary_records",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    studentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "cascade" }),
+    incidentDate: date().notNull(),
+    severity: text({ enum: DISCIPLINARY_SEVERITY_ENUM }).notNull(),
+    description: text().notNull(),
+    actionTaken: text(),
+    reportedByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    parentNotified: boolean().notNull().default(false),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("student_disciplinary_institution_idx").on(t.institutionId),
+    index("student_disciplinary_student_idx").on(t.studentId),
+    index("student_disciplinary_date_idx").on(t.incidentDate),
+  ],
+);
+
+export const transferCertificates = pgTable(
+  "transfer_certificates",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    studentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "restrict" }),
+    tcNumber: text().notNull(),
+    issueDate: date().notNull(),
+    reason: text(),
+    conductRemarks: text(),
+    status: text({ enum: TC_STATUS_ENUM }).notNull().default("issued"),
+    issuedByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("transfer_certificates_institution_idx").on(t.institutionId),
+    index("transfer_certificates_student_idx").on(t.studentId),
+    uniqueIndex("transfer_certificates_number_unique_idx").on(
+      t.institutionId,
+      t.tcNumber,
+    ),
+  ],
+);
+
+// ── Phase 2: Staff depth ──────────────────────────────────────────────────
+
+export const staffDocuments = pgTable(
+  "staff_documents",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    staffMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "cascade" }),
+    documentType: text().notNull(), // appointment_letter, qualification, id_proof, etc.
+    documentName: text().notNull(),
+    uploadUrl: text(),
+    notes: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("staff_documents_institution_idx").on(t.institutionId),
+    index("staff_documents_staff_idx").on(t.staffMemberId),
+  ],
+);
+
+export const staffCampusTransfers = pgTable(
+  "staff_campus_transfers",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    staffMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "cascade" }),
+    fromCampusId: text()
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    toCampusId: text()
+      .notNull()
+      .references(() => campus.id, { onDelete: "restrict" }),
+    transferDate: date().notNull(),
+    reason: text(),
+    transferredByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("staff_campus_transfers_institution_idx").on(t.institutionId),
+    index("staff_campus_transfers_staff_idx").on(t.staffMemberId),
+    index("staff_campus_transfers_date_idx").on(t.transferDate),
+  ],
+);
+
 // ── Phase 0b: Institution signatories ───────────────────────────────────────
 export const institutionSignatories = pgTable(
   "institution_signatories",
@@ -2659,5 +3354,498 @@ export const institutionDocumentConfig = pgTable(
   },
   (t) => [
     index("institution_document_config_institution_idx").on(t.institutionId),
+  ],
+);
+
+// ══════════════════════════════════════════════════════════════════════════════
+// Phase 2 Remaining: New modules and platform infrastructure
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── Domain Events ─────────────────────────────────────────────────────────
+
+const DOMAIN_EVENT_STATUS_ENUM = [
+  DOMAIN_EVENT_STATUS.PENDING,
+  DOMAIN_EVENT_STATUS.PROCESSING,
+  DOMAIN_EVENT_STATUS.PROCESSED,
+  DOMAIN_EVENT_STATUS.FAILED,
+] as const;
+
+const DOMAIN_EVENT_TYPE_VALUES = Object.values(DOMAIN_EVENT_TYPES) as [
+  string,
+  ...string[],
+];
+
+export const domainEvents = pgTable(
+  "domain_events",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    eventType: text({ enum: DOMAIN_EVENT_TYPE_VALUES }).notNull(),
+    payload: jsonb().notNull(), // JSON event data
+    status: text({ enum: DOMAIN_EVENT_STATUS_ENUM })
+      .notNull()
+      .default("pending"),
+    attempts: integer().notNull().default(0),
+    maxAttempts: integer().notNull().default(3),
+    lastError: text(),
+    processedAt: timestamp(),
+    scheduledFor: timestamp(), // for delayed events
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("domain_events_institution_idx").on(t.institutionId),
+    index("domain_events_status_idx").on(t.status),
+    index("domain_events_type_idx").on(t.eventType),
+    index("domain_events_created_at_idx").on(t.createdAt),
+    index("domain_events_scheduled_idx").on(t.scheduledFor),
+  ],
+);
+
+// ── File Uploads ──────────────────────────────────────────────────────────
+
+const UPLOAD_ENTITY_TYPE_VALUES = Object.values(UPLOAD_ENTITY_TYPES) as [
+  string,
+  ...string[],
+];
+
+export const fileUploads = pgTable(
+  "file_uploads",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    entityType: text({ enum: UPLOAD_ENTITY_TYPE_VALUES }).notNull(),
+    entityId: text(), // optional link to source entity
+    originalFilename: text().notNull(),
+    storagePath: text().notNull(), // path in storage (local or S3)
+    mimeType: text().notNull(),
+    sizeBytes: integer().notNull(),
+    uploadedByUserId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "restrict" }),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("file_uploads_institution_idx").on(t.institutionId),
+    index("file_uploads_entity_idx").on(t.entityType, t.entityId),
+    index("file_uploads_uploaded_by_idx").on(t.uploadedByUserId),
+  ],
+);
+
+// ── Expense Management ────────────────────────────────────────────────────
+
+const EXPENSE_CATEGORY_STATUS_ENUM = [
+  EXPENSE_CATEGORY_STATUS.ACTIVE,
+  EXPENSE_CATEGORY_STATUS.INACTIVE,
+] as const;
+
+const EXPENSE_STATUS_ENUM = [
+  EXPENSE_STATUS.DRAFT,
+  EXPENSE_STATUS.SUBMITTED,
+  EXPENSE_STATUS.APPROVED,
+  EXPENSE_STATUS.REJECTED,
+  EXPENSE_STATUS.PAID,
+] as const;
+
+export const expenseCategories = pgTable(
+  "expense_categories",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    description: text(),
+    budgetHeadCode: text(), // e.g. "MAINT-001", "UTIL-002"
+    parentCategoryId: text(), // self-referential for hierarchy
+    status: text({ enum: EXPENSE_CATEGORY_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("expense_categories_institution_idx").on(t.institutionId),
+    index("expense_categories_status_idx").on(t.status),
+    uniqueIndex("expense_categories_name_unique_idx")
+      .on(t.institutionId, t.name)
+      .where(sql`${t.status} != 'inactive'`),
+  ],
+);
+
+export const expenses = pgTable(
+  "expenses",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text().references(() => campus.id, { onDelete: "restrict" }),
+    categoryId: text()
+      .notNull()
+      .references(() => expenseCategories.id, { onDelete: "restrict" }),
+    title: text().notNull(),
+    description: text(),
+    amountInPaise: integer().notNull(),
+    expenseDate: date().notNull(),
+    departmentName: text(),
+    vendorName: text(),
+    referenceNumber: text(), // invoice/bill number
+    receiptUploadId: text(), // FK to file_uploads managed at app level
+    status: text({ enum: EXPENSE_STATUS_ENUM }).notNull().default("draft"),
+    submittedByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    approvedByMemberId: text().references(() => member.id, {
+      onDelete: "set null",
+    }),
+    approvedAt: timestamp(),
+    rejectionReason: text(),
+    paidAt: timestamp(),
+    paymentMethod: text(),
+    paymentReference: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("expenses_institution_idx").on(t.institutionId),
+    index("expenses_campus_idx").on(t.campusId),
+    index("expenses_category_idx").on(t.categoryId),
+    index("expenses_status_idx").on(t.status),
+    index("expenses_date_idx").on(t.expenseDate),
+    index("expenses_submitted_by_idx").on(t.submittedByMemberId),
+  ],
+);
+
+// ── Scholarship Management ────────────────────────────────────────────────
+
+const SCHOLARSHIP_TYPE_ENUM = Object.values(SCHOLARSHIP_TYPES) as [
+  string,
+  ...string[],
+];
+const SCHOLARSHIP_STATUS_ENUM = [
+  SCHOLARSHIP_STATUS.ACTIVE,
+  SCHOLARSHIP_STATUS.INACTIVE,
+  SCHOLARSHIP_STATUS.DELETED,
+] as const;
+const SCHOLARSHIP_APPLICATION_STATUS_ENUM = [
+  SCHOLARSHIP_APPLICATION_STATUS.PENDING,
+  SCHOLARSHIP_APPLICATION_STATUS.APPROVED,
+  SCHOLARSHIP_APPLICATION_STATUS.REJECTED,
+  SCHOLARSHIP_APPLICATION_STATUS.EXPIRED,
+] as const;
+const DBT_STATUS_ENUM = Object.values(DBT_STATUS) as [string, ...string[]];
+
+export const scholarships = pgTable(
+  "scholarships",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    name: text().notNull(),
+    description: text(),
+    scholarshipType: text({ enum: SCHOLARSHIP_TYPE_ENUM }).notNull(),
+    amountInPaise: integer(), // fixed amount, null = percentage
+    percentageDiscount: integer(), // in basis points (e.g. 5000 = 50%)
+    eligibilityCriteria: text(),
+    maxRecipients: integer(),
+    academicYearId: text().references(() => academicYears.id, {
+      onDelete: "restrict",
+    }),
+    renewalRequired: boolean().notNull().default(false),
+    renewalPeriodMonths: integer(), // how often to renew
+    status: text({ enum: SCHOLARSHIP_STATUS_ENUM })
+      .notNull()
+      .default("active"),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+    deletedAt: timestamp(),
+  },
+  (t) => [
+    index("scholarships_institution_idx").on(t.institutionId),
+    index("scholarships_type_idx").on(t.scholarshipType),
+    index("scholarships_status_idx").on(t.status),
+    index("scholarships_academic_year_idx").on(t.academicYearId),
+  ],
+);
+
+export const scholarshipApplications = pgTable(
+  "scholarship_applications",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    scholarshipId: text()
+      .notNull()
+      .references(() => scholarships.id, { onDelete: "restrict" }),
+    studentId: text()
+      .notNull()
+      .references(() => students.id, { onDelete: "restrict" }),
+    appliedByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    status: text({ enum: SCHOLARSHIP_APPLICATION_STATUS_ENUM })
+      .notNull()
+      .default("pending"),
+    reviewedByMemberId: text().references(() => member.id, {
+      onDelete: "set null",
+    }),
+    reviewedAt: timestamp(),
+    reviewNotes: text(),
+    // DBT tracking for government scholarships
+    dbtStatus: text({ enum: DBT_STATUS_ENUM })
+      .notNull()
+      .default("not_applied"),
+    dbtTransactionId: text(),
+    dbtDisbursedAt: timestamp(),
+    // Auto-created fee concession
+    feeAdjustmentId: text(), // link to fee_assignment_adjustments
+    concessionAmountInPaise: integer(),
+    // Renewal tracking
+    expiresAt: timestamp(),
+    renewedFromApplicationId: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("scholarship_apps_institution_idx").on(t.institutionId),
+    index("scholarship_apps_scholarship_idx").on(t.scholarshipId),
+    index("scholarship_apps_student_idx").on(t.studentId),
+    index("scholarship_apps_status_idx").on(t.status),
+    index("scholarship_apps_dbt_status_idx").on(t.dbtStatus),
+    uniqueIndex("scholarship_apps_student_unique_idx")
+      .on(t.scholarshipId, t.studentId)
+      .where(sql`${t.status} NOT IN ('rejected', 'expired')`),
+  ],
+);
+
+// ── Emergency Broadcast ───────────────────────────────────────────────────
+
+const BROADCAST_STATUS_ENUM = [
+  BROADCAST_STATUS.DRAFT,
+  BROADCAST_STATUS.SENDING,
+  BROADCAST_STATUS.SENT,
+  BROADCAST_STATUS.FAILED,
+] as const;
+const BROADCAST_TARGET_TYPE_ENUM = Object.values(BROADCAST_TARGET_TYPES) as [
+  string,
+  ...string[],
+];
+const BROADCAST_PRIORITY_ENUM = [
+  BROADCAST_PRIORITY.NORMAL,
+  BROADCAST_PRIORITY.HIGH,
+  BROADCAST_PRIORITY.CRITICAL,
+] as const;
+
+export const emergencyBroadcasts = pgTable(
+  "emergency_broadcasts",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    title: text().notNull(),
+    message: text().notNull(),
+    templateKey: text(), // e.g. "school_closure", "early_dismissal", "security_alert"
+    targetType: text({ enum: BROADCAST_TARGET_TYPE_ENUM }).notNull(),
+    targetId: text(), // campusId, classId, sectionId, routeId — or null for "all"
+    priority: text({ enum: BROADCAST_PRIORITY_ENUM })
+      .notNull()
+      .default("normal"),
+    channels: jsonb().$type<string[]>().notNull(), // ["sms", "email", "in_app"]
+    status: text({ enum: BROADCAST_STATUS_ENUM }).notNull().default("draft"),
+    sentAt: timestamp(),
+    sentByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    // Delivery stats
+    totalRecipients: integer().notNull().default(0),
+    deliveredCount: integer().notNull().default(0),
+    failedCount: integer().notNull().default(0),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("emergency_broadcasts_institution_idx").on(t.institutionId),
+    index("emergency_broadcasts_status_idx").on(t.status),
+    index("emergency_broadcasts_sent_at_idx").on(t.sentAt),
+  ],
+);
+
+export const broadcastDeliveryLogs = pgTable(
+  "broadcast_delivery_logs",
+  {
+    id: text().primaryKey(),
+    broadcastId: text()
+      .notNull()
+      .references(() => emergencyBroadcasts.id, { onDelete: "cascade" }),
+    recipientUserId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    channel: text().notNull(), // sms, email, in_app
+    status: text({ enum: ["pending", "delivered", "failed"] as const })
+      .notNull()
+      .default("pending"),
+    deliveredAt: timestamp(),
+    errorMessage: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("broadcast_delivery_broadcast_idx").on(t.broadcastId),
+    index("broadcast_delivery_recipient_idx").on(t.recipientUserId),
+    index("broadcast_delivery_status_idx").on(t.status),
+  ],
+);
+
+// ── Income Tracking ───────────────────────────────────────────────────────
+
+const INCOME_CATEGORY_ENUM = Object.values(INCOME_CATEGORIES) as [
+  string,
+  ...string[],
+];
+
+export const incomeRecords = pgTable(
+  "income_records",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    campusId: text().references(() => campus.id, { onDelete: "restrict" }),
+    category: text({ enum: INCOME_CATEGORY_ENUM }).notNull(),
+    title: text().notNull(),
+    description: text(),
+    amountInPaise: integer().notNull(),
+    incomeDate: date().notNull(),
+    sourceEntity: text(), // donor name, grant name, tenant name, etc.
+    referenceNumber: text(),
+    receiptUploadId: text(),
+    recordedByMemberId: text()
+      .notNull()
+      .references(() => member.id, { onDelete: "restrict" }),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("income_records_institution_idx").on(t.institutionId),
+    index("income_records_campus_idx").on(t.campusId),
+    index("income_records_category_idx").on(t.category),
+    index("income_records_date_idx").on(t.incomeDate),
+  ],
+);
+
+// ── DPDPA Compliance ──────────────────────────────────────────────────────
+
+const CONSENT_PURPOSE_ENUM = Object.values(CONSENT_PURPOSES) as [
+  string,
+  ...string[],
+];
+const CONSENT_STATUS_ENUM = [
+  CONSENT_STATUS.GRANTED,
+  CONSENT_STATUS.WITHDRAWN,
+] as const;
+
+export const dataConsents = pgTable(
+  "data_consents",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    userId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    purpose: text({ enum: CONSENT_PURPOSE_ENUM }).notNull(),
+    status: text({ enum: CONSENT_STATUS_ENUM }).notNull().default("granted"),
+    consentedAt: timestamp().notNull().defaultNow(),
+    withdrawnAt: timestamp(),
+    ipAddress: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("data_consents_institution_idx").on(t.institutionId),
+    index("data_consents_user_idx").on(t.userId),
+    uniqueIndex("data_consents_user_purpose_unique_idx").on(
+      t.userId,
+      t.purpose,
+    ),
+  ],
+);
+
+export const sensitiveDataAccessLogs = pgTable(
+  "sensitive_data_access_logs",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    accessedByUserId: text()
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    dataType: text().notNull(), // "aadhar", "mobile", "email", "income", etc.
+    entityType: text().notNull(), // "student", "guardian", "staff"
+    entityId: text().notNull(),
+    action: text().notNull(), // "view", "export", "unmask"
+    ipAddress: text(),
+    createdAt: timestamp().notNull().defaultNow(),
+  },
+  (t) => [
+    index("sensitive_access_institution_idx").on(t.institutionId),
+    index("sensitive_access_user_idx").on(t.accessedByUserId),
+    index("sensitive_access_entity_idx").on(t.entityType, t.entityId),
+    index("sensitive_access_created_at_idx").on(t.createdAt),
+  ],
+);
+
+export const institutionSessionConfig = pgTable(
+  "institution_session_config",
+  {
+    id: text().primaryKey(),
+    institutionId: text()
+      .notNull()
+      .unique()
+      .references(() => organization.id, { onDelete: "cascade" }),
+    maxConcurrentSessions: integer().notNull().default(3),
+    sessionTimeoutMinutes: integer().notNull().default(30),
+    requireReauthForSensitiveOps: boolean().notNull().default(true),
+    createdAt: timestamp().notNull().defaultNow(),
+    updatedAt: timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+  (t) => [
+    index("institution_session_config_institution_idx").on(t.institutionId),
   ],
 );

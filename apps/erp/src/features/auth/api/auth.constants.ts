@@ -25,6 +25,16 @@ export const STUDENTS_API_PATHS = {
   UPDATE: "/students/{studentId}",
   ROLLOVER_PREVIEW: "/students/rollover/preview",
   ROLLOVER_EXECUTE: "/students/rollover/execute",
+  // Phase 2 depth
+  LIST_SIBLINGS: "/students/{studentId}/siblings",
+  CREATE_SIBLING_LINK: "/students/{studentId}/siblings",
+  DELETE_SIBLING_LINK: "/students/{studentId}/siblings/{linkId}",
+  GET_MEDICAL_RECORD: "/students/{studentId}/medical",
+  UPSERT_MEDICAL_RECORD: "/students/{studentId}/medical",
+  LIST_DISCIPLINARY: "/students/{studentId}/disciplinary",
+  CREATE_DISCIPLINARY: "/students/{studentId}/disciplinary",
+  LIST_TRANSFER_CERTIFICATES: "/students/{studentId}/transfer-certificate",
+  ISSUE_TRANSFER_CERTIFICATE: "/students/{studentId}/transfer-certificate",
 } as const;
 
 export const ADMISSIONS_API_PATHS = {
@@ -39,6 +49,17 @@ export const ADMISSIONS_API_PATHS = {
   CREATE_APPLICATION: "/admissions/applications",
   DETAIL_APPLICATION: "/admissions/applications/{applicationId}",
   UPDATE_APPLICATION: "/admissions/applications/{applicationId}",
+  // Phase 2 depth
+  LIST_DOCUMENT_CHECKLIST: "/admissions/document-checklist",
+  CREATE_DOCUMENT_CHECKLIST: "/admissions/document-checklist",
+  UPDATE_DOCUMENT_CHECKLIST: "/admissions/document-checklist/{itemId}",
+  LIST_APPLICATION_DOCUMENTS: "/admissions/applications/{applicationId}/application-documents",
+  UPSERT_APPLICATION_DOCUMENT: "/admissions/applications/{applicationId}/application-documents",
+  VERIFY_APPLICATION_DOCUMENT: "/admissions/applications/{applicationId}/application-documents/{documentId}",
+  CONVERT_TO_STUDENT: "/admissions/applications/{applicationId}/convert-to-student",
+  WAITLIST_APPLICATION: "/admissions/applications/{applicationId}/waitlist",
+  PROMOTE_WAITLISTED: "/admissions/promote",
+  RECORD_REGISTRATION_FEE: "/admissions/applications/{applicationId}/registration-fee",
 } as const;
 
 export const STAFF_API_PATHS = {
@@ -56,6 +77,14 @@ export const STAFF_API_PATHS = {
   LIST_SUBJECTS: "/staff/{staffId}/subjects",
   CREATE_SUBJECT: "/staff/{staffId}/subjects",
   DELETE_SUBJECT: "/staff/{staffId}/subjects/{assignmentId}",
+  // Phase 2 depth
+  LIST_DOCUMENTS: "/staff/{staffId}/staff-documents",
+  CREATE_DOCUMENT: "/staff/{staffId}/staff-documents",
+  UPDATE_DOCUMENT: "/staff/{staffId}/staff-documents/{documentId}",
+  DELETE_DOCUMENT: "/staff/{staffId}/staff-documents/{documentId}",
+  TEACHING_LOAD: "/staff/{staffId}/teaching-load",
+  LIST_CAMPUS_TRANSFERS: "/staff/{staffId}/campus-transfer",
+  CREATE_CAMPUS_TRANSFER: "/staff/{staffId}/campus-transfer",
 } as const;
 
 export const GUARDIANS_API_PATHS = {
@@ -65,6 +94,8 @@ export const GUARDIANS_API_PATHS = {
   LINK_STUDENT: "/guardians/{guardianId}/students",
   UPDATE_STUDENT_LINK: "/guardians/{guardianId}/students/{studentId}",
   UNLINK_STUDENT: "/guardians/{guardianId}/students/{studentId}",
+  // Phase 2 depth
+  CROSS_STUDENT_FEES: "/guardians/{guardianId}/cross-student-fees",
 } as const;
 
 export const ACADEMIC_YEARS_API_PATHS = {
@@ -134,6 +165,9 @@ export const COMMUNICATIONS_API_PATHS = {
     "/communications/announcements/{announcementId}/publish",
   LIST_NOTIFICATIONS: "/communications/notifications",
   MARK_ALL_NOTIFICATIONS_READ: "/communications/notifications/mark-all-read",
+  // Phase 2 depth
+  MARK_ANNOUNCEMENT_READ: "/communications/announcements/{announcementId}/read-receipts",
+  ANNOUNCEMENT_READ_COUNT: "/communications/announcements/{announcementId}/read-receipts",
 } as const;
 
 export const FAMILY_API_PATHS = {
@@ -251,6 +285,11 @@ export const HOMEWORK_API_PATHS = {
   UPDATE: "/homework/{homeworkId}",
   PUBLISH: "/homework/{homeworkId}/publish",
   DELETE: "/homework/{homeworkId}",
+  // Phase 2 depth
+  LIST_SUBMISSIONS: "/homework/{homeworkId}/submissions",
+  UPSERT_SUBMISSIONS: "/homework/{homeworkId}/submissions",
+  HOMEWORK_ANALYTICS: "/homework/{homeworkId}/analytics",
+  CLASS_ANALYTICS: "/homework/analytics/{classId}",
 } as const;
 
 export const LEAVE_API_PATHS = {
@@ -275,6 +314,16 @@ export const LIBRARY_API_PATHS = {
   LIST_TRANSACTIONS: "/library/transactions",
   ISSUE: "/library/transactions",
   RETURN: "/library/transactions/{transactionId}/return",
+  // Phase 2 depth
+  COLLECT_FINE: "/library/transactions/{transactionId}/fine",
+  LIST_RESERVATIONS: "/library/reservations",
+  CREATE_RESERVATION: "/library/reservations",
+  FULFILL_RESERVATION: "/library/reservations/{reservationId}/fulfill",
+  CANCEL_RESERVATION: "/library/reservations/{reservationId}/cancel",
+  BORROWING_HISTORY: "/library/borrowing-history/{memberId}",
+  LIST_OVERDUE: "/library/overdue",
+  MARK_OVERDUE: "/library/overdue",
+  DASHBOARD: "/library/dashboard",
 } as const;
 
 export const TRANSPORT_API_PATHS = {
@@ -290,6 +339,16 @@ export const TRANSPORT_API_PATHS = {
   LIST_ASSIGNMENTS: "/transport/assignments",
   CREATE_ASSIGNMENT: "/transport/assignments",
   UPDATE_ASSIGNMENT: "/transport/assignments/{assignmentId}",
+  // Phase 2 depth
+  LIST_DRIVERS: "/transport/drivers",
+  CREATE_DRIVER: "/transport/drivers",
+  GET_DRIVER: "/transport/drivers/{driverId}",
+  UPDATE_DRIVER: "/transport/drivers/{driverId}",
+  LIST_MAINTENANCE: "/transport/maintenance",
+  CREATE_MAINTENANCE: "/transport/maintenance",
+  ROUTE_STUDENTS: "/transport/route-students/{routeId}",
+  DEACTIVATE_ROUTE: "/transport/routes/{routeId}",
+  DEACTIVATE_VEHICLE: "/transport/vehicles/{vehicleId}",
 } as const;
 
 export const INVENTORY_API_PATHS = {
@@ -306,6 +365,17 @@ export const INVENTORY_API_PATHS = {
   LIST_TRANSACTIONS: "/inventory/transactions",
   CREATE_TRANSACTION: "/inventory/transactions",
   LOW_STOCK: "/inventory/low-stock",
+  // Phase 2 depth
+  LIST_VENDORS: "/inventory/vendors",
+  CREATE_VENDOR: "/inventory/vendors",
+  UPDATE_VENDOR: "/inventory/vendors/{vendorId}",
+  UPDATE_VENDOR_STATUS: "/inventory/vendors/{vendorId}/status",
+  LIST_PURCHASE_ORDERS: "/inventory/purchase-orders",
+  CREATE_PURCHASE_ORDER: "/inventory/purchase-orders",
+  GET_PURCHASE_ORDER: "/inventory/purchase-orders/{orderId}",
+  UPDATE_PURCHASE_ORDER: "/inventory/purchase-orders/{orderId}",
+  UPDATE_PURCHASE_ORDER_STATUS: "/inventory/purchase-orders/{orderId}/status",
+  RECEIVE_PURCHASE_ORDER: "/inventory/purchase-orders/{orderId}/receive",
 } as const;
 
 export const HOSTEL_API_PATHS = {
@@ -325,10 +395,41 @@ export const HOSTEL_API_PATHS = {
   CREATE_MESS_PLAN: "/hostel/mess-plans",
   UPDATE_MESS_PLAN: "/hostel/mess-plans/{planId}",
   UPDATE_MESS_PLAN_STATUS: "/hostel/mess-plans/{planId}/status",
+  // Phase 2 depth
+  LIST_MESS_ASSIGNMENTS: "/hostel/mess-assignments",
+  CREATE_MESS_ASSIGNMENT: "/hostel/mess-assignments",
+  DEACTIVATE_MESS_ASSIGNMENT: "/hostel/mess-assignments/{assignmentId}/deactivate",
+  LIST_ROOM_TRANSFERS: "/hostel/room-transfers",
+  CREATE_ROOM_TRANSFER: "/hostel/room-transfers",
+  OCCUPANCY_DASHBOARD: "/hostel/occupancy",
+  BATCH_ALLOCATE: "/hostel/allocations/batch",
 } as const;
 
 export const REPORTS_API_PATHS = {
   STUDENT_STRENGTH: "/reports/student-strength",
+} as const;
+
+export const DPDPA_API_PATHS = {
+  LIST_CONSENTS: "/dpdpa/consents",
+  GRANT_CONSENT: "/dpdpa/consents",
+  WITHDRAW_CONSENT: "/dpdpa/consents/{purpose}",
+  LIST_ACCESS_LOGS: "/dpdpa/sensitive-access",
+  GET_SESSION_CONFIG: "/dpdpa/session-config",
+  UPDATE_SESSION_CONFIG: "/dpdpa/session-config",
+} as const;
+
+export const DASHBOARD_API_PATHS = {
+  NEEDS_ATTENTION: "/dashboard/needs-attention",
+  TRENDS: "/dashboard/trends",
+  DISMISS_ITEM: "/dashboard/needs-attention/{itemId}/dismiss",
+} as const;
+
+export const FILE_UPLOADS_API_PATHS = {
+  UPLOAD: "/file-uploads",
+  LIST: "/file-uploads",
+  GET: "/file-uploads/{fileId}",
+  DOWNLOAD: "/file-uploads/{fileId}/download",
+  DELETE: "/file-uploads/{fileId}",
 } as const;
 
 export const STAFF_ATTENDANCE_API_PATHS = {
@@ -336,6 +437,59 @@ export const STAFF_ATTENDANCE_API_PATHS = {
   DAY: "/staff-attendance/day",
   DAY_VIEW: "/staff-attendance/day-view",
   REPORT: "/staff-attendance/report",
+} as const;
+
+export const EXPENSES_API_PATHS = {
+  LIST_CATEGORIES: "/expense-categories",
+  CREATE_CATEGORY: "/expense-categories",
+  UPDATE_CATEGORY: "/expense-categories/{categoryId}",
+  UPDATE_CATEGORY_STATUS: "/expense-categories/{categoryId}/status",
+  LIST: "/expenses",
+  CREATE: "/expenses",
+  GET: "/expenses/{expenseId}",
+  UPDATE: "/expenses/{expenseId}",
+  SUBMIT: "/expenses/{expenseId}/submit",
+  APPROVE: "/expenses/{expenseId}/approve",
+  REJECT: "/expenses/{expenseId}/reject",
+  MARK_PAID: "/expenses/{expenseId}/mark-paid",
+  SUMMARY: "/expenses/reports/summary",
+} as const;
+
+export const INCOME_API_PATHS = {
+  LIST: "/income/records",
+  CREATE: "/income/records",
+  GET: "/income/records/{recordId}",
+  UPDATE: "/income/records/{recordId}",
+  DELETE: "/income/records/{recordId}",
+  SUMMARY: "/income/income-summary",
+} as const;
+
+export const SCHOLARSHIPS_API_PATHS = {
+  LIST: "/scholarships",
+  CREATE: "/scholarships",
+  GET: "/scholarships/{scholarshipId}",
+  UPDATE: "/scholarships/{scholarshipId}",
+  UPDATE_STATUS: "/scholarships/{scholarshipId}/status",
+  LIST_APPLICATIONS: "/scholarship-applications",
+  CREATE_APPLICATION: "/scholarship-applications",
+  APPROVE_APPLICATION:
+    "/scholarship-applications/{applicationId}/approve",
+  REJECT_APPLICATION:
+    "/scholarship-applications/{applicationId}/reject",
+  UPDATE_DBT:
+    "/scholarship-applications/{applicationId}/dbt",
+  RENEW_APPLICATION:
+    "/scholarship-applications/{applicationId}/renew",
+} as const;
+
+export const EMERGENCY_BROADCASTS_API_PATHS = {
+  LIST: "/emergency-broadcasts",
+  CREATE: "/emergency-broadcasts",
+  GET: "/emergency-broadcasts/{broadcastId}",
+  UPDATE: "/emergency-broadcasts/{broadcastId}",
+  SEND: "/emergency-broadcasts/{broadcastId}/send",
+  DELIVERY_LOGS: "/emergency-broadcasts/{broadcastId}/delivery-logs",
+  TEMPLATES: "/broadcast-templates",
 } as const;
 
 export const PAYROLL_API_PATHS = {

@@ -89,3 +89,63 @@ export const DEFAULT_ASSIGNMENT_FORM_VALUES: AssignmentFormValues = {
   startDate: "",
   endDate: "",
 };
+
+// ── Driver ────────────────────────────────────────────────────────────────
+
+const DRIVER_NAME_MAX = 200;
+const MOBILE_MAX = 20;
+const LICENSE_MAX = 50;
+const ADDRESS_MAX = 500;
+
+export const driverFormSchema = z.object({
+  name: z.string().trim().min(1, "Driver name is required").max(DRIVER_NAME_MAX),
+  mobile: z.string().trim().min(1, "Mobile number is required").max(MOBILE_MAX),
+  licenseNumber: z.string().trim().max(LICENSE_MAX).optional(),
+  licenseExpiry: z.string().trim().optional(),
+  address: z.string().trim().max(ADDRESS_MAX).optional(),
+  emergencyContact: z.string().trim().max(MOBILE_MAX).optional(),
+});
+
+export type DriverFormValues = z.infer<typeof driverFormSchema>;
+
+export const DEFAULT_DRIVER_FORM_VALUES: DriverFormValues = {
+  name: "",
+  mobile: "",
+  licenseNumber: "",
+  licenseExpiry: "",
+  address: "",
+  emergencyContact: "",
+};
+
+// ── Maintenance Log ───────────────────────────────────────────────────────
+
+const DESCRIPTION_MAX = 1000;
+const VENDOR_MAX = 200;
+
+export const maintenanceLogFormSchema = z.object({
+  vehicleId: z.string().min(1, "Vehicle is required"),
+  maintenanceType: z.enum(["regular", "repair", "inspection"], {
+    error: "Maintenance type is required",
+  }),
+  description: z
+    .string()
+    .trim()
+    .min(1, "Description is required")
+    .max(DESCRIPTION_MAX),
+  costInPaise: z.number().int().nonnegative().optional(),
+  maintenanceDate: z.string().min(1, "Maintenance date is required"),
+  nextDueDate: z.string().trim().optional(),
+  vendorName: z.string().trim().max(VENDOR_MAX).optional(),
+});
+
+export type MaintenanceLogFormValues = z.infer<typeof maintenanceLogFormSchema>;
+
+export const DEFAULT_MAINTENANCE_LOG_FORM_VALUES: MaintenanceLogFormValues = {
+  vehicleId: "",
+  maintenanceType: "regular",
+  description: "",
+  costInPaise: undefined,
+  maintenanceDate: "",
+  nextDueDate: "",
+  vendorName: "",
+};

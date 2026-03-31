@@ -56,6 +56,7 @@ export class BookListResultDto {
 
 export class ListBooksQueryParamsDto {
   q?: string;
+  campusId?: string;
 
   @ApiProperty({ enum: ["active", "inactive"], required: false })
   status?: "active" | "inactive";
@@ -118,6 +119,7 @@ export class TransactionListResultDto {
 
 export class ListTransactionsQueryParamsDto {
   q?: string;
+  campusId?: string;
   memberId?: string;
   bookId?: string;
 
@@ -136,4 +138,107 @@ export class ListTransactionsQueryParamsDto {
 
 export class ReturnBookBodyDto {
   fineAmount?: number;
+}
+
+// ── Fine collection ────────────────────────────────────────────────────────
+
+export class CollectFineBodyDto {
+  waive?: boolean;
+}
+
+// ── Reservations ───────────────────────────────────────────────────────────
+
+export class CreateReservationBodyDto {
+  bookId!: string;
+  memberId!: string;
+}
+
+export class ReservationDto {
+  id!: string;
+  bookId!: string;
+  bookTitle!: string;
+  memberId!: string;
+  memberName!: string;
+  queuePosition!: number;
+
+  @ApiProperty({ enum: ["pending", "fulfilled", "cancelled"] })
+  status!: "pending" | "fulfilled" | "cancelled";
+
+  @ApiProperty({ nullable: true })
+  fulfilledAt!: string | null;
+
+  @ApiProperty({ nullable: true })
+  cancelledAt!: string | null;
+
+  createdAt!: string;
+}
+
+export class ReservationListResultDto {
+  rows!: ReservationDto[];
+  total!: number;
+  page!: number;
+  pageSize!: number;
+  pageCount!: number;
+}
+
+export class ListReservationsQueryParamsDto {
+  q?: string;
+  bookId?: string;
+  memberId?: string;
+
+  @ApiProperty({ enum: ["pending", "fulfilled", "cancelled"], required: false })
+  status?: "pending" | "fulfilled" | "cancelled";
+
+  page?: number;
+  limit?: number;
+
+  @ApiProperty({ enum: ["createdAt", "queuePosition"], required: false })
+  sort?: "createdAt" | "queuePosition";
+
+  @ApiProperty({ enum: ["asc", "desc"], required: false })
+  order?: "asc" | "desc";
+}
+
+// ── Borrowing history ──────────────────────────────────────────────────────
+
+export class BorrowingHistoryQueryParamsDto {
+  page?: number;
+  limit?: number;
+
+  @ApiProperty({ enum: ["issuedAt", "dueDate", "status"], required: false })
+  sort?: "issuedAt" | "dueDate" | "status";
+
+  @ApiProperty({ enum: ["asc", "desc"], required: false })
+  order?: "asc" | "desc";
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────────────
+
+export class PopularBookDto {
+  bookId!: string;
+  title!: string;
+  issueCount!: number;
+}
+
+export class RecentTransactionDto {
+  id!: string;
+  bookTitle!: string;
+  memberName!: string;
+
+  @ApiProperty({ enum: ["issued", "returned", "overdue"] })
+  status!: "issued" | "returned" | "overdue";
+
+  issuedAt!: string;
+}
+
+export class LibraryDashboardDto {
+  totalBooks!: number;
+  totalCopies!: number;
+  availableCopies!: number;
+  issuedToday!: number;
+  returnedToday!: number;
+  overdueCount!: number;
+  pendingReservations!: number;
+  popularBooks!: PopularBookDto[];
+  recentTransactions!: RecentTransactionDto[];
 }

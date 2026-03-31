@@ -1,4 +1,7 @@
-import { guardianRelationshipSchema } from "@repo/contracts";
+import {
+  disciplinarySeveritySchema,
+  guardianRelationshipSchema,
+} from "@repo/contracts";
 import { z } from "zod";
 import {
   baseListQuerySchema,
@@ -8,6 +11,8 @@ import {
 const NAME_MIN_LENGTH = 1;
 const ADMISSION_NUMBER_MIN_LENGTH = 1;
 const MOBILE_MIN_LENGTH = 10;
+const DESCRIPTION_MIN_LENGTH = 1;
+const TC_NUMBER_MIN_LENGTH = 1;
 const optionalCustomFieldValuesSchema = z
   .record(z.string(), z.unknown())
   .nullable()
@@ -55,6 +60,22 @@ export const createStudentSchema = z
     currentEnrollment: currentEnrollmentSchema
       .nullish()
       .transform((value) => value ?? null),
+    photoUrl: z.url().nullish().transform((value) => value ?? null),
+    previousSchoolName: z
+      .string()
+      .trim()
+      .nullish()
+      .transform((value) => value || null),
+    previousSchoolBoard: z
+      .string()
+      .trim()
+      .nullish()
+      .transform((value) => value || null),
+    previousSchoolClass: z
+      .string()
+      .trim()
+      .nullish()
+      .transform((value) => value || null),
   })
   .refine((value) => hasExactlyOnePrimaryGuardian(value.guardians), {
     path: ["guardians"],
@@ -92,6 +113,103 @@ export type ListStudentsQueryDto = Omit<ListStudentsQueryInput, "q"> & {
   search?: string;
 };
 
+// ── Sibling links ────────────────────────────────────────────────────────
+
+export const createSiblingLinkSchema = z.object({
+  siblingStudentId: z.uuid(),
+});
+
+export type CreateSiblingLinkDto = z.infer<typeof createSiblingLinkSchema>;
+
+// ── Medical records ──────────────────────────────────────────────────────
+
+export const upsertMedicalRecordSchema = z.object({
+  allergies: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => value || null),
+  conditions: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => value || null),
+  medications: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => value || null),
+  emergencyMedicalInfo: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => value || null),
+  doctorName: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => value || null),
+  doctorPhone: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => value || null),
+  insuranceInfo: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => value || null),
+});
+
+export type UpsertMedicalRecordDto = z.infer<typeof upsertMedicalRecordSchema>;
+
+// ── Disciplinary records ─────────────────────────────────────────────────
+
+export const createDisciplinaryRecordSchema = z.object({
+  incidentDate: z.string().date(),
+  severity: disciplinarySeveritySchema,
+  description: z
+    .string()
+    .trim()
+    .min(DESCRIPTION_MIN_LENGTH, "Description is required"),
+  actionTaken: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => value || null),
+  parentNotified: z.boolean().default(false),
+});
+
+export type CreateDisciplinaryRecordDto = z.infer<
+  typeof createDisciplinaryRecordSchema
+>;
+
+// ── Transfer certificates ────────────────────────────────────────────────
+
+export const issueTransferCertificateSchema = z.object({
+  tcNumber: z
+    .string()
+    .trim()
+    .min(TC_NUMBER_MIN_LENGTH, "TC number is required"),
+  issueDate: z.string().date(),
+  reason: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => value || null),
+  conductRemarks: z
+    .string()
+    .trim()
+    .nullish()
+    .transform((value) => value || null),
+});
+
+export type IssueTransferCertificateDto = z.infer<
+  typeof issueTransferCertificateSchema
+>;
+
+// ── Parse functions ──────────────────────────────────────────────────────
+
 export function parseCreateStudent(input: unknown) {
   return createStudentSchema.parse(input);
 }
@@ -110,4 +228,20 @@ export function parseListStudentsQuery(query: unknown): ListStudentsQueryDto {
     search: result.q,
     sort: result.sort,
   };
+}
+
+export function parseCreateSiblingLink(input: unknown) {
+  return createSiblingLinkSchema.parse(input);
+}
+
+export function parseUpsertMedicalRecord(input: unknown) {
+  return upsertMedicalRecordSchema.parse(input);
+}
+
+export function parseCreateDisciplinaryRecord(input: unknown) {
+  return createDisciplinaryRecordSchema.parse(input);
+}
+
+export function parseIssueTransferCertificate(input: unknown) {
+  return issueTransferCertificateSchema.parse(input);
 }

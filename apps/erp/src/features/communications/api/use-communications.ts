@@ -161,3 +161,65 @@ export function useMarkNotificationsReadMutation() {
     },
   );
 }
+
+// --- Phase 2: Announcement Read Receipts ---
+
+export function useMarkAnnouncementReadMutation() {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "post",
+    COMMUNICATIONS_API_PATHS.MARK_ANNOUNCEMENT_READ,
+    {
+      onSuccess: (_, variables) => {
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            COMMUNICATIONS_API_PATHS.ANNOUNCEMENT_READ_COUNT,
+            {
+              params: {
+                path: {
+                  announcementId: variables.params.path.announcementId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            COMMUNICATIONS_API_PATHS.DETAIL_ANNOUNCEMENT,
+            {
+              params: {
+                path: {
+                  announcementId: variables.params.path.announcementId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+      },
+    },
+  );
+}
+
+export function useAnnouncementReadCountQuery(
+  enabled: boolean,
+  announcementId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    COMMUNICATIONS_API_PATHS.ANNOUNCEMENT_READ_COUNT,
+    {
+      params: {
+        path: {
+          announcementId: announcementId ?? "",
+        },
+      },
+    },
+    {
+      enabled: enabled && Boolean(announcementId),
+    },
+  );
+}

@@ -44,6 +44,20 @@ import {
   ListTransactionsQueryParamsDto,
   ListItemTransactionsQueryParamsDto,
   ListLowStockQueryParamsDto,
+  CreateVendorBodyDto,
+  UpdateVendorBodyDto,
+  UpdateVendorStatusBodyDto,
+  VendorDto,
+  VendorListResultDto,
+  ListVendorsQueryParamsDto,
+  CreatePurchaseOrderBodyDto,
+  UpdatePurchaseOrderBodyDto,
+  UpdatePurchaseOrderStatusBodyDto,
+  PurchaseOrderDto,
+  PurchaseOrderDetailDto,
+  PurchaseOrderListResultDto,
+  ListPurchaseOrdersQueryParamsDto,
+  ReceivePurchaseOrderBodyDto,
 } from "./inventory.dto";
 import {
   parseCreateCategory,
@@ -58,6 +72,15 @@ import {
   parseListTransactions,
   parseListItemTransactions,
   parseListLowStock,
+  parseCreateVendor,
+  parseUpdateVendor,
+  parseUpdateVendorStatus,
+  parseListVendors,
+  parseCreatePurchaseOrder,
+  parseUpdatePurchaseOrder,
+  parseUpdatePurchaseOrderStatus,
+  parseListPurchaseOrders,
+  parseReceivePurchaseOrder,
 } from "./inventory.schemas";
 import { InventoryService } from "./inventory.service";
 
@@ -269,5 +292,169 @@ export class InventoryController {
   ) {
     const parsed = parseListLowStock(query);
     return this.inventoryService.listLowStock(institution.id, parsed);
+  }
+
+  // ── Vendors ───────────────────────────────────────────────────────────
+
+  @Get(API_ROUTES.VENDORS)
+  @RequirePermission(PERMISSIONS.INVENTORY_READ)
+  @ApiOperation({ summary: "List vendors" })
+  @ApiOkResponse({ type: VendorListResultDto })
+  async listVendors(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: ListVendorsQueryParamsDto,
+  ) {
+    const parsed = parseListVendors(query);
+    return this.inventoryService.listVendors(institution.id, parsed);
+  }
+
+  @Post(API_ROUTES.VENDORS)
+  @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
+  @ApiOperation({ summary: "Create a vendor" })
+  @ApiCreatedResponse({ type: VendorDto })
+  async createVendor(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Body() body: CreateVendorBodyDto,
+  ) {
+    const dto = parseCreateVendor(body);
+    return this.inventoryService.createVendor(institution.id, session, dto);
+  }
+
+  @Patch(`${API_ROUTES.VENDORS}/:vendorId`)
+  @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
+  @ApiOperation({ summary: "Update a vendor" })
+  @ApiOkResponse({ type: VendorDto })
+  async updateVendor(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Param("vendorId") vendorId: string,
+    @Body() body: UpdateVendorBodyDto,
+  ) {
+    const dto = parseUpdateVendor(body);
+    return this.inventoryService.updateVendor(
+      institution.id,
+      vendorId,
+      session,
+      dto,
+    );
+  }
+
+  @Patch(`${API_ROUTES.VENDORS}/:vendorId/${API_ROUTES.STATUS}`)
+  @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
+  @ApiOperation({ summary: "Update vendor status" })
+  @ApiOkResponse({ type: VendorDto })
+  async updateVendorStatus(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Param("vendorId") vendorId: string,
+    @Body() body: UpdateVendorStatusBodyDto,
+  ) {
+    const dto = parseUpdateVendorStatus(body);
+    return this.inventoryService.updateVendorStatus(
+      institution.id,
+      vendorId,
+      session,
+      dto,
+    );
+  }
+
+  // ── Purchase Orders ───────────────────────────────────────────────────
+
+  @Get(API_ROUTES.PURCHASE_ORDERS)
+  @RequirePermission(PERMISSIONS.INVENTORY_READ)
+  @ApiOperation({ summary: "List purchase orders" })
+  @ApiOkResponse({ type: PurchaseOrderListResultDto })
+  async listPurchaseOrders(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Query() query: ListPurchaseOrdersQueryParamsDto,
+  ) {
+    const parsed = parseListPurchaseOrders(query);
+    return this.inventoryService.listPurchaseOrders(institution.id, parsed);
+  }
+
+  @Post(API_ROUTES.PURCHASE_ORDERS)
+  @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
+  @ApiOperation({ summary: "Create a purchase order" })
+  @ApiCreatedResponse({ type: PurchaseOrderDto })
+  async createPurchaseOrder(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Body() body: CreatePurchaseOrderBodyDto,
+  ) {
+    const dto = parseCreatePurchaseOrder(body);
+    return this.inventoryService.createPurchaseOrder(
+      institution.id,
+      session,
+      dto,
+    );
+  }
+
+  @Get(`${API_ROUTES.PURCHASE_ORDERS}/:orderId`)
+  @RequirePermission(PERMISSIONS.INVENTORY_READ)
+  @ApiOperation({ summary: "Get purchase order detail" })
+  @ApiOkResponse({ type: PurchaseOrderDetailDto })
+  async getPurchaseOrder(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("orderId") orderId: string,
+  ) {
+    return this.inventoryService.getPurchaseOrder(institution.id, orderId);
+  }
+
+  @Patch(`${API_ROUTES.PURCHASE_ORDERS}/:orderId`)
+  @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
+  @ApiOperation({ summary: "Update a purchase order (draft only)" })
+  @ApiOkResponse({ type: PurchaseOrderDto })
+  async updatePurchaseOrder(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Param("orderId") orderId: string,
+    @Body() body: UpdatePurchaseOrderBodyDto,
+  ) {
+    const dto = parseUpdatePurchaseOrder(body);
+    return this.inventoryService.updatePurchaseOrder(
+      institution.id,
+      orderId,
+      session,
+      dto,
+    );
+  }
+
+  @Patch(`${API_ROUTES.PURCHASE_ORDERS}/:orderId/${API_ROUTES.STATUS}`)
+  @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
+  @ApiOperation({ summary: "Update purchase order status" })
+  @ApiOkResponse({ type: PurchaseOrderDto })
+  async updatePurchaseOrderStatus(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Param("orderId") orderId: string,
+    @Body() body: UpdatePurchaseOrderStatusBodyDto,
+  ) {
+    const dto = parseUpdatePurchaseOrderStatus(body);
+    return this.inventoryService.updatePurchaseOrderStatus(
+      institution.id,
+      orderId,
+      session,
+      dto,
+    );
+  }
+
+  @Post(`${API_ROUTES.PURCHASE_ORDERS}/:orderId/${API_ROUTES.RECEIVE}`)
+  @RequirePermission(PERMISSIONS.INVENTORY_MANAGE)
+  @ApiOperation({ summary: "Receive goods against a purchase order (GRN)" })
+  @ApiCreatedResponse({ type: PurchaseOrderDto })
+  async receivePurchaseOrder(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() session: AuthenticatedSession,
+    @Param("orderId") orderId: string,
+    @Body() body: ReceivePurchaseOrderBodyDto,
+  ) {
+    const dto = parseReceivePurchaseOrder(body);
+    return this.inventoryService.receivePurchaseOrder(
+      institution.id,
+      orderId,
+      session,
+      dto,
+    );
   }
 }

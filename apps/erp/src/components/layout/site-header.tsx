@@ -17,7 +17,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
-import { SidebarTrigger } from "@repo/ui/components/ui/sidebar";
 import {
   Select,
   SelectContent,
@@ -194,12 +193,8 @@ export function SiteHeader({ onOpenSearch }: { onOpenSearch: () => void }) {
       )}
     >
       <div className="flex w-full items-center gap-3 px-4 py-4 lg:px-6">
-        <div className="flex min-w-0 items-center gap-1">
-          <SidebarTrigger className="-ml-1" />
-        </div>
-
         <button
-          className="ml-4 hidden h-10 min-w-[260px] flex-1 items-center gap-3 rounded-lg border border-border/70 bg-card/80 px-3 text-left shadow-xs transition-colors hover:border-border hover:bg-card md:flex lg:max-w-md"
+          className="hidden h-10 min-w-[260px] flex-1 items-center gap-3 rounded-lg border border-border/70 bg-card/80 px-3 text-left shadow-xs transition-colors hover:border-border hover:bg-card md:flex lg:max-w-md"
           onClick={onOpenSearch}
           type="button"
         >

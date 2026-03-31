@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -19,6 +20,9 @@ import {
   inventoryCategories,
   inventoryItems,
   stockTransactions,
+  vendors,
+  purchaseOrders,
+  purchaseOrderItems,
   member,
   user,
   type AppDatabase,
@@ -28,7 +32,9 @@ import {
   AUDIT_ENTITY_TYPES,
   INVENTORY_CATEGORY_STATUS,
   INVENTORY_ITEM_STATUS,
+  PURCHASE_ORDER_STATUS,
   STOCK_TRANSACTION_TYPES,
+  VENDOR_STATUS,
 } from "@repo/contracts";
 import { randomUUID } from "node:crypto";
 import { ERROR_MESSAGES, SORT_ORDERS } from "../../constants";
@@ -48,6 +54,15 @@ import type {
   ListTransactionsQueryDto,
   ListItemTransactionsQueryDto,
   ListLowStockQueryDto,
+  CreateVendorDto,
+  UpdateVendorDto,
+  UpdateVendorStatusDto,
+  ListVendorsQueryDto,
+  CreatePurchaseOrderDto,
+  UpdatePurchaseOrderDto,
+  UpdatePurchaseOrderStatusDto,
+  ListPurchaseOrdersQueryDto,
+  ReceivePurchaseOrderDto,
 } from "./inventory.schemas";
 
 // ── Sort maps ─────────────────────────────────────────────────────────────
@@ -66,6 +81,17 @@ const itemSortColumns = {
 const transactionSortColumns = {
   createdAt: stockTransactions.createdAt,
   quantity: stockTransactions.quantity,
+} as const;
+
+const vendorSortColumns = {
+  name: vendors.name,
+  createdAt: vendors.createdAt,
+} as const;
+
+const purchaseOrderSortColumns = {
+  orderDate: purchaseOrders.orderDate,
+  createdAt: purchaseOrders.createdAt,
+  orderNumber: purchaseOrders.orderNumber,
 } as const;
 
 @Injectable()
@@ -574,6 +600,9 @@ export class InventoryService {
       quantity: dto.quantity,
       referenceNumber: dto.referenceNumber ?? null,
       issuedToMembershipId: dto.issuedToMembershipId ?? null,
+      departmentName: dto.departmentName ?? null,
+      purchaseOrderId: dto.purchaseOrderId ?? null,
+      unitPriceInPaise: dto.unitPriceInPaise ?? null,
       notes: dto.notes ?? null,
       createdByMemberId: createdByMember.id,
     });
@@ -645,6 +674,9 @@ export class InventoryService {
         quantity: stockTransactions.quantity,
         referenceNumber: stockTransactions.referenceNumber,
         issuedToMembershipId: stockTransactions.issuedToMembershipId,
+        departmentName: stockTransactions.departmentName,
+        purchaseOrderId: stockTransactions.purchaseOrderId,
+        unitPriceInPaise: stockTransactions.unitPriceInPaise,
         notes: stockTransactions.notes,
         createdByMemberId: stockTransactions.createdByMemberId,
         createdAt: stockTransactions.createdAt,
@@ -762,6 +794,776 @@ export class InventoryService {
       .offset(offset);
 
     return { rows, total, page: safePage, pageSize, pageCount };
+  }
+
+  // ── Vendors ────────────────────────────────────────────────────────────
+
+  async listVendors(institutionId: string, query: ListVendorsQueryDto) {
+    const { q, status, page, limit, sort, order } = query;
+    const pageSize = resolveTablePageSize(limit);
+    const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
+    const sortCol = vendorSortColumns[sort ?? "name"];
+
+    const conditions = [eq(vendors.institutionId, institutionId)];
+    if (status) {
+      conditions.push(eq(vendors.status, status));
+    }
+    if (q) {
+      conditions.push(
+        or(
+          ilike(vendors.name, `%${q}%`),
+          ilike(vendors.contactPerson, `%${q}%`),
+          ilike(vendors.phone, `%${q}%`),
+        )!,
+      );
+    }
+
+    const where = and(...conditions);
+
+    const [totalResult] = await this.db
+      .select({ count: count() })
+      .from(vendors)
+      .where(where);
+
+    const total = totalResult?.count ?? 0;
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
+
+    const rows = await this.db
+      .select({
+        id: vendors.id,
+        name: vendors.name,
+        contactPerson: vendors.contactPerson,
+        phone: vendors.phone,
+        email: vendors.email,
+        address: vendors.address,
+        gstNumber: vendors.gstNumber,
+        status: vendors.status,
+        createdAt: vendors.createdAt,
+      })
+      .from(vendors)
+      .where(where)
+      .orderBy(orderFn(sortCol))
+      .limit(pageSize)
+      .offset(offset);
+
+    return { rows, total, page: safePage, pageSize, pageCount };
+  }
+
+  async createVendor(
+    institutionId: string,
+    session: AuthenticatedSession,
+    dto: CreateVendorDto,
+  ) {
+    const id = randomUUID();
+    await this.db.insert(vendors).values({
+      id,
+      institutionId,
+      name: dto.name,
+      contactPerson: dto.contactPerson ?? null,
+      phone: dto.phone ?? null,
+      email: dto.email ?? null,
+      address: dto.address ?? null,
+      gstNumber: dto.gstNumber ?? null,
+    });
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.VENDOR,
+      entityId: id,
+      entityLabel: dto.name,
+      summary: `Created vendor "${dto.name}"`,
+    });
+
+    return { id };
+  }
+
+  async updateVendor(
+    institutionId: string,
+    vendorId: string,
+    session: AuthenticatedSession,
+    dto: UpdateVendorDto,
+  ) {
+    const [existing] = await this.db
+      .select()
+      .from(vendors)
+      .where(
+        and(
+          eq(vendors.id, vendorId),
+          eq(vendors.institutionId, institutionId),
+        ),
+      );
+
+    if (!existing) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.INVENTORY_DEPTH.VENDOR_NOT_FOUND,
+      );
+    }
+
+    const updates: Record<string, unknown> = {};
+    if (dto.name !== undefined) updates.name = dto.name;
+    if (dto.contactPerson !== undefined) updates.contactPerson = dto.contactPerson;
+    if (dto.phone !== undefined) updates.phone = dto.phone;
+    if (dto.email !== undefined) updates.email = dto.email;
+    if (dto.address !== undefined) updates.address = dto.address;
+    if (dto.gstNumber !== undefined) updates.gstNumber = dto.gstNumber;
+
+    if (Object.keys(updates).length > 0) {
+      await this.db
+        .update(vendors)
+        .set(updates)
+        .where(eq(vendors.id, vendorId));
+    }
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.VENDOR,
+      entityId: vendorId,
+      entityLabel: dto.name ?? existing.name,
+      summary: `Updated vendor "${dto.name ?? existing.name}"`,
+    });
+
+    return { id: vendorId };
+  }
+
+  async updateVendorStatus(
+    institutionId: string,
+    vendorId: string,
+    session: AuthenticatedSession,
+    dto: UpdateVendorStatusDto,
+  ) {
+    const [existing] = await this.db
+      .select()
+      .from(vendors)
+      .where(
+        and(
+          eq(vendors.id, vendorId),
+          eq(vendors.institutionId, institutionId),
+        ),
+      );
+
+    if (!existing) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.INVENTORY_DEPTH.VENDOR_NOT_FOUND,
+      );
+    }
+
+    // Check for active purchase orders when deactivating
+    if (dto.status === VENDOR_STATUS.INACTIVE) {
+      const [activeOrder] = await this.db
+        .select({ id: purchaseOrders.id })
+        .from(purchaseOrders)
+        .where(
+          and(
+            eq(purchaseOrders.vendorId, vendorId),
+            or(
+              eq(purchaseOrders.status, PURCHASE_ORDER_STATUS.DRAFT),
+              eq(purchaseOrders.status, PURCHASE_ORDER_STATUS.ORDERED),
+              eq(
+                purchaseOrders.status,
+                PURCHASE_ORDER_STATUS.PARTIALLY_RECEIVED,
+              ),
+            ),
+          ),
+        )
+        .limit(1);
+
+      if (activeOrder) {
+        throw new ConflictException(
+          ERROR_MESSAGES.INVENTORY_DEPTH.VENDOR_HAS_ORDERS,
+        );
+      }
+    }
+
+    await this.db
+      .update(vendors)
+      .set({ status: dto.status })
+      .where(eq(vendors.id, vendorId));
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.VENDOR,
+      entityId: vendorId,
+      entityLabel: existing.name,
+      summary: `Changed vendor "${existing.name}" status to ${dto.status}`,
+    });
+
+    return { id: vendorId };
+  }
+
+  // ── Purchase Orders ───────────────────────────────────────────────────
+
+  async listPurchaseOrders(
+    institutionId: string,
+    query: ListPurchaseOrdersQueryDto,
+  ) {
+    const { q, status, vendorId, page, limit, sort, order } = query;
+    const pageSize = resolveTablePageSize(limit);
+    const orderFn = order === SORT_ORDERS.DESC ? desc : asc;
+    const sortCol = purchaseOrderSortColumns[sort ?? "createdAt"];
+
+    const conditions = [eq(purchaseOrders.institutionId, institutionId)];
+    if (status) {
+      conditions.push(eq(purchaseOrders.status, status));
+    }
+    if (vendorId) {
+      conditions.push(eq(purchaseOrders.vendorId, vendorId));
+    }
+    if (q) {
+      conditions.push(
+        or(
+          ilike(purchaseOrders.orderNumber, `%${q}%`),
+          ilike(vendors.name, `%${q}%`),
+        )!,
+      );
+    }
+
+    const where = and(...conditions);
+
+    const [totalResult] = await this.db
+      .select({ count: count() })
+      .from(purchaseOrders)
+      .leftJoin(vendors, eq(purchaseOrders.vendorId, vendors.id))
+      .where(where);
+
+    const total = totalResult?.count ?? 0;
+    const {
+      page: safePage,
+      pageCount,
+      offset,
+    } = resolvePagination(total, page, pageSize);
+
+    const rows = await this.db
+      .select({
+        id: purchaseOrders.id,
+        vendorId: purchaseOrders.vendorId,
+        vendorName: vendors.name,
+        orderNumber: purchaseOrders.orderNumber,
+        orderDate: purchaseOrders.orderDate,
+        expectedDeliveryDate: purchaseOrders.expectedDeliveryDate,
+        totalAmountInPaise: purchaseOrders.totalAmountInPaise,
+        status: purchaseOrders.status,
+        notes: purchaseOrders.notes,
+        createdByMemberId: purchaseOrders.createdByMemberId,
+        createdAt: purchaseOrders.createdAt,
+      })
+      .from(purchaseOrders)
+      .leftJoin(vendors, eq(purchaseOrders.vendorId, vendors.id))
+      .where(where)
+      .orderBy(orderFn(sortCol))
+      .limit(pageSize)
+      .offset(offset);
+
+    // Resolve member names for createdBy
+    const memberIds = rows.map((r) => r.createdByMemberId);
+    const memberNames = await this.resolveMemberNames(memberIds);
+
+    const enrichedRows = rows.map((row) => ({
+      ...row,
+      createdByName: memberNames.get(row.createdByMemberId) ?? "Unknown",
+    }));
+
+    return { rows: enrichedRows, total, page: safePage, pageSize, pageCount };
+  }
+
+  async getPurchaseOrder(institutionId: string, orderId: string) {
+    const [order] = await this.db
+      .select({
+        id: purchaseOrders.id,
+        vendorId: purchaseOrders.vendorId,
+        vendorName: vendors.name,
+        orderNumber: purchaseOrders.orderNumber,
+        orderDate: purchaseOrders.orderDate,
+        expectedDeliveryDate: purchaseOrders.expectedDeliveryDate,
+        totalAmountInPaise: purchaseOrders.totalAmountInPaise,
+        status: purchaseOrders.status,
+        notes: purchaseOrders.notes,
+        createdByMemberId: purchaseOrders.createdByMemberId,
+        createdAt: purchaseOrders.createdAt,
+        updatedAt: purchaseOrders.updatedAt,
+      })
+      .from(purchaseOrders)
+      .leftJoin(vendors, eq(purchaseOrders.vendorId, vendors.id))
+      .where(
+        and(
+          eq(purchaseOrders.id, orderId),
+          eq(purchaseOrders.institutionId, institutionId),
+        ),
+      );
+
+    if (!order) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.INVENTORY_DEPTH.PURCHASE_ORDER_NOT_FOUND,
+      );
+    }
+
+    const items = await this.db
+      .select({
+        id: purchaseOrderItems.id,
+        itemId: purchaseOrderItems.itemId,
+        itemName: inventoryItems.name,
+        quantityOrdered: purchaseOrderItems.quantityOrdered,
+        quantityReceived: purchaseOrderItems.quantityReceived,
+        unitPriceInPaise: purchaseOrderItems.unitPriceInPaise,
+      })
+      .from(purchaseOrderItems)
+      .leftJoin(
+        inventoryItems,
+        eq(purchaseOrderItems.itemId, inventoryItems.id),
+      )
+      .where(eq(purchaseOrderItems.purchaseOrderId, orderId));
+
+    const memberNames = await this.resolveMemberNames([
+      order.createdByMemberId,
+    ]);
+
+    return {
+      ...order,
+      createdByName:
+        memberNames.get(order.createdByMemberId) ?? "Unknown",
+      items,
+    };
+  }
+
+  async createPurchaseOrder(
+    institutionId: string,
+    session: AuthenticatedSession,
+    dto: CreatePurchaseOrderDto,
+  ) {
+    // Verify vendor exists and is active
+    const [vendor] = await this.db
+      .select({ id: vendors.id, name: vendors.name })
+      .from(vendors)
+      .where(
+        and(
+          eq(vendors.id, dto.vendorId),
+          eq(vendors.institutionId, institutionId),
+          eq(vendors.status, VENDOR_STATUS.ACTIVE),
+        ),
+      );
+
+    if (!vendor) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.INVENTORY_DEPTH.VENDOR_NOT_FOUND,
+      );
+    }
+
+    // Check order number uniqueness
+    const [existing] = await this.db
+      .select({ id: purchaseOrders.id })
+      .from(purchaseOrders)
+      .where(
+        and(
+          eq(purchaseOrders.institutionId, institutionId),
+          eq(purchaseOrders.orderNumber, dto.orderNumber),
+        ),
+      );
+
+    if (existing) {
+      throw new ConflictException(
+        ERROR_MESSAGES.INVENTORY_DEPTH.PURCHASE_ORDER_NUMBER_EXISTS,
+      );
+    }
+
+    // Verify all items exist
+    for (const line of dto.items) {
+      const [item] = await this.db
+        .select({ id: inventoryItems.id })
+        .from(inventoryItems)
+        .where(
+          and(
+            eq(inventoryItems.id, line.itemId),
+            eq(inventoryItems.institutionId, institutionId),
+            ne(inventoryItems.status, INVENTORY_ITEM_STATUS.DELETED),
+          ),
+        );
+
+      if (!item) {
+        throw new NotFoundException(ERROR_MESSAGES.INVENTORY.ITEM_NOT_FOUND);
+      }
+    }
+
+    // Resolve member
+    const [createdByMember] = await this.db
+      .select({ id: member.id })
+      .from(member)
+      .where(
+        and(
+          eq(member.userId, session.user.id),
+          eq(member.organizationId, institutionId),
+        ),
+      );
+
+    if (!createdByMember) {
+      throw new BadRequestException("Active membership is required.");
+    }
+
+    const totalAmountInPaise = dto.items.reduce(
+      (sum, line) => sum + line.quantityOrdered * line.unitPriceInPaise,
+      0,
+    );
+
+    const id = randomUUID();
+
+    await this.db.insert(purchaseOrders).values({
+      id,
+      institutionId,
+      vendorId: dto.vendorId,
+      orderNumber: dto.orderNumber,
+      orderDate: dto.orderDate,
+      expectedDeliveryDate: dto.expectedDeliveryDate ?? null,
+      totalAmountInPaise,
+      notes: dto.notes ?? null,
+      createdByMemberId: createdByMember.id,
+    });
+
+    for (const line of dto.items) {
+      await this.db.insert(purchaseOrderItems).values({
+        id: randomUUID(),
+        purchaseOrderId: id,
+        itemId: line.itemId,
+        quantityOrdered: line.quantityOrdered,
+        unitPriceInPaise: line.unitPriceInPaise,
+      });
+    }
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.CREATE,
+      entityType: AUDIT_ENTITY_TYPES.PURCHASE_ORDER,
+      entityId: id,
+      entityLabel: dto.orderNumber,
+      summary: `Created purchase order "${dto.orderNumber}" for vendor "${vendor.name}"`,
+    });
+
+    return { id };
+  }
+
+  async updatePurchaseOrder(
+    institutionId: string,
+    orderId: string,
+    session: AuthenticatedSession,
+    dto: UpdatePurchaseOrderDto,
+  ) {
+    const [existing] = await this.db
+      .select()
+      .from(purchaseOrders)
+      .where(
+        and(
+          eq(purchaseOrders.id, orderId),
+          eq(purchaseOrders.institutionId, institutionId),
+        ),
+      );
+
+    if (!existing) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.INVENTORY_DEPTH.PURCHASE_ORDER_NOT_FOUND,
+      );
+    }
+
+    if (existing.status !== PURCHASE_ORDER_STATUS.DRAFT) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.INVENTORY_DEPTH.PURCHASE_ORDER_NOT_DRAFT,
+      );
+    }
+
+    // Verify vendor if changing
+    if (dto.vendorId) {
+      const [vendor] = await this.db
+        .select({ id: vendors.id })
+        .from(vendors)
+        .where(
+          and(
+            eq(vendors.id, dto.vendorId),
+            eq(vendors.institutionId, institutionId),
+            eq(vendors.status, VENDOR_STATUS.ACTIVE),
+          ),
+        );
+
+      if (!vendor) {
+        throw new NotFoundException(
+          ERROR_MESSAGES.INVENTORY_DEPTH.VENDOR_NOT_FOUND,
+        );
+      }
+    }
+
+    // Check order number uniqueness if changing
+    if (dto.orderNumber && dto.orderNumber !== existing.orderNumber) {
+      const [dup] = await this.db
+        .select({ id: purchaseOrders.id })
+        .from(purchaseOrders)
+        .where(
+          and(
+            eq(purchaseOrders.institutionId, institutionId),
+            eq(purchaseOrders.orderNumber, dto.orderNumber),
+            ne(purchaseOrders.id, orderId),
+          ),
+        );
+
+      if (dup) {
+        throw new ConflictException(
+          ERROR_MESSAGES.INVENTORY_DEPTH.PURCHASE_ORDER_NUMBER_EXISTS,
+        );
+      }
+    }
+
+    const updates: Record<string, unknown> = {};
+    if (dto.vendorId !== undefined) updates.vendorId = dto.vendorId;
+    if (dto.orderNumber !== undefined) updates.orderNumber = dto.orderNumber;
+    if (dto.orderDate !== undefined) updates.orderDate = dto.orderDate;
+    if (dto.expectedDeliveryDate !== undefined)
+      updates.expectedDeliveryDate = dto.expectedDeliveryDate;
+    if (dto.notes !== undefined) updates.notes = dto.notes;
+
+    // Replace items if provided
+    if (dto.items) {
+      // Verify all items exist
+      for (const line of dto.items) {
+        const [item] = await this.db
+          .select({ id: inventoryItems.id })
+          .from(inventoryItems)
+          .where(
+            and(
+              eq(inventoryItems.id, line.itemId),
+              eq(inventoryItems.institutionId, institutionId),
+              ne(inventoryItems.status, INVENTORY_ITEM_STATUS.DELETED),
+            ),
+          );
+
+        if (!item) {
+          throw new NotFoundException(ERROR_MESSAGES.INVENTORY.ITEM_NOT_FOUND);
+        }
+      }
+
+      // Delete old items and insert new
+      await this.db
+        .delete(purchaseOrderItems)
+        .where(eq(purchaseOrderItems.purchaseOrderId, orderId));
+
+      for (const line of dto.items) {
+        await this.db.insert(purchaseOrderItems).values({
+          id: randomUUID(),
+          purchaseOrderId: orderId,
+          itemId: line.itemId,
+          quantityOrdered: line.quantityOrdered,
+          unitPriceInPaise: line.unitPriceInPaise,
+        });
+      }
+
+      updates.totalAmountInPaise = dto.items.reduce(
+        (sum, line) => sum + line.quantityOrdered * line.unitPriceInPaise,
+        0,
+      );
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await this.db
+        .update(purchaseOrders)
+        .set(updates)
+        .where(eq(purchaseOrders.id, orderId));
+    }
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.PURCHASE_ORDER,
+      entityId: orderId,
+      entityLabel: dto.orderNumber ?? existing.orderNumber,
+      summary: `Updated purchase order "${dto.orderNumber ?? existing.orderNumber}"`,
+    });
+
+    return { id: orderId };
+  }
+
+  async updatePurchaseOrderStatus(
+    institutionId: string,
+    orderId: string,
+    session: AuthenticatedSession,
+    dto: UpdatePurchaseOrderStatusDto,
+  ) {
+    const [existing] = await this.db
+      .select()
+      .from(purchaseOrders)
+      .where(
+        and(
+          eq(purchaseOrders.id, orderId),
+          eq(purchaseOrders.institutionId, institutionId),
+        ),
+      );
+
+    if (!existing) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.INVENTORY_DEPTH.PURCHASE_ORDER_NOT_FOUND,
+      );
+    }
+
+    await this.db
+      .update(purchaseOrders)
+      .set({ status: dto.status })
+      .where(eq(purchaseOrders.id, orderId));
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.PURCHASE_ORDER,
+      entityId: orderId,
+      entityLabel: existing.orderNumber,
+      summary: `Changed purchase order "${existing.orderNumber}" status to ${dto.status}`,
+    });
+
+    return { id: orderId };
+  }
+
+  // ── Receive (GRN) ────────────────────────────────────────────────────
+
+  async receivePurchaseOrder(
+    institutionId: string,
+    orderId: string,
+    session: AuthenticatedSession,
+    dto: ReceivePurchaseOrderDto,
+  ) {
+    const [order] = await this.db
+      .select()
+      .from(purchaseOrders)
+      .where(
+        and(
+          eq(purchaseOrders.id, orderId),
+          eq(purchaseOrders.institutionId, institutionId),
+        ),
+      );
+
+    if (!order) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.INVENTORY_DEPTH.PURCHASE_ORDER_NOT_FOUND,
+      );
+    }
+
+    // Resolve member for stock transactions
+    const [createdByMember] = await this.db
+      .select({ id: member.id })
+      .from(member)
+      .where(
+        and(
+          eq(member.userId, session.user.id),
+          eq(member.organizationId, institutionId),
+        ),
+      );
+
+    if (!createdByMember) {
+      throw new BadRequestException("Active membership is required.");
+    }
+
+    // Process each receive line
+    for (const line of dto.lines) {
+      const [poItem] = await this.db
+        .select()
+        .from(purchaseOrderItems)
+        .where(
+          and(
+            eq(purchaseOrderItems.id, line.purchaseOrderItemId),
+            eq(purchaseOrderItems.purchaseOrderId, orderId),
+          ),
+        );
+
+      if (!poItem) {
+        throw new NotFoundException(
+          ERROR_MESSAGES.INVENTORY_DEPTH.PURCHASE_ORDER_ITEM_NOT_FOUND,
+        );
+      }
+
+      const newReceived = poItem.quantityReceived + line.quantityReceived;
+      if (newReceived > poItem.quantityOrdered) {
+        throw new BadRequestException(
+          ERROR_MESSAGES.INVENTORY_DEPTH.RECEIVE_EXCEEDS_ORDERED,
+        );
+      }
+
+      // Update PO item received quantity
+      await this.db
+        .update(purchaseOrderItems)
+        .set({ quantityReceived: newReceived })
+        .where(eq(purchaseOrderItems.id, poItem.id));
+
+      // Update inventory item stock
+      const [item] = await this.db
+        .select()
+        .from(inventoryItems)
+        .where(eq(inventoryItems.id, poItem.itemId));
+
+      if (item) {
+        const newStock = item.currentStock + line.quantityReceived;
+        await this.db
+          .update(inventoryItems)
+          .set({ currentStock: newStock })
+          .where(eq(inventoryItems.id, poItem.itemId));
+
+        // Create stock transaction for the receive
+        await this.db.insert(stockTransactions).values({
+          id: randomUUID(),
+          institutionId,
+          itemId: poItem.itemId,
+          transactionType: STOCK_TRANSACTION_TYPES.PURCHASE,
+          quantity: line.quantityReceived,
+          referenceNumber: order.orderNumber,
+          purchaseOrderId: orderId,
+          unitPriceInPaise: poItem.unitPriceInPaise,
+          notes: dto.notes ?? null,
+          createdByMemberId: createdByMember.id,
+        });
+      }
+    }
+
+    // Determine new PO status based on all items
+    const allItems = await this.db
+      .select({
+        quantityOrdered: purchaseOrderItems.quantityOrdered,
+        quantityReceived: purchaseOrderItems.quantityReceived,
+      })
+      .from(purchaseOrderItems)
+      .where(eq(purchaseOrderItems.purchaseOrderId, orderId));
+
+    const fullyReceived = allItems.every(
+      (i) => i.quantityReceived >= i.quantityOrdered,
+    );
+    const partiallyReceived = allItems.some((i) => i.quantityReceived > 0);
+
+    let newStatus = order.status;
+    if (fullyReceived) {
+      newStatus = PURCHASE_ORDER_STATUS.RECEIVED;
+    } else if (partiallyReceived) {
+      newStatus = PURCHASE_ORDER_STATUS.PARTIALLY_RECEIVED;
+    }
+
+    if (newStatus !== order.status) {
+      await this.db
+        .update(purchaseOrders)
+        .set({ status: newStatus })
+        .where(eq(purchaseOrders.id, orderId));
+    }
+
+    await this.auditService.record({
+      institutionId,
+      authSession: session,
+      action: AUDIT_ACTIONS.UPDATE,
+      entityType: AUDIT_ENTITY_TYPES.PURCHASE_ORDER,
+      entityId: orderId,
+      entityLabel: order.orderNumber,
+      summary: `Received goods against purchase order "${order.orderNumber}" (status: ${newStatus})`,
+    });
+
+    return { id: orderId, status: newStatus };
   }
 
   // ── Helpers ────────────────────────────────────────────────────────────

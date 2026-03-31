@@ -349,3 +349,180 @@ export function useDeleteStaffRoleAssignmentMutation(
     },
   );
 }
+
+// --- Phase 2: Staff Documents ---
+
+export function useStaffDocumentsQuery(
+  institutionId: string | undefined,
+  staffId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    STAFF_API_PATHS.LIST_DOCUMENTS,
+    {
+      params: {
+        path: {
+          staffId: staffId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && staffId),
+    },
+  );
+}
+
+function invalidateStaffDocuments(
+  queryClient: ReturnType<typeof useQueryClient>,
+  staffId: string,
+) {
+  void queryClient.invalidateQueries({
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      STAFF_API_PATHS.LIST_DOCUMENTS,
+      {
+        params: {
+          path: { staffId },
+        },
+      },
+    ).queryKey,
+  });
+}
+
+export function useCreateStaffDocumentMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("post", STAFF_API_PATHS.CREATE_DOCUMENT, {
+    onSuccess: (_, variables) => {
+      if (!institutionId) {
+        return;
+      }
+
+      invalidateStaffDocuments(queryClient, variables.params.path.staffId);
+    },
+  });
+}
+
+export function useUpdateStaffDocumentMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("patch", STAFF_API_PATHS.UPDATE_DOCUMENT, {
+    onSuccess: (_, variables) => {
+      if (!institutionId) {
+        return;
+      }
+
+      invalidateStaffDocuments(queryClient, variables.params.path.staffId);
+    },
+  });
+}
+
+export function useDeleteStaffDocumentMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("delete", STAFF_API_PATHS.DELETE_DOCUMENT, {
+    onSuccess: (_, variables) => {
+      if (!institutionId) {
+        return;
+      }
+
+      invalidateStaffDocuments(queryClient, variables.params.path.staffId);
+    },
+  });
+}
+
+// --- Phase 2: Teaching Load ---
+
+export function useTeachingLoadQuery(
+  institutionId: string | undefined,
+  staffId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    STAFF_API_PATHS.TEACHING_LOAD,
+    {
+      params: {
+        path: {
+          staffId: staffId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && staffId),
+    },
+  );
+}
+
+// --- Phase 2: Campus Transfers ---
+
+export function useStaffCampusTransfersQuery(
+  institutionId: string | undefined,
+  staffId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    STAFF_API_PATHS.LIST_CAMPUS_TRANSFERS,
+    {
+      params: {
+        path: {
+          staffId: staffId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && staffId),
+    },
+  );
+}
+
+export function useCreateStaffCampusTransferMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "post",
+    STAFF_API_PATHS.CREATE_CAMPUS_TRANSFER,
+    {
+      onSuccess: (_, variables) => {
+        if (!institutionId) {
+          return;
+        }
+
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            STAFF_API_PATHS.LIST_CAMPUS_TRANSFERS,
+            {
+              params: {
+                path: {
+                  staffId: variables.params.path.staffId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions("get", STAFF_API_PATHS.DETAIL, {
+            params: {
+              path: {
+                staffId: variables.params.path.staffId,
+              },
+            },
+          }).queryKey,
+        });
+
+        void queryClient.invalidateQueries({
+          queryKey: getStaffListQueryKey(institutionId),
+        });
+      },
+    },
+  );
+}

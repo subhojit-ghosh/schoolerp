@@ -221,3 +221,160 @@ export function useUpdateAssignmentMutation() {
     },
   );
 }
+
+// ── Drivers ────────────────────────────────────────────────────────────────
+
+export type TransportDriversQuery = {
+  q?: string;
+  status?: "active" | "inactive";
+  page?: number;
+  limit?: number;
+  sort?: "name" | "createdAt";
+  order?: "asc" | "desc";
+};
+
+function invalidateDriverQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
+  void queryClient.invalidateQueries({
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      TRANSPORT_API_PATHS.LIST_DRIVERS,
+      { params: { query: {} } },
+    ).queryKey,
+  });
+}
+
+export function useDriversQuery(
+  enabled: boolean,
+  query: TransportDriversQuery = {},
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    TRANSPORT_API_PATHS.LIST_DRIVERS,
+    { params: { query } },
+    { enabled },
+  );
+}
+
+export function useGetDriverQuery(driverId: string, enabled: boolean) {
+  return apiQueryClient.useQuery(
+    "get",
+    TRANSPORT_API_PATHS.GET_DRIVER,
+    { params: { path: { driverId } } },
+    { enabled },
+  );
+}
+
+export function useCreateDriverMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "post",
+    TRANSPORT_API_PATHS.CREATE_DRIVER,
+    {
+      onSuccess: () => {
+        invalidateDriverQueries(queryClient);
+      },
+    },
+  );
+}
+
+export function useUpdateDriverMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation("put", TRANSPORT_API_PATHS.UPDATE_DRIVER, {
+    onSuccess: () => {
+      invalidateDriverQueries(queryClient);
+    },
+  });
+}
+
+// ── Maintenance Logs ───────────────────────────────────────────────────────
+
+export type TransportMaintenanceQuery = {
+  vehicleId?: string;
+  maintenanceType?: "regular" | "repair" | "inspection";
+  page?: number;
+  limit?: number;
+  sort?: "maintenanceDate" | "createdAt";
+  order?: "asc" | "desc";
+};
+
+function invalidateMaintenanceQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+) {
+  void queryClient.invalidateQueries({
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      TRANSPORT_API_PATHS.LIST_MAINTENANCE,
+      { params: { query: {} } },
+    ).queryKey,
+  });
+}
+
+export function useMaintenanceLogsQuery(
+  enabled: boolean,
+  query: TransportMaintenanceQuery = {},
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    TRANSPORT_API_PATHS.LIST_MAINTENANCE,
+    { params: { query } },
+    { enabled },
+  );
+}
+
+export function useCreateMaintenanceLogMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "post",
+    TRANSPORT_API_PATHS.CREATE_MAINTENANCE,
+    {
+      onSuccess: () => {
+        invalidateMaintenanceQueries(queryClient);
+      },
+    },
+  );
+}
+
+// ── Route Students ─────────────────────────────────────────────────────────
+
+export function useRouteStudentsQuery(
+  routeId: string,
+  enabled: boolean,
+  query: { page?: number; limit?: number } = {},
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    TRANSPORT_API_PATHS.ROUTE_STUDENTS,
+    { params: { path: { routeId }, query } },
+    { enabled },
+  );
+}
+
+// ── Deactivate ─────────────────────────────────────────────────────────────
+
+export function useDeactivateRouteMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "delete",
+    TRANSPORT_API_PATHS.DEACTIVATE_ROUTE,
+    {
+      onSuccess: () => {
+        invalidateRouteQueries(queryClient);
+      },
+    },
+  );
+}
+
+export function useDeactivateVehicleMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "delete",
+    TRANSPORT_API_PATHS.DEACTIVATE_VEHICLE,
+    {
+      onSuccess: () => {
+        invalidateVehicleQueries(queryClient);
+      },
+    },
+  );
+}

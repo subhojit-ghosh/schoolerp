@@ -1,17 +1,29 @@
 import { useCallback, useMemo, useState } from "react";
 import { AUTH_CONTEXT_KEYS } from "@repo/contracts";
 import {
+  IconAlertTriangle,
   IconArrowRight,
   IconBook2,
   IconCalendarStats,
   IconCertificate,
   IconCurrencyRupee,
   IconRocket,
+  IconTrendingDown,
+  IconTrendingUp,
   IconUsers,
+  IconX,
 } from "@tabler/icons-react";
 import { Link } from "react-router";
+import { toast } from "sonner";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/ui/card";
 import { EntityPageShell } from "@/components/entities/entity-page-shell";
 import { SectionCards } from "@/components/data-display/section-cards";
 import {
@@ -33,6 +45,11 @@ import { FamilyPortalPage } from "@/features/family/ui/family-portal-page";
 import { StudentPortalPage } from "@/features/student-portal/ui/student-portal-page";
 import { useSetupStatusQuery } from "@/features/setup/api/use-setup-status";
 import { SetupChecklist } from "@/features/setup/ui/setup-checklist";
+import {
+  useNeedsAttentionQuery,
+  useTrendsQuery,
+  useDismissItemMutation,
+} from "@/features/dashboard/api/use-dashboard";
 
 const QUICK_ACTIONS = [
   {
@@ -331,11 +348,219 @@ export function DashboardPage() {
           )}
         </div>
       </div>
+      {/* Needs attention */}
+      <NeedsAttentionSection enabled={Boolean(staffDashboardInstitutionId)} />
+
+      {/* Trend indicators */}
+      <TrendsSection enabled={Boolean(staffDashboardInstitutionId)} />
+
       {/* Role-specific insights */}
       <RoleInsights session={session} />
     </EntityPageShell>
   );
 }
+
+// ── Needs Attention ─────────────────────────────────────────────────────────
+
+type AttentionItem = {
+  id: string;
+  title: string;
+  description?: string;
+  severity?: "low" | "medium" | "high";
+  actionUrl?: string;
+  actionLabel?: string;
+};
+
+function NeedsAttentionSection({ enabled }: { enabled: boolean }) {
+  const { data, isLoading } = useNeedsAttentionQuery(enabled);
+  const dismissMutation = useDismissItemMutation();
+
+  const items: AttentionItem[] = useMemo(() => {
+    if (!data) return [];
+    if (Array.isArray(data)) return data as AttentionItem[];
+    const result = data as { items?: AttentionItem[] };
+    return result.items ?? [];
+  }, [data]);
+
+  const handleDismiss = useCallback(
+    (itemId: string) => {
+      dismissMutation.mutate(
+        { params: { path: { itemId } } },
+        {
+          onSuccess: () => {
+            toast.success("Item dismissed");
+          },
+          onError: (error: unknown) => {
+            toast.error(
+              error instanceof Error ? error.message : "Failed to dismiss item",
+            );
+          },
+        },
+      );
+    },
+    [dismissMutation],
+  );
+
+  if (!enabled || isLoading || items.length === 0) return null;
+
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-0.5">
+        Needs attention
+      </p>
+      <div className="grid grid-cols-1 gap-3 @xl/main:grid-cols-2 @4xl/main:grid-cols-3">
+        {items.map((item) => (
+          <Card
+            key={item.id}
+            className="relative overflow-hidden"
+          >
+            {item.severity === "high" ? (
+              <div
+                className="absolute inset-x-0 top-0 h-[3px]"
+                style={{ background: "var(--destructive, #ef4444)" }}
+              />
+            ) : item.severity === "medium" ? (
+              <div
+                className="absolute inset-x-0 top-0 h-[3px]"
+                style={{ background: "#f59e0b" }}
+              />
+            ) : null}
+            <CardHeader className="pb-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <IconAlertTriangle
+                    className="size-4 shrink-0"
+                    style={{
+                      color:
+                        item.severity === "high"
+                          ? "var(--destructive, #ef4444)"
+                          : item.severity === "medium"
+                            ? "#f59e0b"
+                            : "var(--muted-foreground)",
+                    }}
+                  />
+                  <CardTitle className="text-sm">{item.title}</CardTitle>
+                </div>
+                <Button
+                  className="h-6 w-6 shrink-0 rounded-md"
+                  disabled={dismissMutation.isPending}
+                  onClick={() => handleDismiss(item.id)}
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                >
+                  <IconX className="size-3.5" />
+                </Button>
+              </div>
+              {item.description ? (
+                <CardDescription className="text-xs">
+                  {item.description}
+                </CardDescription>
+              ) : null}
+            </CardHeader>
+            {item.actionUrl ? (
+              <CardContent className="pt-0 pb-3">
+                <Button
+                  asChild
+                  className="h-8 rounded-md text-xs"
+                  size="sm"
+                  variant="outline"
+                >
+                  <Link to={item.actionUrl}>
+                    {item.actionLabel ?? "View details"}
+                    <IconArrowRight className="ml-1 size-3" />
+                  </Link>
+                </Button>
+              </CardContent>
+            ) : null}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Trends ──────────────────────────────────────────────────────────────────
+
+type TrendItem = {
+  label: string;
+  current: number;
+  previous: number;
+  unit: string;
+};
+
+function TrendsSection({ enabled }: { enabled: boolean }) {
+  const { data, isLoading } = useTrendsQuery(enabled);
+
+  const trends: TrendItem[] = useMemo(() => {
+    if (!data) return [];
+    if (Array.isArray(data)) return data as TrendItem[];
+    const result = data as { trends?: TrendItem[] };
+    return result.trends ?? [];
+  }, [data]);
+
+  if (!enabled || isLoading || trends.length === 0) return null;
+
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 px-0.5">
+        Trends
+      </p>
+      <div className="grid grid-cols-1 gap-3 @xl/main:grid-cols-2 @4xl/main:grid-cols-4">
+        {trends.map((trend) => {
+          const change =
+            trend.previous !== 0
+              ? Math.round(
+                  ((trend.current - trend.previous) / trend.previous) * 100,
+                )
+              : 0;
+          const isPositive = change > 0;
+          const isNegative = change < 0;
+          return (
+            <Card key={trend.label} className="@container/card">
+              <CardHeader className="pb-1">
+                <CardDescription className="text-xs">
+                  {trend.label}
+                </CardDescription>
+                <CardTitle className="text-xl font-bold tabular-nums">
+                  {trend.current} {trend.unit}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="flex items-center gap-1">
+                  {isPositive ? (
+                    <IconTrendingUp className="size-3.5 text-green-600" />
+                  ) : isNegative ? (
+                    <IconTrendingDown className="size-3.5 text-red-500" />
+                  ) : null}
+                  {change !== 0 ? (
+                    <span
+                      className={`text-xs font-medium ${
+                        isPositive
+                          ? "text-green-600"
+                          : isNegative
+                            ? "text-red-500"
+                            : "text-muted-foreground"
+                      }`}
+                    >
+                      {isPositive ? "+" : ""}
+                      {change}%
+                    </span>
+                  ) : null}
+                  <span className="text-xs text-muted-foreground">
+                    vs previous: {trend.previous}
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Role Insights ───────────────────────────────────────────────────────────
 
 function RoleInsights({
   session,

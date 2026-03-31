@@ -115,6 +115,46 @@ All Phase 1 items implemented end-to-end:
 - **Role-specific dashboards** — dashboard "For you" section shows context-aware insights: admin sees ratio/defaulters/audit, accountant sees collection/defaulters/payroll, teacher sees attendance/homework/PTM
 - **Notification preferences** — per-user channel toggles (SMS/email/in-app), quiet hours configuration, digest mode (instant/daily/weekly), settings page under account
 
+## Phase 2 — Complete (Module Depth, 10 modules)
+
+All Phase 2 module depth items implemented end-to-end (backend + frontend):
+
+- **Library depth** — fine collection (collect/waive on overdue returns), book reservation queue with position tracking and fulfill/cancel flow, member borrowing history endpoint, overdue detection and bulk mark-overdue, librarian dashboard (stat cards: books out/returned today, overdue count, pending reservations; popular books; recent transactions); reservation list page and dashboard page in ERP sidebar
+- **Admissions depth** — document checklist management (CRUD for required documents per institution), application document tracking (per-application upload status: pending/uploaded/verified/rejected), convert-to-student pipeline (one-click: approved application → student record + enrollment + membership), waitlist management (waitlist applications with position, promote next when seat opens), registration fee recording on application
+- **Hostel depth** — mess plan assignment to students (linked to bed allocation, active/inactive lifecycle), room transfer workflow (vacate old allocation, create new, record transfer history, adjust occupancy on both rooms), occupancy dashboard (building-wise and floor-wise capacity/occupied/available with bars), batch bed allocation; mess assignments, room transfers, and occupancy pages in ERP sidebar
+- **Transport depth** — driver management as proper entity (CRUD with license, expiry, emergency contact), vehicle maintenance log (regular/repair/inspection with cost, date, next due, vendor), route-wise student list report, deactivate routes/vehicles with dependency checks (active assignments, active vehicles); drivers and maintenance pages in ERP sidebar
+- **Inventory depth** — vendor management (CRUD with contact, GST, active/inactive), purchase order workflow (create PO with line items, order/cancel, GRN receive against PO auto-updating stock and transitioning PO status), department-wise issue tracking (departmentName on stock transactions), cost tracking (unitPriceInPaise on transactions); vendors and purchase orders pages in ERP sidebar
+- **Homework depth** — student submission tracking (teacher marks submitted/not_submitted/late per student), file attachment support (attachmentUrl on homework and submissions), parent visibility toggle (parentVisible boolean), per-homework submission analytics (total/submitted/not_submitted/late/rate), class-wise completion analytics
+- **Announcements depth** — class/section targeted announcements (targetClassId, targetSectionId), scheduled publishing (scheduledPublishAt with auto-publish), read receipt tracking per user (announcementReadReceipts table, mark-read and read-count endpoints), announcement categories (academic/disciplinary/general/urgent)
+- **Students depth** — photo upload (photoUrl column), sibling linking (bidirectional sibling links with conflict checks), medical records (single record per student with allergies, conditions, medications, emergency info, doctor, insurance), disciplinary log (append-only incident records with severity, action taken, parent notification), previous school details (name, board, class), TC issuance workflow (issue TC, deactivate membership, unique TC number)
+- **Staff depth** — document management (CRUD for appointment letters, qualifications, ID proofs with type categorization), teaching load analysis (periods per week from active timetable entries), campus transfer workflow (transfer between campuses with history, update primary campus and membership), reporting structure (reportingToMemberId), emergency contact relation field
+- **Guardians depth** — communication preference (SMS/WhatsApp/email per user), cross-student fee summary (aggregate fee dues/paid/outstanding across all linked children), occupation and annual income range fields
+
+## Phase 2 — Complete (Platform Infrastructure, Cross-cutting, New Modules, 13 items)
+
+All remaining Phase 2 items implemented end-to-end (backend + frontend):
+
+### Platform Infrastructure
+- **Domain event infrastructure** — `domain_events` Postgres table as event store, `DomainEventsService.publish()` that participates in the caller's DB transaction, 10-second interval poller that processes pending events through registered listeners, retry with configurable max attempts, admin event list/retry endpoints for debugging
+- **Automated workflows** — event listener registration at module init; 8 workflow handlers: attendance.absent → guardian notification, attendance.absent.streak → class teacher alert, fee.overdue → guardian reminder, fee.payment.received → guardian confirmation, admission.approved → staff conversion suggestion, leave.approved/rejected → applicant notification, announcement.published → audience notification. All create in-app notifications via existing notifications table.
+- **Actionable dashboard** — "Needs Attention" feed (unmarked attendance, pending leaves, overdue fees with total amounts, absence streaks 3+, pending admissions, pending expense approvals), role-aware filtering by user permissions, dismiss per item, trend indicators (attendance rate week-over-week, fee collection vs target, enrollment changes)
+
+### Cross-cutting
+- **File uploads** — Multer-based upload module with local storage at `uploads/<institutionId>/<entityType>/`, 10MB limit, allowed types (images, PDF, doc/xls), metadata tracking in `file_uploads` table, download endpoint with `sendFile`, reusable `FileUploadField` React component with drag-and-drop, progress bar, and delete button
+- **Campus filtering** — added optional `campusId` filter parameter to homework, library books, library transactions, inventory items, and inventory transaction list endpoints
+- **Bulk import/export** — extended data-exchange module with 3 new entity types: library books (title/author/isbn/publisher/genre/copies), calendar holidays (title/dates/description), inventory items (name/category/sku/unit/stock/location); CSV templates, preview, execute, and export flows
+- **PWA** — `manifest.json` (standalone, /dashboard start), service worker with cache-first for static assets and network-first for API, offline queue for attendance/marks POST requests with IndexedDB storage and sync-on-reconnect, install prompt banner, offline indicator banner
+- **Keyboard shortcuts** — `Alt+D` dashboard, `Alt+A` attendance, `Alt+F` fees, `Alt+S` students, `Alt+M` exams, `Alt+H` homework, `Alt+N` context-dependent new entity, `Ctrl+K` command palette; respects editable fields; shortcuts dialog updated with all bindings
+
+### Must-haves
+- **DPDPA compliance** — consent tracking (per-user per-purpose with grant/withdraw and IP logging), sensitive data access audit log (who viewed what, when, from where), configurable session controls (max concurrent sessions, timeout minutes, require re-auth for sensitive ops), data masking utilities (Aadhar, mobile, email), settings page with session config form and access log table
+
+### New Modules
+- **Expense management** — expense categories (CRUD with budget head codes, hierarchy support), expense records (CRUD with campus/department/vendor/receipt tracking), 4-step workflow (draft → submitted → approved/rejected → paid), approval with rejection reason, payment recording with method/reference, expense summary reports by category/month/department; expense categories and expenses list pages in sidebar under Finance
+- **Scholarship management** — scholarship types (merit, need-based, sports, government pre/post-matric, minority, SC/ST), application workflow (apply, approve with auto-created fee concession, reject), DBT tracking (not_applied → applied → sanctioned → disbursed), renewal support (period-based expiry, renew from expired application), max recipients cap; scholarships and applications list pages in sidebar under People
+- **Emergency broadcast** — multi-channel alerts (SMS/email/in-app via channels array), targeted by campus/class/section/transport route, 3 priority levels (normal/high/critical), pre-built templates (school closure, early dismissal, security alert, weather alert, transport delay), delivery log per recipient per channel with status tracking, recipient resolution from target type; broadcasts list page in sidebar under Communication
+- **Income tracking** — categorized income records (donation, grant, government aid, rental, canteen, admission fee, other), campus-scoped, source entity tracking, reference numbers, receipt upload link, income summary by category and month; income records list page in sidebar under Finance
+
 ## Implemented But Not Customer-Usable — Needs work before showing to a customer
 
 - No items currently in this category.
@@ -123,5 +163,5 @@ All Phase 1 items implemented end-to-end:
 
 - **Real SMS/email provider testing** — the delivery abstraction and provider implementations are built; institutions need to configure actual provider credentials and verify delivery end-to-end. **Intentionally deferred to the very last step of v1.**
 
-## Planned Next — Post-v1 depth
-- See roadmap.md for post-v1 feature depth items (Phase 1 → Phase 2 → ...)
+## Planned Next
+- See roadmap.md for Phase 3+ items

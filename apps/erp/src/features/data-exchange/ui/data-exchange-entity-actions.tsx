@@ -119,7 +119,7 @@ export function DataExchangeEntityActions({
     try {
       const result = await previewMutation.mutateAsync({
         body: {
-          entityType,
+          entityType: entityType as "students" | "staff" | "guardians" | "feeAssignments",
           csvContent: fileContent,
         },
       });
@@ -141,7 +141,7 @@ export function DataExchangeEntityActions({
     try {
       const result = await executeMutation.mutateAsync({
         body: {
-          entityType,
+          entityType: entityType as "students" | "staff" | "guardians" | "feeAssignments",
           csvContent,
         },
       });

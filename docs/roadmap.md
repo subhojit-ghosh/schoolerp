@@ -28,9 +28,9 @@ Ship a production-grade school ERP that a real Indian school can use for daily o
 - Frontend is a thin client over tenant-scoped APIs
 - Every screen a customer sees must be usable, not a placeholder
 
-## Now — Phase 1 complete, entering Phase 2
+## Now — Phase 2 fully complete, entering Phase 3
 
-v1 is feature-complete with 35+ modules. Phase 0a, 0b, and Phase 1 are all done. All migrations applied.
+Phase 2 is fully complete — all 23 items done (module depth, platform infrastructure, cross-cutting, new modules). All migrations applied.
 
 Remaining:
 
@@ -76,31 +76,33 @@ All 10 items done. See `docs/status.md` for the full list of what was implemente
 
 Gate: Schools see value beyond data entry — automated alerts, workflows, actionable insights.
 
-| # | Item | Section reference |
-|---|------|-------------------|
-| 1 | Domain event infrastructure — Postgres event store + BullMQ + poller fallback | Platform theme 1 |
-| 2 | Automated workflows — absence SMS, fee overdue reminders, streak alerts | Platform theme 2 |
-| 3 | Actionable dashboard — "needs attention" feed, inline actions, trend indicators | Platform theme 3 |
-| 4 | Library depth — fine collection, reservation queue, borrowing history, overdue alerts, librarian dashboard | Module depth: Library |
-| 5 | Admissions depth — convert-to-student pipeline, registration fee, document checklist, waitlist promotion | Module depth: Admissions |
-| 6 | Hostel depth — mess plan assignment, fee integration, room transfer, occupancy dashboard | Module depth: Hostel |
-| 7 | Transport depth — fee integration, route-wise report, driver management, delete/deactivate | Module depth: Transport |
-| 8 | Inventory depth — purchase orders, vendor management, department-wise issue, cost tracking | Module depth: Inventory |
-| 9 | Homework depth — submission tracking, file attachments, parent visibility, completion analytics | Module depth: Homework |
-| 10 | Announcements depth — class-targeted, scheduled publishing, read tracking, categories | Module depth: Announcements |
-| 11 | Students depth — photo upload, sibling linking, medical records, disciplinary log, TC workflow | Module depth: Students |
-| 12 | Staff depth — document management, teaching load analysis, campus transfer, emergency contacts | Module depth: Staff |
-| 13 | Guardians depth — communication preference, cross-student fee summary, occupation fields | Module depth: Guardians |
-| 14 | File uploads wired to forms — student photos, homework, staff docs, admission docs | Cross-cutting depth |
-| 15 | Campus filtering — consistent campus filter on all list endpoints | Cross-cutting depth |
-| 16 | Bulk import/export — library books, calendar holidays, inventory items | Cross-cutting depth |
-| 17 | PWA — installable, push notifications, offline attendance and marks entry | Must-haves: Mobile app |
-| 18 | Keyboard shortcuts — attendance, fees, marks power-user shortcuts | Keyboard shortcuts |
-| 19 | DPDPA compliance — consent tracking, data masking, sensitive data access audit, session limits | Must-haves: Security & DPDPA |
-| 20 | Expense management — track expenses by category, department, budget head | New modules: Finance |
-| 21 | Scholarship management — types, application workflow, auto-apply to fees, DBT tracking | New modules: Scholarships |
-| 22 | Emergency broadcast — multi-channel instant alert with delivery confirmation | New modules: Emergency broadcast |
-| 23 | Income beyond fees — donations, grants, government aid, rental income, canteen revenue | New modules: Finance |
+**Module depth (items 4–13): COMPLETE.** See `docs/status.md` for the full list.
+
+| # | Item | Status |
+|---|------|--------|
+| 1 | Domain event infrastructure — Postgres event store + BullMQ + poller fallback | **Done** |
+| 2 | Automated workflows — absence SMS, fee overdue reminders, streak alerts | **Done** |
+| 3 | Actionable dashboard — "needs attention" feed, inline actions, trend indicators | **Done** |
+| 4 | Library depth — fine collection, reservation queue, borrowing history, overdue alerts, librarian dashboard | **Done** |
+| 5 | Admissions depth — convert-to-student pipeline, registration fee, document checklist, waitlist promotion | **Done** |
+| 6 | Hostel depth — mess plan assignment, fee integration, room transfer, occupancy dashboard | **Done** |
+| 7 | Transport depth — fee integration, route-wise report, driver management, delete/deactivate | **Done** |
+| 8 | Inventory depth — purchase orders, vendor management, department-wise issue, cost tracking | **Done** |
+| 9 | Homework depth — submission tracking, file attachments, parent visibility, completion analytics | **Done** |
+| 10 | Announcements depth — class-targeted, scheduled publishing, read tracking, categories | **Done** |
+| 11 | Students depth — photo upload, sibling linking, medical records, disciplinary log, TC workflow | **Done** |
+| 12 | Staff depth — document management, teaching load analysis, campus transfer, emergency contacts | **Done** |
+| 13 | Guardians depth — communication preference, cross-student fee summary, occupation fields | **Done** |
+| 14 | File uploads wired to forms — student photos, homework, staff docs, admission docs | **Done** |
+| 15 | Campus filtering — consistent campus filter on all list endpoints | **Done** |
+| 16 | Bulk import/export — library books, calendar holidays, inventory items | **Done** |
+| 17 | PWA — installable, push notifications, offline attendance and marks entry | **Done** |
+| 18 | Keyboard shortcuts — attendance, fees, marks power-user shortcuts | **Done** |
+| 19 | DPDPA compliance — consent tracking, data masking, sensitive data access audit, session limits | **Done** |
+| 20 | Expense management — track expenses by category, department, budget head | **Done** |
+| 21 | Scholarship management — types, application workflow, auto-apply to fees, DBT tracking | **Done** |
+| 22 | Emergency broadcast — multi-channel instant alert with delivery confirmation | **Done** |
+| 23 | Income beyond fees — donations, grants, government aid, rental income, canteen revenue | **Done** |
 
 ---
 

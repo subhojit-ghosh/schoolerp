@@ -31,6 +31,7 @@ import { CurrentInstitution } from "../tenant-context/current-institution.decora
 import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.guard";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
+  CrossStudentFeeSummaryDto,
   GuardianDto,
   ListGuardiansQueryDto,
   ListGuardiansResultDto,
@@ -110,6 +111,27 @@ export class GuardiansController {
     @CurrentScopes() scopes: ResolvedScopes,
   ) {
     return this.guardiansService.resetMemberPassword(
+      institution.id,
+      guardianId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Get(`:guardianId/${API_ROUTES.CROSS_STUDENT_FEES}`)
+  @RequirePermission(PERMISSIONS.GUARDIANS_READ)
+  @ApiOperation({
+    summary:
+      "Get combined fee summary across all students linked to a guardian",
+  })
+  @ApiOkResponse({ type: CrossStudentFeeSummaryDto })
+  getCrossStudentFeeSummary(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("guardianId") guardianId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.guardiansService.getCrossStudentFeeSummary(
       institution.id,
       guardianId,
       authSession,

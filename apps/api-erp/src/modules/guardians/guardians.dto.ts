@@ -1,9 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
+  COMMUNICATION_PREFERENCES,
   GUARDIAN_RELATIONSHIPS,
   HONORIFICS,
   SORT_ORDERS,
   STATUS,
+  type CommunicationPreference,
   type GuardianRelationship,
   type MemberStatus,
 } from "../../constants";
@@ -37,6 +39,18 @@ export class UpdateGuardianBodyDto {
 
   @ApiPropertyOptional({ nullable: true })
   email?: string | null;
+
+  @ApiPropertyOptional({
+    enum: Object.values(COMMUNICATION_PREFERENCES),
+    nullable: true,
+  })
+  communicationPreference?: CommunicationPreference | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  occupation?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  annualIncomeRange?: string | null;
 }
 
 export class LinkGuardianStudentBodyDto {
@@ -87,6 +101,19 @@ export class GuardianDto {
 
   @ApiPropertyOptional({ nullable: true })
   email!: string | null;
+
+  @ApiPropertyOptional({
+    enum: Object.values(COMMUNICATION_PREFERENCES),
+    nullable: true,
+  })
+  communicationPreference!: CommunicationPreference | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  occupation!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  annualIncomeRange!: string | null;
+
   campusId!: string;
   campusName!: string;
 
@@ -112,4 +139,28 @@ export class ListGuardiansResultDto {
   page!: number;
   pageSize!: number;
   pageCount!: number;
+}
+
+export class CrossStudentFeeSummaryStudentDto {
+  studentId!: string;
+  fullName!: string;
+  admissionNumber!: string;
+  totalDueInPaise!: number;
+  totalPaidInPaise!: number;
+  totalAdjustmentInPaise!: number;
+  outstandingInPaise!: number;
+}
+
+export class CrossStudentFeeSummaryDto {
+  guardianId!: string;
+  totalDueInPaise!: number;
+  totalPaidInPaise!: number;
+  totalAdjustmentInPaise!: number;
+  outstandingInPaise!: number;
+
+  @ApiProperty({
+    type: () => CrossStudentFeeSummaryStudentDto,
+    isArray: true,
+  })
+  students!: CrossStudentFeeSummaryStudentDto[];
 }

@@ -2,6 +2,7 @@ import { DATABASE } from "@repo/backend-core";
 import { AUDIT_ACTIONS, AUDIT_ENTITY_TYPES } from "@repo/contracts";
 import {
   and,
+  announcementReadReceipts,
   asc,
   announcements,
   campus,
@@ -11,6 +12,7 @@ import {
   ilike,
   inArray,
   isNull,
+  lte,
   ne,
   notificationReads,
   notifications,
@@ -39,6 +41,7 @@ import type {
   CreateAnnouncementDto,
   ListAnnouncementsQueryDto,
   ListNotificationsQueryDto,
+  MarkAnnouncementReadDto,
   MarkNotificationsReadDto,
   SetAnnouncementStatusDto,
   UpdateAnnouncementDto,
@@ -98,6 +101,10 @@ export class CommunicationsService {
         summary: announcements.summary,
         body: announcements.body,
         audience: announcements.audience,
+        category: announcements.category,
+        targetClassId: announcements.targetClassId,
+        targetSectionId: announcements.targetSectionId,
+        scheduledPublishAt: announcements.scheduledPublishAt,
         status: announcements.status,
         publishedAt: announcements.publishedAt,
         createdAt: announcements.createdAt,
@@ -161,6 +168,10 @@ export class CommunicationsService {
       summary: payload.summary?.trim() ?? null,
       body: payload.body.trim(),
       audience: payload.audience,
+      category: payload.category ?? null,
+      targetClassId: payload.targetClassId ?? null,
+      targetSectionId: payload.targetSectionId ?? null,
+      scheduledPublishAt: payload.scheduledPublishAt ?? null,
       status: STATUS.ANNOUNCEMENT.DRAFT,
       publishedAt: null,
     });
@@ -219,6 +230,10 @@ export class CommunicationsService {
         summary: payload.summary?.trim() ?? null,
         body: payload.body.trim(),
         audience: payload.audience,
+        category: payload.category ?? null,
+        targetClassId: payload.targetClassId ?? null,
+        targetSectionId: payload.targetSectionId ?? null,
+        scheduledPublishAt: payload.scheduledPublishAt ?? null,
       })
       .where(
         and(
@@ -484,6 +499,112 @@ export class CommunicationsService {
     return { updated: notificationIds.length };
   }
 
+  async markAnnouncementRead(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: MarkAnnouncementReadDto,
+  ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    const announcement = await this.getAnnouncementOrThrow(
+      institutionId,
+      payload.announcementId,
+      activeCampusId,
+    );
+
+    if (announcement.status !== STATUS.ANNOUNCEMENT.PUBLISHED) {
+      throw new ConflictException(
+        ERROR_MESSAGES.COMMUNICATIONS.ANNOUNCEMENT_NOT_PUBLISHED,
+      );
+    }
+
+    await this.db
+      .insert(announcementReadReceipts)
+      .values({
+        announcementId: payload.announcementId,
+        userId: authSession.user.id,
+        readAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: [
+          announcementReadReceipts.announcementId,
+          announcementReadReceipts.userId,
+        ],
+        set: {
+          readAt: new Date(),
+        },
+      });
+
+    return { success: true };
+  }
+
+  async getAnnouncementReadCount(
+    institutionId: string,
+    announcementId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ) {
+    const activeCampusId = this.requireActiveCampusId(authSession);
+    this.assertCampusScopeAccess(activeCampusId, scopes);
+    await this.getAnnouncementOrThrow(
+      institutionId,
+      announcementId,
+      activeCampusId,
+    );
+
+    const [row] = await this.db
+      .select({ count: count() })
+      .from(announcementReadReceipts)
+      .where(eq(announcementReadReceipts.announcementId, announcementId));
+
+    return {
+      announcementId,
+      readCount: row?.count ?? 0,
+    };
+  }
+
+  async publishScheduledAnnouncements(institutionId: string) {
+    const now = new Date();
+
+    const scheduled = await this.db
+      .select({
+        id: announcements.id,
+      })
+      .from(announcements)
+      .where(
+        and(
+          eq(announcements.institutionId, institutionId),
+          eq(announcements.status, STATUS.ANNOUNCEMENT.DRAFT),
+          lte(announcements.scheduledPublishAt, now),
+        ),
+      );
+
+    let published = 0;
+    for (const row of scheduled) {
+      try {
+        await this.db
+          .update(announcements)
+          .set({
+            status: STATUS.ANNOUNCEMENT.PUBLISHED,
+            publishedAt: now,
+          })
+          .where(
+            and(
+              eq(announcements.id, row.id),
+              eq(announcements.institutionId, institutionId),
+              eq(announcements.status, STATUS.ANNOUNCEMENT.DRAFT),
+            ),
+          );
+        published++;
+      } catch {
+        // Skip individual failures
+      }
+    }
+
+    return { published };
+  }
+
   private async publishAnnouncementNotification(
     institutionId: string,
     announcementId: string,
@@ -565,6 +686,10 @@ export class CommunicationsService {
 
     if (query.audience) {
       conditions.push(eq(announcements.audience, query.audience));
+    }
+
+    if (query.category) {
+      conditions.push(eq(announcements.category, query.category));
     }
 
     this.applyCampusScope(
@@ -713,6 +838,10 @@ export class CommunicationsService {
         title: announcements.title,
         summary: announcements.summary,
         body: announcements.body,
+        category: announcements.category,
+        targetClassId: announcements.targetClassId,
+        targetSectionId: announcements.targetSectionId,
+        scheduledPublishAt: announcements.scheduledPublishAt,
         status: announcements.status,
         publishedAt: announcements.publishedAt,
         createdAt: announcements.createdAt,

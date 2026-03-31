@@ -52,6 +52,29 @@ export const DATA_EXCHANGE_HEADERS = {
     "studentAdmissionNumber",
     "notes",
   ],
+  [DATA_EXCHANGE_ENTITY_TYPES.LIBRARY_BOOKS]: [
+    "title",
+    "author",
+    "isbn",
+    "publisher",
+    "genre",
+    "totalCopies",
+  ],
+  [DATA_EXCHANGE_ENTITY_TYPES.CALENDAR_HOLIDAYS]: [
+    "title",
+    "startDate",
+    "endDate",
+    "description",
+  ],
+  [DATA_EXCHANGE_ENTITY_TYPES.INVENTORY_ITEMS]: [
+    "name",
+    "categoryName",
+    "sku",
+    "unit",
+    "currentStock",
+    "minimumStock",
+    "location",
+  ],
 } as const satisfies Record<DataExchangeEntityType, readonly string[]>;
 
 export const DATA_EXCHANGE_TEMPLATE_ROWS = {
@@ -100,6 +123,35 @@ export const DATA_EXCHANGE_TEMPLATE_ROWS = {
       "Tuition Fee",
       "ADM-001",
       "Imported from April onboarding sheet",
+    ],
+  ],
+  [DATA_EXCHANGE_ENTITY_TYPES.LIBRARY_BOOKS]: [
+    [
+      "Introduction to Physics",
+      "H.C. Verma",
+      "978-8177091878",
+      "Bharati Bhawan",
+      "Science",
+      "5",
+    ],
+  ],
+  [DATA_EXCHANGE_ENTITY_TYPES.CALENDAR_HOLIDAYS]: [
+    [
+      "Republic Day",
+      "2027-01-26",
+      "2027-01-26",
+      "National holiday",
+    ],
+  ],
+  [DATA_EXCHANGE_ENTITY_TYPES.INVENTORY_ITEMS]: [
+    [
+      "Whiteboard Marker",
+      "Stationery",
+      "WBM-001",
+      "piece",
+      "50",
+      "10",
+      "Store Room A",
     ],
   ],
 } as const satisfies Record<DataExchangeEntityType, readonly string[][]>;

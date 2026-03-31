@@ -120,6 +120,15 @@ export const PERMISSIONS = {
   HOSTEL_MANAGE: "hostel:manage",
   STAFF_ATTENDANCE_READ: "staff_attendance:read",
   STAFF_ATTENDANCE_MANAGE: "staff_attendance:manage",
+  EXPENSES_READ: "expenses:read",
+  EXPENSES_MANAGE: "expenses:manage",
+  EXPENSES_APPROVE: "expenses:approve",
+  SCHOLARSHIPS_READ: "scholarships:read",
+  SCHOLARSHIPS_MANAGE: "scholarships:manage",
+  EMERGENCY_BROADCAST_SEND: "emergency_broadcast:send",
+  INCOME_READ: "income:read",
+  INCOME_MANAGE: "income:manage",
+  DPDPA_MANAGE: "dpdpa:manage",
 } as const;
 
 export const DATA_EXCHANGE_ENTITY_TYPES = {
@@ -127,6 +136,9 @@ export const DATA_EXCHANGE_ENTITY_TYPES = {
   STAFF: "staff",
   GUARDIANS: "guardians",
   FEE_ASSIGNMENTS: "feeAssignments",
+  LIBRARY_BOOKS: "libraryBooks",
+  CALENDAR_HOLIDAYS: "calendarHolidays",
+  INVENTORY_ITEMS: "inventoryItems",
 } as const;
 
 export const DATA_EXCHANGE_ACTIONS = {
@@ -192,6 +204,33 @@ export const AUDIT_ENTITY_TYPES = {
   BED_ALLOCATION: "bed_allocation",
   MESS_PLAN: "mess_plan",
   STAFF_ATTENDANCE_DAY: "staff_attendance_day",
+  LIBRARY_RESERVATION: "library_reservation",
+  LIBRARY_FINE: "library_fine",
+  ADMISSION_DOCUMENT: "admission_document",
+  ADMISSION_CONVERSION: "admission_conversion",
+  HOSTEL_MESS_ASSIGNMENT: "hostel_mess_assignment",
+  HOSTEL_ROOM_TRANSFER: "hostel_room_transfer",
+  TRANSPORT_DRIVER: "transport_driver",
+  TRANSPORT_MAINTENANCE: "transport_maintenance",
+  VENDOR: "vendor",
+  PURCHASE_ORDER: "purchase_order",
+  HOMEWORK_SUBMISSION: "homework_submission",
+  STUDENT_SIBLING_LINK: "student_sibling_link",
+  STUDENT_MEDICAL_RECORD: "student_medical_record",
+  STUDENT_DISCIPLINARY: "student_disciplinary",
+  TRANSFER_CERTIFICATE: "transfer_certificate",
+  STAFF_DOCUMENT: "staff_document",
+  STAFF_CAMPUS_TRANSFER: "staff_campus_transfer",
+  DOMAIN_EVENT: "domain_event",
+  EXPENSE_CATEGORY: "expense_category",
+  EXPENSE: "expense",
+  SCHOLARSHIP: "scholarship",
+  SCHOLARSHIP_APPLICATION: "scholarship_application",
+  EMERGENCY_BROADCAST: "emergency_broadcast",
+  INCOME_RECORD: "income_record",
+  DATA_CONSENT: "data_consent",
+  FILE_UPLOAD: "file_upload",
+  SENSITIVE_DATA_ACCESS: "sensitive_data_access",
 } as const;
 
 export const DELIVERY_PROVIDERS = {
@@ -497,6 +536,9 @@ export const NOTIFICATION_TYPES = {
   ADMISSION_STATUS_CHANGED: "admission_status_changed",
   EXAM_RESULTS_PUBLISHED: "exam_results_published",
   FEE_REMINDER_SENT: "fee_reminder_sent",
+  LEAVE_APPROVED: "leave_approved",
+  LEAVE_REJECTED: "leave_rejected",
+  ADMISSION_CONVERSION_SUGGESTED: "admission_conversion_suggested",
 } as const;
 
 export const ADMISSION_ENQUIRY_STATUSES = {
@@ -653,6 +695,9 @@ export const dataExchangeEntityTypeSchema = z.enum([
   DATA_EXCHANGE_ENTITY_TYPES.STAFF,
   DATA_EXCHANGE_ENTITY_TYPES.GUARDIANS,
   DATA_EXCHANGE_ENTITY_TYPES.FEE_ASSIGNMENTS,
+  DATA_EXCHANGE_ENTITY_TYPES.LIBRARY_BOOKS,
+  DATA_EXCHANGE_ENTITY_TYPES.CALENDAR_HOLIDAYS,
+  DATA_EXCHANGE_ENTITY_TYPES.INVENTORY_ITEMS,
 ]);
 export const ATTENDANCE_STATUSES = {
   PRESENT: "present",
@@ -875,6 +920,453 @@ export const MESS_PLAN_STATUS = {
   ACTIVE: "active",
   INACTIVE: "inactive",
 } as const;
+
+// ── Library depth ──────────────────────────────────────────────────────────
+
+export const LIBRARY_RESERVATION_STATUS = {
+  PENDING: "pending",
+  FULFILLED: "fulfilled",
+  CANCELLED: "cancelled",
+} as const;
+
+export const libraryReservationStatusSchema = z.enum([
+  LIBRARY_RESERVATION_STATUS.PENDING,
+  LIBRARY_RESERVATION_STATUS.FULFILLED,
+  LIBRARY_RESERVATION_STATUS.CANCELLED,
+]);
+
+export type LibraryReservationStatus = z.infer<
+  typeof libraryReservationStatusSchema
+>;
+
+// ── Announcement depth ─────────────────────────────────────────────────────
+
+export const ANNOUNCEMENT_CATEGORIES = {
+  ACADEMIC: "academic",
+  DISCIPLINARY: "disciplinary",
+  GENERAL: "general",
+  URGENT: "urgent",
+} as const;
+
+export const announcementCategorySchema = z.enum([
+  ANNOUNCEMENT_CATEGORIES.ACADEMIC,
+  ANNOUNCEMENT_CATEGORIES.DISCIPLINARY,
+  ANNOUNCEMENT_CATEGORIES.GENERAL,
+  ANNOUNCEMENT_CATEGORIES.URGENT,
+]);
+
+export type AnnouncementCategory = z.infer<typeof announcementCategorySchema>;
+
+// ── Homework depth ─────────────────────────────────────────────────────────
+
+export const HOMEWORK_SUBMISSION_STATUS = {
+  SUBMITTED: "submitted",
+  NOT_SUBMITTED: "not_submitted",
+  LATE: "late",
+} as const;
+
+export const homeworkSubmissionStatusSchema = z.enum([
+  HOMEWORK_SUBMISSION_STATUS.SUBMITTED,
+  HOMEWORK_SUBMISSION_STATUS.NOT_SUBMITTED,
+  HOMEWORK_SUBMISSION_STATUS.LATE,
+]);
+
+export type HomeworkSubmissionStatus = z.infer<
+  typeof homeworkSubmissionStatusSchema
+>;
+
+// ── Admissions depth ───────────────────────────────────────────────────────
+
+export const ADMISSION_APPLICATION_STATUSES_EXTENDED = {
+  ...ADMISSION_APPLICATION_STATUSES,
+  WAITLISTED: "waitlisted",
+  CONVERTED: "converted",
+} as const;
+
+export const ADMISSION_DOCUMENT_STATUS = {
+  PENDING: "pending",
+  UPLOADED: "uploaded",
+  VERIFIED: "verified",
+  REJECTED: "rejected",
+} as const;
+
+export const admissionDocumentStatusSchema = z.enum([
+  ADMISSION_DOCUMENT_STATUS.PENDING,
+  ADMISSION_DOCUMENT_STATUS.UPLOADED,
+  ADMISSION_DOCUMENT_STATUS.VERIFIED,
+  ADMISSION_DOCUMENT_STATUS.REJECTED,
+]);
+
+export type AdmissionDocumentStatus = z.infer<
+  typeof admissionDocumentStatusSchema
+>;
+
+// ── Inventory depth ────────────────────────────────────────────────────────
+
+export const PURCHASE_ORDER_STATUS = {
+  DRAFT: "draft",
+  ORDERED: "ordered",
+  PARTIALLY_RECEIVED: "partially_received",
+  RECEIVED: "received",
+  CANCELLED: "cancelled",
+} as const;
+
+export const purchaseOrderStatusSchema = z.enum([
+  PURCHASE_ORDER_STATUS.DRAFT,
+  PURCHASE_ORDER_STATUS.ORDERED,
+  PURCHASE_ORDER_STATUS.PARTIALLY_RECEIVED,
+  PURCHASE_ORDER_STATUS.RECEIVED,
+  PURCHASE_ORDER_STATUS.CANCELLED,
+]);
+
+export type PurchaseOrderStatus = z.infer<typeof purchaseOrderStatusSchema>;
+
+export const VENDOR_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+} as const;
+
+export const vendorStatusSchema = z.enum([
+  VENDOR_STATUS.ACTIVE,
+  VENDOR_STATUS.INACTIVE,
+]);
+
+export type VendorStatus = z.infer<typeof vendorStatusSchema>;
+
+// ── Transport depth ────────────────────────────────────────────────────────
+
+export const VEHICLE_MAINTENANCE_TYPE = {
+  REGULAR: "regular",
+  REPAIR: "repair",
+  INSPECTION: "inspection",
+} as const;
+
+export const vehicleMaintenanceTypeSchema = z.enum([
+  VEHICLE_MAINTENANCE_TYPE.REGULAR,
+  VEHICLE_MAINTENANCE_TYPE.REPAIR,
+  VEHICLE_MAINTENANCE_TYPE.INSPECTION,
+]);
+
+export type VehicleMaintenanceType = z.infer<
+  typeof vehicleMaintenanceTypeSchema
+>;
+
+// ── Student depth ──────────────────────────────────────────────────────────
+
+export const DISCIPLINARY_SEVERITY = {
+  MINOR: "minor",
+  MODERATE: "moderate",
+  MAJOR: "major",
+} as const;
+
+export const disciplinarySeveritySchema = z.enum([
+  DISCIPLINARY_SEVERITY.MINOR,
+  DISCIPLINARY_SEVERITY.MODERATE,
+  DISCIPLINARY_SEVERITY.MAJOR,
+]);
+
+export type DisciplinarySeverity = z.infer<typeof disciplinarySeveritySchema>;
+
+export const TC_STATUS = {
+  ISSUED: "issued",
+  CANCELLED: "cancelled",
+} as const;
+
+export const tcStatusSchema = z.enum([
+  TC_STATUS.ISSUED,
+  TC_STATUS.CANCELLED,
+]);
+
+export type TcStatus = z.infer<typeof tcStatusSchema>;
+
+// ── Guardian depth ─────────────────────────────────────────────────────────
+
+export const COMMUNICATION_PREFERENCES = {
+  SMS: "sms",
+  WHATSAPP: "whatsapp",
+  EMAIL: "email",
+} as const;
+
+export const communicationPreferenceSchema = z.enum([
+  COMMUNICATION_PREFERENCES.SMS,
+  COMMUNICATION_PREFERENCES.WHATSAPP,
+  COMMUNICATION_PREFERENCES.EMAIL,
+]);
+
+export type CommunicationPreference = z.infer<
+  typeof communicationPreferenceSchema
+>;
+
+// ── Phase 2 remaining: Domain events ───────────────────────────────────────
+
+export const DOMAIN_EVENT_STATUS = {
+  PENDING: "pending",
+  PROCESSING: "processing",
+  PROCESSED: "processed",
+  FAILED: "failed",
+} as const;
+
+export const domainEventStatusSchema = z.enum([
+  DOMAIN_EVENT_STATUS.PENDING,
+  DOMAIN_EVENT_STATUS.PROCESSING,
+  DOMAIN_EVENT_STATUS.PROCESSED,
+  DOMAIN_EVENT_STATUS.FAILED,
+]);
+
+export type DomainEventStatus = z.infer<typeof domainEventStatusSchema>;
+
+export const DOMAIN_EVENT_TYPES = {
+  ATTENDANCE_MARKED: "attendance.marked",
+  ATTENDANCE_ABSENT: "attendance.absent",
+  ATTENDANCE_ABSENT_STREAK: "attendance.absent.streak",
+  FEE_PAYMENT_RECEIVED: "fee.payment.received",
+  FEE_OVERDUE: "fee.overdue",
+  ADMISSION_APPROVED: "admission.approved",
+  STUDENT_CREATED: "student.created",
+  ANNOUNCEMENT_PUBLISHED: "announcement.published",
+  LEAVE_APPROVED: "leave.approved",
+  LEAVE_REJECTED: "leave.rejected",
+  EMERGENCY_BROADCAST: "emergency.broadcast",
+} as const;
+
+export type DomainEventType =
+  (typeof DOMAIN_EVENT_TYPES)[keyof typeof DOMAIN_EVENT_TYPES];
+
+// ── Phase 2 remaining: Expense management ──────────────────────────────────
+
+export const EXPENSE_STATUS = {
+  DRAFT: "draft",
+  SUBMITTED: "submitted",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  PAID: "paid",
+} as const;
+
+export const expenseStatusSchema = z.enum([
+  EXPENSE_STATUS.DRAFT,
+  EXPENSE_STATUS.SUBMITTED,
+  EXPENSE_STATUS.APPROVED,
+  EXPENSE_STATUS.REJECTED,
+  EXPENSE_STATUS.PAID,
+]);
+
+export type ExpenseStatus = z.infer<typeof expenseStatusSchema>;
+
+export const EXPENSE_CATEGORY_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+} as const;
+
+export const expenseCategoryStatusSchema = z.enum([
+  EXPENSE_CATEGORY_STATUS.ACTIVE,
+  EXPENSE_CATEGORY_STATUS.INACTIVE,
+]);
+
+export type ExpenseCategoryStatus = z.infer<typeof expenseCategoryStatusSchema>;
+
+// ── Phase 2 remaining: Scholarship management ──────────────────────────────
+
+export const SCHOLARSHIP_TYPES = {
+  MERIT: "merit",
+  NEED_BASED: "need_based",
+  SPORTS: "sports",
+  GOVERNMENT_PRE_MATRIC: "government_pre_matric",
+  GOVERNMENT_POST_MATRIC: "government_post_matric",
+  MINORITY: "minority",
+  SC_ST: "sc_st",
+  OTHER: "other",
+} as const;
+
+export const scholarshipTypeSchema = z.enum([
+  SCHOLARSHIP_TYPES.MERIT,
+  SCHOLARSHIP_TYPES.NEED_BASED,
+  SCHOLARSHIP_TYPES.SPORTS,
+  SCHOLARSHIP_TYPES.GOVERNMENT_PRE_MATRIC,
+  SCHOLARSHIP_TYPES.GOVERNMENT_POST_MATRIC,
+  SCHOLARSHIP_TYPES.MINORITY,
+  SCHOLARSHIP_TYPES.SC_ST,
+  SCHOLARSHIP_TYPES.OTHER,
+]);
+
+export type ScholarshipType = z.infer<typeof scholarshipTypeSchema>;
+
+export const SCHOLARSHIP_STATUS = {
+  ACTIVE: "active",
+  INACTIVE: "inactive",
+  DELETED: "deleted",
+} as const;
+
+export const scholarshipStatusSchema = z.enum([
+  SCHOLARSHIP_STATUS.ACTIVE,
+  SCHOLARSHIP_STATUS.INACTIVE,
+  SCHOLARSHIP_STATUS.DELETED,
+]);
+
+export type ScholarshipStatus = z.infer<typeof scholarshipStatusSchema>;
+
+export const SCHOLARSHIP_APPLICATION_STATUS = {
+  PENDING: "pending",
+  APPROVED: "approved",
+  REJECTED: "rejected",
+  EXPIRED: "expired",
+} as const;
+
+export const scholarshipApplicationStatusSchema = z.enum([
+  SCHOLARSHIP_APPLICATION_STATUS.PENDING,
+  SCHOLARSHIP_APPLICATION_STATUS.APPROVED,
+  SCHOLARSHIP_APPLICATION_STATUS.REJECTED,
+  SCHOLARSHIP_APPLICATION_STATUS.EXPIRED,
+]);
+
+export type ScholarshipApplicationStatus = z.infer<
+  typeof scholarshipApplicationStatusSchema
+>;
+
+export const DBT_STATUS = {
+  NOT_APPLIED: "not_applied",
+  APPLIED: "applied",
+  SANCTIONED: "sanctioned",
+  DISBURSED: "disbursed",
+  REJECTED: "rejected",
+} as const;
+
+export const dbtStatusSchema = z.enum([
+  DBT_STATUS.NOT_APPLIED,
+  DBT_STATUS.APPLIED,
+  DBT_STATUS.SANCTIONED,
+  DBT_STATUS.DISBURSED,
+  DBT_STATUS.REJECTED,
+]);
+
+export type DbtStatus = z.infer<typeof dbtStatusSchema>;
+
+// ── Phase 2 remaining: Emergency broadcast ─────────────────────────────────
+
+export const BROADCAST_STATUS = {
+  DRAFT: "draft",
+  SENDING: "sending",
+  SENT: "sent",
+  FAILED: "failed",
+} as const;
+
+export const broadcastStatusSchema = z.enum([
+  BROADCAST_STATUS.DRAFT,
+  BROADCAST_STATUS.SENDING,
+  BROADCAST_STATUS.SENT,
+  BROADCAST_STATUS.FAILED,
+]);
+
+export type BroadcastStatus = z.infer<typeof broadcastStatusSchema>;
+
+export const BROADCAST_TARGET_TYPES = {
+  ALL: "all",
+  CAMPUS: "campus",
+  CLASS: "class",
+  SECTION: "section",
+  TRANSPORT_ROUTE: "transport_route",
+} as const;
+
+export const broadcastTargetTypeSchema = z.enum([
+  BROADCAST_TARGET_TYPES.ALL,
+  BROADCAST_TARGET_TYPES.CAMPUS,
+  BROADCAST_TARGET_TYPES.CLASS,
+  BROADCAST_TARGET_TYPES.SECTION,
+  BROADCAST_TARGET_TYPES.TRANSPORT_ROUTE,
+]);
+
+export type BroadcastTargetType = z.infer<typeof broadcastTargetTypeSchema>;
+
+export const BROADCAST_PRIORITY = {
+  NORMAL: "normal",
+  HIGH: "high",
+  CRITICAL: "critical",
+} as const;
+
+export const broadcastPrioritySchema = z.enum([
+  BROADCAST_PRIORITY.NORMAL,
+  BROADCAST_PRIORITY.HIGH,
+  BROADCAST_PRIORITY.CRITICAL,
+]);
+
+export type BroadcastPriority = z.infer<typeof broadcastPrioritySchema>;
+
+// ── Phase 2 remaining: Income tracking ─────────────────────────────────────
+
+export const INCOME_CATEGORIES = {
+  DONATION: "donation",
+  GRANT: "grant",
+  GOVERNMENT_AID: "government_aid",
+  RENTAL: "rental",
+  CANTEEN: "canteen",
+  ADMISSION_FEE: "admission_fee",
+  OTHER: "other",
+} as const;
+
+export const incomeCategorySchema = z.enum([
+  INCOME_CATEGORIES.DONATION,
+  INCOME_CATEGORIES.GRANT,
+  INCOME_CATEGORIES.GOVERNMENT_AID,
+  INCOME_CATEGORIES.RENTAL,
+  INCOME_CATEGORIES.CANTEEN,
+  INCOME_CATEGORIES.ADMISSION_FEE,
+  INCOME_CATEGORIES.OTHER,
+]);
+
+export type IncomeCategory = z.infer<typeof incomeCategorySchema>;
+
+// ── Phase 2 remaining: DPDPA compliance ────────────────────────────────────
+
+export const CONSENT_PURPOSES = {
+  DATA_COLLECTION: "data_collection",
+  COMMUNICATION: "communication",
+  THIRD_PARTY_SHARING: "third_party_sharing",
+  MARKETING: "marketing",
+} as const;
+
+export const consentPurposeSchema = z.enum([
+  CONSENT_PURPOSES.DATA_COLLECTION,
+  CONSENT_PURPOSES.COMMUNICATION,
+  CONSENT_PURPOSES.THIRD_PARTY_SHARING,
+  CONSENT_PURPOSES.MARKETING,
+]);
+
+export type ConsentPurpose = z.infer<typeof consentPurposeSchema>;
+
+export const CONSENT_STATUS = {
+  GRANTED: "granted",
+  WITHDRAWN: "withdrawn",
+} as const;
+
+export const consentStatusSchema = z.enum([
+  CONSENT_STATUS.GRANTED,
+  CONSENT_STATUS.WITHDRAWN,
+]);
+
+export type ConsentStatus = z.infer<typeof consentStatusSchema>;
+
+// ── Phase 2 remaining: File uploads ────────────────────────────────────────
+
+export const UPLOAD_ENTITY_TYPES = {
+  STUDENT_PHOTO: "student_photo",
+  HOMEWORK_ATTACHMENT: "homework_attachment",
+  HOMEWORK_SUBMISSION: "homework_submission",
+  STAFF_DOCUMENT: "staff_document",
+  ADMISSION_DOCUMENT: "admission_document",
+  EXPENSE_RECEIPT: "expense_receipt",
+  GENERAL: "general",
+} as const;
+
+export const uploadEntityTypeSchema = z.enum([
+  UPLOAD_ENTITY_TYPES.STUDENT_PHOTO,
+  UPLOAD_ENTITY_TYPES.HOMEWORK_ATTACHMENT,
+  UPLOAD_ENTITY_TYPES.HOMEWORK_SUBMISSION,
+  UPLOAD_ENTITY_TYPES.STAFF_DOCUMENT,
+  UPLOAD_ENTITY_TYPES.ADMISSION_DOCUMENT,
+  UPLOAD_ENTITY_TYPES.EXPENSE_RECEIPT,
+  UPLOAD_ENTITY_TYPES.GENERAL,
+]);
+
+export type UploadEntityType = z.infer<typeof uploadEntityTypeSchema>;
 
 export const hostelBuildingStatusSchema = z.enum([
   HOSTEL_BUILDING_STATUS.ACTIVE,

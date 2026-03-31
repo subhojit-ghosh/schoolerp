@@ -3,7 +3,9 @@ import {
   ADMISSION_FORM_FIELD_SCOPES,
   ADMISSION_FORM_FIELD_TYPES,
   ADMISSION_APPLICATION_STATUSES,
+  ADMISSION_DOCUMENT_STATUS,
   ADMISSION_ENQUIRY_STATUSES,
+  type AdmissionDocumentStatus,
   type AdmissionFormFieldOption,
   type AdmissionFormFieldScope,
   type AdmissionFormFieldType,
@@ -286,4 +288,139 @@ export class ListAdmissionApplicationsResultDto {
 export class ListAdmissionFormFieldsResultDto {
   @ApiProperty({ type: () => AdmissionFormFieldDto, isArray: true })
   rows!: AdmissionFormFieldDto[];
+}
+
+// ── Document checklist DTOs ─────────────────────────────────────────────────
+
+export class CreateDocumentChecklistItemBodyDto {
+  documentName!: string;
+  isRequired!: boolean;
+  sortOrder!: number;
+  isActive!: boolean;
+}
+
+export class UpdateDocumentChecklistItemBodyDto extends CreateDocumentChecklistItemBodyDto {}
+
+export class DocumentChecklistItemDto {
+  id!: string;
+  institutionId!: string;
+  documentName!: string;
+  isRequired!: boolean;
+  sortOrder!: number;
+  isActive!: boolean;
+  createdAt!: string;
+  updatedAt!: string;
+}
+
+export class ListDocumentChecklistResultDto {
+  @ApiProperty({ type: () => DocumentChecklistItemDto, isArray: true })
+  rows!: DocumentChecklistItemDto[];
+}
+
+// ── Application documents DTOs ──────────────────────────────────────────────
+
+export class UpsertApplicationDocumentBodyDto {
+  checklistItemId!: string;
+
+  @ApiProperty({
+    enum: Object.values(ADMISSION_DOCUMENT_STATUS),
+  })
+  status!: AdmissionDocumentStatus;
+
+  @ApiPropertyOptional({ nullable: true })
+  uploadUrl?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  notes?: string | null;
+}
+
+export class VerifyRejectApplicationDocumentBodyDto {
+  @ApiProperty({
+    enum: ["verified", "rejected"],
+  })
+  status!: "verified" | "rejected";
+
+  @ApiPropertyOptional({ nullable: true })
+  notes?: string | null;
+}
+
+export class ApplicationDocumentDto {
+  id!: string;
+  institutionId!: string;
+  applicationId!: string;
+  checklistItemId!: string;
+
+  @ApiProperty({
+    enum: Object.values(ADMISSION_DOCUMENT_STATUS),
+  })
+  status!: AdmissionDocumentStatus;
+
+  @ApiPropertyOptional({ nullable: true })
+  uploadUrl!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  verifiedByMemberId!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  verifiedAt!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  notes!: string | null;
+  createdAt!: string;
+  updatedAt!: string;
+}
+
+export class ListApplicationDocumentsResultDto {
+  @ApiProperty({ type: () => ApplicationDocumentDto, isArray: true })
+  rows!: ApplicationDocumentDto[];
+}
+
+// ── Convert to student DTOs ─────────────────────────────────────────────────
+
+export class ConvertToStudentBodyDto {
+  admissionNumber!: string;
+  classId!: string;
+  sectionId!: string;
+}
+
+export class ConvertToStudentResultDto {
+  applicationId!: string;
+  studentId!: string;
+}
+
+// ── Waitlist DTOs ───────────────────────────────────────────────────────────
+
+export class WaitlistApplicationBodyDto {
+  waitlistPosition!: number;
+}
+
+export class WaitlistResultDto {
+  applicationId!: string;
+
+  @ApiProperty({
+    enum: ["waitlisted"],
+  })
+  status!: string;
+  waitlistPosition!: number;
+}
+
+export class PromoteWaitlistResultDto {
+  promotedApplicationId!: string;
+
+  @ApiProperty({
+    enum: ["approved"],
+  })
+  status!: string;
+}
+
+// ── Registration fee DTOs ───────────────────────────────────────────────────
+
+export class RecordRegistrationFeeBodyDto {
+  amountInPaise!: number;
+}
+
+export class RegistrationFeeResultDto {
+  applicationId!: string;
+  registrationFeeAmountInPaise!: number;
+  registrationFeePaidAt!: string;
 }

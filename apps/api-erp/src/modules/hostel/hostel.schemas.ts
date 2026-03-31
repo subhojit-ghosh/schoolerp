@@ -120,6 +120,57 @@ export const listMessPlansQuerySchema = z.object({
   order: z.enum(["asc", "desc"]).default("asc"),
 });
 
+// ── Mess Plan Assignments ───────────────────────────────────────────────────
+
+export const createMessAssignmentSchema = z.object({
+  studentId: z.uuid(),
+  messPlanId: z.uuid(),
+  bedAllocationId: z.uuid().optional().nullable(),
+  startDate: z.string().min(1),
+});
+
+export const listMessAssignmentsQuerySchema = z.object({
+  q: z.string().optional(),
+  messPlanId: z.string().optional(),
+  status: z.enum(["active", "inactive"]).optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().default(20),
+  sort: z.enum(["startDate", "createdAt"]).default("createdAt"),
+  order: z.enum(["asc", "desc"]).default("desc"),
+});
+
+// ── Room Transfers ──────────────────────────────────────────────────────────
+
+export const createRoomTransferSchema = z.object({
+  studentId: z.uuid(),
+  toRoomId: z.uuid(),
+  toBedNumber: z.string().min(1).max(20),
+  transferDate: z.string().min(1),
+  reason: z.string().max(1000).optional(),
+});
+
+export const listRoomTransfersQuerySchema = z.object({
+  q: z.string().optional(),
+  studentId: z.string().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().positive().default(20),
+  sort: z.enum(["transferDate", "createdAt"]).default("createdAt"),
+  order: z.enum(["asc", "desc"]).default("desc"),
+});
+
+// ── Batch Allocation ────────────────────────────────────────────────────────
+
+const batchAllocationItemSchema = z.object({
+  roomId: z.uuid(),
+  studentId: z.uuid(),
+  bedNumber: z.string().min(1).max(20),
+  startDate: z.string().min(1),
+});
+
+export const createBatchAllocationSchema = z.object({
+  allocations: z.array(batchAllocationItemSchema).min(1).max(50),
+});
+
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export type CreateBuildingDto = z.infer<typeof createBuildingSchema>;
@@ -142,6 +193,19 @@ export type UpdateMessPlanStatusDto = z.infer<
   typeof updateMessPlanStatusSchema
 >;
 export type ListMessPlansQueryDto = z.infer<typeof listMessPlansQuerySchema>;
+export type CreateMessAssignmentDto = z.infer<
+  typeof createMessAssignmentSchema
+>;
+export type ListMessAssignmentsQueryDto = z.infer<
+  typeof listMessAssignmentsQuerySchema
+>;
+export type CreateRoomTransferDto = z.infer<typeof createRoomTransferSchema>;
+export type ListRoomTransfersQueryDto = z.infer<
+  typeof listRoomTransfersQuerySchema
+>;
+export type CreateBatchAllocationDto = z.infer<
+  typeof createBatchAllocationSchema
+>;
 
 // ── Parse helpers ────────────────────────────────────────────────────────────
 
@@ -194,4 +258,19 @@ export function parseUpdateMessPlanStatus(input: unknown) {
 }
 export function parseListMessPlans(input: unknown) {
   return parseOrBadRequest(listMessPlansQuerySchema, input);
+}
+export function parseCreateMessAssignment(input: unknown) {
+  return parseOrBadRequest(createMessAssignmentSchema, input);
+}
+export function parseListMessAssignments(input: unknown) {
+  return parseOrBadRequest(listMessAssignmentsQuerySchema, input);
+}
+export function parseCreateRoomTransfer(input: unknown) {
+  return parseOrBadRequest(createRoomTransferSchema, input);
+}
+export function parseListRoomTransfers(input: unknown) {
+  return parseOrBadRequest(listRoomTransfersQuerySchema, input);
+}
+export function parseCreateBatchAllocation(input: unknown) {
+  return parseOrBadRequest(createBatchAllocationSchema, input);
 }

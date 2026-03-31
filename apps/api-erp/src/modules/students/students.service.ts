@@ -4,6 +4,7 @@ import {
   ATTENDANCE_STATUSES,
   AUDIT_ACTIONS,
   AUDIT_ENTITY_TYPES,
+  TC_STATUS,
 } from "@repo/contracts";
 import {
   BadRequestException,
@@ -42,9 +43,13 @@ import {
   or,
   schoolClasses,
   studentCurrentEnrollments,
+  studentDisciplinaryRecords,
   studentGuardianLinks,
+  studentMedicalRecords,
+  studentSiblingLinks,
   students,
   sql,
+  transferCertificates,
   type SQL,
   user,
 } from "@repo/database";
@@ -68,11 +73,15 @@ import { campusScopeFilter, sectionScopeFilter } from "../auth/scope-filter";
 import { AdmissionFormFieldsService } from "../admissions/admission-form-fields.service";
 import { AuditService } from "../audit/audit.service";
 import type {
+  CreateDisciplinaryRecordDto,
   CreateGuardianLinkDto,
+  CreateSiblingLinkDto,
   CurrentEnrollmentDto,
   CreateStudentDto,
+  IssueTransferCertificateDto,
   ListStudentsQueryDto,
   UpdateStudentDto,
+  UpsertMedicalRecordDto,
 } from "./students.schemas";
 import { sortableStudentColumns } from "./students.schemas";
 
@@ -227,6 +236,10 @@ export class StudentsService {
     campusName: campus.name,
     status: member.status,
     customFieldValues: students.customFieldValues,
+    photoUrl: students.photoUrl,
+    previousSchoolName: students.previousSchoolName,
+    previousSchoolBoard: students.previousSchoolBoard,
+    previousSchoolClass: students.previousSchoolClass,
   };
 
   constructor(
@@ -493,6 +506,10 @@ export class StudentsService {
           classId: studentPlacement.classId,
           sectionId: studentPlacement.sectionId,
           customFieldValues,
+          photoUrl: payload.photoUrl ?? null,
+          previousSchoolName: payload.previousSchoolName ?? null,
+          previousSchoolBoard: payload.previousSchoolBoard ?? null,
+          previousSchoolClass: payload.previousSchoolClass ?? null,
         })
         .where(eq(students.id, studentId));
 
@@ -1236,6 +1253,10 @@ export class StudentsService {
         classId: studentPlacement.classId,
         sectionId: studentPlacement.sectionId,
         customFieldValues,
+        photoUrl: payload.photoUrl ?? null,
+        previousSchoolName: payload.previousSchoolName ?? null,
+        previousSchoolBoard: payload.previousSchoolBoard ?? null,
+        previousSchoolClass: payload.previousSchoolClass ?? null,
       });
 
       for (const guardianPayload of payload.guardians) {
@@ -1746,6 +1767,29 @@ export class StudentsService {
     }
   }
 
+  private async resolveStaffMembershipId(
+    institutionId: string,
+    authSession: AuthenticatedSession,
+  ) {
+    const [staffMember] = await this.db
+      .select({ id: member.id })
+      .from(member)
+      .where(
+        and(
+          eq(member.userId, authSession.user.id),
+          eq(member.organizationId, institutionId),
+          ne(member.status, STATUS.MEMBER.DELETED),
+        ),
+      )
+      .limit(1);
+
+    if (!staffMember) {
+      throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
+    }
+
+    return staffMember.id;
+  }
+
   private requireActiveCampusId(authSession: AuthenticatedSession) {
     if (!authSession.activeCampusId) {
       throw new ForbiddenException(ERROR_MESSAGES.AUTH.CAMPUS_ACCESS_REQUIRED);
@@ -1786,6 +1830,561 @@ export class StudentsService {
 
   private toDateTimestamp(date: string) {
     return new Date(`${date}T00:00:00.000Z`).toISOString();
+  }
+
+  // ── Sibling Links ──────────────────────────────────────────────────────────
+
+  async listSiblingLinks(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ) {
+    await this.getStudent(institutionId, studentId, authSession, scopes);
+
+    const rows = await this.db
+      .select({
+        id: studentSiblingLinks.id,
+        studentId: studentSiblingLinks.studentId,
+        siblingStudentId: studentSiblingLinks.siblingStudentId,
+        siblingFirstName: students.firstName,
+        siblingLastName: students.lastName,
+        siblingAdmissionNumber: students.admissionNumber,
+        siblingClassName: schoolClasses.name,
+        siblingSectionName: classSections.name,
+        createdAt: studentSiblingLinks.createdAt,
+      })
+      .from(studentSiblingLinks)
+      .innerJoin(students, eq(studentSiblingLinks.siblingStudentId, students.id))
+      .innerJoin(member, eq(students.membershipId, member.id))
+      .innerJoin(schoolClasses, eq(students.classId, schoolClasses.id))
+      .innerJoin(classSections, eq(students.sectionId, classSections.id))
+      .where(
+        and(
+          eq(studentSiblingLinks.institutionId, institutionId),
+          eq(studentSiblingLinks.studentId, studentId),
+          ne(member.status, STATUS.MEMBER.DELETED),
+        ),
+      )
+      .orderBy(desc(studentSiblingLinks.createdAt));
+
+    return rows.map((row) => ({
+      id: row.id,
+      studentId: row.studentId,
+      siblingStudentId: row.siblingStudentId,
+      siblingFullName: [row.siblingFirstName, row.siblingLastName]
+        .filter(Boolean)
+        .join(" "),
+      siblingAdmissionNumber: row.siblingAdmissionNumber,
+      siblingClassName: row.siblingClassName,
+      siblingSectionName: row.siblingSectionName,
+      createdAt: row.createdAt.toISOString(),
+    }));
+  }
+
+  async createSiblingLink(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: CreateSiblingLinkDto,
+  ) {
+    const student = await this.getStudent(
+      institutionId,
+      studentId,
+      authSession,
+      scopes,
+    );
+
+    if (studentId === payload.siblingStudentId) {
+      throw new BadRequestException(
+        ERROR_MESSAGES.STUDENTS_DEPTH.SIBLING_SELF_LINK,
+      );
+    }
+
+    // Verify sibling student exists
+    await this.getStudent(
+      institutionId,
+      payload.siblingStudentId,
+      authSession,
+      scopes,
+    );
+
+    // Check if link already exists
+    const [existingLink] = await this.db
+      .select({ id: studentSiblingLinks.id })
+      .from(studentSiblingLinks)
+      .where(
+        and(
+          eq(studentSiblingLinks.institutionId, institutionId),
+          eq(studentSiblingLinks.studentId, studentId),
+          eq(
+            studentSiblingLinks.siblingStudentId,
+            payload.siblingStudentId,
+          ),
+        ),
+      )
+      .limit(1);
+
+    if (existingLink) {
+      throw new ConflictException(
+        ERROR_MESSAGES.STUDENTS_DEPTH.SIBLING_LINK_EXISTS,
+      );
+    }
+
+    const linkId = randomUUID();
+    const reverseLinkId = randomUUID();
+
+    await this.db.transaction(async (tx) => {
+      // Create both directions of the sibling link
+      await tx.insert(studentSiblingLinks).values([
+        {
+          id: linkId,
+          institutionId,
+          studentId,
+          siblingStudentId: payload.siblingStudentId,
+        },
+        {
+          id: reverseLinkId,
+          institutionId,
+          studentId: payload.siblingStudentId,
+          siblingStudentId: studentId,
+        },
+      ]);
+    });
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.STUDENT_SIBLING_LINK,
+        entityId: linkId,
+        entityLabel: student.fullName,
+        summary: `Linked sibling for student ${student.fullName}.`,
+      })
+      .catch(() => {});
+
+    return { id: linkId };
+  }
+
+  async deleteSiblingLink(
+    institutionId: string,
+    studentId: string,
+    linkId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ) {
+    const student = await this.getStudent(
+      institutionId,
+      studentId,
+      authSession,
+      scopes,
+    );
+
+    const [link] = await this.db
+      .select({
+        id: studentSiblingLinks.id,
+        siblingStudentId: studentSiblingLinks.siblingStudentId,
+      })
+      .from(studentSiblingLinks)
+      .where(
+        and(
+          eq(studentSiblingLinks.id, linkId),
+          eq(studentSiblingLinks.institutionId, institutionId),
+          eq(studentSiblingLinks.studentId, studentId),
+        ),
+      )
+      .limit(1);
+
+    if (!link) {
+      throw new NotFoundException(
+        ERROR_MESSAGES.STUDENTS_DEPTH.SIBLING_LINK_NOT_FOUND,
+      );
+    }
+
+    await this.db.transaction(async (tx) => {
+      // Delete both directions
+      await tx
+        .delete(studentSiblingLinks)
+        .where(
+          and(
+            eq(studentSiblingLinks.institutionId, institutionId),
+            eq(studentSiblingLinks.studentId, studentId),
+            eq(studentSiblingLinks.siblingStudentId, link.siblingStudentId),
+          ),
+        );
+
+      await tx
+        .delete(studentSiblingLinks)
+        .where(
+          and(
+            eq(studentSiblingLinks.institutionId, institutionId),
+            eq(studentSiblingLinks.studentId, link.siblingStudentId),
+            eq(studentSiblingLinks.siblingStudentId, studentId),
+          ),
+        );
+    });
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.DELETE,
+        entityType: AUDIT_ENTITY_TYPES.STUDENT_SIBLING_LINK,
+        entityId: linkId,
+        entityLabel: student.fullName,
+        summary: `Removed sibling link for student ${student.fullName}.`,
+      })
+      .catch(() => {});
+
+    return { id: linkId };
+  }
+
+  // ── Medical Records ───────────────────────────────────────────────────────
+
+  async getMedicalRecord(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ) {
+    await this.getStudent(institutionId, studentId, authSession, scopes);
+
+    const [record] = await this.db
+      .select({
+        id: studentMedicalRecords.id,
+        studentId: studentMedicalRecords.studentId,
+        allergies: studentMedicalRecords.allergies,
+        conditions: studentMedicalRecords.conditions,
+        medications: studentMedicalRecords.medications,
+        emergencyMedicalInfo: studentMedicalRecords.emergencyMedicalInfo,
+        doctorName: studentMedicalRecords.doctorName,
+        doctorPhone: studentMedicalRecords.doctorPhone,
+        insuranceInfo: studentMedicalRecords.insuranceInfo,
+        updatedAt: studentMedicalRecords.updatedAt,
+        createdAt: studentMedicalRecords.createdAt,
+      })
+      .from(studentMedicalRecords)
+      .where(
+        and(
+          eq(studentMedicalRecords.institutionId, institutionId),
+          eq(studentMedicalRecords.studentId, studentId),
+        ),
+      )
+      .limit(1);
+
+    if (!record) {
+      return null;
+    }
+
+    return {
+      ...record,
+      updatedAt: record.updatedAt.toISOString(),
+      createdAt: record.createdAt.toISOString(),
+    };
+  }
+
+  async upsertMedicalRecord(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: UpsertMedicalRecordDto,
+  ) {
+    const student = await this.getStudent(
+      institutionId,
+      studentId,
+      authSession,
+      scopes,
+    );
+
+    const [existing] = await this.db
+      .select({ id: studentMedicalRecords.id })
+      .from(studentMedicalRecords)
+      .where(
+        and(
+          eq(studentMedicalRecords.institutionId, institutionId),
+          eq(studentMedicalRecords.studentId, studentId),
+        ),
+      )
+      .limit(1);
+
+    let recordId: string;
+
+    if (existing) {
+      recordId = existing.id;
+      await this.db
+        .update(studentMedicalRecords)
+        .set({
+          allergies: payload.allergies,
+          conditions: payload.conditions,
+          medications: payload.medications,
+          emergencyMedicalInfo: payload.emergencyMedicalInfo,
+          doctorName: payload.doctorName,
+          doctorPhone: payload.doctorPhone,
+          insuranceInfo: payload.insuranceInfo,
+        })
+        .where(eq(studentMedicalRecords.id, existing.id));
+    } else {
+      recordId = randomUUID();
+      await this.db.insert(studentMedicalRecords).values({
+        id: recordId,
+        institutionId,
+        studentId,
+        allergies: payload.allergies,
+        conditions: payload.conditions,
+        medications: payload.medications,
+        emergencyMedicalInfo: payload.emergencyMedicalInfo,
+        doctorName: payload.doctorName,
+        doctorPhone: payload.doctorPhone,
+        insuranceInfo: payload.insuranceInfo,
+      });
+    }
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: existing ? AUDIT_ACTIONS.UPDATE : AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.STUDENT_MEDICAL_RECORD,
+        entityId: recordId,
+        entityLabel: student.fullName,
+        summary: `${existing ? "Updated" : "Created"} medical record for student ${student.fullName}.`,
+      })
+      .catch(() => {});
+
+    return this.getMedicalRecord(institutionId, studentId, authSession, scopes);
+  }
+
+  // ── Disciplinary Records ──────────────────────────────────────────────────
+
+  async listDisciplinaryRecords(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ) {
+    await this.getStudent(institutionId, studentId, authSession, scopes);
+
+    const rows = await this.db
+      .select({
+        id: studentDisciplinaryRecords.id,
+        studentId: studentDisciplinaryRecords.studentId,
+        incidentDate: studentDisciplinaryRecords.incidentDate,
+        severity: studentDisciplinaryRecords.severity,
+        description: studentDisciplinaryRecords.description,
+        actionTaken: studentDisciplinaryRecords.actionTaken,
+        reportedByMemberId: studentDisciplinaryRecords.reportedByMemberId,
+        reportedByName: user.name,
+        parentNotified: studentDisciplinaryRecords.parentNotified,
+        createdAt: studentDisciplinaryRecords.createdAt,
+      })
+      .from(studentDisciplinaryRecords)
+      .innerJoin(
+        member,
+        eq(studentDisciplinaryRecords.reportedByMemberId, member.id),
+      )
+      .innerJoin(user, eq(member.userId, user.id))
+      .where(
+        and(
+          eq(studentDisciplinaryRecords.institutionId, institutionId),
+          eq(studentDisciplinaryRecords.studentId, studentId),
+        ),
+      )
+      .orderBy(desc(studentDisciplinaryRecords.incidentDate));
+
+    return rows.map((row) => ({
+      ...row,
+      createdAt: row.createdAt.toISOString(),
+    }));
+  }
+
+  async createDisciplinaryRecord(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: CreateDisciplinaryRecordDto,
+  ) {
+    const student = await this.getStudent(
+      institutionId,
+      studentId,
+      authSession,
+      scopes,
+    );
+
+    const reportedByMemberId = await this.resolveStaffMembershipId(
+      institutionId,
+      authSession,
+    );
+    const recordId = randomUUID();
+
+    await this.db.insert(studentDisciplinaryRecords).values({
+      id: recordId,
+      institutionId,
+      studentId,
+      incidentDate: payload.incidentDate,
+      severity: payload.severity,
+      description: payload.description,
+      actionTaken: payload.actionTaken,
+      reportedByMemberId,
+      parentNotified: payload.parentNotified,
+    });
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.STUDENT_DISCIPLINARY,
+        entityId: recordId,
+        entityLabel: student.fullName,
+        summary: `Recorded ${payload.severity} disciplinary incident for student ${student.fullName}.`,
+      })
+      .catch(() => {});
+
+    return { id: recordId };
+  }
+
+  // ── Transfer Certificates ─────────────────────────────────────────────────
+
+  async listTransferCertificates(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+  ) {
+    await this.getStudent(institutionId, studentId, authSession, scopes);
+
+    const rows = await this.db
+      .select({
+        id: transferCertificates.id,
+        studentId: transferCertificates.studentId,
+        tcNumber: transferCertificates.tcNumber,
+        issueDate: transferCertificates.issueDate,
+        reason: transferCertificates.reason,
+        conductRemarks: transferCertificates.conductRemarks,
+        status: transferCertificates.status,
+        issuedByMemberId: transferCertificates.issuedByMemberId,
+        issuedByName: user.name,
+        createdAt: transferCertificates.createdAt,
+      })
+      .from(transferCertificates)
+      .innerJoin(
+        member,
+        eq(transferCertificates.issuedByMemberId, member.id),
+      )
+      .innerJoin(user, eq(member.userId, user.id))
+      .where(
+        and(
+          eq(transferCertificates.institutionId, institutionId),
+          eq(transferCertificates.studentId, studentId),
+        ),
+      )
+      .orderBy(desc(transferCertificates.createdAt));
+
+    return rows.map((row) => ({
+      ...row,
+      createdAt: row.createdAt.toISOString(),
+    }));
+  }
+
+  async issueTransferCertificate(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes,
+    payload: IssueTransferCertificateDto,
+  ) {
+    const student = await this.getStudent(
+      institutionId,
+      studentId,
+      authSession,
+      scopes,
+    );
+
+    // Check for existing active TC
+    const [existingTc] = await this.db
+      .select({ id: transferCertificates.id })
+      .from(transferCertificates)
+      .where(
+        and(
+          eq(transferCertificates.institutionId, institutionId),
+          eq(transferCertificates.studentId, studentId),
+          eq(transferCertificates.status, TC_STATUS.ISSUED),
+        ),
+      )
+      .limit(1);
+
+    if (existingTc) {
+      throw new ConflictException(
+        ERROR_MESSAGES.STUDENTS_DEPTH.TC_ALREADY_ISSUED,
+      );
+    }
+
+    // Check TC number uniqueness
+    const [existingTcNumber] = await this.db
+      .select({ id: transferCertificates.id })
+      .from(transferCertificates)
+      .where(
+        and(
+          eq(transferCertificates.institutionId, institutionId),
+          eq(transferCertificates.tcNumber, payload.tcNumber.trim()),
+        ),
+      )
+      .limit(1);
+
+    if (existingTcNumber) {
+      throw new ConflictException(
+        ERROR_MESSAGES.STUDENTS_DEPTH.TC_NUMBER_EXISTS,
+      );
+    }
+
+    const issuedByMemberId = await this.resolveStaffMembershipId(
+      institutionId,
+      authSession,
+    );
+    const tcId = randomUUID();
+
+    await this.db.transaction(async (tx) => {
+      await tx.insert(transferCertificates).values({
+        id: tcId,
+        institutionId,
+        studentId,
+        tcNumber: payload.tcNumber.trim(),
+        issueDate: payload.issueDate,
+        reason: payload.reason,
+        conductRemarks: payload.conductRemarks,
+        status: TC_STATUS.ISSUED,
+        issuedByMemberId,
+      });
+
+      // Deactivate student membership (mark as withdrawn)
+      await tx
+        .update(member)
+        .set({ status: STATUS.MEMBER.INACTIVE })
+        .where(
+          eq(
+            member.id,
+            sql`(SELECT membership_id FROM students WHERE id = ${studentId})`,
+          ),
+        );
+    });
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.CREATE,
+        entityType: AUDIT_ENTITY_TYPES.TRANSFER_CERTIFICATE,
+        entityId: tcId,
+        entityLabel: `TC#${payload.tcNumber.trim()} - ${student.fullName}`,
+        summary: `Issued transfer certificate TC#${payload.tcNumber.trim()} for student ${student.fullName}.`,
+      })
+      .catch(() => {});
+
+    return { id: tcId };
   }
 
   // ── Section Transfer ──────────────────────────────────────────────────────

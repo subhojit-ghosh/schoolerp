@@ -170,3 +170,251 @@ export function useUpdateStudentMutation(institutionId: string | undefined) {
     },
   });
 }
+
+// --- Phase 2: Siblings ---
+
+export function useSiblingsQuery(
+  institutionId: string | undefined,
+  studentId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    STUDENTS_API_PATHS.LIST_SIBLINGS,
+    {
+      params: {
+        path: {
+          studentId: studentId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && studentId),
+    },
+  );
+}
+
+export function useCreateSiblingLinkMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "post",
+    STUDENTS_API_PATHS.CREATE_SIBLING_LINK,
+    {
+      onSuccess: (_, variables) => {
+        if (!institutionId) {
+          return;
+        }
+
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            STUDENTS_API_PATHS.LIST_SIBLINGS,
+            {
+              params: {
+                path: {
+                  studentId: variables.params.path.studentId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+      },
+    },
+  );
+}
+
+export function useDeleteSiblingLinkMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "delete",
+    STUDENTS_API_PATHS.DELETE_SIBLING_LINK,
+    {
+      onSuccess: (_, variables) => {
+        if (!institutionId) {
+          return;
+        }
+
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            STUDENTS_API_PATHS.LIST_SIBLINGS,
+            {
+              params: {
+                path: {
+                  studentId: variables.params.path.studentId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+      },
+    },
+  );
+}
+
+// --- Phase 2: Medical Record ---
+
+export function useStudentMedicalRecordQuery(
+  institutionId: string | undefined,
+  studentId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    STUDENTS_API_PATHS.GET_MEDICAL_RECORD,
+    {
+      params: {
+        path: {
+          studentId: studentId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && studentId),
+    },
+  );
+}
+
+export function useUpsertMedicalRecordMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "put",
+    STUDENTS_API_PATHS.UPSERT_MEDICAL_RECORD,
+    {
+      onSuccess: (_, variables) => {
+        if (!institutionId) {
+          return;
+        }
+
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            STUDENTS_API_PATHS.GET_MEDICAL_RECORD,
+            {
+              params: {
+                path: {
+                  studentId: variables.params.path.studentId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+      },
+    },
+  );
+}
+
+// --- Phase 2: Disciplinary Records ---
+
+export function useDisciplinaryRecordsQuery(
+  institutionId: string | undefined,
+  studentId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    STUDENTS_API_PATHS.LIST_DISCIPLINARY,
+    {
+      params: {
+        path: {
+          studentId: studentId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && studentId),
+    },
+  );
+}
+
+export function useCreateDisciplinaryRecordMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "post",
+    STUDENTS_API_PATHS.CREATE_DISCIPLINARY,
+    {
+      onSuccess: (_, variables) => {
+        if (!institutionId) {
+          return;
+        }
+
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            STUDENTS_API_PATHS.LIST_DISCIPLINARY,
+            {
+              params: {
+                path: {
+                  studentId: variables.params.path.studentId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+      },
+    },
+  );
+}
+
+// --- Phase 2: Transfer Certificates ---
+
+export function useTransferCertificatesQuery(
+  institutionId: string | undefined,
+  studentId: string | undefined,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    STUDENTS_API_PATHS.LIST_TRANSFER_CERTIFICATES,
+    {
+      params: {
+        path: {
+          studentId: studentId ?? "",
+        },
+      },
+    },
+    {
+      enabled: Boolean(institutionId && studentId),
+    },
+  );
+}
+
+export function useIssueTransferCertificateMutation(
+  institutionId: string | undefined,
+) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation(
+    "post",
+    STUDENTS_API_PATHS.ISSUE_TRANSFER_CERTIFICATE,
+    {
+      onSuccess: (_, variables) => {
+        if (!institutionId) {
+          return;
+        }
+
+        void queryClient.invalidateQueries({
+          queryKey: apiQueryClient.queryOptions(
+            "get",
+            STUDENTS_API_PATHS.LIST_TRANSFER_CERTIFICATES,
+            {
+              params: {
+                path: {
+                  studentId: variables.params.path.studentId,
+                },
+              },
+            },
+          ).queryKey,
+        });
+      },
+    },
+  );
+}

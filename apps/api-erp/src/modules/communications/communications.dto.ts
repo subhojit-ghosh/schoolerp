@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { SORT_ORDERS } from "../../constants";
 import {
   ANNOUNCEMENT_AUDIENCE,
+  ANNOUNCEMENT_CATEGORIES,
   NOTIFICATION_CHANNELS,
   NOTIFICATION_TONES,
   NOTIFICATION_TYPES,
@@ -42,6 +43,11 @@ export class ListAnnouncementsQueryDto {
     ],
   })
   status?: "draft" | "published" | "archived";
+
+  @ApiPropertyOptional({
+    enum: Object.values(ANNOUNCEMENT_CATEGORIES),
+  })
+  category?: (typeof ANNOUNCEMENT_CATEGORIES)[keyof typeof ANNOUNCEMENT_CATEGORIES];
 }
 
 export class CreateAnnouncementBodyDto {
@@ -58,6 +64,20 @@ export class CreateAnnouncementBodyDto {
     enum: Object.values(ANNOUNCEMENT_AUDIENCE),
   })
   audience!: "all" | "staff" | "guardians" | "students";
+
+  @ApiPropertyOptional({
+    enum: Object.values(ANNOUNCEMENT_CATEGORIES),
+  })
+  category?: "academic" | "disciplinary" | "general" | "urgent";
+
+  @ApiPropertyOptional()
+  targetClassId?: string;
+
+  @ApiPropertyOptional()
+  targetSectionId?: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  scheduledPublishAt?: string;
 
   @ApiPropertyOptional({ default: false })
   publishNow?: boolean;
@@ -99,6 +119,21 @@ export class AnnouncementDto {
   })
   audience!: "all" | "staff" | "guardians" | "students";
 
+  @ApiPropertyOptional({
+    enum: Object.values(ANNOUNCEMENT_CATEGORIES),
+    nullable: true,
+  })
+  category?: "academic" | "disciplinary" | "general" | "urgent" | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  targetClassId?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  targetSectionId?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  scheduledPublishAt?: string | null;
+
   @ApiProperty({
     enum: Object.values(STATUS.ANNOUNCEMENT),
   })
@@ -115,6 +150,19 @@ export class AnnouncementDto {
 
   @ApiProperty()
   createdByUserId!: string;
+}
+
+export class MarkAnnouncementReadBodyDto {
+  @ApiProperty()
+  announcementId!: string;
+}
+
+export class AnnouncementReadCountDto {
+  @ApiProperty()
+  announcementId!: string;
+
+  @ApiProperty()
+  readCount!: number;
 }
 
 export class ListAnnouncementsResultDto {

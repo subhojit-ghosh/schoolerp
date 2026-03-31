@@ -84,6 +84,17 @@ const staffProfileSchema = z.object({
     .optional()
     .or(z.literal(""))
     .transform((v) => v || undefined),
+  emergencyContactRelation: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
+  reportingToMemberId: z
+    .uuid()
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
   qualification: z
     .string()
     .trim()
@@ -206,6 +217,53 @@ export const createSubjectTeacherAssignmentSchema = z.object({
     .transform((v) => v || undefined),
 });
 
+// ── Staff document schemas ──────────────────────────────────────────────────
+
+export const STAFF_DOCUMENT_TYPES = [
+  "appointment_letter",
+  "qualification_cert",
+  "id_proof",
+  "experience_letter",
+  "address_proof",
+  "other",
+] as const;
+
+export const createStaffDocumentSchema = z.object({
+  documentType: z.enum(STAFF_DOCUMENT_TYPES),
+  documentName: z.string().trim().min(1, "Document name is required"),
+  uploadUrl: z
+    .url()
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
+  notes: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
+});
+
+export const updateStaffDocumentSchema = createStaffDocumentSchema;
+
+// ── Campus transfer schema ──────────────────────────────────────────────────
+
+export const createCampusTransferSchema = z.object({
+  toCampusId: z.uuid("Destination campus is required"),
+  transferDate: z.string().min(1, "Transfer date is required"),
+  reason: z
+    .string()
+    .trim()
+    .optional()
+    .or(z.literal(""))
+    .transform((v) => v || undefined),
+});
+
+export type CreateStaffDocumentDto = z.infer<typeof createStaffDocumentSchema>;
+export type UpdateStaffDocumentDto = z.infer<typeof updateStaffDocumentSchema>;
+export type CreateCampusTransferDto = z.infer<
+  typeof createCampusTransferSchema
+>;
 export type CreateStaffDto = z.infer<typeof createStaffSchema>;
 export type UpdateStaffDto = z.infer<typeof updateStaffSchema>;
 export type SetStaffStatusDto = z.infer<typeof setStaffStatusSchema>;
@@ -250,6 +308,18 @@ export function parseCreateStaffRoleAssignment(body: unknown) {
 
 export function parseCreateSubjectTeacherAssignment(body: unknown) {
   return parseSchema(createSubjectTeacherAssignmentSchema, body);
+}
+
+export function parseCreateStaffDocument(body: unknown) {
+  return parseSchema(createStaffDocumentSchema, body);
+}
+
+export function parseUpdateStaffDocument(body: unknown) {
+  return parseSchema(updateStaffDocumentSchema, body);
+}
+
+export function parseCreateCampusTransfer(body: unknown) {
+  return parseSchema(createCampusTransferSchema, body);
 }
 
 export function parseListStaffQuery(query: unknown): ListStaffQueryDto {

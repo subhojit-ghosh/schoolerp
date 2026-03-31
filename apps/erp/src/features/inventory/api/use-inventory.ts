@@ -33,6 +33,20 @@ function invalidateInventoryLists(
       { params: { query: {} } },
     ).queryKey,
   });
+  void queryClient.invalidateQueries({
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      INVENTORY_API_PATHS.LIST_VENDORS,
+      { params: { query: {} } },
+    ).queryKey,
+  });
+  void queryClient.invalidateQueries({
+    queryKey: apiQueryClient.queryOptions(
+      "get",
+      INVENTORY_API_PATHS.LIST_PURCHASE_ORDERS,
+      { params: { query: {} } },
+    ).queryKey,
+  });
 }
 
 // ── Categories ───────────────────────────────────────────────────────────────
@@ -174,6 +188,137 @@ export function useCreateTransactionMutation() {
   return apiQueryClient.useMutation(
     "post",
     INVENTORY_API_PATHS.CREATE_TRANSACTION,
+    {
+      onSuccess: () => {
+        invalidateInventoryLists(queryClient);
+      },
+    },
+  );
+}
+
+// ── Vendors ─────────────────────────────────────────────────────────────────
+
+export function useVendorsQuery(
+  enabled: boolean,
+  query: Record<string, unknown> = {},
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    INVENTORY_API_PATHS.LIST_VENDORS,
+    { params: { query } },
+    { enabled },
+  );
+}
+
+export function useCreateVendorMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "post",
+    INVENTORY_API_PATHS.CREATE_VENDOR,
+    {
+      onSuccess: () => {
+        invalidateInventoryLists(queryClient);
+      },
+    },
+  );
+}
+
+export function useUpdateVendorMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "patch",
+    INVENTORY_API_PATHS.UPDATE_VENDOR,
+    {
+      onSuccess: () => {
+        invalidateInventoryLists(queryClient);
+      },
+    },
+  );
+}
+
+export function useUpdateVendorStatusMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "patch",
+    INVENTORY_API_PATHS.UPDATE_VENDOR_STATUS,
+    {
+      onSuccess: () => {
+        invalidateInventoryLists(queryClient);
+      },
+    },
+  );
+}
+
+// ── Purchase Orders ─────────────────────────────────────────────────────────
+
+export function usePurchaseOrdersQuery(
+  enabled: boolean,
+  query: Record<string, unknown> = {},
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    INVENTORY_API_PATHS.LIST_PURCHASE_ORDERS,
+    { params: { query } },
+    { enabled },
+  );
+}
+
+export function useGetPurchaseOrderQuery(
+  enabled: boolean,
+  orderId?: string,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    INVENTORY_API_PATHS.GET_PURCHASE_ORDER,
+    { params: { path: { orderId: orderId! } } },
+    { enabled: enabled && Boolean(orderId) },
+  );
+}
+
+export function useCreatePurchaseOrderMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "post",
+    INVENTORY_API_PATHS.CREATE_PURCHASE_ORDER,
+    {
+      onSuccess: () => {
+        invalidateInventoryLists(queryClient);
+      },
+    },
+  );
+}
+
+export function useUpdatePurchaseOrderMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "patch",
+    INVENTORY_API_PATHS.UPDATE_PURCHASE_ORDER,
+    {
+      onSuccess: () => {
+        invalidateInventoryLists(queryClient);
+      },
+    },
+  );
+}
+
+export function useUpdatePurchaseOrderStatusMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "patch",
+    INVENTORY_API_PATHS.UPDATE_PURCHASE_ORDER_STATUS,
+    {
+      onSuccess: () => {
+        invalidateInventoryLists(queryClient);
+      },
+    },
+  );
+}
+
+export function useReceivePurchaseOrderMutation() {
+  const queryClient = useQueryClient();
+  return apiQueryClient.useMutation(
+    "post",
+    INVENTORY_API_PATHS.RECEIVE_PURCHASE_ORDER,
     {
       onSuccess: () => {
         invalidateInventoryLists(queryClient);

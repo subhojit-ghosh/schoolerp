@@ -12,6 +12,7 @@ import {
 import {
   BLOOD_GROUPS,
   EMPLOYMENT_TYPES,
+  STAFF_DOCUMENT_TYPES,
   STAFF_GENDER,
   sortableStaffColumns,
 } from "./staff.schemas";
@@ -83,6 +84,15 @@ export class StaffProfileDto {
   emergencyContactMobile!: string | null;
 
   @ApiPropertyOptional({ nullable: true })
+  emergencyContactRelation!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  reportingToMemberId!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  reportingToMemberName!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
   qualification!: string | null;
 
   @ApiPropertyOptional({ nullable: true, type: Number })
@@ -103,6 +113,8 @@ export class CreateStaffProfileBodyDto {
   @ApiPropertyOptional() address?: string;
   @ApiPropertyOptional() emergencyContactName?: string;
   @ApiPropertyOptional() emergencyContactMobile?: string;
+  @ApiPropertyOptional() emergencyContactRelation?: string;
+  @ApiPropertyOptional() reportingToMemberId?: string;
   @ApiPropertyOptional() qualification?: string;
   @ApiPropertyOptional({ type: Number }) experienceYears?: number;
   @ApiPropertyOptional({ enum: [...EMPLOYMENT_TYPES] }) employmentType?: string;
@@ -282,4 +294,86 @@ export class ListStaffResultDto {
   page!: number;
   pageSize!: number;
   pageCount!: number;
+}
+
+// ── Staff document DTOs ──────────────────────────────────────────────────────
+
+export class StaffDocumentDto {
+  id!: string;
+  staffMemberId!: string;
+
+  @ApiProperty({ enum: [...STAFF_DOCUMENT_TYPES] })
+  documentType!: string;
+
+  documentName!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  uploadUrl!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  notes!: string | null;
+
+  createdAt!: string;
+  updatedAt!: string;
+}
+
+export class CreateStaffDocumentBodyDto {
+  @ApiProperty({ enum: [...STAFF_DOCUMENT_TYPES] })
+  documentType!: string;
+
+  documentName!: string;
+
+  @ApiPropertyOptional() uploadUrl?: string;
+  @ApiPropertyOptional() notes?: string;
+}
+
+export class UpdateStaffDocumentBodyDto extends CreateStaffDocumentBodyDto {}
+
+// ── Teaching load DTOs ───────────────────────────────────────────────────────
+
+export class TeachingLoadEntryDto {
+  dayOfWeek!: string;
+  periodIndex!: number;
+  startTime!: string;
+  endTime!: string;
+  subjectName!: string;
+  className!: string;
+  sectionName!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  room!: string | null;
+}
+
+export class TeachingLoadResultDto {
+  staffMemberId!: string;
+  totalPeriodsPerWeek!: number;
+
+  @ApiProperty({ type: () => TeachingLoadEntryDto, isArray: true })
+  entries!: TeachingLoadEntryDto[];
+}
+
+// ── Campus transfer DTOs ─────────────────────────────────────────────────────
+
+export class StaffCampusTransferDto {
+  id!: string;
+  staffMemberId!: string;
+  fromCampusId!: string;
+  fromCampusName!: string;
+  toCampusId!: string;
+  toCampusName!: string;
+  transferDate!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  reason!: string | null;
+
+  transferredByMemberId!: string;
+  transferredByName!: string;
+  createdAt!: string;
+}
+
+export class CreateCampusTransferBodyDto {
+  toCampusId!: string;
+  transferDate!: string;
+
+  @ApiPropertyOptional() reason?: string;
 }

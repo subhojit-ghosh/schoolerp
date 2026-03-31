@@ -25,6 +25,7 @@ export type UpdateBookDto = z.infer<typeof updateBookSchema>;
 
 export const listBooksQuerySchema = z.object({
   q: z.string().trim().optional(),
+  campusId: z.string().optional(),
   status: z.enum(["active", "inactive"]).optional(),
   page: z
     .union([
@@ -54,6 +55,7 @@ export type IssueBookDto = z.infer<typeof issueBookSchema>;
 
 export const listTransactionsQuerySchema = z.object({
   q: z.string().trim().optional(),
+  campusId: z.string().optional(),
   status: z.enum(["issued", "returned", "overdue"]).optional(),
   memberId: z.string().optional(),
   bookId: z.string().optional(),
@@ -105,4 +107,89 @@ export function parseListTransactions(data: unknown): ListTransactionsQueryDto {
 
 export function parseReturnBook(data: unknown): ReturnBookDto {
   return returnBookSchema.parse(data);
+}
+
+// ── Fine collection ────────────────────────────────────────────────────────
+
+export const collectFineSchema = z.object({
+  waive: z.boolean().default(false),
+});
+
+export type CollectFineDto = z.infer<typeof collectFineSchema>;
+
+export function parseCollectFine(data: unknown): CollectFineDto {
+  return collectFineSchema.parse(data);
+}
+
+// ── Reservations ───────────────────────────────────────────────────────────
+
+export const createReservationSchema = z.object({
+  bookId: z.string().min(1),
+  memberId: z.string().min(1),
+});
+
+export type CreateReservationDto = z.infer<typeof createReservationSchema>;
+
+export function parseCreateReservation(data: unknown): CreateReservationDto {
+  return createReservationSchema.parse(data);
+}
+
+export const listReservationsQuerySchema = z.object({
+  q: z.string().trim().optional(),
+  bookId: z.string().optional(),
+  memberId: z.string().optional(),
+  status: z.enum(["pending", "fulfilled", "cancelled"]).optional(),
+  page: z
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
+    .optional(),
+  limit: z
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
+    .optional(),
+  sort: z.enum(["createdAt", "queuePosition"]).optional(),
+  order: z.enum(["asc", "desc"]).optional(),
+});
+
+export type ListReservationsQueryDto = z.infer<
+  typeof listReservationsQuerySchema
+>;
+
+export function parseListReservations(
+  data: unknown,
+): ListReservationsQueryDto {
+  return listReservationsQuerySchema.parse(data);
+}
+
+// ── Borrowing history ──────────────────────────────────────────────────────
+
+export const borrowingHistoryQuerySchema = z.object({
+  page: z
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
+    .optional(),
+  limit: z
+    .union([
+      z.number().int().positive(),
+      z.string().regex(/^\d+/).transform(Number),
+    ])
+    .optional(),
+  sort: z.enum(["issuedAt", "dueDate", "status"]).optional(),
+  order: z.enum(["asc", "desc"]).optional(),
+});
+
+export type BorrowingHistoryQueryDto = z.infer<
+  typeof borrowingHistoryQuerySchema
+>;
+
+export function parseBorrowingHistory(
+  data: unknown,
+): BorrowingHistoryQueryDto {
+  return borrowingHistoryQuerySchema.parse(data);
 }

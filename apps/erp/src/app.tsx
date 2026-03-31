@@ -86,6 +86,8 @@ import { LeaveApplicationSheetRoute } from "@/features/leave/ui/leave-applicatio
 import { LeaveTypeSheetRoute } from "@/features/leave/ui/leave-type-sheet-route";
 import { LibraryBooksPage } from "@/routes/library/library-books-page";
 import { LibraryTransactionsPage } from "@/routes/library/library-transactions-page";
+import { LibraryReservationsPage } from "@/routes/library/library-reservations-page";
+import { LibraryDashboardPage } from "@/routes/library/library-dashboard-page";
 import { BookSheetRoute } from "@/features/library/ui/book-sheet-route";
 import { IssueBookSheetRoute } from "@/features/library/ui/issue-book-sheet-route";
 import { TransportRoutesPage } from "@/routes/transport/transport-routes-page";
@@ -96,6 +98,10 @@ import { RouteSheetRoute } from "@/features/transport/ui/route-sheet-route";
 import { VehicleSheetRoute } from "@/features/transport/ui/vehicle-sheet-route";
 import { AssignmentSheetRoute } from "@/features/transport/ui/assignment-sheet-route";
 import { StopSheetRoute } from "@/features/transport/ui/stop-sheet-route";
+import { TransportDriversPage } from "@/routes/transport/transport-drivers-page";
+import { DriverSheetRoute } from "@/features/transport/ui/driver-sheet-route";
+import { TransportMaintenancePage } from "@/routes/transport/transport-maintenance-page";
+import { MaintenanceLogSheetRoute } from "@/features/transport/ui/maintenance-log-sheet-route";
 import { InventoryCategoriesPage } from "@/routes/inventory/inventory-categories-page";
 import { InventoryCategorySheetRoute } from "@/routes/inventory/inventory-category-sheet-route";
 import { InventoryItemsPage } from "@/routes/inventory/inventory-items-page";
@@ -104,6 +110,11 @@ import { InventoryItemDetailPage } from "@/routes/inventory/inventory-item-detai
 import { InventoryTransactionsPage } from "@/routes/inventory/inventory-transactions-page";
 import { InventoryTransactionSheetRoute } from "@/routes/inventory/inventory-transaction-sheet-route";
 import { InventoryLowStockPage } from "@/routes/inventory/inventory-low-stock-page";
+import { InventoryVendorsPage } from "@/routes/inventory/inventory-vendors-page";
+import { InventoryVendorSheetRoute } from "@/routes/inventory/inventory-vendor-sheet-route";
+import { InventoryPurchaseOrdersPage } from "@/routes/inventory/inventory-purchase-orders-page";
+import { InventoryPurchaseOrderCreatePage } from "@/routes/inventory/inventory-purchase-order-create-page";
+import { InventoryPurchaseOrderDetailPage } from "@/routes/inventory/inventory-purchase-order-detail-page";
 import { HostelBuildingsPage } from "@/routes/hostel/hostel-buildings-page";
 import { HostelBuildingSheetRoute } from "@/routes/hostel/hostel-building-sheet-route";
 import { HostelBuildingDetailPage } from "@/routes/hostel/hostel-building-detail-page";
@@ -113,6 +124,9 @@ import { HostelAllocationsPage } from "@/routes/hostel/hostel-allocations-page";
 import { HostelAllocationSheetRoute } from "@/routes/hostel/hostel-allocation-sheet-route";
 import { HostelMessPlansPage } from "@/routes/hostel/hostel-mess-plans-page";
 import { HostelMessPlanSheetRoute } from "@/routes/hostel/hostel-mess-plan-sheet-route";
+import { HostelMessAssignmentsPage } from "@/routes/hostel/hostel-mess-assignments-page";
+import { HostelRoomTransfersPage } from "@/routes/hostel/hostel-room-transfers-page";
+import { HostelOccupancyPage } from "@/routes/hostel/hostel-occupancy-page";
 import { SalaryComponentsPage } from "@/routes/hr/salary-components-page";
 import { SalaryComponentSheetRoute } from "@/routes/hr/salary-component-sheet-route";
 import { SalaryTemplatesPage } from "@/routes/hr/salary-templates-page";
@@ -142,6 +156,13 @@ import { AccountPage } from "@/routes/account/account-page";
 import { SetupWizardPage } from "@/routes/setup/setup-wizard-page";
 import { StaffAttendancePage } from "@/routes/staff-attendance/staff-attendance-page";
 import { StaffAttendanceReportPage } from "@/routes/staff-attendance/staff-attendance-report-page";
+import { DpdpaSettingsPage } from "@/routes/settings/dpdpa-settings-page";
+import { ExpensesPage } from "@/routes/expenses/expenses-page";
+import { ExpenseCategoriesPage } from "@/routes/expenses/expense-categories-page";
+import { IncomeRecordsPage } from "@/routes/income/income-records-page";
+import { ScholarshipsPage } from "@/routes/scholarships/scholarships-page";
+import { ScholarshipApplicationsPage } from "@/routes/scholarships/scholarship-applications-page";
+import { EmergencyBroadcastsPage } from "@/routes/emergency-broadcasts/emergency-broadcasts-page";
 
 import { Button } from "@repo/ui/components/ui/button";
 
@@ -437,6 +458,14 @@ const router = createBrowserRouter([
         ],
       },
       {
+        path: ERP_ROUTES.LIBRARY_RESERVATIONS,
+        element: <LibraryReservationsPage />,
+      },
+      {
+        path: ERP_ROUTES.LIBRARY_DASHBOARD,
+        element: <LibraryDashboardPage />,
+      },
+      {
         path: ERP_ROUTES.TRANSPORT_ROUTES,
         element: <TransportRoutesPage />,
         children: [
@@ -492,6 +521,30 @@ const router = createBrowserRouter([
           },
         ],
       },
+      {
+        path: ERP_ROUTES.TRANSPORT_DRIVERS,
+        element: <TransportDriversPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <DriverSheetRoute mode="create" />,
+          },
+          {
+            path: `:driverId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <DriverSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.TRANSPORT_MAINTENANCE,
+        element: <TransportMaintenancePage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <MaintenanceLogSheetRoute />,
+          },
+        ],
+      },
       // ── Inventory ────────────────────────────────────────────────────
       {
         path: ERP_ROUTES.INVENTORY_CATEGORIES,
@@ -538,6 +591,32 @@ const router = createBrowserRouter([
       {
         path: ERP_ROUTES.INVENTORY_LOW_STOCK,
         element: <InventoryLowStockPage />,
+      },
+      {
+        path: ERP_ROUTES.INVENTORY_VENDORS,
+        element: <InventoryVendorsPage />,
+        children: [
+          {
+            path: ERP_ROUTE_SEGMENTS.NEW,
+            element: <InventoryVendorSheetRoute mode="create" />,
+          },
+          {
+            path: `:vendorId/${ERP_ROUTE_SEGMENTS.EDIT}`,
+            element: <InventoryVendorSheetRoute mode="edit" />,
+          },
+        ],
+      },
+      {
+        path: ERP_ROUTES.INVENTORY_PURCHASE_ORDERS,
+        element: <InventoryPurchaseOrdersPage />,
+      },
+      {
+        path: ERP_ROUTES.INVENTORY_PURCHASE_ORDER_CREATE,
+        element: <InventoryPurchaseOrderCreatePage />,
+      },
+      {
+        path: ERP_ROUTES.INVENTORY_PURCHASE_ORDER_DETAIL,
+        element: <InventoryPurchaseOrderDetailPage />,
       },
       // ── Hostel ───────────────────────────────────────────────────────
       {
@@ -595,6 +674,18 @@ const router = createBrowserRouter([
             element: <HostelMessPlanSheetRoute mode="edit" />,
           },
         ],
+      },
+      {
+        path: ERP_ROUTES.HOSTEL_MESS_ASSIGNMENTS,
+        element: <HostelMessAssignmentsPage />,
+      },
+      {
+        path: ERP_ROUTES.HOSTEL_ROOM_TRANSFERS,
+        element: <HostelRoomTransfersPage />,
+      },
+      {
+        path: ERP_ROUTES.HOSTEL_OCCUPANCY,
+        element: <HostelOccupancyPage />,
       },
       // ── Staff Attendance ──────────────────────────────────────────────
       {
@@ -784,6 +875,10 @@ const router = createBrowserRouter([
       },
       { path: ERP_ROUTES.ATTENDANCE, element: <AttendancePage /> },
       {
+        path: "/reports",
+        element: <Navigate replace to={ERP_ROUTES.REPORTS_ATTENDANCE} />,
+      },
+      {
         path: ERP_ROUTES.REPORTS_ATTENDANCE,
         element: <AttendanceReportsPage />,
       },
@@ -834,6 +929,38 @@ const router = createBrowserRouter([
       { path: ERP_ROUTES.FEE_DUES, element: <FeeDuesPage /> },
       { path: ERP_ROUTES.FEE_REPORTS, element: <FeeReportsPage /> },
       { path: ERP_ROUTES.FEE_DEFAULTERS, element: <FeeDefaultersPage /> },
+      // ── Expenses ────────────────────────────────────────────────────
+      {
+        path: ERP_ROUTES.EXPENSE_CATEGORIES,
+        element: <ExpenseCategoriesPage />,
+      },
+      {
+        path: ERP_ROUTES.EXPENSES,
+        element: <ExpensesPage />,
+      },
+      // ── Income ──────────────────────────────────────────────────────
+      {
+        path: ERP_ROUTES.INCOME_RECORDS,
+        element: <IncomeRecordsPage />,
+      },
+      // ── Scholarships ────────────────────────────────────────────────
+      {
+        path: ERP_ROUTES.SCHOLARSHIPS,
+        element: <ScholarshipsPage />,
+      },
+      {
+        path: ERP_ROUTES.SCHOLARSHIP_APPLICATIONS,
+        element: <ScholarshipApplicationsPage />,
+      },
+      // ── Emergency Broadcasts ────────────────────────────────────────
+      {
+        path: ERP_ROUTES.EMERGENCY_BROADCASTS,
+        element: <EmergencyBroadcastsPage />,
+      },
+      {
+        path: "/settings",
+        element: <Navigate replace to={ERP_ROUTES.SETTINGS_CAMPUSES} />,
+      },
       {
         path: ERP_ROUTES.SETTINGS_CAMPUSES,
         element: <CampusesPage />,
@@ -866,6 +993,7 @@ const router = createBrowserRouter([
         element: <DocumentsSettingsPage />,
       },
       { path: ERP_ROUTES.SETTINGS_PAYMENT, element: <PaymentSettingsPage /> },
+      { path: ERP_ROUTES.SETTINGS_DPDPA, element: <DpdpaSettingsPage /> },
       {
         path: ERP_ROUTES.SETTINGS_ADMISSION_FIELDS,
         element: <AdmissionFormFieldsPage />,

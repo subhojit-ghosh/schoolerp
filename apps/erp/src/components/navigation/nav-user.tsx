@@ -17,12 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "@repo/ui/components/ui/sidebar";
 import { toast } from "sonner";
 import { useSignOutMutation } from "@/features/auth/api/use-auth";
 import { useAuthStore } from "@/features/auth/model/auth-store";
@@ -41,7 +35,6 @@ function toInitials(name: string) {
 
 export function NavUser() {
   const navigate = useNavigate();
-  const { isMobile } = useSidebar();
   const signOutMutation = useSignOutMutation();
   const session = useAuthStore((store) => store.session);
   const user = session?.user;
@@ -67,67 +60,63 @@ export function NavUser() {
   const initials = toInitials(user.name);
 
   return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <Avatar className="size-8 rounded-md">
-                <AvatarImage alt={user.name} src="" />
-                <AvatarFallback className="rounded-md">
-                  {initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.name}</span>
-                <span className="truncate text-xs text-sidebar-foreground/60">
-                  {secondaryLabel}
-                </span>
-              </div>
-              <IconDotsVertical className="ml-auto size-4" />
-            </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-xl"
-            side={isMobile ? "bottom" : "right"}
-            align="end"
-            sideOffset={4}
-          >
-            <DropdownMenuLabel className="p-0 font-normal">
-              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                <Avatar className="size-8 rounded-md">
-                  <AvatarImage alt={user.name} src="" />
-                  <AvatarFallback className="rounded-md">
-                    {initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {secondaryLabel}
-                  </span>
-                </div>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => void navigate(ERP_ROUTES.ACCOUNT)}>
-              <IconSettings />
-              Account
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              disabled={signOutMutation.isPending}
-              onClick={() => void handleSignOut()}
-            >
-              <IconLogout />
-              {signOutMutation.isPending ? "Signing out..." : "Log out"}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
-    </SidebarMenu>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition-colors hover:bg-muted/50"
+          type="button"
+        >
+          <Avatar className="size-8 rounded-md">
+            <AvatarImage alt={user.name} src="" />
+            <AvatarFallback className="rounded-md">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="grid flex-1 text-sm leading-tight">
+            <span className="truncate font-medium">{user.name}</span>
+            <span className="truncate text-xs text-muted-foreground">
+              {secondaryLabel}
+            </span>
+          </div>
+          <IconDotsVertical className="ml-auto size-4 text-muted-foreground" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="w-56 rounded-xl"
+        side="right"
+        align="end"
+        sideOffset={4}
+      >
+        <DropdownMenuLabel className="p-0 font-normal">
+          <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+            <Avatar className="size-8 rounded-md">
+              <AvatarImage alt={user.name} src="" />
+              <AvatarFallback className="rounded-md">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="grid flex-1 text-left text-sm leading-tight">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-xs text-muted-foreground">
+                {secondaryLabel}
+              </span>
+            </div>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => void navigate(ERP_ROUTES.ACCOUNT)}>
+          <IconSettings />
+          Account
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          disabled={signOutMutation.isPending}
+          onClick={() => void handleSignOut()}
+        >
+          <IconLogout />
+          {signOutMutation.isPending ? "Signing out..." : "Log out"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

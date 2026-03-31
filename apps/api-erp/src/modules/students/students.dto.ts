@@ -1,10 +1,14 @@
 import {
   ATTENDANCE_STATUSES,
+  DISCIPLINARY_SEVERITY,
   FEE_PAYMENT_METHODS,
   GUARDIAN_RELATIONSHIPS,
+  TC_STATUS,
   type AttendanceStatus,
+  type DisciplinarySeverity,
   type FeePaymentMethod,
   type GuardianRelationship,
+  type TcStatus,
 } from "@repo/contracts";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { SORT_ORDERS, STATUS, type MemberStatus } from "../../constants";
@@ -76,6 +80,18 @@ export class CreateStudentBodyDto {
     nullable: true,
   })
   currentEnrollment?: CurrentStudentEnrollmentBodyDto | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  photoUrl?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  previousSchoolName?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  previousSchoolBoard?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  previousSchoolClass?: string | null;
 }
 
 export class UpdateStudentBodyDto {
@@ -105,6 +121,18 @@ export class UpdateStudentBodyDto {
     nullable: true,
   })
   currentEnrollment?: CurrentStudentEnrollmentBodyDto | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  photoUrl?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  previousSchoolName?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  previousSchoolBoard?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  previousSchoolClass?: string | null;
 }
 
 export class StudentGuardianDto {
@@ -174,6 +202,18 @@ export class StudentDto {
     nullable: true,
   })
   customFieldValues!: Record<string, unknown> | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  photoUrl!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  previousSchoolName!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  previousSchoolBoard!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  previousSchoolClass!: string | null;
 }
 
 export class StudentOptionDto {
@@ -348,4 +388,168 @@ export class StudentSummaryDto {
     isArray: true,
   })
   timeline!: StudentTimelineEventDto[];
+}
+
+// ── Sibling links ────────────────────────────────────────────────────────
+
+export class CreateSiblingLinkBodyDto {
+  siblingStudentId!: string;
+}
+
+export class SiblingLinkDto {
+  id!: string;
+  studentId!: string;
+  siblingStudentId!: string;
+  siblingFullName!: string;
+  siblingAdmissionNumber!: string;
+  siblingClassName!: string;
+  siblingSectionName!: string;
+
+  @ApiProperty({
+    type: String,
+    format: "date-time",
+  })
+  createdAt!: string;
+}
+
+// ── Medical records ──────────────────────────────────────────────────────
+
+export class UpsertMedicalRecordBodyDto {
+  @ApiPropertyOptional({ nullable: true })
+  allergies?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  conditions?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  medications?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  emergencyMedicalInfo?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  doctorName?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  doctorPhone?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  insuranceInfo?: string | null;
+}
+
+export class StudentMedicalRecordDto {
+  id!: string;
+  studentId!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  allergies!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  conditions!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  medications!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  emergencyMedicalInfo!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  doctorName!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  doctorPhone!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  insuranceInfo!: string | null;
+
+  @ApiProperty({
+    type: String,
+    format: "date-time",
+  })
+  updatedAt!: string;
+
+  @ApiProperty({
+    type: String,
+    format: "date-time",
+  })
+  createdAt!: string;
+}
+
+// ── Disciplinary records ─────────────────────────────────────────────────
+
+export class CreateDisciplinaryRecordBodyDto {
+  incidentDate!: string;
+
+  @ApiProperty({
+    enum: Object.values(DISCIPLINARY_SEVERITY),
+  })
+  severity!: DisciplinarySeverity;
+  description!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  actionTaken?: string | null;
+  parentNotified!: boolean;
+}
+
+export class DisciplinaryRecordDto {
+  id!: string;
+  studentId!: string;
+  incidentDate!: string;
+
+  @ApiProperty({
+    enum: Object.values(DISCIPLINARY_SEVERITY),
+  })
+  severity!: DisciplinarySeverity;
+  description!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  actionTaken!: string | null;
+  reportedByMemberId!: string;
+  reportedByName!: string;
+  parentNotified!: boolean;
+
+  @ApiProperty({
+    type: String,
+    format: "date-time",
+  })
+  createdAt!: string;
+}
+
+// ── Transfer certificates ────────────────────────────────────────────────
+
+export class IssueTransferCertificateBodyDto {
+  tcNumber!: string;
+  issueDate!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  reason?: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  conductRemarks?: string | null;
+}
+
+export class TransferCertificateDto {
+  id!: string;
+  studentId!: string;
+  tcNumber!: string;
+  issueDate!: string;
+
+  @ApiPropertyOptional({ nullable: true })
+  reason!: string | null;
+
+  @ApiPropertyOptional({ nullable: true })
+  conductRemarks!: string | null;
+
+  @ApiProperty({
+    enum: Object.values(TC_STATUS),
+  })
+  status!: TcStatus;
+  issuedByMemberId!: string;
+  issuedByName!: string;
+
+  @ApiProperty({
+    type: String,
+    format: "date-time",
+  })
+  createdAt!: string;
 }

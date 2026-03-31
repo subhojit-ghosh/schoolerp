@@ -2,6 +2,7 @@ import { z } from "zod";
 import { ERROR_MESSAGES, SORT_ORDERS } from "../../constants";
 import {
   ANNOUNCEMENT_AUDIENCE,
+  ANNOUNCEMENT_CATEGORIES,
   NOTIFICATION_CHANNELS,
   NOTIFICATION_TYPES,
   STATUS,
@@ -37,6 +38,14 @@ export const listAnnouncementsQuerySchema = baseListQuerySchema.extend({
       STATUS.ANNOUNCEMENT.ARCHIVED,
     ])
     .optional(),
+  category: z
+    .enum([
+      ANNOUNCEMENT_CATEGORIES.ACADEMIC,
+      ANNOUNCEMENT_CATEGORIES.DISCIPLINARY,
+      ANNOUNCEMENT_CATEGORIES.GENERAL,
+      ANNOUNCEMENT_CATEGORIES.URGENT,
+    ])
+    .optional(),
   sort: z
     .enum([
       sortableAnnouncementColumns.publishedAt,
@@ -60,6 +69,17 @@ const baseAnnouncementSchema = z.object({
     ANNOUNCEMENT_AUDIENCE.GUARDIANS,
     ANNOUNCEMENT_AUDIENCE.STUDENTS,
   ]),
+  category: z
+    .enum([
+      ANNOUNCEMENT_CATEGORIES.ACADEMIC,
+      ANNOUNCEMENT_CATEGORIES.DISCIPLINARY,
+      ANNOUNCEMENT_CATEGORIES.GENERAL,
+      ANNOUNCEMENT_CATEGORIES.URGENT,
+    ])
+    .optional(),
+  targetClassId: z.uuid().optional(),
+  targetSectionId: z.uuid().optional(),
+  scheduledPublishAt: z.coerce.date().optional(),
   publishNow: z.boolean().default(false),
 });
 
@@ -88,10 +108,17 @@ export const markNotificationsReadSchema = z.object({
   notificationIds: z.array(z.uuid()).optional(),
 });
 
+export const markAnnouncementReadSchema = z.object({
+  announcementId: z.uuid(),
+});
+
 export type CreateAnnouncementDto = z.infer<typeof createAnnouncementSchema>;
 export type UpdateAnnouncementDto = z.infer<typeof updateAnnouncementSchema>;
 export type SetAnnouncementStatusDto = z.infer<
   typeof setAnnouncementStatusSchema
+>;
+export type MarkAnnouncementReadDto = z.infer<
+  typeof markAnnouncementReadSchema
 >;
 type ListAnnouncementsQueryInput = z.infer<typeof listAnnouncementsQuerySchema>;
 export type ListAnnouncementsQueryDto = Omit<
@@ -136,6 +163,7 @@ export function parseListAnnouncementsQuery(
 
   return {
     audience: result.audience,
+    category: result.category,
     limit: result.limit,
     order: result.order ?? SORT_ORDERS.DESC,
     page: result.page,
@@ -165,6 +193,12 @@ export function parseMarkNotificationsRead(
   body: unknown,
 ): MarkNotificationsReadDto {
   return parseSchema(markNotificationsReadSchema, body);
+}
+
+export function parseMarkAnnouncementRead(
+  body: unknown,
+): MarkAnnouncementReadDto {
+  return parseSchema(markAnnouncementReadSchema, body);
 }
 
 export function normalizeCommunicationValue(value: string | undefined) {

@@ -29,11 +29,13 @@ import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.gua
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
   AnnouncementDto,
+  AnnouncementReadCountDto,
   CreateAnnouncementBodyDto,
   ListAnnouncementsQueryDto,
   ListAnnouncementsResultDto,
   ListNotificationsQueryDto,
   ListNotificationsResultDto,
+  MarkAnnouncementReadBodyDto,
   MarkNotificationsReadBodyDto,
   SetAnnouncementStatusBodyDto,
   UpdateAnnouncementBodyDto,
@@ -42,6 +44,7 @@ import {
   parseCreateAnnouncement,
   parseListAnnouncementsQuery,
   parseListNotificationsQuery,
+  parseMarkAnnouncementRead,
   parseMarkNotificationsRead,
   parseSetAnnouncementStatus,
   parseUpdateAnnouncement,
@@ -70,6 +73,7 @@ export class CommunicationsController {
   @ApiQuery({ name: "order", required: false, type: String })
   @ApiQuery({ name: "status", required: false, type: String })
   @ApiQuery({ name: "audience", required: false, type: String })
+  @ApiQuery({ name: "category", required: false, type: String })
   @ApiOkResponse({ type: ListAnnouncementsResultDto })
   listAnnouncements(
     @CurrentInstitution() institution: TenantInstitution,
@@ -175,6 +179,54 @@ export class CommunicationsController {
     @Param("announcementId") announcementId: string,
   ) {
     return this.communicationsService.publishAnnouncement(
+      institution.id,
+      announcementId,
+      authSession,
+      scopes,
+    );
+  }
+
+  @Post(
+    `${API_ROUTES.ANNOUNCEMENTS}/:announcementId/${API_ROUTES.READ_RECEIPTS}`,
+  )
+  @RequirePermission(PERMISSIONS.COMMUNICATION_READ)
+  @ApiOperation({ summary: "Mark an announcement as read for the current user" })
+  @ApiBody({ type: MarkAnnouncementReadBodyDto })
+  @ApiOkResponse({
+    schema: {
+      properties: {
+        success: { type: "boolean" },
+      },
+    },
+  })
+  markAnnouncementRead(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("announcementId") announcementId: string,
+    @Body() _body: MarkAnnouncementReadBodyDto,
+  ) {
+    return this.communicationsService.markAnnouncementRead(
+      institution.id,
+      authSession,
+      scopes,
+      parseMarkAnnouncementRead({ announcementId }),
+    );
+  }
+
+  @Get(
+    `${API_ROUTES.ANNOUNCEMENTS}/:announcementId/${API_ROUTES.READ_RECEIPTS}`,
+  )
+  @RequirePermission(PERMISSIONS.COMMUNICATION_READ)
+  @ApiOperation({ summary: "Get read count for an announcement" })
+  @ApiOkResponse({ type: AnnouncementReadCountDto })
+  getAnnouncementReadCount(
+    @CurrentInstitution() institution: TenantInstitution,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+    @Param("announcementId") announcementId: string,
+  ) {
+    return this.communicationsService.getAnnouncementReadCount(
       institution.id,
       announcementId,
       authSession,

@@ -5,33 +5,15 @@ import {
   type PermissionSlug,
 } from "@repo/contracts";
 import {
-  IconAdjustments,
-  IconBook2,
-  IconBooks,
-  IconCalendar,
-  IconCalendarStats,
-  IconCertificate,
   IconCheck,
-  IconChartBar,
-  IconChevronDown,
   IconChevronRight,
-  IconCurrencyRupee,
-  IconDashboard,
-  IconFileDescription,
-  IconFolder,
-  IconHome,
-  IconLayoutGrid,
-  IconMessageCircle,
-  IconNotebook,
-  IconPackage,
+  IconMenu2,
   IconSchool,
-  IconSpeakerphone,
+  IconStar,
   IconStarFilled,
-  IconTruck,
   IconUserHeart,
   IconUserStar,
-  IconUsers,
-  IconUsersGroup,
+  type Icon,
 } from "@tabler/icons-react";
 import { Link, useLocation, useNavigate } from "react-router";
 import {
@@ -39,32 +21,24 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
-import { cn } from "@repo/ui/lib/utils";
-import { NavMain } from "@/components/navigation/nav-main";
-import { NavUser } from "@/components/navigation/nav-user";
 import {
-  findNavItemByUrl,
-  getActionableNavItems,
-  NAV_HOME,
-  NAV_PEOPLE,
-  NAV_ADMISSIONS,
-  NAV_TEACHING,
-  NAV_ACADEMIC_SETUP,
-  NAV_LIBRARY,
-  NAV_TRANSPORT,
-  NAV_RECORDS,
-  NAV_FINANCE,
-  NAV_COMMUNICATION,
-  NAV_SERVICES,
-  NAV_INVENTORY,
-  NAV_HR,
-  NAV_REPORTS,
-  NAV_SETTINGS,
-} from "@/components/navigation/nav-items";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@repo/ui/components/ui/tooltip";
+import { cn } from "@repo/ui/lib/utils";
+import { useIsMobile } from "@repo/ui/hooks/use-mobile";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@repo/ui/components/ui/sheet";
 import { useSelectContextMutation } from "@/features/auth/api/use-auth";
 import {
   getContextSecondaryLabel,
-  getActiveRoleDisplayLabel,
   getActiveContext,
   hasPermission,
   isStaffContext,
@@ -74,235 +48,34 @@ import { readCachedTenantBranding } from "@/lib/tenant-branding";
 import { ERP_ROUTES } from "@/constants/routes";
 import { useSidebarFavorites } from "@/hooks/use-sidebar-favorites";
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarSeparator,
-} from "@repo/ui/components/ui/sidebar";
+  STAFF_MODULES,
+  PARENT_MODULES,
+  STUDENT_MODULES,
+  findActiveModule,
+  filterModuleByPermission,
+  type NavModule,
+} from "@/components/navigation/nav-modules";
+import type { NavItem } from "@/components/navigation/nav-items";
+
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+const RAIL_WIDTH = 64;
+const FLYOUT_WIDTH = 240;
 
 const CONTEXT_META: Record<
   AuthContextKey,
   { order: number; Icon: typeof IconSchool }
 > = {
-  [AUTH_CONTEXT_KEYS.STAFF]: {
-    order: 1,
-    Icon: IconSchool,
-  },
-  [AUTH_CONTEXT_KEYS.PARENT]: {
-    order: 2,
-    Icon: IconUserHeart,
-  },
-  [AUTH_CONTEXT_KEYS.STUDENT]: {
-    order: 3,
-    Icon: IconUserStar,
-  },
+  [AUTH_CONTEXT_KEYS.STAFF]: { order: 1, Icon: IconSchool },
+  [AUTH_CONTEXT_KEYS.PARENT]: { order: 2, Icon: IconUserHeart },
+  [AUTH_CONTEXT_KEYS.STUDENT]: { order: 3, Icon: IconUserStar },
 };
 
-const CONTEXT_SWITCHER_WIDTH_CLASS = "w-(--radix-dropdown-menu-trigger-width)";
-const CONTEXT_SWITCHER_ITEM_CLASS =
-  "group flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
-const CONTEXT_SWITCHER_ACTIVE_ITEM_CLASS =
-  "border-transparent bg-[color-mix(in_srgb,var(--primary)_12%,white)] text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]";
-const CONTEXT_SWITCHER_INACTIVE_ITEM_CLASS =
-  "border-border/70 bg-card text-foreground hover:border-primary/20 hover:bg-muted/40";
-const STAFF_NAV_GROUP_LABELS = {
-  DIRECTORY: "Directory",
-  ADMISSIONS: "Admissions",
-  TEACHING: "Teaching",
-  ACADEMIC_SETUP: "Academic Setup",
-  RECORDS: "Records",
-  FINANCE: "Finance",
-  COMMUNICATION: "Communication",
-  LIBRARY: "Library",
-  TRANSPORT: "Transport",
-  SERVICES: "Services",
-  INVENTORY: "Inventory",
-  HR: "HR & Payroll",
-  REPORTS: "Reports",
-  SETTINGS: "Settings",
-} as const;
-
-const NAV_FAMILY = [
-  {
-    icon: IconUsers,
-    title: "Children",
-    url: ERP_ROUTES.FAMILY_CHILDREN,
-  },
-  {
-    icon: IconCalendarStats,
-    title: "Attendance",
-    url: ERP_ROUTES.FAMILY_ATTENDANCE,
-  },
-  {
-    icon: IconLayoutGrid,
-    title: "Timetable",
-    url: ERP_ROUTES.FAMILY_TIMETABLE,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconNotebook,
-    title: "Homework",
-    url: ERP_ROUTES.FAMILY_HOMEWORK,
-  },
-  {
-    icon: IconCertificate,
-    title: "Exams",
-    url: ERP_ROUTES.FAMILY_EXAMS,
-  },
-  {
-    icon: IconCurrencyRupee,
-    title: "Fees",
-    url: ERP_ROUTES.FAMILY_FEES,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconFolder,
-    title: "Documents",
-    url: ERP_ROUTES.FAMILY_DOCUMENTS,
-  },
-] as const;
-
-const NAV_FAMILY_COMMUNICATION = [
-  {
-    icon: IconSpeakerphone,
-    title: "Announcements",
-    url: ERP_ROUTES.FAMILY_ANNOUNCEMENTS,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconMessageCircle,
-    title: "Messages",
-    url: ERP_ROUTES.FAMILY_MESSAGES,
-  },
-  {
-    icon: IconCalendar,
-    title: "Calendar",
-    url: ERP_ROUTES.FAMILY_CALENDAR,
-  },
-] as const;
-
-const NAV_FAMILY_SERVICES = [
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconTruck,
-    title: "Transport",
-    url: ERP_ROUTES.FAMILY_TRANSPORT,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconBooks,
-    title: "Library",
-    url: ERP_ROUTES.FAMILY_LIBRARY,
-  },
-] as const;
-
-const NAV_STUDENT_ACADEMICS = [
-  {
-    icon: IconLayoutGrid,
-    title: "Timetable",
-    url: ERP_ROUTES.STUDENT_TIMETABLE,
-  },
-  {
-    icon: IconCalendarStats,
-    title: "Attendance",
-    url: ERP_ROUTES.STUDENT_ATTENDANCE,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconNotebook,
-    title: "Homework",
-    url: ERP_ROUTES.STUDENT_HOMEWORK,
-  },
-  {
-    icon: IconCertificate,
-    title: "Exams",
-    url: ERP_ROUTES.STUDENT_EXAMS,
-  },
-  {
-    icon: IconChartBar,
-    title: "Results",
-    url: ERP_ROUTES.STUDENT_RESULTS,
-  },
-  {
-    icon: IconCalendar,
-    title: "Calendar",
-    url: ERP_ROUTES.STUDENT_CALENDAR,
-  },
-] as const;
-
-const NAV_STUDENT_COMMUNICATION = [
-  {
-    icon: IconSpeakerphone,
-    title: "Announcements",
-    url: ERP_ROUTES.STUDENT_ANNOUNCEMENTS,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconMessageCircle,
-    title: "Messages",
-    url: ERP_ROUTES.STUDENT_MESSAGES,
-  },
-] as const;
-
-const NAV_STUDENT_SERVICES = [
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconBooks,
-    title: "Library",
-    url: ERP_ROUTES.STUDENT_LIBRARY,
-  },
-  {
-    badgeLabel: "Planned",
-    disabled: true,
-    icon: IconTruck,
-    title: "Transport",
-    url: ERP_ROUTES.STUDENT_TRANSPORT,
-  },
-  {
-    badgeLabel: "Later",
-    disabled: true,
-    icon: IconHome,
-    title: "Hostel",
-    url: ERP_ROUTES.STUDENT_HOSTEL,
-  },
-] as const;
-
-const HEADER_CLASS =
-  "flex w-full items-center gap-3 overflow-hidden rounded-xl border border-white/8 bg-white/4 px-3 py-3 text-left transition-[width,height,padding] hover:bg-white/8 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:py-2";
-
-type SidebarNavItem = {
-  badgeLabel?: string;
-  disabled?: boolean;
-  title: string;
-  url: string;
-};
-
-function matchesPath(pathname: string, itemUrl: string) {
-  return (
-    pathname === itemUrl ||
-    (itemUrl !== "/" && pathname.startsWith(`${itemUrl}/`))
-  );
-}
-
-function getActiveGroupLabel(
-  pathname: string,
-  groups: Array<{ items: SidebarNavItem[]; label: string }>,
-) {
-  const matchingGroup = groups.find((group) =>
-    group.items.some((item) => matchesPath(pathname, item.url)),
-  );
-
-  return matchingGroup?.label ?? null;
-}
+// ---------------------------------------------------------------------------
+// Sub-components
+// ---------------------------------------------------------------------------
 
 function InstitutionLogo({
   logoUrl,
@@ -317,7 +90,7 @@ function InstitutionLogo({
     return (
       <img
         alt={institutionName}
-        className="size-6 shrink-0 rounded object-contain"
+        className="size-8 shrink-0 rounded-[10px] object-contain"
         src={logoUrl}
       />
     );
@@ -325,552 +98,771 @@ function InstitutionLogo({
 
   return (
     <span
-      className="flex size-8 shrink-0 items-center justify-center rounded-xl text-xs font-bold text-white shadow-sm"
-      style={{ background: "var(--primary, #8a5a44)" }}
+      className="flex size-8 shrink-0 items-center justify-center rounded-[10px] text-xs font-bold text-white"
+      style={{
+        background: "var(--primary, #8a5a44)",
+        boxShadow: "0 1px 3px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.12)",
+      }}
     >
       {initial}
     </span>
   );
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+function FavoriteToggle({
+  isFavorited,
+  onToggle,
+}: {
+  isFavorited: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      aria-label={isFavorited ? "Remove from favorites" : "Add to favorites"}
+      className={cn(
+        "ml-auto flex size-5 shrink-0 items-center justify-center rounded transition-all duration-150",
+        isFavorited
+          ? "text-amber-400 opacity-100"
+          : "opacity-0 hover:text-amber-400 group-hover/flyout-item:opacity-70",
+      )}
+      onClick={(event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        onToggle();
+      }}
+      type="button"
+    >
+      {isFavorited ? (
+        <IconStarFilled className="size-3" />
+      ) : (
+        <IconStar className="size-3" />
+      )}
+    </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// RailIcon — single icon button in the rail
+// ---------------------------------------------------------------------------
+
+function RailIcon({
+  icon: ItemIcon,
+  label,
+  isActive,
+  isModuleActive,
+  onClick,
+}: {
+  icon: Icon;
+  label: string;
+  isActive: boolean;
+  isModuleActive: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          aria-label={label}
+          className="group/rail-icon relative flex size-10 items-center justify-center rounded-xl transition-all duration-150"
+          onClick={onClick}
+          style={{
+            color: isActive ? "var(--accent, #a78bfa)" : "white",
+            opacity: isActive || isModuleActive ? 1 : 0.55,
+            background: isActive
+              ? "rgba(255,255,255,0.1)"
+              : isModuleActive
+                ? "rgba(255,255,255,0.07)"
+                : undefined,
+          }}
+          type="button"
+        >
+          {/* Active pip — left edge accent indicator */}
+          {(isActive || isModuleActive) ? (
+            <span
+              className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full"
+              style={{
+                background: isActive
+                  ? "var(--accent, #a78bfa)"
+                  : "rgba(255,255,255,0.35)",
+              }}
+            />
+          ) : null}
+          <ItemIcon className="size-[18px] transition-opacity duration-150 group-hover/rail-icon:opacity-100" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="right" sideOffset={12}>
+        {label}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// FlyoutPanel — the expandable items panel
+// ---------------------------------------------------------------------------
+
+function FlyoutPanel({
+  module,
+  isFavorite,
+  onToggleFavorite,
+  onNavigate,
+}: {
+  module: NavModule;
+  isFavorite: (url: string) => boolean;
+  onToggleFavorite: (url: string) => void;
+  onNavigate: () => void;
+}) {
   const location = useLocation();
+
+  function isActivePath(itemUrl: string) {
+    return (
+      location.pathname === itemUrl ||
+      (itemUrl !== "/" && location.pathname.startsWith(`${itemUrl}/`))
+    );
+  }
+
+  return (
+    <div className="flex h-full flex-col overflow-hidden" style={{ color: "white" }}>
+      {/* Module header */}
+      <div className="px-4 pt-5 pb-2">
+        <h2
+          className="text-[11px] font-semibold uppercase tracking-[0.08em]"
+          style={{ opacity: 0.5 }}
+        >
+          {module.label}
+        </h2>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto px-2 pb-4">
+        {module.sections.map((section, sectionIndex) => (
+          <div key={section.label ?? sectionIndex} className="mb-0.5">
+            {section.label ? (
+              <p
+                className="mb-1 px-2.5 pt-4 pb-1 text-[10px] font-semibold uppercase tracking-[0.1em]"
+                style={{ opacity: 0.35 }}
+              >
+                {section.label}
+              </p>
+            ) : null}
+            <ul className="space-y-px">
+              {section.items.map((item) => (
+                <li key={item.url}>
+                  {item.disabled ? (
+                    <span
+                      className="flex h-9 w-full cursor-not-allowed items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-medium"
+                      style={{ opacity: 0.25 }}
+                    >
+                      {item.icon ? (
+                        <item.icon className="size-4 shrink-0" />
+                      ) : null}
+                      <span className="flex-1 truncate">{item.title}</span>
+                      <span
+                        className="rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em]"
+                        style={{
+                          opacity: 0.6,
+                          background: "rgba(255,255,255,0.06)",
+                          border: "1px solid rgba(255,255,255,0.06)",
+                        }}
+                      >
+                        {item.badgeLabel ?? "Soon"}
+                      </span>
+                    </span>
+                  ) : (
+                    <Link
+                      className="group/flyout-item flex h-9 w-full items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-medium transition-all duration-100"
+                      onClick={onNavigate}
+                      style={{
+                        opacity: isActivePath(item.url) ? 1 : 0.7,
+                        background: isActivePath(item.url)
+                          ? "rgba(255,255,255,0.1)"
+                          : undefined,
+                        borderLeft: isActivePath(item.url)
+                          ? "2px solid var(--accent, #a78bfa)"
+                          : "2px solid transparent",
+                      }}
+                      to={item.url}
+                    >
+                      {item.icon ? (
+                        <item.icon
+                          className="size-4 shrink-0"
+                          style={{
+                            color: isActivePath(item.url)
+                              ? "var(--accent, #a78bfa)"
+                              : undefined,
+                            opacity: isActivePath(item.url) ? 1 : 0.5,
+                          }}
+                        />
+                      ) : null}
+                      <span className="flex-1 truncate">{item.title}</span>
+                      <FavoriteToggle
+                        isFavorited={isFavorite(item.url)}
+                        onToggle={() => onToggleFavorite(item.url)}
+                      />
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ContextSwitcher — dropdown for staff/parent/student
+// ---------------------------------------------------------------------------
+
+function ContextSwitcher({
+  compact,
+}: {
+  compact?: boolean;
+}) {
   const navigate = useNavigate();
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const availableContexts = session?.availableContexts ?? [];
-  const showStaffNavigation = isStaffContext(session);
   const selectContextMutation = useSelectContextMutation();
-  const [isContextSwitcherOpen, setIsContextSwitcherOpen] =
-    React.useState(false);
-  const { favorites, isFavorite, toggleFavorite } = useSidebarFavorites();
-  const branding = readCachedTenantBranding();
-  const institutionName =
-    branding?.institutionName ??
-    session?.activeOrganization?.name ??
-    "School ERP";
-  const activeRoleLabel = getActiveRoleDisplayLabel(session);
-  const logoUrl = branding?.logoUrl ?? null;
-  const initial = (branding?.shortName ?? institutionName)
-    .charAt(0)
-    .toUpperCase();
+  const [isOpen, setIsOpen] = React.useState(false);
 
-  const logoProps = { logoUrl, institutionName, initial };
-  function filterByPermission<T extends { permission?: PermissionSlug }>(
-    items: T[],
-  ): T[] {
-    return items.filter(
-      (item) => !item.permission || hasPermission(session, item.permission),
-    );
+  if (availableContexts.length <= 1 || !activeContext) {
+    return null;
   }
-
-  const homeItems = getActionableNavItems(NAV_HOME);
-  const peopleItems = filterByPermission(getActionableNavItems(NAV_PEOPLE));
-  const admissionsItems = filterByPermission(
-    getActionableNavItems(NAV_ADMISSIONS),
-  );
-  const teachingItems = filterByPermission(getActionableNavItems(NAV_TEACHING));
-  const academicSetupItems = filterByPermission(
-    getActionableNavItems(NAV_ACADEMIC_SETUP),
-  );
-  const recordItems = getActionableNavItems(NAV_RECORDS);
-  const financeItems = filterByPermission(getActionableNavItems(NAV_FINANCE));
-  const communicationItems = filterByPermission(
-    getActionableNavItems(NAV_COMMUNICATION),
-  );
-  const libraryItems = filterByPermission(getActionableNavItems(NAV_LIBRARY));
-  const transportItems = filterByPermission(
-    getActionableNavItems(NAV_TRANSPORT),
-  );
-  const servicesItems = filterByPermission(getActionableNavItems(NAV_SERVICES));
-  const inventoryNavItems = filterByPermission(
-    getActionableNavItems(NAV_INVENTORY),
-  );
-  const hrItems = getActionableNavItems(NAV_HR);
-  const reportItems = filterByPermission(getActionableNavItems(NAV_REPORTS));
-  const settingsItems = filterByPermission(getActionableNavItems(NAV_SETTINGS));
-  const familyHomeItems = [
-    {
-      icon: IconDashboard,
-      title: "Dashboard",
-      url: ERP_ROUTES.DASHBOARD,
-    },
-  ];
-  const familyItems = React.useMemo(() => [...NAV_FAMILY], []);
-  const familyCommunicationItems = React.useMemo(
-    () => [...NAV_FAMILY_COMMUNICATION],
-    [],
-  );
-  const familyServicesItems = React.useMemo(() => [...NAV_FAMILY_SERVICES], []);
-  const studentAcademicItems = getActionableNavItems(NAV_STUDENT_ACADEMICS);
-  const studentCommunicationItems = getActionableNavItems(
-    NAV_STUDENT_COMMUNICATION,
-  );
-  const studentServicesItems = getActionableNavItems(NAV_STUDENT_SERVICES);
-  const favoriteNavItems = React.useMemo(
-    () =>
-      favorites
-        .map((url) => findNavItemByUrl(url))
-        .filter(
-          (item): item is NonNullable<typeof item> =>
-            item !== undefined && !item.disabled,
-        ),
-    [favorites],
-  );
 
   const sortedContexts = [...availableContexts].sort(
     (left, right) =>
       CONTEXT_META[left.key].order - CONTEXT_META[right.key].order,
   );
 
-  const activeGroupLabel = React.useMemo(() => {
-    if (showStaffNavigation) {
-      return getActiveGroupLabel(location.pathname, [
-        { items: peopleItems, label: STAFF_NAV_GROUP_LABELS.DIRECTORY },
-        { items: admissionsItems, label: STAFF_NAV_GROUP_LABELS.ADMISSIONS },
-        {
-          items: teachingItems,
-          label: STAFF_NAV_GROUP_LABELS.TEACHING,
-        },
-        {
-          items: academicSetupItems,
-          label: STAFF_NAV_GROUP_LABELS.ACADEMIC_SETUP,
-        },
-        { items: financeItems, label: STAFF_NAV_GROUP_LABELS.FINANCE },
-        { items: libraryItems, label: STAFF_NAV_GROUP_LABELS.LIBRARY },
-        { items: transportItems, label: STAFF_NAV_GROUP_LABELS.TRANSPORT },
-        { items: servicesItems, label: STAFF_NAV_GROUP_LABELS.SERVICES },
-        { items: inventoryNavItems, label: STAFF_NAV_GROUP_LABELS.INVENTORY },
-        { items: hrItems, label: STAFF_NAV_GROUP_LABELS.HR },
-        { items: reportItems, label: STAFF_NAV_GROUP_LABELS.REPORTS },
-        { items: recordItems, label: STAFF_NAV_GROUP_LABELS.RECORDS },
-        { items: settingsItems, label: STAFF_NAV_GROUP_LABELS.SETTINGS },
-      ]);
-    }
+  const ActiveIcon = CONTEXT_META[activeContext.key].Icon;
 
-    if (activeContext?.key === AUTH_CONTEXT_KEYS.PARENT) {
-      return getActiveGroupLabel(location.pathname, [
-        { items: familyItems, label: "Family" },
-        { items: familyCommunicationItems, label: "Communication" },
-        { items: familyServicesItems, label: "Services" },
-      ]);
-    }
+  return (
+    <DropdownMenu onOpenChange={setIsOpen} open={isOpen}>
+      <DropdownMenuTrigger asChild>
+        <button
+          className={cn(
+            "flex items-center justify-center rounded-lg transition-colors",
+            compact ? "size-10" : "size-9",
+          )}
+          style={{
+            color: "white",
+            opacity: 0.6,
+            background: "rgba(255,255,255,0.06)",
+          }}
+          type="button"
+        >
+          <ActiveIcon className="size-4" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        className="w-56 rounded-xl border border-border/70 bg-popover p-1 shadow-xl"
+        side="right"
+        sideOffset={8}
+      >
+        <div className="space-y-1">
+          {sortedContexts.map((contextOption) => {
+            const meta = CONTEXT_META[contextOption.key];
+            const isActive = activeContext.key === contextOption.key;
+            const contextSecondaryLabel = getContextSecondaryLabel(
+              session,
+              contextOption.key,
+            );
 
-    if (activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT) {
-      return getActiveGroupLabel(location.pathname, [
-        { items: studentAcademicItems, label: "Academics" },
-        { items: studentCommunicationItems, label: "Communication" },
-        { items: studentServicesItems, label: "Services" },
-      ]);
-    }
-
-    return null;
-  }, [
-    activeContext?.key,
-    admissionsItems,
-    teachingItems,
-    academicSetupItems,
-    familyCommunicationItems,
-    familyItems,
-    familyServicesItems,
-    financeItems,
-    libraryItems,
-    transportItems,
-    hrItems,
-    inventoryNavItems,
-    location.pathname,
-    peopleItems,
-    recordItems,
-    reportItems,
-    servicesItems,
-    settingsItems,
-    showStaffNavigation,
-    studentAcademicItems,
-    studentCommunicationItems,
-    studentServicesItems,
-  ]);
-  const [openGroupLabel, setOpenGroupLabel] = React.useState<string | null>(
-    activeGroupLabel,
+            return (
+              <button
+                key={contextOption.key}
+                className={cn(
+                  "group flex w-full items-center gap-3 rounded-xl border px-3 py-2 text-left transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  isActive
+                    ? "border-transparent bg-[color-mix(in_srgb,var(--primary)_12%,white)] text-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]"
+                    : "border-border/70 bg-card text-foreground hover:border-primary/20 hover:bg-muted/40",
+                )}
+                disabled={selectContextMutation.isPending || isActive}
+                onClick={() => {
+                  setIsOpen(false);
+                  selectContextMutation.mutate(
+                    { body: { contextKey: contextOption.key } },
+                    { onSuccess: () => void navigate(ERP_ROUTES.DASHBOARD) },
+                  );
+                }}
+                type="button"
+              >
+                <span
+                  className={cn(
+                    "flex size-8 shrink-0 items-center justify-center rounded-xl border",
+                    isActive
+                      ? "border-transparent bg-primary text-primary-foreground"
+                      : "border-border/70 bg-muted/50 text-primary",
+                  )}
+                >
+                  <meta.Icon className="size-[18px]" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[15px] font-semibold tracking-[-0.01em]">
+                    {contextOption.label}
+                  </span>
+                  {contextSecondaryLabel ? (
+                    <span className="mt-0.5 block truncate font-mono text-[10.5px] font-medium tracking-[0.04em] text-muted-foreground/80">
+                      {contextSecondaryLabel}
+                    </span>
+                  ) : null}
+                </span>
+                {isActive ? (
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background/95 text-primary">
+                    <IconCheck className="size-3.5" />
+                  </span>
+                ) : (
+                  <IconChevronRight className="size-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground/70" />
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
+}
 
-  React.useEffect(() => {
-    setOpenGroupLabel(activeGroupLabel);
-  }, [activeGroupLabel]);
+// ---------------------------------------------------------------------------
+// UserAvatar — rail footer
+// ---------------------------------------------------------------------------
 
-  const headerInner = (
+function UserAvatar() {
+  const navigate = useNavigate();
+  const session = useAuthStore((store) => store.session);
+  const user = session?.user;
+
+  if (!user) return null;
+
+  const initials = user.name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          className="flex size-9 items-center justify-center rounded-[10px] text-[11px] font-bold tracking-wide transition-all duration-150"
+          style={{
+            color: "white",
+            background: "rgba(255,255,255,0.08)",
+            boxShadow: "inset 0 1px 0 rgba(255,255,255,0.06)",
+          }}
+          onClick={() => void navigate(ERP_ROUTES.ACCOUNT)}
+          type="button"
+        >
+          {initials}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="right" sideOffset={12}>
+        {user.name}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// FavoriteRailItems — shown at top of rail when favorites exist
+// ---------------------------------------------------------------------------
+
+function FavoriteRailItems({
+  favorites,
+  onNavigate,
+}: {
+  favorites: NavItem[];
+  onNavigate: (url: string) => void;
+}) {
+  if (favorites.length === 0) return null;
+
+  return (
     <>
-      <InstitutionLogo {...logoProps} />
-      <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-        <p className="truncate text-sm font-semibold tracking-tight">
-          {institutionName}
-        </p>
-        <p className="truncate text-[11px] tracking-wide text-sidebar-foreground/55">
-          {activeRoleLabel ?? "Workspace"}
-        </p>
-      </div>
+      <div
+        className="mx-auto my-2 w-5"
+        style={{ height: 1, background: "rgba(255,255,255,0.1)" }}
+      />
+      {favorites.map((item) => (
+        <Tooltip key={item.url}>
+          <TooltipTrigger asChild>
+            <button
+              className="flex size-8 items-center justify-center rounded-lg text-amber-400/80 transition-colors hover:bg-white/[0.06] hover:text-amber-400"
+              onClick={() => onNavigate(item.url)}
+              type="button"
+            >
+              {item.icon ? (
+                <item.icon className="size-[14px]" />
+              ) : (
+                <IconStarFilled className="size-3" />
+              )}
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right" sideOffset={12}>
+            {item.title}
+          </TooltipContent>
+        </Tooltip>
+      ))}
+      <div
+        className="mx-auto my-2 w-5"
+        style={{ height: 1, background: "rgba(255,255,255,0.1)" }}
+      />
     </>
   );
+}
 
-  function renderStandaloneTopLevelItems(
-    items: {
-      badgeLabel?: string;
-      title: string;
-      url: string;
-      icon?: React.ComponentProps<typeof NavMain>["icon"];
-      disabled?: boolean;
-    }[],
-  ) {
-    return items.map((item) => <NavMain key={item.title} items={[item]} />);
+// ---------------------------------------------------------------------------
+// MobileSidebar — full-screen sheet for mobile
+// ---------------------------------------------------------------------------
+
+function MobileSidebar({
+  modules,
+  open,
+  onOpenChange,
+  logoProps,
+  institutionName,
+}: {
+  modules: NavModule[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  logoProps: { logoUrl: string | null; institutionName: string; initial: string };
+  institutionName: string;
+}) {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  function isActivePath(itemUrl: string) {
+    return (
+      location.pathname === itemUrl ||
+      (itemUrl !== "/" && location.pathname.startsWith(`${itemUrl}/`))
+    );
+  }
+
+  function handleNavigate(url: string) {
+    onOpenChange(false);
+    void navigate(url);
   }
 
   return (
-    <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="overflow-hidden pb-4">
-        {availableContexts.length > 1 && activeContext ? (
-          <DropdownMenu
-            onOpenChange={setIsContextSwitcherOpen}
-            open={isContextSwitcherOpen}
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="left"
+        className="w-[280px] bg-sidebar p-0 [&>button]:hidden"
+        style={{ color: "white" }}
+        aria-describedby={undefined}
+      >
+        <SheetHeader className="sr-only">
+          <SheetTitle>Navigation</SheetTitle>
+          <SheetDescription>School ERP navigation menu</SheetDescription>
+        </SheetHeader>
+        <div className="flex h-full flex-col">
+          {/* Header */}
+          <div
+            className="flex items-center gap-3 px-4 py-4"
+            style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}
           >
-            <DropdownMenuTrigger asChild>
-              <button className={HEADER_CLASS}>
-                {headerInner}
-                <IconChevronDown className="ml-auto size-3.5 shrink-0 text-sidebar-foreground/40 group-data-[collapsible=icon]:hidden" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="start"
-              className={cn(
-                CONTEXT_SWITCHER_WIDTH_CLASS,
-                "rounded-xl border border-border/70 bg-popover p-1 text-popover-foreground shadow-xl",
-              )}
-              side="bottom"
-              sideOffset={8}
-            >
-              <div className="space-y-1">
-                {sortedContexts.map((contextOption) => {
-                  const meta = CONTEXT_META[contextOption.key];
-                  const isActive = activeContext.key === contextOption.key;
-                  const contextSecondaryLabel = getContextSecondaryLabel(
-                    session,
-                    contextOption.key,
-                  );
+            <InstitutionLogo {...logoProps} />
+            <p className="truncate text-sm font-semibold tracking-tight">
+              {institutionName}
+            </p>
+          </div>
 
-                  return (
-                    <button
-                      key={contextOption.key}
-                      className={cn(
-                        CONTEXT_SWITCHER_ITEM_CLASS,
-                        isActive
-                          ? CONTEXT_SWITCHER_ACTIVE_ITEM_CLASS
-                          : CONTEXT_SWITCHER_INACTIVE_ITEM_CLASS,
-                      )}
-                      disabled={selectContextMutation.isPending || isActive}
-                      onClick={() => {
-                        setIsContextSwitcherOpen(false);
-                        selectContextMutation.mutate(
-                          {
-                            body: { contextKey: contextOption.key },
-                          },
-                          {
-                            onSuccess: () => {
-                              void navigate(ERP_ROUTES.DASHBOARD);
-                            },
-                          },
-                        );
-                      }}
-                      type="button"
-                    >
-                      <span
-                        className={cn(
-                          "flex size-8 shrink-0 items-center justify-center rounded-xl border",
-                          isActive
-                            ? "border-transparent bg-primary text-primary-foreground"
-                            : "border-border/70 bg-muted/50 text-primary",
-                        )}
+          {/* Navigation */}
+          <nav className="flex-1 overflow-y-auto px-3 py-3">
+            {modules.map((mod) => (
+              <div key={mod.key} className="mb-2">
+                <p
+                  className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-[0.12em]"
+                  style={{ opacity: 0.4 }}
+                >
+                  {mod.label}
+                </p>
+                {mod.sections.map((section, si) => (
+                  <div key={section.label ?? si}>
+                    {section.label ? (
+                      <p
+                        className="mb-0.5 mt-2 px-2 text-[10px] font-medium uppercase tracking-[0.1em]"
+                        style={{ opacity: 0.25 }}
                       >
-                        <meta.Icon className="size-[18px]" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[15px] font-semibold tracking-[-0.01em]">
-                          {contextOption.label}
+                        {section.label}
+                      </p>
+                    ) : null}
+                    {section.items.map((item) => (
+                      <button
+                        key={item.url}
+                        className="flex h-9 w-full items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-medium transition-all duration-100"
+                        disabled={item.disabled}
+                        onClick={() => handleNavigate(item.url)}
+                        style={{
+                          cursor: item.disabled ? "not-allowed" : undefined,
+                          opacity: item.disabled
+                            ? 0.25
+                            : isActivePath(item.url)
+                              ? 1
+                              : 0.65,
+                          background: isActivePath(item.url)
+                            ? "rgba(255,255,255,0.1)"
+                            : undefined,
+                          borderLeft: isActivePath(item.url)
+                            ? "2px solid var(--accent, #a78bfa)"
+                            : "2px solid transparent",
+                        }}
+                        type="button"
+                      >
+                        {item.icon ? (
+                          <item.icon
+                            className="size-4 shrink-0"
+                            style={{
+                              color: isActivePath(item.url)
+                                ? "var(--accent, #a78bfa)"
+                                : undefined,
+                            }}
+                          />
+                        ) : null}
+                        <span className="flex-1 truncate text-left">
+                          {item.title}
                         </span>
-                        {contextSecondaryLabel ? (
-                          <span className="mt-0.5 block truncate font-mono text-[10.5px] font-medium tracking-[0.04em] text-muted-foreground/80">
-                            {contextSecondaryLabel}
+                        {item.disabled ? (
+                          <span
+                            className="rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-[0.1em]"
+                            style={{
+                              opacity: 0.6,
+                              background: "rgba(255,255,255,0.06)",
+                            }}
+                          >
+                            {item.badgeLabel ?? "Soon"}
                           </span>
                         ) : null}
-                      </span>
-                      {isActive ? (
-                        <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border/60 bg-background/95 text-primary">
-                          <IconCheck className="size-3.5" />
-                        </span>
-                      ) : (
-                        <IconChevronRight className="size-4 shrink-0 text-muted-foreground/60 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground/70" />
-                      )}
-                    </button>
-                  );
-                })}
+                      </button>
+                    ))}
+                  </div>
+                ))}
               </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <Link to={ERP_ROUTES.DASHBOARD} className={HEADER_CLASS}>
-            {headerInner}
-          </Link>
-        )}
-      </SidebarHeader>
+            ))}
+          </nav>
 
-      <div className="px-4">
-        <SidebarSeparator className="mx-0 w-full bg-white/8" />
+          {/* Footer */}
+          <div
+            className="px-3 py-3"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <ContextSwitcher />
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// AppSidebar — main export
+// ---------------------------------------------------------------------------
+
+export function AppSidebar() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const session = useAuthStore((store) => store.session);
+  const activeContext = getActiveContext(session);
+  const showStaffNavigation = isStaffContext(session);
+  const { favorites, isFavorite, toggleFavorite } = useSidebarFavorites();
+  const branding = readCachedTenantBranding();
+  const institutionName =
+    branding?.institutionName ??
+    session?.activeOrganization?.name ??
+    "School ERP";
+  const logoUrl = branding?.logoUrl ?? null;
+  const initial = (branding?.shortName ?? institutionName)
+    .charAt(0)
+    .toUpperCase();
+  const logoProps = { logoUrl, institutionName, initial };
+
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [openModuleKey, setOpenModuleKey] = React.useState<string | null>(null);
+
+  // Select the right module set based on context
+  const rawModules = showStaffNavigation
+    ? STAFF_MODULES
+    : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT
+      ? PARENT_MODULES
+      : activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT
+        ? STUDENT_MODULES
+        : [];
+
+  // Filter by permission
+  const modules = React.useMemo(
+    () =>
+      rawModules
+        .map((mod) =>
+          filterModuleByPermission(mod, (perm: PermissionSlug) =>
+            hasPermission(session, perm),
+          ),
+        )
+        .filter((mod) => mod.sections.length > 0),
+    [rawModules, session],
+  );
+
+  // Determine which module contains the current route
+  const activeModule = React.useMemo(
+    () => findActiveModule(location.pathname, modules),
+    [location.pathname, modules],
+  );
+
+  // Close flyout on route change
+  React.useEffect(() => {
+    setOpenModuleKey(null);
+  }, [location.pathname]);
+
+  // Favorite items resolved from URLs
+  const favoriteNavItems = React.useMemo(() => {
+    const allItems = modules.flatMap((m) =>
+      m.sections.flatMap((s) => s.items),
+    );
+    return favorites
+      .map((url) => allItems.find((item) => item.url === url))
+      .filter((item): item is NavItem => item !== undefined && !item.disabled);
+  }, [favorites, modules]);
+
+  const openModule = modules.find((m) => m.key === openModuleKey) ?? null;
+
+  function handleRailClick(mod: NavModule) {
+    if (mod.directUrl) {
+      void navigate(mod.directUrl);
+      setOpenModuleKey(null);
+      return;
+    }
+    setOpenModuleKey((prev) => (prev === mod.key ? null : mod.key));
+  }
+
+  function handleFlyoutNavigate() {
+    setOpenModuleKey(null);
+  }
+
+  // ---- Mobile ----
+  if (isMobile) {
+    return (
+      <>
+        <button
+          aria-label="Open navigation"
+          className="fixed top-4 left-4 z-50 flex size-10 items-center justify-center rounded-lg border border-border/60 bg-background/80 shadow-sm backdrop-blur-md md:hidden"
+          onClick={() => setMobileOpen(true)}
+          type="button"
+        >
+          <IconMenu2 className="size-5" />
+        </button>
+        <MobileSidebar
+          institutionName={institutionName}
+          logoProps={logoProps}
+          modules={modules}
+          onOpenChange={setMobileOpen}
+          open={mobileOpen}
+        />
+      </>
+    );
+  }
+
+  // ---- Desktop / Tablet ----
+  return (
+    <TooltipProvider delayDuration={0}>
+      <div
+        className="print:hidden"
+        style={{
+          width: openModule ? RAIL_WIDTH + FLYOUT_WIDTH : RAIL_WIDTH,
+          transition: "width 220ms cubic-bezier(0.4, 0, 0.2, 1)",
+          flexShrink: 0,
+        }}
+      >
+        <div
+          className="fixed left-0 top-0 z-30 flex h-dvh"
+          style={{ width: "inherit" }}
+        >
+          {/* ---- Icon Rail ---- */}
+          <div
+            className="relative z-10 flex h-full flex-col items-center py-3"
+            style={{
+              width: RAIL_WIDTH,
+              background: "var(--sidebar)",
+              boxShadow: "3px 0 16px rgba(0,0,0,0.35), 1px 0 0 rgba(255,255,255,0.04)",
+            }}
+          >
+            {/* Logo */}
+            <Link
+              className="mb-3 flex size-10 items-center justify-center rounded-xl transition-all duration-150 hover:scale-105"
+              to={ERP_ROUTES.DASHBOARD}
+            >
+              <InstitutionLogo {...logoProps} />
+            </Link>
+
+            {/* Context switcher (if multiple contexts) */}
+            <ContextSwitcher compact />
+
+            {/* Favorites */}
+            <FavoriteRailItems
+              favorites={favoriteNavItems}
+              onNavigate={(url) => {
+                setOpenModuleKey(null);
+                void navigate(url);
+              }}
+            />
+
+            {/* Module icons */}
+            <div className="mt-1 flex flex-1 flex-col items-center gap-1 overflow-y-auto">
+              {modules.map((mod) => (
+                <RailIcon
+                  key={mod.key}
+                  icon={mod.icon}
+                  isActive={openModuleKey === mod.key}
+                  isModuleActive={activeModule?.key === mod.key && openModuleKey !== mod.key}
+                  label={mod.label}
+                  onClick={() => handleRailClick(mod)}
+                />
+              ))}
+            </div>
+
+            {/* User avatar */}
+            <div className="mt-auto pt-2">
+              <UserAvatar />
+            </div>
+          </div>
+
+          {/* ---- Flyout Panel ---- */}
+          <div
+            className={cn(
+              "h-full overflow-hidden transition-[width,opacity] duration-220 ease-out",
+              openModule
+                ? "w-[240px] opacity-100"
+                : "w-0 opacity-0",
+            )}
+            style={{
+              background: "color-mix(in srgb, var(--sidebar) 85%, #4a4a6a)",
+              borderRight: "1px solid rgba(255,255,255,0.05)",
+              borderLeft: "1px solid rgba(255,255,255,0.06)",
+              transitionTimingFunction: "cubic-bezier(0.4, 0, 0.2, 1)",
+            }}
+          >
+            {openModule ? (
+              <FlyoutPanel
+                isFavorite={isFavorite}
+                module={openModule}
+                onNavigate={handleFlyoutNavigate}
+                onToggleFavorite={toggleFavorite}
+              />
+            ) : null}
+          </div>
+        </div>
       </div>
 
-      <SidebarContent className="pt-3">
-        {showStaffNavigation ? (
-          <>
-            {favoriteNavItems.length > 0 ? (
-              <NavMain
-                icon={IconStarFilled}
-                isFavorite={isFavorite}
-                items={favoriteNavItems}
-                label="Favorites"
-                onToggleFavorite={toggleFavorite}
-              />
-            ) : null}
-            {renderStandaloneTopLevelItems(homeItems)}
-            {peopleItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconUsers}
-                isFavorite={isFavorite}
-                items={peopleItems}
-                label={STAFF_NAV_GROUP_LABELS.DIRECTORY}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {admissionsItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconFileDescription}
-                isFavorite={isFavorite}
-                items={admissionsItems}
-                label={STAFF_NAV_GROUP_LABELS.ADMISSIONS}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {teachingItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconCalendarStats}
-                isFavorite={isFavorite}
-                items={teachingItems}
-                label={STAFF_NAV_GROUP_LABELS.TEACHING}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {financeItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconCurrencyRupee}
-                isFavorite={isFavorite}
-                items={financeItems}
-                label={STAFF_NAV_GROUP_LABELS.FINANCE}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {communicationItems.length > 0
-              ? renderStandaloneTopLevelItems(communicationItems)
-              : null}
-            {libraryItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconBooks}
-                isFavorite={isFavorite}
-                items={libraryItems}
-                label={STAFF_NAV_GROUP_LABELS.LIBRARY}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {transportItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconTruck}
-                isFavorite={isFavorite}
-                items={transportItems}
-                label={STAFF_NAV_GROUP_LABELS.TRANSPORT}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {servicesItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconLayoutGrid}
-                isFavorite={isFavorite}
-                items={servicesItems}
-                label={STAFF_NAV_GROUP_LABELS.SERVICES}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {inventoryNavItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconPackage}
-                isFavorite={isFavorite}
-                items={inventoryNavItems}
-                label={STAFF_NAV_GROUP_LABELS.INVENTORY}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {hrItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconUsersGroup}
-                isFavorite={isFavorite}
-                items={hrItems}
-                label={STAFF_NAV_GROUP_LABELS.HR}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {reportItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconChartBar}
-                isFavorite={isFavorite}
-                items={reportItems}
-                label={STAFF_NAV_GROUP_LABELS.REPORTS}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {recordItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconFolder}
-                isFavorite={isFavorite}
-                items={recordItems}
-                label={STAFF_NAV_GROUP_LABELS.RECORDS}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {academicSetupItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconBook2}
-                isFavorite={isFavorite}
-                items={academicSetupItems}
-                label={STAFF_NAV_GROUP_LABELS.ACADEMIC_SETUP}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {settingsItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconAdjustments}
-                isFavorite={isFavorite}
-                items={settingsItems}
-                label={STAFF_NAV_GROUP_LABELS.SETTINGS}
-                onOpenGroupChange={setOpenGroupLabel}
-                onToggleFavorite={toggleFavorite}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-          </>
-        ) : activeContext?.key === AUTH_CONTEXT_KEYS.PARENT ? (
-          <>
-            {renderStandaloneTopLevelItems(familyHomeItems)}
-            {familyItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconUserHeart}
-                items={familyItems}
-                label="Family"
-                onOpenGroupChange={setOpenGroupLabel}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {familyCommunicationItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconSpeakerphone}
-                items={familyCommunicationItems}
-                label="Communication"
-                onOpenGroupChange={setOpenGroupLabel}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {familyServicesItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconLayoutGrid}
-                items={familyServicesItems}
-                label="Services"
-                onOpenGroupChange={setOpenGroupLabel}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-          </>
-        ) : activeContext?.key === AUTH_CONTEXT_KEYS.STUDENT ? (
-          <>
-            {renderStandaloneTopLevelItems(homeItems)}
-            {studentAcademicItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconBook2}
-                items={studentAcademicItems}
-                label="Academics"
-                onOpenGroupChange={setOpenGroupLabel}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {studentCommunicationItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconSpeakerphone}
-                items={studentCommunicationItems}
-                label="Communication"
-                onOpenGroupChange={setOpenGroupLabel}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-            {studentServicesItems.length > 0 ? (
-              <NavMain
-                collapsible
-                icon={IconLayoutGrid}
-                items={studentServicesItems}
-                label="Services"
-                onOpenGroupChange={setOpenGroupLabel}
-                openGroupLabel={openGroupLabel}
-              />
-            ) : null}
-          </>
-        ) : null}
-      </SidebarContent>
-
-      <SidebarFooter>
-        <NavUser />
-      </SidebarFooter>
-    </Sidebar>
+      {/* Backdrop for flyout (click to close) */}
+      {openModule ? (
+        <div
+          aria-hidden
+          className="fixed inset-0 z-20 transition-opacity duration-200"
+          style={{ background: "rgba(0,0,0,0.15)" }}
+          onClick={() => setOpenModuleKey(null)}
+        />
+      ) : null}
+    </TooltipProvider>
   );
 }
