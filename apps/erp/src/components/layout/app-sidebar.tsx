@@ -171,25 +171,18 @@ function RailIcon({
           style={{
             color: "rgba(255,255,255,0.96)",
             background: isActive
-              ? "color-mix(in srgb, var(--sidebar-primary, var(--sidebar)) 22%, rgba(255,255,255,0.12) 78%)"
+              ? "rgba(255,255,255,0.18)"
               : undefined,
             boxShadow: isActive
-              ? "0 10px 22px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.1), 0 0 0 1px rgba(255,255,255,0.08)"
+              ? "0 2px 8px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.18), 0 0 0 1px rgba(255,255,255,0.12)"
               : undefined,
-            transform: isActive ? "translateY(-0.5px)" : undefined,
           }}
           type="button"
         >
           <ItemIcon
             className="size-[18px] transition-opacity duration-150 group-hover/rail-icon:opacity-100"
             style={{
-              color: isActive
-                ? "rgba(255,255,255,0.98)"
-                : "rgba(255,255,255,0.96)",
-              opacity: isActive ? 1 : 0.72,
-              filter: isActive
-                ? "drop-shadow(0 2px 4px rgba(0,0,0,0.22))"
-                : undefined,
+              opacity: isActive ? 1 : 0.52,
             }}
           />
         </button>
@@ -218,11 +211,24 @@ function FlyoutPanel({
 }) {
   const location = useLocation();
 
-  function isActivePath(itemUrl: string) {
-    return (
-      location.pathname === itemUrl ||
-      (itemUrl !== "/" && location.pathname.startsWith(`${itemUrl}/`))
+  const activeItemUrl = React.useMemo(() => {
+    const allUrls = module.sections
+      .flatMap((s) => s.items)
+      .filter((item) => !item.disabled)
+      .map((item) => item.url);
+    const pathname = location.pathname;
+    if (allUrls.includes(pathname)) return pathname;
+    const prefixMatches = allUrls.filter(
+      (url) => url !== "/" && pathname.startsWith(`${url}/`),
     );
+    if (prefixMatches.length === 0) return null;
+    return prefixMatches.reduce((best, url) =>
+      url.length > best.length ? url : best,
+    );
+  }, [module.sections, location.pathname]);
+
+  function isActivePath(itemUrl: string) {
+    return activeItemUrl === itemUrl;
   }
 
   return (
@@ -313,21 +319,22 @@ function FlyoutPanel({
                     </span>
                   ) : (
                     <Link
-                      className="group/flyout-item flex h-[38px] w-full items-center gap-2.5 rounded-xl px-3 text-[13px] font-medium tracking-[-0.012em] transition-all duration-150 hover:bg-black/[0.04]"
+                      className={cn(
+                        "group/flyout-item flex h-[38px] w-full items-center gap-2.5 rounded-xl text-[13px] font-medium tracking-[-0.012em] transition-all duration-150",
+                        isActivePath(item.url)
+                          ? "pl-[10px] pr-3"
+                          : "px-3 hover:bg-black/[0.04]",
+                      )}
                       style={{
                         color: "hsl(var(--foreground))",
-                        opacity: 1,
                         background: isActivePath(item.url)
-                          ? "var(--sidebar-item-active, color-mix(in srgb, var(--sidebar-primary, var(--primary)) 10%, white 90%))"
+                          ? "color-mix(in srgb, var(--sidebar-primary, var(--primary)) 10%, white 90%)"
                           : undefined,
-                        border: isActivePath(item.url)
-                          ? "1px solid color-mix(in srgb, var(--sidebar-primary, var(--primary)) 18%, white 82%)"
-                          : "1px solid transparent",
+                        borderLeft: isActivePath(item.url)
+                          ? "2px solid var(--sidebar-primary, var(--primary))"
+                          : "2px solid transparent",
                         boxShadow: isActivePath(item.url)
-                          ? "0 8px 18px rgba(15,23,42,0.06), inset 0 1px 0 rgba(255,255,255,0.85)"
-                          : undefined,
-                        transform: isActivePath(item.url)
-                          ? "translateX(2px)"
+                          ? "0 1px 4px rgba(15,23,42,0.07), inset 0 1px 0 rgba(255,255,255,0.8)"
                           : undefined,
                       }}
                       to={item.url}
@@ -587,11 +594,29 @@ function MobileSidebar({
   const location = useLocation();
   const navigate = useNavigate();
 
-  function isActivePath(itemUrl: string) {
-    return (
-      location.pathname === itemUrl ||
-      (itemUrl !== "/" && location.pathname.startsWith(`${itemUrl}/`))
+  const allModuleUrls = React.useMemo(
+    () =>
+      modules
+        .flatMap((m) => m.sections.flatMap((s) => s.items))
+        .filter((item) => !item.disabled)
+        .map((item) => item.url),
+    [modules],
+  );
+
+  const activeMobileUrl = React.useMemo(() => {
+    const pathname = location.pathname;
+    if (allModuleUrls.includes(pathname)) return pathname;
+    const prefixMatches = allModuleUrls.filter(
+      (url) => url !== "/" && pathname.startsWith(`${url}/`),
     );
+    if (prefixMatches.length === 0) return null;
+    return prefixMatches.reduce((best, url) =>
+      url.length > best.length ? url : best,
+    );
+  }, [allModuleUrls, location.pathname]);
+
+  function isActivePath(itemUrl: string) {
+    return activeMobileUrl === itemUrl;
   }
 
   function handleNavigate(url: string) {
@@ -881,7 +906,10 @@ export function AppSidebar() {
             </div>
 
             {/* User avatar */}
-            <div className="mt-auto flex flex-col items-center gap-2 pt-2">
+            <div
+              className="mt-auto flex w-full flex-col items-center gap-2 pt-2"
+              style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
+            >
               <FavoriteRailItems
                 favorites={favoriteNavItems}
                 onNavigate={(url) => {
@@ -897,7 +925,7 @@ export function AppSidebar() {
           <div
             className={cn(
               "h-full overflow-hidden transition-[width,opacity] duration-220 ease-out",
-              openModule ? "w-[240px] opacity-100" : "w-0 opacity-0",
+              openModule ? "w-[252px] opacity-100" : "w-0 opacity-0",
             )}
             style={{
               background:
