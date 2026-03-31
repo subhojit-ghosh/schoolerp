@@ -1047,7 +1047,7 @@ export class LibraryService {
       .where(
         and(
           eq(libraryTransactions.institutionId, institutionId),
-          sql`${libraryTransactions.issuedAt} >= ${thirtyDaysAgo}`,
+          sql`${libraryTransactions.issuedAt} >= ${thirtyDaysAgo.toISOString()}`,
         ),
       )
       .groupBy(libraryTransactions.bookId, libraryBooks.title)
