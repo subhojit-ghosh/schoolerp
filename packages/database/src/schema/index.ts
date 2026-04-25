@@ -3155,6 +3155,16 @@ export const studentSiblingLinks = pgTable(
     siblingStudentId: text()
       .notNull()
       .references(() => students.id, { onDelete: "cascade" }),
+    relationship: text({
+      enum: [
+        "elder_brother",
+        "younger_brother",
+        "elder_sister",
+        "younger_sister",
+        "elder_sibling",
+        "younger_sibling",
+      ],
+    }).notNull(),
     createdAt: timestamp().notNull().defaultNow(),
   },
   (t) => [

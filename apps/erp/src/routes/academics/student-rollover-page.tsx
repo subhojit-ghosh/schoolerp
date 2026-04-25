@@ -18,7 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
-import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import { Field, FieldError, FieldLabel } from "@repo/ui/components/ui/field";
 import {
   Select,
@@ -48,7 +47,7 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useClassesQuery } from "@/features/classes/api/use-classes";
-import { PERMISSIONS } from "@repo/contracts";
+import { PERMISSIONS, STUDENT_ROLLOVER_ACTIONS } from "@repo/contracts";
 import {
   useExecuteStudentRolloverMutation,
   usePreviewStudentRolloverMutation,
@@ -66,8 +65,15 @@ const DEFAULT_VALUES: StudentRolloverFormValues = {
   sourceAcademicYearId: "",
   targetAcademicYearId: "",
   sectionMappings: [],
+  failedStudentIds: [],
   withdrawnStudentIds: [],
 };
+
+const STUDENT_ROLLOVER_OUTCOMES = {
+  PASS: "pass",
+  FAIL: STUDENT_ROLLOVER_ACTIONS.FAIL,
+  WITHDRAW: STUDENT_ROLLOVER_ACTIONS.WITHDRAW,
+} as const;
 
 export function StudentRolloverPage() {
   useDocumentTitle("Student Rollover");
@@ -113,6 +119,10 @@ export function StudentRolloverPage() {
     () => new Set(values.withdrawnStudentIds),
     [values.withdrawnStudentIds],
   );
+  const failedStudentIds = useMemo(
+    () => new Set(values.failedStudentIds),
+    [values.failedStudentIds],
+  );
 
   const academicYearOptions = useMemo(
     () =>
@@ -126,6 +136,17 @@ export function StudentRolloverPage() {
   );
   const sourceAcademicYearId = watch("sourceAcademicYearId");
   const targetAcademicYearId = watch("targetAcademicYearId");
+  const hasMatchingAcademicYears =
+    Boolean(sourceAcademicYearId) &&
+    sourceAcademicYearId === targetAcademicYearId;
+  const targetAcademicYearOptions = useMemo(
+    () =>
+      academicYearOptions.filter(
+        (year) =>
+          year.status === "active" && year.id !== sourceAcademicYearId,
+      ),
+    [academicYearOptions, sourceAcademicYearId],
+  );
 
   const classOptions = useMemo(
     () =>
@@ -151,22 +172,12 @@ export function StudentRolloverPage() {
     );
   }, [academicYearOptions]);
   const defaultTargetAcademicYearId = useMemo(() => {
-    if (academicYearOptions.length === 0) {
+    if (targetAcademicYearOptions.length === 0) {
       return "";
     }
 
-    const activeYearIds = academicYearOptions
-      .filter((year) => year.status === "active")
-      .map((year) => year.id);
-
-    return (
-      activeYearIds.find((yearId) => yearId !== defaultSourceAcademicYearId) ??
-      academicYearOptions.find(
-        (year) => year.id !== defaultSourceAcademicYearId,
-      )?.id ??
-      ""
-    );
-  }, [academicYearOptions, defaultSourceAcademicYearId]);
+    return targetAcademicYearOptions[0]?.id ?? "";
+  }, [targetAcademicYearOptions]);
 
   const sectionMetaBySource = useMemo(
     () =>
@@ -185,6 +196,7 @@ export function StudentRolloverPage() {
     }
 
     let mappedStudentCount = 0;
+    let failedStudentCount = 0;
     let unmappedStudentCount = 0;
     let withdrawnStudentCount = 0;
 
@@ -192,6 +204,10 @@ export function StudentRolloverPage() {
       for (const student of section.students) {
         if (withdrawnStudentIds.has(student.studentId)) {
           withdrawnStudentCount += 1;
+          continue;
+        }
+        if (failedStudentIds.has(student.studentId)) {
+          failedStudentCount += 1;
           continue;
         }
 
@@ -206,12 +222,13 @@ export function StudentRolloverPage() {
     return {
       eligibleStudentCount: preview.summary.eligibleStudentCount,
       mappedStudentCount,
+      failedStudentCount,
       unmappedStudentCount,
       withdrawnStudentCount,
       sourceSectionCount: preview.summary.sourceSectionCount,
       mappedSectionCount: preview.summary.mappedSectionCount,
     };
-  }, [preview, withdrawnStudentIds]);
+  }, [failedStudentIds, preview, withdrawnStudentIds]);
 
   useEffect(() => {
     if (!sourceAcademicYearId && defaultSourceAcademicYearId) {
@@ -230,6 +247,14 @@ export function StudentRolloverPage() {
       });
     }
   }, [defaultTargetAcademicYearId, setValue, targetAcademicYearId]);
+  useEffect(() => {
+    if (
+      targetAcademicYearId &&
+      !targetAcademicYearOptions.some((year) => year.id === targetAcademicYearId)
+    ) {
+      setValue("targetAcademicYearId", "");
+    }
+  }, [setValue, targetAcademicYearId, targetAcademicYearOptions]);
 
   useEffect(() => {
     fields.forEach((_field, index) => {
@@ -265,6 +290,11 @@ export function StudentRolloverPage() {
   }, [classOptions, fields, setValue, values.sectionMappings]);
 
   async function loadRoster() {
+    if (hasMatchingAcademicYears) {
+      toast.error("Select a different target academic year.");
+      return;
+    }
+
     try {
       const currentValues = getValues();
       const rosterPreview = await previewMutation.mutateAsync({
@@ -272,6 +302,7 @@ export function StudentRolloverPage() {
           sourceAcademicYearId: currentValues.sourceAcademicYearId,
           targetAcademicYearId: currentValues.targetAcademicYearId,
           sectionMappings: [],
+          failedStudentIds: [],
           withdrawnStudentIds: [],
         },
       });
@@ -285,6 +316,7 @@ export function StudentRolloverPage() {
         })),
       );
       setValue("withdrawnStudentIds", []);
+      setValue("failedStudentIds", []);
       setPreview(rosterPreview);
       setLastPreviewSignature(
         getStudentRolloverPreviewSignature({
@@ -295,6 +327,7 @@ export function StudentRolloverPage() {
             targetClassId: "",
             targetSectionId: "",
           })),
+          failedStudentIds: [],
           withdrawnStudentIds: [],
         }),
       );
@@ -346,6 +379,32 @@ export function StudentRolloverPage() {
       );
     }
   });
+
+  function setStudentOutcome(
+    studentId: string,
+    outcome:
+      | (typeof STUDENT_ROLLOVER_OUTCOMES)[keyof typeof STUDENT_ROLLOVER_OUTCOMES],
+  ) {
+    const nextFailedStudentIds = values.failedStudentIds.filter(
+      (id) => id !== studentId,
+    );
+    const nextWithdrawnStudentIds = values.withdrawnStudentIds.filter(
+      (id) => id !== studentId,
+    );
+
+    if (outcome === STUDENT_ROLLOVER_OUTCOMES.FAIL) {
+      nextFailedStudentIds.push(studentId);
+    } else if (outcome === STUDENT_ROLLOVER_OUTCOMES.WITHDRAW) {
+      nextWithdrawnStudentIds.push(studentId);
+    }
+
+    setValue("failedStudentIds", nextFailedStudentIds, {
+      shouldDirty: true,
+    });
+    setValue("withdrawnStudentIds", nextWithdrawnStudentIds, {
+      shouldDirty: true,
+    });
+  }
 
   if (!institutionId) {
     return (
@@ -401,6 +460,7 @@ export function StudentRolloverPage() {
                       setPreview(null);
                       setLastPreviewSignature(null);
                       replace([]);
+                      resetField("failedStudentIds", { defaultValue: [] });
                       resetField("withdrawnStudentIds", { defaultValue: [] });
                     }}
                   >
@@ -428,12 +488,14 @@ export function StudentRolloverPage() {
                 <Field>
                   <FieldLabel>Target academic year</FieldLabel>
                   <Select
+                    disabled={targetAcademicYearOptions.length === 0}
                     value={field.value}
                     onValueChange={(value) => {
                       field.onChange(value);
                       setPreview(null);
                       setLastPreviewSignature(null);
                       replace([]);
+                      resetField("failedStudentIds", { defaultValue: [] });
                       resetField("withdrawnStudentIds", { defaultValue: [] });
                     }}
                   >
@@ -441,17 +503,26 @@ export function StudentRolloverPage() {
                       <SelectValue placeholder="Select target year" />
                     </SelectTrigger>
                     <SelectContent>
-                      {academicYearOptions
-                        .filter((year) => year.status === "active")
-                        .map((year) => (
+                      {targetAcademicYearOptions.length > 0 ? (
+                        targetAcademicYearOptions.map((year) => (
                           <SelectItem key={year.id} value={year.id}>
                             {year.name}
                             {year.isCurrent ? " (Current)" : ""}
                           </SelectItem>
-                        ))}
+                        ))
+                      ) : (
+                        <SelectItem disabled value="no-target-year">
+                          No active target year available
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                   <FieldError>{fieldState.error?.message}</FieldError>
+                  {targetAcademicYearOptions.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      Add another active academic year to use as target.
+                    </p>
+                  ) : null}
                 </Field>
               )}
             />
@@ -463,17 +534,24 @@ export function StudentRolloverPage() {
               disabled={
                 !values.sourceAcademicYearId ||
                 !values.targetAcademicYearId ||
+                hasMatchingAcademicYears ||
                 previewMutation.isPending
               }
               onClick={() => void loadRoster()}
               type="button"
             >
               <IconChevronsUp className="size-4" />
-              {previewMutation.isPending ? "Loading..." : "Load source roster"}
+              {previewMutation.isPending
+                ? "Loading..."
+                : "Load source-year roster"}
             </Button>
             <Button
               className="h-10 rounded-lg"
-              disabled={fields.length === 0 || previewMutation.isPending}
+              disabled={
+                fields.length === 0 ||
+                previewMutation.isPending ||
+                hasMatchingAcademicYears
+              }
               onClick={() => void handlePreview()}
               type="button"
               variant="outline"
@@ -487,13 +565,14 @@ export function StudentRolloverPage() {
                 !preview ||
                 isPreviewStale ||
                 executeMutation.isPending ||
+                hasMatchingAcademicYears ||
                 Boolean(summary?.unmappedStudentCount)
               }
               onClick={() => void handleExecute()}
               type="button"
             >
               <IconCheck className="size-4" />
-              {executeMutation.isPending ? "Processing..." : "Run rollover"}
+              {executeMutation.isPending ? "Processing..." : "Rollover"}
             </Button>
           </div>
 
@@ -509,7 +588,7 @@ export function StudentRolloverPage() {
       {fields.length > 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>Section mappings</CardTitle>
+            <CardTitle>Section-to-section mapping</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {fields.map((field, index) => {
@@ -603,12 +682,13 @@ export function StudentRolloverPage() {
       ) : null}
 
       {summary ? (
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-5">
           <SummaryCard
             label="Eligible students"
             value={summary.eligibleStudentCount}
           />
           <SummaryCard label="Mapped" value={summary.mappedStudentCount} />
+          <SummaryCard label="Failed" value={summary.failedStudentCount} />
           <SummaryCard label="Unmapped" value={summary.unmappedStudentCount} />
           <SummaryCard
             label="Withdrawn"
@@ -625,7 +705,7 @@ export function StudentRolloverPage() {
           <CardContent className="space-y-4">
             {isPreviewStale ? (
               <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-                The mapping or withdrawal selection changed after the last
+                The mapping or outcome selection changed after the last
                 preview. Refresh preview before running rollover.
               </div>
             ) : null}
@@ -644,7 +724,7 @@ export function StudentRolloverPage() {
                     <TableHead>Target placement</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="w-[120px] text-right">
-                      Withdraw
+                      Outcome
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -654,8 +734,11 @@ export function StudentRolloverPage() {
                       const isWithdrawn = withdrawnStudentIds.has(
                         student.studentId,
                       );
+                      const isFailed = failedStudentIds.has(student.studentId);
                       const status = isWithdrawn
                         ? "withdrawn"
+                        : isFailed
+                          ? "failed"
                         : student.target
                           ? "mapped"
                           : "unmapped";
@@ -686,6 +769,16 @@ export function StudentRolloverPage() {
                               <span className="text-sm text-muted-foreground">
                                 Not continuing
                               </span>
+                            ) : isFailed ? (
+                              <div className="space-y-1 text-sm">
+                                <p>
+                                  {student.source.className} /{" "}
+                                  {student.source.sectionName}
+                                </p>
+                                <p className="text-muted-foreground">
+                                  Repeat current class in target year
+                                </p>
+                              </div>
                             ) : student.target ? (
                               <div className="space-y-1 text-sm">
                                 <p>
@@ -716,22 +809,59 @@ export function StudentRolloverPage() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Checkbox
-                              checked={isWithdrawn}
-                              onCheckedChange={(checked) => {
-                                const nextValues = checked
-                                  ? [
-                                      ...values.withdrawnStudentIds,
-                                      student.studentId,
-                                    ]
-                                  : values.withdrawnStudentIds.filter(
-                                      (id) => id !== student.studentId,
-                                    );
-                                setValue("withdrawnStudentIds", nextValues, {
-                                  shouldDirty: true,
-                                });
-                              }}
-                            />
+                            <div className="ml-auto inline-flex items-center gap-1">
+                              <button
+                                className={cn(
+                                  "h-7 rounded-full border px-2 text-xs font-medium",
+                                  !isWithdrawn && !isFailed
+                                    ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                                    : "border-border bg-background text-muted-foreground hover:bg-muted/50",
+                                )}
+                                onClick={() =>
+                                  setStudentOutcome(
+                                    student.studentId,
+                                    STUDENT_ROLLOVER_OUTCOMES.PASS,
+                                  )
+                                }
+                                type="button"
+                              >
+                                Pass
+                              </button>
+                              <button
+                                className={cn(
+                                  "h-7 rounded-full border px-2 text-xs font-medium",
+                                  isFailed
+                                    ? "border-orange-200 bg-orange-50 text-orange-700"
+                                    : "border-border bg-background text-muted-foreground hover:bg-muted/50",
+                                )}
+                                onClick={() =>
+                                  setStudentOutcome(
+                                    student.studentId,
+                                    STUDENT_ROLLOVER_OUTCOMES.FAIL,
+                                  )
+                                }
+                                type="button"
+                              >
+                                Fail
+                              </button>
+                              <button
+                                className={cn(
+                                  "h-7 rounded-full border px-2 text-xs font-medium",
+                                  isWithdrawn
+                                    ? "border-slate-200 bg-slate-100 text-slate-700"
+                                    : "border-border bg-background text-muted-foreground hover:bg-muted/50",
+                                )}
+                                onClick={() =>
+                                  setStudentOutcome(
+                                    student.studentId,
+                                    STUDENT_ROLLOVER_OUTCOMES.WITHDRAW,
+                                  )
+                                }
+                                type="button"
+                              >
+                                Withdraw
+                              </button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       );

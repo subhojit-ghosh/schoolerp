@@ -302,11 +302,13 @@ export const AUTH_CONTEXT_KEYS = {
 
 export const STUDENT_ROLLOVER_ACTIONS = {
   CONTINUE: "continue",
+  FAIL: "fail",
   WITHDRAW: "withdraw",
 } as const;
 
 export const STUDENT_ROLLOVER_PREVIEW_STATUS = {
   MAPPED: "mapped",
+  FAILED: "failed",
   UNMAPPED: "unmapped",
   WITHDRAWN: "withdrawn",
 } as const;
@@ -580,6 +582,15 @@ export const GUARDIAN_RELATIONSHIPS = {
   MOTHER: "mother",
   GUARDIAN: "guardian",
 } as const;
+
+export const SIBLING_RELATIONSHIPS = {
+  ELDER_BROTHER: "elder_brother",
+  YOUNGER_BROTHER: "younger_brother",
+  ELDER_SISTER: "elder_sister",
+  YOUNGER_SISTER: "younger_sister",
+  ELDER_SIBLING: "elder_sibling",
+  YOUNGER_SIBLING: "younger_sibling",
+} as const;
 export const authContextKeySchema = z.enum([
   AUTH_CONTEXT_KEYS.STAFF,
   AUTH_CONTEXT_KEYS.PARENT,
@@ -690,6 +701,15 @@ export const guardianRelationshipSchema = z.enum([
   GUARDIAN_RELATIONSHIPS.MOTHER,
   GUARDIAN_RELATIONSHIPS.GUARDIAN,
 ]);
+
+export const siblingRelationshipSchema = z.enum([
+  SIBLING_RELATIONSHIPS.ELDER_BROTHER,
+  SIBLING_RELATIONSHIPS.YOUNGER_BROTHER,
+  SIBLING_RELATIONSHIPS.ELDER_SISTER,
+  SIBLING_RELATIONSHIPS.YOUNGER_SISTER,
+  SIBLING_RELATIONSHIPS.ELDER_SIBLING,
+  SIBLING_RELATIONSHIPS.YOUNGER_SIBLING,
+]);
 export const dataExchangeEntityTypeSchema = z.enum([
   DATA_EXCHANGE_ENTITY_TYPES.STUDENTS,
   DATA_EXCHANGE_ENTITY_TYPES.STAFF,
@@ -740,6 +760,7 @@ export type AdmissionFormFieldOption = z.infer<
   typeof admissionFormFieldOptionSchema
 >;
 export type GuardianRelationship = z.infer<typeof guardianRelationshipSchema>;
+export type SiblingRelationship = z.infer<typeof siblingRelationshipSchema>;
 export type AttendanceStatus = z.infer<typeof attendanceStatusSchema>;
 
 export const SALARY_COMPONENT_TYPES = {

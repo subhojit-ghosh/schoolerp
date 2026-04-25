@@ -29,16 +29,24 @@ type GuardianFormProps = {
   campusName?: string;
   defaultValues: GuardianFormValues;
   errorMessage?: string;
+  isReadOnly?: boolean;
   isPending?: boolean;
+  onCancelEditing?: () => void;
+  onStartEditing?: () => void;
   onSubmit: (values: GuardianFormValues) => Promise<void> | void;
+  submitLabel?: string;
 };
 
 export function GuardianForm({
   campusName,
   defaultValues,
   errorMessage,
+  isReadOnly = false,
   isPending = false,
+  onCancelEditing,
+  onStartEditing,
   onSubmit,
+  submitLabel = "Save changes",
 }: GuardianFormProps) {
   const { control, handleSubmit, reset } = useForm<GuardianFormValues>({
     resolver: zodResolver(guardianFormSchema),
@@ -63,6 +71,7 @@ export function GuardianForm({
                   <FieldLabel>Title</FieldLabel>
                   <FieldContent>
                     <Select
+                      disabled={isReadOnly || isPending}
                       onValueChange={(value) =>
                         field.onChange(value === "none" ? "" : value)
                       }
@@ -101,6 +110,7 @@ export function GuardianForm({
                     <Input
                       {...field}
                       aria-invalid={fieldState.invalid}
+                      disabled={isReadOnly || isPending}
                       id="guardian-name"
                       placeholder="Guardian full name"
                     />
@@ -122,6 +132,7 @@ export function GuardianForm({
                   <Input
                     {...field}
                     aria-invalid={fieldState.invalid}
+                    disabled={isReadOnly || isPending}
                     id="guardian-mobile"
                     inputMode="tel"
                   />
@@ -140,6 +151,7 @@ export function GuardianForm({
                   <Input
                     {...field}
                     aria-invalid={fieldState.invalid}
+                    disabled={isReadOnly || isPending}
                     id="guardian-email"
                     placeholder="Optional guardian email"
                     type="email"
@@ -169,9 +181,30 @@ export function GuardianForm({
         <FieldError>{errorMessage}</FieldError>
 
         <div className="flex gap-2">
-          <Button disabled={isPending} type="submit">
-            {isPending ? "Saving..." : "Save guardian"}
-          </Button>
+          {isReadOnly ? (
+            <Button onClick={onStartEditing} type="button">
+              Edit
+            </Button>
+          ) : (
+            <>
+              <Button disabled={isPending} type="submit">
+                {isPending ? "Saving..." : submitLabel}
+              </Button>
+              {onCancelEditing ? (
+                <Button
+                  disabled={isPending}
+                  onClick={() => {
+                    reset(defaultValues);
+                    onCancelEditing();
+                  }}
+                  type="button"
+                  variant="outline"
+                >
+                  Cancel
+                </Button>
+              ) : null}
+            </>
+          )}
         </div>
       </FieldGroup>
     </form>

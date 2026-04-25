@@ -1,6 +1,7 @@
 import {
   disciplinarySeveritySchema,
   guardianRelationshipSchema,
+  siblingRelationshipSchema,
 } from "@repo/contracts";
 import { z } from "zod";
 import {
@@ -120,6 +121,7 @@ export type ListStudentsQueryDto = Omit<ListStudentsQueryInput, "q"> & {
 
 export const createSiblingLinkSchema = z.object({
   siblingStudentId: z.uuid(),
+  relationship: siblingRelationshipSchema,
 });
 
 export type CreateSiblingLinkDto = z.infer<typeof createSiblingLinkSchema>;

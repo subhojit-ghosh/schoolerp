@@ -12,6 +12,7 @@ export const AUTH_API_PATHS = {
 } as const;
 
 export const ONBOARDING_API_PATHS = {
+  CHECK_SLUG: "/onboarding/check-slug",
   CREATE_INSTITUTION: "/onboarding/institutions",
   SETUP_STATUS: "/onboarding/setup-status",
 } as const;
@@ -23,6 +24,7 @@ export const STUDENTS_API_PATHS = {
   DETAIL: "/students/{studentId}",
   SUMMARY: "/students/{studentId}/summary",
   UPDATE: "/students/{studentId}",
+  DELETE: "/students/{studentId}",
   ROLLOVER_PREVIEW: "/students/rollover/preview",
   ROLLOVER_EXECUTE: "/students/rollover/execute",
   // Phase 2 depth

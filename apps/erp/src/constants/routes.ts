@@ -247,6 +247,7 @@ export const ERP_ROUTES = {
   SETTINGS_DPDPA: "/settings/dpdpa",
   // Auth
   SIGN_IN: "/sign-in",
+  SIGN_UP: "/sign-up",
   FORGOT_PASSWORD: "/forgot-password",
   RESET_PASSWORD: "/reset-password",
 } as const;

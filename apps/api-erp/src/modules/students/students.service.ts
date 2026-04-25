@@ -4,7 +4,9 @@ import {
   ATTENDANCE_STATUSES,
   AUDIT_ACTIONS,
   AUDIT_ENTITY_TYPES,
+  SIBLING_RELATIONSHIPS,
   TC_STATUS,
+  type SiblingRelationship,
 } from "@repo/contracts";
 import {
   BadRequestException,
@@ -94,6 +96,11 @@ type StudentGuardianSummary = {
   relationship: (typeof GUARDIAN_RELATIONSHIPS)[keyof typeof GUARDIAN_RELATIONSHIPS];
   isPrimary: boolean;
 };
+
+const SIBLING_VALIDATION_PARENT_RELATIONSHIPS = [
+  GUARDIAN_RELATIONSHIPS.FATHER,
+  GUARDIAN_RELATIONSHIPS.MOTHER,
+] as const;
 
 type StudentCurrentEnrollmentSummary = {
   academicYearId: string;
@@ -613,6 +620,105 @@ export class StudentsService {
       authSession,
       activeCampusScopes,
     );
+  }
+
+  async deleteStudent(
+    institutionId: string,
+    studentId: string,
+    authSession: AuthenticatedSession,
+    scopes: ResolvedScopes = {
+      campusIds: "all",
+      classIds: "all",
+      sectionIds: "all",
+    },
+  ) {
+    const activeCampusScopes = this.scopeToActiveCampus(authSession, scopes);
+    const student = await this.getStudent(
+      institutionId,
+      studentId,
+      authSession,
+      activeCampusScopes,
+    );
+
+    await this.assertStudentRemovable(institutionId, studentId);
+    const deletedAt = new Date();
+
+    await this.db.transaction(async (tx) => {
+      await tx
+        .update(member)
+        .set({
+          status: STATUS.MEMBER.DELETED,
+          deletedAt,
+        })
+        .where(
+          and(
+            eq(member.id, student.membershipId),
+            eq(member.organizationId, institutionId),
+            ne(member.status, STATUS.MEMBER.DELETED),
+          ),
+        );
+
+      await tx
+        .update(students)
+        .set({
+          deletedAt,
+        })
+        .where(
+          and(
+            eq(students.id, studentId),
+            eq(students.institutionId, institutionId),
+          ),
+        );
+
+      await tx
+        .update(studentGuardianLinks)
+        .set({
+          deletedAt,
+        })
+        .where(
+          and(
+            eq(studentGuardianLinks.studentMembershipId, student.membershipId),
+            isNull(studentGuardianLinks.deletedAt),
+          ),
+        );
+
+      await tx
+        .update(studentCurrentEnrollments)
+        .set({
+          deletedAt,
+        })
+        .where(
+          and(
+            eq(studentCurrentEnrollments.studentMembershipId, student.membershipId),
+            eq(studentCurrentEnrollments.institutionId, institutionId),
+            isNull(studentCurrentEnrollments.deletedAt),
+          ),
+        );
+
+      await tx
+        .delete(studentSiblingLinks)
+        .where(
+          and(
+            eq(studentSiblingLinks.institutionId, institutionId),
+            or(
+              eq(studentSiblingLinks.studentId, studentId),
+              eq(studentSiblingLinks.siblingStudentId, studentId),
+            ),
+          ),
+        );
+    });
+
+    this.auditService
+      .record({
+        institutionId,
+        authSession,
+        action: AUDIT_ACTIONS.DELETE,
+        entityType: AUDIT_ENTITY_TYPES.STUDENT,
+        entityId: studentId,
+        entityLabel: student.fullName,
+        summary: `Deleted student ${student.fullName}.`,
+      })
+      .catch(() => {});
   }
 
   private async listStudentsForInstitution(
@@ -1341,6 +1447,83 @@ export class StudentsService {
     return matchedCampus;
   }
 
+  private async assertStudentRemovable(
+    institutionId: string,
+    studentId: string,
+  ) {
+    const [
+      attendanceRecord,
+      examMark,
+      feeAssignment,
+      disciplinaryRecord,
+      transferCertificate,
+    ] = await Promise.all([
+      this.db
+        .select({ id: attendanceRecords.id })
+        .from(attendanceRecords)
+        .where(
+          and(
+            eq(attendanceRecords.institutionId, institutionId),
+            eq(attendanceRecords.studentId, studentId),
+          ),
+        )
+        .limit(1),
+      this.db
+        .select({ id: examMarks.id })
+        .from(examMarks)
+        .where(
+          and(
+            eq(examMarks.institutionId, institutionId),
+            eq(examMarks.studentId, studentId),
+          ),
+        )
+        .limit(1),
+      this.db
+        .select({ id: feeAssignments.id })
+        .from(feeAssignments)
+        .where(
+          and(
+            eq(feeAssignments.institutionId, institutionId),
+            eq(feeAssignments.studentId, studentId),
+            isNull(feeAssignments.deletedAt),
+          ),
+        )
+        .limit(1),
+      this.db
+        .select({ id: studentDisciplinaryRecords.id })
+        .from(studentDisciplinaryRecords)
+        .where(
+          and(
+            eq(studentDisciplinaryRecords.institutionId, institutionId),
+            eq(studentDisciplinaryRecords.studentId, studentId),
+          ),
+        )
+        .limit(1),
+      this.db
+        .select({ id: transferCertificates.id })
+        .from(transferCertificates)
+        .where(
+          and(
+            eq(transferCertificates.institutionId, institutionId),
+            eq(transferCertificates.studentId, studentId),
+          ),
+        )
+        .limit(1),
+    ]);
+
+    if (
+      attendanceRecord[0] ||
+      examMark[0] ||
+      feeAssignment[0] ||
+      disciplinaryRecord[0] ||
+      transferCertificate[0]
+    ) {
+      throw new ConflictException(
+        ERROR_MESSAGES.STUDENTS.STUDENT_HAS_TRANSACTION_RECORDS,
+      );
+    }
+  }
+
   private async listGuardiansForStudentMemberships(
     studentMembershipIds: string[],
   ) {
@@ -1392,6 +1575,88 @@ export class StudentsService {
     }
 
     return grouped;
+  }
+
+  private normalizeFamilyMemberName(name: string) {
+    return name.trim().replace(/\s+/g, " ").toLowerCase();
+  }
+
+  private getParentNameMap(guardians: StudentGuardianSummary[]) {
+    const parentNameMap = new Map<string, string[]>();
+
+    for (const relationship of SIBLING_VALIDATION_PARENT_RELATIONSHIPS) {
+      const normalizedNames = guardians
+        .filter((guardian) => guardian.relationship === relationship)
+        .map((guardian) => this.normalizeFamilyMemberName(guardian.name))
+        .filter(Boolean)
+        .sort();
+
+      if (normalizedNames.length > 0) {
+        parentNameMap.set(relationship, normalizedNames);
+      }
+    }
+
+    return parentNameMap;
+  }
+
+  private assertSiblingParentNamesMatch(
+    studentGuardians: StudentGuardianSummary[],
+    siblingGuardians: StudentGuardianSummary[],
+  ) {
+    const studentParents = this.getParentNameMap(studentGuardians);
+    const siblingParents = this.getParentNameMap(siblingGuardians);
+
+    if (studentParents.size === 0 || siblingParents.size === 0) {
+      throw new ConflictException(
+        ERROR_MESSAGES.STUDENTS_DEPTH.SIBLING_PARENT_NAMES_REQUIRED,
+      );
+    }
+
+    for (const relationship of SIBLING_VALIDATION_PARENT_RELATIONSHIPS) {
+      const studentNames = studentParents.get(relationship) ?? [];
+      const siblingNames = siblingParents.get(relationship) ?? [];
+
+      if (studentNames.length === 0 && siblingNames.length === 0) {
+        continue;
+      }
+
+      if (
+        studentNames.length === 0 ||
+        siblingNames.length === 0 ||
+        studentNames.length !== siblingNames.length ||
+        studentNames.some((name, index) => name !== siblingNames[index])
+      ) {
+        throw new ConflictException(
+          ERROR_MESSAGES.STUDENTS_DEPTH.SIBLING_PARENT_NAMES_MISMATCH,
+        );
+      }
+    }
+  }
+
+  private getReverseSiblingRelationship(
+    relationship: SiblingRelationship,
+    studentGender: "male" | "female" | "other" | null,
+  ): SiblingRelationship {
+    const reverseIsElder =
+      relationship === SIBLING_RELATIONSHIPS.YOUNGER_BROTHER ||
+      relationship === SIBLING_RELATIONSHIPS.YOUNGER_SISTER ||
+      relationship === SIBLING_RELATIONSHIPS.YOUNGER_SIBLING;
+
+    if (studentGender === "male") {
+      return reverseIsElder
+        ? SIBLING_RELATIONSHIPS.ELDER_BROTHER
+        : SIBLING_RELATIONSHIPS.YOUNGER_BROTHER;
+    }
+
+    if (studentGender === "female") {
+      return reverseIsElder
+        ? SIBLING_RELATIONSHIPS.ELDER_SISTER
+        : SIBLING_RELATIONSHIPS.YOUNGER_SISTER;
+    }
+
+    return reverseIsElder
+      ? SIBLING_RELATIONSHIPS.ELDER_SIBLING
+      : SIBLING_RELATIONSHIPS.YOUNGER_SIBLING;
   }
 
   private async listCurrentEnrollmentForStudentMemberships(
@@ -1847,6 +2112,7 @@ export class StudentsService {
         id: studentSiblingLinks.id,
         studentId: studentSiblingLinks.studentId,
         siblingStudentId: studentSiblingLinks.siblingStudentId,
+        relationship: studentSiblingLinks.relationship,
         siblingFirstName: students.firstName,
         siblingLastName: students.lastName,
         siblingAdmissionNumber: students.admissionNumber,
@@ -1875,6 +2141,7 @@ export class StudentsService {
       id: row.id,
       studentId: row.studentId,
       siblingStudentId: row.siblingStudentId,
+      relationship: row.relationship,
       siblingFullName: [row.siblingFirstName, row.siblingLastName]
         .filter(Boolean)
         .join(" "),
@@ -1906,11 +2173,29 @@ export class StudentsService {
     }
 
     // Verify sibling student exists
-    await this.getStudent(
+    const siblingStudent = await this.getStudent(
       institutionId,
       payload.siblingStudentId,
       authSession,
       scopes,
+    );
+
+    this.assertSiblingParentNamesMatch(
+      student.guardians,
+      siblingStudent.guardians,
+    );
+
+    const [studentGenderRow] = await this.db
+      .select({
+        gender: students.gender,
+      })
+      .from(students)
+      .where(eq(students.id, studentId))
+      .limit(1);
+
+    const reverseRelationship = this.getReverseSiblingRelationship(
+      payload.relationship,
+      studentGenderRow?.gender ?? null,
     );
 
     // Check if link already exists
@@ -1943,12 +2228,14 @@ export class StudentsService {
           institutionId,
           studentId,
           siblingStudentId: payload.siblingStudentId,
+          relationship: payload.relationship,
         },
         {
           id: reverseLinkId,
           institutionId,
           studentId: payload.siblingStudentId,
           siblingStudentId: studentId,
+          relationship: reverseRelationship,
         },
       ]);
     });

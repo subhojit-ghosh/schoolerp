@@ -7,6 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "bun run openapi:metadata && nest build",
+    "demo:ensure-account": "ts-node --project tsconfig.json src/scripts/ensure-demo-account.ts",
     "format": "prettier --config ../../.prettierrc.json --ignore-path ../../.prettierignore --write .",
     "start": "nest start",
     "start:dev": "bun run openapi:metadata && nest start --watch",

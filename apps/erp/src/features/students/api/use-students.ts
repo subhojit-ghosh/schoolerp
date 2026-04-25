@@ -171,6 +171,26 @@ export function useUpdateStudentMutation(institutionId: string | undefined) {
   });
 }
 
+export function useDeleteStudentMutation(institutionId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  return apiQueryClient.useMutation("delete", STUDENTS_API_PATHS.DELETE, {
+    onSuccess: () => {
+      if (!institutionId) {
+        return;
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: getStudentsListQueryKey(institutionId),
+      });
+
+      void queryClient.invalidateQueries({
+        queryKey: getStudentOptionsQueryKey(),
+      });
+    },
+  });
+}
+
 // --- Phase 2: Siblings ---
 
 export function useSiblingsQuery(

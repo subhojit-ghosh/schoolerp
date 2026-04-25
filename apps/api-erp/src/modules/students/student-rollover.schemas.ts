@@ -1,3 +1,4 @@
+import { BadRequestException } from "@nestjs/common";
 import { z } from "zod";
 import { ERROR_MESSAGES } from "../../constants";
 
@@ -13,6 +14,7 @@ const studentRolloverRequestSchema = z
     sourceAcademicYearId: z.uuid("Select a source academic year"),
     targetAcademicYearId: z.uuid("Select a target academic year"),
     sectionMappings: z.array(rolloverSectionMappingSchema).default([]),
+    failedStudentIds: z.array(z.uuid()).default([]),
     withdrawnStudentIds: z.array(z.uuid()).default([]),
   })
   .refine(
@@ -31,5 +33,14 @@ export type StudentRolloverRequestDto = z.infer<
 >;
 
 export function parseStudentRolloverRequest(input: unknown) {
-  return studentRolloverRequestSchema.parse(input);
+  const parsedResult = studentRolloverRequestSchema.safeParse(input);
+
+  if (!parsedResult.success) {
+    const firstIssue = parsedResult.error.issues[0];
+    throw new BadRequestException(
+      firstIssue?.message ?? "Invalid student rollover request.",
+    );
+  }
+
+  return parsedResult.data;
 }

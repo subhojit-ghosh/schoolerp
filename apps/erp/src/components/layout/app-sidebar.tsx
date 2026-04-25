@@ -7,10 +7,12 @@ import {
 import {
   IconCheck,
   IconChevronRight,
+  IconLogout2,
   IconMenu2,
   IconSchool,
   IconStar,
   IconStarFilled,
+  IconSettings,
   IconX,
   IconUserHeart,
   IconUserStar,
@@ -20,6 +22,9 @@ import { Link, useLocation, useNavigate } from "react-router";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
 import {
@@ -37,7 +42,11 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@repo/ui/components/ui/sheet";
-import { useSelectContextMutation } from "@/features/auth/api/use-auth";
+import { toast } from "sonner";
+import {
+  useSelectContextMutation,
+  useSignOutMutation,
+} from "@/features/auth/api/use-auth";
 import {
   getContextSecondaryLabel,
   getActiveContext,
@@ -485,6 +494,7 @@ function ContextSwitcher({ compact }: { compact?: boolean }) {
 
 function UserAvatar() {
   const navigate = useNavigate();
+  const signOutMutation = useSignOutMutation();
   const session = useAuthStore((store) => store.session);
   const user = session?.user;
 
@@ -497,35 +507,113 @@ function UserAvatar() {
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
 
+  async function handleSignOut() {
+    try {
+      await signOutMutation.mutateAsync({});
+      void navigate(ERP_ROUTES.SIGN_IN, { replace: true });
+    } catch {
+      toast.error("Could not log out. Please try again.");
+    }
+  }
+
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          aria-label={`${user.name} account`}
-          className="flex size-9 items-center justify-center rounded-[10px] text-[11px] font-bold tracking-wide transition-all duration-150"
-          style={{
-            color: "white",
-            background:
-              "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.08) 100%)",
-            boxShadow:
-              "0 10px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)",
-          }}
-          onClick={() => void navigate(ERP_ROUTES.ACCOUNT)}
-          type="button"
+    <DropdownMenu>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <button
+              aria-label={`${user.name} account menu`}
+              className="flex size-9 items-center justify-center rounded-[10px] text-[11px] font-bold tracking-wide transition-all duration-150"
+              style={{
+                color: "white",
+                background:
+                  "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.08) 100%)",
+                boxShadow:
+                  "0 10px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)",
+              }}
+              type="button"
+            >
+              {initials}
+            </button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
+        <TooltipContent side="right" sideOffset={12}>
+          {user.name}
+        </TooltipContent>
+      </Tooltip>
+      <DropdownMenuContent
+        align="start"
+        className="w-56 rounded-xl"
+        side="right"
+        sideOffset={12}
+      >
+        <DropdownMenuLabel className="font-normal">
+          <div className="grid gap-0.5">
+            <span className="truncate text-sm font-medium">{user.name}</span>
+            <span className="truncate text-xs text-muted-foreground">
+              {user.mobile}
+            </span>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => void navigate(ERP_ROUTES.ACCOUNT)}>
+          <IconSettings className="size-4" />
+          Account
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={signOutMutation.isPending}
+          onClick={() => void handleSignOut()}
         >
-          {initials}
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="right" sideOffset={12}>
-        {user.name}
-      </TooltipContent>
-    </Tooltip>
+          <IconLogout2 className="size-4" />
+          {signOutMutation.isPending ? "Logging out..." : "Log out"}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
 // ---------------------------------------------------------------------------
 // FavoriteRailItems — shown at top of rail when favorites exist
 // ---------------------------------------------------------------------------
+
+function LogoutRailAction() {
+  const navigate = useNavigate();
+  const signOutMutation = useSignOutMutation();
+
+  async function handleSignOut() {
+    try {
+      await signOutMutation.mutateAsync({});
+      void navigate(ERP_ROUTES.SIGN_IN, { replace: true });
+    } catch {
+      toast.error("Could not log out. Please try again.");
+    }
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          aria-label="Log out"
+          className="flex size-9 items-center justify-center rounded-[10px] text-white transition-all duration-150 hover:scale-[1.03] hover:bg-white/[0.14] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={signOutMutation.isPending}
+          onClick={() => void handleSignOut()}
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.08) 100%)",
+            boxShadow:
+              "0 10px 18px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08)",
+          }}
+          type="button"
+        >
+          <IconLogout2 className="size-[18px]" />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="right" sideOffset={12}>
+        {signOutMutation.isPending ? "Logging out..." : "Log out"}
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 function FavoriteRailItems({
   favorites,
@@ -593,6 +681,9 @@ function MobileSidebar({
 }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const signOutMutation = useSignOutMutation();
+  const session = useAuthStore((store) => store.session);
+  const user = session?.user;
 
   const allModuleUrls = React.useMemo(
     () =>
@@ -622,6 +713,16 @@ function MobileSidebar({
   function handleNavigate(url: string) {
     onOpenChange(false);
     void navigate(url);
+  }
+
+  async function handleSignOut() {
+    try {
+      await signOutMutation.mutateAsync({});
+      onOpenChange(false);
+      void navigate(ERP_ROUTES.SIGN_IN, { replace: true });
+    } catch {
+      toast.error("Could not log out. Please try again.");
+    }
   }
 
   return (
@@ -727,7 +828,32 @@ function MobileSidebar({
             className="px-3 py-3"
             style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}
           >
+            {user ? (
+              <div className="mb-3 rounded-xl bg-white/[0.05] px-3 py-2.5">
+                <p className="truncate text-sm font-semibold">{user.name}</p>
+                <p className="truncate text-xs text-white/60">{user.mobile}</p>
+              </div>
+            ) : null}
             <ContextSwitcher />
+            <div className="mt-3 grid gap-2">
+              <button
+                className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-white/8 text-sm font-medium text-white transition-colors hover:bg-white/12"
+                onClick={() => handleNavigate(ERP_ROUTES.ACCOUNT)}
+                type="button"
+              >
+                <IconSettings className="size-4" />
+                Account
+              </button>
+              <button
+                className="flex h-10 w-full items-center justify-center gap-2 rounded-lg bg-white/8 text-sm font-medium text-white transition-colors hover:bg-white/12"
+                disabled={signOutMutation.isPending}
+                onClick={() => void handleSignOut()}
+                type="button"
+              >
+                <IconLogout2 className="size-4" />
+                {signOutMutation.isPending ? "Logging out..." : "Log out"}
+              </button>
+            </div>
           </div>
         </div>
       </SheetContent>
@@ -905,7 +1031,7 @@ export function AppSidebar() {
               ))}
             </div>
 
-            {/* User avatar */}
+            {/* Footer actions */}
             <div
               className="mt-auto flex w-full flex-col items-center gap-2 pt-2"
               style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
@@ -917,7 +1043,10 @@ export function AppSidebar() {
                   void navigate(url);
                 }}
               />
-              <UserAvatar />
+              <div className="flex w-full flex-col items-center gap-2 pb-1">
+                <LogoutRailAction />
+                <UserAvatar />
+              </div>
             </div>
           </div>
 

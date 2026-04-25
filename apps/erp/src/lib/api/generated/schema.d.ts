@@ -1368,7 +1368,8 @@ export interface paths {
         get: operations["StudentsController_getStudent"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete a student for the current tenant institution */
+        delete: operations["StudentsController_deleteStudent"];
         options?: never;
         head?: never;
         /** Update a student and reconcile guardians for the current tenant */
@@ -5470,6 +5471,9 @@ export interface components {
             subjects: number;
             feeStructures: number;
         };
+        CheckSlugAvailabilityDto: {
+            available: boolean;
+        };
         CreateInstitutionOnboardingBodyDto: {
             institutionName: string;
             institutionSlug: string;
@@ -6436,6 +6440,8 @@ export interface components {
             sectionId: string;
         };
         SiblingLinkDto: {
+            /** @enum {string} */
+            relationship: "elder_brother" | "younger_brother" | "elder_sister" | "younger_sister" | "elder_sibling" | "younger_sibling";
             /** Format: date-time */
             createdAt: string;
             id: string;
@@ -6447,6 +6453,8 @@ export interface components {
             siblingSectionName: string;
         };
         CreateSiblingLinkBodyDto: {
+            /** @enum {string} */
+            relationship: "elder_brother" | "younger_brother" | "elder_sister" | "younger_sister" | "elder_sibling" | "younger_sibling";
             siblingStudentId: string;
         };
         StudentMedicalRecordDto: {
@@ -6523,6 +6531,7 @@ export interface components {
         };
         StudentRolloverBodyDto: {
             sectionMappings: components["schemas"]["StudentRolloverSectionMappingBodyDto"][];
+            failedStudentIds: string[];
             withdrawnStudentIds: string[];
             sourceAcademicYearId: string;
             targetAcademicYearId: string;
@@ -6534,6 +6543,7 @@ export interface components {
         StudentRolloverSummaryDto: {
             eligibleStudentCount: number;
             mappedStudentCount: number;
+            failedStudentCount: number;
             unmappedStudentCount: number;
             withdrawnStudentCount: number;
             sourceSectionCount: number;
@@ -9753,7 +9763,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["CheckSlugAvailabilityDto"];
+                };
             };
         };
     };
@@ -11836,6 +11848,25 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["StudentDto"];
                 };
+            };
+        };
+    };
+    StudentsController_deleteStudent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                studentId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

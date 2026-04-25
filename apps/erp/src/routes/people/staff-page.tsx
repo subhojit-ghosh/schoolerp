@@ -79,6 +79,10 @@ type StaffRow = {
   memberType: string;
   mobile: string;
   name: string;
+  profile: {
+    designation?: string | null;
+    employeeId?: string | null;
+  } | null;
   role: {
     id: string;
     name: string;
@@ -90,6 +94,7 @@ type StaffRow = {
 const columnHelper = createColumnHelper<StaffRow>();
 const VALID_SORT_FIELDS = [
   STAFF_LIST_SORT_FIELDS.CAMPUS,
+  STAFF_LIST_SORT_FIELDS.DESIGNATION,
   STAFF_LIST_SORT_FIELDS.NAME,
   STAFF_LIST_SORT_FIELDS.STATUS,
 ] as const;
@@ -184,6 +189,13 @@ export function StaffPage() {
 
   const columns = useMemo(
     () => [
+      columnHelper.accessor((row) => row.profile?.employeeId ?? null, {
+        id: "employeeId",
+        header: "Employee ID",
+        cell: ({ getValue }) => (
+          <span className="text-sm">{getValue() || "—"}</span>
+        ),
+      }),
       columnHelper.accessor("name", {
         header: () => (
           <button
@@ -191,7 +203,7 @@ export function StaffPage() {
             onClick={() => setSorting(STAFF_LIST_SORT_FIELDS.NAME)}
             type="button"
           >
-            Staff
+            Name
             <SortIcon
               direction={
                 queryState.sortBy === STAFF_LIST_SORT_FIELDS.NAME
@@ -238,16 +250,28 @@ export function StaffPage() {
           </button>
         ),
       }),
-      columnHelper.accessor("role", {
-        header: "Role",
+      columnHelper.accessor((row) => row.profile?.designation ?? null, {
+        id: "designation",
+        header: () => (
+          <button
+            className="flex items-center font-medium hover:text-foreground"
+            onClick={() => setSorting(STAFF_LIST_SORT_FIELDS.DESIGNATION)}
+            type="button"
+          >
+            Designation
+            <SortIcon
+              direction={
+                queryState.sortBy === STAFF_LIST_SORT_FIELDS.DESIGNATION
+                  ? queryState.sortOrder
+                  : false
+              }
+            />
+          </button>
+        ),
         cell: ({ getValue }) => (
-          <div className="flex flex-wrap gap-1">
-            {getValue() ? (
-              <Badge variant="outline">{getValue()?.name}</Badge>
-            ) : (
-              <span className="text-sm text-muted-foreground">No role</span>
-            )}
-          </div>
+          <span className="text-sm text-muted-foreground">
+            {getValue() || "—"}
+          </span>
         ),
       }),
       columnHelper.accessor("status", {

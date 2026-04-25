@@ -25,6 +25,7 @@ import { TenantInstitutionGuard } from "../tenant-context/tenant-institution.gua
 import { CurrentInstitution } from "../tenant-context/current-institution.decorator";
 import type { TenantInstitution } from "../tenant-context/tenant-context.types";
 import {
+  CheckSlugAvailabilityDto,
   CreateInstitutionOnboardingBodyDto,
   SetupStatusDto,
 } from "./onboarding.dto";
@@ -51,6 +52,7 @@ export class OnboardingController {
   @Get("check-slug")
   @ApiOperation({ summary: "Check if a subdomain slug is available" })
   @ApiQuery({ name: "slug", required: true, type: String })
+  @ApiOkResponse({ type: CheckSlugAvailabilityDto })
   async checkSlug(@Query("slug") slug: string) {
     return this.onboardingService.checkSlugAvailability(slug ?? "");
   }

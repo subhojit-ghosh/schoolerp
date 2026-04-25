@@ -3,11 +3,13 @@ import {
   DISCIPLINARY_SEVERITY,
   FEE_PAYMENT_METHODS,
   GUARDIAN_RELATIONSHIPS,
+  SIBLING_RELATIONSHIPS,
   TC_STATUS,
   type AttendanceStatus,
   type DisciplinarySeverity,
   type FeePaymentMethod,
   type GuardianRelationship,
+  type SiblingRelationship,
   type TcStatus,
 } from "@repo/contracts";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
@@ -394,6 +396,11 @@ export class StudentSummaryDto {
 
 export class CreateSiblingLinkBodyDto {
   siblingStudentId!: string;
+
+  @ApiProperty({
+    enum: Object.values(SIBLING_RELATIONSHIPS),
+  })
+  relationship!: SiblingRelationship;
 }
 
 export class SiblingLinkDto {
@@ -404,6 +411,11 @@ export class SiblingLinkDto {
   siblingAdmissionNumber!: string;
   siblingClassName!: string;
   siblingSectionName!: string;
+
+  @ApiProperty({
+    enum: Object.values(SIBLING_RELATIONSHIPS),
+  })
+  relationship!: SiblingRelationship;
 
   @ApiProperty({
     type: String,

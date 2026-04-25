@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import {
   ADMISSION_FORM_FIELD_SCOPES,
   GUARDIAN_RELATIONSHIPS,
@@ -36,9 +36,7 @@ import {
   EntityPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
-import { UnsavedChangesDialog } from "@/components/feedback/unsaved-changes-dialog";
 import { useDocumentTitle } from "@/hooks/use-document-title";
-import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
 import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
@@ -55,12 +53,10 @@ const STUDENT_CREATE_AUTO_SAVE_KEY = "student-create";
 
 export function StudentCreatePage() {
   useDocumentTitle("New Student");
-  const [isDirty, setIsDirty] = useState(false);
   const clearDraftRef = useRef<(() => void) | null>(null);
   const handleAutoSaveReady = useCallback((clearDraft: () => void) => {
     clearDraftRef.current = clearDraft;
   }, []);
-  const blocker = useUnsavedChangesGuard(isDirty);
   const location = useLocation();
   const navigate = useNavigate();
   const authSession = useAuthStore((store) => store.session);
@@ -79,9 +75,26 @@ export function StudentCreatePage() {
     | Error
     | null
     | undefined;
-  const customFields = filterAdmissionFormFieldsForScope(
-    formFieldsQuery.data?.rows ?? [],
-    "student",
+  const customFields = useMemo(
+    () =>
+      filterAdmissionFormFieldsForScope(
+        formFieldsQuery.data?.rows ?? [],
+        "student",
+      ),
+    [formFieldsQuery.data?.rows],
+  );
+  const defaultValues = useMemo<StudentFormValues>(
+    () => ({
+      admissionNumber: "",
+      firstName: "",
+      lastName: "",
+      classId: "",
+      sectionId: "",
+      guardians: [DEFAULT_GUARDIAN],
+      customFieldValues: normalizeCustomFieldValues(customFields),
+      currentEnrollment: EMPTY_CURRENT_ENROLLMENT,
+    }),
+    [customFields],
   );
 
   async function handleSubmit(values: StudentFormValues) {
@@ -159,16 +172,7 @@ export function StudentCreatePage() {
             campusId={authSession?.activeCampus?.id}
             campusName={activeCampusName}
             customFields={customFields}
-            defaultValues={{
-              admissionNumber: "",
-              firstName: "",
-              lastName: "",
-              classId: "",
-              sectionId: "",
-              guardians: [DEFAULT_GUARDIAN],
-              customFieldValues: normalizeCustomFieldValues(customFields),
-              currentEnrollment: EMPTY_CURRENT_ENROLLMENT,
-            }}
+            defaultValues={defaultValues}
             errorMessage={createStudentError?.message}
             institutionId={managedInstitutionId}
             isPending={createStudentMutation.isPending}
@@ -177,14 +181,11 @@ export function StudentCreatePage() {
             onCancel={() => {
               void navigate(appendSearch(ERP_ROUTES.STUDENTS, location.search));
             }}
-            onDirtyChange={setIsDirty}
             onSubmit={handleSubmit}
             submitLabel="Create student"
           />
         </CardContent>
       </Card>
-
-      <UnsavedChangesDialog blocker={blocker} />
     </EntityPageShell>
   );
 }

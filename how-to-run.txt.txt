@@ -1,0 +1,9 @@
+caddy start --config ops\Caddyfile.erp.test.example
+
+bun run dev:web - this is optional (erp.test)
+
+bun run dev:erp
+
+bun run dev:api-erp
+
+demo.erp.test - open this url in chrome

@@ -15,6 +15,7 @@ import {
 import {
   ApiBody,
   ApiCookieAuth,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -189,6 +190,27 @@ export class StudentsController {
       authSession,
       scopes,
       parseUpdateStudent(body),
+    );
+  }
+
+  @Delete(":studentId")
+  @RequirePermission(PERMISSIONS.STUDENTS_MANAGE)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: "Delete a student for the current tenant institution",
+  })
+  @ApiNoContentResponse()
+  deleteStudent(
+    @CurrentInstitution() institution: TenantInstitution,
+    @Param("studentId") studentId: string,
+    @CurrentSession() authSession: AuthenticatedSession,
+    @CurrentScopes() scopes: ResolvedScopes,
+  ) {
+    return this.studentsService.deleteStudent(
+      institution.id,
+      studentId,
+      authSession,
+      scopes,
     );
   }
 

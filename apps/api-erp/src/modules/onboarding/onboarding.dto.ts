@@ -1,5 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
+export class CheckSlugAvailabilityDto {
+  @ApiProperty()
+  available!: boolean;
+}
+
 export class SetupStatusDto {
   academicYears!: number;
   classes!: number;

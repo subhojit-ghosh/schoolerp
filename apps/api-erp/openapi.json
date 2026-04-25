@@ -605,7 +605,14 @@
         ],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckSlugAvailabilityDto"
+                }
+              }
+            }
           }
         },
         "summary": "Check if a subdomain slug is available",
@@ -4595,6 +4602,33 @@
           }
         ],
         "summary": "Update a student and reconcile guardians for the current tenant",
+        "tags": [
+          "students"
+        ]
+      },
+      "delete": {
+        "operationId": "StudentsController_deleteStudent",
+        "parameters": [
+          {
+            "name": "studentId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "cookie": []
+          }
+        ],
+        "summary": "Delete a student for the current tenant institution",
         "tags": [
           "students"
         ]
@@ -20051,6 +20085,17 @@
           "feeStructures"
         ]
       },
+      "CheckSlugAvailabilityDto": {
+        "type": "object",
+        "properties": {
+          "available": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "available"
+        ]
+      },
       "CreateInstitutionOnboardingBodyDto": {
         "type": "object",
         "properties": {
@@ -23977,6 +24022,17 @@
       "SiblingLinkDto": {
         "type": "object",
         "properties": {
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "elder_brother",
+              "younger_brother",
+              "elder_sister",
+              "younger_sister",
+              "elder_sibling",
+              "younger_sibling"
+            ]
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -24004,6 +24060,7 @@
           }
         },
         "required": [
+          "relationship",
           "createdAt",
           "id",
           "studentId",
@@ -24017,11 +24074,23 @@
       "CreateSiblingLinkBodyDto": {
         "type": "object",
         "properties": {
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "elder_brother",
+              "younger_brother",
+              "elder_sister",
+              "younger_sister",
+              "elder_sibling",
+              "younger_sibling"
+            ]
+          },
           "siblingStudentId": {
             "type": "string"
           }
         },
         "required": [
+          "relationship",
           "siblingStudentId"
         ]
       },
@@ -24303,6 +24372,12 @@
               "$ref": "#/components/schemas/StudentRolloverSectionMappingBodyDto"
             }
           },
+          "failedStudentIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "withdrawnStudentIds": {
             "type": "array",
             "items": {
@@ -24318,6 +24393,7 @@
         },
         "required": [
           "sectionMappings",
+          "failedStudentIds",
           "withdrawnStudentIds",
           "sourceAcademicYearId",
           "targetAcademicYearId"
@@ -24347,6 +24423,9 @@
           "mappedStudentCount": {
             "type": "number"
           },
+          "failedStudentCount": {
+            "type": "number"
+          },
           "unmappedStudentCount": {
             "type": "number"
           },
@@ -24363,6 +24442,7 @@
         "required": [
           "eligibleStudentCount",
           "mappedStudentCount",
+          "failedStudentCount",
           "unmappedStudentCount",
           "withdrawnStudentCount",
           "sourceSectionCount",

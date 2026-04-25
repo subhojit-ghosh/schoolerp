@@ -1,0 +1,1 @@
+ALTER TABLE "student_sibling_links" ADD COLUMN "relationship" text NOT NULL;

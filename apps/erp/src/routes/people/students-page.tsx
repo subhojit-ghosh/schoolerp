@@ -1,7 +1,14 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { DATA_EXCHANGE_ENTITY_TYPES, PERMISSIONS } from "@repo/contracts";
 import { Link, useLocation, useSearchParams } from "react-router";
-import { IconArrowRight, IconPlus, IconSearch } from "@tabler/icons-react";
+import { toast } from "sonner";
+import {
+  IconArrowRight,
+  IconDotsVertical,
+  IconPlus,
+  IconSearch,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { Badge } from "@repo/ui/components/ui/badge";
@@ -13,6 +20,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@repo/ui/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
 import {
   EntityEmptyStateAction,
   EntityPagePrimaryAction,
@@ -31,7 +45,10 @@ import {
   isStaffContext,
 } from "@/features/auth/model/auth-context";
 import { useAuthStore } from "@/features/auth/model/auth-store";
-import { useStudentsQuery } from "@/features/students/api/use-students";
+import {
+  useDeleteStudentMutation,
+  useStudentsQuery,
+} from "@/features/students/api/use-students";
 import { DataExchangeEntityActions } from "@/features/data-exchange/ui/data-exchange-entity-actions";
 import {
   STUDENT_LIST_SORT_FIELDS,
@@ -41,8 +58,10 @@ import { useDocumentTitle } from "@/hooks/use-document-title";
 import { useEntityListQueryState } from "@/hooks/use-entity-list-query-state";
 import { useServerDataTable } from "@/hooks/use-server-data-table";
 import { apiQueryClient } from "@/lib/api/client";
+import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { STUDENTS_API_PATHS } from "@/features/auth/api/auth.constants";
+import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 const ERROR_BOUNDARY_PREVIEW_PARAM = "previewErrorBoundary";
 const ERROR_BOUNDARY_PREVIEW_VALUE = "1";
@@ -90,6 +109,8 @@ export function StudentsPage() {
     hasPermission(authSession, PERMISSIONS.STUDENTS_READ)
       ? institutionId
       : undefined;
+  const [deleteTarget, setDeleteTarget] = useState<StudentRow | null>(null);
+  const deleteStudentMutation = useDeleteStudentMutation(managedInstitutionId);
   const {
     queryState,
     searchInput,
@@ -222,7 +243,7 @@ export function StudentsPage() {
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => (
-          <div className="flex justify-end">
+          <div className="flex items-center justify-end gap-1">
             <EntityRowAction asChild>
               <Link
                 to={appendSearch(
@@ -234,11 +255,40 @@ export function StudentsPage() {
                 <IconArrowRight className="size-3" />
               </Link>
             </EntityRowAction>
+            {canManageStudents ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className="size-8 text-muted-foreground data-[state=open]:bg-muted"
+                    size="icon"
+                    variant="ghost"
+                  >
+                    <IconDotsVertical className="size-4" />
+                    <span className="sr-only">Row actions</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem
+                    variant="destructive"
+                    onSelect={() => setDeleteTarget(row.original)}
+                  >
+                    <IconTrash className="mr-2 size-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : null}
           </div>
         ),
       }),
     ],
-    [location.search, queryState.sortBy, queryState.sortOrder, setSorting],
+    [
+      canManageStudents,
+      location.search,
+      queryState.sortBy,
+      queryState.sortOrder,
+      setSorting,
+    ],
   );
 
   const table = useServerDataTable({
@@ -300,80 +350,122 @@ export function StudentsPage() {
   }
 
   const isFiltered = Boolean(queryState.search);
+  async function handleDeleteStudent() {
+    if (!deleteTarget) {
+      return;
+    }
+
+    try {
+      await deleteStudentMutation.mutateAsync({
+        params: {
+          path: {
+            studentId: deleteTarget.id,
+          },
+        },
+      });
+
+      toast.success(ERP_TOAST_MESSAGES.deleted(ERP_TOAST_SUBJECTS.STUDENT));
+      setDeleteTarget(null);
+    } catch (error) {
+      toast.error(
+        extractApiError(error, "Could not delete student. Please try again."),
+      );
+    }
+  }
 
   return (
-    <EntityListPage
-      actions={
-        <div className="flex items-center gap-3">
-          {canManageStudents && (
-            <DataExchangeEntityActions
-              entityType={DATA_EXCHANGE_ENTITY_TYPES.STUDENTS}
-            />
-          )}
-          <EntityPagePrimaryAction asChild>
-            <Link to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}>
-              <IconPlus className="size-4" />
-              New student
-            </Link>
-          </EntityPagePrimaryAction>
-        </div>
-      }
-      description={STUDENTS_PAGE_COPY.DESCRIPTION}
-      title={STUDENTS_PAGE_COPY.TITLE}
-      toolbar={
-        <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative min-w-[280px] flex-1">
-              <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                className="h-11 w-full max-w-md rounded-lg border-border/70 bg-background pl-10 shadow-none"
-                placeholder={STUDENTS_PAGE_COPY.SEARCH_PLACEHOLDER}
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
+    <>
+      <EntityListPage
+        actions={
+          <div className="flex items-center gap-3">
+            {canManageStudents && (
+              <DataExchangeEntityActions
+                entityType={DATA_EXCHANGE_ENTITY_TYPES.STUDENTS}
               />
-            </div>
-            <EntityToolbarSecondaryAction asChild>
-              <Link to={ERP_ROUTES.GUARDIANS}>View guardians</Link>
-            </EntityToolbarSecondaryAction>
-          </div>
-        </div>
-      }
-    >
-      <ServerDataTable
-        emptyAction={
-          !isFiltered ? (
-            <EntityEmptyStateAction asChild>
+            )}
+            <EntityPagePrimaryAction asChild>
               <Link
                 to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}
               >
                 <IconPlus className="size-4" />
                 New student
               </Link>
-            </EntityEmptyStateAction>
-          ) : undefined
+            </EntityPagePrimaryAction>
+          </div>
         }
-        emptyDescription={
-          isFiltered
-            ? STUDENTS_PAGE_COPY.EMPTY_FILTERED_DESCRIPTION
-            : STUDENTS_PAGE_COPY.EMPTY_DESCRIPTION
+        description={STUDENTS_PAGE_COPY.DESCRIPTION}
+        title={STUDENTS_PAGE_COPY.TITLE}
+        toolbar={
+          <div className="rounded-xl border border-border/70 bg-card px-4 py-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="relative min-w-[280px] flex-1">
+                <IconSearch className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  className="h-11 w-full max-w-md rounded-lg border-border/70 bg-background pl-10 shadow-none"
+                  placeholder={STUDENTS_PAGE_COPY.SEARCH_PLACEHOLDER}
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                />
+              </div>
+              <EntityToolbarSecondaryAction asChild>
+                <Link to={ERP_ROUTES.GUARDIANS}>View guardians</Link>
+              </EntityToolbarSecondaryAction>
+            </div>
+          </div>
         }
-        emptyTitle={
-          isFiltered
-            ? STUDENTS_PAGE_COPY.EMPTY_FILTERED_TITLE
-            : STUDENTS_PAGE_COPY.EMPTY_TITLE
-        }
-        errorDescription={error?.message}
-        errorTitle={STUDENTS_PAGE_COPY.ERROR_TITLE}
-        isError={studentsQuery.isError}
-        isLoading={studentsQuery.isLoading}
-        onRowHover={handleRowHover}
-        onSearchChange={setSearchInput}
-        searchPlaceholder={STUDENTS_PAGE_COPY.SEARCH_PLACEHOLDER}
-        searchValue={searchInput}
-        showSearch={false}
-        table={table}
-        totalRows={studentsQuery.data?.total ?? 0}
+      >
+        <ServerDataTable
+          emptyAction={
+            !isFiltered ? (
+              <EntityEmptyStateAction asChild>
+                <Link
+                  to={appendSearch(ERP_ROUTES.STUDENT_CREATE, location.search)}
+                >
+                  <IconPlus className="size-4" />
+                  New student
+                </Link>
+              </EntityEmptyStateAction>
+            ) : undefined
+          }
+          emptyDescription={
+            isFiltered
+              ? STUDENTS_PAGE_COPY.EMPTY_FILTERED_DESCRIPTION
+              : STUDENTS_PAGE_COPY.EMPTY_DESCRIPTION
+          }
+          emptyTitle={
+            isFiltered
+              ? STUDENTS_PAGE_COPY.EMPTY_FILTERED_TITLE
+              : STUDENTS_PAGE_COPY.EMPTY_TITLE
+          }
+          errorDescription={error?.message}
+          errorTitle={STUDENTS_PAGE_COPY.ERROR_TITLE}
+          isError={studentsQuery.isError}
+          isLoading={studentsQuery.isLoading}
+          onRowHover={handleRowHover}
+          onSearchChange={setSearchInput}
+          searchPlaceholder={STUDENTS_PAGE_COPY.SEARCH_PLACEHOLDER}
+          searchValue={searchInput}
+          showSearch={false}
+          table={table}
+          totalRows={studentsQuery.data?.total ?? 0}
+        />
+      </EntityListPage>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteTarget(null);
+          }
+        }}
+        title={`Delete "${deleteTarget?.fullName ?? "student"}"`}
+        description="Are you sure you want to delete this student? This action cannot be undone."
+        confirmLabel="Delete student"
+        isPending={deleteStudentMutation.isPending}
+        onConfirm={() => {
+          void handleDeleteStudent();
+        }}
       />
-    </EntityListPage>
+    </>
   );
 }

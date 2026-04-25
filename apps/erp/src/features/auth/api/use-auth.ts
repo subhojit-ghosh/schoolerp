@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { apiQueryClient } from "@/lib/api/client";
 import { recordLastLogin } from "@/lib/last-login";
-import { AUTH_API_PATHS } from "./auth.constants";
+import { AUTH_API_PATHS, ONBOARDING_API_PATHS } from "./auth.constants";
 import { getApiErrorMessage } from "./auth-error";
 import { useAuthStore } from "../model/auth-store";
 
@@ -60,6 +60,25 @@ export function useSignUpMutation() {
       );
     },
   });
+}
+
+export function useInstitutionSlugAvailabilityQuery(
+  enabled: boolean,
+  slug: string,
+) {
+  return apiQueryClient.useQuery(
+    "get",
+    ONBOARDING_API_PATHS.CHECK_SLUG,
+    { params: { query: { slug } } },
+    { enabled },
+  );
+}
+
+export function useCreateInstitutionMutation() {
+  return apiQueryClient.useMutation(
+    "post",
+    ONBOARDING_API_PATHS.CREATE_INSTITUTION,
+  );
 }
 
 export function useSignOutMutation() {

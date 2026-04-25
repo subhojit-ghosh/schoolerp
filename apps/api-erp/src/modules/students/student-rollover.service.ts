@@ -135,10 +135,7 @@ export class StudentRolloverService {
           await tx
             .update(studentCurrentEnrollments)
             .set({
-              academicYearId: payload.targetAcademicYearId,
-              classId: student.target.classId,
-              sectionId: student.target.sectionId,
-              deletedAt: null,
+              deletedAt: new Date(),
             })
             .where(
               and(
@@ -150,6 +147,16 @@ export class StudentRolloverService {
                 isNull(studentCurrentEnrollments.deletedAt),
               ),
             );
+
+          await tx.insert(studentCurrentEnrollments).values({
+            id: randomUUID(),
+            institutionId,
+            studentMembershipId: student.membershipId,
+            academicYearId: payload.targetAcademicYearId,
+            classId: student.target.classId,
+            sectionId: student.target.sectionId,
+          });
+
         }
       }
 
@@ -167,6 +174,7 @@ export class StudentRolloverService {
           sectionMappings: payload.sectionMappings.length,
           eligibleStudentCount: preview.summary.eligibleStudentCount,
           mappedStudentCount: preview.summary.mappedStudentCount,
+          failedStudentCount: preview.summary.failedStudentCount,
           withdrawnStudentCount: preview.summary.withdrawnStudentCount,
         },
       });
@@ -198,6 +206,7 @@ export class StudentRolloverService {
       institutionId,
       payload.sectionMappings,
     );
+    const failedStudentIds = new Set(payload.failedStudentIds);
     const withdrawnStudentIds = new Set(payload.withdrawnStudentIds);
 
     const sectionsBySource = new Map<
@@ -215,7 +224,7 @@ export class StudentRolloverService {
           item.sourceClassId === student.sourceClassId &&
           item.sourceSectionId === student.sourceSectionId,
       );
-      const target =
+      const mappedTarget =
         mapping &&
         targetPlacements.get(
           this.getTargetKey(mapping.targetClassId, mapping.targetSectionId),
@@ -227,10 +236,24 @@ export class StudentRolloverService {
 
       const action = withdrawnStudentIds.has(student.studentId)
         ? STUDENT_ROLLOVER_ACTIONS.WITHDRAW
-        : STUDENT_ROLLOVER_ACTIONS.CONTINUE;
+        : failedStudentIds.has(student.studentId)
+          ? STUDENT_ROLLOVER_ACTIONS.FAIL
+          : STUDENT_ROLLOVER_ACTIONS.CONTINUE;
+      const failedTarget: StudentRolloverPlacementDto = {
+        classId: student.sourceClassId,
+        className: student.sourceClassName,
+        sectionId: student.sourceSectionId,
+        sectionName: student.sourceSectionName,
+        campusId: student.sourceCampusId,
+        campusName: student.sourceCampusName,
+      };
+      const target =
+        action === STUDENT_ROLLOVER_ACTIONS.FAIL ? failedTarget : mappedTarget;
       const status =
         action === STUDENT_ROLLOVER_ACTIONS.WITHDRAW
           ? STUDENT_ROLLOVER_PREVIEW_STATUS.WITHDRAWN
+          : action === STUDENT_ROLLOVER_ACTIONS.FAIL
+            ? STUDENT_ROLLOVER_PREVIEW_STATUS.FAILED
           : target
             ? STUDENT_ROLLOVER_PREVIEW_STATUS.MAPPED
             : STUDENT_ROLLOVER_PREVIEW_STATUS.UNMAPPED;
@@ -271,7 +294,7 @@ export class StudentRolloverService {
         sourceCampusId: student.sourceCampusId,
         sourceCampusName: student.sourceCampusName,
         studentCount: 1,
-        mapping: target,
+        mapping: mappedTarget,
         students: [previewStudent],
       });
     }
@@ -296,6 +319,15 @@ export class StudentRolloverService {
             ).length,
           0,
         ),
+        failedStudentCount: sections.reduce(
+          (count, section) =>
+            count +
+            section.students.filter(
+              (student) =>
+                student.status === STUDENT_ROLLOVER_PREVIEW_STATUS.FAILED,
+            ).length,
+          0,
+        ),
         unmappedStudentCount: sections.reduce(
           (count, section) =>
             count +
@@ -315,8 +347,7 @@ export class StudentRolloverService {
           0,
         ),
         sourceSectionCount: sections.length,
-        mappedSectionCount: sections.filter((section) => section.mapping)
-          .length,
+        mappedSectionCount: sections.filter((section) => section.mapping).length,
       },
       sections,
       generatedAt: new Date().toISOString(),

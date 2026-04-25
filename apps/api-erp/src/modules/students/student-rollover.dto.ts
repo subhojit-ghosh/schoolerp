@@ -25,6 +25,12 @@ export class StudentRolloverBodyDto {
     type: String,
     isArray: true,
   })
+  failedStudentIds!: string[];
+
+  @ApiProperty({
+    type: String,
+    isArray: true,
+  })
   withdrawnStudentIds!: string[];
 }
 
@@ -95,6 +101,7 @@ export class StudentRolloverPreviewSectionDto {
 export class StudentRolloverSummaryDto {
   eligibleStudentCount!: number;
   mappedStudentCount!: number;
+  failedStudentCount!: number;
   unmappedStudentCount!: number;
   withdrawnStudentCount!: number;
   sourceSectionCount!: number;

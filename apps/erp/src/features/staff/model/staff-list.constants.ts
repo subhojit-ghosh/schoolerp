@@ -1,5 +1,6 @@
 export const STAFF_LIST_SORT_FIELDS = {
   CAMPUS: "campus",
+  DESIGNATION: "designation",
   NAME: "name",
   STATUS: "status",
 } as const;

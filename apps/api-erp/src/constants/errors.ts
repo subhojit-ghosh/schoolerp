@@ -29,6 +29,8 @@ export const ERROR_MESSAGES = {
   },
   STUDENTS: {
     STUDENT_NOT_FOUND: "The selected student was not found.",
+    STUDENT_HAS_TRANSACTION_RECORDS:
+      "Cannot delete a student that already has attendance, fees, exam, or transfer records.",
     ADMISSION_NUMBER_EXISTS:
       "That admission number is already in use for this institution.",
     GUARDIAN_MEMBERSHIP_REQUIRED:
@@ -384,6 +386,10 @@ export const ERROR_MESSAGES = {
     SIBLING_LINK_EXISTS: "These students are already linked as siblings.",
     SIBLING_SELF_LINK: "A student cannot be linked as their own sibling.",
     SIBLING_LINK_NOT_FOUND: "Sibling link not found.",
+    SIBLING_PARENT_NAMES_MISMATCH:
+      "Sibling links can only be created when the father and mother names match on both student records.",
+    SIBLING_PARENT_NAMES_REQUIRED:
+      "Sibling links require matching father or mother names on both student records.",
     MEDICAL_RECORD_NOT_FOUND: "Student medical record not found.",
     DISCIPLINARY_RECORD_NOT_FOUND: "Disciplinary record not found.",
     TC_NOT_FOUND: "Transfer certificate not found.",

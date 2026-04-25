@@ -10,7 +10,6 @@ import { AuthLayout } from "@/features/auth/ui/auth-layout";
 import { LoginForm } from "@/features/auth/ui/login-form";
 import { useDocumentTitle } from "@/hooks/use-document-title";
 import { extractApiError } from "@/lib/api-error";
-import { buildTenantAppUrl } from "@/lib/app-host";
 
 export function SignInPage() {
   useDocumentTitle("Sign In");
@@ -36,22 +35,6 @@ export function SignInPage() {
           `${ERP_ROUTES.RESET_PASSWORD}?token=${encodeURIComponent(maybeSetup.setupToken)}&setup=1`,
         );
         return;
-      }
-
-      const activeTenantSlug = session?.activeOrganization?.slug;
-
-      if (activeTenantSlug) {
-        const dashboardUrl = buildTenantAppUrl(
-          activeTenantSlug,
-          ERP_ROUTES.DASHBOARD,
-        );
-
-        if (
-          dashboardUrl !== `${window.location.origin}${ERP_ROUTES.DASHBOARD}`
-        ) {
-          window.location.assign(dashboardUrl);
-          return;
-        }
       }
 
       if (session) {

@@ -1,9 +1,10 @@
 import {
   IconDotsVertical,
-  IconLogout,
+  IconLogout2,
   IconSettings,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import {
   Avatar,
   AvatarFallback,
@@ -17,11 +18,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@repo/ui/components/ui/dropdown-menu";
-import { toast } from "sonner";
 import { useSignOutMutation } from "@/features/auth/api/use-auth";
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { ERP_ROUTES } from "@/constants/routes";
-import { extractApiError } from "@/lib/api-error";
 import { formatPhoneCompact } from "@/lib/format";
 
 function toInitials(name: string) {
@@ -39,17 +38,6 @@ export function NavUser() {
   const session = useAuthStore((store) => store.session);
   const user = session?.user;
 
-  async function handleSignOut() {
-    try {
-      await signOutMutation.mutateAsync({});
-      void navigate("/sign-in");
-    } catch (error) {
-      toast.error(
-        extractApiError(error, "Could not sign out. Please try again."),
-      );
-    }
-  }
-
   if (!user) {
     return null;
   }
@@ -58,6 +46,15 @@ export function NavUser() {
     ? formatPhoneCompact(user.mobile)
     : user.email;
   const initials = toInitials(user.name);
+
+  async function handleSignOut() {
+    try {
+      await signOutMutation.mutateAsync({});
+      void navigate(ERP_ROUTES.SIGN_IN, { replace: true });
+    } catch {
+      toast.error("Could not log out. Please try again.");
+    }
+  }
 
   return (
     <DropdownMenu>
@@ -104,13 +101,12 @@ export function NavUser() {
           <IconSettings />
           Account
         </DropdownMenuItem>
-        <DropdownMenuSeparator />
         <DropdownMenuItem
           disabled={signOutMutation.isPending}
           onClick={() => void handleSignOut()}
         >
-          <IconLogout />
-          {signOutMutation.isPending ? "Signing out..." : "Log out"}
+          <IconLogout2 />
+          {signOutMutation.isPending ? "Logging out..." : "Log out"}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

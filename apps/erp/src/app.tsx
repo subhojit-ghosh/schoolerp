@@ -24,6 +24,7 @@ import { ExamsPage } from "@/routes/operations/exams-page";
 import { ForgotPasswordPage } from "@/routes/auth/forgot-password-page";
 import { ResetPasswordPage } from "@/routes/auth/reset-password-page";
 import { SignInPage } from "@/routes/auth/sign-in-page";
+import { SignUpPage } from "@/routes/auth/sign-up-page";
 import { AcademicYearsPage } from "@/routes/academics/academic-years-page";
 import { FeeStructuresPage } from "@/routes/operations/fee-structures-page";
 import { FeeAssignmentsPage } from "@/routes/operations/fee-assignments-page";
@@ -181,6 +182,15 @@ const router = createBrowserRouter([
     element: (
       <RedirectIfAuthenticated>
         <SignInPage />
+      </RedirectIfAuthenticated>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: ERP_ROUTES.SIGN_UP,
+    element: (
+      <RedirectIfAuthenticated>
+        <SignUpPage />
       </RedirectIfAuthenticated>
     ),
     errorElement: <RouteErrorBoundary />,

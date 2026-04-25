@@ -2,8 +2,14 @@ import {
   ADMISSION_FORM_FIELD_SCOPES,
   ATTENDANCE_STATUS_LABELS,
   ATTENDANCE_STATUSES,
+  DISCIPLINARY_SEVERITY,
+  SIBLING_RELATIONSHIPS,
+  type DisciplinarySeverity,
+  type SiblingRelationship,
 } from "@repo/contracts";
-import { useMemo } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import {
@@ -16,10 +22,12 @@ import {
   IconReportAnalytics,
   IconSchool,
   IconTimeline,
+  IconUserHeart,
   IconUsers,
 } from "@tabler/icons-react";
 import { Badge } from "@repo/ui/components/ui/badge";
 import { Button } from "@repo/ui/components/ui/button";
+import { Checkbox } from "@repo/ui/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -28,10 +36,26 @@ import {
   CardTitle,
 } from "@repo/ui/components/ui/card";
 import {
+  Field,
+  FieldContent,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@repo/ui/components/ui/field";
+import { Input } from "@repo/ui/components/ui/input";
+import { ConfirmDialog } from "@/components/feedback/confirm-dialog";
+import {
   EntityDetailPageHeader,
   EntityPageShell,
 } from "@/components/entities/entity-page-shell";
 import { Separator } from "@repo/ui/components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@repo/ui/components/ui/select";
 import {
   Tabs,
   TabsContent,
@@ -41,6 +65,7 @@ import {
 import { Breadcrumbs } from "@/components/navigation/breadcrumbs";
 import {
   ERP_ROUTES,
+  buildStudentDetailRoute,
   buildStudentBonafideCertificateRoute,
   buildStudentCharacterCertificateRoute,
   buildStudentIdCardRoute,
@@ -62,7 +87,15 @@ import {
   formatRupees,
 } from "@/features/fees/model/fee-formatters";
 import {
+  useCreateDisciplinaryRecordMutation,
+  useCreateSiblingLinkMutation,
+  useDisciplinaryRecordsQuery,
+  useDeleteSiblingLinkMutation,
+  useSiblingsQuery,
+  useStudentMedicalRecordQuery,
+  useStudentOptionsQuery,
   useStudentSummaryQuery,
+  useUpsertMedicalRecordMutation,
   useUpdateStudentMutation,
 } from "@/features/students/api/use-students";
 import {
@@ -76,11 +109,92 @@ import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { formatAcademicYear, formatPhone } from "@/lib/format";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
+import { z } from "zod";
 
 const STUDENT_DETAIL_TAB_VALUES = {
   OVERVIEW: "overview",
+  MEDICAL_RECORDS: "medical-records",
+  DISCIPLINARY_LOG: "disciplinary-log",
+  SIBLINGS: "siblings",
   EDIT: "edit",
 } as const;
+
+const SIBLING_RELATIONSHIP_LABELS: Record<SiblingRelationship, string> = {
+  [SIBLING_RELATIONSHIPS.ELDER_BROTHER]: "Elder brother",
+  [SIBLING_RELATIONSHIPS.YOUNGER_BROTHER]: "Younger brother",
+  [SIBLING_RELATIONSHIPS.ELDER_SISTER]: "Elder sister",
+  [SIBLING_RELATIONSHIPS.YOUNGER_SISTER]: "Younger sister",
+  [SIBLING_RELATIONSHIPS.ELDER_SIBLING]: "Elder sibling",
+  [SIBLING_RELATIONSHIPS.YOUNGER_SIBLING]: "Younger sibling",
+};
+
+const SIBLING_RELATIONSHIP_OPTIONS: SiblingRelationship[] = [
+  SIBLING_RELATIONSHIPS.ELDER_BROTHER,
+  SIBLING_RELATIONSHIPS.YOUNGER_BROTHER,
+  SIBLING_RELATIONSHIPS.ELDER_SISTER,
+  SIBLING_RELATIONSHIPS.YOUNGER_SISTER,
+];
+
+const DISCIPLINARY_SEVERITY_OPTIONS: DisciplinarySeverity[] = [
+  DISCIPLINARY_SEVERITY.MINOR,
+  DISCIPLINARY_SEVERITY.MODERATE,
+  DISCIPLINARY_SEVERITY.MAJOR,
+];
+
+const DISCIPLINARY_SEVERITY_LABELS: Record<DisciplinarySeverity, string> = {
+  [DISCIPLINARY_SEVERITY.MINOR]: "Minor",
+  [DISCIPLINARY_SEVERITY.MODERATE]: "Moderate",
+  [DISCIPLINARY_SEVERITY.MAJOR]: "Major",
+};
+
+const studentMedicalRecordFormSchema = z.object({
+  allergies: z.string().trim(),
+  conditions: z.string().trim(),
+  medications: z.string().trim(),
+  emergencyMedicalInfo: z.string().trim(),
+  doctorName: z.string().trim(),
+  doctorPhone: z.string().trim(),
+  insuranceInfo: z.string().trim(),
+});
+
+type StudentMedicalRecordFormValues = z.infer<
+  typeof studentMedicalRecordFormSchema
+>;
+
+const EMPTY_MEDICAL_RECORD_VALUES: StudentMedicalRecordFormValues = {
+  allergies: "",
+  conditions: "",
+  medications: "",
+  emergencyMedicalInfo: "",
+  doctorName: "",
+  doctorPhone: "",
+  insuranceInfo: "",
+};
+
+const studentDisciplinaryEntryFormSchema = z.object({
+  incidentDate: z.string().min(1, "Incident date is required"),
+  severity: z.enum(DISCIPLINARY_SEVERITY_OPTIONS),
+  description: z.string().trim().min(1, "Description is required"),
+  actionTaken: z.string().trim(),
+  parentNotified: z.boolean(),
+});
+
+type StudentDisciplinaryEntryFormValues = z.infer<
+  typeof studentDisciplinaryEntryFormSchema
+>;
+
+const EMPTY_DISCIPLINARY_ENTRY_VALUES: StudentDisciplinaryEntryFormValues = {
+  incidentDate: "",
+  severity: DISCIPLINARY_SEVERITY.MINOR,
+  description: "",
+  actionTaken: "",
+  parentNotified: false,
+};
+
+function toNullableText(value: string) {
+  const trimmedValue = value.trim();
+  return trimmedValue.length > 0 ? trimmedValue : null;
+}
 
 function toInitials(name: string) {
   return name
@@ -193,6 +307,16 @@ export function StudentDetailPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const { studentId } = useParams();
+  const [selectedSiblingId, setSelectedSiblingId] = useState("");
+  const [selectedSiblingRelationship, setSelectedSiblingRelationship] =
+    useState<SiblingRelationship | "">("");
+  const [isEditingMedicalRecord, setIsEditingMedicalRecord] = useState(false);
+  const [isAddingDisciplinaryEntry, setIsAddingDisciplinaryEntry] =
+    useState(false);
+  const [pendingDeleteSibling, setPendingDeleteSibling] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const session = useAuthStore((store) => store.session);
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
@@ -207,16 +331,73 @@ export function StudentDetailPage() {
     managedInstitutionId,
     studentId,
   );
+  const studentMedicalRecordQuery = useStudentMedicalRecordQuery(
+    managedInstitutionId,
+    studentId,
+  );
+  const disciplinaryRecordsQuery = useDisciplinaryRecordsQuery(
+    managedInstitutionId,
+    studentId,
+  );
+  const studentOptionsQuery = useStudentOptionsQuery(managedInstitutionId);
+  const siblingsQuery = useSiblingsQuery(managedInstitutionId, studentId);
   const studentName = studentSummaryQuery.data?.student
     ? `${studentSummaryQuery.data.student.firstName} ${studentSummaryQuery.data.student.lastName ?? ""}`.trim()
     : "Student Details";
   useDocumentTitle(studentName);
   const updateStudentMutation = useUpdateStudentMutation(managedInstitutionId);
+  const createSiblingLinkMutation =
+    useCreateSiblingLinkMutation(managedInstitutionId);
+  const createDisciplinaryRecordMutation =
+    useCreateDisciplinaryRecordMutation(managedInstitutionId);
+  const deleteSiblingLinkMutation =
+    useDeleteSiblingLinkMutation(managedInstitutionId);
+  const upsertMedicalRecordMutation =
+    useUpsertMedicalRecordMutation(managedInstitutionId);
   const updateError = updateStudentMutation.error as Error | null | undefined;
+  const medicalRecordError = studentMedicalRecordQuery.error as
+    | Error
+    | null
+    | undefined;
+  const disciplinaryRecordsError = disciplinaryRecordsQuery.error as
+    | Error
+    | null
+    | undefined;
   const customFields = filterAdmissionFormFieldsForScope(
     formFieldsQuery.data?.rows ?? [],
     "student",
   );
+  const medicalRecordDefaultValues = useMemo<StudentMedicalRecordFormValues>(
+    () => ({
+      allergies: studentMedicalRecordQuery.data?.allergies ?? "",
+      conditions: studentMedicalRecordQuery.data?.conditions ?? "",
+      medications: studentMedicalRecordQuery.data?.medications ?? "",
+      emergencyMedicalInfo:
+        studentMedicalRecordQuery.data?.emergencyMedicalInfo ?? "",
+      doctorName: studentMedicalRecordQuery.data?.doctorName ?? "",
+      doctorPhone: studentMedicalRecordQuery.data?.doctorPhone ?? "",
+      insuranceInfo: studentMedicalRecordQuery.data?.insuranceInfo ?? "",
+    }),
+    [studentMedicalRecordQuery.data],
+  );
+  const {
+    control: medicalRecordControl,
+    handleSubmit: handleSubmitMedicalRecord,
+    reset: resetMedicalRecord,
+  } = useForm<StudentMedicalRecordFormValues>({
+    resolver: zodResolver(studentMedicalRecordFormSchema),
+    mode: "onTouched",
+    defaultValues: EMPTY_MEDICAL_RECORD_VALUES,
+  });
+  const {
+    control: disciplinaryEntryControl,
+    handleSubmit: handleSubmitDisciplinaryEntry,
+    reset: resetDisciplinaryEntry,
+  } = useForm<StudentDisciplinaryEntryFormValues>({
+    resolver: zodResolver(studentDisciplinaryEntryFormSchema),
+    mode: "onTouched",
+    defaultValues: EMPTY_DISCIPLINARY_ENTRY_VALUES,
+  });
 
   const defaultValues = useMemo<StudentFormValues>(() => {
     const student = studentSummaryQuery.data?.student;
@@ -273,6 +454,31 @@ export function StudentDetailPage() {
     return formatStudentPlacement(studentSummaryQuery.data.student);
   }, [studentSummaryQuery.data]);
 
+  const availableSiblingOptions = useMemo(() => {
+    const currentStudentId = studentSummaryQuery.data?.student.id;
+    const linkedSiblingIds = new Set(
+      (siblingsQuery.data ?? []).map((sibling) => sibling.siblingStudentId),
+    );
+
+    return (studentOptionsQuery.data ?? []).filter((option) => {
+      if (option.id === currentStudentId) {
+        return false;
+      }
+
+      return !linkedSiblingIds.has(option.id);
+    });
+  }, [siblingsQuery.data, studentOptionsQuery.data, studentSummaryQuery.data]);
+
+  useEffect(() => {
+    resetMedicalRecord(medicalRecordDefaultValues);
+  }, [medicalRecordDefaultValues, resetMedicalRecord]);
+
+  useEffect(() => {
+    if (!isAddingDisciplinaryEntry) {
+      resetDisciplinaryEntry(EMPTY_DISCIPLINARY_ENTRY_VALUES);
+    }
+  }, [isAddingDisciplinaryEntry, resetDisciplinaryEntry]);
+
   async function onSubmit(values: StudentFormValues) {
     if (!institutionId || !studentId) {
       return;
@@ -294,6 +500,142 @@ export function StudentDetailPage() {
         extractApiError(
           error,
           "Could not update student record. Please try again.",
+        ),
+      );
+    }
+  }
+
+  async function handleCreateSiblingLink() {
+    if (
+      !institutionId ||
+      !studentId ||
+      !selectedSiblingId ||
+      !selectedSiblingRelationship
+    ) {
+      return;
+    }
+
+    try {
+      await createSiblingLinkMutation.mutateAsync({
+        params: {
+          path: {
+            studentId,
+          },
+        },
+        body: {
+          siblingStudentId: selectedSiblingId,
+          relationship: selectedSiblingRelationship,
+        },
+      });
+
+      setSelectedSiblingId("");
+      setSelectedSiblingRelationship("");
+      toast.success("Sibling link created.");
+    } catch (error) {
+      toast.error(
+        extractApiError(
+          error,
+          "Could not create the sibling link. Please try again.",
+        ),
+      );
+    }
+  }
+
+  async function handleDeleteSiblingLink() {
+    if (!institutionId || !studentId || !pendingDeleteSibling) {
+      return;
+    }
+
+    try {
+      await deleteSiblingLinkMutation.mutateAsync({
+        params: {
+          path: {
+            studentId,
+            linkId: pendingDeleteSibling.id,
+          },
+        },
+      });
+
+      setPendingDeleteSibling(null);
+      toast.success("Sibling link removed.");
+    } catch (error) {
+      toast.error(
+        extractApiError(
+          error,
+          "Could not remove the sibling link. Please try again.",
+        ),
+      );
+    }
+  }
+
+  async function handleMedicalRecordSubmit(
+    values: StudentMedicalRecordFormValues,
+  ) {
+    if (!institutionId || !studentId) {
+      return;
+    }
+
+    try {
+      await upsertMedicalRecordMutation.mutateAsync({
+        params: {
+          path: {
+            studentId,
+          },
+        },
+        body: {
+          allergies: toNullableText(values.allergies),
+          conditions: toNullableText(values.conditions),
+          medications: toNullableText(values.medications),
+          emergencyMedicalInfo: toNullableText(values.emergencyMedicalInfo),
+          doctorName: toNullableText(values.doctorName),
+          doctorPhone: toNullableText(values.doctorPhone),
+          insuranceInfo: toNullableText(values.insuranceInfo),
+        },
+      });
+
+      setIsEditingMedicalRecord(false);
+      toast.success("Medical records saved.");
+    } catch (error) {
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save medical records. Please try again.",
+        ),
+      );
+    }
+  }
+
+  async function handleDisciplinaryEntrySubmit(
+    values: StudentDisciplinaryEntryFormValues,
+  ) {
+    if (!institutionId || !studentId) {
+      return;
+    }
+
+    try {
+      await createDisciplinaryRecordMutation.mutateAsync({
+        params: {
+          path: {
+            studentId,
+          },
+        },
+        body: {
+          incidentDate: values.incidentDate,
+          severity: values.severity,
+          description: values.description.trim(),
+          actionTaken: toNullableText(values.actionTaken),
+          parentNotified: values.parentNotified,
+        },
+      });
+
+      setIsAddingDisciplinaryEntry(false);
+      resetDisciplinaryEntry(EMPTY_DISCIPLINARY_ENTRY_VALUES);
+      toast.success("Disciplinary entry saved.");
+    } catch (error) {
+      toast.error(
+        extractApiError(
+          error,
+          "Could not save disciplinary entry. Please try again.",
         ),
       );
     }
@@ -512,6 +854,17 @@ export function StudentDetailPage() {
         <TabsList className="h-auto flex-wrap rounded-2xl bg-muted/70 p-1">
           <TabsTrigger value={STUDENT_DETAIL_TAB_VALUES.OVERVIEW}>
             Student 360
+          </TabsTrigger>
+          <TabsTrigger value={STUDENT_DETAIL_TAB_VALUES.MEDICAL_RECORDS}>
+            <IconUserHeart className="size-4" />
+            Medical Records
+          </TabsTrigger>
+          <TabsTrigger value={STUDENT_DETAIL_TAB_VALUES.DISCIPLINARY_LOG}>
+            <IconHistory className="size-4" />
+            Disciplinary Log
+          </TabsTrigger>
+          <TabsTrigger value={STUDENT_DETAIL_TAB_VALUES.SIBLINGS}>
+            Sibling links
           </TabsTrigger>
           <TabsTrigger value={STUDENT_DETAIL_TAB_VALUES.EDIT}>
             <IconEdit className="size-4" />
@@ -954,6 +1307,627 @@ export function StudentDetailPage() {
 
         <TabsContent
           className="mt-6 flex flex-col gap-6"
+          value={STUDENT_DETAIL_TAB_VALUES.MEDICAL_RECORDS}
+        >
+          <Card>
+            <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle>Medical Records</CardTitle>
+                <CardDescription>
+                  Track allergies, medical conditions, medications, and emergency
+                  support details for this student.
+                </CardDescription>
+              </div>
+              {isEditingMedicalRecord ? null : (
+                <Button
+                  className="h-10 rounded-lg"
+                  disabled={studentMedicalRecordQuery.isLoading}
+                  onClick={() => {
+                    setIsEditingMedicalRecord(true);
+                    resetMedicalRecord(medicalRecordDefaultValues);
+                  }}
+                  type="button"
+                  variant="outline"
+                >
+                  {studentMedicalRecordQuery.data ? "Edit" : "Add"}
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent>
+              {studentMedicalRecordQuery.isLoading ? (
+                <p className="text-sm text-muted-foreground">
+                  Loading medical records...
+                </p>
+              ) : medicalRecordError ? (
+                <p className="text-sm text-destructive">
+                  {medicalRecordError.message}
+                </p>
+              ) : isEditingMedicalRecord ? (
+                <form
+                  onSubmit={handleSubmitMedicalRecord(handleMedicalRecordSubmit)}
+                >
+                  <FieldGroup className="gap-6">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Controller
+                        control={medicalRecordControl}
+                        name="allergies"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldLabel htmlFor="student-medical-allergies">
+                              Allergies
+                            </FieldLabel>
+                            <FieldContent>
+                              <Input
+                                {...field}
+                                aria-invalid={fieldState.invalid}
+                                id="student-medical-allergies"
+                              />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
+                      <Controller
+                        control={medicalRecordControl}
+                        name="conditions"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldLabel htmlFor="student-medical-conditions">
+                              Medical conditions
+                            </FieldLabel>
+                            <FieldContent>
+                              <Input
+                                {...field}
+                                aria-invalid={fieldState.invalid}
+                                id="student-medical-conditions"
+                              />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
+                      <Controller
+                        control={medicalRecordControl}
+                        name="medications"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldLabel htmlFor="student-medical-medications">
+                              Medications
+                            </FieldLabel>
+                            <FieldContent>
+                              <Input
+                                {...field}
+                                aria-invalid={fieldState.invalid}
+                                id="student-medical-medications"
+                              />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
+                      <Controller
+                        control={medicalRecordControl}
+                        name="doctorName"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldLabel htmlFor="student-medical-doctor-name">
+                              Doctor name
+                            </FieldLabel>
+                            <FieldContent>
+                              <Input
+                                {...field}
+                                aria-invalid={fieldState.invalid}
+                                id="student-medical-doctor-name"
+                              />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
+                      <Controller
+                        control={medicalRecordControl}
+                        name="doctorPhone"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldLabel htmlFor="student-medical-doctor-phone">
+                              Doctor phone
+                            </FieldLabel>
+                            <FieldContent>
+                              <Input
+                                {...field}
+                                aria-invalid={fieldState.invalid}
+                                id="student-medical-doctor-phone"
+                                inputMode="tel"
+                              />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
+                      <Controller
+                        control={medicalRecordControl}
+                        name="insuranceInfo"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldLabel htmlFor="student-medical-insurance-info">
+                              Insurance details
+                            </FieldLabel>
+                            <FieldContent>
+                              <Input
+                                {...field}
+                                aria-invalid={fieldState.invalid}
+                                id="student-medical-insurance-info"
+                              />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
+                    </div>
+                    <Controller
+                      control={medicalRecordControl}
+                      name="emergencyMedicalInfo"
+                      render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid || undefined}>
+                          <FieldLabel htmlFor="student-medical-emergency-info">
+                            Emergency contact info
+                          </FieldLabel>
+                          <FieldContent>
+                            <Input
+                              {...field}
+                              aria-invalid={fieldState.invalid}
+                              id="student-medical-emergency-info"
+                              placeholder="Emergency contact details and instructions"
+                            />
+                            <FieldError>{fieldState.error?.message}</FieldError>
+                          </FieldContent>
+                        </Field>
+                      )}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        className="h-10 rounded-lg"
+                        disabled={upsertMedicalRecordMutation.isPending}
+                        type="submit"
+                      >
+                        {upsertMedicalRecordMutation.isPending
+                          ? "Saving..."
+                          : "Save medical records"}
+                      </Button>
+                      <Button
+                        className="h-10 rounded-lg"
+                        onClick={() => {
+                          setIsEditingMedicalRecord(false);
+                          resetMedicalRecord(medicalRecordDefaultValues);
+                        }}
+                        type="button"
+                        variant="outline"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </FieldGroup>
+                </form>
+              ) : studentMedicalRecordQuery.data ? (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-sm font-medium">
+                      {studentMedicalRecordQuery.data.allergies || "Not provided"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Allergies</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {studentMedicalRecordQuery.data.conditions || "Not provided"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Medical conditions
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {studentMedicalRecordQuery.data.medications || "Not provided"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Medications</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {studentMedicalRecordQuery.data.doctorName || "Not provided"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Doctor name</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {studentMedicalRecordQuery.data.doctorPhone || "Not provided"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Doctor phone</p>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">
+                      {studentMedicalRecordQuery.data.insuranceInfo ||
+                        "Not provided"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Insurance details
+                    </p>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <p className="text-sm font-medium">
+                      {studentMedicalRecordQuery.data.emergencyMedicalInfo ||
+                        "Not provided"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Emergency contact info
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
+                  No medical records added yet. Click Add to create the first
+                  record.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent
+          className="mt-6 flex flex-col gap-6"
+          value={STUDENT_DETAIL_TAB_VALUES.DISCIPLINARY_LOG}
+        >
+          <Card>
+            <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <CardTitle>Disciplinary Log</CardTitle>
+                <CardDescription>
+                  Record incidents, actions taken, and parent notification
+                  status for this student.
+                </CardDescription>
+              </div>
+              {isAddingDisciplinaryEntry ? null : (
+                <Button
+                  className="h-10 rounded-lg"
+                  onClick={() => setIsAddingDisciplinaryEntry(true)}
+                  type="button"
+                  variant="outline"
+                >
+                  Add Entry
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent className="flex flex-col gap-6">
+              {isAddingDisciplinaryEntry ? (
+                <form
+                  onSubmit={handleSubmitDisciplinaryEntry(
+                    handleDisciplinaryEntrySubmit,
+                  )}
+                >
+                  <FieldGroup className="gap-6">
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <Controller
+                        control={disciplinaryEntryControl}
+                        name="incidentDate"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldLabel htmlFor="student-disciplinary-incident-date" required>
+                              Incident date
+                            </FieldLabel>
+                            <FieldContent>
+                              <Input
+                                {...field}
+                                aria-invalid={fieldState.invalid}
+                                id="student-disciplinary-incident-date"
+                                type="date"
+                              />
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
+                      <Controller
+                        control={disciplinaryEntryControl}
+                        name="severity"
+                        render={({ field, fieldState }) => (
+                          <Field data-invalid={fieldState.invalid || undefined}>
+                            <FieldLabel required>Severity</FieldLabel>
+                            <FieldContent>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger aria-invalid={fieldState.invalid}>
+                                  <SelectValue placeholder="Select severity" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {DISCIPLINARY_SEVERITY_OPTIONS.map((severity) => (
+                                    <SelectItem key={severity} value={severity}>
+                                      {DISCIPLINARY_SEVERITY_LABELS[severity]}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FieldError>{fieldState.error?.message}</FieldError>
+                            </FieldContent>
+                          </Field>
+                        )}
+                      />
+                    </div>
+                    <Controller
+                      control={disciplinaryEntryControl}
+                      name="description"
+                      render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid || undefined}>
+                          <FieldLabel htmlFor="student-disciplinary-description" required>
+                            Description of the incident
+                          </FieldLabel>
+                          <FieldContent>
+                            <Input
+                              {...field}
+                              aria-invalid={fieldState.invalid}
+                              id="student-disciplinary-description"
+                            />
+                            <FieldError>{fieldState.error?.message}</FieldError>
+                          </FieldContent>
+                        </Field>
+                      )}
+                    />
+                    <Controller
+                      control={disciplinaryEntryControl}
+                      name="actionTaken"
+                      render={({ field, fieldState }) => (
+                        <Field data-invalid={fieldState.invalid || undefined}>
+                          <FieldLabel htmlFor="student-disciplinary-action-taken">
+                            Action taken
+                          </FieldLabel>
+                          <FieldContent>
+                            <Input
+                              {...field}
+                              aria-invalid={fieldState.invalid}
+                              id="student-disciplinary-action-taken"
+                              placeholder="Optional internal note"
+                            />
+                            <FieldError>{fieldState.error?.message}</FieldError>
+                          </FieldContent>
+                        </Field>
+                      )}
+                    />
+                    <Controller
+                      control={disciplinaryEntryControl}
+                      name="parentNotified"
+                      render={({ field }) => (
+                        <Field>
+                          <FieldContent>
+                            <label
+                              className="flex items-center gap-3 rounded-lg border px-3 py-2"
+                              htmlFor="student-disciplinary-parent-notified"
+                            >
+                              <Checkbox
+                                checked={field.value}
+                                id="student-disciplinary-parent-notified"
+                                onCheckedChange={(checked) =>
+                                  field.onChange(checked === true)
+                                }
+                              />
+                              <span className="text-sm font-medium">
+                                Parent notified
+                              </span>
+                            </label>
+                          </FieldContent>
+                        </Field>
+                      )}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        className="h-10 rounded-lg"
+                        disabled={createDisciplinaryRecordMutation.isPending}
+                        type="submit"
+                      >
+                        {createDisciplinaryRecordMutation.isPending
+                          ? "Saving..."
+                          : "Save entry"}
+                      </Button>
+                      <Button
+                        className="h-10 rounded-lg"
+                        onClick={() => setIsAddingDisciplinaryEntry(false)}
+                        type="button"
+                        variant="outline"
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </FieldGroup>
+                </form>
+              ) : null}
+
+              {disciplinaryRecordsQuery.isLoading ? (
+                <p className="text-sm text-muted-foreground">
+                  Loading disciplinary entries...
+                </p>
+              ) : disciplinaryRecordsError ? (
+                <p className="text-sm text-destructive">
+                  {disciplinaryRecordsError.message}
+                </p>
+              ) : disciplinaryRecordsQuery.data &&
+                disciplinaryRecordsQuery.data.length > 0 ? (
+                <div className="space-y-3">
+                  {disciplinaryRecordsQuery.data.map((record) => (
+                    <div
+                      key={record.id}
+                      className="rounded-xl border p-4"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-medium">
+                            {formatDate(record.incidentDate)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Logged by {record.reportedByName}
+                          </p>
+                        </div>
+                        <Badge variant="secondary">
+                          {DISCIPLINARY_SEVERITY_LABELS[record.severity]}
+                        </Badge>
+                      </div>
+                      <div className="mt-3 space-y-2">
+                        <p className="text-sm">{record.description}</p>
+                        {record.actionTaken ? (
+                          <p className="text-xs text-muted-foreground">
+                            Action taken: {record.actionTaken}
+                          </p>
+                        ) : null}
+                        <p className="text-xs text-muted-foreground">
+                          Parent notified: {record.parentNotified ? "Yes" : "No"}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
+                  No disciplinary entries yet. Click Add Entry to create the
+                  first record.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent
+          className="mt-6 flex flex-col gap-6"
+          value={STUDENT_DETAIL_TAB_VALUES.SIBLINGS}
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle>Sibling links</CardTitle>
+              <CardDescription>
+                Link related student records so staff can move between siblings
+                from one place.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-6">
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_auto]">
+                <Select
+                  onValueChange={setSelectedSiblingId}
+                  value={selectedSiblingId}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a student" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableSiblingOptions.length > 0 ? (
+                      availableSiblingOptions.map((option) => (
+                        <SelectItem key={option.id} value={option.id}>
+                          {option.fullName} ({option.admissionNumber}) -{" "}
+                          {option.campusName}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem disabled value="none">
+                        No students available to link
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+                <Select
+                  onValueChange={(value) =>
+                    setSelectedSiblingRelationship(value as SiblingRelationship)
+                  }
+                  value={selectedSiblingRelationship}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Relationship" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SIBLING_RELATIONSHIP_OPTIONS.map((relationship) => (
+                      <SelectItem key={relationship} value={relationship}>
+                        {SIBLING_RELATIONSHIP_LABELS[relationship]}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  className="h-10 rounded-lg"
+                  disabled={
+                    !selectedSiblingId ||
+                    !selectedSiblingRelationship ||
+                    createSiblingLinkMutation.isPending
+                  }
+                  onClick={() => void handleCreateSiblingLink()}
+                  type="button"
+                >
+                  {createSiblingLinkMutation.isPending
+                    ? "Linking..."
+                    : "Link sibling"}
+                </Button>
+              </div>
+
+              {siblingsQuery.isLoading ? (
+                <p className="text-sm text-muted-foreground">
+                  Loading sibling links...
+                </p>
+              ) : siblingsQuery.data && siblingsQuery.data.length > 0 ? (
+                <div className="space-y-3">
+                  {siblingsQuery.data.map((sibling) => (
+                    <div
+                      key={sibling.id}
+                      className="flex flex-col gap-4 rounded-xl border p-4 md:flex-row md:items-center md:justify-between"
+                    >
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium">
+                          {sibling.siblingFullName}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {SIBLING_RELATIONSHIP_LABELS[sibling.relationship]}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Admission no. {sibling.siblingAdmissionNumber}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {sibling.siblingClassName}{" "}
+                          {sibling.siblingSectionName}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          asChild
+                          className="h-8 rounded-md"
+                          variant="outline"
+                        >
+                          <Link
+                            to={appendSearch(
+                              buildStudentDetailRoute(sibling.siblingStudentId),
+                              location.search,
+                            )}
+                          >
+                            Open student
+                          </Link>
+                        </Button>
+                        <Button
+                          className="h-8 rounded-md"
+                          onClick={() =>
+                            setPendingDeleteSibling({
+                              id: sibling.id,
+                              name: sibling.siblingFullName,
+                            })
+                          }
+                          type="button"
+                          variant="destructive"
+                        >
+                          Remove link
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed p-6 text-sm text-muted-foreground">
+                  No sibling links yet. Select another student above to create
+                  the first link.
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent
+          className="mt-6 flex flex-col gap-6"
           value={STUDENT_DETAIL_TAB_VALUES.EDIT}
         >
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -1078,6 +2052,19 @@ export function StudentDetailPage() {
           </div>
         </TabsContent>
       </Tabs>
+      <ConfirmDialog
+        confirmLabel="Remove sibling link"
+        description={`Remove the sibling link with ${pendingDeleteSibling?.name ?? "this student"}?`}
+        isPending={deleteSiblingLinkMutation.isPending}
+        onConfirm={() => void handleDeleteSiblingLink()}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingDeleteSibling(null);
+          }
+        }}
+        open={Boolean(pendingDeleteSibling)}
+        title="Remove sibling link"
+      />
     </EntityPageShell>
   );
 }

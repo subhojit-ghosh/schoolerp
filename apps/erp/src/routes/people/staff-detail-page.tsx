@@ -90,6 +90,7 @@ export function StaffDetailPage() {
   const deleteSubjectMutation =
     useDeleteStaffSubjectAssignmentMutation(managedInstitutionId);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
+  const [isEditingStaff, setIsEditingStaff] = useState(false);
   const updateError = updateStaffMutation.error as Error | null | undefined;
   const createAssignmentError = createAssignmentMutation.error as
     | Error
@@ -160,6 +161,7 @@ export function StaffDetailPage() {
         body: values as any,
       });
 
+      setIsEditingStaff(false);
       toast.success(
         ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.STAFF_RECORD),
       );
@@ -408,6 +410,11 @@ export function StaffDetailPage() {
             >
               Reset password
             </Button>
+            {!isEditingStaff ? (
+              <Button onClick={() => setIsEditingStaff(true)} size="sm">
+                Edit
+              </Button>
+            ) : null}
             <Button
               onClick={() =>
                 void navigate(appendSearch(ERP_ROUTES.STAFF, location.search))
@@ -459,21 +466,41 @@ export function StaffDetailPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Edit staff</CardTitle>
+          <CardTitle>{isEditingStaff ? "Edit staff" : "Staff details"}</CardTitle>
           <CardDescription>
-            Update the staff identity details and membership status for the
-            active campus.
+            {isEditingStaff
+              ? "Update the staff identity details and membership status for the active campus."
+              : "View staff details. Click Edit to update this record."}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <StaffForm
-            campusName={staffRecord.campusName}
-            defaultValues={defaultValues}
-            errorMessage={updateError?.message}
-            isPending={updateStaffMutation.isPending}
-            onSubmit={onSubmit}
-            submitLabel="Save changes"
-          />
+          {isEditingStaff ? (
+            <StaffForm
+              campusName={staffRecord.campusName}
+              defaultValues={defaultValues}
+              errorMessage={updateError?.message}
+              isPending={updateStaffMutation.isPending}
+              onCancel={() => setIsEditingStaff(false)}
+              onSubmit={onSubmit}
+              submitLabel="Save changes"
+            />
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <DetailRow label="Name" value={staffDisplayName} />
+              <DetailRow label="Mobile" value={formatPhone(staffRecord.mobile)} />
+              <DetailRow label="Email" value={staffRecord.email || "Not provided"} />
+              <DetailRow label="Status" value={staffRecord.status} />
+              <DetailRow
+                label="Employee ID"
+                value={staffRecord.profile?.employeeId || "Not provided"}
+              />
+              <DetailRow
+                label="Designation"
+                value={staffRecord.profile?.designation || "Not provided"}
+              />
+              <DetailRow label="Campus" value={staffRecord.campusName} />
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -534,5 +561,14 @@ export function StaffDetailPage() {
         title="Reset password"
       />
     </EntityPageShell>
+  );
+}
+
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-sm font-medium capitalize">{value}</p>
+    </div>
   );
 }

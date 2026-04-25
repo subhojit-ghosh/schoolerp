@@ -1,5 +1,5 @@
 import { GUARDIAN_RELATIONSHIPS } from "@repo/contracts";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useLocation, useParams } from "react-router";
 import { toast } from "sonner";
 import { IconHistory } from "@tabler/icons-react";
@@ -24,6 +24,7 @@ import {
 import { useAuthStore } from "@/features/auth/model/auth-store";
 import { useStudentOptionsQuery } from "@/features/students/api/use-students";
 import {
+  useCrossStudentFeesQuery,
   useGuardianQuery,
   useLinkGuardianStudentMutation,
   useUnlinkGuardianStudentMutation,
@@ -42,6 +43,7 @@ import { useDocumentTitle } from "@/hooks/use-document-title";
 import { extractApiError } from "@/lib/api-error";
 import { appendSearch } from "@/lib/routes";
 import { formatNameWithHonorific, formatPhone } from "@/lib/format";
+import { formatRupees } from "@/features/fees/model/fee-formatters";
 import { ERP_TOAST_MESSAGES, ERP_TOAST_SUBJECTS } from "@/lib/toast-messages";
 
 function toInitials(name: string) {
@@ -60,8 +62,13 @@ export function GuardianDetailPage() {
   const activeContext = getActiveContext(session);
   const institutionId = session?.activeOrganization?.id;
   const canManageGuardians = isStaffContext(session);
+  const [isEditingGuardian, setIsEditingGuardian] = useState(false);
   const managedInstitutionId = canManageGuardians ? institutionId : undefined;
   const guardianQuery = useGuardianQuery(managedInstitutionId, guardianId);
+  const crossStudentFeesQuery = useCrossStudentFeesQuery(
+    managedInstitutionId,
+    guardianId,
+  );
   useDocumentTitle(guardianQuery.data?.name ?? "Guardian Details");
   const studentOptionsQuery = useStudentOptionsQuery(managedInstitutionId);
   const updateGuardianMutation = useUpdateGuardianMutation(
@@ -151,6 +158,7 @@ export function GuardianDetailPage() {
         },
       });
 
+      setIsEditingGuardian(false);
       toast.success(ERP_TOAST_MESSAGES.updated(ERP_TOAST_SUBJECTS.GUARDIAN));
     } catch (error) {
       toast.error(
@@ -265,6 +273,10 @@ export function GuardianDetailPage() {
     | Error
     | null
     | undefined;
+  const crossStudentFeesError = crossStudentFeesQuery.error as
+    | Error
+    | null
+    | undefined;
 
   return (
     <EntityPageShell width="full">
@@ -308,19 +320,55 @@ export function GuardianDetailPage() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
         <Card>
           <CardHeader>
-            <CardTitle>Edit guardian</CardTitle>
+            <CardTitle>{isEditingGuardian ? "Edit guardian" : "Guardian details"}</CardTitle>
             <CardDescription>
-              Update guardian contact details for the active campus.
+              {isEditingGuardian
+                ? "Update guardian contact details for the active campus."
+                : "View guardian contact details. Click Edit to make changes."}
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <GuardianForm
-              campusName={guardian.campusName}
-              defaultValues={guardianDefaultValues}
-              errorMessage={updateGuardianError?.message}
-              isPending={updateGuardianMutation.isPending}
-              onSubmit={handleGuardianSubmit}
-            />
+            {isEditingGuardian ? (
+              <GuardianForm
+                campusName={guardian.campusName}
+                defaultValues={guardianDefaultValues}
+                errorMessage={updateGuardianError?.message}
+                isPending={updateGuardianMutation.isPending}
+                onCancelEditing={() => setIsEditingGuardian(false)}
+                onSubmit={handleGuardianSubmit}
+                submitLabel="Save changes"
+              />
+            ) : (
+              <div className="space-y-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Name</p>
+                    <p className="text-sm font-medium">{guardianDisplayName}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Mobile</p>
+                    <p className="text-sm font-medium">
+                      {formatPhone(guardian.mobile)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Email</p>
+                    <p className="text-sm font-medium">
+                      {guardian.email || "Not provided"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground">Primary campus</p>
+                    <p className="text-sm font-medium">{guardian.campusName}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={() => setIsEditingGuardian(true)} type="button">
+                    Edit
+                  </Button>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -351,6 +399,47 @@ export function GuardianDetailPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Fee Summary</CardTitle>
+          <CardDescription>
+            Aggregate fee data across all linked students.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {crossStudentFeesQuery.isLoading ? (
+            <p className="text-sm text-muted-foreground">Loading fee summary...</p>
+          ) : crossStudentFeesError ? (
+            <p className="text-sm text-destructive">{crossStudentFeesError.message}</p>
+          ) : crossStudentFeesQuery.data ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-lg border p-4">
+                <p className="text-xs text-muted-foreground">Total dues</p>
+                <p className="mt-1 text-lg font-semibold">
+                  {formatRupees(crossStudentFeesQuery.data.totalDueInPaise)}
+                </p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-xs text-muted-foreground">Total paid</p>
+                <p className="mt-1 text-lg font-semibold">
+                  {formatRupees(crossStudentFeesQuery.data.totalPaidInPaise)}
+                </p>
+              </div>
+              <div className="rounded-lg border p-4">
+                <p className="text-xs text-muted-foreground">Total outstanding</p>
+                <p className="mt-1 text-lg font-semibold">
+                  {formatRupees(crossStudentFeesQuery.data.outstandingInPaise)}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              No linked student fee data available.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

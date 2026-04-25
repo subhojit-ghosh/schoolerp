@@ -40,7 +40,6 @@ import {
 import type { AdmissionFormFieldRecord } from "@/features/admissions/model/admission-custom-fields";
 import { HONORIFICS, formatAcademicYear } from "@/lib/format";
 import { AdmissionCustomFieldsSection } from "@/features/admissions/ui/admission-custom-fields-section";
-import { DraftRecoveryBanner } from "@/components/feedback/draft-recovery-banner";
 import { useFormAutoSave } from "@/hooks/use-form-auto-save";
 import { useStudentDuplicateCheck } from "@/features/students/hooks/use-student-duplicate-check";
 
@@ -362,14 +361,6 @@ export function StudentForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
-      {autoSaveKey ? (
-        <DraftRecoveryBanner
-          hasDraft={autoSave.hasDraft}
-          onRestore={autoSave.restoreDraft}
-          onDiscard={autoSave.discardDraft}
-        />
-      ) : null}
-
       {/* Personal Information */}
       <section className="rounded-lg border p-6 space-y-4">
         <div className="space-y-1">
